@@ -1,4 +1,4 @@
-package org.example.hotelbookingsystem;
+package org.swp391.hotelbookingsystem;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
