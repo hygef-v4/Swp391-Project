@@ -15,7 +15,6 @@ public class HotelBookingSystemApplication {
     public static void main(String[] args) {
         ApplicationContext context = SpringApplication.run(HotelBookingSystemApplication.class, args);
 
-        // Check JDBC connection
         try {
             DataSource dataSource = context.getBean(DataSource.class);
             try (Connection connection = DataSourceUtils.getConnection(dataSource)) {
