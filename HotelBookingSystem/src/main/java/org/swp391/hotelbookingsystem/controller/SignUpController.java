@@ -4,9 +4,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
-public class SignInController {
-    @GetMapping({"/sign-in"})
+public class SignUpController {
+    @GetMapping({"/sign-up"})
     public String home() {
-        return "page/sign-in";
+        return "page/sign-up";
     }
 }
