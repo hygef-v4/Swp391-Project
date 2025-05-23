@@ -11,4 +11,9 @@ public class HomeController {
     public String home() {
         return "page/homepage";
     }
+
+    @GetMapping("/room-list")
+    public String roomList(){
+        return "page/roomList";
+    }
 }
