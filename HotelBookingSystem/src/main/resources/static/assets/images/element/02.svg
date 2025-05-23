@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 23.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="115px" height="115px" viewBox="0 0 115 115" style="enable-background:new 0 0 115 115;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:#FFDC6A;}
+	.st1{opacity:0.2;fill:#FA526B;}
+	.st2{opacity:0.3;fill:#FFFFFF;}
+	.st3{fill:#FA526B;}
+	.st4{fill:#1A222F;}
+	.st5{fill:none;stroke:#1A222F;stroke-width:2.4833;stroke-linecap:round;stroke-miterlimit:10;}
+</style>
+<g>
+	<g>
+		
+			<image style="overflow:visible;opacity:0.3;" width="479" height="479" xlink:href="ED581506.html"  transform="matrix(0.24 0 0 0.24 0 0)">
+		</image>
+		<g>
+			
+				<ellipse transform="matrix(0.7071 -0.7071 0.7071 0.7071 -23.0342 55.5483)" class="st0" cx="55.5" cy="55.6" rx="51.7" ry="51.7"/>
+		</g>
+	</g>
+	<path class="st1" d="M101.6,32.2c-1.9,10.2-7,20.4-13.4,27.5c-9,10-24.5,18.2-38.3,18.2c-15.2,0-28.3-4.5-40-14.1
+		c-2.2-1.8-4.2-3.9-6-6.1c1.1,27.5,23.8,49.5,51.6,49.5c28.5,0,51.7-23.1,51.7-51.7C107.2,47.2,105.1,39.2,101.6,32.2z"/>
+	<ellipse transform="matrix(0.7887 -0.6148 0.6148 0.7887 -10.5961 23.9226)" class="st2" cx="29.5" cy="27.4" rx="15.6" ry="8.4"/>
+	<g>
+		<ellipse class="st3" cx="55.5" cy="73.1" rx="11.6" ry="17.2"/>
+		<path class="st4" d="M53.4,79.3c4.4,0,8.5,0.6,12.5,1.7c0.8-2.4,1.3-5,1.3-7.8c0-9.5-5.2-17.2-11.6-17.2
+			c-6.4,0-11.6,7.7-11.6,17.2c0,2.6,0.4,5.1,1.1,7.3C47.8,79.7,50.6,79.3,53.4,79.3z"/>
+		<path class="st4" d="M42.3,42.1c-0.8,4.5-3.9,7.7-6.8,7.1c-3-0.5-4.7-4.6-3.9-9.1s3.9-7.7,6.8-7.1C41.3,33.6,43.1,37.6,42.3,42.1z
+			"/>
+		<path class="st4" d="M68.8,42.1c0.8,4.5,3.9,7.7,6.8,7.1s4.7-4.6,3.9-9.1c-0.8-4.5-3.9-7.7-6.8-7.1C69.8,33.6,68,37.6,68.8,42.1z"
+			/>
+		<path class="st5" d="M41.9,23.6c-1.3-1.7-3.1-2.8-5-2.8c-3.2,0-5.9,2.8-6.7,6.5"/>
+		<path class="st5" d="M69.2,23.6c1.3-1.7,3.1-2.8,5-2.8c3.2,0,5.9,2.8,6.7,6.5"/>
+	</g>
+</g>
+</svg>
