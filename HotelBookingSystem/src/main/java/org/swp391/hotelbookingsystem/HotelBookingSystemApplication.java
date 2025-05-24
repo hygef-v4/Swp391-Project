@@ -4,6 +4,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.jdbc.datasource.DataSourceUtils;
+import org.swp391.hotelbookingsystem.repository.LocationRepository;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -24,6 +25,9 @@ public class HotelBookingSystemApplication {
         } catch (SQLException e) {
             System.err.println("Error while testing JDBC connection: " + e.getMessage());
         }
+
+
     }
+
 
 }
