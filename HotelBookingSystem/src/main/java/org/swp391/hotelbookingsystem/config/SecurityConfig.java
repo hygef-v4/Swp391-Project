@@ -35,8 +35,8 @@ public class SecurityConfig {
                         .permitAll()
                 )
                 .rememberMe(r -> r
-                        .key("bKJHkjsdf8723hJKH8sd89fjsd0239JKLHkjasdf987sdf") // có thể là bất kỳ chuỗi bí mật nào
-                        .tokenValiditySeconds(7 * 24 * 60 * 60) // 7 ngày
+                        .key("bKJHkjsdf8723hJKH8sd89fjsd0239JKLHkjasdf987sdf")
+                        .tokenValiditySeconds(7 * 24 * 60 * 60)
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/login")
