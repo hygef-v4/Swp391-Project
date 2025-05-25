@@ -165,7 +165,7 @@
                     <!-- Buttons -->
                     <div class="hstack gap-4 flex-wrap align-items-center">
                         <!-- Button -->
-                        <a href="/room-list" class="btn btn-primary-soft mb-0">Khám phá ngay</a>
+                        <a href="/hotel-list" class="btn btn-primary-soft mb-0">Khám phá ngay</a>
                         <!-- Story button -->
 
                     </div>
@@ -240,7 +240,8 @@
                     <h6 class="d-none d-xl-block mb-3">Kiểm tra phòng trống</h6>
 
                     <!-- Booking from START -->
-                    <form class="card shadow rounded-3 position-relative p-4 pe-md-5 pb-5 pb-md-4">
+                    <form th:action="@{/hotel-list}" method="GET"
+                          class="card shadow rounded-3 position-relative p-4 pe-md-5 pb-5 pb-md-4">
                         <div class="row g-4 align-items-center">
                             <!-- Location -->
                             <div class="col-lg-4">
@@ -250,7 +251,8 @@
                                     <!-- Select input -->
                                     <div class="flex-grow-1">
                                         <label class="form-label">Địa điểm</label>
-                                        <select class="form-select js-choice" data-search-enabled="true">
+                                        <select name="locationId" class="form-select js-choice"
+                                                data-search-enabled="true">
                                             <option value="">Chọn địa điểm</option>
                                             <option
                                                     th:each="location : ${session.locations}"
@@ -275,8 +277,9 @@
                                     <!-- Date input -->
                                     <div class="form-control-border form-control-transparent form-fs-md">
                                         <label class="form-label">Nhận phòng – Trả phòng</label>
-                                        <input type="text" class="form-control flatpickr"
+                                        <input type="text" class="form-control flatpickr" name="dateRange"
                                                placeholder="Chọn ngày">
+
 
                                     </div>
                                 </div>
@@ -359,10 +362,19 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!--                        hidden field for adults, children, and rooms-->
+
+                        <input type="hidden" name="adults" id="adultsInput" value="2">
+                        <input type="hidden" name="children" id="childrenInput" value="0">
+                        <input type="hidden" name="rooms" id="roomsInput" value="1">
+
+
                         <!-- Button -->
                         <div class="btn-position-md-middle">
-                            <a class="icon-lg btn btn-round btn-primary mb-0" href="#"><i
-                                    class="bi bi-search fa-fw"></i></a>
+                            <button type="submit" class="icon-lg btn btn-round btn-primary mb-0">
+                                <i class="bi bi-search fa-fw"></i>
+                            </button>
                         </div>
                     </form>
                     <!-- Booking from END -->
@@ -745,7 +757,7 @@
                         <!-- Image -->
                         <div class="card-img-scale-wrapper rounded-3">
 
-                            <a >
+                            <a>
                                 <img class="card-img" th:src="${hotel.hotelImageUrl}" alt="hotel image">
                             </a>
 
@@ -1003,6 +1015,42 @@ Footer END -->
 
 <!-- ThemeFunctions -->
 <script src="/assets/js/functions.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        flatpickr(".flatpickr", {
+            mode: "range",
+            dateFormat: "Y-m-d",
+            minDate: "today",
+            locale: {
+                ...flatpickr.l10ns.default, // Keep default locale
+                rangeSeparator: " to "      // Custom separator between dates
+            }
+        });
+    });
+</script>
+
+<script>
+    document.querySelector("form").addEventListener("submit", function (e) {
+        const locationSelect = document.querySelector("select[name='locationId']");
+        const dateRangeInput = document.querySelector("input[name='dateRange']");
+
+        let errorMessages = [];
+
+        if (!locationSelect.value.trim()) {
+            errorMessages.push("Vui lòng chọn địa điểm.");
+        }
+
+        if (!dateRangeInput.value.trim()) {
+            errorMessages.push("Vui lòng chọn ngày nhận và trả phòng.");
+        }
+
+        if (errorMessages.length > 0) {
+            e.preventDefault(); // stop form submission
+            alert(errorMessages.join("\n")); // show combined alert
+        }
+    });
+</script>
+
 
 </body>
 

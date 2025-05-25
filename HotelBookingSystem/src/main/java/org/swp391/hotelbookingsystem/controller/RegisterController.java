@@ -18,7 +18,7 @@ public class RegisterController {
 
     @GetMapping("/register")
     public String registerForm() {
-        return "register";
+        return "page/register";
     }
 
     // Xử lý submit form đăng ký
@@ -32,17 +32,17 @@ public class RegisterController {
         // 1. Validate đầu vào
         if (email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
             model.addAttribute("error", "All fields are required.");
-            return "register";
+            return "page/register";
         }
 
         if (!password.equals(confirmPassword)) {
             model.addAttribute("error", "Passwords do not match.");
-            return "register";
+            return "page/register";
         }
 
         if (userRepo.findByEmail(email) != null) {
             model.addAttribute("error", "Email already exists.");
-            return "register";
+            return "page/register";
         }
 
         // 2. Mã hóa mật khẩu
