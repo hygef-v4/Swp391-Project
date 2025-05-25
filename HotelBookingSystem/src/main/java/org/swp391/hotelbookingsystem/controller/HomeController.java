@@ -8,9 +8,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.swp391.hotelbookingsystem.constant.ConstantVariables;
 import org.swp391.hotelbookingsystem.model.Location;
+import org.swp391.hotelbookingsystem.model.Review;
 import org.swp391.hotelbookingsystem.service.LocationService;
 import org.swp391.hotelbookingsystem.service.HotelService;
 import org.swp391.hotelbookingsystem.model.Hotel;
+import org.swp391.hotelbookingsystem.service.ReviewService;
 
 import java.util.List;
 
@@ -22,6 +24,9 @@ public class HomeController {
     @Autowired
     HotelService hotelService;
 
+    @Autowired
+    ReviewService reviewService;
+
     @GetMapping({"/", "/home"})
     public String home(Model model, HttpSession session) {
         model.addAttribute(ConstantVariables.PAGE_TITLE, "Hamora Booking");
@@ -31,6 +36,10 @@ public class HomeController {
         // Fetch top 4 high-rated hotels and add to model
         List<Hotel> topHotels = hotelService.getTop8HighRatedHotels();
         model.addAttribute("topHotels", topHotels);
+
+        // Fetch top 5 public positive reviews and add to model
+        List<Review> top5Reviews = reviewService.getTop5PublicPositiveReviews();
+        model.addAttribute("top5Reviews", top5Reviews);
 
         return "page/homepage";
     }
