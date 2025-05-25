@@ -1,13 +1,13 @@
 package org.swp391.hotelbookingsystem.service;
 
 import org.swp391.hotelbookingsystem.model.User;
-import org.swp391.hotelbookingsystem.repository.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.swp391.hotelbookingsystem.repository.UserRepo;
 
 import java.util.Collections;
 

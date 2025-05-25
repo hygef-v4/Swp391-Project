@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-  <title>Hamora - Register</title>
+  <title>Booking - Multipurpose Online Booking Theme</title>
 
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -87,9 +87,6 @@
               <!-- Form Section -->
               <div class="col-lg-6 order-1">
                 <div class="p-4 p-sm-6">
-                  <a th:href="@{/}">
-                    <img class="h-50px mb-4" th:src="@{/assets/images/logo-icon.svg}" alt="logo">
-                  </a>
                   <h1 class="mb-2 h3">Create new account</h1>
                   <p class="mb-0">Already a member? <a th:href="@{/login}">Log in</a></p>
                   <br>
@@ -130,8 +127,9 @@
 
                     <!-- Social login -->
                     <div class="vstack gap-3">
-                      <a href="#" class="btn btn-light mb-0"><i class="fab fa-fw fa-google text-google-icon me-2"></i>Log in with Google</a>
-                      <a href="#" class="btn btn-light mb-0"><i class="fab fa-fw fa-facebook-f text-facebook me-2"></i>Log in with Facebook</a>
+                      <a th:href="@{/oauth2/authorization/google}" class="btn btn-light mb-0">
+                        <i class="fab fa-fw fa-google text-google-icon me-2"></i>Login with Google
+                      </a>
                     </div>
 
                     <!-- Footer -->

@@ -1,11 +1,11 @@
 package org.swp391.hotelbookingsystem.config;
 
+import org.swp391.hotelbookingsystem.service.CustomOAuth2UserService;
 import org.swp391.hotelbookingsystem.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -21,17 +21,29 @@ public class SecurityConfig {
     private CustomUserDetailsService userDetailsService;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, CustomOAuth2UserService customOAuth2UserService) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        // .requestMatchers("/", "/page/homepage.html", "/css/**", "/js/**", "/images/**").permitAll()
-                        .anyRequest().permitAll()
+//                        .requestMatchers("/login", "/register", "/forgot-password", "/css/**", "/js/**", "/images/**", "/assets/**").permitAll()
+//                        .anyRequest().authenticated()
+                                .anyRequest().permitAll()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
                         .defaultSuccessUrl("/home", true)
                         .failureUrl("/login?error=true")
                         .permitAll()
+                )
+                .rememberMe(r -> r
+                        .key("bKJHkjsdf8723hJKH8sd89fjsd0239JKLHkjasdf987sdf") // có thể là bất kỳ chuỗi bí mật nào
+                        .tokenValiditySeconds(7 * 24 * 60 * 60) // 7 ngày
+                )
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/login")
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(customOAuth2UserService)
+                        )
+                        .defaultSuccessUrl("/home", true)
                 )
                 .logout(logout -> logout.permitAll());
 

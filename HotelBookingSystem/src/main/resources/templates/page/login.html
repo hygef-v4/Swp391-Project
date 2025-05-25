@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <title>Hamora - Login</title>
+    <title>Booking - Multipurpose Online Booking Theme</title>
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -90,11 +90,10 @@
                             <!-- Login Form -->
                             <div class="col-lg-6 order-1">
                                 <div class="p-4 p-sm-7">
-                                    <a th:href="@{/}">
-                                        <img class="h-50px mb-4" th:src="@{/assets/images/logo-icon.svg}" alt="logo">
-                                    </a>
+
                                     <h1 class="mb-2 h3">Welcome back</h1>
                                     <p class="mb-0">New here? <a th:href="@{/register}">Create an account</a></p>
+                                    <br>
                                     <div th:if="${param.error}" class="alert alert-danger">
                                         Invalid email or password.
                                     </div>
@@ -136,17 +135,18 @@
                                         <!-- Divider -->
                                         <div class="position-relative my-4">
                                             <hr>
-                                            <p class="small bg-mode position-absolute top-50 start-50 translate-middle px-2">Or sign in with</p>
+                                            <p class="small bg-mode position-absolute top-50 start-50 translate-middle px-2">Or login with</p>
                                         </div>
 
                                         <!-- Social Buttons -->
                                         <div class="vstack gap-3">
-                                            <a href="#" class="btn btn-light mb-0">
-                                                <i class="fab fa-fw fa-google text-google-icon me-2"></i>Sign in with Google
+                                            <a th:href="@{/oauth2/authorization/google}" class="btn btn-light mb-0">
+                                                <i class="fab fa-fw fa-google text-google-icon me-2"></i>Login with Google
                                             </a>
-                                            <a href="#" class="btn btn-light mb-0">
-                                                <i class="fab fa-fw fa-facebook-f text-facebook me-2"></i>Sign in with Facebook
-                                            </a>
+
+                                            <!--                                            <a th:href="@{/oauth2/authorization/facebook}" class="btn btn-light mb-0">-->
+                                            <!--                                                <i class="fab fa-fw fa-facebook-f text-facebook me-2"></i>Login with Facebook-->
+                                            <!--                                            </a>-->
                                         </div>
 
                                         <!-- Footer -->

@@ -1,7 +1,7 @@
 package org.swp391.hotelbookingsystem.controller;
 
-import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.repository.UserRepo;
+import org.swp391.hotelbookingsystem.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -29,7 +29,7 @@ public class RegisterController {
             @RequestParam("confirmPassword") String confirmPassword,
             Model model) {
 
-        //Validate đầu vào
+        // 1. Validate đầu vào
         if (email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
             model.addAttribute("error", "All fields are required.");
             return "register";
@@ -45,16 +45,16 @@ public class RegisterController {
             return "register";
         }
 
-        //Mã hóa mật khẩu
+        // 2. Mã hóa mật khẩu
         String hashedPassword = passwordEncoder.encode(password);
 
-        //Tạo và lưu người dùng
+        // 3. Tạo và lưu người dùng
         User user = new User(email, hashedPassword);
         userRepo.saveUser(user);
 
         model.addAttribute("email", email);
 
-        //Điều hướng sau khi thành công
+        // 4. Điều hướng sau khi thành công
         return "redirect:/login";
     }
 }

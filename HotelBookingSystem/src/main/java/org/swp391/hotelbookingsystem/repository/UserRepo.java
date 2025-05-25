@@ -1,9 +1,10 @@
 package org.swp391.hotelbookingsystem.repository;
 
-import org.swp391.hotelbookingsystem.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.swp391.hotelbookingsystem.model.User;
+
 
 import java.util.List;
 
@@ -19,6 +20,10 @@ public class UserRepo {
     public void saveUser(User user) {
         String sql = "INSERT INTO Users (email, password_hash) VALUES (?, ?)";
         jdbc.update(sql, user.getEmail(), user.getPassword());
+    }
+    public void saveUserFromGoogle(User user) {
+        String sql = "INSERT INTO Users (email) VALUES (?)";
+        jdbc.update(sql, user.getEmail());
     }
 
     public User findByEmail(String email) {
