@@ -71,7 +71,6 @@ public class HotelRepository {
             ORDER BY h.rating DESC
             """;
 
-
     private static final String SELECT_TOP_8_HOTELS = SELECT_HOTELS_BY_RATING.replace("SELECT", "SELECT TOP 8");
 
     // Methods

@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="88037104-553e-4d0e-a839-a5b92c5f3afd" name="Changes" comment="" />
+    <list default="true" id="88037104-553e-4d0e-a839-a5b92c5f3afd" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/HotelBookingSystem/src/main/resources/templates/page/sign-in.html" beforeDir="false" afterPath="$PROJECT_DIR$/HotelBookingSystem/src/main/resources/templates/page/sign-in.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/HotelBookingSystem/src/main/resources/templates/page/sign-up.html" beforeDir="false" afterPath="$PROJECT_DIR$/HotelBookingSystem/src/main/resources/templates/page/sign-up.html" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -22,7 +25,7 @@
   "keyToString": {
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "feature/room-list",
+    "git-widget-placeholder": "feature/login",
     "nodejs_package_manager_path": "npm",
     "vue.rearranger.settings.migration": "true"
   }
@@ -30,8 +33,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-fbdcb00ec9e3-intellij.indexing.shared.core-IU-251.25410.129" />
-        <option value="bundled-js-predefined-d6986cc7102b-6a121458b545-JavaScript-IU-251.25410.129" />
+        <option value="bundled-jdk-9823dce3aa75-fbdcb00ec9e3-intellij.indexing.shared.core-IU-251.23774.435" />
+        <option value="bundled-js-predefined-d6986cc7102b-f27c65a3e318-JavaScript-IU-251.23774.435" />
       </set>
     </attachedChunks>
   </component>
@@ -44,6 +47,7 @@
       <updated>1747985082278</updated>
       <workItem from="1747985087220" duration="124000" />
       <workItem from="1747985608088" duration="50000" />
+      <workItem from="1748076962387" duration="3000" />
     </task>
     <servers />
   </component>

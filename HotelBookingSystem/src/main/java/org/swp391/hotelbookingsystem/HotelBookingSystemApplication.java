@@ -1,29 +1,28 @@
 package org.swp391.hotelbookingsystem;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ApplicationContext;
-import org.springframework.jdbc.datasource.DataSourceUtils;
-
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.SQLException;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 @SpringBootApplication
-public class HotelBookingSystemApplication {
+public class HotelBookingSystemApplication implements CommandLineRunner {
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     public static void main(String[] args) {
-        ApplicationContext context = SpringApplication.run(HotelBookingSystemApplication.class, args);
-
-        try {
-            DataSource dataSource = context.getBean(DataSource.class);
-            try (Connection connection = DataSourceUtils.getConnection(dataSource)) {
-                System.out.println("Database URL: " + connection.getMetaData().getURL());
-                System.out.println("JDBC connection is successful!");
-            }
-        } catch (SQLException e) {
-            System.err.println("Error while testing JDBC connection: " + e.getMessage());
-        }
+        SpringApplication.run(HotelBookingSystemApplication.class, args);
     }
 
+    @Override
+    public void run(String... args) {
+        try {
+            jdbcTemplate.execute("SELECT 1");
+            System.out.println("✅ JDBC connection test successful.");
+        } catch (Exception e) {
+            System.err.println("❌ JDBC connection test failed: " + e.getMessage());
+        }
+    }
 }

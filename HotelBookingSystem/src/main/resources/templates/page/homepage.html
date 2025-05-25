@@ -1,9 +1,5 @@
 <!DOCTYPE html>
-<<<<<<< Updated upstream
-<html lang="en">
-=======
 <html xmlns:th="http://www.thymeleaf.org" th:inline="text" lang="en">
->>>>>>> Stashed changes
 
 <!-- Mirrored from stackbros.in/bookinga/landing/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:06:16 GMT -->
 <head>
@@ -83,6 +79,17 @@
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
     <link rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Poppins:wght@400;500;700&amp;display=swap">
+
+    <!-- Flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+    <!-- Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <!-- Vietnamese Locale -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
+
+
 
     <!-- Plugins CSS -->
 
@@ -244,9 +251,16 @@
                                         <label class="form-label">Địa điểm</label>
                                         <select class="form-select js-choice" data-search-enabled="true">
                                             <option value="">Chọn địa điểm</option>
-                                            <option>San Jacinto, USA</option>
-                                            <option>North Dakota, Canada</option>
-                                            <option>West Virginia, Paris</option>
+                                            <option
+                                                    th:each="location : ${session.locations}"
+                                                    th:value="${location.id}"
+                                                    th:text="${location.cityName}"
+
+                                            >
+
+
+                                            </option>
+
                                         </select>
                                     </div>
                                 </div>
@@ -260,8 +274,9 @@
                                     <!-- Date input -->
                                     <div class="form-control-border form-control-transparent form-fs-md">
                                         <label class="form-label">Nhận phòng – Trả phòng</label>
-                                        <input type="text" class="form-control flatpickr" data-mode="range"
-                                               placeholder="Select date" value="19 Sep to 28 Sep">
+                                        <input type="text" class="form-control flatpickr"
+                                               placeholder="Chọn ngày">
+
                                     </div>
                                 </div>
                             </div>
@@ -275,8 +290,8 @@
                                     <div class="w-100">
                                         <label class="form-label"> Khách & Phòng</label>
                                         <div class="dropdown guest-selector me-2">
-                                            <input type="text" class="form-guest-selector form-control selection-result"
-                                                   value="2 Guests 1 Room" data-bs-auto-close="outside"
+                                            <input readonly type="text" class="form-guest-selector form-control selection-result"
+                                                   value="2 Khách 1 Phòng" data-bs-auto-close="outside"
                                                    data-bs-toggle="dropdown">
 
                                             <!-- dropdown items -->
@@ -284,8 +299,8 @@
                                                 <!-- Adult -->
                                                 <li class="d-flex justify-content-between">
                                                     <div>
-                                                        <h6 class="mb-0">Adults</h6>
-                                                        <small>Ages 13 or above</small>
+                                                        <h6 class="mb-0">Người lớn</h6>
+                                                        <small>Từ 13 tuổi trở lên</small>
                                                     </div>
 
                                                     <div class="hstack gap-1 align-items-center">
@@ -304,8 +319,8 @@
                                                 <!-- Child -->
                                                 <li class="d-flex justify-content-between">
                                                     <div>
-                                                        <h6 class="mb-0">Child</h6>
-                                                        <small>Ages 13 below</small>
+                                                        <h6 class="mb-0">Trẻ em </h6>
+                                                        <small>Dưới 13 tuổi</small>
                                                     </div>
 
                                                     <div class="hstack gap-1 align-items-center">
@@ -324,8 +339,8 @@
                                                 <!-- Rooms -->
                                                 <li class="d-flex justify-content-between">
                                                     <div>
-                                                        <h6 class="mb-0">Rooms</h6>
-                                                        <small>Max room 8</small>
+                                                        <h6 class="mb-0">Phòng </h6>
+                                                        <small>Tối đa 8 phòng</small>
                                                     </div>
 
                                                     <div class="hstack gap-1 align-items-center">
@@ -722,129 +737,41 @@
 
             <div class="row g-4">
                 <!-- Hotel item -->
-                <div class="col-sm-6 col-xl-3">
-                    <!-- Card START -->
+                <div class="col-sm-6 col-xl-3" th:each="hotel : ${topHotels}">
                     <div class="card card-img-scale overflow-hidden bg-transparent">
-                        <!-- Image and overlay -->
+
+                        <!-- Image -->
                         <div class="card-img-scale-wrapper rounded-3">
-                            <!-- Image -->
-                            <img src="/assets/images/category/hotel/01.jpg" class="card-img" alt="hotel image">
-                            <!-- Badge -->
+                            <img class="card-img" th:src="${hotel.hotelImageUrl}" alt="hotel image">
+
+                            <!-- Location badge -->
                             <div class="position-absolute bottom-0 start-0 p-3">
-                                <div class="badge text-bg-dark fs-6 rounded-pill stretched-link"><i
-                                        class="bi bi-geo-alt me-2"></i>New York
+                                <div class="badge text-bg-dark fs-6 rounded-pill">
+                                    <i class="bi bi-geo-alt me-2"></i>
+                                    <span th:text="${hotel.cityName}">City</span>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Card body -->
+                        <!-- Hotel details -->
                         <div class="card-body px-2">
-                            <!-- Title -->
-                            <h5 class="card-title"><a href="hotel-detail.html" class="stretched-link">Baga Comfort</a>
+                            <h5 class="card-title">
+                                <a href="#" class="stretched-link" th:text="${hotel.hotelName}">Hotel Name</a>
                             </h5>
-                            <!-- Price and rating -->
                             <div class="d-flex justify-content-between align-items-center">
-                                <h6 class="text-success mb-0">$455 <small class="fw-light">/starting at</small></h6>
-                                <h6 class="mb-0">4.5<i class="fa-solid fa-star text-warning ms-1"></i></h6>
+                                <h6 class="text-success mb-0" th:text=" 'Chỉ từ   ' + ${#numbers.formatDecimal(hotel.minPrice, 0, 'COMMA', 0, 'POINT')} + ' ₫'"><small class="fw-light">/starting at</small></h6>                                <h6 class="mb-0">
+                                    <span th:text="${hotel.rating}">4.5</span>
+                                    <i class="fa-solid fa-star text-warning ms-1"></i>
+                                </h6>
                             </div>
                         </div>
+
                     </div>
-                    <!-- Card END -->
                 </div>
 
-                <!-- Hotel item -->
-                <div class="col-sm-6 col-xl-3">
-                    <!-- Card START -->
-                    <div class="card card-img-scale overflow-hidden bg-transparent">
-                        <!-- Image and overlay -->
-                        <div class="card-img-scale-wrapper rounded-3">
-                            <!-- Image -->
-                            <img src="/assets/images/category/hotel/02.jpg" class="card-img" alt="hotel image">
-                            <!-- Badge -->
-                            <div class="position-absolute bottom-0 start-0 p-3">
-                                <div class="badge text-bg-dark fs-6 rounded-pill stretched-link"><i
-                                        class="bi bi-geo-alt me-2"></i>California
-                                </div>
-                            </div>
-                        </div>
 
-                        <!-- Card body -->
-                        <div class="card-body px-2">
-                            <!-- Title -->
-                            <h5 class="card-title"><a href="hotel-detail.html" class="stretched-link">New Apollo
-                                Hotel</a></h5>
-                            <!-- Price and rating -->
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h6 class="text-success mb-0">$585 <small class="fw-light">/starting at</small></h6>
-                                <h6 class="mb-0">4.8<i class="fa-solid fa-star text-warning ms-1"></i></h6>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Card END -->
-                </div>
-
-                <!-- Hotel item -->
-                <div class="col-sm-6 col-xl-3">
-                    <!-- Card START -->
-                    <div class="card card-img-scale overflow-hidden bg-transparent">
-                        <!-- Image and overlay -->
-                        <div class="card-img-scale-wrapper rounded-3">
-                            <!-- Image -->
-                            <img src="/assets/images/category/hotel/03.jpg" class="card-img" alt="hotel image">
-                            <!-- Badge -->
-                            <div class="position-absolute bottom-0 start-0 p-3">
-                                <div class="badge text-bg-dark fs-6 rounded-pill stretched-link"><i
-                                        class="bi bi-geo-alt me-2"></i>Los Angeles
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Card body -->
-                        <div class="card-body px-2">
-                            <!-- Title -->
-                            <h5 class="card-title"><a href="hotel-detail.html" class="stretched-link">New Age Hotel</a>
-                            </h5>
-                            <!-- Price and rating -->
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h6 class="text-success mb-0">$385 <small class="fw-light">/starting at</small></h6>
-                                <h6 class="mb-0">4.6<i class="fa-solid fa-star text-warning ms-1"></i></h6>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Card END -->
-                </div>
-
-                <!-- Hotel item -->
-                <div class="col-sm-6 col-xl-3">
-                    <!-- Card START -->
-                    <div class="card card-img-scale overflow-hidden bg-transparent">
-                        <!-- Image and overlay -->
-                        <div class="card-img-scale-wrapper rounded-3">
-                            <!-- Image -->
-                            <img src="/assets/images/category/hotel/04.jpg" class="card-img" alt="hotel image">
-                            <!-- Badge -->
-                            <div class="position-absolute bottom-0 start-0 p-3">
-                                <div class="badge text-bg-dark fs-6 rounded-pill stretched-link"><i
-                                        class="bi bi-geo-alt me-2"></i>Chicago
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Card body -->
-                        <div class="card-body px-2">
-                            <!-- Title -->
-                            <h5 class="card-title"><a href="hotel-detail.html" class="stretched-link">Helios Beach
-                                Resort</a></h5>
-                            <!-- Price and rating -->
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h6 class="text-success mb-0">$665 <small class="fw-light">/starting at</small></h6>
-                                <h6 class="mb-0">4.8<i class="fa-solid fa-star text-warning ms-1"></i></h6>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Card END -->
-                </div>
-            </div> <!-- Row END -->
+            </div>
+        </div> <!-- Row END -->
         </div>
     </section>
     <!-- =======================
@@ -863,19 +790,19 @@
             <div class="row">
                 <!-- Slider START -->
                 <div class="col-lg-11 mx-auto">
-                    <div class="tiny-slider arrow-round arrow-border arrow-hover">
+                    <div class="tiny-slider arrow-round ">
                         <div class="tiny-slider-inner" data-edge="2" data-items="1">
 
                             <!-- Slide item START -->
-                            <div class="px-4 px-md-5">
+                            <div th:each="review : ${top5Reviews}" class="px-4 px-md-5">
                                 <div class="row justify-content-between align-items-center">
 
                                     <div class="col-md-6 col-lg-5 position-relative">
                                         <!-- Element -->
-                                        <div class="position-absolute top-0 start-0 translate-middle z-index-9 mt-7 ms-4">
-                                            <img src="/assets/images/element/02.svg"
-                                                 class="h-60px bg-orange rounded p-2" alt="">
-                                        </div>
+<!--                                        <div class="position-absolute top-0 start-0 translate-middle z-index-9 mt-7 ms-4">-->
+<!--                                            <img src="/assets/images/element/02.svg"-->
+<!--                                                 class="h-60px bg-orange rounded p-2" alt="">-->
+<!--                                        </div>-->
 
                                         <!-- Svg decoration -->
                                         <figure class="position-absolute bottom-0 end-0 d-none d-sm-block mb-n5 me-n5">
@@ -886,7 +813,7 @@
                                         </figure>
 
                                         <!-- Image -->
-                                        <img src="/assets/images/team/01.jpg" class="rounded-3 position-relative"
+                                        <img th:src="${review.avatarUrl}" class="rounded-3 position-relative"
                                              alt="">
                                     </div>
 
@@ -894,80 +821,22 @@
                                         <!-- Quote -->
                                         <span class="display-3 mb-0 text-primary"><i class="bi bi-quote"></i></span>
                                         <!-- Content -->
-                                        <h5 class="fw-light">Moonlight newspaper up its enjoyment agreeable depending.
-                                            Timed voice share led him to widen noisy young. At weddings believed in
-                                            laughing</h5>
+                                        <h5 th:text="${review.comment}" class="fw-light"> This is a review</h5>
                                         <!-- Rating -->
                                         <ul class="list-inline small mb-2">
-                                            <li class="list-inline-item me-0"><i
-                                                    class="fa-solid fa-star text-warning"></i></li>
-                                            <li class="list-inline-item me-0"><i
-                                                    class="fa-solid fa-star text-warning"></i></li>
-                                            <li class="list-inline-item me-0"><i
-                                                    class="fa-solid fa-star text-warning"></i></li>
-                                            <li class="list-inline-item me-0"><i
-                                                    class="fa-solid fa-star text-warning"></i></li>
-                                            <li class="list-inline-item"><i
-                                                    class="fa-solid fa-star-half-alt text-warning"></i></li>
-                                        </ul>
-                                        <!-- Title -->
-                                        <h6 class="mb-0">Billy Vasquez</h6>
-                                        <span>Ceo of Apple</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Slide item END -->
-
-                            <!-- Slide item START -->
-                            <div class="px-4 px-md-5">
-                                <div class="row justify-content-between align-items-center">
-
-                                    <div class="col-md-6 col-lg-5 position-relative">
-                                        <!-- Element -->
-                                        <div class="position-absolute top-0 start-0 translate-middle mt-7 ms-4 z-index-9">
-                                            <img src="/assets/images/element/03.svg"
-                                                 class="h-60px bg-orange p-2 rounded" alt="">
-                                        </div>
-
-                                        <!-- Svg decoration -->
-                                        <figure class="position-absolute bottom-0 end-0 mb-n5 me-n5 d-none d-sm-block">
-                                            <svg width="326px" height="335px" viewBox="0 0 326 335">
-                                                <path class="fill-primary opacity-1" d="M7.3,0C3.3,0,0,3.3,0,7.3c0,4,3.3,7.3,7.3,7.3c4,0,7.3-3.3,7.3-7.3c0,0,0,0,0,0C14.6,3.3,11.3,0,7.3,0z M59.2,0.7c-4,0-7.3,3.3-7.3,7.3c0,4,3.3,7.3,7.3,7.3c4,0,7.3-3.3,7.3-7.3c0,0,0,0,0,0C66.5,4,63.2,0.7,59.2,0.7L59.2,0.7z M111.1,1.5c-4,0-7.3,3.3-7.3,7.3c0,4,3.3,7.3,7.3,7.3c4,0,7.3-3.3,7.3-7.3c0,0,0,0,0,0C118.4,4.7,115.1,1.5,111.1,1.5 C111.1,1.5,111.1,1.5,111.1,1.5L111.1,1.5z M163,2.2c-4,0-7.3,3.3-7.3,7.3c0,4,3.3,7.3,7.3,7.3c4,0,7.3-3.3,7.3-7.3c0,0,0,0,0,0 C170.3,5.5,167,2.2,163,2.2C163,2.2,163,2.2,163,2.2L163,2.2z M214.9,2.9c-4,0-7.3,3.3-7.3,7.3c0,4,3.3,7.3,7.3,7.3 c4,0,7.3-3.3,7.3-7.3c0,0,0,0,0,0C222.2,6.2,218.9,2.9,214.9,2.9C214.9,2.9,214.9,2.9,214.9,2.9L214.9,2.9z M266.8,3.7 c-4,0-7.3,3.3-7.3,7.3c0,4,3.3,7.3,7.3,7.3c4,0,7.3-3.3,7.3-7.3c0,0,0,0,0,0C274.1,6.9,270.8,3.7,266.8,3.7 C266.8,3.7,266.8,3.7,266.8,3.7L266.8,3.7z M318.7,4.4c-4,0-7.3,3.3-7.3,7.3c0,4,3.3,7.3,7.3,7.3c4,0,7.3-3.3,7.3-7.3c0,0,0,0,0,0 C326,7.7,322.7,4.4,318.7,4.4C318.7,4.4,318.7,4.4,318.7,4.4L318.7,4.4z M7.3,52.7c-4,0-7.3,3.3-7.3,7.3c0,4,3.3,7.3,7.3,7.3 c4,0,7.3-3.3,7.3-7.3c0,0,0,0,0,0C14.6,55.9,11.4,52.7,7.3,52.7C7.3,52.7,7.3,52.7,7.3,52.7L7.3,52.7z M59.2,53.4 c-4,0-7.3,3.3-7.3,7.3c0,4,3.3,7.3,7.3,7.3c4,0,7.3-3.3,7.3-7.3c0,0,0,0,0,0C66.5,56.7,63.3,53.4,59.2,53.4 C59.2,53.4,59.2,53.4,59.2,53.4L59.2,53.4z M111.1,54.1c-4,0-7.3,3.3-7.3,7.3c0,4,3.3,7.3,7.3,7.3c4,0,7.3-3.3,7.3-7.3c0,0,0,0,0,0 C118.4,57.4,115.2,54.1,111.1,54.1C111.1,54.1,111.1,54.1,111.1,54.1L111.1,54.1z M163,54.9c-4,0-7.3,3.3-7.3,7.3 c0,4,3.3,7.3,7.3,7.3c4,0,7.3-3.3,7.3-7.3c0,0,0,0,0,0C170.3,58.1,167.1,54.9,163,54.9C163,54.9,163,54.9,163,54.9L163,54.9z M214.9,55.6c-4,0-7.3,3.3-7.3,7.3c0,4,3.3,7.3,7.3,7.3c4,0,7.3-3.3,7.3-7.3c0,0,0,0,0,0C222.2,58.9,219,55.6,214.9,55.6 C214.9,55.6,214.9,55.6,214.9,55.6L214.9,55.6z M266.8,56.3c-4,0-7.3,3.3-7.3,7.3c0,4,3.3,7.3,7.3,7.3c4,0,7.3-3.3,7.3-7.3 c0,0,0,0,0,0C274.1,59.6,270.9,56.3,266.8,56.3C266.8,56.3,266.8,56.3,266.8,56.3L266.8,56.3z M318.7,57c-4,0-7.3,3.3-7.3,7.3 c0,4,3.3,7.3,7.3,7.3c4,0,7.3-3.3,7.3-7.3c0,0,0,0,0,0C326,60.3,322.8,57.1,318.7,57C318.7,57,318.7,57,318.7,57L318.7,57z M7.3,105.3c-4,0-7.3,3.3-7.3,7.3c0,4,3.3,7.3,7.3,7.3c4,0,7.3-3.3,7.3-7.3c0,0,0,0,0,0C14.7,108.6,11.4,105.3,7.3,105.3 C7.3,105.3,7.3,105.3,7.3,105.3L7.3,105.3z M59.2,106c-4,0-7.3,3.3-7.3,7.3c0,4,3.3,7.3,7.3,7.3c4,0,7.3-3.3,7.3-7.3c0,0,0,0,0,0 C66.6,109.3,63.3,106.1,59.2,106C59.2,106,59.2,106,59.2,106L59.2,106z M111.1,106.8c-4,0-7.3,3.3-7.3,7.3c0,4,3.3,7.3,7.3,7.3 c4,0,7.3-3.3,7.3-7.3c0,0,0,0,0,0C118.5,110.1,115.2,106.8,111.1,106.8C111.1,106.8,111.1,106.8,111.1,106.8L111.1,106.8z M163,107.5c-4,0-7.3,3.3-7.3,7.3c0,4,3.3,7.3,7.3,7.3c4,0,7.3-3.3,7.3-7.3c0,0,0,0,0,0C170.4,110.8,167.1,107.5,163,107.5 C163,107.5,163,107.5,163,107.5L163,107.5z M214.9,108.2c-4,0-7.3,3.3-7.3,7.3c0,4,3.3,7.3,7.3,7.3c4,0,7.3-3.3,7.3-7.3c0,0,0,0,0,0 C222.3,111.5,219,108.3,214.9,108.2C214.9,108.2,214.9,108.3,214.9,108.2L214.9,108.2z M266.8,109c-4,0-7.3,3.3-7.3,7.3 c0,4,3.3,7.3,7.3,7.3c4,0,7.3-3.3,7.3-7.3c0,0,0,0,0,0C274.2,112.3,270.9,109,266.8,109C266.8,109,266.8,109,266.8,109L266.8,109z M318.7,109.7c-4,0-7.3,3.3-7.3,7.3c0,4,3.3,7.3,7.3,7.3c4,0,7.3-3.3,7.3-7.3c0,0,0,0,0,0C326.1,113,322.8,109.7,318.7,109.7 C318.7,109.7,318.7,109.7,318.7,109.7L318.7,109.7z M7.3,158c-4,0-7.3,3.3-7.3,7.3c0,4,3.3,7.3,7.3,7.3c4,0,7.3-3.3,7.3-7.3 c0,0,0,0,0,0C14.6,161.3,11.3,158,7.3,158z M59.2,158.7c-4,0-7.3,3.3-7.3,7.3c0,4,3.3,7.3,7.3,7.3c4,0,7.3-3.3,7.3-7.3c0,0,0,0,0,0 C66.5,162,63.2,158.7,59.2,158.7C59.2,158.7,59.2,158.7,59.2,158.7L59.2,158.7z M111.1,159.4c-4,0-7.3,3.3-7.3,7.3 c0,4,3.3,7.3,7.3,7.3c4,0,7.3-3.3,7.3-7.3c0,0,0,0,0,0C118.4,162.7,115.1,159.5,111.1,159.4C111.1,159.4,111.1,159.4,111.1,159.4 L111.1,159.4z M163,160.2c-4,0-7.3,3.3-7.3,7.3c0,4,3.3,7.3,7.3,7.3c4,0,7.3-3.3,7.3-7.3c0,0,0,0,0,0 C170.3,163.5,167,160.2,163,160.2C163,160.2,163,160.2,163,160.2L163,160.2z M214.9,160.9c-4,0-7.3,3.3-7.3,7.3c0,4,3.3,7.3,7.3,7.3 c4,0,7.3-3.3,7.3-7.3c0,0,0,0,0,0C222.2,164.2,218.9,160.9,214.9,160.9C214.9,160.9,214.9,160.9,214.9,160.9L214.9,160.9z M266.8,161.6c-4,0-7.3,3.3-7.3,7.3c0,4,3.3,7.3,7.3,7.3c4,0,7.3-3.3,7.3-7.3c0,0,0,0,0,0C274.1,164.9,270.8,161.6,266.8,161.6 C266.8,161.6,266.8,161.6,266.8,161.6L266.8,161.6z M318.7,162.4c-4,0-7.3,3.3-7.3,7.3c0,4,3.3,7.3,7.3,7.3c4,0,7.3-3.3,7.3-7.3 c0,0,0,0,0,0C326,165.6,322.7,162.4,318.7,162.4C318.7,162.4,318.7,162.4,318.7,162.4L318.7,162.4z M7.3,210.6c-4,0-7.3,3.3-7.3,7.3 c0,4,3.3,7.3,7.3,7.3c4,0,7.3-3.3,7.3-7.3c0,0,0,0,0,0C14.6,213.9,11.4,210.7,7.3,210.6C7.3,210.6,7.3,210.6,7.3,210.6L7.3,210.6z M59.2,211.4c-4,0-7.3,3.3-7.3,7.3c0,4,3.3,7.3,7.3,7.3c4,0,7.3-3.3,7.3-7.3c0,0,0,0,0,0C66.5,214.7,63.3,211.4,59.2,211.4 C59.2,211.4,59.2,211.4,59.2,211.4L59.2,211.4z M111.1,212.1c-4,0-7.3,3.3-7.3,7.3c0,4,3.3,7.3,7.3,7.3c4,0,7.3-3.3,7.3-7.3 c0,0,0,0,0,0C118.4,215.4,115.2,212.1,111.1,212.1C111.1,212.1,111.1,212.1,111.1,212.1L111.1,212.1z M163,212.8 c-4,0-7.3,3.3-7.3,7.3c0,4,3.3,7.3,7.3,7.3c4,0,7.3-3.3,7.3-7.3c0,0,0,0,0,0C170.3,216.1,167.1,212.8,163,212.8 C163,212.8,163,212.8,163,212.8L163,212.8z M214.9,213.6c-4,0-7.3,3.3-7.3,7.3c0,4,3.3,7.3,7.3,7.3c4,0,7.3-3.3,7.3-7.3c0,0,0,0,0,0 C222.2,216.8,219,213.6,214.9,213.6C214.9,213.6,214.9,213.6,214.9,213.6L214.9,213.6z M266.8,214.3c-4,0-7.3,3.3-7.3,7.3 c0,4,3.3,7.3,7.3,7.3c4,0,7.3-3.3,7.3-7.3c0,0,0,0,0,0C274.1,217.6,270.9,214.3,266.8,214.3C266.8,214.3,266.8,214.3,266.8,214.3 L266.8,214.3z M318.7,215c-4,0-7.3,3.3-7.3,7.3c0,4,3.3,7.3,7.3,7.3c4,0,7.3-3.3,7.3-7.3c0,0,0,0,0,0C326,218.3,322.8,215,318.7,215 C318.7,215,318.7,215,318.7,215L318.7,215z M7.3,263.3c-4,0-7.3,3.3-7.3,7.3c0,4,3.3,7.3,7.3,7.3c4,0,7.3-3.3,7.3-7.3c0,0,0,0,0,0 C14.7,266.6,11.4,263.3,7.3,263.3C7.3,263.3,7.3,263.3,7.3,263.3L7.3,263.3z M59.2,264c-4,0-7.3,3.3-7.3,7.3c0,4,3.3,7.3,7.3,7.3 c4,0,7.3-3.3,7.3-7.3c0,0,0,0,0,0C66.6,267.3,63.3,264,59.2,264C59.2,264,59.2,264,59.2,264L59.2,264z M111.1,264.8 c-4,0-7.3,3.3-7.3,7.3c0,4,3.3,7.3,7.3,7.3c4,0,7.3-3.3,7.3-7.3c0,0,0,0,0,0C118.5,268,115.2,264.8,111.1,264.8 C111.1,264.8,111.1,264.8,111.1,264.8L111.1,264.8z M163,265.5c-4,0-7.3,3.3-7.3,7.3c0,4,3.3,7.3,7.3,7.3c4,0,7.3-3.3,7.3-7.3 c0,0,0,0,0,0C170.4,268.8,167.1,265.5,163,265.5C163,265.5,163,265.5,163,265.5L163,265.5z M214.9,266.2c-4,0-7.3,3.3-7.3,7.3 c0,4,3.3,7.3,7.3,7.3c4,0,7.3-3.3,7.3-7.3c0,0,0,0,0,0C222.3,269.5,219,266.2,214.9,266.2C214.9,266.2,214.9,266.2,214.9,266.2 L214.9,266.2z M266.8,267c-4,0-7.3,3.3-7.3,7.3c0,4,3.3,7.3,7.3,7.3c4,0,7.3-3.3,7.3-7.3c0,0,0,0,0,0 C274.2,270.2,270.9,267,266.8,267C266.8,267,266.8,267,266.8,267L266.8,267z M318.7,267.7c-4,0-7.3,3.3-7.3,7.3c0,4,3.3,7.3,7.3,7.3 c4,0,7.3-3.3,7.3-7.3c0,0,0,0,0,0C326.1,271,322.8,267.7,318.7,267.7C318.7,267.7,318.7,267.7,318.7,267.7L318.7,267.7z M7.4,316 c-4,0-7.3,3.3-7.3,7.3c0,4,3.3,7.3,7.3,7.3c4,0,7.3-3.3,7.3-7.3c0,0,0,0,0,0C14.7,319.2,11.4,316,7.4,316C7.3,316,7.3,316,7.4,316 L7.4,316z M59.3,316.7c-4,0-7.3,3.3-7.3,7.3c0,4,3.3,7.3,7.3,7.3c4,0,7.3-3.3,7.3-7.3c0,0,0,0,0,0C66.6,320,63.3,316.7,59.3,316.7 C59.2,316.7,59.2,316.7,59.3,316.7L59.3,316.7z M111.2,317.4c-4,0-7.3,3.3-7.3,7.3c0,4,3.3,7.3,7.3,7.3c4,0,7.3-3.3,7.3-7.3 c0,0,0,0,0,0C118.5,320.7,115.2,317.4,111.2,317.4C111.1,317.4,111.1,317.4,111.2,317.4L111.2,317.4z M163.1,318.2 c-4,0-7.3,3.3-7.3,7.3c0,4,3.3,7.3,7.3,7.3c4,0,7.3-3.3,7.3-7.3c0,0,0,0,0,0C170.4,321.4,167.1,318.2,163.1,318.2 C163,318.2,163,318.2,163.1,318.2L163.1,318.2z M215,318.9c-4,0-7.3,3.3-7.3,7.3c0,4,3.3,7.3,7.3,7.3c4,0,7.3-3.3,7.3-7.3 c0,0,0,0,0,0C222.3,322.2,219,318.9,215,318.9C214.9,318.9,214.9,318.9,215,318.9L215,318.9z M266.9,319.6c-4,0-7.3,3.3-7.3,7.3 c0,4,3.3,7.3,7.3,7.3c4,0,7.3-3.3,7.3-7.3c0,0,0,0,0,0C274.2,322.9,270.9,319.6,266.9,319.6C266.8,319.6,266.8,319.6,266.9,319.6 L266.9,319.6z M318.8,320.4c-4,0-7.3,3.3-7.3,7.3c0,4,3.3,7.3,7.3,7.3c4,0,7.3-3.3,7.3-7.3c0,0,0,0,0,0
-												C326.1,323.6,322.8,320.4,318.8,320.4C318.7,320.4,318.7,320.4,318.8,320.4L318.8,320.4z"/>
-                                            </svg>
-                                        </figure>
-
-                                        <!-- Image -->
-                                        <img src="/assets/images/team/02.jpg" class="rounded-3 position-relative"
-                                             alt="">
-                                    </div>
-
-                                    <div class="col-md-6 col-lg-6">
-                                        <!-- Quote -->
-                                        <span class="display-3 mb-0 text-primary"><i class="bi bi-quote"></i></span>
-                                        <!-- Content -->
-                                        <h5 class="fw-light">Passage its ten led hearted removal cordial. Preference any
-                                            astonished unreserved Mrs. understood the Preference unreserved.</h5>
-                                        <!-- Rating -->
-                                        <ul class="list-inline small mb-2">
-                                            <li class="list-inline-item me-0"><i
-                                                    class="fa-solid fa-star text-warning"></i></li>
-                                            <li class="list-inline-item me-0"><i
-                                                    class="fa-solid fa-star text-warning"></i></li>
-                                            <li class="list-inline-item me-0"><i
-                                                    class="fa-solid fa-star text-warning"></i></li>
-                                            <li class="list-inline-item me-0"><i
-                                                    class="fa-solid fa-star text-warning"></i></li>
-                                            <li class="list-inline-item"><i class="fa-solid fa-star text-warning"></i>
+                                            <li class="list-inline-item me-0" th:each="i : ${#numbers.sequence(1, review.rating)}">
+                                                <i class="fa-solid fa-star text-warning"></i>
                                             </li>
                                         </ul>
                                         <!-- Title -->
-                                        <h6 class="mb-0">Carolyn Ortiz</h6>
-                                        <span>Ceo of Google</span>
+                                        <h6 th:text="${review.fullName}" class="mb-0">FullName Here</h6>
+                                        <span th:text="${review.bio}">Bio Here</span>
                                     </div>
                                 </div>
                             </div>
                             <!-- Slide item END -->
+
+
 
                         </div>
                     </div>
@@ -992,171 +861,22 @@
 
             <div class="row g-4 g-md-5">
                 <!-- Card item START -->
-                <div class="col-6 col-sm-4 col-lg-3 col-xl-2">
+                <div th:each="location : ${session.locations}" class="col-6 col-sm-4 col-lg-3 col-xl-2">
                     <div class="card bg-transparent text-center p-1 h-100">
                         <!-- Image -->
-                        <img src="/assets/images/category/hotel/nearby/01.jpg" class="rounded-circle" alt="">
+                        <img th:src="@{${location.imageUrl}}" class="rounded-circle img-hover-zoom" alt="">
+
 
                         <div class="card-body p-0 pt-3">
-                            <h5 class="card-title"><a href="#" class="stretched-link">San Francisco</a></h5>
-                            <span>13 min drive</span>
+                            <h5 th:text="${location.cityName}" class="card-title"><a href="#" class="stretched-link">City
+                                Name</a></h5>
+                            <!--                            <span>13 min drive</span>-->
                         </div>
                     </div>
                 </div>
                 <!-- Card item END -->
 
-                <!-- Card item START -->
-                <div class="col-6 col-sm-4 col-lg-3 col-xl-2">
-                    <div class="card bg-transparent text-center p-1 h-100">
-                        <!-- Image -->
-                        <img src="/assets/images/category/hotel/nearby/02.jpg" class="rounded-circle" alt="">
 
-                        <div class="card-body p-0 pt-3">
-                            <h5 class="card-title"><a href="#" class="stretched-link">Los Angeles</a></h5>
-                            <span>25 min drive</span>
-                        </div>
-                    </div>
-                </div>
-                <!-- Card item END -->
-
-                <!-- Card item START -->
-                <div class="col-6 col-sm-4 col-lg-3 col-xl-2">
-                    <div class="card bg-transparent text-center p-1 h-100">
-                        <!-- Image -->
-                        <img src="/assets/images/category/hotel/nearby/03.jpg" class="rounded-circle" alt="">
-
-                        <div class="card-body p-0 pt-3">
-                            <h5 class="card-title"><a href="#" class="stretched-link">Miami</a></h5>
-                            <span>45 min drive</span>
-                        </div>
-                    </div>
-                </div>
-                <!-- Card item END -->
-
-                <!-- Card item START -->
-                <div class="col-6 col-sm-4 col-lg-3 col-xl-2">
-                    <div class="card bg-transparent text-center p-1 h-100">
-                        <!-- Image -->
-                        <img src="/assets/images/category/hotel/nearby/04.jpg" class="rounded-circle" alt="">
-
-                        <div class="card-body p-0 pt-3">
-                            <h5 class="card-title"><a href="#" class="stretched-link">Sanjosh</a></h5>
-                            <span>55 min drive</span>
-                        </div>
-                    </div>
-                </div>
-                <!-- Card item END -->
-
-                <!-- Card item START -->
-                <div class="col-6 col-sm-4 col-lg-3 col-xl-2">
-                    <div class="card bg-transparent text-center p-1 h-100">
-                        <!-- Image -->
-                        <img src="/assets/images/category/hotel/nearby/05.jpg" class="rounded-circle" alt="">
-
-                        <div class="card-body p-0 pt-3">
-                            <h5 class="card-title"><a href="#" class="stretched-link">New York</a></h5>
-                            <span>1-hour drive</span>
-                        </div>
-                    </div>
-                </div>
-                <!-- Card item END -->
-
-                <!-- Card item START -->
-                <div class="col-6 col-sm-4 col-lg-3 col-xl-2">
-                    <div class="card bg-transparent text-center p-1 h-100">
-                        <!-- Image -->
-                        <img src="/assets/images/category/hotel/nearby/06.jpg" class="rounded-circle" alt="">
-
-                        <div class="card-body p-0 pt-3">
-                            <h5 class="card-title"><a href="#" class="stretched-link">North Justen</a></h5>
-                            <span>2-hour drive</span>
-                        </div>
-                    </div>
-                </div>
-                <!-- Card item END -->
-
-                <!-- Card item START -->
-                <div class="col-6 col-sm-4 col-lg-3 col-xl-2">
-                    <div class="card bg-transparent text-center p-1 h-100">
-                        <!-- Image -->
-                        <img src="/assets/images/category/hotel/nearby/07.jpg" class="rounded-circle" alt="">
-
-                        <div class="card-body p-0 pt-3">
-                            <h5 class="card-title"><a href="#" class="stretched-link">Rio</a></h5>
-                            <span>20 min drive</span>
-                        </div>
-                    </div>
-                </div>
-                <!-- Card item END -->
-
-                <!-- Card item START -->
-                <div class="col-6 col-sm-4 col-lg-3 col-xl-2">
-                    <div class="card bg-transparent text-center p-1 h-100">
-                        <!-- Image -->
-                        <img src="/assets/images/category/hotel/nearby/08.jpg" class="rounded-circle" alt="">
-
-                        <div class="card-body p-0 pt-3">
-                            <h5 class="card-title"><a href="#" class="stretched-link">Las Vegas</a></h5>
-                            <span>3-hour drive</span>
-                        </div>
-                    </div>
-                </div>
-                <!-- Card item END -->
-
-                <!-- Card item START -->
-                <div class="col-6 col-sm-4 col-lg-3 col-xl-2">
-                    <div class="card bg-transparent text-center p-1 h-100">
-                        <!-- Image -->
-                        <img src="/assets/images/category/hotel/nearby/09.jpg" class="rounded-circle" alt="">
-
-                        <div class="card-body p-0 pt-3">
-                            <h5 class="card-title"><a href="#" class="stretched-link">Texas</a></h5>
-                            <span>55 min drive</span>
-                        </div>
-                    </div>
-                </div>
-                <!-- Card item END -->
-
-                <!-- Card item START -->
-                <div class="col-6 col-sm-4 col-lg-3 col-xl-2">
-                    <div class="card bg-transparent text-center p-1 h-100">
-                        <!-- Image -->
-                        <img src="/assets/images/category/hotel/nearby/10.jpg" class="rounded-circle" alt="">
-
-                        <div class="card-body p-0 pt-3">
-                            <h5 class="card-title"><a href="#" class="stretched-link">Chicago</a></h5>
-                            <span>13 min drive</span>
-                        </div>
-                    </div>
-                </div>
-                <!-- Card item END -->
-
-                <!-- Card item START -->
-                <div class="col-6 col-sm-4 col-lg-3 col-xl-2">
-                    <div class="card bg-transparent text-center p-1 h-100">
-                        <!-- Image -->
-                        <img src="/assets/images/category/hotel/nearby/11.jpg" class="rounded-circle" alt="">
-
-                        <div class="card-body p-0 pt-3">
-                            <h5 class="card-title"><a href="#" class="stretched-link">New Keagan</a></h5>
-                            <span>35 min drive</span>
-                        </div>
-                    </div>
-                </div>
-                <!-- Card item END -->
-
-                <!-- Card item START -->
-                <div class="col-6 col-sm-4 col-lg-3 col-xl-2">
-                    <div class="card bg-transparent text-center p-1 h-100">
-                        <!-- Image -->
-                        <img src="/assets/images/category/hotel/nearby/01.jpg" class="rounded-circle" alt="">
-
-                        <div class="card-body p-0 pt-3">
-                            <h5 class="card-title"><a href="#" class="stretched-link">Oslo</a></h5>
-                            <span>1 hour 13 min drive</span>
-                        </div>
-                    </div>
-                </div>
                 <!-- Card item END -->
             </div> <!-- Row END -->
         </div>
@@ -1264,6 +984,10 @@ Footer END -->
 <script src="/assets/vendor/glightbox/js/glightbox.js"></script>
 <script src="/assets/vendor/flatpickr/js/flatpickr.min.js"></script>
 <script src="/assets/vendor/choices/js/choices.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
+<script src="/assets/js/functions.js"></script>
+
 
 <!-- ThemeFunctions -->
 <script src="/assets/js/functions.js"></script>
