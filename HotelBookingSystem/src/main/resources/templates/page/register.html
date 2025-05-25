@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <title>Booking - Multipurpose Online Booking Theme</title>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="author" content="StackBros">
+  <meta name="description" content="Booking - Multipurpose Online Booking Theme">
+
+  <script th:inline="javascript">
+    const storedTheme = localStorage.getItem('theme');
+
+    const getPreferredTheme = () => {
+      if (storedTheme) return storedTheme;
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
+
+    const setTheme = function (theme) {
+      if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.documentElement.setAttribute('data-bs-theme', 'dark');
+      } else {
+        document.documentElement.setAttribute('data-bs-theme', theme);
+      }
+    };
+
+    setTheme(getPreferredTheme());
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const el = document.querySelector('.theme-icon-active');
+      if (el !== undefined && el !== null) {
+        const showActiveTheme = (theme) => {
+          const activeThemeIcon = document.querySelector('.theme-icon-active use');
+          const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`);
+          const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href');
+
+          document.querySelectorAll('[data-bs-theme-value]').forEach(e => e.classList.remove('active'));
+          btnToActive.classList.add('active');
+          activeThemeIcon.setAttribute('href', svgOfActiveBtn);
+        };
+
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+          if (storedTheme !== 'light' && storedTheme !== 'dark') {
+            setTheme(getPreferredTheme());
+          }
+        });
+
+        showActiveTheme(getPreferredTheme());
+
+        document.querySelectorAll('[data-bs-theme-value]').forEach(toggle => {
+          toggle.addEventListener('click', () => {
+            const theme = toggle.getAttribute('data-bs-theme-value');
+            localStorage.setItem('theme', theme);
+            setTheme(theme);
+            showActiveTheme(theme);
+          });
+        });
+      }
+    });
+  </script>
+
+  <link rel="shortcut icon" th:href="@{/assets/images/favicon.ico}">
+  <link rel="preconnect" href="https://fonts.googleapis.com/">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+  <link rel="stylesheet" th:href="@{https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Poppins:wght@400;500;700&display=swap}">
+  <link rel="stylesheet" th:href="@{/assets/vendor/font-awesome/css/all.min.css}">
+  <link rel="stylesheet" th:href="@{/assets/vendor/bootstrap-icons/bootstrap-icons.css}">
+  <link rel="stylesheet" th:href="@{/assets/css/style.css}">
+</head>
+
+<body>
+<main>
+  <section class="vh-xxl-100">
+    <div class="container h-100 d-flex px-0 px-sm-4">
+      <div class="row justify-content-center align-items-center m-auto">
+        <div class="col-12">
+          <div class="bg-mode shadow rounded-3 overflow-hidden">
+            <div class="row g-0">
+              <!-- Vector Image -->
+              <div class="col-lg-6 d-md-flex align-items-center order-2 order-lg-1">
+                <div class="p-3 p-lg-5">
+                  <img th:src="@{/assets/images/element/signin.svg}" alt="">
+                </div>
+                <div class="vr opacity-1 d-none d-lg-block"></div>
+              </div>
+
+              <!-- Form Section -->
+              <div class="col-lg-6 order-1">
+                <div class="p-4 p-sm-6">
+                  <h1 class="mb-2 h3">Create new account</h1>
+                  <p class="mb-0">Already a member? <a th:href="@{/login}">Log in</a></p>
+                  <br>
+                  <!-- Error message display -->
+                  <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+                  <!-- Register Form START -->
+                  <form th:action="@{/register}" method="post" class="mt-4 text-start">
+                    <!-- Email -->
+                    <div class="mb-3">
+                      <label class="form-label">Enter email</label>
+                      <input type="email" name="email" class="form-control" required th:value="${email}">
+                    </div>
+
+                    <!-- Password -->
+                    <div class="mb-3 position-relative">
+                      <label class="form-label">Enter password</label>
+                      <input type="password" name="password" class="form-control fakepassword" id="psw-input" required>
+                      <span class="position-absolute top-50 end-0 translate-middle-y p-0 mt-3">
+                        <i class="fakepasswordicon fas fa-eye-slash cursor-pointer p-2"></i>
+                      </span>
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div class="mb-3">
+                      <label class="form-label">Confirm Password</label>
+                      <input type="password" name="confirmPassword" class="form-control" required>
+                    </div>
+
+                    <!-- Submit -->
+                    <div><button type="submit" class="btn btn-primary w-100 mb-0">Register</button></div>
+
+                    <!-- Divider -->
+                    <div class="position-relative my-4">
+                      <hr>
+                      <p class="small position-absolute top-50 start-50 translate-middle bg-mode px-1 px-sm-2">Or log in with</p>
+                    </div>
+
+                    <!-- Social login -->
+                    <div class="vstack gap-3">
+                      <a th:href="@{/oauth2/authorization/google}" class="btn btn-light mb-0">
+                        <i class="fab fa-fw fa-google text-google-icon me-2"></i>Login with Google
+                      </a>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="text-primary-hover text-body mt-3 text-center">
+                      Copyrights ©2025 Booking. Build by
+                      <a href="#" class="text-body">Cuong</a>.
+                    </div>
+                  </form>
+                  <!-- Register Form END -->
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Back to top -->
+<div class="back-top"></div>
+
+<script th:src="@{/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/assets/js/functions.js}"></script>
+</body>
+</html>

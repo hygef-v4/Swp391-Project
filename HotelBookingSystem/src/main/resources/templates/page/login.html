@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <title>Booking - Multipurpose Online Booking Theme</title>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="author" content="Dao Chi Cuong">
+    <meta name="description" content="Booking - Multipurpose Online Booking Theme">
+
+    <script th:inline="javascript">
+        const storedTheme = localStorage.getItem('theme');
+
+        const getPreferredTheme = () => {
+            if (storedTheme) return storedTheme;
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        };
+
+        const setTheme = (theme) => {
+            if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.setAttribute('data-bs-theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-bs-theme', theme);
+            }
+        };
+
+        setTheme(getPreferredTheme());
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const el = document.querySelector('.theme-icon-active');
+            if (el !== undefined && el !== null) {
+                const showActiveTheme = (theme) => {
+                    const activeThemeIcon = document.querySelector('.theme-icon-active use');
+                    const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`);
+                    const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href');
+
+                    document.querySelectorAll('[data-bs-theme-value]').forEach(e => e.classList.remove('active'));
+                    btnToActive.classList.add('active');
+                    activeThemeIcon.setAttribute('href', svgOfActiveBtn);
+                };
+
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                    if (storedTheme !== 'light' && storedTheme !== 'dark') {
+                        setTheme(getPreferredTheme());
+                    }
+                });
+
+                showActiveTheme(getPreferredTheme());
+
+                document.querySelectorAll('[data-bs-theme-value]').forEach(toggle => {
+                    toggle.addEventListener('click', () => {
+                        const theme = toggle.getAttribute('data-bs-theme-value');
+                        localStorage.setItem('theme', theme);
+                        setTheme(theme);
+                        showActiveTheme(theme);
+                    });
+                });
+            }
+        });
+    </script>
+
+    <link rel="shortcut icon" th:href="@{/assets/images/favicon.ico}">
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Poppins:wght@400;500;700&amp;display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" th:href="@{/assets/vendor/font-awesome/css/all.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/vendor/bootstrap-icons/bootstrap-icons.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/style.css}">
+</head>
+
+<body>
+
+<main>
+    <section class="vh-xxl-100">
+        <div class="container h-100 d-flex px-0 px-sm-4">
+            <div class="row justify-content-center align-items-center m-auto">
+                <div class="col-12">
+                    <div class="bg-mode shadow rounded-3 overflow-hidden">
+                        <div class="row g-0">
+
+                            <!-- Vector Image -->
+                            <div class="col-lg-6 d-flex align-items-center order-2 order-lg-1">
+                                <div class="p-3 p-lg-5">
+                                    <img th:src="@{/assets/images/element/signin.svg}" alt="">
+                                </div>
+                                <div class="vr opacity-1 d-none d-lg-block"></div>
+                            </div>
+
+                            <!-- Login Form -->
+                            <div class="col-lg-6 order-1">
+                                <div class="p-4 p-sm-7">
+
+                                    <h1 class="mb-2 h3">Welcome back</h1>
+                                    <p class="mb-0">New here? <a th:href="@{/register}">Create an account</a></p>
+                                    <br>
+                                    <div th:if="${param.error}" class="alert alert-danger">
+                                        Invalid email or password.
+                                    </div>
+
+                                    <!-- Form START -->
+                                    <form th:action="@{/login}" method="post" class="mt-4 text-start">
+                                        <!-- Email -->
+                                        <div class="mb-3">
+                                            <label class="form-label">Enter email</label>
+                                            <input type="email" name="username" class="form-control" required>
+                                        </div>
+
+                                        <!-- Password -->
+                                        <div class="mb-3 position-relative">
+                                            <label class="form-label">Enter password</label>
+                                            <input type="password" name="password" class="form-control fakepassword" id="psw-input" required>
+                                            <span class="position-absolute top-50 end-0 translate-middle-y p-0 mt-3">
+                                                <i class="fakepasswordicon fas fa-eye-slash cursor-pointer p-2"></i>
+                                            </span>
+                                        </div>
+
+                                        <!-- Remember Me -->
+                                        <div class="mb-3 d-sm-flex justify-content-between">
+                                            <div>
+                                                <input type="checkbox" class="form-check-input" id="rememberCheck" name="remember-me">
+                                                <label class="form-check-label" for="rememberCheck">Remember me?</label>
+                                            </div>
+                                            <a th:href="@{/forgot-password}">Forgot password?</a>
+                                        </div>
+
+                                        <!-- CSRF hidden input -->
+                                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                                        <!-- Submit -->
+                                        <div>
+                                            <button type="submit" class="btn btn-primary w-100 mb-0">Login</button>
+                                        </div>
+
+                                        <!-- Divider -->
+                                        <div class="position-relative my-4">
+                                            <hr>
+                                            <p class="small bg-mode position-absolute top-50 start-50 translate-middle px-2">Or login with</p>
+                                        </div>
+
+                                        <!-- Social Buttons -->
+                                        <div class="vstack gap-3">
+                                            <a th:href="@{/oauth2/authorization/google}" class="btn btn-light mb-0">
+                                                <i class="fab fa-fw fa-google text-google-icon me-2"></i>Login with Google
+                                            </a>
+
+                                            <!--                                            <a th:href="@{/oauth2/authorization/facebook}" class="btn btn-light mb-0">-->
+                                            <!--                                                <i class="fab fa-fw fa-facebook-f text-facebook me-2"></i>Login with Facebook-->
+                                            <!--                                            </a>-->
+                                        </div>
+
+                                        <!-- Footer -->
+                                        <div class="text-primary-hover text-body mt-3 text-center">
+                                            Copyrights ©2025 Booking. Build by
+                                            <a href="#" class="text-body">Cuong</a>.
+                                        </div>
+                                    </form>
+                                    <!-- Form END -->
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- Back to Top -->
+<div class="back-top"></div>
+
+<script th:src="@{/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/assets/js/functions.js}"></script>
+
+</body>
+</html>
