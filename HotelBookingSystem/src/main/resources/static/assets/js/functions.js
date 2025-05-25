@@ -831,6 +831,7 @@ var e = {
     guestSelector: function () {
       if (e.isVariableDefined(e.select('.guest-selector'))) {
 
+<<<<<<< Updated upstream
       let adults = 2;
       let child = 0;
       let rooms =1;
@@ -866,6 +867,100 @@ var e = {
           rooms++;
           
           showElements();
+=======
+            let adults = 1;
+            let child = 0;
+            let rooms = 1;
+            let totalAdults = 1;
+
+            let selectionResult = document.querySelector('.selection-result');
+
+            let adultValue = document.querySelector('.adults');
+            let adultAdd = document.querySelector('.adult-add');
+            let adultRemove = document.querySelector('.adult-remove');
+
+            let childValue = document.querySelector('.child');
+            let childAdd = document.querySelector('.child-add');
+            let childRemove = document.querySelector('.child-remove');
+
+            let roomValue = document.querySelector('.rooms');
+            let roomAdd = document.querySelector('.room-add');
+            let roomRemove = document.querySelector('.room-remove');
+
+            function addElement(type) {
+                if (type == 'adult') {
+                    adults++;
+                    totalAdults = adults + child;
+
+                    showElements();
+                } else if (type == 'child') {
+                    child = child + 1;
+                    console.log(child);
+                    totalAdults = adults + child;
+
+                    showElements();
+                } else if (type == 'room') {
+                    rooms++;
+
+                    showElements();
+                }
+            }
+
+            function showElements() {
+                adultValue.innerText = adults;
+                childValue.innerText = child;
+                roomValue.innerText = rooms;
+
+                let roomText = 'Phòng'
+                let guestText = 'Khách'
+
+                let resultText = totalAdults + ' ' + guestText + ' ' + rooms + ' ' + roomText;
+
+                selectionResult.setAttribute('value', resultText);
+            }
+
+            function removeElement(type) {
+                if (type == 'adult') {
+                    adults = adults > 1 ? adults - 1 : adults;
+                    totalAdults = adults + child;
+
+                    showElements();
+                } else if (type == 'child') {
+                    child = child > 0 ? child - 1 : child;
+                    totalAdults = adults + child;
+
+                    showElements();
+                } else if (type == 'room') {
+                    rooms = rooms > 1 ? rooms - 1 : rooms;
+
+                    showElements();
+                }
+            }
+
+            adultAdd.addEventListener('click', function () {
+                addElement('adult');
+            });
+
+            adultRemove.addEventListener('click', function () {
+                removeElement('adult');
+            });
+
+            childAdd.addEventListener('click', function () {
+                addElement('child');
+            });
+
+            childRemove.addEventListener('click', function () {
+                removeElement('child');
+            });
+
+            roomAdd.addEventListener('click', function () {
+                addElement('room');
+            });
+
+            roomRemove.addEventListener('click', function () {
+                removeElement('room');
+            });
+>>>>>>> Stashed changes
         }
       }
     

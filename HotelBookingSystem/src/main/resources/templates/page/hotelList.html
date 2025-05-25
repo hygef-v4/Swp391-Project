@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:inline="text" lang="en">
+
+<!-- Mirrored from stackbros.in/bookinga/landing/hotel-list.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:06:44 GMT -->
+<head>
+	<title th:text="'Danh sách các khách sạn tại ' + ${hamora.cityName}"></title>
+
+	<!-- Meta Tags -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="author" content="StackBros">
+	<meta name="description" content="Booking - Multipurpose Online Booking Theme">
+
+	<!-- Dark mode -->
+	<script>
+		const storedTheme = localStorage.getItem('theme')
+ 
+		const getPreferredTheme = () => {
+			if (storedTheme) {
+				return storedTheme
+			}
+			return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+		}
+
+		const setTheme = function (theme) {
+			if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+				document.documentElement.setAttribute('data-bs-theme', 'dark')
+			} else {
+				document.documentElement.setAttribute('data-bs-theme', theme)
+			}
+		}
+
+		setTheme(getPreferredTheme())
+
+		window.addEventListener('DOMContentLoaded', () => {
+		    var el = document.querySelector('.theme-icon-active');
+			if(el != 'undefined' && el != null) {
+				const showActiveTheme = theme => {
+				const activeThemeIcon = document.querySelector('.theme-icon-active use')
+				const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+				const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
+
+				document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+					element.classList.remove('active')
+				})
+
+				btnToActive.classList.add('active')
+				activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+			}
+
+			window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+				if (storedTheme !== 'light' || storedTheme !== 'dark') {
+					setTheme(getPreferredTheme())
+				}
+			})
+
+			showActiveTheme(getPreferredTheme())
+
+			document.querySelectorAll('[data-bs-theme-value]')
+				.forEach(toggle => {
+					toggle.addEventListener('click', () => {
+						const theme = toggle.getAttribute('data-bs-theme-value')
+						localStorage.setItem('theme', theme)
+						setTheme(theme)
+						showActiveTheme(theme)
+					})
+				})
+
+			}
+		})
+		
+	</script>
+
+	<!-- Favicon -->
+	<link rel="shortcut icon" href="/assets/images/favicon.ico">
+
+	<!-- Google Font -->
+	<link rel="preconnect" href="https://fonts.googleapis.com/">
+	<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Poppins:wght@400;500;700&amp;display=swap">
+
+	<!-- Plugins CSS -->
+	<link rel="stylesheet" type="text/css" href="/assets/vendor/font-awesome/css/all.min.css">
+	<link rel="stylesheet" type="text/css" href="/assets/vendor/bootstrap-icons/bootstrap-icons.css">
+	<link rel="stylesheet" type="text/css" href="/assets/vendor/flatpickr/css/flatpickr.min.css">
+	<link rel="stylesheet" type="text/css" href="/assets/vendor/choices/css/choices.min.css">
+	<link rel="stylesheet" type="text/css" href="/assets/vendor/tiny-slider/tiny-slider.css">
+	<link rel="stylesheet" type="text/css" href="/assets/vendor/nouislider/nouislider.css">
+
+	<!-- Theme CSS -->
+	<link rel="stylesheet" type="text/css" href="/assets/css/style.css">
+
+</head>
+
+<body>
+
+<!-- Header START -->
+<div th:replace="~{common/header :: header}"></div>
+<!-- Header END -->
+
+<!-- **************** MAIN CONTENT START **************** -->
+<main>
+
+<!-- =======================
+Main Banner START -->
+<section class="pt-0">
+	<div class="container">
+		<!-- Background image -->
+        <div class="rounded-3 p-3 p-sm-5" th:style="'background-image: url(' + ${hamora.imageUrl} + '); background-position: center center; background-repeat: no-repeat; background-size: cover;'">
+			<!-- Banner title -->
+			<div class="row my-2 my-xl-5"> 
+				<div class="col-md-10 mx-auto"> 
+					<h1 class="text-center text-white">Các khách sạn tại <span th:text="${hamora.cityName}"></span></h1>
+				</div>
+			</div>
+
+			<!-- Booking from START -->
+			<form class="bg-mode shadow rounded-3 position-relative p-4 pe-md-5 pb-5 pb-md-4 mb-4">
+				<div class="row g-4 align-items-center">
+					<!-- Location -->
+					<div class="col-lg-4">
+						<div class="form-control-border form-control-transparent form-fs-md d-flex">
+							<!-- Icon -->
+							<i class="bi bi-geo-alt fs-3 me-2 mt-2"></i>
+							<!-- Select input -->
+							<div class="flex-grow-1">
+								<label class="form-label">Địa điểm</label>
+								<select class="form-select js-choice" data-search-enabled="true">
+									<option value="-1" selected>Chọn điểm đến</option>
+									<option th:each="location: ${locations}" th:value="${location.id}" th:selected="${location.id == hamora.id}" th:text="${location.cityName}"></option>									
+								</select>
+							</div>
+						</div>
+					</div>
+
+					<!-- Check in -->
+					<div class="col-lg-4">
+						<div class="d-flex">
+							<!-- Icon -->
+							<i class="bi bi-calendar fs-3 me-2 mt-2"></i>
+							<!-- Date input -->
+							<div class="form-control-border form-control-transparent form-fs-md">
+								<label class="form-label">Nhận/trả phòng</label>
+								<input type="text" class="form-control flatpickr" data-mode="range" placeholder="Chọn ngày nhận/trả phòng">
+							</div>
+						</div>
+					</div>
+
+					<!-- Guest -->
+					<div class="col-lg-4">
+						<div class="form-control-border form-control-transparent form-fs-md d-flex">
+							<!-- Icon -->
+							<i class="bi bi-person fs-3 me-2 mt-2"></i>
+							<!-- Dropdown input -->
+							<div class="w-100">
+								<label class="form-label">Số lượng</label>
+								<div class="dropdown guest-selector me-2">
+									<input type="text" class="form-guest-selector form-control selection-result" placeholder="Chọn số Người và Phòng" id="dropdownGuest" data-bs-auto-close="outside" data-bs-toggle="dropdown">
+								
+									<!-- dropdown items -->
+									<ul class="dropdown-menu guest-selector-dropdown" aria-labelledby="dropdownGuest">
+										<!-- Adult -->
+										<li class="d-flex justify-content-between">
+											<div>
+												<h6 class="mb-0">Người lớn</h6>
+												<small>18 tuổi trở lên</small>
+											</div>
+
+											<div class="hstack gap-1 align-items-center">
+												<button type="button" class="btn btn-link adult-remove p-0 mb-0"><i class="bi bi-dash-circle fs-5 fa-fw"></i></button>
+												<h6 class="guest-selector-count mb-0 adults">1</h6>
+												<button type="button" class="btn btn-link adult-add p-0 mb-0"><i class="bi bi-plus-circle fs-5 fa-fw"></i></button>
+											</div>
+										</li>
+
+										<!-- Divider -->
+										<li class="dropdown-divider"></li>
+
+										<!-- Child -->
+										<li class="d-flex justify-content-between">
+											<div>
+												<h6 class="mb-0">Trẻ em</h6>
+												<small>0-17 tuổi</small>
+											</div>
+
+											<div class="hstack gap-1 align-items-center">
+												<button type="button" class="btn btn-link child-remove p-0 mb-0" ><i class="bi bi-dash-circle fs-5 fa-fw"></i></button>
+												<h6 class="guest-selector-count mb-0 child">0</h6>
+												<button type="button" class="btn btn-link child-add p-0 mb-0" ><i class="bi bi-plus-circle fs-5 fa-fw"></i></button>
+											</div>
+										</li>
+
+										<!-- Divider -->
+										<li class="dropdown-divider"></li>
+
+										<!-- Rooms -->
+										<li class="d-flex justify-content-between">
+											<div>
+												<h6 class="mb-0">Phòng</h6>
+											</div>
+
+											<div class="hstack gap-1 align-items-center">
+												<button type="button" class="btn btn-link room-remove p-0 mb-0" ><i class="bi bi-dash-circle fs-5 fa-fw"></i></button>
+												<h6 class="guest-selector-count mb-0 rooms">1</h6>
+												<button type="button" class="btn btn-link room-add p-0 mb-0" ><i class="bi bi-plus-circle fs-5 fa-fw"></i></button>
+											</div>
+										</li>
+									</ul>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- Button -->
+				<div class="btn-position-md-middle">
+					<a  class="icon-lg btn btn-round btn-primary mb-0" href="/"><i class="bi bi-search fa-fw"></i></a>
+				</div>
+			</form>
+			<!-- Booking from END -->
+		</div>
+	</div>
+</section>
+<!-- =======================
+Main Banner END -->
+	
+<!-- =======================
+Title and Tabs START -->
+<section class="pt-0 pb-4">
+	<div class="container position-relative">
+
+		<!-- Title and button START -->
+		<div class="row">
+			<div class="col-12">
+				<!-- Meta START -->
+				<div class="d-flex justify-content-end">
+          <!-- Filter collapse button -->
+          <input type="checkbox" class="btn-check" id="btn-check-soft">
+          <label class="btn btn-primary-soft btn-primary-check mb-0" for="btn-check-soft" data-bs-toggle="collapse" data-bs-target="#collapseFilter" aria-controls="collapseFilter">
+            <i class="bi fa-fe bi-sliders me-2"></i>Bộ Lọc
+          </label>
+
+				</div>
+				<!-- Meta END -->
+			</div>
+		</div>
+		<!-- Title and button END -->
+
+		<!-- Collapse body START -->
+		<div class="collapse" id="collapseFilter">
+			<div class="card card-body bg-light p-4 mt-4 z-index-9">
+
+				<!-- Form START -->
+				<form class="row g-4">
+					<!-- Input item -->
+					<div class="col-md-6 col-lg-4">
+						<div class="form-control-borderless">
+							<label class="form-label">Tên khách sạn</label>
+							<input type="text" class="form-control form-control-lg">
+						</div>
+					</div>
+
+					<!-- nouislider item -->
+					<div class="col-md-6 col-lg-3">
+						<div class="form-control-borderless">
+							<label class="form-label">Khoảng giá</label>
+							<div class="position-relative">
+								<div class="noui-wrapper">
+									<div class="d-flex justify-content-between">
+										<input type="text" class="text-body input-with-range-min">
+										<input type="text" class="text-body input-with-range-max">
+									</div>
+									<div class="noui-slider-range mt-2" data-range-min='10' data-range-max='10000' data-range-selected-min='100' data-range-selected-max='1000'></div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Star rating -->
+					<div class="col-md-6 col-lg-5">
+						<div class="form-control-borderless">
+							<label class="form-label">Đánh giá</label>
+							<ul class="list-inline mb-0 g-3">
+								<!-- 1 -->
+								<li class="list-inline-item">
+									<input type="checkbox" class="btn-check" id="btn-check-9">
+									<label class="btn btn-white btn-primary-soft-check" for="btn-check-9">1<i class="bi bi-star-fill"></i></label>
+								</li>
+								<!-- 2 -->
+								<li class="list-inline-item">
+									<input type="checkbox" class="btn-check" id="btn-check-10">
+									<label class="btn btn-white btn-primary-soft-check" for="btn-check-10">2<i class="bi bi-star-fill"></i></label>
+								</li>
+								<!-- 3 -->
+								<li class="list-inline-item">
+									<input type="checkbox" class="btn-check" id="btn-check-11">
+									<label class="btn btn-white btn-primary-soft-check" for="btn-check-11">3<i class="bi bi-star-fill"></i></label>
+								</li>
+								<!-- 4 -->
+								<li class="list-inline-item">
+									<input type="checkbox" class="btn-check" id="btn-check-12">
+									<label class="btn btn-white btn-primary-soft-check" for="btn-check-12">4<i class="bi bi-star-fill"></i></label>
+								</li>
+								<!-- 4 -->
+								<li class="list-inline-item">
+									<input type="checkbox" class="btn-check" id="btn-check-13">
+									<label class="btn btn-white btn-primary-soft-check" for="btn-check-13">5<i class="bi bi-star-fill"></i></label>
+								</li>
+							</ul>
+						</div>	
+					</div>
+
+					<!-- Check box item -->
+					<div class="col-12">
+						<div class="form-control-borderless">
+							<label class="form-label">Cơ sở vật chất</label>
+							<div class="row g-3">
+								<!-- checkbox -->
+								<div class="col-sm-6 col-md-4 col-lg-3 col-xl-2" th:each="amenities: ${amenities}">
+									<div class="form-check">
+										<input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+										<label class="form-check-label h6 fw-light mb-0" for="flexCheckDefault" th:text="${amenities.name}">
+										</label>
+									</div>
+								</div>
+							</div> <!-- Row END -->
+						</div>
+					</div>
+
+					<!-- Button -->
+					<div class="text-end align-items-center">
+						<button class="btn btn-link p-0 mb-0">Reset</button>
+						<button class="btn btn-dark mb-0 ms-3">Áp dụng</button>
+					</div>
+				</form>
+				<!-- Form END -->
+			</div>
+		</div>
+		<!-- Collapse body END -->
+
+	</div>
+</section>
+<!-- =======================
+Title and Tabs END -->
+
+<!-- =======================
+Hotel grid START -->
+<section class="pt-0">
+	<div class="container">
+		<div class="row g-4">
+
+			<!-- Card item START -->
+			<div class="col-md-6 col-xl-4" th:each="hotel: ${hotels}">
+				<div class="card shadow p-2 pb-0 h-100">
+					<!-- Slider START -->
+					<div class="tiny-slider arrow-round arrow-xs arrow-dark rounded-2 overflow-hidden">
+						<div class="tiny-slider-inner" data-autoplay="false" data-arrow="true" data-dots="false" data-items="1">
+							<!-- Image item -->
+							<div><img src="assets/images/category/hotel/4by3/09.jpg" alt="Card image"></div>
+
+							<!-- Image item -->
+							<div><img src="assets/images/category/hotel/4by3/02.jpg" alt="Card image"></div>
+
+							<!-- Image item -->
+							<div><img src="assets/images/category/hotel/4by3/03.jpg" alt="Card image"></div>
+
+							<!-- Image item -->
+							<div><img src="assets/images/category/hotel/4by3/01.jpg" alt="Card image"></div>
+						</div>
+					</div>
+					<!-- Slider END -->
+
+					<!-- Card body START -->
+					<div class="card-body px-3 pb-0">
+						<!-- Rating and cart -->
+						<div class="d-flex justify-content-between mb-3">
+							<a href="#" class="badge bg-dark text-white"><i class="bi fa-fw bi-star-fill me-2 text-warning"></i><span th:text="${hotel.rating}"></span></a>
+							<a href="#" class="h6 mb-0 z-index-2"><i class="bi fa-fw bi-bookmark"></i></a>
+						</div>
+
+						<!-- Title -->
+						<h5 class="card-title"><a href="hotel-detail.html" th:text="${hotel.hotelName}">.</a></h5>
+					</div>
+					<!-- Card body END -->
+
+					<!-- Card footer START-->
+					<div class="card-footer pt-0">
+						<!-- Price and Button -->
+						<div class="d-sm-flex justify-content-sm-between align-items-center">
+							<!-- Price -->
+							<div class="d-flex align-items-center">
+								<h5 class="fw-normal text-success mb-0 me-1"><span th:text="${#numbers.formatDecimal(hotel.minPrice, 0, 'COMMA', 0, 'POINT')} + '₫'"></span></h5>
+								<span class="mb-0 me-2">/Ngày</span>
+							</div>
+							<!-- Button -->
+							<div class="mt-2 mt-sm-0">
+								<a href="hotel-detail.html" class="btn btn-sm btn-primary-soft mb-0 w-100">View Detail<i class="bi bi-arrow-right ms-2"></i></a>    
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- Card item END -->
+
+		</div> <!-- Row END -->
+
+		<!-- Pagination -->
+		<div class="row">
+			<div class="col-12">
+				<nav class="mt-4 d-flex justify-content-center" aria-label="navigation">
+					<ul class="pagination pagination-primary-soft d-inline-block d-md-flex rounded mb-0">
+						<li class="page-item mb-0 disabled"><a class="page-link" href="#" tabindex="-1"><i class="fa-solid fa-angle-left"></i></a></li>
+						<li class="page-item mb-0 active disabled"><a class="page-link" href="#">1</a></li>
+						<li class="page-item mb-0"><a class="page-link" href="#">2</a></li>
+						<li class="page-item mb-0 disabled"><a class="page-link" href="#">..</a></li>
+						<li class="page-item mb-0"><a class="page-link" href="#">6</a></li>
+						<li class="page-item mb-0"><a class="page-link" href="#"><i class="fa-solid fa-angle-right"></i></a></li>
+					</ul>
+				</nav>
+			</div>
+		</div>
+	</div>
+</section>
+<!-- =======================
+Hotel grid END -->
+
+</main>
+<!-- **************** MAIN CONTENT END **************** -->
+
+<!-- =======================
+Footer START -->
+<div th:replace="~{common/footer :: footer}"></div>
+<!-- =======================
+Footer END -->
+
+<!-- Back to top -->
+<div class="back-top"></div>
+
+<!-- Bootstrap JS -->
+<script src="assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Vendors -->
+<script src="assets/vendor/flatpickr/js/flatpickr.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
+<script src="assets/vendor/choices/js/choices.min.js"></script>
+<script src="assets/vendor/tiny-slider/tiny-slider.js"></script>
+<script src="assets/vendor/nouislider/nouislider.min.js"></script>
+
+<script>
+	flatpickr(".flatpickr", {
+		mode: "range",
+		dateFormat: "d/m/Y", // Định dạng kiểu Việt Nam
+		locale: "vn" // Đặt ngôn ngữ tiếng Việt
+	});
+</script>
+<!-- ThemeFunctions -->
+<script src="assets/js/functions.js"></script>
+
+</body>
+
+<!-- Mirrored from stackbros.in/bookinga/landing/hotel-grid.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:06:44 GMT -->
+</html>
