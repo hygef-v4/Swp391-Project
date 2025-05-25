@@ -92,7 +92,6 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
 
 
-
     <!-- Plugins CSS -->
 
 
@@ -166,7 +165,7 @@
                     <!-- Buttons -->
                     <div class="hstack gap-4 flex-wrap align-items-center">
                         <!-- Button -->
-                        <a href="#" class="btn btn-primary-soft mb-0">Khám phá ngay</a>
+                        <a href="/room-list" class="btn btn-primary-soft mb-0">Khám phá ngay</a>
                         <!-- Story button -->
 
                     </div>
@@ -292,7 +291,8 @@
                                     <div class="w-100">
                                         <label class="form-label"> Khách & Phòng</label>
                                         <div class="dropdown guest-selector me-2">
-                                            <input readonly type="text" class="form-guest-selector form-control selection-result"
+                                            <input readonly type="text"
+                                                   class="form-guest-selector form-control selection-result"
                                                    value="2 Khách 1 Phòng" data-bs-auto-close="outside"
                                                    data-bs-toggle="dropdown">
 
@@ -744,7 +744,11 @@
 
                         <!-- Image -->
                         <div class="card-img-scale-wrapper rounded-3">
-                            <img class="card-img" th:src="${hotel.hotelImageUrl}" alt="hotel image">
+
+                            <a >
+                                <img class="card-img" th:src="${hotel.hotelImageUrl}" alt="hotel image">
+                            </a>
+
 
                             <!-- Location badge -->
                             <div class="position-absolute bottom-0 start-0 p-3">
@@ -758,13 +762,17 @@
                         <!-- Hotel details -->
                         <div class="card-body px-2">
                             <h5 class="card-title">
-                                <a href="#" class="stretched-link" th:text="${hotel.hotelName}">Hotel Name</a>
+                                <a th:href="@{/hotel-detail(hotelId=${hotel.hotelId})}" class="stretched-link"
+                                   th:text="${hotel.hotelName}">Hotel Name</a>
                             </h5>
                             <div class="d-flex justify-content-between align-items-center">
-                                <h6 class="text-success mb-0" th:text=" 'Chỉ từ   ' + ${#numbers.formatDecimal(hotel.minPrice, 0, 'COMMA', 0, 'POINT')} + ' ₫'"><small class="fw-light">/starting at</small></h6>                                <h6 class="mb-0">
-                                    <span th:text="${hotel.rating}">4.5</span>
-                                    <i class="fa-solid fa-star text-warning ms-1"></i>
-                                </h6>
+                                <h6 class="text-success mb-0"
+                                    th:text=" 'Chỉ từ   ' + ${#numbers.formatDecimal(hotel.minPrice, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
+                                    <small class="fw-light">/starting at</small></h6>                                <h6
+                                    class="mb-0">
+                                <span th:text="${hotel.rating}">4.5</span>
+                                <i class="fa-solid fa-star text-warning ms-1"></i>
+                            </h6>
                             </div>
                         </div>
 
@@ -801,10 +809,10 @@
 
                                     <div class="col-md-6 col-lg-5 position-relative">
                                         <!-- Element -->
-<!--                                        <div class="position-absolute top-0 start-0 translate-middle z-index-9 mt-7 ms-4">-->
-<!--                                            <img src="/assets/images/element/02.svg"-->
-<!--                                                 class="h-60px bg-orange rounded p-2" alt="">-->
-<!--                                        </div>-->
+                                        <!--                                        <div class="position-absolute top-0 start-0 translate-middle z-index-9 mt-7 ms-4">-->
+                                        <!--                                            <img src="/assets/images/element/02.svg"-->
+                                        <!--                                                 class="h-60px bg-orange rounded p-2" alt="">-->
+                                        <!--                                        </div>-->
 
                                         <!-- Svg decoration -->
                                         <figure class="position-absolute bottom-0 end-0 d-none d-sm-block mb-n5 me-n5">
@@ -826,7 +834,8 @@
                                         <h5 th:text="${review.comment}" class="fw-light"> This is a review</h5>
                                         <!-- Rating -->
                                         <ul class="list-inline small mb-2">
-                                            <li class="list-inline-item me-0" th:each="i : ${#numbers.sequence(1, review.rating)}">
+                                            <li class="list-inline-item me-0"
+                                                th:each="i : ${#numbers.sequence(1, review.rating)}">
                                                 <i class="fa-solid fa-star text-warning"></i>
                                             </li>
                                         </ul>
@@ -837,7 +846,6 @@
                                 </div>
                             </div>
                             <!-- Slide item END -->
-
 
 
                         </div>
@@ -866,8 +874,10 @@
                 <div th:each="location : ${session.locations}" class="col-6 col-sm-4 col-lg-3 col-xl-2">
                     <div class="card bg-transparent text-center p-1 h-100">
                         <!-- Image -->
-                        <img th:src="@{${location.imageUrl}}" class="rounded-circle img-hover-zoom" alt="">
+                        <a th:href="@{/hotel-list(locationId=${location.id})}">
 
+                            <img th:src="@{${location.imageUrl}}" class="rounded-circle img-hover-zoom" alt="">
+                        </a>
 
                         <div class="card-body p-0 pt-3">
                             <h5 th:text="${location.cityName}" class="card-title"><a href="#" class="stretched-link">City
