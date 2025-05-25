@@ -251,7 +251,7 @@
                                         <label class="form-label">Địa điểm</label>
                                         <select name="locationId" class="form-select js-choice"
                                                 data-search-enabled="true">
-                                            <option value="">Chọn địa điểm</option>
+                                            <option value="-1">Chọn địa điểm</option>
                                             <option
                                                     th:each="location : ${session.locations}"
                                                     th:value="${location.id}"
@@ -303,7 +303,7 @@
                                                 <li class="d-flex justify-content-between">
                                                     <div>
                                                         <h6 class="mb-0">Người lớn</h6>
-                                                        <small>Từ 13 tuổi trở lên</small>
+                                                        <small>18 tuổi trở lên</small>
                                                     </div>
 
                                                     <div class="hstack gap-1 align-items-center">
@@ -323,7 +323,7 @@
                                                 <li class="d-flex justify-content-between">
                                                     <div>
                                                         <h6 class="mb-0">Trẻ em </h6>
-                                                        <small>Dưới 13 tuổi</small>
+                                                        <small>0-17 tuổi</small>
                                                     </div>
 
                                                     <div class="hstack gap-1 align-items-center">
@@ -343,7 +343,7 @@
                                                 <li class="d-flex justify-content-between">
                                                     <div>
                                                         <h6 class="mb-0">Phòng </h6>
-                                                        <small>Tối đa 8 phòng</small>
+                                                        <!-- <small>Tối đa 8 phòng</small> -->
                                                     </div>
 
                                                     <div class="hstack gap-1 align-items-center">
@@ -363,7 +363,7 @@
 
                         <!--                        hidden field for adults, children, and rooms-->
 
-                        <input type="hidden" name="adults" id="adultsInput" value="2">
+                        <input type="hidden" name="adults" id="adultsInput" value="1">
                         <input type="hidden" name="children" id="childrenInput" value="0">
                         <input type="hidden" name="rooms" id="roomsInput" value="1">
 
