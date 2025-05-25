@@ -21,7 +21,6 @@ public class RegisterController {
         return "page/register";
     }
 
-    // Xử lý submit form đăng ký
     @PostMapping("/register")
     public String handleRegister(
             @RequestParam("email") String email,
@@ -29,7 +28,6 @@ public class RegisterController {
             @RequestParam("confirmPassword") String confirmPassword,
             Model model) {
 
-        // 1. Validate đầu vào
         if (email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
             model.addAttribute("error", "All fields are required.");
             return "page/register";
@@ -45,16 +43,13 @@ public class RegisterController {
             return "page/register";
         }
 
-        // 2. Mã hóa mật khẩu
         String hashedPassword = passwordEncoder.encode(password);
 
-        // 3. Tạo và lưu người dùng
         User user = new User(email, hashedPassword);
         userRepo.saveUser(user);
 
         model.addAttribute("email", email);
 
-        // 4. Điều hướng sau khi thành công
         return "redirect:/login";
     }
 }
