@@ -874,13 +874,17 @@ var e = {
                 childValue.innerText = child;
                 roomValue.innerText = rooms;
 
-                let roomText = 'Phòng'
-                let guestText = 'Khách'
+                // 💡 Update hidden fields
+                document.getElementById('adultsInput').value = adults;
+                document.getElementById('childrenInput').value = child;
+                document.getElementById('roomsInput').value = rooms;
 
+                let roomText = 'Phòng';
+                let guestText = 'Khách';
                 let resultText = totalAdults + ' ' + guestText + ' ' + rooms + ' ' + roomText;
-
                 selectionResult.setAttribute('value', resultText);
             }
+
 
             function removeElement(type) {
                 if (type == 'adult') {
