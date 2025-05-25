@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:inline="text" lang="en">
 
 <header class="navbar-light header-sticky" th:fragment="header">
     <!-- Logo Nav START -->
@@ -301,8 +302,8 @@
                                     <img class="avatar-img rounded-circle shadow" src="/assets/images/avatar/01.jpg" alt="avatar">
                                 </div>
                                 <div>
-                                    <a class="h6 mt-2 mt-sm-0" href="#">Lori Ferguson</a>
-                                    <p class="small m-0">example@gmail.com</p>
+                                    <a class="h6 mt-2 mt-sm-0" href="#" th:text="${fullName}"></a>
+                                    <p class="small m-0">[[${email}]]</p>
                                 </div>
                             </div>
                         </li>
