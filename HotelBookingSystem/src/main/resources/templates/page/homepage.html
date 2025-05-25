@@ -1021,27 +1021,27 @@ Footer END -->
 	});
 </script>
 
-<script>
-    document.querySelector("form").addEventListener("submit", function (e) {
-        const locationSelect = document.querySelector("select[name='locationId']");
-        const dateRangeInput = document.querySelector("input[name='dateRange']");
+<!--<script>-->
+<!--    document.querySelector("form").addEventListener("submit", function (e) {-->
+<!--        const locationSelect = document.querySelector("select[name='locationId']");-->
+<!--        const dateRangeInput = document.querySelector("input[name='dateRange']");-->
 
-        let errorMessages = [];
+<!--        let errorMessages = [];-->
 
-        if (!locationSelect.value.trim()) {
-            errorMessages.push("Vui lòng chọn địa điểm.");
-        }
+<!--        if (!locationSelect.value.trim()) {-->
+<!--            errorMessages.push("Vui lòng chọn địa điểm.");-->
+<!--        }-->
 
-        if (!dateRangeInput.value.trim()) {
-            errorMessages.push("Vui lòng chọn ngày nhận và trả phòng.");
-        }
+<!--        if (!dateRangeInput.value.trim()) {-->
+<!--            errorMessages.push("Vui lòng chọn ngày nhận và trả phòng.");-->
+<!--        }-->
 
-        if (errorMessages.length > 0) {
-            e.preventDefault(); // stop form submission
-            alert(errorMessages.join("\n")); // show combined alert
-        }
-    });
-</script>
+<!--        if (errorMessages.length > 0) {-->
+<!--            e.preventDefault(); // stop form submission-->
+<!--            alert(errorMessages.join("\n")); // show combined alert-->
+<!--        }-->
+<!--    });-->
+<!--</script>-->
 
 
 </body>
