@@ -7,6 +7,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class RoomController {
     @GetMapping("/room-list")
     public String roomList(){
-        return "page/roomList";
+        return "roomList";
     }
 }
