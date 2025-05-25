@@ -875,13 +875,17 @@ var e = {
                 roomValue.innerText = rooms;
 
                 // 💡 Update hidden fields
-                document.getElementById('adultsInput').value = adults;
-                document.getElementById('childrenInput').value = child;
-                document.getElementById('roomsInput').value = rooms;
+                let adultInput = document.getElementById('adultsInput')
+                if(adultInput != null) adultInput.value = adults;
+                let childrenInput = document.getElementById('childrenInput')
+                if(childrenInput != null) childrenInput.value = child;
+                let roomsInput = document.getElementById('roomsInput')
+                if(roomsInput != null) roomsInput.value = rooms;
 
                 let roomText = 'Phòng';
                 let guestText = 'Khách';
                 let resultText = totalAdults + ' ' + guestText + ' ' + rooms + ' ' + roomText;
+                console.log(resultText);
                 selectionResult.setAttribute('value', resultText);
             }
 

@@ -21,7 +21,7 @@ public class HotelController {
     LocationService locationService;
 
     @GetMapping("/hotel-list")
-    public String hotelList(@RequestParam(value = "location", defaultValue = "-1") int locationId, Model model){
+    public String hotelList(@RequestParam(value = "locationId", defaultValue = "-1") int locationId, Model model){
         List<Location> location = locationService.getLocationById(locationId);
         model.addAttribute("hamora", locationId == -1 ? new Location(locationId, "Hamora", "assets/images/bg/05.jpg") : location.get(0));
         List<Location> locations = locationService.getAllLocations();

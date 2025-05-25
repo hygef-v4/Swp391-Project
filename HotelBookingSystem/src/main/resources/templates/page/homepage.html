@@ -310,7 +310,7 @@
                                                         <button type="button"
                                                                 class="btn btn-link adult-remove p-0 mb-0"><i
                                                                 class="bi bi-dash-circle fs-5 fa-fw"></i></button>
-                                                        <h6 class="guest-selector-count mb-0 adults">2</h6>
+                                                        <h6 class="guest-selector-count mb-0 adults">1</h6>
                                                         <button type="button" class="btn btn-link adult-add p-0 mb-0"><i
                                                                 class="bi bi-plus-circle fs-5 fa-fw"></i></button>
                                                     </div>
@@ -1014,17 +1014,11 @@ Footer END -->
 <!-- ThemeFunctions -->
 <script src="/assets/js/functions.js"></script>
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        flatpickr(".flatpickr", {
-            mode: "range",
-            dateFormat: "Y-m-d",
-            minDate: "today",
-            locale: {
-                ...flatpickr.l10ns.default, // Keep default locale
-                rangeSeparator: " to "      // Custom separator between dates
-            }
-        });
-    });
+	flatpickr(".flatpickr", {
+		mode: "range",
+		dateFormat: "d/m/Y", // Định dạng kiểu Việt Nam
+		locale: "vn" // Đặt ngôn ngữ tiếng Việt
+	});
 </script>
 
 <script>
