@@ -2,6 +2,8 @@ package org.swp391.hotelbookingsystem.model;
 
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @ToString
 @Builder
 @Data
@@ -17,8 +19,8 @@ public class User {
     private String phone;
     private String role;
     private boolean active;
-    private String createdAt;
-    private String updatedAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
 
     public User(String email, String password) {
