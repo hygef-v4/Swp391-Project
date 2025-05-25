@@ -17448,6 +17448,7 @@ a.badge:hover {
           transform: translateZ(0);
   position: relative;
   overflow: hidden;
+
 }
 .card.card-img-scale img {
   -webkit-transition: all 0.5s ease;
@@ -22338,3 +22339,22 @@ html[dir=rtl] .choices__input {
 
 /*User CSS*/
 /*# sourceMappingURL=style.css.map */
+.img-hover-zoom {
+  transition: transform 0.3s ease;
+}
+.img-hover-zoom:hover {
+  transform: scale(1.1);
+  cursor: pointer;
+  box-shadow: 0 8px 16px rgba(125, 122, 122, 0.2);
+}
+
+.card-img-scale-wrapper {
+  aspect-ratio: 4/3; /* Sets a consistent shape, adjust as needed */
+  overflow: hidden; /* Crops excess image */
+}
+.card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Scales image to fill container, cropping if necessary */
+}
+
