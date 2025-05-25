@@ -81,6 +81,17 @@
     <link rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Poppins:wght@400;500;700&amp;display=swap">
 
+    <!-- Flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+    <!-- Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <!-- Vietnamese Locale -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
+
+
+
     <!-- Plugins CSS -->
 
 
@@ -264,8 +275,9 @@
                                     <!-- Date input -->
                                     <div class="form-control-border form-control-transparent form-fs-md">
                                         <label class="form-label">Nhận phòng – Trả phòng</label>
-                                        <input type="text" class="form-control flatpickr" data-mode="range"
-                                               placeholder="Select date" value="19 Sep to 28 Sep">
+                                        <input type="text" class="form-control flatpickr"
+                                               placeholder="Chọn ngày">
+
                                     </div>
                                 </div>
                             </div>
@@ -279,8 +291,8 @@
                                     <div class="w-100">
                                         <label class="form-label"> Khách & Phòng</label>
                                         <div class="dropdown guest-selector me-2">
-                                            <input type="text" class="form-guest-selector form-control selection-result"
-                                                   value="2 Guests 1 Room" data-bs-auto-close="outside"
+                                            <input readonly type="text" class="form-guest-selector form-control selection-result"
+                                                   value="2 Khách 1 Phòng" data-bs-auto-close="outside"
                                                    data-bs-toggle="dropdown">
 
                                             <!-- dropdown items -->
@@ -288,8 +300,8 @@
                                                 <!-- Adult -->
                                                 <li class="d-flex justify-content-between">
                                                     <div>
-                                                        <h6 class="mb-0">Adults</h6>
-                                                        <small>Ages 13 or above</small>
+                                                        <h6 class="mb-0">Người lớn</h6>
+                                                        <small>Từ 13 tuổi trở lên</small>
                                                     </div>
 
                                                     <div class="hstack gap-1 align-items-center">
@@ -308,8 +320,8 @@
                                                 <!-- Child -->
                                                 <li class="d-flex justify-content-between">
                                                     <div>
-                                                        <h6 class="mb-0">Child</h6>
-                                                        <small>Ages 13 below</small>
+                                                        <h6 class="mb-0">Trẻ em </h6>
+                                                        <small>Dưới 13 tuổi</small>
                                                     </div>
 
                                                     <div class="hstack gap-1 align-items-center">
@@ -328,8 +340,8 @@
                                                 <!-- Rooms -->
                                                 <li class="d-flex justify-content-between">
                                                     <div>
-                                                        <h6 class="mb-0">Rooms</h6>
-                                                        <small>Max room 8</small>
+                                                        <h6 class="mb-0">Phòng </h6>
+                                                        <small>Tối đa 8 phòng</small>
                                                     </div>
 
                                                     <div class="hstack gap-1 align-items-center">
@@ -781,7 +793,7 @@
             <div class="row">
                 <!-- Slider START -->
                 <div class="col-lg-11 mx-auto">
-                    <div class="tiny-slider arrow-round arrow-border arrow-hover">
+                    <div class="tiny-slider arrow-round arrow-border">
                         <div class="tiny-slider-inner" data-edge="2" data-items="1">
 
                             <!-- Slide item START -->
@@ -812,9 +824,8 @@
                                         <!-- Quote -->
                                         <span class="display-3 mb-0 text-primary"><i class="bi bi-quote"></i></span>
                                         <!-- Content -->
-                                        <h5 class="fw-light">Moonlight newspaper up its enjoyment agreeable depending.
-                                            Timed voice share led him to widen noisy young. At weddings believed in
-                                            laughing</h5>
+                                        <h5 class="fw-light"> Trải nghiệm tuyệt vời! Dịch vụ chuyên nghiệp, nhân viên thân thiện và phòng ở rất sạch sẽ.
+                                            Tôi hoàn toàn hài lòng với kỳ nghỉ tại đây và chắc chắn sẽ quay lại trong tương lai.</h5>
                                         <!-- Rating -->
                                         <ul class="list-inline small mb-2">
                                             <li class="list-inline-item me-0"><i
@@ -829,8 +840,8 @@
                                                     class="fa-solid fa-star-half-alt text-warning"></i></li>
                                         </ul>
                                         <!-- Title -->
-                                        <h6 class="mb-0">Billy Vasquez</h6>
-                                        <span>Ceo of Apple</span>
+                                        <h6 class="mb-0">Trần Minh Hoàng</h6>
+                                        <span>Doanh nhân - TP. Hồ Chí Minh</span>
                                     </div>
                                 </div>
                             </div>
@@ -864,8 +875,8 @@
                                         <!-- Quote -->
                                         <span class="display-3 mb-0 text-primary"><i class="bi bi-quote"></i></span>
                                         <!-- Content -->
-                                        <h5 class="fw-light">Passage its ten led hearted removal cordial. Preference any
-                                            astonished unreserved Mrs. understood the Preference unreserved.</h5>
+                                        <h5 class="fw-light">Mình rất hài lòng với dịch vụ ở đây! Vị trí thuận tiện, đặt phòng dễ dàng và không gian yên tĩnh, thoải mái.
+                                            Rất đáng để quay lại lần nữa.</h5>
                                         <!-- Rating -->
                                         <ul class="list-inline small mb-2">
                                             <li class="list-inline-item me-0"><i
@@ -880,8 +891,8 @@
                                             </li>
                                         </ul>
                                         <!-- Title -->
-                                        <h6 class="mb-0">Carolyn Ortiz</h6>
-                                        <span>Ceo of Google</span>
+                                        <h6 class="mb-0">Lê Thảo My</h6>
+                                        <span>Nhân viên văn phòng - Hà Nội</span>
                                     </div>
                                 </div>
                             </div>
@@ -913,7 +924,8 @@
                 <div th:each="location : ${session.locations}" class="col-6 col-sm-4 col-lg-3 col-xl-2">
                     <div class="card bg-transparent text-center p-1 h-100">
                         <!-- Image -->
-                        <img th:src="@{${location.imageUrl}}" class="rounded-circle" alt="">
+                        <img th:src="@{${location.imageUrl}}" class="rounded-circle img-hover-zoom" alt="">
+
 
                         <div class="card-body p-0 pt-3">
                             <h5 th:text="${location.cityName}" class="card-title"><a href="#" class="stretched-link">City
@@ -1032,6 +1044,10 @@ Footer END -->
 <script src="/assets/vendor/glightbox/js/glightbox.js"></script>
 <script src="/assets/vendor/flatpickr/js/flatpickr.min.js"></script>
 <script src="/assets/vendor/choices/js/choices.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
+<script src="/assets/js/functions.js"></script>
+
 
 <!-- ThemeFunctions -->
 <script src="/assets/js/functions.js"></script>
