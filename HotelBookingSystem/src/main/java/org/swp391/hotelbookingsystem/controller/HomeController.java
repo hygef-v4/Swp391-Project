@@ -29,7 +29,7 @@ public class HomeController {
         session.setAttribute("locations", locations);
 
         // Fetch top 4 high-rated hotels and add to model
-        List<Hotel> topHotels = hotelService.getTop4HighRatedHotels();
+        List<Hotel> topHotels = hotelService.getTop8HighRatedHotels();
         model.addAttribute("topHotels", topHotels);
 
         return "page/homepage";

@@ -15,15 +15,18 @@ public class HotelRepository {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    // Get all locations
-    public List<Location> getAllLocations() {
-        String sql = "SELECT location_id AS id, city_name AS cityName, location_image_url AS imageUrl FROM Locations";
-        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Location.class));
-    }
+    private static final BeanPropertyRowMapper<Hotel> HOTEL_MAPPER = new BeanPropertyRowMapper<>(Hotel.class);
+    private static final BeanPropertyRowMapper<Location> LOCATION_MAPPER = new BeanPropertyRowMapper<>(Location.class);
 
-    // Get all hotels sorted by rating DESC, including city name
-    public List<Hotel> getHotelsSortedByRating() {
-        String sql = """
+    // SQL Queries
+    private static final String SELECT_ALL_LOCATIONS = """
+            SELECT location_id AS id,
+                   city_name AS cityName,
+                   location_image_url AS imageUrl
+            FROM Locations
+            """;
+
+    private static final String SELECT_HOTELS_BY_RATING = """
             SELECT h.hotel_id AS hotelId,
                    h.host_id AS hostId,
                    h.hotel_name AS hotelName,
@@ -32,32 +35,32 @@ public class HotelRepository {
                    h.location_id AS locationId,
                    h.hotel_image_url AS hotelImageUrl,
                    h.rating,
+                   h.latitude,
+                   h.longitude,
+                   MIN(r.price) AS minPrice,
                    l.city_name AS cityName
             FROM Hotels h
             JOIN Locations l ON h.location_id = l.location_id
+            JOIN Rooms r ON h.hotel_id = r.hotel_id
+            GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
+                     h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude,
+                     l.city_name
             ORDER BY h.rating DESC
             """;
 
-        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Hotel.class));
+
+    private static final String SELECT_TOP_8_HOTELS = SELECT_HOTELS_BY_RATING.replace("SELECT", "SELECT TOP 8");
+
+    // Methods
+    public List<Location> getAllLocations() {
+        return jdbcTemplate.query(SELECT_ALL_LOCATIONS, LOCATION_MAPPER);
     }
 
-    // Get top 4 high-rated hotels
-    public List<Hotel> getTop4HighRatedHotels() {
-        String sql = """
-                SELECT TOP 4 h.hotel_id AS hotelId,
-                       h.host_id AS hostId,
-                       h.hotel_name AS hotelName,
-                       h.address,
-                       h.description,
-                       h.location_id AS locationId,
-                       h.hotel_image_url AS hotelImageUrl,
-                       h.rating,
-                       l.city_name AS cityName
-                FROM Hotels h
-                JOIN Locations l ON h.location_id = l.location_id
-                ORDER BY h.rating DESC
-                """;
+    public List<Hotel> getHotelsSortedByRating() {
+        return jdbcTemplate.query(SELECT_HOTELS_BY_RATING, HOTEL_MAPPER);
+    }
 
-        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Hotel.class));
+    public List<Hotel> getTop8HighRatedHotels() {
+        return jdbcTemplate.query(SELECT_TOP_8_HOTELS, HOTEL_MAPPER);
     }
 }

@@ -18,7 +18,9 @@ public class HotelService {
         return hotelRepository.getHotelsSortedByRating();
     }
 
-    public List<Hotel> getTop4HighRatedHotels() {
-        return hotelRepository.getTop4HighRatedHotels();
+    public List<Hotel> getTop8HighRatedHotels() {
+        return hotelRepository.getTop8HighRatedHotels();
     }
+
+
 }

@@ -760,9 +760,7 @@
                                 <a href="#" class="stretched-link" th:text="${hotel.hotelName}">Hotel Name</a>
                             </h5>
                             <div class="d-flex justify-content-between align-items-center">
-                                <h6 class="text-success mb-0">$455 <small class="fw-light">/starting at</small></h6>
-                                <!-- optional field -->
-                                <h6 class="mb-0">
+                                <h6 class="text-success mb-0" th:text=" 'Chỉ từ   ' + ${#numbers.formatDecimal(hotel.minPrice, 0, 'COMMA', 0, 'POINT')} + ' ₫'"><small class="fw-light">/starting at</small></h6>                                <h6 class="mb-0">
                                     <span th:text="${hotel.rating}">4.5</span>
                                     <i class="fa-solid fa-star text-warning ms-1"></i>
                                 </h6>
@@ -793,7 +791,7 @@
             <div class="row">
                 <!-- Slider START -->
                 <div class="col-lg-11 mx-auto">
-                    <div class="tiny-slider arrow-round arrow-border">
+                    <div class="tiny-slider arrow-round ">
                         <div class="tiny-slider-inner" data-edge="2" data-items="1">
 
                             <!-- Slide item START -->
