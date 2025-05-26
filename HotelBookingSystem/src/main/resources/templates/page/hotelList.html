@@ -115,7 +115,8 @@ Main Banner START -->
 			</div>
 
 			<!-- Booking from START -->
-			<form class="bg-mode shadow rounded-3 position-relative p-4 pe-md-5 pb-5 pb-md-4 mb-4">
+			<form th:action="@{/hotel-list}" method="GET"
+					class="card shadow rounded-3 position-relative p-4 pe-md-5 pb-5 pb-md-4">
 				<div class="row g-4 align-items-center">
 					<!-- Location -->
 					<div class="col-lg-4">
@@ -125,9 +126,19 @@ Main Banner START -->
 							<!-- Select input -->
 							<div class="flex-grow-1">
 								<label class="form-label">Địa điểm</label>
-								<select class="form-select js-choice" data-search-enabled="true">
-									<option value="-1" selected>Chọn điểm đến</option>
-									<option th:each="location: ${locations}" th:value="${location.id}" th:selected="${location.id == hamora.id}" th:text="${location.cityName}"></option>									
+								<select name="locationId" class="form-select js-choice"
+										data-search-enabled="true">
+									<option value="-1">Chọn địa điểm</option>
+									<option
+											th:each="location : ${locations}"
+											th:value="${location.id}"
+											th:text="${location.cityName}"
+											th:selected="${location.id == hamora.id}"
+									>
+
+
+									</option>
+
 								</select>
 							</div>
 						</div>
@@ -140,8 +151,11 @@ Main Banner START -->
 							<i class="bi bi-calendar fs-3 me-2 mt-2"></i>
 							<!-- Date input -->
 							<div class="form-control-border form-control-transparent form-fs-md">
-								<label class="form-label">Nhận/trả phòng</label>
-								<input type="text" class="form-control flatpickr" data-mode="range" placeholder="Chọn ngày nhận/trả phòng">
+								<label class="form-label">Nhận phòng – Trả phòng</label>
+								<input type="text" class="form-control flatpickr" name="dateRange"
+										placeholder="Chọn ngày">
+
+
 							</div>
 						</div>
 					</div>
@@ -153,12 +167,15 @@ Main Banner START -->
 							<i class="bi bi-person fs-3 me-2 mt-2"></i>
 							<!-- Dropdown input -->
 							<div class="w-100">
-								<label class="form-label">Số lượng</label>
+								<label class="form-label"> Khách & Phòng</label>
 								<div class="dropdown guest-selector me-2">
-									<input type="text" class="form-guest-selector form-control selection-result" placeholder="Chọn số Người và Phòng" id="dropdownGuest" data-bs-auto-close="outside" data-bs-toggle="dropdown">
-								
+									<input readonly type="text"
+											class="form-guest-selector form-control selection-result"
+											value="1 Khách 1 Phòng" data-bs-auto-close="outside"
+											data-bs-toggle="dropdown">
+
 									<!-- dropdown items -->
-									<ul class="dropdown-menu guest-selector-dropdown" aria-labelledby="dropdownGuest">
+									<ul class="dropdown-menu guest-selector-dropdown">
 										<!-- Adult -->
 										<li class="d-flex justify-content-between">
 											<div>
@@ -167,9 +184,12 @@ Main Banner START -->
 											</div>
 
 											<div class="hstack gap-1 align-items-center">
-												<button type="button" class="btn btn-link adult-remove p-0 mb-0"><i class="bi bi-dash-circle fs-5 fa-fw"></i></button>
+												<button type="button"
+														class="btn btn-link adult-remove p-0 mb-0"><i
+														class="bi bi-dash-circle fs-5 fa-fw"></i></button>
 												<h6 class="guest-selector-count mb-0 adults">1</h6>
-												<button type="button" class="btn btn-link adult-add p-0 mb-0"><i class="bi bi-plus-circle fs-5 fa-fw"></i></button>
+												<button type="button" class="btn btn-link adult-add p-0 mb-0"><i
+														class="bi bi-plus-circle fs-5 fa-fw"></i></button>
 											</div>
 										</li>
 
@@ -179,14 +199,17 @@ Main Banner START -->
 										<!-- Child -->
 										<li class="d-flex justify-content-between">
 											<div>
-												<h6 class="mb-0">Trẻ em</h6>
+												<h6 class="mb-0">Trẻ em </h6>
 												<small>0-17 tuổi</small>
 											</div>
 
 											<div class="hstack gap-1 align-items-center">
-												<button type="button" class="btn btn-link child-remove p-0 mb-0" ><i class="bi bi-dash-circle fs-5 fa-fw"></i></button>
+												<button type="button"
+														class="btn btn-link child-remove p-0 mb-0"><i
+														class="bi bi-dash-circle fs-5 fa-fw"></i></button>
 												<h6 class="guest-selector-count mb-0 child">0</h6>
-												<button type="button" class="btn btn-link child-add p-0 mb-0" ><i class="bi bi-plus-circle fs-5 fa-fw"></i></button>
+												<button type="button" class="btn btn-link child-add p-0 mb-0"><i
+														class="bi bi-plus-circle fs-5 fa-fw"></i></button>
 											</div>
 										</li>
 
@@ -196,13 +219,16 @@ Main Banner START -->
 										<!-- Rooms -->
 										<li class="d-flex justify-content-between">
 											<div>
-												<h6 class="mb-0">Phòng</h6>
+												<h6 class="mb-0">Phòng </h6>
+												<!-- <small>Tối đa 8 phòng</small> -->
 											</div>
 
 											<div class="hstack gap-1 align-items-center">
-												<button type="button" class="btn btn-link room-remove p-0 mb-0" ><i class="bi bi-dash-circle fs-5 fa-fw"></i></button>
+												<button type="button" class="btn btn-link room-remove p-0 mb-0">
+													<i class="bi bi-dash-circle fs-5 fa-fw"></i></button>
 												<h6 class="guest-selector-count mb-0 rooms">1</h6>
-												<button type="button" class="btn btn-link room-add p-0 mb-0" ><i class="bi bi-plus-circle fs-5 fa-fw"></i></button>
+												<button type="button" class="btn btn-link room-add p-0 mb-0"><i
+														class="bi bi-plus-circle fs-5 fa-fw"></i></button>
 											</div>
 										</li>
 									</ul>
@@ -211,9 +237,19 @@ Main Banner START -->
 						</div>
 					</div>
 				</div>
+
+				<!--                        hidden field for adults, children, and rooms-->
+
+				<input type="hidden" name="adults" id="adultsInput" value="1">
+				<input type="hidden" name="children" id="childrenInput" value="0">
+				<input type="hidden" name="rooms" id="roomsInput" value="1">
+
+
 				<!-- Button -->
 				<div class="btn-position-md-middle">
-					<a  class="icon-lg btn btn-round btn-primary mb-0" href="/"><i class="bi bi-search fa-fw"></i></a>
+					<button type="submit" class="icon-lg btn btn-round btn-primary mb-0">
+						<i class="bi bi-search fa-fw"></i>
+					</button>
 				</div>
 			</form>
 			<!-- Booking from END -->
