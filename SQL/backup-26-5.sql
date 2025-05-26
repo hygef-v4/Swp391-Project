@@ -1,9 +1,17 @@
-/****** Object:  Table [dbo].[Amenities]    Script Date: 05/26/25 10:16:01 PM ******/
-use master
+USE master
 
-create database RoomBooking
-
+IF EXISTS (SELECT NAME FROM sys.databases WHERE NAME = 'RoomBooking')
+BEGIN
+	ALTER DATABASE RoomBooking SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+	DROP DATABASE RoomBooking;
+END
 GO
+
+CREATE DATABASE hi
+GO
+
+USE RoomBooking
+
 CREATE TABLE [dbo].[Amenities](
 	[amenity_id] [int] IDENTITY(1,1) NOT NULL,
 	[name] [nvarchar](100) NOT NULL,

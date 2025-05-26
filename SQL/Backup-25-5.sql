@@ -1,97 +1,15 @@
-/****** Object:  Database [RoomBooking]    Script Date: 05/25/25 04:59:50 PM ******/
-CREATE DATABASE [RoomBooking]  (EDITION = 'Basic', SERVICE_OBJECTIVE = 'Basic', MAXSIZE = 2 GB) WITH CATALOG_COLLATION = SQL_Latin1_General_CP1_CI_AS, LEDGER = OFF;
+USE master
+
+IF EXISTS (SELECT NAME FROM sys.databases WHERE NAME = 'RoomBooking')
+BEGIN
+	ALTER DATABASE RoomBooking SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+	DROP DATABASE RoomBooking;
+END
 GO
-ALTER DATABASE [RoomBooking] SET COMPATIBILITY_LEVEL = 170
+
+CREATE DATABASE RoomBooking
 GO
-ALTER DATABASE [RoomBooking] SET ANSI_NULL_DEFAULT OFF 
-GO
-ALTER DATABASE [RoomBooking] SET ANSI_NULLS OFF 
-GO
-ALTER DATABASE [RoomBooking] SET ANSI_PADDING OFF 
-GO
-ALTER DATABASE [RoomBooking] SET ANSI_WARNINGS OFF 
-GO
-ALTER DATABASE [RoomBooking] SET ARITHABORT OFF 
-GO
-ALTER DATABASE [RoomBooking] SET AUTO_SHRINK OFF 
-GO
-ALTER DATABASE [RoomBooking] SET AUTO_UPDATE_STATISTICS ON 
-GO
-ALTER DATABASE [RoomBooking] SET CURSOR_CLOSE_ON_COMMIT OFF 
-GO
-ALTER DATABASE [RoomBooking] SET CONCAT_NULL_YIELDS_NULL OFF 
-GO
-ALTER DATABASE [RoomBooking] SET NUMERIC_ROUNDABORT OFF 
-GO
-ALTER DATABASE [RoomBooking] SET QUOTED_IDENTIFIER OFF 
-GO
-ALTER DATABASE [RoomBooking] SET RECURSIVE_TRIGGERS OFF 
-GO
-ALTER DATABASE [RoomBooking] SET AUTO_UPDATE_STATISTICS_ASYNC OFF 
-GO
-ALTER DATABASE [RoomBooking] SET ALLOW_SNAPSHOT_ISOLATION ON 
-GO
-ALTER DATABASE [RoomBooking] SET PARAMETERIZATION SIMPLE 
-GO
-ALTER DATABASE [RoomBooking] SET READ_COMMITTED_SNAPSHOT ON 
-GO
-ALTER DATABASE [RoomBooking] SET  MULTI_USER 
-GO
-ALTER DATABASE [RoomBooking] SET ENCRYPTION ON
-GO
-ALTER DATABASE [RoomBooking] SET QUERY_STORE = ON
-GO
-ALTER DATABASE [RoomBooking] SET QUERY_STORE (OPERATION_MODE = READ_WRITE, CLEANUP_POLICY = (STALE_QUERY_THRESHOLD_DAYS = 7), DATA_FLUSH_INTERVAL_SECONDS = 900, INTERVAL_LENGTH_MINUTES = 60, MAX_STORAGE_SIZE_MB = 10, QUERY_CAPTURE_MODE = AUTO, SIZE_BASED_CLEANUP_MODE = AUTO, MAX_PLANS_PER_QUERY = 200, WAIT_STATS_CAPTURE_MODE = ON)
-GO
-/*** The scripts of database scoped configurations in Azure should be executed inside the target database connection. ***/
-GO
--- ALTER DATABASE SCOPED CONFIGURATION SET MAXDOP = 8;
-GO
-/****** Object:  User [thang]    Script Date: 05/25/25 04:59:50 PM ******/
-CREATE USER [thang] FOR LOGIN [thang] WITH DEFAULT_SCHEMA=[dbo]
-GO
-/****** Object:  User [tai]    Script Date: 05/25/25 04:59:50 PM ******/
-CREATE USER [tai] FOR LOGIN [tai] WITH DEFAULT_SCHEMA=[dbo]
-GO
-/****** Object:  User [sqladmin]    Script Date: 05/25/25 04:59:50 PM ******/
-CREATE USER [sqladmin] FOR LOGIN [sqladmin] WITH DEFAULT_SCHEMA=[dbo]
-GO
-/****** Object:  User [nam]    Script Date: 05/25/25 04:59:50 PM ******/
-CREATE USER [nam] FOR LOGIN [nam] WITH DEFAULT_SCHEMA=[dbo]
-GO
-/****** Object:  User [cuong]    Script Date: 05/25/25 04:59:50 PM ******/
-CREATE USER [cuong] FOR LOGIN [cuong] WITH DEFAULT_SCHEMA=[dbo]
-GO
-sys.sp_addrolemember @rolename = N'db_ddladmin', @membername = N'thang'
-GO
-sys.sp_addrolemember @rolename = N'db_datareader', @membername = N'thang'
-GO
-sys.sp_addrolemember @rolename = N'db_datawriter', @membername = N'thang'
-GO
-sys.sp_addrolemember @rolename = N'db_datareader', @membername = N'tai'
-GO
-sys.sp_addrolemember @rolename = N'db_datawriter', @membername = N'tai'
-GO
-sys.sp_addrolemember @rolename = N'db_ddladmin', @membername = N'sqladmin'
-GO
-sys.sp_addrolemember @rolename = N'db_datareader', @membername = N'sqladmin'
-GO
-sys.sp_addrolemember @rolename = N'db_datawriter', @membername = N'sqladmin'
-GO
-sys.sp_addrolemember @rolename = N'db_datareader', @membername = N'nam'
-GO
-sys.sp_addrolemember @rolename = N'db_datawriter', @membername = N'nam'
-GO
-sys.sp_addrolemember @rolename = N'db_ddladmin', @membername = N'cuong'
-GO
-sys.sp_addrolemember @rolename = N'db_datareader', @membername = N'cuong'
-GO
-sys.sp_addrolemember @rolename = N'db_datawriter', @membername = N'cuong'
-GO
-/****** Object:  Table [dbo].[Amenities]    Script Date: 05/25/25 04:59:51 PM ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
+use RoomBooking
 GO
 CREATE TABLE [dbo].[Amenities](
 	[amenity_id] [int] IDENTITY(1,1) NOT NULL,
