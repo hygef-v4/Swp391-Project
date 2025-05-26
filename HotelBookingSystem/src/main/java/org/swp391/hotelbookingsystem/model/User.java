@@ -20,7 +20,7 @@ public class User {
     private boolean active;
     private String createdAt;
     private String updatedAt;
-
+    private String resetToken;
 
     public User(String email, String password) {
         this.email = email;
