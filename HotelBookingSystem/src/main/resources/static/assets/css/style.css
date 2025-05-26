@@ -22359,3 +22359,15 @@ html[dir=rtl] .choices__input {
   object-fit: cover; /* Scales image to fill container, cropping if necessary */
 }
 
+.clickable-img {
+
+  transition: transform 0.3s ease;
+
+}
+
+
+.clickable-img:hover {
+  transform: scale(1.1);
+  cursor: pointer;
+  box-shadow: 0 8px 16px rgba(125, 122, 122, 0.2);
+}
