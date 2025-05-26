@@ -22349,6 +22349,7 @@ html[dir=rtl] .choices__input {
 }
 
 .card-img-scale-wrapper {
+  position: relative;
   aspect-ratio: 4/3; /* Sets a consistent shape, adjust as needed */
   overflow: hidden; /* Crops excess image */
 }
