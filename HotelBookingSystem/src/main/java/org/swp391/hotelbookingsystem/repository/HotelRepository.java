@@ -41,7 +41,7 @@ public class HotelRepository {
                    l.city_name AS cityName
             FROM Hotels h
             JOIN Locations l ON h.location_id = l.location_id
-            JOIN Rooms r ON h.hotel_id = r.hotel_id
+            LEFT JOIN Rooms r ON h.hotel_id = r.hotel_id
             WHERE h.location_id = ? AND h.hotel_name like ?
             GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
                      h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude,
@@ -64,7 +64,7 @@ public class HotelRepository {
                    l.city_name AS cityName
             FROM Hotels h
             JOIN Locations l ON h.location_id = l.location_id
-            JOIN Rooms r ON h.hotel_id = r.hotel_id
+            LEFT JOIN Rooms r ON h.hotel_id = r.hotel_id
             GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
                      h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude,
                      l.city_name
