@@ -98,6 +98,12 @@ public class UserRepo {
         String sql = "UPDATE Users SET password_hash = ? WHERE user_id = ?";
         jdbc.update(sql, hashedPassword, userId);
     }
+
+    public void updateUserPassword(String email, String encodedPassword) {
+        String sql = "UPDATE Users SET password_hash = ? WHERE email = ?";
+        jdbc.update(sql, encodedPassword, email);
+    }
+
 }
 
 
