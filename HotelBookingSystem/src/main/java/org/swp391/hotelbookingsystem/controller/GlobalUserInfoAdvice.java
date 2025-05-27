@@ -31,8 +31,15 @@ public class GlobalUserInfoAdvice {
             }
 
             if (principal instanceof OAuth2User oauth2User) {
-                model.addAttribute("fullName", oauth2User.getAttribute("name"));
-                model.addAttribute("email", oauth2User.getAttribute("email"));
+                String name = oauth2User.getAttribute("name");
+                String email = oauth2User.getAttribute("email");
+                User existing = repo.findByEmail(email);
+                if (existing == null) {
+                    User u = new User(email, name);
+                    repo.saveUserFromGoogle(u);
+                }
+                model.addAttribute("fullName", name);
+                model.addAttribute("email", email);
             }
         }
     }
