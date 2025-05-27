@@ -55,4 +55,8 @@ public class UserRepo {
                 rs.getString("password_hash")
         ));
     }
+    public void updateUserPassword(String email, String encodedPassword) {
+        String sql = "UPDATE Users SET password_hash = ? WHERE email = ?";
+        jdbc.update(sql, encodedPassword, email);
+    }
 }
