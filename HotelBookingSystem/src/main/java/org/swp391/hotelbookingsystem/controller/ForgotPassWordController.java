@@ -2,17 +2,27 @@ package org.swp391.hotelbookingsystem.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.repository.UserRepo;
+import org.swp391.hotelbookingsystem.service.EmailService;
 
 @Controller
 public class ForgotPassWordController {
 
     @Autowired
     private UserRepo userRepo;
+
+    @Autowired
+    private EmailService emailService;
+
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
 
     @GetMapping("/forgotPassword")
     public String showForgotPasswordForm() {
@@ -28,8 +38,45 @@ public class ForgotPassWordController {
             return "redirect:/forgotPassword?error";
         }
 
-        System.out.println("Email hợp lệ: " + email + " (Giả lập gửi link reset)");
+        String token = java.util.UUID.randomUUID().toString();
+        user.setResetToken(token);
+        userRepo.savePasswordResetToken(user.getId(), token);
+
+        try {
+            emailService.sendResetPasswordEmail(email, token);
+        } catch (jakarta.mail.MessagingException e) {
+            e.printStackTrace();
+            return "redirect:/forgotPassword?mailerror";
+        }
+
 
         return "redirect:/forgotPassword?success";
     }
+
+    @GetMapping("/resetPassword")
+    public String showResetForm(@RequestParam("token") String token, Model model) {
+        User user = userRepo.findUserByToken(token);
+        if (user == null) {
+            return "redirect:/forgotPassword?invalid";
+        }
+        model.addAttribute("token", token);
+        return "page/resetPassword";
+    }
+
+    @PostMapping("/resetPassword")
+    public String processReset(@RequestParam("token") String token,
+                               @RequestParam("password") String password) {
+        User user = userRepo.findUserByToken(token);
+        if (user == null) {
+            return "redirect:/forgotPassword?invalid";
+        }
+
+        // Hash password (bạn nên dùng BCrypt)
+        String hashed = passwordEncoder.encode(password);
+        userRepo.updatePassword(user.getId(), hashed);
+        userRepo.deleteToken(token);
+
+        return "redirect:/login?resetSuccess";
+    }
+
 }
