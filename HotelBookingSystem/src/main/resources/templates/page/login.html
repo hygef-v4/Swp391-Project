@@ -67,6 +67,10 @@
     <link rel="stylesheet" th:href="@{/assets/vendor/font-awesome/css/all.min.css}">
     <link rel="stylesheet" th:href="@{/assets/vendor/bootstrap-icons/bootstrap-icons.css}">
     <link rel="stylesheet" th:href="@{/assets/css/style.css}">
+
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
+
 </head>
 
 <body>
@@ -99,8 +103,9 @@
                                     </div>
 
                                     <!-- Form START -->
-                                    <form th:action="@{/login}" method="post" class="mt-4 text-start">
-                                        <!-- Email -->
+                                    <form id="login-form" th:action="@{/login}" method="post" class="mt-4 text-start">
+
+                                    <!-- Email -->
                                         <div class="mb-3">
                                             <label class="form-label">Enter email</label>
                                             <input type="email" name="username" class="form-control" required>
@@ -126,6 +131,10 @@
 
                                         <!-- CSRF hidden input -->
                                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                        <!-- reCAPTCHA checkbox widget -->
+                                        <div class="mb-3">
+                                            <div class="g-recaptcha" data-sitekey="6Le0s0wrAAAAABsrxrXOnjCwKKNhbhFio6XxJZat"></div>
+                                        </div>
 
                                         <!-- Submit -->
                                         <div>
@@ -172,6 +181,10 @@
 
 <script th:src="@{/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
 <script th:src="@{/assets/js/functions.js}"></script>
+
+<!-- reCAPTCHA hidden input -->
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
 
 </body>
 </html>
