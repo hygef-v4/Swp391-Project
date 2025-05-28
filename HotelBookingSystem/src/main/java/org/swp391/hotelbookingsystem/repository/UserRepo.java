@@ -17,8 +17,8 @@ public class UserRepo {
     }
 
     public void saveUser(User user) {
-        String sql = "INSERT INTO Users (email, password_hash) VALUES (?, ?)";
-        jdbc.update(sql, user.getEmail(), user.getPassword());
+        String sql = "INSERT INTO Users (full_name,email, password_hash) VALUES (?, ?, ?)";
+        jdbc.update(sql, user.getFullname(), user.getEmail(), user.getPassword());
     }
     public void saveUserFromGoogle(User user) {
         String sql = "INSERT INTO Users (full_name, email) VALUES (?, ?)";
@@ -37,8 +37,6 @@ public class UserRepo {
                 user.setPhone(rs.getString("phone"));
                 user.setRole(rs.getString("role"));
                 user.setActive(rs.getBoolean("is_active"));
-                user.setCreatedAt(rs.getString("created_at"));
-                user.setUpdatedAt(rs.getString("updated_at"));
                 return user;
             }, email);
         } catch (Exception e) {
@@ -77,8 +75,6 @@ public class UserRepo {
                 user.setPhone(rs.getString("phone"));
                 user.setRole(rs.getString("role"));
                 user.setActive(rs.getBoolean("is_active"));
-                user.setCreatedAt(rs.getString("created_at"));
-                user.setUpdatedAt(rs.getString("updated_at"));
                 return user;
             }, token);
         } catch (Exception e) {
