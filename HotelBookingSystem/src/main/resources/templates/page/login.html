@@ -159,10 +159,10 @@
                                         </div>
 
                                         <!-- Footer -->
-                                        <div class="text-primary-hover text-body mt-3 text-center">
-                                            Copyrights ©2025 Booking. Build by
-                                            <a href="#" class="text-body">Cuong</a>.
-                                        </div>
+<!--                                        <div class="text-primary-hover text-body mt-3 text-center">-->
+<!--                                            Copyrights ©2025 Booking. Build by-->
+<!--                                            <a href="#" class="text-body">Cuong</a>.-->
+<!--                                        </div>-->
                                     </form>
                                     <!-- Form END -->
 
@@ -185,6 +185,25 @@
 <!-- reCAPTCHA hidden input -->
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById("login-form");
+        const errorContainer = document.createElement("div");
+        errorContainer.style.color = "red";
+        errorContainer.style.marginTop = "10px";
+        form.appendChild(errorContainer);
+
+        form.addEventListener("submit", function (e) {
+            const response = grecaptcha.getResponse();
+            if (response.length === 0) {
+                e.preventDefault(); // Stop form submission
+                errorContainer.textContent = "Please complete the reCAPTCHA to continue.";
+            } else {
+                errorContainer.textContent = ""; // Clear error if passed
+            }
+        });
+    });
+</script>
 
 </body>
 </html>
