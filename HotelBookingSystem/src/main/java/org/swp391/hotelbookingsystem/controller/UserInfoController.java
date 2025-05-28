@@ -12,7 +12,7 @@ import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.repository.UserRepo;
 
 @ControllerAdvice
-public class GlobalUserInfoAdvice {
+public class UserInfoController {
 
     @Autowired
     private UserRepo repo;
