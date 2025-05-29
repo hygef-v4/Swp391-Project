@@ -30,10 +30,16 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/api/files/**") //  disable CSRF for file upload API
+                )
                 .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers("/login", "/register", "/forgot-password", "/css/**", "/js/**", "/images/**", "/assets/**").permitAll()
-//                        .anyRequest().authenticated()
-                                .anyRequest().permitAll()
+                        .requestMatchers(
+                                "/login", "/register", "/forgot-password",
+                                "/css/**", "/js/**", "/images/**", "/assets/**",
+                                "/api/files/**" // ✅ Allow API access
+                        ).permitAll()
+                        .anyRequest().permitAll() // in dev mode
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
