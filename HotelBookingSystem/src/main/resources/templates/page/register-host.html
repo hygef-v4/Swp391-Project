@@ -103,6 +103,7 @@
             border: 1px solid #ddd;
             border-radius: 0.25rem;
         }
+
         /* Corrected map container ID for styling if needed */
         #interactiveHotelMap {
             height: 300px; /* Or whatever height you set in the HTML */
@@ -184,7 +185,7 @@
 
                 <!-- Step content START -->
                 <div class="bs-stepper-content p-0 pt-4 pt-md-5">
-                    <form onsubmit="return false">
+                    <form th:action="@{/register-host}" method="POST" enctype="multipart/form-data">
 
                         <!-- Step 1 content START: Hotel Information -->
                         <div id="step-hotel-1" role="tabpanel" class="content fade"
@@ -201,30 +202,20 @@
                                         <div class="col-12 mb-3">
                                             <label class="form-label">Tên khách sạn của bạn *</label>
                                             <input class="form-control" type="text"
-                                                   placeholder="Ví dụ: Khách Sạn Sen Vàng" id="hotelName">
-                                            <small>Tên sẽ hiển thị cho khách hàng.</small>
+                                                   placeholder="Ví dụ: Khách Sạn Sen Vàng" id="hotelName"
+                                                   name="hotelName">
+
                                         </div>
                                         <div class="col-12 mb-3">
-                                            <label class="form-label">Mô tả về khách sạn của bạn *</label>
-                                            <div class="bg-light border border-bottom-0 rounded-top py-3 quilltoolbar">
-                                                <span class="ql-formats"><select class="ql-size"></select></span>
-                                                <span class="ql-formats"><button class="ql-bold"></button><button
-                                                        class="ql-italic"></button><button
-                                                        class="ql-underline"></button></span>
-                                                <span class="ql-formats"><button class="ql-list"
-                                                                                 value="ordered"></button><button
-                                                        class="ql-list" value="bullet"></button></span>
-                                                <span class="ql-formats"><button class="ql-link"></button></span>
-                                                <span class="ql-formats"><button class="ql-clean"></button></span>
-                                            </div>
-                                            <div class="bg-body border rounded-bottom h-200px overflow-hidden quilleditor"
-                                                 id="hotelDescriptionEditor">
-                                                <p>Nêu bật những điểm độc đáo, tiện nghi chung, và không khí của khách
-                                                    sạn.</p>
-                                            </div>
+                                            <label for="hotelDescription" class="form-label">Mô tả về khách sạn của bạn
+                                                *</label>
+                                            <textarea id="hotelDescription" name="hotelDescription" class="form-control"
+                                                      rows="5"></textarea>
+
                                         </div>
                                         <div class="col-12">
                                             <label class="form-label">Ảnh đại diện khách sạn *</label>
+
                                             <div class="dropzone dropzone-custom"
                                                  data-dropzone='{"maxFiles": 1, "addRemoveLinks": true, "acceptedFiles": "image/*"}'
                                                  id="hotelMainImage">
@@ -233,17 +224,25 @@
                                                     <p>Kéo thả một ảnh hoặc nhấp để tải lên.</p>
                                                 </div>
                                             </div>
+
                                             <div class="mb-3">
                                                 <label for="hotelImageUpload" class="form-label">Hoặc chọn ảnh từ máy
                                                     tính của bạn</label>
-                                                <input class="form-control" type="file" id="hotelImageUpload"
-                                                       accept="image/*">
+                                                <!--                                                upload file here-->
+                                                <input required class="form-control" type="file" id="hotelImageUpload"
+                                                       name="hotelImage" accept="image/*">
                                                 <small class="form-text text-muted">Chọn ảnh JPG/PNG từ thiết
                                                     bị.</small>
                                             </div>
 
+                                            <!--  Preview and hidden input -->
+                                            <img id="imagePreview" src=""
+                                                 style="max-width: 300px; display:none; margin-top:10px;"/>
+                                            <input type="hidden" id="imageUrl" name="imageUrl">
+
                                             <small>Ảnh này sẽ là ảnh chính cho khách sạn của bạn.</small>
                                         </div>
+
                                     </div>
                                 </div>
 
@@ -258,7 +257,7 @@
                                                 <label class="form-label" for="hotelAddress">Địa chỉ khách sạn *</label>
                                                 <input class="form-control" type="text"
                                                        placeholder="Ví dụ: 123 Đường ABC, Phường XYZ, Quận 1"
-                                                       id="hotelAddress">
+                                                       name="hotelAddress" id="hotelAddress">
                                                 <small>Địa chỉ chính xác sẽ giúp khách hàng tìm thấy bạn. Nhập địa chỉ
                                                     có thể giúp định vị bản đồ.</small>
                                             </div>
@@ -294,13 +293,13 @@
                                                 <label for="hotelLatitudeManual" class="form-label">Vĩ độ
                                                     (Latitude)</label>
                                                 <input type="text" class="form-control" id="hotelLatitudeManual"
-                                                       name="hotelLatitudeManual" placeholder="Ví dụ: 21.028511">
+                                                       name="hotelLatitude" placeholder="Ví dụ: 21.028511">
                                             </div>
                                             <div class="col-md-6 mt-2">
                                                 <label for="hotelLongitudeManual" class="form-label">Kinh độ
                                                     (Longitude)</label>
                                                 <input type="text" class="form-control" id="hotelLongitudeManual"
-                                                       name="hotelLongitudeManual" placeholder="Ví dụ: 105.854167">
+                                                       name="hotelLongitude" placeholder="Ví dụ: 105.854167">
                                             </div>
                                             <div class="col-12">
                                                 <small class="form-text text-muted">
@@ -333,8 +332,10 @@
                                     <div class="card-body">
                                         <div class="row g-3">
                                             <div class="col-md-6">
-                                                <label class="form-label">Loại phòng (Hạng phòng) *</label>
-                                                <select required class="form-select js-choice" id="roomCategory">
+                                                <label for="roomCategory" class="form-label">Loại phòng (Hạng phòng)
+                                                    *</label>
+                                                <select name="roomTypeId" required class="form-select js-choice"
+                                                        id="roomCategory">
                                                     <option value="">Chọn loại phòng</option>
                                                     <option th:each="type : ${session.roomTypes}"
                                                             th:value="${type.roomTypeId}"
@@ -347,41 +348,34 @@
                                                 <label class="form-label">Tên/Tiêu đề phòng *</label>
                                                 <input type="text" class="form-control"
                                                        placeholder="Ví dụ: Phòng Standard giường đôi hướng phố"
-                                                       id="roomTitle">
+                                                       name="roomTitle" id="roomTitle">
                                             </div>
                                             <div class="col-md-6">
                                                 <label class="form-label">Số khách tối đa / phòng *</label>
-                                                <input type="number" class="form-control" placeholder="Số lượng khách"
+                                                <input name="roomMaxGuests" type="number" class="form-control"
+                                                       placeholder="Số lượng khách"
                                                        min="1" id="roomMaxGuests">
                                             </div>
                                             <div class="col-md-6">
                                                 <label class="form-label">Số lượng phòng loại này *</label>
                                                 <input type="number" class="form-control" placeholder="Số lượng" min="1"
-                                                       id="roomQuantity">
+                                                       name="roomQuantity" id="roomQuantity">
                                             </div>
                                             <div class="col-md-6">
                                                 <label class="form-label">Giá mỗi đêm (VND) *</label>
                                                 <input type="number" class="form-control" placeholder="Giá phòng"
-                                                       min="0" id="roomPrice">
+                                                       name="roomPrice" min="0" id="roomPrice">
                                             </div>
                                             <div class="col-12">
-                                                <label class="form-label">Mô tả chi tiết về loại phòng này *</label>
-                                                <div class="bg-light border border-bottom-0 rounded-top py-3 quilltoolbar">
-                                                    <span class="ql-formats"><select class="ql-size"></select></span>
-                                                    <span class="ql-formats"><button class="ql-bold"></button><button
-                                                            class="ql-italic"></button><button
-                                                            class="ql-underline"></button></span>
-                                                    <span class="ql-formats"><button class="ql-list"
-                                                                                     value="ordered"></button><button
-                                                            class="ql-list" value="bullet"></button></span>
-                                                    <span class="ql-formats"><button class="ql-clean"></button></span>
-                                                </div>
-                                                <div class="bg-body border rounded-bottom h-150px overflow-hidden quilleditor"
-                                                     id="roomDescriptionEditor">
-                                                    <p>Mô tả về kích thước phòng, loại giường, tầm nhìn, và các đặc điểm
-                                                        nổi bật khác.</p>
-                                                </div>
+                                                <label class="form-label" for="roomDescription">Mô tả chi tiết về loại
+                                                    phòng này *</label>
+                                                <textarea id="roomDescription" name="roomDescription"
+                                                          class="form-control" rows="5" required
+                                                          placeholder="Mô tả về kích thước phòng, loại giường, tầm nhìn, và các đặc điểm nổi bật khác.">
+</textarea>
+
                                             </div>
+
                                         </div>
                                     </div>
                                 </div>
@@ -392,7 +386,8 @@
                                         <h5 class="mb-0">Tiện Nghi Phòng</h5>
                                     </div>
                                     <div class="card-body">
-                                        <label class="form-label mb-3">Chọn các tiện nghi có trong loại phòng này:</label>
+                                        <label class="form-label mb-3">Chọn các tiện nghi có trong loại phòng
+                                            này:</label>
                                         <div th:each="entry : ${groupedAmenities}">
                                             <h6 class="fw-bold mb-2" th:text="${entry.key}">Tên danh mục</h6>
                                             <div class="row">
@@ -402,14 +397,14 @@
                                                                type="checkbox"
                                                                th:id="'amenity-' + ${amenity.amenityId}"
                                                                th:name="amenities"
-                                                               th:value="${amenity.amenityId}" />
+                                                               th:value="${amenity.amenityId}"/>
                                                         <label class="form-check-label"
                                                                th:for="'amenity-' + ${amenity.amenityId}"
                                                                th:text="${amenity.name}"></label>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <hr class="my-3" />
+                                            <hr class="my-3"/>
                                         </div>
                                     </div>
                                 </div>
@@ -434,7 +429,7 @@
                                             <label for="roomImageUpload" class="form-label">Hoặc chọn ảnh từ máy tính
                                                 của bạn</label>
                                             <input class="form-control" type="file" id="roomImageUpload"
-                                                   accept="image/*" multiple>
+                                                 name="roomImageFiles"  accept="image/*" multiple>
                                             <small>Chọn nhiều ảnh JPG/PNG từ thiết bị của bạn.</small>
                                             <div id="roomImagePreviewContainer"
                                                  class="mt-3 d-flex flex-wrap gap-2"></div>
@@ -450,7 +445,8 @@
                         <!-- Step 2 content END -->
 
                         <!-- Step 3 content START: Policies & Registration -->
-                        <div id="step-hotel-3" role="tabpanel" class="content fade" aria-labelledby="stepperHotelTrigger3">
+                        <div id="step-hotel-3" role="tabpanel" class="content fade"
+                             aria-labelledby="stepperHotelTrigger3">
                             <div class="vstack gap-4">
                                 <h4 class="mb-0">Chính sách khách sạn và hoàn tất đăng ký</h4>
 
@@ -460,31 +456,16 @@
                                         <h5 class="mb-0">Nội Quy & Chính Sách Khách Sạn</h5>
                                     </div>
                                     <div class="card-body">
-                                        <label class="form-label">Quy định chung cho khách (ví dụ: giờ nhận/trả phòng, chính
+                                        <label class="form-label">Quy định chung cho khách (ví dụ: giờ nhận/trả phòng,
+                                            chính
                                             sách hút thuốc, vật nuôi, hủy phòng...)</label>
-                                        <textarea class="form-control" rows="5"
+                                        <textarea name="hotelPolicies" class="form-control" rows="5"
                                                   placeholder="Ví dụ: Giờ nhận phòng: 14:00, Giờ trả phòng: 12:00. Không hút thuốc trong phòng. Cho phép vật nuôi nhỏ với phụ phí..."
                                                   id="hotelPolicies"></textarea>
                                     </div>
                                 </div>
 
-                                <!-- Pricing Discounts (Optional) -->
-                                <div class="card shadow">
-                                    <div class="card-header border-bottom">
-                                        <h5 class="mb-0">Ưu Đãi Giá (Tùy chọn)</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="col-md-8">
-                                            <label class="form-label">Giảm giá cho khách ở dài ngày</label>
-                                            <select class="form-select js-choice" id="longStayDiscount">
-                                                <option value="0">Không giảm giá</option>
-                                                <option value="10">Giảm 10% cho 7 đêm trở lên</option>
-                                                <option value="15">Giảm 15% cho 14 đêm trở lên</option>
-                                                <option value="20">Giảm 20% cho 30 đêm trở lên</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
+
 
                                 <!-- Summary Review -->
                                 <div class="card shadow">
@@ -492,18 +473,22 @@
                                         <h5 class="mb-0">Xem Lại Thông Tin Đăng Ký</h5>
                                     </div>
                                     <div class="card-body">
-                                        <p>Vui lòng kiểm tra lại tất cả thông tin bạn đã cung cấp. Bạn có thể quay lại các bước
+                                        <p>Vui lòng kiểm tra lại tất cả thông tin bạn đã cung cấp. Bạn có thể quay lại
+                                            các bước
                                             trước để chỉnh sửa nếu cần.</p>
                                         <ul class="list-group list-group-flush">
                                             <li class="list-group-item"><strong>Tên khách sạn:</strong> <span
                                                     id="summaryHotelName">[Sẽ hiển thị ở đây]</span></li>
                                             <li class="list-group-item"><strong>Địa chỉ:</strong> <span
                                                     id="summaryHotelAddress">[Sẽ hiển thị ở đây]</span></li>
-                                            <li class="list-group-item"><strong>Thành phố:</strong> <span id="summaryHotelCity">[Sẽ hiển thị ở đây]</span>
+                                            <li class="list-group-item"><strong>Thành phố:</strong> <span
+                                                    id="summaryHotelCity">[Sẽ hiển thị ở đây]</span>
                                             </li>
-                                            <li class="list-group-item"><strong>Vĩ độ:</strong> <span id="summaryLatitude">[Sẽ hiển thị ở đây]</span>
+                                            <li class="list-group-item"><strong>Vĩ độ:</strong> <span
+                                                    id="summaryLatitude">[Sẽ hiển thị ở đây]</span>
                                             </li>
-                                            <li class="list-group-item"><strong>Kinh độ:</strong> <span id="summaryLongitude">[Sẽ hiển thị ở đây]</span>
+                                            <li class="list-group-item"><strong>Kinh độ:</strong> <span
+                                                    id="summaryLongitude">[Sẽ hiển thị ở đây]</span>
                                             </li>
                                             <li class="list-group-item"><strong>Loại phòng cơ bản:</strong> <span
                                                     id="summaryRoomTitle">[Sẽ hiển thị ở đây]</span></li>
@@ -521,10 +506,13 @@
                                     </div>
                                     <div class="card-body">
                                         <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" value="" id="agreeTerms" required>
+                                            <input class="form-check-input" type="checkbox" value="" id="agreeTerms"
+                                                   required>
                                             <label class="form-check-label" for="agreeTerms">
-                                                Tôi đồng ý với <a href="terms-of-service.html" target="_blank">Điều khoản Dịch
-                                                vụ</a> và <a href="privacy-policy.html" target="_blank">Chính sách Bảo mật</a>
+                                                Tôi đồng ý với <a href="terms-of-service.html" target="_blank">Điều
+                                                khoản Dịch
+                                                vụ</a> và <a href="privacy-policy.html" target="_blank">Chính sách Bảo
+                                                mật</a>
                                                 của Booking.
                                             </label>
                                         </div>
@@ -532,7 +520,8 @@
                                             <input class="form-check-input" type="checkbox" value="" id="hostCommitment"
                                                    required>
                                             <label class="form-check-label" for="hostCommitment">
-                                                Tôi cam kết cung cấp thông tin chính xác, dịch vụ chất lượng và tuân thủ các
+                                                Tôi cam kết cung cấp thông tin chính xác, dịch vụ chất lượng và tuân thủ
+                                                các
                                                 tiêu chuẩn của Booking.
                                             </label>
                                         </div>
@@ -589,7 +578,7 @@ Footer END -->
     document.addEventListener('DOMContentLoaded', function () {
         var stepperEl = document.querySelector('#hostStepper');
         var stepper;
-        var quillHotelDescription, quillRoomDescription; // To store Quill instances
+
 
         if (stepperEl) {
             stepper = new Stepper(stepperEl, {
@@ -598,24 +587,6 @@ Footer END -->
             });
         }
 
-        // Initialize Quill editors
-        var quillEditorElements = document.querySelectorAll('.quilleditor');
-        quillEditorElements.forEach(function (editorEl) {
-            var toolbar = editorEl.previousElementSibling;
-            if (toolbar && toolbar.classList.contains('quilltoolbar')) {
-                const quillInstance = new Quill(editorEl, {
-                    modules: {
-                        toolbar: toolbar
-                    },
-                    theme: 'snow'
-                });
-                if (editorEl.id === 'hotelDescriptionEditor') {
-                    quillHotelDescription = quillInstance;
-                } else if (editorEl.id === 'roomDescriptionEditor') {
-                    quillRoomDescription = quillInstance;
-                }
-            }
-        });
 
         // Initialize Choices.js
         var choiceElements = document.querySelectorAll('.js-choice');
@@ -738,7 +709,7 @@ Footer END -->
                     item.setAttribute('data-lat', place.lat); // Store lat/lon for direct use
                     item.setAttribute('data-lon', place.lon);
 
-                    item.addEventListener('click', function(e) {
+                    item.addEventListener('click', function (e) {
                         e.preventDefault();
                         hotelAddressInput.value = this.textContent; // Use display_name for input
                         addressSuggestionsContainer.style.display = 'none';
@@ -747,7 +718,7 @@ Footer END -->
                         const lat = parseFloat(this.getAttribute('data-lat'));
                         const lon = parseFloat(this.getAttribute('data-lon'));
 
-                        if (!isNaN(lat) && !isNaN(lon) && vietnamBounds.contains(L.latLng(lat,lon))) {
+                        if (!isNaN(lat) && !isNaN(lon) && vietnamBounds.contains(L.latLng(lat, lon))) {
                             map.setView([lat, lon], 15); // Zoom in closer
                             marker.setLatLng([lat, lon]);
                             if (hotelLatInput) hotelLatInput.value = lat.toFixed(6);
@@ -790,7 +761,7 @@ Footer END -->
         function geocodeAddressAndSetMap() {
             if (!map) {
                 if (!mapInitialized) initializeHotelMap();
-                if(!map) {
+                if (!map) {
                     console.error("Map not initialized, cannot geocode.");
                     return;
                 }
@@ -849,7 +820,7 @@ Footer END -->
                         const lat = parseFloat(data[0].lat);
                         const lon = parseFloat(data[0].lon);
 
-                        if (vietnamBounds.contains(L.latLng(lat,lon))) {
+                        if (vietnamBounds.contains(L.latLng(lat, lon))) {
                             map.setView([lat, lon], (address && address.trim()) ? 15 : 13);
                             marker.setLatLng([lat, lon]);
                             if (hotelLatInput) hotelLatInput.value = lat.toFixed(6);
@@ -864,12 +835,12 @@ Footer END -->
                 })
                 .catch(error => {
                     console.error('Error geocoding:', error);
-                    if(map) map.lastGeocodedQuery = null;
+                    if (map) map.lastGeocodedQuery = null;
                 });
         }
 
         if (hotelAddressInput) {
-            hotelAddressInput.addEventListener('input', function() {
+            hotelAddressInput.addEventListener('input', function () {
                 clearTimeout(geocodeDebounceTimer);
                 geocodeDebounceTimer = setTimeout(() => {
                     geocodeAddressAndSetMap();
@@ -889,7 +860,9 @@ Footer END -->
                         initializeHotelMap();
                     }
                     if (map) {
-                        setTimeout(function () { map.invalidateSize(); }, 100);
+                        setTimeout(function () {
+                            map.invalidateSize();
+                        }, 100);
                     }
                 }
                 if (event.detail.indexStep === 2) {
@@ -903,7 +876,9 @@ Footer END -->
                 initializeHotelMap();
             }
             if (map) {
-                setTimeout(function () { map.invalidateSize(); }, 100);
+                setTimeout(function () {
+                    map.invalidateSize();
+                }, 100);
             }
         }
 
@@ -924,14 +899,22 @@ Footer END -->
             document.getElementById('summaryRoomPrice').textContent = document.getElementById('roomPrice')?.value || '[Chưa nhập]';
         }
 
+        // next button
         const nextButtons = document.querySelectorAll('.next-btn');
         nextButtons.forEach(button => {
             button.addEventListener('click', function () {
-                if (stepper && stepper._currentIndex === 1 && stepper._steps.length === 3) {
-                    const nextStepIndex = stepper._currentIndex + 1;
-                    if (stepper._steps[nextStepIndex] && stepper._steps[nextStepIndex].id === 'step-hotel-3') {
-                        updateSummary();
-                    }
+                if (stepper) {
+                    stepper.next();
+                }
+            });
+        });
+
+        // back button
+        const prevButtons = document.querySelectorAll('.prev-btn');
+        prevButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                if (stepper) {
+                    stepper.previous();
                 }
             });
         });
@@ -946,5 +929,138 @@ Footer END -->
         }
     });
 </script>
+
+<!--hotel image upload-->
+<script>
+    const dropzone = document.getElementById("hotelMainImage");
+    const preview = document.getElementById("imagePreview");
+    const hiddenInput = document.getElementById("imageUrl");
+
+    // Prevent default behavior
+    ["dragenter", "dragover", "dragleave", "drop"].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => e.preventDefault());
+    });
+
+    // Highlight on drag
+    dropzone.addEventListener("dragover", () => {
+        dropzone.classList.add("dragover");
+    });
+
+    dropzone.addEventListener("dragleave", () => {
+        dropzone.classList.remove("dragover");
+    });
+
+    // Handle drop
+    dropzone.addEventListener("drop", (e) => {
+        dropzone.classList.remove("dragover");
+
+        const file = e.dataTransfer.files[0];
+        if (!file) return;
+
+        const validTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+        if (!validTypes.includes(file.type)) {
+            alert("Chỉ chấp nhận ảnh JPG, PNG, GIF hoặc WEBP.");
+            return;
+        }
+
+        // Preview the image
+        const reader = new FileReader();
+        reader.onload = function (event) {
+            preview.src = event.target.result;
+            preview.style.display = "block";
+            hiddenInput.value = ''; // clear URL, still local
+        };
+        reader.readAsDataURL(file);
+
+        // Optional: Also set the input field if you need it for upload later
+        const fileInput = document.getElementById("hotelImageUpload");
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        fileInput.files = dataTransfer.files;
+    });
+</script>
+
+<!--room image upload-->
+<script>
+    const dropzoneRoom = document.getElementById("roomImages");
+    const fileInputRoom = document.getElementById("roomImageUpload");
+    const previewContainer = document.getElementById("roomImagePreviewContainer");
+
+    let fileList = [];
+
+    // Prevent default behavior
+    ["dragenter", "dragover", "dragleave", "drop"].forEach(eventName => {
+        dropzoneRoom.addEventListener(eventName, e => e.preventDefault());
+    });
+
+    dropzoneRoom.addEventListener("dragover", () => {
+        dropzoneRoom.classList.add("dragover");
+    });
+
+    dropzoneRoom.addEventListener("dragleave", () => {
+        dropzoneRoom.classList.remove("dragover");
+    });
+
+    dropzoneRoom.addEventListener("drop", (e) => {
+        dropzoneRoom.classList.remove("dragover");
+        addFiles(Array.from(e.dataTransfer.files));
+    });
+
+    fileInputRoom.addEventListener("change", () => {
+        addFiles(Array.from(fileInputRoom.files));
+    });
+
+    function addFiles(newFiles) {
+        const validTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+        newFiles.forEach(file => {
+            if (validTypes.includes(file.type)) {
+                fileList.push(file);
+            } else {
+                alert("Không chấp nhận file: " + file.name);
+            }
+        });
+        renderPreviews();
+        updateInputFiles();
+    }
+
+    function renderPreviews() {
+        previewContainer.innerHTML = "";
+        fileList.forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const wrapper = document.createElement("div");
+                wrapper.classList.add("position-relative");
+
+                const img = document.createElement("img");
+                img.src = e.target.result;
+                img.style.maxWidth = "150px";
+                img.classList.add("rounded");
+
+                const deleteBtn = document.createElement("button");
+                deleteBtn.type = "button";
+                deleteBtn.innerHTML = "&times;";
+                deleteBtn.classList.add("btn", "btn-danger", "btn-sm", "position-absolute", "top-0", "end-0");
+                deleteBtn.onclick = () => {
+                    fileList.splice(index, 1);
+                    renderPreviews();
+                    updateInputFiles();
+                };
+
+                wrapper.appendChild(img);
+                wrapper.appendChild(deleteBtn);
+                previewContainer.appendChild(wrapper);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function updateInputFiles() {
+        const dt = new DataTransfer();
+        fileList.forEach(file => dt.items.add(file));
+        fileInputRoom.files = dt.files;
+    }
+</script>
+
+
 </body>
 </html>

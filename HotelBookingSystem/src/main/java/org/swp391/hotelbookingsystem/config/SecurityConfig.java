@@ -31,13 +31,13 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/api/files/**") //  disable CSRF for file upload API
+                        .ignoringRequestMatchers("/api/files/**") //  disable CSRF for file upload API, need for Postman
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/login", "/register", "/forgot-password",
                                 "/css/**", "/js/**", "/images/**", "/assets/**",
-                                "/api/files/**" // ✅ Allow API access
+                                "/api/files/**" //  Allow API access
                         ).permitAll()
                         .anyRequest().permitAll() // in dev mode
                 )
