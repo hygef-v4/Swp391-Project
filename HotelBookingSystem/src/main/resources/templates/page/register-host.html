@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Đăng Ký Khách Sạn Của Bạn - Booking</title>
+
+    <!-- Meta Tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="author" content="StackBros">
+    <meta name="description" content="Đăng ký khách sạn của bạn và bắt đầu cho thuê phòng trên Booking.">
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin=""/>
+
+    <!-- Dark mode -->
+    <script>
+        const storedTheme = localStorage.getItem('theme')
+
+        const getPreferredTheme = () => {
+            if (storedTheme) {
+                return storedTheme
+            }
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        }
+
+        const setTheme = function (theme) {
+            if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.setAttribute('data-bs-theme', 'dark')
+            } else {
+                document.documentElement.setAttribute('data-bs-theme', theme)
+            }
+        }
+
+        setTheme(getPreferredTheme())
+
+        window.addEventListener('DOMContentLoaded', () => {
+            var el = document.querySelector('.theme-icon-active');
+            if (el != 'undefined' && el != null) {
+                const showActiveTheme = theme => {
+                    const activeThemeIcon = document.querySelector('.theme-icon-active use')
+                    const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+                    const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
+
+                    document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+                        element.classList.remove('active')
+                    })
+
+                    btnToActive.classList.add('active')
+                    activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+                }
+
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                    if (storedTheme !== 'light' || storedTheme !== 'dark') {
+                        setTheme(getPreferredTheme())
+                    }
+                })
+
+                showActiveTheme(getPreferredTheme())
+
+                document.querySelectorAll('[data-bs-theme-value]')
+                    .forEach(toggle => {
+                        toggle.addEventListener('click', () => {
+                            const theme = toggle.getAttribute('data-bs-theme-value')
+                            localStorage.setItem('theme', theme)
+                            setTheme(theme)
+                            showActiveTheme(theme)
+                        })
+                    })
+
+            }
+        })
+
+    </script>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="assets/images/favicon.ico">
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Poppins:wght@400;500;700&display=swap">
+
+    <!-- Plugins CSS -->
+    <link rel="stylesheet" type="text/css" href="assets/vendor/font-awesome/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="assets/vendor/bootstrap-icons/bootstrap-icons.css">
+    <link rel="stylesheet" type="text/css" href="assets/vendor/choices/css/choices.min.css">
+    <link rel="stylesheet" type="text/css" href="assets/vendor/stepper/css/bs-stepper.min.css">
+    <link rel="stylesheet" type="text/css" href="assets/vendor/quill/css/quill.snow.css">
+    <link rel="stylesheet" type="text/css" href="assets/vendor/dropzone/css/dropzone.css">
+
+
+    <!-- Theme CSS -->
+    <link rel="stylesheet" type="text/css" href="assets/css/style.css">
+    <style>
+        /* Ensure map has a height */
+        #hotelLocationMap {
+            height: 350px; /* You can adjust this height */
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 0.25rem;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- Header START -->
+<div th:replace="~{common/header :: header}"></div>
+<!-- Header END -->
+
+<!-- **************** MAIN CONTENT START **************** -->
+<main>
+
+    <!-- =======================
+    Page Banner START -->
+    <section class="pt-4 pt-md-5 pb-0">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <h1 class="fs-2 mb-2">Đăng Ký Khách Sạn Của Bạn</h1>
+                    <p class="mb-0">Chia sẻ thông tin khách sạn của bạn và bắt đầu tiếp cận hàng triệu khách hàng. Chúng
+                        tôi sẽ hướng dẫn bạn qua từng bước.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- =======================
+    Page Banner END -->
+
+    <!-- =======================
+    Steps START -->
+    <section>
+        <div class="container">
+            <div id="hostStepper" class="bs-stepper stepper-outline">
+                <!-- Step Buttons START -->
+                <div class="bs-stepper-header" role="tablist">
+                    <!-- Step 1 -->
+                    <div class="step" data-target="#step-hotel-1">
+                        <div class="text-center">
+                            <button type="button" class="btn btn-link step-trigger mb-0" role="tab"
+                                    id="stepperHotelTrigger1" aria-controls="step-hotel-1">
+                                <span class="bs-stepper-circle">1</span>
+                            </button>
+                            <h6 class="bs-stepper-label d-none d-md-block">Thông Tin Khách Sạn</h6>
+                        </div>
+                    </div>
+                    <div class="line"></div>
+
+                    <!-- Step 2 -->
+                    <div class="step" data-target="#step-hotel-2">
+                        <div class="text-center">
+                            <button type="button" class="btn btn-link step-trigger mb-0" role="tab"
+                                    id="stepperHotelTrigger2" aria-controls="step-hotel-2">
+                                <span class="bs-stepper-circle">2</span>
+                            </button>
+                            <h6 class="bs-stepper-label d-none d-md-block">Chi Tiết Loại Phòng Cơ Bản</h6>
+                        </div>
+                    </div>
+                    <div class="line"></div>
+
+                    <!-- Step 3 -->
+                    <div class="step" data-target="#step-hotel-3">
+                        <div class="text-center">
+                            <button type="button" class="btn btn-link step-trigger mb-0" role="tab"
+                                    id="stepperHotelTrigger3" aria-controls="step-hotel-3">
+                                <span class="bs-stepper-circle">3</span>
+                            </button>
+                            <h6 class="bs-stepper-label d-none d-md-block">Chính Sách & Đăng Ký</h6>
+                        </div>
+                    </div>
+                </div>
+                <!-- Step Buttons END -->
+
+                <!-- Step content START -->
+                <div class="bs-stepper-content p-0 pt-4 pt-md-5">
+                    <form onsubmit="return false">
+
+                        <!-- Step 1 content START: Hotel Information -->
+                        <div id="step-hotel-1" role="tabpanel" class="content fade"
+                             aria-labelledby="stepperHotelTrigger1">
+                            <div class="vstack gap-4">
+                                <h4 class="mb-0">Cung cấp thông tin về khách sạn của bạn</h4>
+
+                                <!-- Hotel Basic Information -->
+                                <div class="card shadow">
+                                    <div class="card-header border-bottom">
+                                        <h5 class="mb-0">Thông Tin Cơ Bản Khách Sạn</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="col-12 mb-3">
+                                            <label class="form-label">Tên khách sạn của bạn *</label>
+                                            <input class="form-control" type="text"
+                                                   placeholder="Ví dụ: Khách Sạn Sen Vàng" id="hotelName">
+                                            <small>Tên sẽ hiển thị cho khách hàng.</small>
+                                        </div>
+                                        <div class="col-12 mb-3">
+                                            <label class="form-label">Mô tả về khách sạn của bạn *</label>
+                                            <div class="bg-light border border-bottom-0 rounded-top py-3 quilltoolbar">
+                                                <span class="ql-formats"><select class="ql-size"></select></span>
+                                                <span class="ql-formats"><button class="ql-bold"></button><button
+                                                        class="ql-italic"></button><button
+                                                        class="ql-underline"></button></span>
+                                                <span class="ql-formats"><button class="ql-list"
+                                                                                 value="ordered"></button><button
+                                                        class="ql-list" value="bullet"></button></span>
+                                                <span class="ql-formats"><button class="ql-link"></button></span>
+                                                <span class="ql-formats"><button class="ql-clean"></button></span>
+                                            </div>
+                                            <div class="bg-body border rounded-bottom h-200px overflow-hidden quilleditor"
+                                                 id="hotelDescriptionEditor">
+                                                <p>Nêu bật những điểm độc đáo, tiện nghi chung, và không khí của khách
+                                                    sạn.</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Ảnh đại diện khách sạn *</label>
+                                            <div class="dropzone dropzone-custom"
+                                                 data-dropzone='{"maxFiles": 1, "addRemoveLinks": true, "acceptedFiles": "image/*"}'
+                                                 id="hotelMainImage">
+                                                <div class="dz-message needsclick">
+                                                    <i class="bi bi-image-fill display-3"></i>
+                                                    <p>Kéo thả một ảnh hoặc nhấp để tải lên.</p>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="hotelImageUpload" class="form-label">Hoặc chọn ảnh từ máy
+                                                    tính của bạn</label>
+                                                <input class="form-control" type="file" id="hotelImageUpload"
+                                                       accept="image/*">
+                                                <small class="form-text text-muted">Chọn ảnh JPG/PNG từ thiết
+                                                    bị.</small>
+                                            </div>
+
+                                            <small>Ảnh này sẽ là ảnh chính cho khách sạn của bạn.</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Hotel Location -->
+                                <!-- Hotel Location -->
+                                <!-- Hotel Location -->
+                                <div class="card shadow">
+                                    <div class="card-header border-bottom">
+                                        <h5 class="mb-0">Vị Trí Khách Sạn</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-12">
+                                                <label class="form-label" for="hotelAddress">Địa chỉ khách sạn *</label>
+                                                <input class="form-control" type="text"
+                                                       placeholder="Ví dụ: 123 Đường ABC, Phường XYZ, Quận 1"
+                                                       id="hotelAddress">
+                                                <small>Địa chỉ chính xác sẽ giúp khách hàng tìm thấy bạn. Nhập địa chỉ
+                                                    có thể giúp định vị bản đồ.</small>
+                                            </div>
+
+                                            <!-- Inside the <form> in step-hotel-1, for example, near the city input -->
+
+
+                                            <!-- New Location Dropdown -->
+                                            <div class="col-md">
+                                                <label class="form-label" for="hotelLocation">Khu vực/Địa điểm *</label>
+                                                <select class="form-select js-choice" id="hotelLocation"
+                                                        name="hotelLocationId" data-search-enabled="true">
+                                                    <option value="">Chọn địa điểm</option>
+                                                    <!--/* Iterate over locations from the model */-->
+                                                    <th:block th:each="location : ${session.locations}">
+                                                        <option th:value="${location.id}"
+                                                                th:text="${location.cityName}">Location Name
+                                                        </option>
+                                                    </th:block>
+                                                </select>
+                                            </div>
+
+                                            <!--                                            <div class="col-md-6">-->
+                                            <!--                                                <label class="form-label" for="hotelCountry">Quốc gia *</label>-->
+                                            <!--                                                <select class="form-select js-choice" id="hotelCountry">-->
+                                            <!--                                                    <option value="">Chọn Quốc gia</option>-->
+                                            <!--                                                    <option selected value="Việt Nam">Việt Nam</option>-->
+                                            <!--                                                    <option value="Hoa Kỳ">Hoa Kỳ</option>-->
+                                            <!--                                                    <option value="Thái Lan">Thái Lan</option>-->
+                                            <!--                                                    <option value="Nhật Bản">Nhật Bản</option>-->
+                                            <!--                                                </select>-->
+                                            <!--                                            </div>-->
+
+                                            <!-- Interactive Map Integration START -->
+                                            <div class="col-12 mt-3">
+                                                <label class="form-label">Chọn vị trí trên bản đồ hoặc nhập tọa độ thủ
+                                                    công:</label>
+                                                <div id="interactiveHotelMap"
+                                                     style="height: 300px; width: 100%; border: 1px solid #ddd; border-radius: 0.25rem;">
+                                                    <!-- Map will be initialized here by Leaflet -->
+                                                </div>
+                                                <small class="form-text text-muted">Kéo thả ghim hoặc nhấp vào bản đồ để
+                                                    chọn vị trí. Tọa độ sẽ tự động cập nhật bên dưới.</small>
+                                            </div>
+                                            <!-- Interactive Map Integration END -->
+
+                                            <!-- Manual Latitude and Longitude Input START -->
+                                            <div class="col-md-6 mt-2">
+                                                <label for="hotelLatitudeManual" class="form-label">Vĩ độ
+                                                    (Latitude)</label>
+                                                <input type="text" class="form-control" id="hotelLatitudeManual"
+                                                       name="hotelLatitudeManual" placeholder="Ví dụ: 21.028511">
+                                            </div>
+                                            <div class="col-md-6 mt-2">
+                                                <label for="hotelLongitudeManual" class="form-label">Kinh độ
+                                                    (Longitude)</label>
+                                                <input type="text" class="form-control" id="hotelLongitudeManual"
+                                                       name="hotelLongitudeManual" placeholder="Ví dụ: 105.854167">
+                                            </div>
+                                            <div class="col-12">
+                                                <small class="form-text text-muted">
+                                                    Tọa độ sẽ được cập nhật từ bản đồ, hoặc bạn có thể nhập thủ công.
+                                                </small>
+                                            </div>
+                                            <!-- Manual Latitude and Longitude Input END -->
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <button class="btn btn-primary next-btn mb-0">Tiếp Theo</button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Step 1 content END -->
+
+                        <!-- Step 2 content START: Initial Room Type Details -->
+                        <div id="step-hotel-2" role="tabpanel" class="content fade"
+                             aria-labelledby="stepperHotelTrigger2">
+                            <div class="vstack gap-4">
+                                <h4 class="mb-0">Thiết lập loại phòng đầu tiên của bạn</h4>
+                                <p>Bạn có thể thêm nhiều loại phòng khác sau khi khách sạn được đăng ký.</p>
+
+                                <!-- Room Details -->
+                                <div class="card shadow">
+                                    <div class="card-header border-bottom">
+                                        <h5 class="mb-0">Thông Tin Loại Phòng</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label">Loại phòng (Hạng phòng) *</label>
+                                                <select required class="form-select js-choice" id="roomCategory">
+                                                    <option value="">Chọn loại phòng</option>
+                                                    <option th:each="type : ${session.roomTypes}"
+                                                            th:value="${type.roomTypeId}"
+                                                            th:text="${type.name}"
+                                                    >
+
+                                                    </option>
+
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Tên/Tiêu đề phòng *</label>
+                                                <input type="text" class="form-control"
+                                                       placeholder="Ví dụ: Phòng Standard giường đôi hướng phố"
+                                                       id="roomTitle">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Số khách tối đa / phòng *</label>
+                                                <input type="number" class="form-control" placeholder="Số lượng khách"
+                                                       min="1" id="roomMaxGuests">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Số lượng phòng loại này *</label>
+                                                <input type="number" class="form-control" placeholder="Số lượng" min="1"
+                                                       id="roomQuantity">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Giá mỗi đêm (VND) *</label>
+                                                <input type="number" class="form-control" placeholder="Giá phòng"
+                                                       min="0" id="roomPrice">
+                                            </div>
+                                            <div class="col-12">
+                                                <label class="form-label">Mô tả chi tiết về loại phòng này *</label>
+                                                <div class="bg-light border border-bottom-0 rounded-top py-3 quilltoolbar">
+                                                    <span class="ql-formats"><select class="ql-size"></select></span>
+                                                    <span class="ql-formats"><button class="ql-bold"></button><button
+                                                            class="ql-italic"></button><button
+                                                            class="ql-underline"></button></span>
+                                                    <span class="ql-formats"><button class="ql-list"
+                                                                                     value="ordered"></button><button
+                                                            class="ql-list" value="bullet"></button></span>
+                                                    <span class="ql-formats"><button class="ql-clean"></button></span>
+                                                </div>
+                                                <div class="bg-body border rounded-bottom h-150px overflow-hidden quilleditor"
+                                                     id="roomDescriptionEditor">
+                                                    <p>Mô tả về kích thước phòng, loại giường, tầm nhìn, và các đặc điểm
+                                                        nổi bật khác.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Room Amenities -->
+                                <div class="card shadow">
+                                    <div class="card-header border-bottom">
+                                        <h5 class="mb-0">Tiện Nghi Phòng</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <label class="form-label mb-3">Chọn các tiện nghi có trong loại phòng này:</label>
+
+                                        <!-- Loop through each category -->
+                                        <div th:each="entry : ${groupedAmenities}">
+                                            <!-- 🏷 Category Name -->
+                                            <h6 class="fw-bold mb-2" th:text="${entry.key}">Tên danh mục</h6>
+
+                                            <div class="row">
+                                                <!-- Amenities under that category -->
+                                                <div class="col-sm-6 col-md-4" th:each="amenity : ${entry.value}">
+                                                    <div class="form-check mb-2">
+                                                        <input class="form-check-input"
+                                                               type="checkbox"
+                                                               th:id="'amenity-' + ${amenity.amenityId}"
+                                                               th:name="amenities"
+                                                               th:value="${amenity.amenityId}" />
+                                                        <label class="form-check-label"
+                                                               th:for="'amenity-' + ${amenity.amenityId}"
+                                                               th:text="${amenity.name}"></label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Separator -->
+                                            <hr class="my-3" />
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <!-- Room Photos -->
+                                <div class="card shadow">
+                                    <div class="card-header border-bottom">
+                                        <h5 class="mb-0">Hình Ảnh Loại Phòng</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <label class="form-label">Tải lên hình ảnh cho loại phòng này (ít nhất 3 ảnh)
+                                            *</label>
+
+                                        <!-- Dropzone uploader -->
+                                        <div class="dropzone dropzone-custom"
+                                             data-dropzone='{"maxFiles": 10, "addRemoveLinks": true, "acceptedFiles": "image/*"}'
+                                             id="roomImages">
+                                            <div class="dz-message needsclick">
+                                                <i class="bi bi-images display-3"></i>
+                                                <p>Kéo thả tệp vào đây hoặc nhấp để tải lên.</p>
+                                            </div>
+                                        </div>
+
+                                        <!-- OR manual file input -->
+                                        <div class="mt-3">
+                                            <label for="roomImageUpload" class="form-label">Hoặc chọn ảnh từ máy tính
+                                                của bạn</label>
+                                            <input class="form-control" type="file" id="roomImageUpload"
+                                                   accept="image/*" multiple>
+                                            <small>Chọn nhiều ảnh JPG/PNG từ thiết bị của bạn.</small>
+
+                                            <!-- Optional preview -->
+                                            <div id="roomImagePreviewContainer"
+                                                 class="mt-3 d-flex flex-wrap gap-2"></div>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+                            </div>
+
+
+                            <div class="hstack gap-2 flex-wrap justify-content-between">
+                                <button class="btn btn-secondary prev-btn mb-0">Trước</button>
+                                <button class="btn btn-primary next-btn mb-0">Tiếp Theo</button>
+                            </div>
+                        </div>
+                </div>
+                <!-- Step 2 content END -->
+
+                <!-- Step 3 content START: Policies & Registration -->
+                <div id="step-hotel-3" role="tabpanel" class="content fade" aria-labelledby="stepperHotelTrigger3">
+                    <div class="vstack gap-4">
+                        <h4 class="mb-0">Chính sách khách sạn và hoàn tất đăng ký</h4>
+
+                        <!-- Hotel Policies / House Rules -->
+                        <div class="card shadow">
+                            <div class="card-header border-bottom">
+                                <h5 class="mb-0">Nội Quy & Chính Sách Khách Sạn</h5>
+                            </div>
+                            <div class="card-body">
+                                <label class="form-label">Quy định chung cho khách (ví dụ: giờ nhận/trả phòng, chính
+                                    sách hút thuốc, vật nuôi, hủy phòng...)</label>
+                                <textarea class="form-control" rows="5"
+                                          placeholder="Ví dụ: Giờ nhận phòng: 14:00, Giờ trả phòng: 12:00. Không hút thuốc trong phòng. Cho phép vật nuôi nhỏ với phụ phí..."
+                                          id="hotelPolicies"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Pricing Discounts (Optional) -->
+                        <div class="card shadow">
+                            <div class="card-header border-bottom">
+                                <h5 class="mb-0">Ưu Đãi Giá (Tùy chọn)</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="col-md-8">
+                                    <label class="form-label">Giảm giá cho khách ở dài ngày</label>
+                                    <select class="form-select js-choice" id="longStayDiscount">
+                                        <option value="0">Không giảm giá</option>
+                                        <option value="10">Giảm 10% cho 7 đêm trở lên</option>
+                                        <option value="15">Giảm 15% cho 14 đêm trở lên</option>
+                                        <option value="20">Giảm 20% cho 30 đêm trở lên</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- Summary Review -->
+                        <div class="card shadow">
+                            <div class="card-header border-bottom">
+                                <h5 class="mb-0">Xem Lại Thông Tin Đăng Ký</h5>
+                            </div>
+                            <div class="card-body">
+                                <p>Vui lòng kiểm tra lại tất cả thông tin bạn đã cung cấp. Bạn có thể quay lại các bước
+                                    trước để chỉnh sửa nếu cần.</p>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item"><strong>Tên khách sạn:</strong> <span
+                                            id="summaryHotelName">[Sẽ hiển thị ở đây]</span></li>
+                                    <li class="list-group-item"><strong>Địa chỉ:</strong> <span
+                                            id="summaryHotelAddress">[Sẽ hiển thị ở đây]</span></li>
+                                    <li class="list-group-item"><strong>Thành phố:</strong> <span id="summaryHotelCity">[Sẽ hiển thị ở đây]</span>
+                                    </li>
+                                    <li class="list-group-item"><strong>Vĩ độ:</strong> <span id="summaryLatitude">[Sẽ hiển thị ở đây]</span>
+                                    </li>
+                                    <li class="list-group-item"><strong>Kinh độ:</strong> <span id="summaryLongitude">[Sẽ hiển thị ở đây]</span>
+                                    </li>
+                                    <li class="list-group-item"><strong>Loại phòng cơ bản:</strong> <span
+                                            id="summaryRoomTitle">[Sẽ hiển thị ở đây]</span></li>
+                                    <li class="list-group-item"><strong>Giá phòng cơ bản:</strong> <span
+                                            id="summaryRoomPrice">[Sẽ hiển thị ở đây]</span> VND
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Terms and Conditions -->
+                        <div class="card shadow">
+                            <div class="card-header border-bottom">
+                                <h5 class="mb-0">Điều Khoản & Cam Kết</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="" id="agreeTerms" required>
+                                    <label class="form-check-label" for="agreeTerms">
+                                        Tôi đồng ý với <a href="terms-of-service.html" target="_blank">Điều khoản Dịch
+                                        vụ</a> và <a href="privacy-policy.html" target="_blank">Chính sách Bảo mật</a>
+                                        của Booking.
+                                    </label>
+                                </div>
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" value="" id="hostCommitment"
+                                           required>
+                                    <label class="form-check-label" for="hostCommitment">
+                                        Tôi cam kết cung cấp thông tin chính xác, dịch vụ chất lượng và tuân thủ các
+                                        tiêu chuẩn của Booking.
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="hstack gap-2 flex-wrap justify-content-between">
+                            <button class="btn btn-secondary prev-btn mb-0">Trước</button>
+                            <button type="submit" class="btn btn-success mb-0">Gửi Đăng Ký Khách Sạn</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Step 3 content END -->
+
+                </form>
+            </div>
+            <!-- Step content END -->
+        </div>
+        </div>
+    </section>
+    <!-- =======================
+    Steps END -->
+
+</main>
+<!-- **************** MAIN CONTENT END **************** -->
+
+<!-- =======================
+Footer START -->
+<div th:replace="~{common/footer :: footer}"></div>
+<!-- =======================
+Footer END -->
+
+<!-- Back to top -->
+<div class="back-top"></div>
+
+<!-- Bootstrap JS -->
+<script src="assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Vendors -->
+<script src="assets/vendor/choices/js/choices.min.js"></script>
+<script src="assets/vendor/stepper/js/bs-stepper.min.js"></script>
+<script src="assets/vendor/quill/js/quill.min.js"></script>
+<script src="assets/vendor/dropzone/js/dropzone.js"></script>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""></script>
+
+<!-- ThemeFunctions -->
+<script src="assets/js/functions.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var stepperEl = document.querySelector('#hostStepper');
+        var stepper;
+        var quillHotelDescription, quillRoomDescription; // To store Quill instances
+
+        if (stepperEl) {
+            stepper = new Stepper(stepperEl, {
+                linear: false,
+                animation: true
+            });
+        }
+
+        // Initialize Quill editors
+        var quillEditorElements = document.querySelectorAll('.quilleditor');
+        quillEditorElements.forEach(function (editorEl) {
+            var toolbar = editorEl.previousElementSibling;
+            if (toolbar && toolbar.classList.contains('quilltoolbar')) {
+                const quillInstance = new Quill(editorEl, {
+                    modules: {
+                        toolbar: toolbar
+                    },
+                    theme: 'snow'
+                });
+                if (editorEl.id === 'hotelDescriptionEditor') {
+                    quillHotelDescription = quillInstance;
+                } else if (editorEl.id === 'roomDescriptionEditor') {
+                    quillRoomDescription = quillInstance;
+                }
+            }
+        });
+
+        // Initialize Choices.js
+        var choiceElements = document.querySelectorAll('.js-choice');
+        choiceElements.forEach(function (el) {
+            new Choices(el, {
+                searchEnabled: false,
+                itemSelectText: 'Nhấn để chọn',
+            });
+        });
+
+        // --- Leaflet Map Integration ---
+        var map;
+        var marker;
+        const hotelLatInput = document.getElementById('hotelLatitude');
+        const hotelLngInput = document.getElementById('hotelLongitude');
+        const hotelCityInput = document.getElementById('hotelCity');
+        const hotelAddressInput = document.getElementById('hotelAddress');
+        var mapInitialized = false; // Flag to check if map is already initialized
+
+        function initializeHotelMap() {
+            if (mapInitialized || !document.getElementById('hotelLocationMap')) return;
+
+            // Default coordinates (e.g., Hanoi, Vietnam)
+            let defaultLat = 21.0285;
+            let defaultLng = 105.8542;
+            let defaultZoom = 6; // Zoom out a bit initially for wider country view
+
+            // Use existing values if available (e.g., if user comes back to this step)
+            if (hotelLatInput.value && hotelLngInput.value) {
+                defaultLat = parseFloat(hotelLatInput.value);
+                defaultLng = parseFloat(hotelLngInput.value);
+                defaultZoom = 15; // Zoom in if a specific point is already set
+            }
+
+            map = L.map('hotelLocationMap').setView([defaultLat, defaultLng], defaultZoom);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            marker = L.marker([defaultLat, defaultLng], {
+                draggable: true
+            }).addTo(map);
+
+            function updateLatLngInputs(latlng) {
+                hotelLatInput.value = latlng.lat.toFixed(6);
+                hotelLngInput.value = latlng.lng.toFixed(6);
+                // console.log("Updated Coords:", hotelLatInput.value, hotelLngInput.value);
+            }
+
+            marker.on('dragend', function (event) {
+                updateLatLngInputs(marker.getLatLng());
+            });
+
+            map.on('click', function (e) {
+                marker.setLatLng(e.latlng);
+                updateLatLngInputs(e.latlng);
+            });
+
+            // Set initial hidden input values if not already set by marker drag/click
+            if (!hotelLatInput.value || !hotelLngInput.value) {
+                updateLatLngInputs(marker.getLatLng());
+            }
+            mapInitialized = true;
+        }
+
+        // Attempt to geocode address (simple Nominatim example)
+        function geocodeAddressAndSetMap() {
+            const city = hotelCityInput.value;
+            const address = hotelAddressInput.value;
+            let query = address;
+            if (city && address.toLowerCase().indexOf(city.toLowerCase()) === -1) { // Add city if not already in address
+                query += ", " + city;
+            }
+            query += ", Việt Nam"; // Assuming Vietnam as default country for better results
+
+            if (!query.trim()) return;
+
+            // Simple check to avoid excessive API calls if address hasn't changed much
+            if (map && map.lastGeocodedQuery === query) return;
+
+
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.length > 0) {
+                        const lat = parseFloat(data[0].lat);
+                        const lon = parseFloat(data[0].lon);
+                        if (map && marker) {
+                            map.setView([lat, lon], 15);
+                            marker.setLatLng([lat, lon]);
+                            hotelLatInput.value = lat.toFixed(6);
+                            hotelLngInput.value = lon.toFixed(6);
+                            map.lastGeocodedQuery = query; // Store last geocoded query
+                            // console.log("Geocoded and set map to:", lat, lon);
+                        }
+                    } else {
+                        // console.log("Could not geocode address:", query);
+                        // Fallback to city if full address fails
+                        if (city && city !== query.split(",")[0]) { // Avoid re-querying if city was the main part
+                            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(city + ", Việt Nam")}&limit=1`)
+                                .then(response => response.json())
+                                .then(cityData => {
+                                    if (cityData && cityData.length > 0) {
+                                        const lat = parseFloat(cityData[0].lat);
+                                        const lon = parseFloat(cityData[0].lon);
+                                        if (map && marker) {
+                                            map.setView([lat, lon], 13); // Zoom out a bit for city
+                                            marker.setLatLng([lat, lon]);
+                                            hotelLatInput.value = lat.toFixed(6);
+                                            hotelLngInput.value = lon.toFixed(6);
+                                            map.lastGeocodedQuery = city + ", Việt Nam";
+                                        }
+                                    }
+                                });
+                        }
+                    }
+                })
+                .catch(error => console.error('Error geocoding:', error));
+        }
+
+        if (hotelAddressInput) {
+            hotelAddressInput.addEventListener('blur', geocodeAddressAndSetMap);
+        }
+        if (hotelCityInput) {
+            hotelCityInput.addEventListener('blur', geocodeAddressAndSetMap);
+        }
+
+
+        // Stepper event to handle map initialization and resizing
+        if (stepperEl) {
+            stepperEl.addEventListener('shown.bs-stepper', function (event) {
+                if (event.detail.indexStep === 0) { // First step (index 0)
+                    if (!mapInitialized) {
+                        initializeHotelMap();
+                    }
+                    if (map) {
+                        // Timeout to ensure the div is fully rendered before invalidating size
+                        setTimeout(function () {
+                            map.invalidateSize();
+                        }, 100);
+                    }
+                }
+                // When moving to the review step, update summary
+                if (event.detail.indexStep === 2) { // Third step (index 2 for summary)
+                    updateSummary();
+                }
+            });
+        }
+        // Initialize map if the first step is already active on page load
+        if (document.querySelector('#step-hotel-1.active')) {
+            initializeHotelMap();
+            if (map) {
+                setTimeout(function () {
+                    map.invalidateSize();
+                }, 100);
+            }
+        }
+
+
+        // Summary update function
+        function updateSummary() {
+            document.getElementById('summaryHotelName').textContent = document.getElementById('hotelName')?.value || '[Chưa nhập]';
+            document.getElementById('summaryHotelAddress').textContent = document.getElementById('hotelAddress')?.value || '[Chưa nhập]';
+            document.getElementById('summaryHotelCity').textContent = document.getElementById('hotelCity')?.value || '[Chưa nhập]';
+            document.getElementById('summaryLatitude').textContent = document.getElementById('hotelLatitude')?.value || '[Chưa chọn]';
+            document.getElementById('summaryLongitude').textContent = document.getElementById('hotelLongitude')?.value || '[Chưa chọn]';
+            document.getElementById('summaryRoomTitle').textContent = document.getElementById('roomTitle')?.value || '[Chưa nhập]';
+            document.getElementById('summaryRoomPrice').textContent = document.getElementById('roomPrice')?.value || '[Chưa nhập]';
+        }
+
+        // Update summary when navigating to the last step via next button
+        const nextButtons = document.querySelectorAll('.next-btn');
+        nextButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                if (stepper && stepper._currentIndex === 1 && stepper._steps.length === 3) { // If current is step 2 (index 1) and about to go to step 3
+                    updateSummary();
+                }
+            });
+        });
+
+        // Also update summary if user directly clicks on the review step tab
+        const reviewStepTrigger = document.getElementById('stepperHotelTrigger3');
+        if (reviewStepTrigger) {
+            reviewStepTrigger.addEventListener('click', updateSummary);
+        }
+
+    });
+</script>
+
+
+</body>
+</html>
