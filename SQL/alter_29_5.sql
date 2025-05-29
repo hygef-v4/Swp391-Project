@@ -10,3 +10,29 @@ UPDATE RoomTypes SET description = N'Phòng sang trọng với nội thất cao 
 UPDATE RoomTypes SET description = N'Phòng gần thiên nhiên, có vườn bao quanh.' WHERE room_type_id = 8;
 UPDATE RoomTypes SET description = N'Phòng phong cách cổ điển, nội thất mang nét xưa.' WHERE room_type_id = 9;
 UPDATE RoomTypes SET description = N'Phòng VIP với đầy đủ dịch vụ cao cấp.' WHERE room_type_id = 10;
+
+
+CREATE TABLE AmenityCategories (
+    category_id INT IDENTITY(1,1) PRIMARY KEY,
+    name NVARCHAR(100) UNIQUE NOT NULL
+);
+go
+INSERT INTO AmenityCategories (name)
+SELECT DISTINCT category
+FROM Amenities
+WHERE category IS NOT NULL;
+go
+ALTER TABLE Amenities
+ADD category_id INT;
+go
+UPDATE a
+SET category_id = ac.category_id
+FROM Amenities a
+JOIN AmenityCategories ac ON a.category = ac.name;
+go
+ALTER TABLE Amenities
+DROP COLUMN category;
+go
+ALTER TABLE Amenities
+ADD CONSTRAINT FK_Amenities_Categories
+FOREIGN KEY (category_id) REFERENCES AmenityCategories(category_id);
