@@ -67,6 +67,10 @@
     <link rel="stylesheet" th:href="@{/assets/vendor/font-awesome/css/all.min.css}">
     <link rel="stylesheet" th:href="@{/assets/vendor/bootstrap-icons/bootstrap-icons.css}">
     <link rel="stylesheet" th:href="@{/assets/css/style.css}">
+
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
+
 </head>
 
 <body>
@@ -99,8 +103,9 @@
                                     </div>
 
                                     <!-- Form START -->
-                                    <form th:action="@{/login}" method="post" class="mt-4 text-start">
-                                        <!-- Email -->
+                                    <form id="login-form" th:action="@{/login}" method="post" class="mt-4 text-start">
+
+                                    <!-- Email -->
                                         <div class="mb-3">
                                             <label class="form-label">Enter email</label>
                                             <input type="email" name="username" class="form-control" required>
@@ -126,6 +131,10 @@
 
                                         <!-- CSRF hidden input -->
                                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                        <!-- reCAPTCHA checkbox widget -->
+                                        <div class="mb-3">
+                                            <div class="g-recaptcha" data-sitekey="6Le0s0wrAAAAABsrxrXOnjCwKKNhbhFio6XxJZat"></div>
+                                        </div>
 
                                         <!-- Submit -->
                                         <div>
@@ -150,10 +159,10 @@
                                         </div>
 
                                         <!-- Footer -->
-                                        <div class="text-primary-hover text-body mt-3 text-center">
-                                            Copyrights ©2025 Booking. Build by
-                                            <a href="#" class="text-body">Cuong</a>.
-                                        </div>
+<!--                                        <div class="text-primary-hover text-body mt-3 text-center">-->
+<!--                                            Copyrights ©2025 Booking. Build by-->
+<!--                                            <a href="#" class="text-body">Cuong</a>.-->
+<!--                                        </div>-->
                                     </form>
                                     <!-- Form END -->
 
@@ -172,6 +181,29 @@
 
 <script th:src="@{/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
 <script th:src="@{/assets/js/functions.js}"></script>
+
+<!-- reCAPTCHA hidden input -->
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById("login-form");
+        const errorContainer = document.createElement("div");
+        errorContainer.style.color = "red";
+        errorContainer.style.marginTop = "10px";
+        form.appendChild(errorContainer);
+
+        form.addEventListener("submit", function (e) {
+            const response = grecaptcha.getResponse();
+            if (response.length === 0) {
+                e.preventDefault(); // Stop form submission
+                errorContainer.textContent = "Please complete the reCAPTCHA to continue.";
+            } else {
+                errorContainer.textContent = ""; // Clear error if passed
+            }
+        });
+    });
+</script>
 
 </body>
 </html>

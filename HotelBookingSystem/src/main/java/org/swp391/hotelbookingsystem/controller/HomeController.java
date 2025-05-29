@@ -1,6 +1,5 @@
 package org.swp391.hotelbookingsystem.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -40,6 +39,12 @@ public class HomeController {
         // Fetch top 5 public positive reviews and add to model
         List<Review> top5Reviews = reviewService.getTop5PublicPositiveReviews();
         model.addAttribute("top5Reviews", top5Reviews);
+
+        String email = (String) session.getAttribute("email");
+        String name = (String) session.getAttribute("name");
+
+        model.addAttribute("email", email);
+        model.addAttribute("fullName", name);
 
         return "page/homepage";
     }

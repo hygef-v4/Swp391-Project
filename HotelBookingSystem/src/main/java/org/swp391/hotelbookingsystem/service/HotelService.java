@@ -22,8 +22,8 @@ public class HotelService {
         return hotelRepository.getTop8HighRatedHotels();
     }
 
-    public List<Hotel> getHotelsByLocation(int id) {
-        if(id == -1) return hotelRepository.getHotelsSortedByRating();
-        return hotelRepository.getHotelsByLocation(id);
+    public List<Hotel> getHotelsByLocation(int id, String search) {
+        if(id == -1) return hotelRepository.searchHotel(search);
+        return hotelRepository.getHotelsByLocation(id, search);
     }    
 }

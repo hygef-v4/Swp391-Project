@@ -152,10 +152,7 @@ Main Banner START -->
 							<!-- Date input -->
 							<div class="form-control-border form-control-transparent form-fs-md">
 								<label class="form-label">Nhận phòng – Trả phòng</label>
-								<input type="text" class="form-control flatpickr" name="dateRange"
-										placeholder="Chọn ngày">
-
-
+								<input type="text" class="form-control flatpickr" data-mode="range" name="dateRange" placeholder="Chọn ngày">
 							</div>
 						</div>
 					</div>
@@ -388,19 +385,19 @@ Hotel grid START -->
 			<div class="col-md-6 col-xl-4" th:each="hotel: ${hotels}">
 				<div class="card shadow p-2 pb-0 h-100">
 					<!-- Slider START -->
-					<div class="tiny-slider arrow-round arrow-xs arrow-dark rounded-2 overflow-hidden">
-						<div class="tiny-slider-inner" data-autoplay="false" data-arrow="true" data-dots="false" data-items="1">
-							<!-- Image item -->
-							<div><img src="assets/images/category/hotel/4by3/09.jpg" alt="Card image"></div>
+					<div class="card-img-scale-wrapper rounded-3">
 
-							<!-- Image item -->
-							<div><img src="assets/images/category/hotel/4by3/02.jpg" alt="Card image"></div>
+						<a>
+							<img class="card-img clickable-img" th:src="${hotel.hotelImageUrl}" alt="hotel image">
+						</a>
 
-							<!-- Image item -->
-							<div><img src="assets/images/category/hotel/4by3/03.jpg" alt="Card image"></div>
 
-							<!-- Image item -->
-							<div><img src="assets/images/category/hotel/4by3/01.jpg" alt="Card image"></div>
+						<!-- Location badge -->
+						<div class="position-absolute bottom-0 start-0 p-3">
+							<div class="badge text-bg-dark fs-6 rounded-pill">
+								<i class="bi bi-geo-alt me-2"></i>
+								<span th:text="${hotel.cityName}">City</span>
+							</div>
 						</div>
 					</div>
 					<!-- Slider END -->

@@ -41,8 +41,8 @@ public class HotelRepository {
                    l.city_name AS cityName
             FROM Hotels h
             JOIN Locations l ON h.location_id = l.location_id
-            JOIN Rooms r ON h.hotel_id = r.hotel_id
-            WHERE h.location_id = ?
+            LEFT JOIN Rooms r ON h.hotel_id = r.hotel_id
+            WHERE h.location_id = ? AND h.hotel_name like ?
             GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
                      h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude,
                      l.city_name
@@ -64,7 +64,7 @@ public class HotelRepository {
                    l.city_name AS cityName
             FROM Hotels h
             JOIN Locations l ON h.location_id = l.location_id
-            JOIN Rooms r ON h.hotel_id = r.hotel_id
+            LEFT JOIN Rooms r ON h.hotel_id = r.hotel_id
             GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
                      h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude,
                      l.city_name
@@ -86,9 +86,38 @@ public class HotelRepository {
         return jdbcTemplate.query(SELECT_TOP_8_HOTELS, HOTEL_MAPPER);
     }
 
-    public List<Hotel> getHotelsByLocation(int locationId) {
+    public List<Hotel> getHotelsByLocation(int locationId, String search) {
         return jdbcTemplate.query(SELECT_HOTEL_BY_LOCATION, ps -> {
             ps.setInt(1, locationId);
+            ps.setString(2, "%" + search + "%");
+        }, HOTEL_MAPPER);
+    }
+
+    public List<Hotel> searchHotel(String search){
+        String query = """
+            SELECT h.hotel_id AS hotelId,
+                   h.host_id AS hostId,
+                   h.hotel_name AS hotelName,
+                   h.address,
+                   h.description,
+                   h.location_id AS locationId,
+                   h.hotel_image_url AS hotelImageUrl,
+                   h.rating,
+                   h.latitude,
+                   h.longitude,
+                   MIN(r.price) AS minPrice,
+                   l.city_name AS cityName
+            FROM Hotels h
+            JOIN Locations l ON h.location_id = l.location_id
+            JOIN Rooms r ON h.hotel_id = r.hotel_id
+            WHERE h.hotel_name like ?
+            GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
+                     h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude,
+                     l.city_name
+            ORDER BY h.rating DESC
+            """;            
+        return jdbcTemplate.query(query, ps -> {
+            ps.setString(1, "%" + search + "%");
         }, HOTEL_MAPPER);
     }
 }

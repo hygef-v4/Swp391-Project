@@ -18,9 +18,6 @@ public class User {
     private String phone;
     private String role;
     private boolean active;
-    private String createdAt;
-    private String updatedAt;
-
 
     public User(String email, String password) {
         this.email = email;
