@@ -104,6 +104,12 @@ public class UserRepo {
         jdbc.update(sql, encodedPassword, email);
     }
 
+    public void updateUserDetails(User user) {
+        String sql = "UPDATE Users SET full_name = ?, phone = ?, updated_at = GETDATE() WHERE user_id = ?";
+        jdbc.update(sql, user.getFullname(), user.getPhone(), user.getId());
+    }
+
+
 }
 
 

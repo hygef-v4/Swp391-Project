@@ -250,7 +250,7 @@
                             <!-- Card body START -->
                             <div class="card-body">
                                 <!-- Form START -->
-                                <form class="row g-3">
+                                <form class="row g-3" action="/user-profile/update" method="post">
                                     <!-- Profile photo -->
                                     <div class="col-12">
                                         <label class="form-label">Upload your profile photo<span
@@ -274,8 +274,8 @@
 
                                     <!-- Name -->
                                     <div class="col-md-6">
-                                        <label class="form-label">Full Name<span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" name="fullName" th:value="${fullName}"
+                                        <label class="form-label">Tên người dùng:<span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" name="fullname" th:value="${fullname}"
                                                placeholder="Enter your full name"></div>
 
                                     <!-- Email -->
@@ -288,9 +288,10 @@
 
                                     <!-- Mobile -->
                                     <div class="col-md-6">
-                                        <label class="form-label">Mobile number<span
+                                        <label class="form-label">Số điện thoại:
+                                            <span
                                                 class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" name="phone" th:value="${phone}"
+                                        <input type="text" class="form-control" id="phone" name="phone" th:value="${phone}"
                                                placeholder="Enter your mobile number">
                                     </div>
 
@@ -307,12 +308,12 @@
                                     <!--                                    </div>-->
 
                                     <!--                                     Date of birth-->
-                                    <div class="col-md-6">
-                                        <label class="form-label">Date of Birth<span
-                                                class="text-danger">*</span></label>
-                                        <input type="text" class="form-control flatpickr" value="29 Aug 1996"
-                                               placeholder="Enter date of birth" data-date-format="d M Y">
-                                    </div>
+<!--                                    <div class="col-md-6">-->
+<!--                                        <label class="form-label">Date of Birth<span-->
+<!--                                                class="text-danger">*</span></label>-->
+<!--                                        <input type="text" class="form-control flatpickr" value="29 Aug 1996"-->
+<!--                                               placeholder="Enter date of birth" data-date-format="d M Y">-->
+<!--                                    </div>-->
 
                                     <!--                                     Gender-->
                                     <div class="col-md-6">
@@ -351,7 +352,7 @@
 
                                     <!-- Button -->
                                     <div class="col-12 text-end">
-                                        <a href="#" class="btn btn-primary mb-0">Save Changes</a>
+                                        <button type="submit" href="#" class="btn btn-primary mb-0">Save Changes</button>
                                     </div>
                                 </form>
                                 <!-- Form END -->
