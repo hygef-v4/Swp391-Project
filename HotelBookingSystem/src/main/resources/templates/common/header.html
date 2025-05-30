@@ -310,11 +310,13 @@
                                 </div>
                                 <div>
                                     <a class="h6 mt-2 mt-sm-0" href="#">
-                                        <span th:text="${user.fullname != '' ? user.fullname : 'No Name'}"></span>
+                                        <span th:text="${user != null and user.fullname != '' ? user.fullname : 'No Name'}"></span>
+
                                     </a>
                                     <p class="small m-0">
-                                        <span th:text="${user.email}"></span>
+                                        <span th:text="${user != null ? user.email : ''}"></span>
                                     </p>
+
                                 </div>
                             </div>
                         </li>
