@@ -62,9 +62,6 @@ public class RegisterController {
         user.setFullname(fullname);
         userRepo.saveUser(user);
 
-        model.addAttribute("email", email);
-        model.addAttribute("fullName", fullname);
-
         return "redirect:/login";
     }
 }

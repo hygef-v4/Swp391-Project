@@ -28,16 +28,28 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         String email = oauthUser.getAttribute("email");
         String name = oauthUser.getAttribute("name");
 
-        User existingUser = userRepo.findByEmail(email);
-        if (existingUser == null) {
-            User newUser = new User();
-            newUser.setEmail(email);
-            newUser.setFullname(name);
-            userRepo.saveUserFromGoogle(newUser);
+        User user = userRepo.findByEmail(email);
+        if (user == null) {
+            user = new User();
+            user.setEmail(email);
+            user.setFullname(name);
+            userRepo.saveUserFromGoogle(user);
         }
-        request.getSession().setAttribute("email", email);
-        request.getSession().setAttribute("name", name);
 
-        response.sendRedirect("/");
+        if (!user.isActive()) {
+            response.sendRedirect("/login?error=inactive");
+            return;
+        }
+
+        request.getSession().setAttribute("user", user);
+
+        switch (user.getRole()) {
+            case "ADMIN", "MODERATOR" -> response.sendRedirect("/home");
+            case "HOTEL OWNER" -> response.sendRedirect("/home");
+            case "CUSTOMER", "GUEST" -> response.sendRedirect("/home");
+            default -> response.sendRedirect("/home");
+        }
+
     }
 }
+
