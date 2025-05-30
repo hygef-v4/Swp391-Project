@@ -10,11 +10,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.swp391.hotelbookingsystem.constant.ConstantVariables;
 import org.swp391.hotelbookingsystem.model.Amenity;
-import org.swp391.hotelbookingsystem.service.AmenityService;
-import org.swp391.hotelbookingsystem.service.CloudinaryService;
-import org.swp391.hotelbookingsystem.service.LocationService;
-import org.swp391.hotelbookingsystem.service.RoomTypeService;
+import org.swp391.hotelbookingsystem.model.Hotel;
+import org.swp391.hotelbookingsystem.model.Room;
+import org.swp391.hotelbookingsystem.service.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -34,6 +34,11 @@ public class HostController {
 
     @Autowired
     CloudinaryService cloudinaryService;
+
+    @Autowired
+    RoomService roomService;
+    @Autowired
+    HotelService hotelService;
 
     @GetMapping("/register-host")
     public String showRegisterHostPage(Model model, HttpSession session) {
@@ -59,8 +64,6 @@ public class HostController {
     }
 
 
-
-
     @GetMapping("/add-listing")
     public String showAddListingPage(Model model) {
         return "page/add-listing";
@@ -73,35 +76,96 @@ public class HostController {
         return "page/host-intro";
     }
 
-
+    // A simple host dashboard placeholder
+    @GetMapping("/host-dashboard")
+    public String showHostDashboard(Model model) {
+        model.addAttribute("message", "Hotel registration successful! Welcome to your dashboard.");
+        return "host/host-dashboard"; // Create this Thymeleaf template
+    }
 
     @PostMapping("/register-host")
     public String handleRegisterHost(
             @RequestParam("hotelName") String hotelName,
+            @RequestParam("hotelDescription") String hotelDescription,
+            @RequestParam("hotelImage") MultipartFile hotelImage,
             @RequestParam("hotelAddress") String hotelAddress,
             @RequestParam("hotelLocationId") int locationId,
-            @RequestParam("hotelImage") MultipartFile hotelImage,
+            @RequestParam("hotelLatitude") String latitudeStr,
+            @RequestParam("hotelLongitude") String longitudeStr,
+            @RequestParam("hotelPolicies") String hotelPolicies,
+
+            @RequestParam("roomTypeId") int roomTypeId,
+            @RequestParam("roomTitle") String roomTitle,
+            @RequestParam("roomMaxGuests") int roomMaxGuests,
+            @RequestParam("roomQuantity") int roomQuantity,
+            @RequestParam("roomPrice") BigDecimal roomPrice,
+            @RequestParam("roomDescription") String roomDescription,
+            @RequestParam(value = "amenities", required = false) List<Integer> amenityIds,
+
+            @RequestParam("roomImageFiles") MultipartFile[] roomImageFiles,
+
+            HttpSession session,
             Model model
     ) {
         try {
-            // Validate image type
+            // Simulated user ID (TODO: Replace with session-based user later)
+            int userId = 1;
+
+            // Validate & upload hotel image
             if (hotelImage.isEmpty() || hotelImage.getContentType() == null || !hotelImage.getContentType().startsWith("image/")) {
                 model.addAttribute("error", "Chỉ được tải lên tệp ảnh (JPG, PNG, ...)");
                 return "page/register-host";
             }
+            String hotelImageUrl = (String) cloudinaryService.uploadImage(hotelImage, "hotel-main-images").get("secure_url");
+            // Parse latitude/longitude
+            BigDecimal latitude = new BigDecimal(latitudeStr);
+            BigDecimal longitude = new BigDecimal(longitudeStr);
 
-            // Upload image to Cloudinary
-            Map result = cloudinaryService.uploadImage(hotelImage, "hotel-images");
-            String imageUrl = (String) result.get("secure_url");
+            //  hotel
+            Hotel hotel = Hotel.builder()
+                    .hostId(userId)
+                    .hotelName(hotelName)
+                    .description(hotelDescription)
+                    .address(hotelAddress)
+                    .locationId(locationId)
+                    .latitude(latitude)
+                    .longitude(longitude)
+                    .hotelImageUrl(hotelImageUrl)
+                    .policy(hotelPolicies)
+                    .build(); // no .rating() // because it's optional
 
-            //  Store imageUrl in database along with other hotel info
-            // hotelService.saveHotel(..., imageUrl);
 
-            // Optionally redirect or show success
-            return "redirect:/host-dashboard"; // or whatever your success page is
+            Hotel savedHotel = hotelService.saveHotel(hotel);
 
+            // Upload room images
+            List<String> roomImageUrls = new ArrayList<>();
+            if (roomImageFiles != null) {
+                for (MultipartFile file : roomImageFiles) {
+                    if (!file.isEmpty() && file.getContentType().startsWith("image/")) {
+                        String url = (String) cloudinaryService.uploadImage(file, "room-images/" + savedHotel.getHotelId()).get("secure_url");
+                        roomImageUrls.add(url);
+                    }
+                }
+            }
+
+
+            // room
+            Room room = Room.builder()
+                    .hotelId(savedHotel.getHotelId())
+                    .title(roomTitle)
+                    .description(roomDescription)
+                    .roomTypeId(roomTypeId)
+                    .maxGuests(roomMaxGuests)
+                    .quantity(roomQuantity)
+                    .price(roomPrice)
+                    .status("active")
+                    .build();
+
+            roomService.saveRoom(room, amenityIds, roomImageUrls);
+            return "redirect:/host-dashboard"; // Redirect to the host dashboard after successful registration
         } catch (Exception e) {
-            model.addAttribute("error", "Tải ảnh thất bại: " + e.getMessage());
+            e.printStackTrace();
+            model.addAttribute("error", "Đã xảy ra lỗi khi tạo khách sạn: " + e.getMessage());
             return "page/register-host";
         }
     }

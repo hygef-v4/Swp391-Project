@@ -60,7 +60,7 @@ public class RegisterController {
 
         User user = new User(email, hashedPassword);
         user.setFullname(fullname);
-        userRepo.saveUser(user);
+        userRepo.saveUser(user);   // insert user into the database
 
         model.addAttribute("email", email);
         model.addAttribute("fullName", fullname);

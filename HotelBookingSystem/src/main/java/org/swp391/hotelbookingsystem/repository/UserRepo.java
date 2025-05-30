@@ -99,6 +99,13 @@ public class UserRepo {
         jdbc.update(sql, encodedPassword, email);
     }
 
+    public void updateUserRoleById(int userId, String newRole) {
+        String sql = "UPDATE Users SET role = ? WHERE user_id = ?";
+        jdbc.update(sql, newRole, userId);
+    }
+
+
+
 }
 
 
