@@ -26,7 +26,9 @@ public class RegisterController {
             @RequestParam("email") String email,
             @RequestParam("password") String password,
             @RequestParam("confirmPassword") String confirmPassword,
+            @RequestParam("fullname") String fullname,
             Model model) {
+
 
         if (email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
             model.addAttribute("error", "All fields are required.");
@@ -43,12 +45,22 @@ public class RegisterController {
             return "page/register";
         }
 
+        if (!fullname.matches("^[\\p{L} '\\-]+$")) {
+            model.addAttribute("error", "Full name must not contain special characters.");
+            return "page/register";
+        }
+
         String hashedPassword = passwordEncoder.encode(password);
+        User existingUser = userRepo.findByEmail(email);
+
+        if (existingUser != null) {
+            model.addAttribute("error", "Email already exists.");
+            return "page/register";
+        }
 
         User user = new User(email, hashedPassword);
-        userRepo.saveUser(user);
-
-        model.addAttribute("email", email);
+        user.setFullname(fullname);
+        userRepo.saveUser(user);   // insert user into the database
 
         return "redirect:/login";
     }

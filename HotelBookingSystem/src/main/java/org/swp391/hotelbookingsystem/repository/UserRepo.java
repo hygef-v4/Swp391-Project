@@ -17,12 +17,12 @@ public class UserRepo {
     }
 
     public void saveUser(User user) {
-        String sql = "INSERT INTO Users (email, password_hash) VALUES (?, ?)";
-        jdbc.update(sql, user.getEmail(), user.getPassword());
+        String sql = "INSERT INTO Users (full_name,email, password_hash) VALUES (?, ?, ?)";
+        jdbc.update(sql, user.getFullname(), user.getEmail(), user.getPassword());
     }
     public void saveUserFromGoogle(User user) {
-        String sql = "INSERT INTO Users (email) VALUES (?)";
-        jdbc.update(sql, user.getEmail());
+        String sql = "INSERT INTO Users (full_name, email) VALUES (?, ?)";
+        jdbc.update(sql, user.getFullname(), user.getEmail());
     }
 
     public User findByEmail(String email) {
@@ -33,16 +33,13 @@ public class UserRepo {
                 user.setId(rs.getString("user_id"));
                 user.setFullname(rs.getString("full_name"));
                 user.setEmail(rs.getString("email"));
-                user.setPassword(rs.getString("password_hash")); // map đúng
+                user.setPassword(rs.getString("password_hash"));
                 user.setPhone(rs.getString("phone"));
                 user.setRole(rs.getString("role"));
                 user.setActive(rs.getBoolean("is_active"));
-                user.setCreatedAt(rs.getString("created_at"));
-                user.setUpdatedAt(rs.getString("updated_at"));
                 return user;
             }, email);
         } catch (Exception e) {
-            e.printStackTrace();
             return null;
         }
     }
@@ -78,8 +75,6 @@ public class UserRepo {
                 user.setPhone(rs.getString("phone"));
                 user.setRole(rs.getString("role"));
                 user.setActive(rs.getBoolean("is_active"));
-                user.setCreatedAt(rs.getString("created_at"));
-                user.setUpdatedAt(rs.getString("updated_at"));
                 return user;
             }, token);
         } catch (Exception e) {
@@ -104,10 +99,11 @@ public class UserRepo {
         jdbc.update(sql, encodedPassword, email);
     }
 
-    public void updateUserDetails(User user) {
-        String sql = "UPDATE Users SET full_name = ?, phone = ?, updated_at = GETDATE() WHERE user_id = ?";
-        jdbc.update(sql, user.getFullname(), user.getPhone(), user.getId());
+    public void updateUserRoleById(int userId, String newRole) {
+        String sql = "UPDATE Users SET role = ? WHERE user_id = ?";
+        jdbc.update(sql, newRole, userId);
     }
+
 
 
 }
