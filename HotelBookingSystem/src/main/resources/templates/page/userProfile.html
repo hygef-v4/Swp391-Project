@@ -244,13 +244,12 @@
                         <div class="card border">
                             <!-- Card header -->
                             <div class="card-header border-bottom">
-                                <h4 class="card-header-title">Personal Information</h4>
+                                <h4 class="mb-4">Cập nhật thông tin cá nhân</h4>
                             </div>
-
                             <!-- Card body START -->
                             <div class="card-body">
                                 <!-- Form START -->
-                                <form class="row g-3" action="/user-profile/update" method="post">
+                                <form th:action="@{/user-profile/update}" method="post" class="row g-3">
                                     <!-- Profile photo -->
                                     <div class="col-12">
                                         <label class="form-label">Upload your profile photo<span
@@ -272,11 +271,12 @@
                                         </div>
                                     </div>
 
-                                    <!-- Name -->
+                                    <!-- Tên người dùng -->
                                     <div class="col-md-6">
-                                        <label class="form-label">Tên người dùng:<span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" name="fullname" th:value="${fullname}"
-                                               placeholder="Enter your full name"></div>
+                                        <label class="form-label">Tên người dùng</label>
+                                        <input type="text" class="form-control" name="fullname" th:value="${fullname}" required>
+                                    </div>
+
 
                                     <!-- Email -->
                                     <div class="col-md-6">
@@ -286,14 +286,12 @@
                                                placeholder="Enter your email id">
                                     </div>
 
-                                    <!-- Mobile -->
+                                    <!-- Số điện thoại -->
                                     <div class="col-md-6">
-                                        <label class="form-label">Số điện thoại:
-                                            <span
-                                                class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="phone" name="phone" th:value="${phone}"
-                                               placeholder="Enter your mobile number">
+                                        <label class="form-label">Số điện thoại</label>
+                                        <input type="text" class="form-control" name="phone" th:value="${phone}" required>
                                     </div>
+
 
                                     <!--                                     Nationality-->
                                     <!--                                    <div class="col-md-6">-->
@@ -315,7 +313,7 @@
 <!--                                               placeholder="Enter date of birth" data-date-format="d M Y">-->
 <!--                                    </div>-->
 
-                                    <!--                                     Gender-->
+                                    <!--Gender-->
                                     <div class="col-md-6">
                                         <label class="form-label">Select Gender<span
                                                 class="text-danger">*</span></label>
@@ -352,7 +350,7 @@
 
                                     <!-- Button -->
                                     <div class="col-12 text-end">
-                                        <button type="submit" href="#" class="btn btn-primary mb-0">Save Changes</button>
+                                        <button type="submit" class="btn btn-primary">Cập nhật</button>
                                     </div>
                                 </form>
                                 <!-- Form END -->
