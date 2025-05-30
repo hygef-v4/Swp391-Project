@@ -25,5 +25,9 @@ public class HotelService {
     public List<Hotel> getHotelsByLocation(int id, String search) {
         if(id == -1) return hotelRepository.searchHotel(search);
         return hotelRepository.getHotelsByLocation(id, search);
-    }    
+    }
+
+    public Hotel saveHotel(Hotel hotel) {
+        return hotelRepository.insertHotel(hotel);
+    }
 }
