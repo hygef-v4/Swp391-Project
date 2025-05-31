@@ -19,13 +19,12 @@ public class UserProfileController {
 
     @GetMapping("/user-profile")
     public String showUserProfile(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
-        // Lấy thông tin người dùng từ session
         User sessionUser = (User) session.getAttribute("user");
 
         if (sessionUser != null) {
-            // Đẩy fullname và phone từ session đối tượng người dùng qua giao diện
             model.addAttribute("fullname", sessionUser.getFullname());
             model.addAttribute("phone", sessionUser.getPhone());
+            model.addAttribute("passwordNotSet", sessionUser.getPassword() == null);
         } else {
             redirectAttributes.addFlashAttribute("error", "Người dùng chưa đăng nhập. Vui lòng đăng nhập để truy cập thông tin cá nhân.");
             return "redirect:/login";
@@ -35,7 +34,6 @@ public class UserProfileController {
         return "page/userProfile";
     }
 
-    // Cập nhật thông tin người dùng
     @PostMapping("/update-user-profile")
     public String updateUserProfile(@RequestParam("fullname") String fullname,
                                     @RequestParam("phone") String phone,
@@ -43,14 +41,11 @@ public class UserProfileController {
         User sessionUser = (User) session.getAttribute("user");
 
         if (sessionUser != null) {
-            // Cập nhật thông tin người dùng trong session
             sessionUser.setFullname(fullname);
             sessionUser.setPhone(phone);
-            userRepo.updateUser(sessionUser); // Lưu dữ liệu mới vào cơ sở dữ liệu
+            userRepo.updateUser(sessionUser);
 
-            // Cập nhật trong session
             session.setAttribute("user", sessionUser);
-
             redirectAttributes.addFlashAttribute("success", "Cập nhật thông tin thành công.");
         } else {
             redirectAttributes.addFlashAttribute("error", "Người dùng chưa đăng nhập. Không thể cập nhật thông tin.");
@@ -58,5 +53,4 @@ public class UserProfileController {
 
         return "redirect:/user-profile";
     }
-
 }
