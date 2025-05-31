@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 
-<!-- Mirrored from stackbros.in/bookinga/landing/admin-dashboard.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:07:33 GMT -->
+<!-- Mirrored from stackbros.in/bookinga/landing/admin-booking-list.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:07:54 GMT -->
 <head>
     <title>Booking - Multipurpose Online Booking Theme</title>
 
@@ -252,16 +252,16 @@
                         <!-- Topbar menu START -->
                         <div class="collapse navbar-collapse w-100 z-index-1" id="navbarTopContent">
                             <!-- Top search START -->
-<!--                            <div class="nav my-3 my-xl-0 flex-nowrap align-items-center">-->
-<!--                                <div class="nav-item w-100">-->
-<!--                                    <form class="position-relative">-->
-<!--                                        <input class="form-control bg-light pe-5" type="search" placeholder="Search"-->
-<!--                                               aria-label="Search">-->
-<!--                                        <button class="bg-transparent px-2 py-0 border-0 position-absolute top-50 end-0 translate-middle-y"-->
-<!--                                                type="submit"><i class="fas fa-search fs-6 text-primary"></i></button>-->
-<!--                                    </form>-->
-<!--                                </div>-->
-<!--                            </div>-->
+                            <!--                            <div class="nav my-3 my-xl-0 flex-nowrap align-items-center">-->
+                            <!--                                <div class="nav-item w-100">-->
+                            <!--                                    <form class="position-relative">-->
+                            <!--                                        <input class="form-control bg-light pe-5" type="search" placeholder="Search"-->
+                            <!--                                               aria-label="Search">-->
+                            <!--                                        <button class="bg-transparent px-2 py-0 border-0 position-absolute top-50 end-0 translate-middle-y"-->
+                            <!--                                                type="submit"><i class="fas fa-search fs-6 text-primary"></i></button>-->
+                            <!--                                    </form>-->
+                            <!--                                </div>-->
+                            <!--                            </div>-->
                             <!-- Top search END -->
                         </div>
                         <!-- Topbar menu END -->
@@ -437,348 +437,219 @@
 
             <!-- Title -->
             <div class="row">
-                <div class="col-12 mb-4 mb-sm-5">
+                <div class="col-12 mb-5">
                     <div class="d-sm-flex justify-content-between align-items-center">
-                        <h1 class="h3 mb-2 mb-sm-0">Tổng quan</h1>
+                        <h1 class="h3 mb-2 mb-sm-0">Khách sạn</h1>
                     </div>
                 </div>
             </div>
 
-            <!-- Counter boxes START -->
-            <div class="row g-4 mb-5">
-                <!-- Counter item -->
-                <div class="col-md-6 col-xxl-3">
-                    <div class="card card-body bg-warning bg-opacity-10 border border-warning border-opacity-25 p-4 h-100">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <!-- Digit -->
-                            <div>
-                                <h4 class="mb-0" th:text="${numberOfHotels}"></h4>
-                                <span class="h6 fw-light mb-0">Tổng số khách sạn</span>
-                            </div>
-                            <!-- Icon -->
-                            <div class="icon-lg rounded-circle bg-warning text-white mb-0"><i
-                                    class="fa-solid fa-hotel fa-fw"></i></div>
+            <!-- Tabs and search START -->
+            <div class="row g-4 justify-content-between align-items-center">
+                <div class="col-lg-5">
+                    <!-- Tabs -->
+                    <ul class="nav nav-pills-shadow nav-responsive">
+                        <li class="nav-item">
+                            <a class="nav-link mb-0 me-sm-2 active" data-bs-toggle="tab" href="#tab-1">Tất cả</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link mb-0 me-sm-2" data-bs-toggle="tab" href="#tab-2">Còn phòng</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link mb-0" data-bs-toggle="tab" href="#tab-3">Hết phòng</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-6 col-xxl-5">
+                    <div class="d-sm-flex gap-4 justify-content-between justify-content-lg-end">
+                        <!-- Search -->
+                        <div class="col-md-8">
+                            <form class="rounded position-relative">
+                                <input class="form-control bg-transparent" type="search" placeholder="Tìm kiếm..."
+                                       aria-label="Search">
+                                <button class="bg-transparent p-2 position-absolute top-50 end-0 translate-middle-y border-0 text-primary-hover text-reset"
+                                        type="submit">
+                                    <i class="fas fa-search fs-6"></i>
+                                </button>
+                            </form>
+                        </div>
+                        <!-- Tabs -->
+                        <div class="d-flex justify-content-end mt-2 mt-sm-0">
+                            <ul class="nav nav-pills nav-pills-dark" id="room-pills-tab" role="tablist">
+                                <!-- Tab item -->
+                                <li class="nav-item">
+                                    <button class="nav-link rounded-start rounded-0 active" id="grid-tab"
+                                            data-bs-toggle="tab" data-bs-target="#grid-tab-pane" type="button"
+                                            role="tab" aria-controls="grid-tab-pane" aria-selected="true"><i
+                                            class="bi fa-fw bi-grid-fill"></i></button>
+                                </li>
+                                <!-- Tab item -->
+                                <li class="nav-item">
+                                    <button class="nav-link rounded-end rounded-0" id="list-tab" data-bs-toggle="tab"
+                                            data-bs-target="#list-tab-pane" type="button" role="tab"
+                                            aria-controls="list-tab-pane" aria-selected="false"><i
+                                            class="bi fa-fw bi-list-ul"></i></button>
+                                </li>
+                            </ul>
                         </div>
                     </div>
                 </div>
+            </div>
+            <!-- Tabs and search END -->
 
-                <!-- Counter item -->
-                <div class="col-md-6 col-xxl-3">
-                    <div class="card card-body bg-primary bg-opacity-10 border border-primary border-opacity-25 p-4 h-100">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <!-- Digit -->
-                            <div>
-                                <h4 class="mb-0" th:text="${totalRooms}"></h4>
-                                <span class="h6 fw-light mb-0">Tổng số phòng</span>
-                            </div>
-                            <!-- Icon -->
-                            <div class="icon-lg rounded-circle bg-primary text-white mb-0"><i
-                                    class="fa-solid fa-bed fa-fw"></i></div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Counter item -->
-                <div class="col-md-6 col-xxl-3">
-                    <div class="card card-body bg-success bg-opacity-10 border border-success border-opacity-25 p-4 h-100">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <!-- Digit -->
-                            <div>
-                                <h4 class="mb-0" th:text="${numberOfCustomers}"></h4>
-                                <span class="h6 fw-light mb-0">Tổng số khách hàng</span>
-                            </div>
-                            <!-- Icon -->
-                            <div class="icon-lg rounded-circle bg-success text-white mb-0"><i
-                                    class="fa-solid fa-users fa-fw"></i></div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Counter item -->
-                <div class="col-md-6 col-xxl-3">
-                    <div class="card card-body bg-danger bg-opacity-10 border border-danger border-opacity-25 p-4 h-100">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <!-- Digit -->
-                            <div>
-                                <h4 class="mb-0" th:text="${numberOfHotelOwners}"></h4>
-                                <span class="h6 fw-light mb-0">Số chủ khách sạn</span>
-                            </div>
-                            <!-- Icon -->
-                            <div class="icon-lg rounded-circle bg-danger text-white mb-0"><i
-                                    class="fa-solid fa-calendar-check fa-fw"></i></div>
-                        </div>
-                    </div>
-
-                </div>
-                <!-- Counter boxes END -->
-
-                <!-- Hotel grid START -->
-                <div class="row g-4 mb-5">
-                    <!-- Title -->
-                    <div class="col-12">
-                        <div class="d-flex justify-content-between">
-                            <h4 class="mb-0">Khách sạn phổ biến</h4>
-                            <a th:href="@{/hotel-list}" class="btn btn-primary-soft mb-0">Xem tất cả</a>
-                        </div>
-                    </div>
-
-                    <!-- Hotel item loop -->
-                    <div class="col-lg-6" th:each="hotel, iterStat : ${popularHotels}">
-                        <div class="card shadow p-3">
-                            <div class="row g-4">
-                                <!-- Card img -->
-                                <div class="col-md-3">
-                                    <img th:src="@{${hotel.hotelImageUrl}}" class="rounded-2 img-fluid object-fit-cover"
-                                         style="width: 100%; height: 100px;" alt="Hotel image"/>
-                                </div>
-
-                                <!-- Card body -->
-                                <div class="col-md-9">
-                                    <div class="card-body position-relative d-flex flex-column p-0 h-100">
-
-                                        <!-- Dropdown Buttons -->
-                                        <div class="list-inline-item dropdown position-absolute top-0 end-0">
-                                            <a href="#" class="btn btn-sm btn-round btn-light" role="button"
-                                               th:id="'dropdownAction' + ${iterStat.index}" data-bs-toggle="dropdown"
-                                               aria-expanded="false">
-                                                <i class="bi bi-three-dots-vertical"></i>
-                                            </a>
-                                            <ul class="dropdown-menu dropdown-menu-end min-w-auto shadow"
-                                                th:attr="aria-labelledby='dropdownAction' + ${iterStat.index}">
-                                                <li><a class="dropdown-item small" href="#"><i
-                                                        class="bi bi-info-circle me-2"></i>Báo cáo</a></li>
-                                                <li><a class="dropdown-item small" href="#"><i
-                                                        class="bi bi-slash-circle me-2"></i>Vô hiệu hóa</a></li>
-                                            </ul>
-                                        </div>
-
-                                        <!-- Title and Address -->
-                                        <h5 class="card-title mb-0 me-5">
-                                            <a th:href="@{'/hotels/' + ${hotel.hotelId}}" th:text="${hotel.hotelName}">Hotel
-                                                Name</a>
-                                        </h5>
-                                        <small>
-                                            <i class="bi bi-geo-alt me-2"></i>
-                                            <span th:text="${hotel.address}">Address</span>
-                                        </small>
-
-                                        <!-- Price and Buttons -->
-                                        <div class="d-sm-flex justify-content-sm-between align-items-center mt-3 mt-md-auto">
-                                            <div class="d-flex align-items-center">
-                                                <h5 class="fw-bold mb-0 me-1" th:text="'$' + ${hotel.minPrice}">0</h5>
-                                                <span class="mb-0 me-2">/ngày</span>
-                                            </div>
-                                            <div class="hstack gap-2 mt-3 mt-sm-0">
-                                                <a th:href="@{'/admin/hotels/edit/' + ${hotel.hotelId}}"
-                                                   class="btn btn-sm btn-primary-soft px-2 mb-0">
-                                                    <i class="bi bi-pencil-square fa-fw"></i>
-                                                </a>
-                                                <a th:href="@{'/admin/hotels/disable/' + ${hotel.hotelId}}"
-                                                   class="btn btn-sm btn-danger-soft px-2 mb-0">
-                                                    <i class="bi bi-slash-circle fa-fw"></i>
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Hotel grid END -->
-
-
-                <!-- Widget START -->
-                <div class="row g-4">
-                    <!-- Booking Chart START -->
-                    <!--                <div class="col-xxl-8">-->
-                    <!--                    &lt;!&ndash; Chart START &ndash;&gt;-->
-                    <!--                    <div class="card shadow h-100">-->
-                    <!--                        &lt;!&ndash; Card header &ndash;&gt;-->
-                    <!--                        <div class="card-header border-bottom">-->
-                    <!--                            <h5 class="card-header-title">Hoạt động của khách hàng</h5>-->
-                    <!--                        </div>-->
-
-                    <!--                        &lt;!&ndash; Card body &ndash;&gt;-->
-                    <!--                        <div class="card-body">-->
-                    <!--                            &lt;!&ndash; Content &ndash;&gt;-->
-                    <!--                            <div class="d-flex gap-4 mb-3">-->
-                    <!--                                <h6><span class="fw-light"><i-->
-                    <!--                                        class="bi bi-square-fill text-primary"></i> Nhận phòng:</span> 475 Guests</h6>-->
-                    <!--                                <h6><span class="fw-light"><i class="bi bi-square-fill text-info"></i> Trả phòng:</span>-->
-                    <!--                                    157 Guests</h6>-->
-                    <!--                            </div>-->
-                    <!--                            &lt;!&ndash; Apex chart &ndash;&gt;-->
-                    <!--                            <div id="chartData"-->
-                    <!--                                 th:inline="javascript"-->
-                    <!--                                 th:attr="data-labels=${dateLabels},-->
-                    <!--              data-checkin=${checkInData},-->
-                    <!--              data-checkout=${checkOutData}">-->
-                    <!--                            </div>-->
-
-                    <!--                            <div id="ChartGuesttraffic" class="mt-2"></div>-->
-                    <!--                        </div>-->
-                    <!--                    </div>-->
-                    <!--                    &lt;!&ndash; Chart END &ndash;&gt;-->
-                    <!--                </div>-->
-                    <!--                &lt;!&ndash; Booking Chart END &ndash;&gt;-->
-
-                    <!--                &lt;!&ndash; Booking graph START &ndash;&gt;-->
-                    <!--                <div class="col-lg-6 col-xxl-4">-->
-                    <!--                    <div class="card shadow h-100">-->
-                    <!--                        &lt;!&ndash; Card header &ndash;&gt;-->
-                    <!--                        <div class="card-header border-bottom">-->
-                    <!--                            <h5 class="card-header-title">Tình trạng phòng</h5>-->
-                    <!--                        </div>-->
-
-                    <!--                        &lt;!&ndash; Card body START &ndash;&gt;-->
-                    <!--                        <div class="card-body p-3">-->
-                    <!--                            &lt;!&ndash; Chart &ndash;&gt;-->
-                    <!--                            <div class="col-sm-6 mx-auto">-->
-                    <!--                                <div class="d-flex justify-content-center" id="ChartTrafficRooms"></div>-->
-                    <!--                            </div>-->
-
-                    <!--                            &lt;!&ndash; Content &ndash;&gt;-->
-                    <!--                            <ul class="list-group list-group-borderless mb-0">-->
-                    <!--                                <li class="list-group-item d-flex justify-content-between">-->
-                    <!--                                    <span class="h6 fw-light mb-0"><i class="text-success fas fa-circle me-2"></i> Còn trống</span>-->
-                    <!--                                    <span class="h6 fw-light mb-0"-->
-                    <!--                                          th:text="${availableRooms} + ' Phòng'">73 Phòng</span>-->
-                    <!--                                </li>-->
-                    <!--                                <li class="list-group-item d-flex justify-content-between">-->
-                    <!--                                    <span class="h6 fw-light mb-0"><i class="text-danger fas fa-circle me-2"></i> Hết phòng</span>-->
-                    <!--                                    <span class="h6 fw-light mb-0"-->
-                    <!--                                          th:text="${totalBookedRooms} + ' Phòng'">245 Phòng</span>-->
-                    <!--                                </li>-->
-                    <!--                            </ul>-->
-                    <!--                        </div>-->
-                    <!--                    </div>-->
-                    <!--                </div>-->
-                    <!--                &lt;!&ndash; Booking graph END &ndash;&gt;-->
-
+            <!-- Tab content START -->
+            <div class="tab-content mt-5" id="myTabContent">
+                <!-- Content item START -->
+                <div class="tab-pane fade show active" id="grid-tab-pane">
                     <!-- Rooms START -->
-                    <div class="col-lg-6 col-xxl-6">
-                        <div class="card shadow h-100">
-                            <!-- Card header -->
-                            <div class="card-header border-bottom d-flex justify-content-between align-items-center">
-                                <h5 class="card-header-title">Địa điểm</h5>
-                                <a href="#" class="btn btn-link p-0 mb-0">Xem tất cả</a>
-                            </div>
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xxl-5 g-4">
+                        <div class="col" th:each="hotel : ${hotelList}">
+                            <div class="card shadow h-100">
+                                <!-- Overlay item -->
+                                <div class="position-relative">
+                                    <!-- Image -->
+                                    <img th:src="${hotel.hotelImageUrl}"
+                                         class="card-img-top rounded-top"
+                                         alt="Ảnh khách sạn"
+                                         style="height: 180px; object-fit: cover; width: 100%;">
 
-                            <!-- Card body START -->
-                            <div class="card-body">
-                                <!-- Rooms item START -->
-                                <div th:each="location : ${locationList}"
-                                     class="list-group list-group-flush list-unstyled mb-0">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div class="d-sm-flex align-items-center mb-1 mb-sm-0">
-                                            <div class="flex-shrink-0">
-                                                <img th:src="@{${location.imageUrl}}" class="rounded h-60px" alt="">
+                                    <!-- Overlay -->
+                                    <div class="card-img-overlay d-flex flex-column p-3">
+                                        <!-- Card overlay top -->
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <!-- Rating badge -->
+                                            <div class="badge text-bg-dark">
+                                                <i class="bi fa-fw bi-star-fill me-2 text-warning"></i>
+                                                <span th:text="${hotel.rating}">4.5</span>
                                             </div>
-                                            <div class="ms-sm-3 mt-2 mt-sm-0">
-                                                <h6 class="mb-1" th:text="${location.cityName}">City</h6>
-                                            </div>
-                                        </div>
-                                        <a th:href="@{'/admin/location/view/' + ${location.id}}"
-                                           class="btn btn-sm btn-light flex-shrink-0 mb-0 ms-3">Chi tiết</a>
-
-                                    </div>
-                                    <hr>
-                                    <!-- Divider -->
-                                </div>
-
-                            </div>
-                            <!-- Card body END -->
-                        </div>
-                    </div>
-                    <!-- Rooms END -->
-
-                    <!-- Upcoming Arrival START -->
-                    <div class="col-lg-6 col-xxl-6">
-                        <div class="card shadow h-100">
-                            <!-- Card header -->
-                            <div class="card-header border-bottom d-flex justify-content-between align-items-center p-3">
-                                <h5 class="card-header-title">Người dùng</h5>
-                                <a href="#" class="btn btn-link p-0 mb-0">Xem tất cả</a>
-                            </div>
-
-                            <!-- Card body START -->
-                            <div class="card-body p-3">
-
-                                <!-- Arrival item -->
-                                <div th:each="user : ${userList}"
-                                     class="list-group list-group-flush list-unstyled mb-0">
-
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div class="d-sm-flex align-items-center mb-1 mb-sm-0">
-                                            <div class="avatar avatar-md flex-shrink-0">
-                                                <img class="avatar-img rounded-circle" th:src="@{${user.avatarUrl}}"
-                                                     alt="avatar">
-                                            </div>
-                                            <div class="ms-sm-2 mt-2 mt-sm-0">
-                                                <h6 class="mb-1" th:text="${user.fullName}">User Name</h6>
-                                                <ul class="nav nav-divider small">
-                                                    <li class="nav-item" th:text="${user.isActive} ? 'Active' : 'Deactive'">Status</li>
+                                            <!-- Dropdown menu -->
+                                            <div class="list-inline-item dropdown">
+                                                <a href="#" class="btn btn-sm btn-round btn-light" role="button"
+                                                   id="dropdownAction" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="bi bi-three-dots-vertical"></i>
+                                                </a>
+                                                <ul class="dropdown-menu dropdown-menu-end min-w-auto shadow rounded small"
+                                                    aria-labelledby="dropdownAction">
+                                                    <li><a class="dropdown-item" th:href="@{'/admin/hotel/report/' + ${hotel.hotelId}}">
+                                                        <i class="bi bi-info-circle me-2"></i>Báo cáo</a>
+                                                    </li>
+                                                    <li><a class="dropdown-item" th:href="@{'/admin/hotel/disable/' + ${hotel.hotelId}}">
+                                                        <i class="bi bi-slash-circle me-2"></i>Vô hiệu hóa</a>
+                                                    </li>
                                                 </ul>
                                             </div>
                                         </div>
-                                        <a th:href="@{'/admin/user/view/' + ${user.userID}}"
-                                           class="btn btn-sm btn-light mb-0 ms-3 px-2">
-                                            <i class="fa-solid fa-chevron-right fa-fw"></i>
-                                        </a>
-
                                     </div>
-                                    <hr>
-                                    <!-- Divider -->
                                 </div>
+
+                                <!-- Card body START -->
+                                <div class="card-body px-3">
+                                    <h5 class="card-title mb-1" th:text="${hotel.hotelName}">Tên khách sạn</h5>
+                                    <ul class="list-group list-group-borderless small mt-2 mb-0">
+                                        <li class="list-group-item pb-0">
+                                            <i class="fa-solid fa-location-dot fa-fw me-2"></i>
+                                            <span th:text="${hotel.cityName}">Tên thành phố</span>
+                                        </li>
+                                        <li class="list-group-item pb-0">
+                                            <i class="fa-solid fa-house fa-fw me-2"></i>
+                                            <span th:text="${hotel.address}">Địa chỉ khách sạn</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <!-- Card body END -->
+
+                                <!-- Card footer START-->
+                                <div class="card-footer pt-0">
+                                    <div class="hstack gap-2 mb-2">
+                                        <h6 class="fw-normal mb-0" th:text="'$' + ${hotel.minPrice}">1500</h6>
+                                        <small>/mỗi đêm</small>
+                                    </div>
+                                    <a th:href="@{'/admin/hotel/view/' + ${hotel.hotelId}}"
+                                       class="btn btn-sm btn-primary-soft mb-0 w-100">Xem chi tiết</a>
+                                </div>
+                                <!-- Card footer END-->
+                            </div>
+                        </div>
+
+                        <!-- Pagination START -->
+                        <div class="d-sm-flex justify-content-sm-between align-items-sm-center mt-4">
+                            <p class="mb-sm-0 text-center text-sm-start">Hiển thị 1 đến 8 trong số 20 khách sạn</p>
+                            <nav class="mb-sm-0 d-flex justify-content-center" aria-label="navigation">
+                                <ul class="pagination pagination-sm pagination-primary-soft mb-0">
+                                    <li class="page-item disabled">
+                                        <a class="page-link" href="#" tabindex="-1">Trước</a>
+                                    </li>
+                                    <li class="page-item"><a class="page-link" href="#">1</a></li>
+                                    <li class="page-item active"><a class="page-link" href="#">2</a></li>
+                                    <li class="page-item disabled"><a class="page-link" href="#">..</a></li>
+                                    <li class="page-item"><a class="page-link" href="#">15</a></li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="#">Tiếp</a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                        <!-- Pagination END -->
+                    </div>
+
+                    <!-- Content item END -->
+
+                    <!-- Content item START -->
+                    <div class="tab-pane fade" id="list-tab-pane">
+                        <div class="card shadow">
+
+                            <!-- Card body START -->
+                            <div class="card-body">
+                                <!-- Table head -->
+                                <div class="bg-light rounded p-3 d-none d-xxl-block">
+                                    <div class="row row-cols-6 g-4">
+                                        <div class="col"><h6 class="mb-0">Room Name</h6></div>
+                                        <div class="col"><h6 class="mb-0">Bed Type</h6></div>
+                                        <div class="col"><h6 class="mb-0">Room Floor</h6></div>
+                                        <div class="col"><h6 class="mb-0">Amount</h6></div>
+                                        <div class="col"><h6 class="mb-0">Rating</h6></div>
+                                        <div class="col"><h6 class="mb-0">Action</h6></div>
+                                    </div>
+                                </div>
+
                             </div>
                             <!-- Card body END -->
+
+                            <!-- Card footer START -->
+                            <div class="card-footer pt-0">
+                                <!-- Pagination and content -->
+                                <div class="d-sm-flex justify-content-sm-between align-items-sm-center">
+                                    <!-- Content -->
+                                    <p class="mb-sm-0 text-center text-sm-start">Showing 1 to 8 of 20 entries</p>
+                                    <!-- Pagination -->
+                                    <nav class="mb-sm-0 d-flex justify-content-center" aria-label="navigation">
+                                        <ul class="pagination pagination-sm pagination-primary-soft mb-0">
+                                            <li class="page-item disabled">
+                                                <a class="page-link" href="#" tabindex="-1">Prev</a>
+                                            </li>
+                                            <li class="page-item"><a class="page-link" href="#">1</a></li>
+                                            <li class="page-item active"><a class="page-link" href="#">2</a></li>
+                                            <li class="page-item disabled"><a class="page-link" href="#">..</a></li>
+                                            <li class="page-item"><a class="page-link" href="#">15</a></li>
+                                            <li class="page-item">
+                                                <a class="page-link" href="#">Next</a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </div>
+                            <!-- Card footer END -->
                         </div>
                     </div>
-                    <!-- Upcoming Arrival END -->
-
-                    <!-- Reviews START -->
-<!--                    <div class="col-lg-6 col-xxl-4">-->
-<!--                        <div class="card shadow h-100">-->
-<!--                            &lt;!&ndash; Card header &ndash;&gt;-->
-<!--                            <div class="card-header border-bottom d-flex justify-content-between align-items-center p-3">-->
-<!--                                <h5 class="card-header-title">Đánh giá</h5>-->
-<!--                                <a href="#" class="btn btn-link p-0 mb-0">Xem tất cả</a>-->
-<!--                            </div>-->
-
-<!--                            &lt;!&ndash; Card body START &ndash;&gt;-->
-<!--                            <div class="card-body p-3">-->
-<!--                                <div class="list-group list-group-flush list-unstyled mb-0">-->
-<!--                                    <div th:each="review : ${recentReviews}">-->
-<!--                                        &lt;!&ndash; Review item START &ndash;&gt;-->
-<!--                                        <div class="d-flex justify-content-between align-items-center">-->
-<!--                                            <div class="d-sm-flex align-items-center mb-1 mb-sm-0">-->
-<!--                                                <div class="flex-shrink-0">-->
-<!--                                                    <img th:src="${review.avatarUrl}" class="rounded h-60px" alt="Reviewer Avatar">-->
-<!--                                                </div>-->
-<!--                                                <div class="ms-sm-3 mt-2 mt-sm-0">-->
-<!--                                                    <h6 class="mb-1" th:text="${review.fullName}">User Name</h6>-->
-<!--                                                    <p class="mb-0 small text-muted" th:text="${review.comment}">Comment content</p>-->
-<!--                                                </div>-->
-<!--                                            </div>-->
-<!--                                            <a th:href="@{'/admin/reviews/view/' + ${review.reviewId}}"-->
-<!--                                               class="btn btn-sm btn-light flex-shrink-0 mb-0 ms-3">View</a>-->
-<!--                                        </div>-->
-<!--                                        <hr>-->
-<!--                                    </div>-->
-<!--                                </div>-->
-<!--                            </div>-->
-<!--                            &lt;!&ndash; Card body END &ndash;&gt;-->
-<!--                        </div>-->
-<!--                    </div>-->
-                    <!-- Reviews END -->
+                    <!-- Content item END -->
                 </div>
-                <!-- Widget END -->
-
+                <!-- Tab content END -->
             </div>
             <!-- Page main content END -->
         </div>
         <!-- Page content END -->
     </div>
-
 </main>
 <!-- **************** MAIN CONTENT END **************** -->
 
@@ -794,5 +665,5 @@
 
 </body>
 
-<!-- Mirrored from stackbros.in/bookinga/landing/admin-dashboard.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:07:37 GMT -->
+<!-- Mirrored from stackbros.in/bookinga/landing/admin-booking-list.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:07:54 GMT -->
 </html>

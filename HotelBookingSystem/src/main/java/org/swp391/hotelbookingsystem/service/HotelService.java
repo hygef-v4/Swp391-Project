@@ -30,4 +30,16 @@ public class HotelService {
     public Hotel saveHotel(Hotel hotel) {
         return hotelRepository.insertHotel(hotel);
     }
+
+    public int countHotels() {
+        return hotelRepository.countHotels();
+    }
+
+    public List<Hotel> getTop4PopularHotels() {
+        return hotelRepository.getTop4PopularHotels();
+    }
+
+    public List<Hotel> getAllHotels() {
+        return hotelRepository.getAllHotels();
+    }
 }

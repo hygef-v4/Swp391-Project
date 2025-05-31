@@ -15,7 +15,7 @@ import org.swp391.hotelbookingsystem.service.*;
 import java.util.*;
 
 @Controller
-public class AdminDashboardController {
+public class AdminHotelController {
 
     @Autowired
     HotelService hotelService;
@@ -32,35 +32,20 @@ public class AdminDashboardController {
     @Autowired
     LocationService locationService;
 
-    @GetMapping("/admin-dashboard")
-    public String getDashboard(Model model, HttpSession session) {
+    @GetMapping("/admin-hotel-list")
+    public String getHotelDashboard(Model model, HttpSession session) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        model.addAttribute(ConstantVariables.PAGE_TITLE, "Hamora Booking");
+        model.addAttribute(ConstantVariables.PAGE_TITLE, "Hamora Booking - Hotel Management");
 
         int numberOfHotels = hotelService.countHotels();
         model.addAttribute("numberOfHotels", numberOfHotels);
 
-        int totalRooms = roomService.countRooms();
-        model.addAttribute("totalRooms", totalRooms);
-
-        List<User> customerList = userService.getUsersByRole("CUSTOMER");
-        model.addAttribute("numberOfCustomers", customerList.size());
+        List<Hotel> hotels = hotelService.getAllHotels(); // or getHotelsByLocation/filter if needed
+        model.addAttribute("hotelList", hotels);
 
         List<User> hotelOwnerList = userService.getUsersByRole("HOTEL OWNER");
         model.addAttribute("numberOfHotelOwners", hotelOwnerList.size());
 
-        List<UserWithProfileDTO> getTop5UsersWithProfile = userService.getTop5Users();
-        model.addAttribute("userList", getTop5UsersWithProfile);
-
-        List<Hotel> popularHotels = hotelService.getTop4PopularHotels();
-        model.addAttribute("popularHotels", popularHotels);
-
-        List<Review> recentReviews = reviewService.getRecentPublicReviews();
-        model.addAttribute("recentReviews", recentReviews);
-
-        List<Location> getTop5Location = locationService.getTop5Locations();
-        model.addAttribute("locationList", getTop5Location);
-
-        return "page/adminDashboard";
+        return "page/admin-hotel-list";
     }
 }

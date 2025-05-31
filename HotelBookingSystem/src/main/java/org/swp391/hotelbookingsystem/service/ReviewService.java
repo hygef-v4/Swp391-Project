@@ -16,4 +16,8 @@ public class ReviewService {
     public List<Review> getTop5PublicPositiveReviews() {
         return reviewRepository.getTop5PublicPositiveReviews();
     }
+
+    public List<Review> getRecentPublicReviews() {
+        return reviewRepository.getRecentPublicReviews();
+    }
 }

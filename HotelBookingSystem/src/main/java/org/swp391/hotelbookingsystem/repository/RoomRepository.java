@@ -62,4 +62,10 @@ public class RoomRepository {
         """;
         return jdbcTemplate.query(sql, ROOM_MAPPER, hotelId);
     }
+
+    private static final String COUNT_ROOMS = "SELECT SUM(quantity) FROM Rooms";
+
+    public int countRooms() {
+        return jdbcTemplate.queryForObject(COUNT_ROOMS, Integer.class);
+    }
 }

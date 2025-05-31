@@ -36,6 +36,10 @@ public class RoomService {
         }
     }
 
+    public int countRooms() {
+        return roomRepository.countRooms();
+    }
+
     /**
      * Returns all rooms associated with a given hotel.
      */
