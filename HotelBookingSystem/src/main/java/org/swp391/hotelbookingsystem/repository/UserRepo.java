@@ -30,7 +30,7 @@ public class UserRepo {
         try {
             return jdbc.queryForObject(sql, (rs, rowNum) -> {
                 User user = new User();
-                user.setId(rs.getString("user_id"));
+                user.setId(rs.getInt("user_id"));
                 user.setFullname(rs.getString("full_name"));
                 user.setEmail(rs.getString("email"));
                 user.setPassword(rs.getString("password_hash"));
@@ -68,7 +68,7 @@ public class UserRepo {
         try {
             return jdbc.queryForObject(sql, (rs, rowNum) -> {
                 User user = new User();
-                user.setId(rs.getString("user_id"));
+                user.setId(rs.getInt("user_id"));
                 user.setFullname(rs.getString("full_name"));
                 user.setEmail(rs.getString("email"));
                 user.setPassword(rs.getString("password_hash"));
