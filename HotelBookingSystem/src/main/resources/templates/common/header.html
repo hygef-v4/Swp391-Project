@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" th:inline="text" lang="en">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 
 <header class="navbar-light header-sticky">
     <!-- Logo Nav START -->
@@ -71,6 +74,7 @@
                             <li><a class="dropdown-item" href="about.html">Về chúng tôi</a></li>
                             <li><a class="dropdown-item" href="contact.html">Liên hệ</a></li>
                             <li><a class="dropdown-item" href="team.html">Đội ngũ của chúng tôi</a></li>
+                            <li><a class="dropdown-item" href="/host-intro">Đăng ký cho thuê</a></li>
 
 
                             <!-- Dropdown submenu -->
@@ -305,8 +309,14 @@
                                          alt="avatar">
                                 </div>
                                 <div>
-                                    <a class="h6 mt-2 mt-sm-0" href="#"><span th:text="${fullName == '' ? 'No Name' : fullName}"></span></a>
-                                    <p class="small m-0"><span th:text="${email}"></span></p>
+                                    <a class="h6 mt-2 mt-sm-0" href="#">
+                                        <span th:text="${user != null and user.fullname != '' ? user.fullname : 'No Name'}"></span>
+
+                                    </a>
+                                    <p class="small m-0">
+                                        <span th:text="${user != null ? user.email : ''}"></span>
+                                    </p>
+
                                 </div>
                             </div>
                         </li>

@@ -1,4 +1,4 @@
-﻿﻿ALTER TABLE RoomTypes
+﻿ALTER TABLE RoomTypes
 ADD description NVARCHAR(MAX) NULL;
 UPDATE RoomTypes SET description = N'Phòng tiêu chuẩn, phù hợp với hầu hết khách du lịch.' WHERE room_type_id = 1;
 UPDATE RoomTypes SET description = N'Phòng dành cho 2 người, thiết kế đơn giản và tiện nghi.' WHERE room_type_id = 2;

@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="vi"> <!-- Changed lang to Vietnamese -->
+
+<!-- Mirrored from stackbros.in/bookinga/landing/add-listing.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:07:14 GMT -->
+<head>
+    <title>Booking - Giao Diện Đặt Phòng Trực Tuyến Đa Năng</title> <!-- Translated -->
+
+    <!-- Meta Tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="author" content="StackBros">
+    <meta name="description" content="Booking - Giao Diện Đặt Phòng Trực Tuyến Đa Năng"> <!-- Translated -->
+
+    <!-- Dark mode -->
+    <script>
+        const storedTheme = localStorage.getItem('theme')
+
+        const getPreferredTheme = () => {
+            if (storedTheme) {
+                return storedTheme
+            }
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        }
+
+        const setTheme = function (theme) {
+            if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.setAttribute('data-bs-theme', 'dark')
+            } else {
+                document.documentElement.setAttribute('data-bs-theme', theme)
+            }
+        }
+
+        setTheme(getPreferredTheme())
+
+        window.addEventListener('DOMContentLoaded', () => {
+            var el = document.querySelector('.theme-icon-active');
+            if(el != 'undefined' && el != null) {
+                const showActiveTheme = theme => {
+                    const activeThemeIcon = document.querySelector('.theme-icon-active use')
+                    const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+                    const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
+
+                    document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+                        element.classList.remove('active')
+                    })
+
+                    btnToActive.classList.add('active')
+                    activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+                }
+
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                    if (storedTheme !== 'light' || storedTheme !== 'dark') {
+                        setTheme(getPreferredTheme())
+                    }
+                })
+
+                showActiveTheme(getPreferredTheme())
+
+                document.querySelectorAll('[data-bs-theme-value]')
+                    .forEach(toggle => {
+                        toggle.addEventListener('click', () => {
+                            const theme = toggle.getAttribute('data-bs-theme-value')
+                            localStorage.setItem('theme', theme)
+                            setTheme(theme)
+                            showActiveTheme(theme)
+                        })
+                    })
+
+            }
+        })
+
+    </script>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="assets/images/favicon.ico">
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Poppins:wght@400;500;700&display=swap">
+
+    <!-- Plugins CSS -->
+    <link rel="stylesheet" type="text/css" href="assets/vendor/font-awesome/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="assets/vendor/bootstrap-icons/bootstrap-icons.css">
+    <link rel="stylesheet" type="text/css" href="assets/vendor/choices/css/choices.min.css">
+    <link rel="stylesheet" type="text/css" href="assets/vendor/flatpickr/css/flatpickr.min.css">
+    <link rel="stylesheet" type="text/css" href="assets/vendor/stepper/css/bs-stepper.min.css">
+    <link rel="stylesheet" type="text/css" href="assets/vendor/quill/css/quill.snow.css">
+    <link rel="stylesheet" type="text/css" href="assets/vendor/dropzone/css/dropzone.css">
+
+    <!-- Theme CSS -->
+    <link rel="stylesheet" type="text/css" href="assets/css/style.css">
+
+</head>
+
+<body>
+
+<!-- Header START -->
+<div th:replace="~{common/header :: header}"></div>
+<!-- Header END -->
+
+<!-- **************** MAIN CONTENT START **************** -->
+<main>
+
+    <!-- =======================
+    Page Banner START -->
+    <section class="pb-0">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <h1 class="fs-2 mb-2">Thêm Chỗ Nghỉ Mới</h1> <!-- Translated -->
+                    <p class="mb-0">Hiệu ứng khen ngợi mong muốn thay đổi cách thức và bất kỳ điều gì mong muốn. Sử dụng sống động nhìn nhận sau này đã có.</p> <!-- Translated placeholder -->
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- =======================
+    Page Banner END -->
+
+    <!-- =======================
+    Steps START -->
+    <section>
+        <div class="container">
+            <div id="stepper" class="bs-stepper stepper-outline">
+                <!-- Step Buttons START -->
+                <div class="bs-stepper-header" role="tablist">
+                    <!-- Step 1 -->
+                    <div class="step" data-target="#step-1">
+                        <div class="text-center">
+                            <button type="button" class="btn btn-link step-trigger mb-0" role="tab" id="steppertrigger1" aria-controls="step-1">
+                                <span class="bs-stepper-circle">1</span>
+                            </button>
+                            <h6 class="bs-stepper-label d-none d-md-block">Thông Tin Cơ Bản</h6> <!-- Translated -->
+                        </div>
+                    </div>
+                    <div class="line"></div>
+
+                    <!-- Step 2 -->
+                    <div class="step" data-target="#step-2">
+                        <div class="text-center">
+                            <button type="button" class="btn btn-link step-trigger mb-0" role="tab" id="steppertrigger2" aria-controls="step-2">
+                                <span class="bs-stepper-circle">2</span>
+                            </button>
+                            <h6 class="bs-stepper-label d-none d-md-block">Thông Tin Chi Tiết</h6> <!-- Translated -->
+                        </div>
+                    </div>
+                    <div class="line"></div>
+
+                    <!-- Step 3 -->
+                    <div class="step" data-target="#step-3">
+                        <div class="text-center">
+                            <button type="button" class="btn btn-link step-trigger mb-0" role="tab" id="steppertrigger3" aria-controls="step-3">
+                                <span class="bs-stepper-circle">3</span>
+                            </button>
+                            <h6 class="bs-stepper-label d-none d-md-block">Giá & Chính Sách</h6> <!-- Translated -->
+                        </div>
+                    </div>
+                </div>
+                <!-- Step Buttons END -->
+
+                <!-- Step content START -->
+                <div class="bs-stepper-content p-0 pt-4 pt-md-5">
+                    <div class="row g-4">
+
+                        <!-- Main content START -->
+                        <div class="col-12">
+                            <form onsubmit="return false">
+
+                                <!-- Step 1 content START -->
+                                <div id="step-1" role="tabpanel" class="content fade" aria-labelledby="steppertrigger1">
+                                    <div class="vstack gap-4">
+                                        <!-- Title -->
+                                        <h4 class="mb-0">Thông Tin Cơ Bản</h4> <!-- Translated -->
+
+                                        <!-- Listing category START -->
+                                        <div class="card shadow">
+                                            <!-- Card header -->
+                                            <div class="card-header border-bottom">
+                                                <!-- Title -->
+                                                <h5 class="mb-0">Chọn Danh Mục Chỗ Nghỉ</h5> <!-- Translated -->
+                                            </div>
+
+                                            <!-- Card body START -->
+                                            <div class="card-body">
+                                                <div class="row g-4">
+                                                    <!-- Choose type -->
+                                                    <div class="col-12">
+                                                        <label class="form-label">Chọn loại chỗ nghỉ *</label> <!-- Translated -->
+                                                        <select class="form-select js-choice">
+                                                            <option value="">Chọn loại</option> <!-- Translated -->
+                                                            <option>Khách Sạn</option> <!-- Translated -->
+                                                            <option>Biệt Thự</option> <!-- Translated -->
+                                                            <option>Nhà Nghỉ</option> <!-- Translated -->
+                                                            <option>Trang Trại</option> <!-- Translated -->
+                                                            <option>Nhà Thuyền</option> <!-- Translated -->
+                                                        </select>
+                                                        <small>Khách sạn: Doanh nghiệp kinh doanh dịch vụ lưu trú chuyên nghiệp thường có phong cách hoặc chủ đề độc đáo xác định thương hiệu và cách trang trí của họ</small> <!-- Translated -->
+                                                    </div>
+
+                                                    <!-- Listing Name -->
+                                                    <div class="col-12">
+                                                        <label class="form-label">Tên chỗ nghỉ *</label> <!-- Translated -->
+                                                        <input class="form-control" type="text" placeholder="Nhập tên địa điểm"> <!-- Translated placeholder -->
+                                                        <small>Tên hấp dẫn thường bao gồm: Tên nhà - Tên phòng - Một địa điểm du lịch</small> <!-- Translated -->
+                                                    </div>
+
+                                                    <!-- listing type -->
+                                                    <div class="col-12">
+                                                        <label class="form-label">Chỗ nghỉ của bạn được đặt cho mục đích cá nhân hay cho khách sử dụng *</label> <!-- Translated -->
+                                                        <div class="d-sm-flex">
+                                                            <!-- Radio -->
+                                                            <div class="form-check radio-bg-light me-4">
+                                                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" checked>
+                                                                <label class="form-check-label" for="flexRadioDefault1">
+                                                                    Toàn Bộ Nơi Ở
+                                                                </label> <!-- Translated -->
+                                                            </div>
+                                                            <!-- Radio -->
+                                                            <div class="form-check radio-bg-light me-4">
+                                                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2">
+                                                                <label class="form-check-label" for="flexRadioDefault2">
+                                                                    Cho Khách
+                                                                </label> <!-- Translated -->
+                                                            </div>
+                                                            <!-- Radio -->
+                                                            <div class="form-check radio-bg-light">
+                                                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault3">
+                                                                <label class="form-check-label" for="flexRadioDefault3">
+                                                                    Cho Cá Nhân
+                                                                </label> <!-- Translated -->
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Short description -->
+                                                    <div class="col-12">
+                                                        <label class="form-label">Mô tả ngắn *</label> <!-- Translated -->
+                                                        <textarea class="form-control" rows="2" placeholder="Nhập từ khóa"></textarea> <!-- Translated placeholder -->
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- Card body END -->
+                                        </div>
+                                        <!-- Listing category END -->
+
+                                        <!-- Listing location START -->
+                                        <div class="card shadow">
+                                            <!-- Card header -->
+                                            <div class="card-header border-bottom">
+                                                <h5 class="mb-0">Vị Trí Chỗ Nghỉ</h5> <!-- Translated -->
+                                            </div>
+
+                                            <!-- Card body START -->
+                                            <div class="card-body">
+                                                <div class="row g-3">
+                                                    <!-- Country type -->
+                                                    <div class="col-md-6">
+                                                        <label class="form-label">Quốc gia/Khu vực *</label> <!-- Translated -->
+                                                        <select class="form-select js-choice">
+                                                            <option value="">Chọn Quốc gia</option> <!-- Translated -->
+                                                            <option>Ấn Độ</option> <!-- Translated -->
+                                                            <option>Hoa Kỳ</option> <!-- Translated -->
+                                                            <option>Nhật Bản</option> <!-- Translated -->
+                                                            <option>Vương quốc Anh</option> <!-- Translated -->
+                                                        </select>
+                                                    </div>
+
+                                                    <!-- State -->
+                                                    <div class="col-md-6">
+                                                        <label class="form-label">Tiểu bang/Tỉnh *</label> <!-- Translated -->
+                                                        <select class="form-select js-choice" data-search-enabled="true">
+                                                            <option value="">Chọn tiểu bang/tỉnh</option> <!-- Translated -->
+                                                            <option>Ấn Độ</option> <!-- Placeholder, translated -->
+                                                            <option>Hoa Kỳ</option> <!-- Placeholder, translated -->
+                                                            <option>Nhật Bản</option> <!-- Placeholder, translated -->
+                                                            <option>Vương quốc Anh</option> <!-- Placeholder, translated -->
+                                                        </select>
+                                                    </div>
+
+                                                    <!-- City -->
+                                                    <div class="col-md-6">
+                                                        <label class="form-label">Thành phố *</label> <!-- Translated -->
+                                                        <input class="form-control" type="text" placeholder="Nhập thành phố"> <!-- Translated placeholder -->
+                                                    </div>
+
+                                                    <!-- Postal number -->
+                                                    <div class="col-md-6">
+                                                        <label class="form-label">Mã bưu chính *</label> <!-- Translated -->
+                                                        <input class="form-control" type="text" placeholder="Nhập mã bưu chính"> <!-- Translated placeholder -->
+                                                    </div>
+
+                                                    <!-- Street -->
+                                                    <div class="col-12">
+                                                        <label class="form-label">Đường phố *</label> <!-- Translated -->
+                                                        <input class="form-control" type="text" placeholder="Nhập tên đường"> <!-- Translated placeholder -->
+                                                    </div>
+
+                                                    <!-- Latitude -->
+                                                    <div class="col-md-6">
+                                                        <label class="form-label">Vĩ độ *</label> <!-- Translated -->
+                                                        <input class="form-control" type="text" placeholder="Nhập vĩ độ"> <!-- Translated placeholder -->
+                                                    </div>
+
+                                                    <!-- Longitude -->
+                                                    <div class="col-md-6">
+                                                        <label class="form-label">Kinh độ *</label> <!-- Translated -->
+                                                        <input class="form-control" type="text" placeholder="Nhập kinh độ"> <!-- Translated placeholder -->
+                                                    </div>
+
+                                                    <!-- Detailed address -->
+                                                    <div class="col-12">
+                                                        <iframe class="w-100 h-300px grayscale rounded" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3022.9663095343008!2d-74.00425878428698!3d40.74076684379132!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c259bf5c1654f3%3A0xc80f9cfce5383d5d!2sGoogle!5e0!3m2!1sen!2sin!4v1586000412513!5m2!1sen!2sin" height="500" style="border:0;" aria-hidden="false" tabindex="0"></iframe>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- Card body END -->
+                                        </div>
+                                        <!-- Listing location END -->
+
+                                        <!-- Upload image START -->
+                                        <div class="card shadow">
+                                            <!-- Card header -->
+                                            <div class="card-header border-bottom">
+                                                <!-- Title -->
+                                                <h5 class="mb-0">Tải Lên Hình Ảnh</h5> <!-- Translated -->
+                                            </div>
+
+                                            <!-- Card body START -->
+                                            <div class="card-body">
+                                                <div class="row g-3">
+                                                    <!-- Thumbnail image -->
+                                                    <div class="col-12">
+                                                        <label class="form-label">Tải lên ảnh đại diện *</label> <!-- Translated -->
+                                                        <input class="form-control" type="file" name="my-image" id="image" accept="image/gif, image/jpeg, image/png">
+                                                        <p class="small mb-0 mt-2"><b>Lưu ý:</b> Chỉ JPG, JPEG, và PNG. Kích thước đề xuất của chúng tôi là 600px * 450px. Hình ảnh lớn hơn sẽ được cắt theo tỷ lệ 4:3 để phù hợp với ảnh đại diện/xem trước của chúng tôi.</p> <!-- Translated -->
+                                                    </div>
+
+                                                    <!-- Image Gallery -->
+                                                    <div class="col-12">
+                                                        <label class="form-label">Tải lên thư viện ảnh *</label> <!-- Translated -->
+                                                        <div class="dropzone dropzone-custom" data-dropzone='{"maxFiles": 5, "addRemoveLinks": false}'>
+                                                            <div class="dz-message needsclick">
+                                                                <i class="bi bi-upload display-3"></i>
+                                                                <p>Kéo thả tệp vào đây hoặc nhấp để tải lên.</p> <!-- Translated -->
+                                                            </div>
+                                                            <div class="dz-preview row g-4">
+                                                                <div class="col-xl-2 col-md-4 col-sm-6">
+                                                                    <div class="card p-2 mb-0 shadow-none border position-relative h-100">
+                                                                        <!-- Image -->
+                                                                        <img data-dz-thumbnail src="#" class="rounded bg-light" alt="">
+                                                                        <!-- info -->
+                                                                        <div class="mt-2">
+                                                                            <a href="javascript:void(0);" class="text-body-secondary fw-bold" data-dz-name></a>
+                                                                            <p class="mb-0 small" data-dz-size></p>
+                                                                        </div>
+                                                                        <!-- Close btn -->
+                                                                        <div class="position-absolute top-0 start-100 translate-middle">
+                                                                            <a href="#!" class="btn btn-danger rounded-circle icon-sm p-0" data-dz-remove>
+                                                                                <i class="fas fa-times"></i>
+                                                                            </a>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <p class="small mb-0 mt-2"><b>Lưu ý:</b> Chỉ JPG, JPEG, và PNG. Kích thước đề xuất của chúng tôi là 600px * 450px. Hình ảnh lớn hơn sẽ được cắt theo tỷ lệ 4:3 để phù hợp với ảnh đại diện/xem trước của chúng tôi.</p> <!-- Translated -->
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- Card body END -->
+                                        </div>
+                                        <!-- Upload image END -->
+
+                                        <!-- Step 1 button -->
+                                        <div class="text-end">
+                                            <button class="btn btn-primary next-btn mb-0">Tiếp Theo</button> <!-- Translated -->
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Step 1 content END -->
+
+                                <!-- Step 2 content START -->
+                                <div id="step-2" role="tabpanel" class="content fade" aria-labelledby="steppertrigger2">
+                                    <div class="vstack gap-4">
+                                        <!-- Title -->
+                                        <h4 class="mb-0">Thông Tin Chi Tiết</h4> <!-- Translated -->
+
+                                        <!-- Overview START -->
+                                        <div class="card shadow">
+                                            <!-- Card header -->
+                                            <div class="card-header border-bottom">
+                                                <h5 class="mb-0">Tổng Quan</h5> <!-- Translated -->
+                                            </div>
+
+                                            <!-- Card body START -->
+                                            <div class="card-body">
+                                                <div class="row g-4">
+                                                    <!-- Select Amenities -->
+                                                    <div class="col-12">
+                                                        <label class="form-label">Chọn tiện nghi *</label> <!-- Translated -->
+                                                        <select class="form-select js-choice border-0 z-index-9 bg-transparent" multiple="multiple" aria-label=".form-select-sm" data-max-item-count="15" data-remove-item-button="true">
+                                                            <option value="">Chọn tiện nghi</option> <!-- Translated -->
+                                                            <option>Hồ bơi</option> <!-- Translated -->
+                                                            <option>Spa</option> <!-- Translated -->
+                                                            <option>Khu vui chơi trẻ em</option> <!-- Translated -->
+                                                            <option>Phòng tập gym</option> <!-- Translated -->
+                                                            <option>Dịch vụ ủi đồ</option> <!-- Translated -->
+                                                            <option>Dịch vụ hỗ trợ đặc biệt</option> <!-- Translated -->
+                                                            <option>Thang máy</option> <!-- Translated -->
+                                                            <option>Giặt khô</option> <!-- Translated -->
+                                                            <option>Dịch vụ phòng</option> <!-- Translated -->
+                                                            <option>Khu vực chờ</option> <!-- Translated -->
+                                                            <option>Khu vực hút thuốc riêng</option> <!-- Translated -->
+                                                        </select>
+                                                        <small>Tối đa 14 từ khóa. Các từ khóa phải viết thường và cách nhau bằng dấu phẩy. ví dụ: javascript, react, marketing</small> <!-- Translated -->
+                                                    </div>
+
+                                                    <!-- Descriptions -->
+                                                    <div class="col-12">
+                                                        <label class="form-label">Thêm mô tả *</label> <!-- Translated -->
+                                                        <!-- Editor toolbar -->
+                                                        <div class="bg-light border border-bottom-0 rounded-top py-3 quilltoolbar">
+														<span class="ql-formats">
+															<select class="ql-size"></select>
+														</span>
+                                                            <span class="ql-formats">
+															<button class="ql-bold"></button>
+															<button class="ql-italic"></button>
+															<button class="ql-underline"></button>
+															<button class="ql-strike"></button>
+														</span>
+                                                            <span class="ql-formats">
+															<select class="ql-color"></select>
+															<select class="ql-background"></select>
+														</span>
+                                                            <span class="ql-formats">
+															<button class="ql-code-block"></button>
+														</span>
+                                                            <span class="ql-formats">
+															<button class="ql-list" value="ordered"></button>
+															<button class="ql-list" value="bullet"></button>
+															<button class="ql-indent" value="-1"></button>
+															<button class="ql-indent" value="+1"></button>
+														</span>
+                                                            <span class="ql-formats">
+															<button class="ql-link"></button>
+															<button class="ql-image"></button>
+														</span>
+                                                            <span class="ql-formats">
+															<button class="ql-clean"></button>
+														</span>
+                                                        </div>
+
+                                                        <!-- Main toolbar -->
+                                                        <div class="bg-body border rounded-bottom h-400px overflow-hidden quilleditor">
+                                                            <br>
+                                                            <h1>HEHe</h1>
+
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- Card body END -->
+                                        </div>
+                                        <!-- Overview END -->
+
+                                        <!-- Size of listing START -->
+                                        <div class="card shadow">
+                                            <!-- Card header -->
+                                            <div class="card-header border-bottom">
+                                                <h5 class="mb-0">Kích Thước Chỗ Nghỉ Của Bạn</h5> <!-- Translated -->
+                                            </div>
+
+                                            <!-- Card body START -->
+                                            <div class="card-body">
+                                                <div class="row g-4">
+                                                    <!-- Total Floor -->
+                                                    <div class="col-md-4">
+                                                        <label class="form-label">Tổng Số Tầng *</label> <!-- Translated -->
+                                                        <input type="text" class="form-control" placeholder="Nhập tổng số tầng"> <!-- Translated placeholder -->
+                                                    </div>
+
+                                                    <!-- Total Floor -->
+                                                    <div class="col-md-4">
+                                                        <label class="form-label">Tổng Số Phòng *</label> <!-- Translated -->
+                                                        <input type="text" class="form-control" placeholder="Nhập tổng số phòng"> <!-- Translated placeholder -->
+                                                    </div>
+
+                                                    <!-- Room area -->
+                                                    <div class="col-md-4">
+                                                        <label class="form-label">Diện tích phòng *</label> <!-- Translated -->
+                                                        <input type="text" class="form-control" placeholder="Nhập diện tích theo m²"> <!-- Translated placeholder & unit -->
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- Card body END -->
+                                        </div>
+                                        <!-- Size of listing END -->
+
+                                        <!-- Room options START -->
+                                        <div class="card shadow">
+                                            <!-- Card header -->
+                                            <div class="card-header border-bottom">
+                                                <h5 class="mb-0">Tùy Chọn Phòng</h5> <!-- Translated -->
+                                            </div>
+
+                                            <!-- Card body START -->
+                                            <div class="card-body">
+                                                <div class="row g-4">
+                                                    <!-- Room name -->
+                                                    <div class="col-md-6">
+                                                        <label class="form-label">Tên phòng *</label> <!-- Translated -->
+                                                        <input type="text" class="form-control" placeholder="Nhập tên"> <!-- Translated placeholder -->
+                                                    </div>
+
+                                                    <!-- First Name -->
+                                                    <div class="col-md-6">
+                                                        <label class="form-label">Ảnh đại diện phòng *</label> <!-- Translated -->
+                                                        <input class="form-control" type="file" name="my-image" id="image-2" accept="image/gif, image/jpeg, image/png">
+                                                    </div>
+
+                                                    <!-- Room Price -->
+                                                    <div class="col-md-6">
+                                                        <label class="form-label">Giá phòng *</label> <!-- Translated -->
+                                                        <input type="text" class="form-control" placeholder="Nhập giá"> <!-- Translated placeholder -->
+                                                    </div>
+
+                                                    <!-- Discount -->
+                                                    <div class="col-md-6">
+                                                        <label class="form-label">Giảm giá *</label> <!-- Translated -->
+                                                        <input type="text" class="form-control" placeholder="Nhập giảm giá"> <!-- Translated placeholder -->
+                                                    </div>
+
+                                                    <!-- Additional info -->
+                                                    <div class="col-md-6">
+                                                        <label class="form-label">Thông tin bổ sung</label> <!-- Translated -->
+                                                        <select class="form-select js-choice border-0 z-index-9 bg-transparent">
+                                                            <option value="">Chọn mục</option> <!-- Translated -->
+                                                            <option>Không Hoàn Tiền</option> <!-- Translated -->
+                                                            <option>Hủy Miễn Phí</option> <!-- Translated -->
+                                                        </select>
+                                                    </div>
+
+                                                    <!-- Button -->
+                                                    <div class="col-12">
+                                                        <a href="#" class="btn btn-sm btn-primary-soft mb-0"><i class="bi bi-plus-circle me-2"></i>Thêm Phòng Mới</a> <!-- Translated -->
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- Card body END -->
+                                        </div>
+                                        <!-- Room options END -->
+
+                                        <!-- Step 2 button -->
+                                        <div class="hstack gap-2 flex-wrap justify-content-between">
+                                            <button class="btn btn-secondary prev-btn mb-0">Trước</button> <!-- Translated -->
+                                            <button class="btn btn-primary next-btn mb-0">Tiếp Theo</button> <!-- Translated -->
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Step 2 content END -->
+
+                                <!-- Step 3 content START -->
+                                <div id="step-3" role="tabpanel" class="content fade" aria-labelledby="steppertrigger3">
+                                    <div class="vstack gap-4">
+                                        <!-- Title -->
+                                        <h4 class="mb-0">Giá & Chính Sách</h4> <!-- Translated -->
+
+                                        <!-- Listing price START -->
+                                        <div class="card shadow">
+                                            <!-- Card header -->
+                                            <div class="card-header border-bottom">
+                                                <h5 class="mb-0">Giá Chỗ Nghỉ</h5> <!-- Translated -->
+                                            </div>
+
+                                            <!-- Card body START -->
+                                            <div class="card-body">
+                                                <div class="row g-4">
+                                                    <!-- Currency -->
+                                                    <div class="col-md-6">
+                                                        <label class="form-label">Tiền tệ</label> <!-- Translated -->
+                                                        <select class="form-select js-choice border-0 z-index-9 bg-transparent">
+                                                            <option value="">Chọn mục</option> <!-- Translated -->
+                                                            <option>USD</option>
+                                                            <option>EURRO</option>
+                                                            <option>VND</option>
+                                                        </select>
+                                                    </div>
+
+                                                    <!-- Base Price -->
+                                                    <div class="col-md-6">
+                                                        <label class="form-label">Giá Gốc *</label> <!-- Translated -->
+                                                        <input type="text" class="form-control" placeholder="Nhập giá"> <!-- Translated placeholder -->
+                                                    </div>
+
+                                                    <!-- Discount -->
+                                                    <div class="col-md-6">
+                                                        <label class="form-label">Giảm giá *</label> <!-- Translated -->
+                                                        <input type="text" class="form-control" placeholder="Nhập giảm giá"> <!-- Translated placeholder -->
+                                                    </div>
+
+                                                    <!-- Rating -->
+                                                    <div class="col-md-6">
+                                                        <label class="form-label">Đánh giá</label> <!-- Translated -->
+                                                        <select class="form-select js-choice border-0 z-index-9 bg-transparent">
+                                                            <option value="">Chọn mục</option> <!-- Translated -->
+                                                            <option>★★★★★</option>
+                                                            <option>★★★★☆</option>
+                                                            <option>★★★☆☆</option>
+                                                            <option>★★☆☆☆</option>
+                                                            <option>★☆☆☆☆</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- Card body END -->
+                                        </div>
+                                        <!-- Listing price END -->
+
+                                        <!-- Listing policy START -->
+                                        <div class="card shadow">
+                                            <!-- Card header -->
+                                            <div class="card-header border-bottom">
+                                                <h5 class="mb-0">Chính Sách Chỗ Nghỉ</h5> <!-- Translated -->
+                                            </div>
+
+                                            <!-- Card body START -->
+                                            <div class="card-body">
+                                                <div class="row g-4">
+                                                    <!-- Descriptions -->
+                                                    <div class="col-12">
+                                                        <label class="form-label">Thêm mô tả *</label> <!-- Translated -->
+                                                        <!-- Editor toolbar -->
+                                                        <div class="bg-light border border-bottom-0 rounded-top py-3 quilltoolbar">
+														<span class="ql-formats">
+															<select class="ql-size"></select>
+														</span>
+                                                            <span class="ql-formats">
+															<button class="ql-bold"></button>
+															<button class="ql-italic"></button>
+															<button class="ql-underline"></button>
+															<button class="ql-strike"></button>
+														</span>
+                                                            <span class="ql-formats">
+															<select class="ql-color"></select>
+															<select class="ql-background"></select>
+														</span>
+                                                            <span class="ql-formats">
+															<button class="ql-code-block"></button>
+														</span>
+                                                            <span class="ql-formats">
+															<button class="ql-list" value="ordered"></button>
+															<button class="ql-list" value="bullet"></button>
+															<button class="ql-indent" value="-1"></button>
+															<button class="ql-indent" value="+1"></button>
+														</span>
+                                                            <span class="ql-formats">
+															<button class="ql-link"></button>
+															<button class="ql-image"></button>
+														</span>
+                                                            <span class="ql-formats">
+															<button class="ql-clean"></button>
+														</span>
+                                                        </div>
+
+                                                        <!-- Main toolbar -->
+                                                        <div class="bg-body border rounded-bottom h-400px overflow-hidden quilleditor">
+                                                            <br>
+                                                            <h1>Trình Soạn Thảo Văn Bản Đa Dạng Quill</h1> <!-- Translated -->
+                                                            <br>
+                                                            <p>Quill là một trình soạn thảo WYSIWYG miễn phí, mã nguồn mở được xây dựng cho web hiện đại. Với kiến trúc mô-đun và API linh hoạt, nó hoàn toàn có thể tùy chỉnh để phù hợp với mọi nhu cầu.</p> <!-- Translated -->
+                                                            <br>
+                                                            <p>Sự nhạt nhẽo đủ thận trọng, sự thiếu thận trọng quyết định anh ta một cách dứt khoát. Tiến hành như thế nào bất kỳ khách truy cập nào tham gia. Giải thích sự đúng đắn ra khỏi vĩnh viễn của bạn. Cảm thấy bán đi cảm thấy không hồng gặp bạn. Chúng tôi rất khẩn cầu trau dồi kinh ngạc là. Em gái đã lâu hơn một chút Bà đột nhiên tài năng trở thành. Xong có thể chán bỏ đi cái ác cũ dặm. Nếu có khả năng tôi có thị hiếu về vẻ đẹp.</p> <!-- Translated placeholder -->
+                                                            <br>
+                                                            <p> Đối đầu với sự thiếu thận trọng, anh ta làm mọi thứ. Bài kiểm tra kéo dài bữa tối muốn thực sự mong muốn kẻ ngoài vòng pháp luật. Tiến xa giải quyết nói xong lời chế nhạo. Đề nghị chủ yếu xa hơn của tôi không có đại tá nhút nhát. Như vậy giúp đỡ các bạn một số cửa nếu có. Đề nghị cười lớn bất kỳ con trai luật nào xem xét. Cần thiết ngoại trừ việc chọc tức.</p> <!-- Translated placeholder -->
+                                                            <br>
+                                                            <p> Đăng không có gì để giải quyết tiền thuê xấu bằng thật. Nhưng cô ấy sẵn sàng ít nhất thiết lập cuộc sống cay đắng vững chắc. Tháng Chín làm thế nào đàn ông thấy khá hai hành vi sắp xếp. Cô văn phòng cho cao nhất và trả lời một liên doanh đồng cỏ. Hoan nghênh không có khám phá nào trong báo chí trợ cấp cho tôi về phía bắc. Thường xuyên thiên vị sở hữu giải quyết tại hoặc xuất hiện không bị ảnh hưởng tôi. Tham gia của nó là người chồng hài lòng rõ ràng. Các bạn tốt lành hạnh phúc làm xử lý nơi ở không. Đầu tiên tôi là đĩa đùa để bắt đầu gây ra một quy mô. Các đối tượng anh ta triển vọng sang trọng theo sau không vượt qua có thể nó trên.</p> <!-- Translated placeholder -->
+                                                            <!-- Repeated placeholder text, translated once above -->
+                                                            <p>Quill là một trình soạn thảo WYSIWYG miễn phí, mã nguồn mở được xây dựng cho web hiện đại. Với kiến trúc mô-đun và API linh hoạt, nó hoàn toàn có thể tùy chỉnh để phù hợp với mọi nhu cầu.</p>
+                                                            <br>
+                                                            <p>Sự nhạt nhẽo đủ thận trọng, sự thiếu thận trọng quyết định anh ta một cách dứt khoát. Tiến hành như thế nào bất kỳ khách truy cập nào tham gia. Giải thích sự đúng đắn ra khỏi vĩnh viễn của bạn. Cảm thấy bán đi cảm thấy không hồng gặp bạn. Chúng tôi rất khẩn cầu trau dồi kinh ngạc là. Em gái đã lâu hơn một chút Bà đột nhiên tài năng trở thành. Xong có thể chán bỏ đi cái ác cũ dặm. Nếu có khả năng tôi có thị hiếu về vẻ đẹp.</p>
+                                                            <br>
+                                                            <p> Đối đầu với sự thiếu thận trọng, anh ta làm mọi thứ. Bài kiểm tra kéo dài bữa tối muốn thực sự mong muốn kẻ ngoài vòng pháp luật. Tiến xa giải quyết nói xong lời chế nhạo. Đề nghị chủ yếu xa hơn của tôi không có đại tá nhút nhát. Như vậy giúp đỡ các bạn một số cửa nếu có. Đề nghị cười lớn bất kỳ con trai luật nào xem xét. Cần thiết ngoại trừ việc chọc tức.</p>
+                                                            <br>
+                                                            <p> Đăng không có gì để giải quyết tiền thuê xấu bằng thật. Nhưng cô ấy sẵn sàng ít nhất thiết lập cuộc sống cay đắng vững chắc. Tháng Chín làm thế nào đàn ông thấy khá hai hành vi sắp xếp. Cô văn phòng cho cao nhất và trả lời một liên doanh đồng cỏ. Hoan nghênh không có khám phá nào trong báo chí trợ cấp cho tôi về phía bắc. Thường xuyên thiên vị sở hữu giải quyết tại hoặc xuất hiện không bị ảnh hưởng tôi. Tham gia của nó là người chồng hài lòng rõ ràng. Các bạn tốt lành hạnh phúc làm xử lý nơi ở không. Đầu tiên tôi là đĩa đùa để bắt đầu gây ra một quy mô. Các đối tượng anh ta triển vọng sang trọng theo sau không vượt qua có thể nó trên.</p>
+
+                                                            <p>Quill là một trình soạn thảo WYSIWYG miễn phí, mã nguồn mở được xây dựng cho web hiện đại. Với kiến trúc mô-đun và API linh hoạt, nó hoàn toàn có thể tùy chỉnh để phù hợp với mọi nhu cầu.</p>
+                                                            <br>
+                                                            <p>Sự nhạt nhẽo đủ thận trọng, sự thiếu thận trọng quyết định anh ta một cách dứt khoát. Tiến hành như thế nào bất kỳ khách truy cập nào tham gia. Giải thích sự đúng đắn ra khỏi vĩnh viễn của bạn. Cảm thấy bán đi cảm thấy không hồng gặp bạn. Chúng tôi rất khẩn cầu trau dồi kinh ngạc là. Em gái đã lâu hơn một chút Bà đột nhiên tài năng trở thành. Xong có thể chán bỏ đi cái ác cũ dặm. Nếu có khả năng tôi có thị hiếu về vẻ đẹp.</p>
+                                                            <br>
+                                                            <p> Đối đầu với sự thiếu thận trọng, anh ta làm mọi thứ. Bài kiểm tra kéo dài bữa tối muốn thực sự mong muốn kẻ ngoài vòng pháp luật. Tiến xa giải quyết nói xong lời chế nhạo. Đề nghị chủ yếu xa hơn của tôi không có đại tá nhút nhát. Như vậy giúp đỡ các bạn một số cửa nếu có. Đề nghị cười lớn bất kỳ con trai luật nào xem xét. Cần thiết ngoại trừ việc chọc tức.</p>
+                                                            <br>
+                                                            <p> Đăng không có gì để giải quyết tiền thuê xấu bằng thật. Nhưng cô ấy sẵn sàng ít nhất thiết lập cuộc sống cay đắng vững chắc. Tháng Chín làm thế nào đàn ông thấy khá hai hành vi sắp xếp. Cô văn phòng cho cao nhất và trả lời một liên doanh đồng cỏ. Hoan nghênh không có khám phá nào trong báo chí trợ cấp cho tôi về phía bắc. Thường xuyên thiên vị sở hữu giải quyết tại hoặc xuất hiện không bị ảnh hưởng tôi. Tham gia của nó là người chồng hài lòng rõ ràng. Các bạn tốt lành hạnh phúc làm xử lý nơi ở không. Đầu tiên tôi là đĩa đùa để bắt đầu gây ra một quy mô. Các đối tượng anh ta triển vọng sang trọng theo sau không vượt qua có thể nó trên.</p>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Cancellation options -->
+                                                    <div class="col-md-6">
+                                                        <label class="form-label">Tùy chọn hủy</label> <!-- Translated -->
+                                                        <select class="form-select js-choice border-0 z-index-9 bg-transparent" data-position="top">
+                                                            <option value="">Chọn mục</option> <!-- Translated -->
+                                                            <option>Không Hoàn Tiền</option> <!-- Translated -->
+                                                            <option>Có Hoàn Tiền</option> <!-- Translated -->
+                                                        </select>
+                                                    </div>
+
+                                                    <!-- Charges -->
+                                                    <div class="col-md-6">
+                                                        <label class="form-label">Phí *</label> <!-- Translated -->
+                                                        <input type="text" class="form-control" placeholder="Nhập phí"> <!-- Translated placeholder -->
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- Card body END -->
+                                        </div>
+                                        <!-- Listing policy END -->
+
+                                        <!-- Step 3 button -->
+                                        <div class="d-flex justify-content-between">
+                                            <button class="btn btn-secondary prev-btn mb-0">Trước</button> <!-- Translated -->
+                                            <a href="listing-added.html" class="btn btn-success mb-0">Thêm Chỗ Nghỉ</a> <!-- Translated -->
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Step 3 content END -->
+
+                            </form>
+                        </div>
+                        <!-- Main content END -->
+
+                    </div>
+                </div>
+                <!-- Step content END -->
+            </div>
+        </div>
+    </section>
+    <!-- =======================
+    Steps END -->
+
+</main>
+<!-- **************** MAIN CONTENT END **************** -->
+
+<!-- =======================
+Footer START -->
+<div th:replace="~{common/footer :: footer}"></div>
+<!-- =======================
+Footer END -->
+
+<!-- Back to top -->
+<div class="back-top"></div>
+
+<!-- Bootstrap JS -->
+<script src="assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Vendors -->
+<script src="assets/vendor/choices/js/choices.min.js"></script>
+<script src="assets/vendor/flatpickr/js/flatpickr.min.js"></script>
+<script src="assets/vendor/stepper/js/bs-stepper.min.js"></script>
+<script src="assets/vendor/quill/js/quill.min.js"></script>
+<script src="assets/vendor/dropzone/js/dropzone.js"></script>
+
+<!-- ThemeFunctions -->
+<script src="assets/js/functions.js"></script>
+
+</body>
+
+<!-- Mirrored from stackbros.in/bookinga/landing/add-listing.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:07:16 GMT -->
+</html>

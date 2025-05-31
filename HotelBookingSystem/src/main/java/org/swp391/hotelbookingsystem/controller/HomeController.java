@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.swp391.hotelbookingsystem.constant.ConstantVariables;
 import org.swp391.hotelbookingsystem.model.Location;
 import org.swp391.hotelbookingsystem.model.Review;
+import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.service.LocationService;
 import org.swp391.hotelbookingsystem.service.HotelService;
 import org.swp391.hotelbookingsystem.model.Hotel;
@@ -30,7 +31,8 @@ public class HomeController {
     public String home(Model model, HttpSession session) {
         model.addAttribute(ConstantVariables.PAGE_TITLE, "Hamora Booking");
         List<Location> locations = locationService.getAllLocations();
-        session.setAttribute("locations", locations);
+        session.setAttribute(ConstantVariables.LOCATIONS, locations);
+
 
         // Fetch top 4 high-rated hotels and add to model
         List<Hotel> topHotels = hotelService.getTop8HighRatedHotels();
@@ -43,8 +45,8 @@ public class HomeController {
         String email = (String) session.getAttribute("email");
         String name = (String) session.getAttribute("name");
 
-        model.addAttribute("email", email);
-        model.addAttribute("fullName", name);
+        User user = (User) session.getAttribute("user");
+        model.addAttribute("user", user);
 
         return "page/homepage";
     }
