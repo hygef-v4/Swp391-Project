@@ -14,6 +14,10 @@ public class HotelService {
     @Autowired
     private HotelRepository hotelRepository;
 
+    public Hotel getHotelById(int id){
+        return hotelRepository.getHotelById(id);
+    }
+
     public List<Hotel> getHotelsSortedByRating() {
         return hotelRepository.getHotelsSortedByRating();
     }

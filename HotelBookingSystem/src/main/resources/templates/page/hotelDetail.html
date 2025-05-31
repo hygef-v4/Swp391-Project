@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:inline="text" lang="en">
+
+<!-- Mirrored from stackbros.in/bookinga/landing/hotel-detail.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:06:45 GMT -->
+<head>
+	<title th:text="${hotel.hotelName}"></title>
+
+	<!-- Meta Tags -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="author" content="StackBros">
+	<meta name="description" content="Booking - Multipurpose Online Booking Theme">
+
+	<!-- Dark mode -->
+	<script>
+		const storedTheme = localStorage.getItem('theme')
+ 
+		const getPreferredTheme = () => {
+			if (storedTheme) {
+				return storedTheme
+			}
+			return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+		}
+
+		const setTheme = function (theme) {
+			if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+				document.documentElement.setAttribute('data-bs-theme', 'dark')
+			} else {
+				document.documentElement.setAttribute('data-bs-theme', theme)
+			}
+		}
+
+		setTheme(getPreferredTheme())
+
+		window.addEventListener('DOMContentLoaded', () => {
+		    var el = document.querySelector('.theme-icon-active');
+			if(el != 'undefined' && el != null) {
+				const showActiveTheme = theme => {
+				const activeThemeIcon = document.querySelector('.theme-icon-active use')
+				const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+				const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
+
+				document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+					element.classList.remove('active')
+				})
+
+				btnToActive.classList.add('active')
+				activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+			}
+
+			window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+				if (storedTheme !== 'light' || storedTheme !== 'dark') {
+					setTheme(getPreferredTheme())
+				}
+			})
+
+			showActiveTheme(getPreferredTheme())
+
+			document.querySelectorAll('[data-bs-theme-value]')
+				.forEach(toggle => {
+					toggle.addEventListener('click', () => {
+						const theme = toggle.getAttribute('data-bs-theme-value')
+						localStorage.setItem('theme', theme)
+						setTheme(theme)
+						showActiveTheme(theme)
+					})
+				})
+
+			}
+		})
+		
+	</script>
+
+	<script>
+	document.addEventListener("DOMContentLoaded", function(){
+		const items = document.querySelectorAll(".room-description li");
+		items.forEach(li => {
+			li.classList.add("list-group-item", "h6", "fw-light", "d-flex", "mb-0");
+
+			const icon = document.createElement("i");
+			icon.className = "fa-solid fa-check-circle text-success me-2";
+			li.insertBefore(icon, li.firstChild);
+		})
+	});
+	</script>
+
+	<!-- Favicon -->
+	<link rel="shortcut icon" href="assets/images/favicon.ico">
+
+	<!-- Google Font -->
+	<link rel="preconnect" href="https://fonts.googleapis.com/">
+	<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Poppins:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+
+	<!-- Plugins CSS -->
+	<link rel="stylesheet" type="text/css" href="assets/vendor/font-awesome/css/all.min.css">
+	<link rel="stylesheet" type="text/css" href="assets/vendor/bootstrap-icons/bootstrap-icons.css">
+	<link rel="stylesheet" type="text/css" href="assets/vendor/glightbox/css/glightbox.css">
+	<link rel="stylesheet" type="text/css" href="assets/vendor/flatpickr/css/flatpickr.min.css">
+	<link rel="stylesheet" type="text/css" href="assets/vendor/choices/css/choices.min.css">
+	<link rel="stylesheet" type="text/css" href="assets/vendor/tiny-slider/tiny-slider.css">
+
+	<!-- Theme CSS -->
+	<link rel="stylesheet" type="text/css" href="assets/css/style.css">
+
+</head>
+
+<body>
+
+<!-- Header START -->
+<div th:replace="~{common/header :: header}"></div>
+<!-- Header END -->
+
+<!-- **************** MAIN CONTENT START **************** -->
+<main>
+
+<!-- =======================
+Search START -->
+<section class="py-3 py-sm-0">
+	<div class="container">
+		<!-- Offcanvas button for search -->
+		<button class="btn btn-primary d-sm-none w-100 mb-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasEditsearch" aria-controls="offcanvasEditsearch"><i class="bi bi-pencil-square me-2"></i>Edit Search</button>
+
+		<!-- Search with offcanvas START -->
+        <form th:action="@{/hotel-list}" method="GET"
+                class="card shadow rounded-3 position-relative p-4 pe-md-5 pb-5 pb-md-4">
+            <div class="row g-4 align-items-center">
+                <!-- Location -->
+                <div class="col-lg-4">
+                    <div class="form-control-border form-control-transparent form-fs-md d-flex">
+                        <!-- Icon -->
+                        <i class="bi bi-geo-alt fs-3 me-2 mt-2"></i>
+                        <!-- Select input -->
+                        <div class="flex-grow-1">
+                            <label class="form-label">Địa điểm</label>
+                            <select name="locationId" class="form-select js-choice"
+                                    data-search-enabled="true">
+                                <option value="-1">Chọn địa điểm</option>
+                                <option
+                                        th:each="location : ${locations}"
+                                        th:value="${location.id}"
+                                        th:text="${location.cityName}"
+                                        th:selected="${location.id == hotel.locationId}"
+                                >
+                                </option>
+
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Check in -->
+                <div class="col-lg-4">
+                    <div class="d-flex">
+                        <!-- Icon -->
+                        <i class="bi bi-calendar fs-3 me-2 mt-2"></i>
+                        <!-- Date input -->
+                        <div class="form-control-border form-control-transparent form-fs-md">
+                            <label class="form-label">Nhận phòng – Trả phòng</label>
+                            <input type="text" class="form-control flatpickr" data-mode="range" name="dateRange" placeholder="Chọn ngày">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Guest -->
+                <div class="col-lg-4">
+                    <div class="form-control-border form-control-transparent form-fs-md d-flex">
+                        <!-- Icon -->
+                        <i class="bi bi-person fs-3 me-2 mt-2"></i>
+                        <!-- Dropdown input -->
+                        <div class="w-100">
+                            <label class="form-label"> Khách & Phòng</label>
+                            <div class="dropdown guest-selector me-2">
+                                <input readonly type="text"
+                                        class="form-guest-selector form-control selection-result"
+                                        value="1 Khách 1 Phòng" data-bs-auto-close="outside"
+                                        data-bs-toggle="dropdown">
+
+                                <!-- dropdown items -->
+                                <ul class="dropdown-menu guest-selector-dropdown">
+                                    <!-- Adult -->
+                                    <li class="d-flex justify-content-between">
+                                        <div>
+                                            <h6 class="mb-0">Người lớn</h6>
+                                            <small>18 tuổi trở lên</small>
+                                        </div>
+
+                                        <div class="hstack gap-1 align-items-center">
+                                            <button type="button"
+                                                    class="btn btn-link adult-remove p-0 mb-0"><i
+                                                    class="bi bi-dash-circle fs-5 fa-fw"></i></button>
+                                            <h6 class="guest-selector-count mb-0 adults">1</h6>
+                                            <button type="button" class="btn btn-link adult-add p-0 mb-0"><i
+                                                    class="bi bi-plus-circle fs-5 fa-fw"></i></button>
+                                        </div>
+                                    </li>
+
+                                    <!-- Divider -->
+                                    <li class="dropdown-divider"></li>
+
+                                    <!-- Child -->
+                                    <li class="d-flex justify-content-between">
+                                        <div>
+                                            <h6 class="mb-0">Trẻ em </h6>
+                                            <small>0-17 tuổi</small>
+                                        </div>
+
+                                        <div class="hstack gap-1 align-items-center">
+                                            <button type="button"
+                                                    class="btn btn-link child-remove p-0 mb-0"><i
+                                                    class="bi bi-dash-circle fs-5 fa-fw"></i></button>
+                                            <h6 class="guest-selector-count mb-0 child">0</h6>
+                                            <button type="button" class="btn btn-link child-add p-0 mb-0"><i
+                                                    class="bi bi-plus-circle fs-5 fa-fw"></i></button>
+                                        </div>
+                                    </li>
+
+                                    <!-- Divider -->
+                                    <li class="dropdown-divider"></li>
+
+                                    <!-- Rooms -->
+                                    <li class="d-flex justify-content-between">
+                                        <div>
+                                            <h6 class="mb-0">Phòng </h6>
+                                            <!-- <small>Tối đa 8 phòng</small> -->
+                                        </div>
+
+                                        <div class="hstack gap-1 align-items-center">
+                                            <button type="button" class="btn btn-link room-remove p-0 mb-0">
+                                                <i class="bi bi-dash-circle fs-5 fa-fw"></i></button>
+                                            <h6 class="guest-selector-count mb-0 rooms">1</h6>
+                                            <button type="button" class="btn btn-link room-add p-0 mb-0"><i
+                                                    class="bi bi-plus-circle fs-5 fa-fw"></i></button>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!--                        hidden field for adults, children, and rooms-->
+
+            <input type="hidden" name="adults" id="adultsInput" value="1">
+            <input type="hidden" name="children" id="childrenInput" value="0">
+            <input type="hidden" name="rooms" id="roomsInput" value="1">
+
+
+            <!-- Button -->
+            <div class="btn-position-md-middle">
+                <button type="submit" class="icon-lg btn btn-round btn-primary mb-0">
+                    <i class="bi bi-search fa-fw"></i>
+                </button>
+            </div>
+        </form>
+		<!-- Search with offcanvas END -->
+	</div>
+</section>
+<!-- =======================
+Search END -->
+	
+<!-- =======================
+Main Title START -->
+<section class="py-0 pt-sm-5">
+	<div class="container position-relative">
+		<!-- Title and button START -->
+		<div class="row mb-3">
+			<div class="col-12">
+				<!-- Meta -->
+				<div class="d-lg-flex justify-content-lg-between mb-1">
+					<!-- Title -->
+					<div class="mb-2 mb-lg-0">
+						<h1 class="fs-2" th:text="${hotel.hotelName}"></h1>
+						<!-- Location -->
+						<p class="fw-bold mb-0"><i class="bi bi-geo-alt me-2"></i>
+							<span th:text="${hotel.address + ', ' + hotel.cityName}"></span>
+							<a href="#" class="ms-2 text-decoration-underline" data-bs-toggle="modal" data-bs-target="#mapmodal">
+								<i class="bi bi-eye-fill me-1"></i>Xem Bản Đồ
+							</a>
+						</p>
+					</div>
+
+					<!-- Buttons -->
+					<ul class="list-inline text-end">
+						<!-- Heart icon -->
+						<li class="list-inline-item">
+							<a href="#" class="btn btn-sm btn-light px-2"><i class="fa-solid fa-fw fa-heart"></i></a>
+						</li>
+						<!-- Share icon -->
+						<li class="list-inline-item dropdown">
+							<!-- Share button -->
+							<a href="#" class="btn btn-sm btn-light px-2" role="button" id="dropdownShare" data-bs-toggle="dropdown" aria-expanded="false">
+								<i class="fa-solid fa-fw fa-share-alt"></i>
+							</a>
+							<!-- dropdown button -->
+							<ul class="dropdown-menu dropdown-menu-end min-w-auto shadow rounded" aria-labelledby="dropdownShare">
+								<li><a class="dropdown-item" href="#"><i class="fab fa-twitter-square me-2"></i>Twitter</a></li>
+								<li><a class="dropdown-item" href="#"><i class="fab fa-facebook-square me-2"></i>Facebook</a></li>
+								<li><a class="dropdown-item" href="#"><i class="fa-solid fa-copy me-2"></i>Copy link</a></li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<!-- Title and button END -->
+	</div>
+</section>
+<!-- =======================
+Main Title END -->
+
+<!-- =======================
+Image gallery START -->
+<section class="card-grid pt-0">
+	<div class="container">
+		<div th:if="${!hotel.hotelImageUrl.isEmpty()}" class="row g-2">
+			<!-- Image -->
+			<div th:class="${rooms != null && rooms.size() > 0 && rooms.get(0).getImages() != null && !rooms.get(0).getImages().isEmpty() && !rooms.get(0).getImages().get(0).isEmpty()} ? 'col-md-6' : 'col-md-12'">
+				<a data-glightbox="type: image" data-gallery="gallery" th:href="${hotel.hotelImageUrl}">
+					<div class="card card-grid-lg card-element-hover card-overlay-hover overflow-hidden" th:style="'background-image:url(' + ${hotel.hotelImageUrl} + '); background-position: center left; background-size: cover;'">
+						<!-- Card hover element -->
+						<div class="hover-element position-absolute w-100 h-100">
+							<i class="bi bi-fullscreen fs-6 text-white position-absolute top-50 start-50 translate-middle bg-dark rounded-1 p-2 lh-1"></i>
+						</div>
+					</div>
+				</a>
+			</div>
+
+			<div th:if="${rooms != null && rooms.size() > 0 && rooms.get(0).getImages() != null && !rooms.get(0).getImages().isEmpty() && !rooms.get(0).getImages().get(0).isEmpty()}" class="col-md-6">
+				<a th:if="${rooms.size() == 1 || !(rooms.get(1).getImages() != null && !rooms.get(1).getImages().isEmpty() && !rooms.get(1).getImages().get(0).isEmpty())}" data-glightbox="type: image" data-gallery="gallery" th:href="${rooms.get(0).getImages().get(0)}">
+					<div class="card card-grid-lg card-element-hover card-overlay-hover overflow-hidden" th:style="'background-image:url(' + ${rooms.get(0).getImages().get(0)} + '); background-position: center left; background-size: cover;'">
+						<!-- Card hover element -->
+						<div class="hover-element position-absolute w-100 h-100">
+							<i class="bi bi-fullscreen fs-6 text-white position-absolute top-50 start-50 translate-middle bg-dark rounded-1 p-2 lh-1"></i>
+						</div>
+					</div>
+				</a>				
+				<!-- Card item START -->
+				<div th:if="${rooms.size() > 1 && rooms.get(1).getImages() != null && !rooms.get(1).getImages().isEmpty() && !rooms.get(1).getImages().get(0).isEmpty()}" class="row g-2">
+					<!-- Image -->
+					<div class="col-12">
+						<a data-glightbox="type: image" data-gallery="gallery" th:href="${rooms.get(0).getImages().get(0)}">
+							<div class="card card-grid-sm card-element-hover card-overlay-hover overflow-hidden" th:style="'background-image:url(' + ${rooms.get(0).getImages().get(0)} + '); background-position: center left; background-size: cover;'">
+								<!-- Card hover element -->
+								<div class="hover-element position-absolute w-100 h-100">
+									<i class="bi bi-fullscreen fs-6 text-white position-absolute top-50 start-50 translate-middle bg-dark rounded-1 p-2 lh-1"></i>
+								</div>
+							</div>
+						</a>	
+					</div>
+
+					<!-- Image -->
+					<div th:class="${rooms.size() > 2 && rooms.get(2).getImages() != null && !rooms.get(2).getImages().isEmpty() && !rooms.get(2).getImages().get(0).isEmpty()} ? 'col-md-6' : 'col-md-12'">
+						<a data-glightbox="type: image" data-gallery="gallery" th:href="${rooms.get(1).getImages().get(0)}">
+							<div class="card card-grid-sm card-element-hover card-overlay-hover overflow-hidden" th:style="'background-image:url(' + ${rooms.get(1).getImages().get(0)} + '); background-position: center left; background-size: cover;'">
+								<!-- Card hover element -->
+								<div class="hover-element position-absolute w-100 h-100">
+									<i class="bi bi-fullscreen fs-6 text-white position-absolute top-50 start-50 translate-middle bg-dark rounded-1 p-2 lh-1"></i>
+								</div>
+							</div>
+						</a>	
+					</div>
+
+					<!-- Images -->
+					<div th:if="${rooms.size() > 2 && rooms.get(2).getImages() != null && !rooms.get(2).getImages().isEmpty() && !rooms.get(2).getImages().get(0).isEmpty()}" class="col-md-6">
+						<div class="card card-grid-sm overflow-hidden" th:style="'background-image:url(' + ${rooms.get(2).getImages().get(0)} + '); background-position: center left; background-size: cover;'">
+							<!-- Popup Images -->
+							<a data-glightbox="type: image" data-gallery="gallery" th:href="${rooms.get(2).getImages().get(0)}" class="stretched-link z-index-9"></a>
+							<a th:each="room, i: ${rooms}" th:if="${i.index >= 3 && room.getImages() != null && !room.getImages().isEmpty() && !room.getImages().get(0).isEmpty()}" data-glightbox="type: image" data-gallery="gallery" th:href="${room.getImages().get(0)}"></a>
+							
+							<!-- Background overlay -->
+							<div class="bg-overlay bg-dark opacity-7"></div>
+
+							<!-- Overlay text -->
+							<div class="card-img-overlay d-flex h-100 w-100">
+								<h6 class="card-title m-auto fw-light text-decoration-underline"><a href="#" class="text-white">View all</a></h6>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- Card item END -->
+			</div>
+		</div>
+	</div>
+</section>
+<!-- =======================
+Image gallery END -->
+
+<!-- =======================
+About hotel START -->
+<section class="pt-0">
+	<div class="container" data-sticky-container>
+
+		<div class="row g-4 g-xl-5">
+			<!-- Content START -->
+			<div class="col-xl-7 order-1">
+				<div class="vstack gap-5">
+
+					<!-- About hotel START -->
+					<div class="card bg-transparent">
+						<!-- Card header -->
+						<div class="card-header border-bottom bg-transparent px-0 pt-0">
+							<h3 class="mb-0">Giới thiệu về khách sạn</h3>
+						</div>
+
+						<!-- Card body START -->
+						<div class="card-body pt-4 p-0">
+							<p style="display: inline;" class="mb-3" th:utext="${short}"></p>
+							<p class="my-3 collapse collapse-inline" id="collapseContent" th:utext="${long}"></p>
+							<a class="p-0 mb-4 mt-2 btn-more d-flex align-items-center collapsed" data-bs-toggle="collapse" href="#collapseContent" role="button" aria-expanded="false" aria-controls="collapseContent" th:if="${!long.isEmpty()}">
+								<span class="see-more ms-1">Xem thêm</span><span class="see-less ms-1">Ẩn bớt</span><i class="fa-solid fa-angle-down ms-2"></i>
+							</a>
+						</div>
+						<!-- Card body END -->
+					</div>
+					<!-- About hotel START -->
+
+					<!-- Hotel Policies START -->
+					<div class="card bg-transparent">
+						<!-- Card header -->
+						<div class="card-header border-bottom bg-transparent px-0 pt-0">
+							<h3 class="mb-0">Chính sách khách sạn</h3>
+						</div>
+
+						<!-- Card body START -->
+						<div class="card-body pt-4 p-0">
+							<!-- List -->
+							<ul class="list-group list-group-borderless mb-2" th:utext="${hotel.policy}"></ul>
+						</div>
+						<!-- Card body END -->
+					</div>
+					<!-- Hotel Policies START -->
+
+					<!-- Room START -->
+					<div class="card bg-transparent" id="room-options">
+						<!-- Card header -->
+						<div class="card-header border-bottom bg-transparent px-0 pt-0">
+							<div class="d-sm-flex justify-content-sm-between align-items-center">
+								<h3 class="mb-2 mb-sm-0">Lựa Chọn Phòng</h3>
+							</div>
+						</div>
+
+						<!-- Card body START -->
+						<div class="card-body pt-4 p-0">
+							<div class="vstack gap-4">
+
+								<!-- Room item START -->
+								<div class="card shadow p-3" th:each="room: ${rooms}">
+									<div class="row g-4">
+										<!-- Card img -->
+										<div class="col-md-5 position-relative d-flex flex-column justify-content-center">
+
+											<!-- Slider START -->
+											<div class="tiny-slider arrow-round arrow-xs arrow-dark overflow-hidden rounded-2">
+												<div class="tiny-slider-inner" data-autoplay="true" data-arrow="true" data-dots="false" data-items="1">
+													<!-- Image item -->
+													<div class="text-center" th:each="image: ${room.images}"><img style="max-height: 170px;" th:src="${image}" th:alt="${room.title}"></div>
+												</div>
+											</div>
+											<!-- Slider END -->
+
+											<!-- Button -->
+											<a th:if="${room.images != null && !room.images.isEmpty()}" href="#" class="btn btn-link text-decoration-underline p-0 mb-0 mt-1" data-bs-toggle="modal" th:data-bs-target="'#roomDetail' + ${room.roomId}"><i class="bi bi-eye-fill me-1"></i>Xem Chi Tiết</a>
+										</div>
+
+										<!-- Card body -->
+										<div class="col-md-7">
+											<div class="card-body d-flex flex-column h-100 p-0">
+					
+												<!-- Title -->
+												<h5 class="card-title"><a href="#" th:text="${room.title}" data-bs-toggle="modal" th:data-bs-target="'#roomDetail' + ${room.roomId}"></a></h5>
+
+												<ul class="list-group list-group-borderless mb-2 room-description" th:utext="${room.description}"></ul>
+
+												<!-- Price and Button -->
+												<div class="d-sm-flex justify-content-sm-between align-items-center mt-auto">
+													<!-- Button -->
+													<div class="d-flex align-items-center">
+														<h5 class="fw-bold mb-0 me-1" th:text="${#numbers.formatDecimal(room.price, 0, 'COMMA', 0, 'POINT')} + '₫'"></h5>
+														<span class="mb-0 me-2">/Ngày</span>
+													</div>
+													<!-- Price -->
+													<div class="mt-3 mt-sm-0">
+														<a href="#" class="btn btn-sm btn-primary mb-0">Chọn Phòng</a>    
+													</div>                  
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<!-- Room item END -->
+
+							</div>
+						</div>
+						<!-- Card body END -->
+					</div>
+					<!-- Room END -->
+
+					<!-- Customer Review START -->
+					
+					<div class="card bg-transparent">
+						<!-- Card header -->
+						<div class="card-header border-bottom bg-transparent px-0 pt-0">
+							<h3 class="card-title mb-0">Đánh Giá</h3>
+						</div>
+
+						<!-- Card body START -->
+						<div class="card-body pt-4 p-0">
+							<form class="mb-5">	
+								<!-- Progress bar and rating START -->
+								<div class="card bg-light p-4 mb-4">
+									<div class="row g-4 align-items-center">
+										<!-- Rating info -->
+										<div class="col-md-4">
+											<div class="text-center">
+												<!-- Info -->
+												<h2 class="mb-0" th:text="${hotel.rating}"></h2>
+												<!-- Star -->
+												<ul class="list-inline mb-0">
+													<li class="list-inline-item me-0"><i th:class="(${hotel.rating <= 0.2} ? 'fa-regular fa-star' : (${hotel.rating >= 0.8} ? 'fa-solid fa-star' : 'fa-solid fa-star-half-alt')) + ' text-warning'"></i></li>
+													<li class="list-inline-item me-0"><i th:class="(${hotel.rating <= 1.2} ? 'fa-regular fa-star' : (${hotel.rating >= 1.8} ? 'fa-solid fa-star' : 'fa-solid fa-star-half-alt')) + ' text-warning'"></i></li>
+													<li class="list-inline-item me-0"><i th:class="(${hotel.rating <= 2.2} ? 'fa-regular fa-star' : (${hotel.rating >= 2.8} ? 'fa-solid fa-star' : 'fa-solid fa-star-half-alt')) + ' text-warning'"></i></li>
+													<li class="list-inline-item me-0"><i th:class="(${hotel.rating <= 3.2} ? 'fa-regular fa-star' : (${hotel.rating >= 3.8} ? 'fa-solid fa-star' : 'fa-solid fa-star-half-alt')) + ' text-warning'"></i></li>
+													<li class="list-inline-item me-0"><i th:class="(${hotel.rating <= 4.2} ? 'fa-regular fa-star' : (${hotel.rating >= 4.8} ? 'fa-solid fa-star' : 'fa-solid fa-star-half-alt')) + ' text-warning'"></i></li>
+												</ul>
+											</div>
+										</div>
+
+										<!-- Progress-bar START -->
+										<div class="col-md-8">
+											<div class="card-body p-0">
+												<div class="row gx-3 g-2 align-items-center">
+													<!-- Leave review START -->
+														<!-- Rating -->
+														<div class="form-control-bg-light mb-3">
+															<select class="form-select js-choice">
+																<option selected="">★★★★★ (5/5)</option>
+																<option>★★★★☆ (4/5)</option>
+																<option>★★★☆☆ (3/5)</option>
+																<option>★★☆☆☆ (2/5)</option>
+																<option>★☆☆☆☆ (1/5)</option>
+															</select>
+														</div>
+														<!-- Message -->
+														<div class="form-control-bg-light mb-3">
+															<textarea class="form-control" id="exampleFormControlTextarea1" placeholder="Đánh giá về khách sạn" rows="3"></textarea>
+														</div> 
+														<!-- Button -->
+														<button type="submit" class="btn btn-lg btn-primary mb-0">Gửi<i class="bi fa-fw bi-arrow-right ms-2"></i></button>
+													<!-- Leave review END -->
+												</div> <!-- Row END -->
+											</div>
+										</div>
+										<!-- Progress-bar END -->
+									</div>
+								</div>
+							</form>
+							<!-- Progress bar and rating END -->
+
+							<!-- Review item START -->
+							<div class="d-md-flex my-4">
+								<!-- Avatar -->
+								<div class="avatar avatar-lg me-3 flex-shrink-0">
+									<img class="avatar-img rounded-circle" src="assets/images/avatar/09.jpg" alt="avatar">
+								</div>
+								<!-- Text -->
+								<div>
+									<div class="d-flex justify-content-between mt-1 mt-md-0">
+										<div>
+											<h6 class="me-3 mb-0">Jacqueline Miller</h6>
+											<!-- Info -->
+											<ul class="nav nav-divider small mb-2">
+												<li class="nav-item">Stayed 13 Nov 2022</li>
+												<li class="nav-item">4 Reviews written</li>
+											</ul>
+										</div>
+										<!-- Review star -->
+										<div class="icon-md rounded text-bg-warning fs-6">4.5</div>
+									</div>
+									
+									<p class="mb-2">Handsome met debating sir dwelling age material. As style lived he worse dried. Offered related so visitors we private removed. Moderate do subjects to distance. </p>
+									
+									<!-- Images -->
+									<div class="row g-4">
+										<div class="col-4 col-sm-3 col-lg-2">
+											<img src="assets/images/category/hotel/4by3/07.jpg" class="rounded" alt="">
+										</div>
+										<div class="col-4 col-sm-3 col-lg-2">
+											<img src="assets/images/category/hotel/4by3/08.jpg" class="rounded" alt="">
+										</div>
+										<div class="col-4 col-sm-3 col-lg-2">
+											<img src="assets/images/category/hotel/4by3/05.jpg" class="rounded" alt="">
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<!-- Child review START -->
+							<div class="my-4 ps-2 ps-md-3">
+								<div class="d-md-flex p-3 bg-light rounded-3">
+									<img class="avatar avatar-sm rounded-circle me-3" src="assets/images/avatar/02.jpg" alt="avatar">
+									<div class="mt-2 mt-md-0">
+										<h6 class="mb-1">Manager</h6>
+										<p class="mb-0">But discretion frequently sir she instruments unaffected admiration everything. </p>
+									</div>
+								</div>
+							</div>
+							<!-- Child review END -->
+
+							<!-- Divider -->
+							<hr>
+							<!-- Review item END -->
+
+							<!-- Review item START -->
+							<div class="d-md-flex my-4">
+								<!-- Avatar -->
+								<div class="avatar avatar-lg me-3 flex-shrink-0">
+									<img class="avatar-img rounded-circle" src="assets/images/avatar/08.jpg" alt="avatar">
+								</div>
+								<!-- Text -->
+								<div>
+									<div class="d-flex justify-content-between mt-1 mt-md-0">
+										<div>
+											<h6 class="me-3 mb-0">Dennis Barrett</h6>
+											<!-- Info -->
+											<ul class="nav nav-divider small mb-2">
+												<li class="nav-item">Stayed 02 Nov 2022</li>
+												<li class="nav-item">2 Reviews written</li>
+											</ul>
+										</div>
+										<!-- Review star -->
+										<div class="icon-md rounded text-bg-warning fs-6">4.0</div>
+									</div>
+									
+									<p class="mb-0">Delivered dejection necessary objection do Mr prevailed. Mr feeling does chiefly cordial in do. Water timed folly right aware if oh truth. Large above be to means. Dashwood does provide stronger is.</p>
+								</div>
+							</div>
+
+							<!-- Divider -->
+							<hr>
+							<!-- Review item END -->
+
+							<!-- Button -->
+							<div class="text-center">
+								<a href="#" class="btn btn-primary-soft mb-0">Xem Thêm</a>
+							</div>
+						</div>
+						<!-- Card body END -->
+					</div>
+					<!-- Customer Review END -->
+				</div>	
+			</div>
+			<!-- Content END -->
+
+			<!-- Right side content START -->
+			<aside class="col-xl-5 order-xl-2">
+				<div data-sticky data-margin-top="100" data-sticky-for="1199">
+					<!-- Book now START -->
+					<div class="card card-body border">
+						
+						<!-- Title -->
+						<div class="d-sm-flex justify-content-sm-between align-items-center mb-3">
+							<div>
+								<span>Giá bắt đầu từ</span>
+								<h4 class="card-title mb-0" th:text="${#numbers.formatDecimal(hotel.minPrice, 0, 'COMMA', 0, 'POINT')} + '₫'"></h4>
+							</div>
+						</div>		
+
+						<!-- Rating -->
+						<ul class="list-inline mb-2">
+							<li class="list-inline-item me-1 h6 fw-light mb-0"><i class="bi bi-arrow-right me-2"></i><span th:text="${hotel.rating}"></span></li>
+							<li class="list-inline-item me-0"><i th:class="(${hotel.rating <= 0.2} ? 'fa-regular fa-star' : (${hotel.rating >= 0.8} ? 'fa-solid fa-star' : 'fa-solid fa-star-half-alt')) + ' text-warning'"></i></li>
+							<li class="list-inline-item me-0"><i th:class="(${hotel.rating <= 1.2} ? 'fa-regular fa-star' : (${hotel.rating >= 1.8} ? 'fa-solid fa-star' : 'fa-solid fa-star-half-alt')) + ' text-warning'"></i></li>
+							<li class="list-inline-item me-0"><i th:class="(${hotel.rating <= 2.2} ? 'fa-regular fa-star' : (${hotel.rating >= 2.8} ? 'fa-solid fa-star' : 'fa-solid fa-star-half-alt')) + ' text-warning'"></i></li>
+							<li class="list-inline-item me-0"><i th:class="(${hotel.rating <= 3.2} ? 'fa-regular fa-star' : (${hotel.rating >= 3.8} ? 'fa-solid fa-star' : 'fa-solid fa-star-half-alt')) + ' text-warning'"></i></li>
+							<li class="list-inline-item me-0"><i th:class="(${hotel.rating <= 4.2} ? 'fa-regular fa-star' : (${hotel.rating >= 4.8} ? 'fa-solid fa-star' : 'fa-solid fa-star-half-alt')) + ' text-warning'"></i></li>
+						</ul>
+
+						<!-- Button -->
+						<div class="d-grid">
+							<a href="#room-options" class="btn btn-lg btn-primary-soft mb-0">Xem <span th:text="${rooms.size()}"></span> lựa chọn phòng</a>
+						</div>
+					</div>
+					<!-- Book now END -->
+
+				</div>	
+			</aside>
+			<!-- Right side content END -->
+		</div> <!-- Row END -->
+	</div>
+</section>
+<!-- =======================
+About hotel END -->
+
+</main>
+<!-- **************** MAIN CONTENT END **************** -->
+
+<!-- =======================
+Footer START -->
+<div th:replace="~{common/footer :: footer}"></div>
+<!-- =======================
+Footer END -->
+
+<!-- Map modal START -->
+<div class="modal fade" id="mapmodal" tabindex="-1" aria-labelledby="mapmodalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-lg">
+		<div class="modal-content">
+			<!-- Title -->
+			<div class="modal-header">
+				<h5 class="modal-title" id="mapmodalLabel">Xem vị trí khách sạn</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<!-- Map -->
+			<div class="modal-body p-0" id="map" style="height: 400px;border:0;"></div>
+			<!-- Button -->
+			<div class="modal-footer">
+				<a th:href="${map}" target="_blank">
+					<button type="button" class="btn btn-sm btn-primary mb-0"><i class="bi fa-fw bi-pin-map-fill me-2"></i>Mở Google Map</button>
+				</a>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- Map modal END -->
+
+<!-- Room modal START -->
+<div class="modal fade" th:each="room: ${rooms}" th:id="'roomDetail' + ${room.roomId}" tabindex="-1" aria-labelledby="roomDetailLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content p-0">
+
+			<!-- Title -->
+			<div class="modal-header p-3">
+				<h5 class="modal-title mb-0" id="roomDetailLabel">Chi tiết</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+
+			<!-- Modal body -->
+			<div class="modal-body p-0">
+
+				<!-- Card START -->
+				<div class="card bg-transparent p-3">
+					<!-- Slider START -->
+					<div class="tiny-slider arrow-round arrow-dark overflow-hidden rounded-2">
+						<div class="tiny-slider-inner rounded-2 overflow-hidden" data-autoplay="true" data-arrow="true" data-dots="false" data-items="1">
+							<!-- Image item -->
+							<div th:each="image: ${room.images}"> <img th:src="${image}" class="rounded-2 img-fluid d-block mx-auto" style="max-height: 300px;" th:alt="${room.title}"></div>
+						</div>
+					</div>
+					<!-- Slider END -->
+
+					<!-- Card header -->
+					<div class="card-header bg-transparent pb-0">
+						<h5 class="card-title mb-0" th:text="${room.title}"></h5>
+					</div>
+
+					<!-- Card body START -->
+					<div class="card-body">
+						<!-- Content -->
+						<ul class="list-group list-group-borderless mt-0 mb-2 room-description" th:utext="${room.description}"></ul>
+						
+						<div class="row">
+							<h5 class="mb-0">Cơ sở vật chất</h5>
+
+							<!-- List -->
+							<div class="col-md-6">
+								<!-- List -->
+								<ul class="list-group list-group-borderless mt-2 mb-2">
+									<li class="list-group-item d-flex mb-0">
+										<i class="fa-solid fa-check-circle text-success me-2"></i><span class="h6 fw-light mb-0">Swimming pool</span>
+									</li>
+									<li class="list-group-item d-flex mb-0">
+										<i class="fa-solid fa-check-circle text-success me-2"></i><span class="h6 fw-light mb-0">Spa</span>
+									</li>
+									<li class="list-group-item d-flex mb-0">
+										<i class="fa-solid fa-check-circle text-success me-2"></i><span class="h6 fw-light mb-0">Kids play area.</span>
+									</li>
+									<li class="list-group-item d-flex mb-0">
+										<i class="fa-solid fa-check-circle text-success me-2"></i><span class="h6 fw-light mb-0">Gym</span>
+									</li>
+								</ul>
+							</div>
+
+							<!-- List -->
+							<div class="col-md-6">
+								<!-- List -->
+								<ul class="list-group list-group-borderless mt-2 mb-2">
+									<li class="list-group-item d-flex mb-0">
+										<i class="fa-solid fa-check-circle text-success me-2"></i><span class="h6 fw-light mb-0">TV</span>
+									</li>
+									<li class="list-group-item d-flex mb-0">
+										<i class="fa-solid fa-check-circle text-success me-2"></i><span class="h6 fw-light mb-0">Mirror</span>
+									</li>
+									<li class="list-group-item d-flex mb-0">
+										<i class="fa-solid fa-check-circle text-success me-2"></i><span class="h6 fw-light mb-0">AC</span>
+									</li>
+									<li class="list-group-item d-flex mb-0">
+										<i class="fa-solid fa-check-circle text-success me-2"></i><span class="h6 fw-light mb-0">Slippers</span>
+									</li>
+								</ul>
+							</div>
+
+							<div class="d-sm-flex justify-content-sm-between align-items-center mt-2 mb-0">
+								<!-- Button -->
+								<div class="d-flex align-items-center">
+									<h5 class="fw-bold mb-0 me-1" th:text="${#numbers.formatDecimal(room.price, 0, 'COMMA', 0, 'POINT')} + '₫'"></h5>
+									<span class="mb-0 me-2">/Ngày</span>
+								</div>
+								<!-- Price -->
+								<div class="mt-3 mt-sm-0">
+									<a href="#" class="btn btn-sm btn-primary mb-0">Chọn Phòng</a>    
+								</div>                  
+							</div>
+						</div> <!-- Row END -->
+					</div>
+					<!-- Card body END -->
+				</div>
+				<!-- Card END -->
+			</div>
+		</div>
+	</div>
+</div>
+<!-- Room modal END -->
+
+<!-- Back to top -->
+<div class="back-top"></div>
+
+<!-- Bootstrap JS -->
+<script src="assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Vendors -->
+<script src="assets/vendor/glightbox/js/glightbox.js"></script>
+<script src="assets/vendor/flatpickr/js/flatpickr.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
+<script src="assets/vendor/choices/js/choices.min.js"></script>
+<script src="assets/vendor/tiny-slider/tiny-slider.js"></script>
+<script src="assets/vendor/sticky-js/sticky.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/somanchiu/Keyless-Google-Maps-API@v7.0/mapsJavaScriptAPI.js" async defer></script>
+
+<script th:inline="javascript">
+	var map;
+
+	var lat = /*[[${hotel.latitude}]]*/ 0;
+	var lng = /*[[${hotel.longitude}]]*/ 0;
+
+	function initMap() {
+	map = new google.maps.Map(document.getElementById('map'), {
+		center: {lat: lat, lng: lng},
+		zoom: 20
+	});
+	}
+</script>
+
+<!-- ThemeFunctions -->
+<script src="assets/js/functions.js"></script>
+
+</body>
+
+<!-- Mirrored from stackbros.in/bookinga/landing/hotel-detail.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:06:47 GMT -->
+</html>

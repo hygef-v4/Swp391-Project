@@ -13,10 +13,9 @@ import org.swp391.hotelbookingsystem.service.HotelService;
 import org.swp391.hotelbookingsystem.service.LocationService;
 
 @Controller
-public class HotelController {
+public class HotelListController {
     @Autowired
     HotelService hotelService;
-
     @Autowired
     LocationService locationService;
 

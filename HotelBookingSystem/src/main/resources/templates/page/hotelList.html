@@ -3,7 +3,7 @@
 
 <!-- Mirrored from stackbros.in/bookinga/landing/hotel-list.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:06:44 GMT -->
 <head>
-	<title th:text="'Danh sách các khách sạn tại ' + ${hamora.cityName}"></title>
+	<title th:text="'Khách sạn tại ' + ${hamora.cityName}"></title>
 
 	<!-- Meta Tags -->
 	<meta charset="utf-8">
@@ -135,8 +135,6 @@ Main Banner START -->
 											th:text="${location.cityName}"
 											th:selected="${location.id == hamora.id}"
 									>
-
-
 									</option>
 
 								</select>
@@ -387,10 +385,9 @@ Hotel grid START -->
 					<!-- Slider START -->
 					<div class="card-img-scale-wrapper rounded-3">
 
-						<a>
+						<a th:href="'/hotel-detail?hotelId=' + ${hotel.hotelId}">
 							<img class="card-img clickable-img" th:src="${hotel.hotelImageUrl}" alt="hotel image">
 						</a>
-
 
 						<!-- Location badge -->
 						<div class="position-absolute bottom-0 start-0 p-3">
@@ -406,12 +403,12 @@ Hotel grid START -->
 					<div class="card-body px-3 pb-0">
 						<!-- Rating and cart -->
 						<div class="d-flex justify-content-between mb-3">
-							<a href="#" class="badge bg-dark text-white"><i class="bi fa-fw bi-star-fill me-2 text-warning"></i><span th:text="${hotel.rating}"></span></a>
-							<a href="#" class="h6 mb-0 z-index-2"><i class="bi fa-fw bi-bookmark"></i></a>
+							<a th:href="'/hotel-detail?hotelId=' + ${hotel.hotelId}" class="badge bg-dark text-white"><i class="bi fa-fw bi-star-fill me-2 text-warning"></i><span th:text="${hotel.rating}"></span></a>
+							<a th:href="'/hotel-detail?hotelId=' + ${hotel.hotelId}" class="h6 mb-0 z-index-2"><i class="bi fa-fw bi-bookmark"></i></a>
 						</div>
 
 						<!-- Title -->
-						<h5 class="card-title"><a href="hotel-detail.html" th:text="${hotel.hotelName}">.</a></h5>
+						<h5 class="card-title"><a th:href="'/hotel-detail?hotelId=' + ${hotel.hotelId}" th:text="${hotel.hotelName}">.</a></h5>
 					</div>
 					<!-- Card body END -->
 
@@ -426,7 +423,7 @@ Hotel grid START -->
 							</div>
 							<!-- Button -->
 							<div class="mt-2 mt-sm-0">
-								<a href="hotel-detail.html" class="btn btn-sm btn-primary-soft mb-0 w-100">View Detail<i class="bi bi-arrow-right ms-2"></i></a>    
+								<a th:href="'/hotel-detail?hotelId=' + ${hotel.hotelId}" class="btn btn-sm btn-primary-soft mb-0 w-100">View Detail<i class="bi bi-arrow-right ms-2"></i></a>    
 							</div>
 						</div>
 					</div>

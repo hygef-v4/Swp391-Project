@@ -22371,3 +22371,11 @@ html[dir=rtl] .choices__input {
   cursor: pointer;
   box-shadow: 0 8px 16px rgba(125, 122, 122, 0.2);
 }
+
+.collapse-inline {
+    display: inline !important;
+}
+
+.collapse:not(.show) {
+    display: none !important;
+}
