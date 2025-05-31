@@ -104,8 +104,6 @@ public class UserRepo {
         jdbc.update(sql, newRole, userId);
     }
 
-
-
 }
 
 
