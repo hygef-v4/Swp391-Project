@@ -11,7 +11,7 @@ import lombok.*;
 @Getter
 @Setter
 public class User {
-    private String id;
+    private int id;
     private String fullname;
     private String email;
     private String password;
