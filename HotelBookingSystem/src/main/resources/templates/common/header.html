@@ -317,6 +317,18 @@
                         </li>
 
                         <li><hr class="dropdown-divider"></li>
+                        <li th:if="${session.user.role == 'HOTEL OWNER'}">
+                            <a class="dropdown-item" href="/host-dashboard">
+                                <i class="bi bi-buildings fa-fw me-2"></i>Quản lý khách sạn
+                            </a>
+                        </li>
+                        <li th:if="${session.user.role == 'CUSTOMER'}">
+                            <a class="dropdown-item" href="/host-intro">
+                                <i class="bi bi-door-open fa-fw me-2"></i>Đăng ký cho thuê
+                            </a>
+                        </li>
+
+
                         <li><a class="dropdown-item" href="bookingHistory"><i class="bi bi-bookmark-check fa-fw me-2"></i>Đặt phòng của tôi</a></li>
                         <li><a class="dropdown-item" href="#"><i class="bi bi-heart fa-fw me-2"></i>Danh sách yêu thích</a></li>
                         <li><a class="dropdown-item" href="#"><i class="bi bi-gear fa-fw me-2"></i>Cài đặt</a></li>

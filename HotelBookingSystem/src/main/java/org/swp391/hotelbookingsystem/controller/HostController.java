@@ -65,9 +65,10 @@ public class HostController {
     }
 
 
-    @GetMapping("/add-listing")
+    // đang để chung với register-host, có thể tách ra
+    @GetMapping("/add-hotel")
     public String showAddListingPage(Model model) {
-        return "page/add-listing";
+       return "redirect:/register-host";
     }
 
 
@@ -94,6 +95,7 @@ public class HostController {
 
         List<Hotel> hotels = hotelService.getHotelsByHostId(user.getId());
         model.addAttribute("hotels", hotels);
+
         return "host/host-listing";
     }
 
