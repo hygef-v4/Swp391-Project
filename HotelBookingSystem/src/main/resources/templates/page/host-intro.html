@@ -350,9 +350,28 @@
                             </div>
 
                             <!-- Button -->
-                            <div class="col-lg-3 col-xxl-2 d-grid">
-                                <a href="/register-host" class="btn btn-primary mb-0">Trở Thành Chủ Nhà</a> <!-- Translated -->
+                            <div class="col-lg-3 col-xxl-2 d-grid" id="hostBtnContainer">
+                                <a href="#" class="btn btn-primary mb-0" id="registerHostBtn">Trở Thành Chủ Nhà</a>
                             </div>
+
+                            <script th:inline="javascript">
+                                const isLoggedIn = /*[[${session.user != null}]]*/ false;
+
+                                const registerBtn = document.getElementById("registerHostBtn");
+                                const container = document.getElementById("hostBtnContainer");
+
+                                registerBtn.addEventListener("click", function (e) {
+                                    e.preventDefault();
+                                    if (isLoggedIn) {
+                                        window.location.href = "/register-host";
+                                    } else {
+                                        container.innerHTML = `
+                <a href="/login" class="btn btn-warning mb-0">Vui lòng đăng nhập</a>
+            `;
+                                    }
+                                });
+                            </script>
+
                         </div>
                     </div>
                     <!-- Action box END -->
