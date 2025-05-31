@@ -37,9 +37,9 @@ public class UserProfileController {
         }
         model.addAttribute("pageTitle", "User Profile");
         return "page/userProfile"; // Định nghĩa giao diện userProfile.html
-    }
+        }
 
-    @PostMapping("/user-profile/update")
+    @PostMapping("/update-user-profile")
     public String updateUserProfile(@RequestParam("fullname") String fullname,
                                     @RequestParam("phone") String phone,
                                     Model model) {

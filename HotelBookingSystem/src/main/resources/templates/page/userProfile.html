@@ -249,7 +249,7 @@
                             <!-- Card body START -->
                             <div class="card-body">
                                 <!-- Form START -->
-                                <form th:action="@{/user-profile/update}" method="post" class="row g-3">
+                                <form th:action="@{/update-user-profile}" method="post" class="row g-3">
                                     <!-- Profile photo -->
                                     <div class="col-12">
                                         <label class="form-label">Upload your profile photo<span
@@ -280,7 +280,7 @@
 
                                     <!-- Email -->
                                     <div class="col-md-6">
-                                        <label class="form-label">Email address<span
+                                        <label class="form-label">Email<span
                                                 class="text-danger">*</span></label>
                                         <input type="email" class="form-control" name="email" th:value="${email}"
                                                placeholder="Enter your email id">
