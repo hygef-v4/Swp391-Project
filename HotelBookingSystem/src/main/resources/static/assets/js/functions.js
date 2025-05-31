@@ -1076,36 +1076,35 @@ var e = {
 
     // START: 27 Traffic Chart 3
     trafficsplineChart: function () {
-        var cpv = document.querySelector('#ChartGuesttraffic');
-        var chartData = document.querySelector('#chartData');
+        var chartData = document.querySelector("#chartData");
+        if (!chartData) return;
 
-        if (cpv && chartData) {
-            var checkIn = JSON.parse(chartData.dataset.checkin);
-            var checkOut = JSON.parse(chartData.dataset.checkout);
+        var labels = JSON.parse(chartData.dataset.labels);
+        var checkIn = JSON.parse(chartData.dataset.checkin);
+        var checkOut = JSON.parse(chartData.dataset.checkout);
 
-            var options = {
-                series: [
-                    { name: 'Check-in', data: checkIn },
-                    { name: 'Check-out', data: checkOut }
-                ],
-                chart: {
-                    height: 350,
-                    type: 'area'
-                },
-                colors: [
-                    ThemeColor.getCssVariableValue('--bs-primary'),
-                    ThemeColor.getCssVariableValue('--bs-info')
-                ],
-                dataLabels: { enabled: false },
-                stroke: { curve: 'smooth' },
-                xaxis: {
-                    type: 'day',
-                    categories: ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"]
-                }
-            };
+        var options = {
+            series: [
+                { name: 'Check-in', data: checkIn },
+                { name: 'Check-out', data: checkOut }
+            ],
+            chart: {
+                height: 350,
+                type: 'area'
+            },
+            xaxis: {
+                categories: labels,
+                type: 'category'
+            },
+            colors: [
+                ThemeColor.getCssVariableValue('--bs-primary'),
+                ThemeColor.getCssVariableValue('--bs-info')
+            ],
+            stroke: { curve: 'smooth' },
+            dataLabels: { enabled: false }
+        };
 
-            new ApexCharts(cpv, options).render();
-        }
+        new ApexCharts(document.querySelector("#ChartGuesttraffic"), options).render();
     },
 
     // END: Traffic Chart 3

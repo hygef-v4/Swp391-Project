@@ -2,39 +2,56 @@ package org.swp391.hotelbookingsystem.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.swp391.hotelbookingsystem.model.Hotel;
+import org.swp391.hotelbookingsystem.dto.*;
+import org.swp391.hotelbookingsystem.model.*;
 import org.swp391.hotelbookingsystem.repository.AdminDashboardRepository;
-import org.swp391.hotelbookingsystem.repository.HotelRepository;
 
-import java.util.List;
+import java.util.*;
 
 @Service
 public class AdminDashboardService {
+
     @Autowired
-    private AdminDashboardRepository adminDashboardRepository;
+    private AdminDashboardRepository repository;
 
-    public int getNumberOfHotels() {
-        return adminDashboardRepository.getNumberOfHotels();
+    public long countHotels() {
+        return repository.countHotels();
     }
 
-    public int getTotalRooms() {
-        return adminDashboardRepository.getTotalRooms();
+    public long countRooms() {
+        return repository.countRooms();
     }
 
-    public int getTotalBookedRooms() {
-        return adminDashboardRepository.getTotalBookedRooms();
+    public long countBookedRooms() {
+        return repository.countBookedRooms();
+    }
+
+    public long countAvailableRooms() {
+        return repository.countAvailableRooms();
     }
 
     public List<Hotel> getTopPopularHotels() {
-        return adminDashboardRepository.getTopPopularHotels();
+        return repository.findTopPopularHotels(); // Assume it sorts by booking count or rating
     }
 
-    public List<Integer> getCheckInChartData() {
-        return adminDashboardRepository.getCheckInCountsByWeekday();
+    public List<RecentRoomBookingDTO> getRecentRoomBookings() {
+        return repository.findRecentRoomBookings();
     }
 
-    public List<Integer> getCheckOutChartData() {
-        return adminDashboardRepository.getCheckOutCountsByWeekday();
+    public List<UpcomingGuestDTO> getUpcomingGuests() {
+        return repository.findUpcomingGuests();
+    }
+
+    public List<ReviewDTO> getRecentReviews() {
+        return repository.findRecentReviews();
+    }
+
+    public Map<String, Integer> getCheckInChartDataByDate() {
+        return repository.getCheckInCountsByDate();
+    }
+
+    public Map<String, Integer> getCheckOutChartDataByDate() {
+        return repository.getCheckOutCountsByDate();
     }
 
 }

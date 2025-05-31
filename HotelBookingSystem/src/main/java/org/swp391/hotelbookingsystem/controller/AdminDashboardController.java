@@ -9,40 +9,38 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.swp391.hotelbookingsystem.constant.ConstantVariables;
 import org.swp391.hotelbookingsystem.model.Hotel;
+import org.swp391.hotelbookingsystem.model.Room;
 import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.repository.UserRepo;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.swp391.hotelbookingsystem.service.AdminDashboardService;
 import org.swp391.hotelbookingsystem.service.HotelService;
 
-import java.util.List;
+import java.util.*;
 
 @Controller
 public class AdminDashboardController {
     @Autowired
-    AdminDashboardService adminDashboardService;
+    AdminDashboardService service;
 
     @GetMapping("/admin-dashboard")
-    public String showAdminDashboard(Model model, HttpSession session) {
-        model.addAttribute(ConstantVariables.PAGE_TITLE, "Admin Dashboard");
+    public String getDashboard(Model model) {
+        model.addAttribute("numberOfHotels", service.countHotels());
+        model.addAttribute("totalRooms", service.countRooms());
+        model.addAttribute("totalBookedRooms", service.countBookedRooms());
+        model.addAttribute("availableRooms", service.countAvailableRooms());
+        model.addAttribute("topPopularHotels", service.getTopPopularHotels());
+        model.addAttribute("recentRoomBookings", service.getRecentRoomBookings());
+        model.addAttribute("upcomingGuests", service.getUpcomingGuests());
+        model.addAttribute("recentReviews", service.getRecentReviews());
 
-        int numberOfHotels = adminDashboardService.getNumberOfHotels();
-        model.addAttribute("numberOfHotels", numberOfHotels);
+        Map<String, Integer> checkInData = service.getCheckInChartDataByDate();
+        Map<String, Integer> checkOutData = service.getCheckOutChartDataByDate();
 
-        int totalRooms = adminDashboardService.getTotalRooms();
-        model.addAttribute("totalRooms", totalRooms);
+        model.addAttribute("dateLabels", new ArrayList<>(checkInData.keySet()));
+        model.addAttribute("checkInData", new ArrayList<>(checkInData.values()));
+        model.addAttribute("checkOutData", new ArrayList<>(checkOutData.values()));
 
-        int totalBookedRooms = adminDashboardService.getTotalBookedRooms();
-        model.addAttribute("totalBookedRooms", totalBookedRooms);
-
-        List<Hotel> topPopularHotels = adminDashboardService.getTopPopularHotels();
-        model.addAttribute("topPopularHotels", topPopularHotels);
-
-        List<Integer> checkInChartData = adminDashboardService.getCheckInChartData();
-        model.addAttribute("checkInChartData", checkInChartData);
-        List<Integer> checkOutChartData = adminDashboardService.getCheckOutChartData();
-        model.addAttribute("checkOutChartData", checkOutChartData);
-
-        return "page/adminDashboard"; // corresponds to templates/admin/adminDashboard.html
+        return "page/adminDashboard";
     }
 }

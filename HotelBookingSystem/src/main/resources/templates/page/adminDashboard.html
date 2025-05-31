@@ -513,7 +513,7 @@
                             <!-- Card img -->
                             <div class="col-md-3">
                                 <img th:src="@{${hotel.hotelImageUrl}}" class="rounded-2 img-fluid object-fit-cover"
-                                     style="width: 100%; height: 100px;" alt="Hotel image" />
+                                     style="width: 100%; height: 100px;" alt="Hotel image"/>
                             </div>
 
                             <!-- Card body -->
@@ -594,8 +594,12 @@
                             </div>
                             <!-- Apex chart -->
                             <div id="chartData"
-                                 th:attr="data-checkin=${checkInChartData}, data-checkout=${checkOutChartData}">
+                                 th:inline="javascript"
+                                 th:attr="data-labels=${dateLabels},
+              data-checkin=${checkInData},
+              data-checkout=${checkOutData}">
                             </div>
+
                             <div id="ChartGuesttraffic" class="mt-2"></div>
                         </div>
                     </div>
@@ -622,11 +626,13 @@
                             <ul class="list-group list-group-borderless mb-0">
                                 <li class="list-group-item d-flex justify-content-between">
                                     <span class="h6 fw-light mb-0"><i class="text-success fas fa-circle me-2"></i> Còn trống</span>
-                                    <span class="h6 fw-light mb-0">73 Rooms</span>
+                                    <span class="h6 fw-light mb-0"
+                                          th:text="${availableRooms} + ' Phòng'">73 Phòng</span>
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between">
                                     <span class="h6 fw-light mb-0"><i class="text-danger fas fa-circle me-2"></i> Hết phòng</span>
-                                    <span class="h6 fw-light mb-0">245 Rooms</span>
+                                    <span class="h6 fw-light mb-0"
+                                          th:text="${totalBookedRooms} + ' Phòng'">245 Phòng</span>
                                 </li>
                             </ul>
                         </div>
@@ -646,127 +652,32 @@
                         <!-- Card body START -->
                         <div class="card-body">
                             <!-- Rooms item START -->
-                            <div class="d-flex justify-content-between align-items-center">
-                                <!-- Image and info -->
-                                <div class="d-sm-flex align-items-center mb-1 mb-sm-0">
-                                    <!-- Avatar -->
-                                    <div class="flex-shrink-0">
-                                        <img th:src="@{assets/images/category/hotel/4by3/04.jpg}" class="rounded h-60px"
-                                             alt="">
+                            <div th:each="room : ${recentRoomBookings}"
+                                 class="list-group list-group-flush list-unstyled mb-0">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-sm-flex align-items-center mb-1 mb-sm-0">
+                                        <div class="flex-shrink-0">
+                                            <img th:src="@{${room.imageUrl}}" class="rounded h-60px" alt="">
+                                        </div>
+                                        <div class="ms-sm-3 mt-2 mt-sm-0">
+                                            <h6 class="mb-1" th:text="${room.name}">Room Name</h6>
+                                            <ul class="nav nav-divider small">
+                                                <li class="nav-item" th:text="${room.dateRange}">Date range</li>
+                                                <li class="nav-item">
+                    <span th:classappend="${room.status.toLowerCase() == 'booked'} ? 'text-success' : 'text-danger'"
+                          th:text="${room.status}">Status</span>
+                                                </li>
+                                            </ul>
+                                        </div>
                                     </div>
-                                    <!-- Info -->
-                                    <div class="ms-sm-3 mt-2 mt-sm-0">
-                                        <h6 class="mb-1">Deluxe Pool View with Breakfast</h6>
-                                        <ul class="nav nav-divider small">
-                                            <li class="nav-item">18 Nov to 22 Nov</li>
-                                            <li class="nav-item"><span class="text-success">Booked</span></li>
-                                        </ul>
-                                    </div>
+                                    <a th:href="@{'/admin/rooms/view/' + ${room.id}}"
+                                       class="btn btn-sm btn-light flex-shrink-0 mb-0 ms-3">View</a>
+
                                 </div>
-                                <!-- Button -->
-                                <a href="#" class="btn btn-sm btn-light flex-shrink-0 mb-0 ms-3">View</a>
+                                <hr>
+                                <!-- Divider -->
                             </div>
-                            <!-- Rooms item END -->
 
-                            <hr><!-- Divider -->
-
-                            <!-- Rooms item START -->
-                            <div class="d-flex justify-content-between align-items-center">
-                                <!-- Image and info -->
-                                <div class="d-sm-flex align-items-center mb-1 mb-sm-0">
-                                    <!-- Avatar -->
-                                    <div class="flex-shrink-0">
-                                        <img th:src="@{assets/images/category/hotel/4by3/05.jpg}" class="rounded h-60px"
-                                             alt="">
-                                    </div>
-                                    <!-- Info -->
-                                    <div class="ms-sm-3 mt-2 mt-sm-0">
-                                        <h6 class="mb-1">Deluxe Pool View</h6>
-                                        <ul class="nav nav-divider small">
-                                            <li class="nav-item">16 Nov</li>
-                                            <li class="nav-item"><span class="text-danger">Booking cancel</span></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <!-- Button -->
-                                <a href="#" class="btn btn-sm btn-light flex-shrink-0 mb-0 ms-3">Xem</a>
-                            </div>
-                            <!-- Rooms item END -->
-
-                            <hr><!-- Divider -->
-
-                            <!-- Rooms item START -->
-                            <div class="d-flex justify-content-between align-items-center">
-                                <!-- Image and info -->
-                                <div class="d-sm-flex align-items-center mb-1 mb-sm-0">
-                                    <!-- Avatar -->
-                                    <div class="flex-shrink-0">
-                                        <img th:src="@{assets/images/category/hotel/4by3/06.jpg}" class="rounded h-60px"
-                                             alt="">
-                                    </div>
-                                    <!-- Info -->
-                                    <div class="ms-sm-3 mt-2 mt-sm-0">
-                                        <h6 class="mb-1">Luxury Room with Balcony</h6>
-                                        <ul class="nav nav-divider small">
-                                            <li class="nav-item">15 Nov to 20 Nov</li>
-                                            <li class="nav-item"><span class="text-success">Booked</span></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <!-- Button -->
-                                <a href="#" class="btn btn-sm btn-light flex-shrink-0 mb-0 ms-3">View</a>
-                            </div>
-                            <!-- Rooms item END -->
-
-                            <hr><!-- Divider -->
-
-                            <!-- Rooms item START -->
-                            <div class="d-flex justify-content-between align-items-center">
-                                <!-- Image and info -->
-                                <div class="d-sm-flex align-items-center mb-1 mb-sm-0">
-                                    <!-- Avatar -->
-                                    <div class="flex-shrink-0">
-                                        <img th:src="@{assets/images/category/hotel/4by3/08.jpg}" class="rounded h-60px"
-                                             alt="">
-                                    </div>
-                                    <!-- Info -->
-                                    <div class="ms-sm-3 mt-2 mt-sm-0">
-                                        <h6 class="mb-1">Premium Room With Balcony</h6>
-                                        <ul class="nav nav-divider small">
-                                            <li class="nav-item">14 Nov to 16 Nov</li>
-                                            <li class="nav-item"><span class="text-success">Booked</span></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <!-- Button -->
-                                <a href="#" class="btn btn-sm btn-light flex-shrink-0 mb-0 ms-3">View</a>
-                            </div>
-                            <!-- Rooms item END -->
-
-                            <hr><!-- Divider -->
-
-                            <!-- Rooms item START -->
-                            <div class="d-flex justify-content-between align-items-center">
-                                <!-- Image and info -->
-                                <div class="d-sm-flex align-items-center mb-1 mb-sm-0">
-                                    <!-- Avatar -->
-                                    <div class="flex-shrink-0">
-                                        <img th:src="@{assets/images/category/hotel/4by3/02.jpg}" class="rounded h-60px"
-                                             alt="">
-                                    </div>
-                                    <!-- Info -->
-                                    <div class="ms-sm-3 mt-2 mt-sm-0">
-                                        <h6 class="mb-1">Rock Family Suite</h6>
-                                        <ul class="nav nav-divider small">
-                                            <li class="nav-item">13 Nov</li>
-                                            <li class="nav-item"><span class="text-danger">Booking cancel</span></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <!-- Button -->
-                                <a href="#" class="btn btn-sm btn-light flex-shrink-0 mb-0 ms-3">View</a>
-                            </div>
-                            <!-- Rooms item END -->
                         </div>
                         <!-- Card body END -->
                     </div>
@@ -786,151 +697,31 @@
                         <div class="card-body p-3">
 
                             <!-- Arrival item -->
-                            <div class="d-flex justify-content-between align-items-center">
-                                <!-- Avatar and info -->
-                                <div class="d-sm-flex align-items-center mb-1 mb-sm-0">
-                                    <!-- Avatar -->
-                                    <div class="avatar avatar-md flex-shrink-0">
-                                        <img class="avatar-img rounded-circle" th:src="@{assets/images/avatar/09.jpg}"
-                                             alt="avatar">
+                            <div th:each="guest : ${upcomingGuests}"
+                                 class="list-group list-group-flush list-unstyled mb-0">
+
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-sm-flex align-items-center mb-1 mb-sm-0">
+                                        <div class="avatar avatar-md flex-shrink-0">
+                                            <img class="avatar-img rounded-circle" th:src="@{${guest.avatarUrl}}"
+                                                 alt="avatar">
+                                        </div>
+                                        <div class="ms-sm-2 mt-2 mt-sm-0">
+                                            <h6 class="mb-1" th:text="${guest.name}">Guest Name</h6>
+                                            <ul class="nav nav-divider small">
+                                                <li class="nav-item" th:text="${guest.room}">Room</li>
+                                                <li class="nav-item" th:text="${guest.dateRange}">Check-in-out</li>
+                                            </ul>
+                                        </div>
                                     </div>
-                                    <!-- Info -->
-                                    <div class="ms-sm-2 mt-2 mt-sm-0">
-                                        <h6 class="mb-1">Lori Stevens</h6>
-                                        <ul class="nav nav-divider small">
-                                            <li class="nav-item">Room 25A</li>
-                                            <li class="nav-item">24Nov - 28Nov</li>
-                                        </ul>
-                                    </div>
+                                    <a th:href="@{'/admin/guests/view/' + ${guest.id}}"
+                                       class="btn btn-sm btn-light mb-0 ms-3 px-2">
+                                        <i class="fa-solid fa-chevron-right fa-fw"></i>
+                                    </a>
+
                                 </div>
-                                <!-- Button -->
-                                <a href="#" class="btn btn-sm btn-light mb-0 ms-3 px-2"><i
-                                        class="fa-solid fa-chevron-right fa-fw"></i></a>
-                            </div>
-
-                            <hr><!-- Divider -->
-
-                            <!-- Arrival item -->
-                            <div class="d-flex justify-content-between align-items-center">
-                                <!-- Avatar and info -->
-                                <div class="d-sm-flex align-items-center mb-1 mb-sm-0">
-                                    <!-- Avatar -->
-                                    <div class="avatar avatar-md flex-shrink-0">
-                                        <img class="avatar-img rounded-circle" th:src="@{assets/images/avatar/03.jpg}"
-                                             alt="avatar">
-                                    </div>
-                                    <!-- Info -->
-                                    <div class="ms-sm-2 mt-2 mt-sm-0">
-                                        <h6 class="mb-1">Dennis Barrett</h6>
-                                        <ul class="nav nav-divider small">
-                                            <li class="nav-item">Room 12B</li>
-                                            <li class="nav-item">21Nov - 23Nov</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <!-- Button -->
-                                <a href="#" class="btn btn-sm btn-light mb-0 ms-3 px-2"><i
-                                        class="fa-solid fa-chevron-right fa-fw"></i></a>
-                            </div>
-
-                            <hr><!-- Divider -->
-
-                            <!-- Arrival item -->
-                            <div class="d-flex justify-content-between align-items-center">
-                                <!-- Avatar and info -->
-                                <div class="d-sm-flex align-items-center mb-1 mb-sm-0">
-                                    <!-- Avatar -->
-                                    <div class="avatar avatar-md flex-shrink-0">
-                                        <img class="avatar-img rounded-circle" th:src="@{assets/images/avatar/01.jpg}"
-                                             alt="avatar">
-                                    </div>
-                                    <!-- Info -->
-                                    <div class="ms-sm-2 mt-2 mt-sm-0">
-                                        <h6 class="mb-1">Jacqueline Miller</h6>
-                                        <ul class="nav nav-divider small">
-                                            <li class="nav-item">Room 11A</li>
-                                            <li class="nav-item">19Nov - 21Nov</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <!-- Button -->
-                                <a href="#" class="btn btn-sm btn-light mb-0 ms-3 px-2"><i
-                                        class="fa-solid fa-chevron-right fa-fw"></i></a>
-                            </div>
-
-                            <hr><!-- Divider -->
-
-                            <!-- Arrival item -->
-                            <div class="d-flex justify-content-between align-items-center">
-                                <!-- Avatar and info -->
-                                <div class="d-sm-flex align-items-center mb-1 mb-sm-0">
-                                    <!-- Avatar -->
-                                    <div class="avatar avatar-md flex-shrink-0">
-                                        <img class="avatar-img rounded-circle" th:src="@{assets/images/avatar/04.jpg}"
-                                             alt="avatar">
-                                    </div>
-                                    <!-- Info -->
-                                    <div class="ms-sm-2 mt-2 mt-sm-0">
-                                        <h6 class="mb-1">Billy Vasquez</h6>
-                                        <ul class="nav nav-divider small">
-                                            <li class="nav-item">Room 05A</li>
-                                            <li class="nav-item">14Nov - 18Nov</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <!-- Button -->
-                                <a href="#" class="btn btn-sm btn-light mb-0 ms-3 px-2"><i
-                                        class="fa-solid fa-chevron-right fa-fw"></i></a>
-                            </div>
-
-                            <hr><!-- Divider -->
-
-                            <!-- Arrival item -->
-                            <div class="d-flex justify-content-between align-items-center">
-                                <!-- Avatar and info -->
-                                <div class="d-sm-flex align-items-center mb-1 mb-sm-0">
-                                    <!-- Avatar -->
-                                    <div class="avatar avatar-md flex-shrink-0">
-                                        <img class="avatar-img rounded-circle" th:src="@{assets/images/avatar/05.jpg}"
-                                             alt="avatar">
-                                    </div>
-                                    <!-- Info -->
-                                    <div class="ms-sm-2 mt-2 mt-sm-0">
-                                        <h6 class="mb-1">Amanda Reed</h6>
-                                        <ul class="nav nav-divider small">
-                                            <li class="nav-item">Room 9</li>
-                                            <li class="nav-item">11Nov - 12Nov</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <!-- Button -->
-                                <a href="#" class="btn btn-sm btn-light mb-0 ms-3 px-2"><i
-                                        class="fa-solid fa-chevron-right fa-fw"></i></a>
-                            </div>
-
-                            <hr><!-- Divider -->
-
-                            <!-- Arrival item -->
-                            <div class="d-flex justify-content-between align-items-center">
-                                <!-- Avatar and info -->
-                                <div class="d-sm-flex align-items-center mb-1 mb-sm-0">
-                                    <!-- Avatar -->
-                                    <div class="avatar avatar-md flex-shrink-0">
-                                        <img class="avatar-img rounded-circle" th:src="@{assets/images/avatar/08.jpg}"
-                                             alt="avatar">
-                                    </div>
-                                    <!-- Info -->
-                                    <div class="ms-sm-2 mt-2 mt-sm-0">
-                                        <h6 class="mb-1">Dennis Barrett</h6>
-                                        <ul class="nav nav-divider small">
-                                            <li class="nav-item">Room 10</li>
-                                            <li class="nav-item">11Nov - 12Nov</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <!-- Button -->
-                                <a href="#" class="btn btn-sm btn-light mb-0 ms-3 px-2"><i
-                                        class="fa-solid fa-chevron-right fa-fw"></i></a>
+                                <hr>
+                                <!-- Divider -->
                             </div>
                         </div>
                         <!-- Card body END -->
@@ -949,174 +740,26 @@
 
                         <!-- Card body START -->
                         <div class="card-body p-3">
+                            <div th:each="review : ${recentReviews}"
+                                 class="list-group list-group-flush list-unstyled mb-0">
+                                <!-- Rooms item START -->
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-sm-flex align-items-center mb-1 mb-sm-0">
+                                        <div class="flex-shrink-0">
+                                            <img th:src="@{${review.imageUrl}}" class="rounded h-60px" alt="">
+                                        </div>
+                                        <div class="ms-sm-3 mt-2 mt-sm-0">
+                                            <h6 class="mb-1" th:text="${review.roomName}">Room Name</h6>
+                                            <ul class="list-inline smaller mb-0" th:utext="${review.starsHtml}"></ul>
+                                        </div>
+                                    </div>
+                                    <a th:href="@{'/admin/reviews/view/' + ${review.id}}"
+                                       class="btn btn-sm btn-light flex-shrink-0 mb-0 ms-3">View</a>
 
-                            <!-- Rooms item START -->
-                            <div class="d-flex justify-content-between align-items-center">
-                                <!-- Image and info -->
-                                <div class="d-sm-flex align-items-center mb-1 mb-sm-0">
-                                    <!-- Avatar -->
-                                    <div class="flex-shrink-0">
-                                        <img th:src="@{assets/images/category/hotel/4by3/08.jpg}" class="rounded h-60px"
-                                             alt="">
-                                    </div>
-                                    <!-- Info -->
-                                    <div class="ms-sm-3 mt-2 mt-sm-0">
-                                        <h6 class="mb-1">Deluxe Pool View with Breakfast</h6>
-                                        <ul class="list-inline smaller mb-0">
-                                            <li class="list-inline-item me-0"><i class="fas fa-star text-warning"></i>
-                                            </li>
-                                            <li class="list-inline-item me-0"><i class="fas fa-star text-warning"></i>
-                                            </li>
-                                            <li class="list-inline-item me-0"><i class="fas fa-star text-warning"></i>
-                                            </li>
-                                            <li class="list-inline-item me-0"><i class="fas fa-star text-warning"></i>
-                                            </li>
-                                            <li class="list-inline-item me-0"><i class="far fa-star text-warning"></i>
-                                            </li>
-                                            <li class="list-inline-item me-0">(35 reviews)</li>
-                                        </ul>
-                                    </div>
                                 </div>
-                                <!-- Button -->
-                                <a href="#" class="btn btn-sm btn-light flex-shrink-0 mb-0 ms-3">View</a>
+                                <hr>
+                                <!-- Divider -->
                             </div>
-                            <!-- Rooms item END -->
-
-                            <hr><!-- Divider -->
-
-                            <!-- Rooms item START -->
-                            <div class="d-flex justify-content-between align-items-center">
-                                <!-- Image and info -->
-                                <div class="d-sm-flex align-items-center mb-1 mb-sm-0">
-                                    <!-- Avatar -->
-                                    <div class="flex-shrink-0">
-                                        <img th:src="@{assets/images/category/hotel/4by3/09.jpg}" class="rounded h-60px"
-                                             alt="">
-                                    </div>
-                                    <!-- Info -->
-                                    <div class="ms-sm-3 mt-2 mt-sm-0">
-                                        <h6 class="mb-1">Deluxe Pool View</h6>
-                                        <ul class="list-inline smaller mb-0">
-                                            <li class="list-inline-item me-0"><i class="fas fa-star text-warning"></i>
-                                            </li>
-                                            <li class="list-inline-item me-0"><i class="fas fa-star text-warning"></i>
-                                            </li>
-                                            <li class="list-inline-item me-0"><i class="fas fa-star text-warning"></i>
-                                            </li>
-                                            <li class="list-inline-item me-0"><i class="fas fa-star text-warning"></i>
-                                            </li>
-                                            <li class="list-inline-item me-0"><i class="far fa-star text-warning"></i>
-                                            </li>
-                                            <li class="list-inline-item me-0">(25 reviews)</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <!-- Button -->
-                                <a href="#" class="btn btn-sm btn-light flex-shrink-0 mb-0 ms-3">Xem</a>
-                            </div>
-                            <!-- Rooms item END -->
-
-                            <hr><!-- Divider -->
-
-                            <!-- Rooms item START -->
-                            <div class="d-flex justify-content-between align-items-center">
-                                <!-- Image and info -->
-                                <div class="d-sm-flex align-items-center mb-1 mb-sm-0">
-                                    <!-- Avatar -->
-                                    <div class="flex-shrink-0">
-                                        <img th:src="@{assets/images/category/hotel/4by3/01.jpg}" class="rounded h-60px"
-                                             alt="">
-                                    </div>
-                                    <!-- Info -->
-                                    <div class="ms-sm-3 mt-2 mt-sm-0">
-                                        <h6 class="mb-1">Luxury Room with Balcony</h6>
-                                        <ul class="list-inline smaller mb-0">
-                                            <li class="list-inline-item me-0"><i class="fas fa-star text-warning"></i>
-                                            </li>
-                                            <li class="list-inline-item me-0"><i class="fas fa-star text-warning"></i>
-                                            </li>
-                                            <li class="list-inline-item me-0"><i class="fas fa-star text-warning"></i>
-                                            </li>
-                                            <li class="list-inline-item me-0"><i class="fas fa-star text-warning"></i>
-                                            </li>
-                                            <li class="list-inline-item me-0"><i class="far fa-star text-warning"></i>
-                                            </li>
-                                            <li class="list-inline-item me-0">(18 reviews)</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <!-- Button -->
-                                <a href="#" class="btn btn-sm btn-light flex-shrink-0 mb-0 ms-3">View</a>
-                            </div>
-                            <!-- Rooms item END -->
-
-                            <hr><!-- Divider -->
-
-                            <!-- Rooms item START -->
-                            <div class="d-flex justify-content-between align-items-center">
-                                <!-- Image and info -->
-                                <div class="d-sm-flex align-items-center mb-1 mb-sm-0">
-                                    <!-- Avatar -->
-                                    <div class="flex-shrink-0">
-                                        <img th:src="@{assets/images/category/hotel/4by3/05.jpg}" class="rounded h-60px"
-                                             alt="">
-                                    </div>
-                                    <!-- Info -->
-                                    <div class="ms-sm-3 mt-2 mt-sm-0">
-                                        <h6 class="mb-1">Premium Room With Balcony</h6>
-                                        <ul class="list-inline smaller mb-0">
-                                            <li class="list-inline-item me-0"><i class="fas fa-star text-warning"></i>
-                                            </li>
-                                            <li class="list-inline-item me-0"><i class="fas fa-star text-warning"></i>
-                                            </li>
-                                            <li class="list-inline-item me-0"><i class="fas fa-star text-warning"></i>
-                                            </li>
-                                            <li class="list-inline-item me-0"><i class="fas fa-star text-warning"></i>
-                                            </li>
-                                            <li class="list-inline-item me-0"><i
-                                                    class="far fa-star-half-stroke text-warning"></i></li>
-                                            <li class="list-inline-item me-0">(08 reviews)</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <!-- Button -->
-                                <a href="#" class="btn btn-sm btn-light flex-shrink-0 mb-0 ms-3">View</a>
-                            </div>
-                            <!-- Rooms item END -->
-
-                            <hr><!-- Divider -->
-
-                            <!-- Rooms item START -->
-                            <div class="d-flex justify-content-between align-items-center">
-                                <!-- Image and info -->
-                                <div class="d-sm-flex align-items-center mb-1 mb-sm-0">
-                                    <!-- Avatar -->
-                                    <div class="flex-shrink-0">
-                                        <img th:src="@{assets/images/category/hotel/4by3/02.jpg}" class="rounded h-60px"
-                                             alt="">
-                                    </div>
-                                    <!-- Info -->
-                                    <div class="ms-sm-3 mt-2 mt-sm-0">
-                                        <h6 class="mb-1">Rock Family Suite</h6>
-                                        <ul class="list-inline smaller mb-0">
-                                            <li class="list-inline-item me-0"><i class="fas fa-star text-warning"></i>
-                                            </li>
-                                            <li class="list-inline-item me-0"><i class="fas fa-star text-warning"></i>
-                                            </li>
-                                            <li class="list-inline-item me-0"><i class="fas fa-star text-warning"></i>
-                                            </li>
-                                            <li class="list-inline-item me-0"><i class="fas fa-star text-warning"></i>
-                                            </li>
-                                            <li class="list-inline-item me-0"><i
-                                                    class="far fa-star-half-stroke text-warning"></i></li>
-                                            <li class="list-inline-item me-0">(11 reviews)</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <!-- Button -->
-                                <a href="#" class="btn btn-sm btn-light flex-shrink-0 mb-0 ms-3">View</a>
-                            </div>
-                            <!-- Rooms item END -->
 
                         </div>
                         <!-- Card body END -->
@@ -1144,6 +787,11 @@
 <!-- ThemeFunctions -->
 <script th:src="@{assets/js/functions.js}"></script>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        trafficsplineChart();
+    });
+</script>
 </body>
 
 <!-- Mirrored from stackbros.in/bookinga/landing/admin-dashboard.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:07:37 GMT -->
