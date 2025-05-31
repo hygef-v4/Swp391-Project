@@ -1145,7 +1145,7 @@ var e = {
                         }
                     }
                 }]
-            };
+            }
             var chart = new ApexCharts(document.querySelector("#ChartTrafficRooms"), options);
             chart.render();
         }

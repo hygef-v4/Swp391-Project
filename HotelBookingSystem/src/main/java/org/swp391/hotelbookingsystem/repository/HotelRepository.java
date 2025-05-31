@@ -69,6 +69,20 @@ public class HotelRepository {
 
     private static final String SELECT_TOP_8_HOTELS = SELECT_HOTELS_BY_RATING.replace("SELECT", "SELECT TOP 8");
 
+    private static final String SELECT_HOTEL = """
+            SELECT h.hotel_id AS hotelId,
+                   h.host_id AS hostId,
+                   h.hotel_name AS hotelName,
+                   h.address,
+                   h.description,
+                   h.location_id AS locationId,
+                   h.hotel_image_url AS hotelImageUrl,
+                   h.rating,
+                   h.latitude,
+                   h.longitude,
+                   h.description
+            FROM Hotels h
+            """;
     // Methods
 
     public List<Hotel> getHotelsSortedByRating() {

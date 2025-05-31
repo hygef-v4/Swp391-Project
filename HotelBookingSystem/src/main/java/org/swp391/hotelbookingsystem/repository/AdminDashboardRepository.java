@@ -35,6 +35,12 @@ public class AdminDashboardRepository {
             SELECT COUNT(*) FROM Rooms WHERE status = 'active'
             """;
 
+    private static final String ALL_HOTEL = """
+            SELECT COUNT(*) FROM Bookings b
+            JOIN Rooms r ON b.room_id = r.room_id
+            WHERE r.status = 'booked' AND r.hotel_id = ?
+            """;
+
     private static final String RECENT_ROOM_BOOKINGS = """
             SELECT TOP 5 r.room_id, r.title, b.check_in, b.check_out, r.status,
                    (SELECT TOP 1 image_url FROM RoomImages WHERE room_id = r.room_id) AS image_url
