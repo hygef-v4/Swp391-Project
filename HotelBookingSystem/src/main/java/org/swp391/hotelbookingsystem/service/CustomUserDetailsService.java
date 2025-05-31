@@ -29,6 +29,14 @@ public class CustomUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException("Account is not active");
         }
 
+        if (user.getEmail() == null || user.getEmail().isEmpty()) {
+            throw new UsernameNotFoundException("User email is null or empty");
+        }
+
+        if (user.getPassword() == null || user.getPassword().isEmpty()) {
+            throw new UsernameNotFoundException("User password is null or empty");
+        }
+
         SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + user.getRole().toUpperCase());
 
         return new org.springframework.security.core.userdetails.User(

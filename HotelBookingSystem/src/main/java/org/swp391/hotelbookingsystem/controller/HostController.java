@@ -12,6 +12,7 @@ import org.swp391.hotelbookingsystem.constant.ConstantVariables;
 import org.swp391.hotelbookingsystem.model.Amenity;
 import org.swp391.hotelbookingsystem.model.Hotel;
 import org.swp391.hotelbookingsystem.model.Room;
+import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.service.*;
 
 import java.math.BigDecimal;
@@ -83,6 +84,20 @@ public class HostController {
         return "host/host-dashboard"; // Create this Thymeleaf template
     }
 
+    @GetMapping("/host-listing")
+    public String viewHostListings(HttpSession session, Model model) {
+        User user = (User) session.getAttribute("user");
+
+        if (user == null) {
+            return "redirect:/login"; // not logged in
+        }
+
+        List<Hotel> hotels = hotelService.getHotelsByHostId(user.getId());
+        model.addAttribute("hotels", hotels);
+        return "host/host-listing";
+    }
+
+
     @PostMapping("/register-host")
     public String handleRegisterHost(
             @RequestParam("hotelName") String hotelName,
@@ -108,8 +123,8 @@ public class HostController {
             Model model
     ) {
         try {
-            // Simulated user ID (TODO: Replace with session-based user later)
-            int userId = 1;
+            User user = (User) session.getAttribute("user");
+            int userId =   user.getId();
 
             // Validate & upload hotel image
             if (hotelImage.isEmpty() || hotelImage.getContentType() == null || !hotelImage.getContentType().startsWith("image/")) {

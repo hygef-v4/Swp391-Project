@@ -30,4 +30,9 @@ public class HotelService {
     public Hotel saveHotel(Hotel hotel) {
         return hotelRepository.insertHotel(hotel);
     }
+
+    public List<Hotel> getHotelsByHostId(int hostId) {
+        return hotelRepository.findByHostId(hostId);
+    }
+
 }
