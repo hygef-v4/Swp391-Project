@@ -197,7 +197,7 @@
                                     <!-- Tên người dùng -->
                                     <div class="col-md-6">
                                         <label class="form-label">Tên người dùng</label>
-                                        <input type="text" class="form-control" name="fullname" th:value="${fullname}" required>
+                                        <input type="text" class="form-control" name="fullname" th:value="${session.user.fullname}" required>
                                     </div>
 
 
@@ -205,14 +205,14 @@
                                     <div class="col-md-6">
                                         <label class="form-label">Email<span
                                                 class="text-danger">*</span></label>
-                                        <input type="email" class="form-control" name="email" th:value="${email}"
+                                        <input type="email" class="form-control" name="email" th:value="${session.user.email}"
                                                placeholder="Enter your email id">
                                     </div>
 
                                     <!-- Số điện thoại -->
                                     <div class="col-md-6">
                                         <label class="form-label">Số điện thoại</label>
-                                        <input type="text" class="form-control" name="phone" th:value="${phone}" required>
+                                        <input type="text" class="form-control" name="phone" th:value="${session.user.phone}" required>
                                     </div>
 
 
@@ -268,7 +268,7 @@
                                     <!-- Address -->
                                     <div class="col-12">
                                         <label class="form-label">Address</label>
-                                        <textarea class="form-control" rows="3" name="address" th:text="${address}">Your address</textarea>
+                                        <textarea class="form-control" rows="3" name="address" >Your address</textarea>
                                     </div>
 
                                     <!-- Button -->
