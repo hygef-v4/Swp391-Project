@@ -112,8 +112,8 @@
                     <div class="avatar avatar-xl mb-2">
                       <img class="avatar-img rounded-circle border border-2 border-white" src="assets/images/avatar/01.jpg" alt="">
                     </div>
-                    <h6 class="mb-0">Jacqueline Miller</h6>
-                    <a href="#" class="text-reset text-primary-hover small">hello@gmail.com</a>
+                    <h6 class="mb-0"><span th:text="${session.user.fullname != '' ? session.user.fullname : 'No Name'}"></span></h6>
+                    <a href="#" class="text-reset text-primary-hover small"><span th:text="${session.user.email}"></span></a>
                     <hr>
                   </div>
 
@@ -123,7 +123,7 @@
                       <a class="nav-link" href="account-profile.html"><i class="bi bi-person fa-fw me-2"></i>My Profile</a>
                     </li>
                     <li class="nav-item">
-                      <a class="nav-link active" href="account-bookings.html"><i class="bi bi-ticket-perforated fa-fw me-2"></i>My Bookings</a>
+                      <a class="nav-link active" href="bookingHistory"><i class="bi bi-ticket-perforated fa-fw me-2"></i>My Bookings</a>
                     </li>
                     <li class="nav-item">
                       <a class="nav-link" href="account-travelers.html"><i class="bi bi-people fa-fw me-2"></i>Travelers</a>

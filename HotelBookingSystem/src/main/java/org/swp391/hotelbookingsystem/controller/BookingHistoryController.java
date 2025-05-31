@@ -34,10 +34,6 @@ public class BookingHistoryController {
         model.addAttribute("completedBookings", completedBookings);
         model.addAttribute("cancelledBookings", cancelledBookings);
 
-        System.out.println("UPCOMING: " + upcomingBookings.size());
-        System.out.println("CANCELLED: " + cancelledBookings.size());
-        System.out.println("COMPLETED: " + completedBookings.size());
-
         return "page/bookingHistory";
     }
 }
