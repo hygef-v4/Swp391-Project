@@ -84,6 +84,20 @@ public class HostController {
         return "host/host-dashboard"; // Create this Thymeleaf template
     }
 
+    @GetMapping("/host-listing")
+    public String viewHostListings(HttpSession session, Model model) {
+        User user = (User) session.getAttribute("user");
+
+        if (user == null) {
+            return "redirect:/login"; // not logged in
+        }
+
+        List<Hotel> hotels = hotelService.getHotelsByHostId(user.getId());
+        model.addAttribute("hotels", hotels);
+        return "host/host-listing";
+    }
+
+
     @PostMapping("/register-host")
     public String handleRegisterHost(
             @RequestParam("hotelName") String hotelName,
