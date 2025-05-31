@@ -12,6 +12,7 @@ import org.swp391.hotelbookingsystem.constant.ConstantVariables;
 import org.swp391.hotelbookingsystem.model.Amenity;
 import org.swp391.hotelbookingsystem.model.Hotel;
 import org.swp391.hotelbookingsystem.model.Room;
+import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.service.*;
 
 import java.math.BigDecimal;
@@ -108,8 +109,8 @@ public class HostController {
             Model model
     ) {
         try {
-            // Simulated user ID (TODO: Replace with session-based user later)
-            int userId = 1;
+            User user = (User) session.getAttribute("user");
+            int userId =   user.getId();
 
             // Validate & upload hotel image
             if (hotelImage.isEmpty() || hotelImage.getContentType() == null || !hotelImage.getContentType().startsWith("image/")) {
