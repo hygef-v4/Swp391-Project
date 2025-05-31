@@ -42,11 +42,6 @@ public class HomeController {
         List<Review> top5Reviews = reviewService.getTop5PublicPositiveReviews();
         model.addAttribute("top5Reviews", top5Reviews);
 
-        String email = (String) session.getAttribute("email");
-        String name = (String) session.getAttribute("name");
-
-        User user = (User) session.getAttribute("user");
-        model.addAttribute("user", user);
 
         return "page/homepage";
     }

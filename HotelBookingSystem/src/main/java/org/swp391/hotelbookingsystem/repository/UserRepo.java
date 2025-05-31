@@ -30,7 +30,7 @@ public class UserRepo {
         try {
             return jdbc.queryForObject(sql, (rs, rowNum) -> {
                 User user = new User();
-                user.setId(rs.getString("user_id"));
+                user.setId(rs.getInt("user_id"));
                 user.setFullname(rs.getString("full_name"));
                 user.setEmail(rs.getString("email"));
                 user.setPassword(rs.getString("password_hash"));
@@ -53,7 +53,7 @@ public class UserRepo {
     }
 
     // Lưu token vào bảng PasswordResetTokens
-    public void savePasswordResetToken(String userId, String token) {
+    public void savePasswordResetToken(int userId, String token) {
         String sql = "INSERT INTO PasswordResetTokens (user_id, token, expiry_date) VALUES (?, ?, DATEADD(MINUTE, 30, GETDATE()))";
         jdbc.update(sql, userId, token);
     }
@@ -68,7 +68,7 @@ public class UserRepo {
         try {
             return jdbc.queryForObject(sql, (rs, rowNum) -> {
                 User user = new User();
-                user.setId(rs.getString("user_id"));
+                user.setId(rs.getInt("user_id"));
                 user.setFullname(rs.getString("full_name"));
                 user.setEmail(rs.getString("email"));
                 user.setPassword(rs.getString("password_hash"));
@@ -89,7 +89,7 @@ public class UserRepo {
     }
 
     // Cập nhật mật khẩu mới
-    public void updatePassword(String userId, String hashedPassword) {
+    public void updatePassword(int userId, String hashedPassword) {
         String sql = "UPDATE Users SET password_hash = ? WHERE user_id = ?";
         jdbc.update(sql, hashedPassword, userId);
     }
