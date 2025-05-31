@@ -1,5 +1,7 @@
 package org.swp391.hotelbookingsystem.controller;
 
+import jakarta.servlet.http.HttpSession;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.repository.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,51 +21,66 @@ public class UserProfileController {
     private UserRepo userRepo;
 
     @GetMapping("/user-profile")
-    public String showUserProfile(Model model) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    public String showUserProfile(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
+        // Lấy thông tin người dùng từ session
+        User sessionUser = (User) session.getAttribute("loggedInUser");
 
-        // Kiểm tra thông tin xác thực và lấy người dùng hiện tại
-        if (auth != null && auth.isAuthenticated() && auth.getPrincipal() instanceof UserDetails userDetails) {
-            String email = userDetails.getUsername(); // Lấy email từ thông tin xác thực người dùng
-            User user = userRepo.findByEmail(email); // Lấy thông tin người dùng dựa vào email
+        if (sessionUser != null) {
+            // Nếu tồn tại user trong session, đẩy thông tin sang giao diện
+            model.addAttribute("fullname", sessionUser.getFullname());
+            model.addAttribute("phone", sessionUser.getPhone());
+        } else {
+            // Trường hợp user không tồn tại, lấy thông tin từ xác thực người dùng
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.isAuthenticated() && auth.getPrincipal() instanceof UserDetails userDetails) {
+                String email = userDetails.getUsername();
+                User user = userRepo.findByEmail(email);
 
-            if (user != null) {
-                // Truyền dữ liệu người dùng (fullname, phone) xuống giao diện
-                model.addAttribute("fullname", user.getFullname());
-                model.addAttribute("phone", user.getPhone());
-            } else {
-                model.addAttribute("error", "Người dùng không tồn tại.");
+                if (user != null) {
+                    // Lưu thông tin user vào session
+                    session.setAttribute("loggedInUser", user);
+                    model.addAttribute("fullname", user.getFullname());
+                    model.addAttribute("phone", user.getPhone());
+                } else {
+                    redirectAttributes.addFlashAttribute("error", "Người dùng không tồn tại.");
+                }
             }
         }
-        model.addAttribute("pageTitle", "User Profile");
-        return "page/userProfile"; // Định nghĩa giao diện userProfile.html
-        }
 
+        model.addAttribute("pageTitle", "User Profile");
+        return "page/userProfile";
+
+    }
+
+    // Cập nhật thông tin người dùng
     @PostMapping("/update-user-profile")
     public String updateUserProfile(@RequestParam("fullname") String fullname,
                                     @RequestParam("phone") String phone,
-                                    Model model) {
+                                    Model model, HttpSession session, RedirectAttributes redirectAttributes) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (auth != null && auth.isAuthenticated() && auth.getPrincipal() instanceof UserDetails userDetails) {
-            String email = userDetails.getUsername(); // Lấy email từ người dùng đang đăng nhập
+            String email = userDetails.getUsername();
             User user = userRepo.findByEmail(email);
 
             if (user != null) {
-                // Cập nhật thông tin người dùng (fullname và phone)
+                // Cập nhật thông tin người dùng
                 user.setFullname(fullname);
                 user.setPhone(phone);
                 userRepo.updateUser(user);
 
-                // Hiển thị thông báo thành công
-                model.addAttribute("success", "Cập nhật thông tin thành công.");
+                // Lưu thông tin đã cập nhật vào session
+                session.setAttribute("loggedInUser", user);
+
+                // Thêm thông báo thành công vào Flash Attributes
+                redirectAttributes.addFlashAttribute("success", "Cập nhật thông tin thành công.");
             } else {
-                model.addAttribute("error", "Người dùng không tồn tại.");
+                redirectAttributes.addFlashAttribute("error", "Người dùng không tồn tại.");
             }
         } else {
-            model.addAttribute("error", "Bạn không được phép thực hiện thao tác này.");
+            redirectAttributes.addFlashAttribute("error", "Bạn không được phép thực hiện thao tác này.");
         }
-
-        return "page/userProfile"; // Điều hướng về lại trang userProfile
+        return "redirect:/user-profile";
     }
+
 }

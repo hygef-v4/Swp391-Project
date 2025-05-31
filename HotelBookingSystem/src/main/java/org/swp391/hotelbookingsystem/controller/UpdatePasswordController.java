@@ -1,5 +1,6 @@
 package org.swp391.hotelbookingsystem.controller;
 
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.repository.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,7 @@ public class UpdatePasswordController {
     @Autowired
     private PasswordEncoder passwordEncoder; // Mã hóa mật khẩu
 
-    private static final String USER_PROFILE_PAGE = "page/userProfile";
+    private static final String USER_PROFILE_PAGE = "redirect:/user-profile";
     private static final String ERROR_OLD_PASSWORD_MISMATCH = "Mật khẩu hiện tại không chính xác.";
     private static final String ERROR_NEW_PASSWORD_MISMATCH = "Mật khẩu mới và mật khẩu xác nhận không khớp.";
     private static final String SUCCESS_PASSWORD_UPDATE = "Cập nhật mật khẩu thành công!";
@@ -29,27 +30,31 @@ public class UpdatePasswordController {
     public String updatePassword(@RequestParam("currentPassword") String currentPassword,
                                  @RequestParam("newPassword") String newPassword,
                                  @RequestParam("confirmPassword") String confirmPassword,
-                                 Model model) {
+                                 RedirectAttributes redirectAttributes) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUserEmail = authentication.getName();
         User user = userRepo.findByEmail(currentUserEmail);
 
         if (user == null) {
-            return handleError(model, "Không tìm thấy người dùng!");
+            redirectAttributes.addFlashAttribute("error", "Không tìm thấy người dùng!");
+            return USER_PROFILE_PAGE;
         }
 
         if (!isCurrentPasswordValid(currentPassword, user)) {
-            return handleError(model, ERROR_OLD_PASSWORD_MISMATCH);
+            redirectAttributes.addFlashAttribute("error", ERROR_OLD_PASSWORD_MISMATCH);
+            return USER_PROFILE_PAGE;
         }
 
         if (!isNewPasswordValid(newPassword, confirmPassword)) {
-            return handleError(model, ERROR_NEW_PASSWORD_MISMATCH);
+            redirectAttributes.addFlashAttribute("error", ERROR_NEW_PASSWORD_MISMATCH);
+            return USER_PROFILE_PAGE;
         }
 
         updateUserPassword(user, newPassword);
-        model.addAttribute("success", SUCCESS_PASSWORD_UPDATE);
+        redirectAttributes.addFlashAttribute("success", SUCCESS_PASSWORD_UPDATE);
         return USER_PROFILE_PAGE;
     }
+
 
     private boolean isCurrentPasswordValid(String currentPassword, User user) {
         return passwordEncoder.matches(currentPassword, user.getPassword());

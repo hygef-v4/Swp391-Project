@@ -138,8 +138,8 @@
                                             <img class="avatar-img rounded-circle border border-2 border-white"
                                                  src="assets/images/avatar/01.jpg" alt="">
                                         </div>
-                                        <h6 class="mb-0">Jacqueline Miller</h6>
-                                        <a href="#" class="text-reset text-primary-hover small">hello@gmail.com</a>
+                                        <h6 class="mb-0" th:text="${fullname}"></h6>
+                                        <a href="#" class="text-reset text-primary-hover small" th:text="${email}"></a>
                                         <hr>
                                     </div>
 
@@ -360,28 +360,28 @@
                         <!-- Personal info END -->
 
                         <!-- Update email START -->
-                        <div class="card border">
-                            <!-- Card header -->
-                            <div class="card-header border-bottom">
-                                <h4 class="card-header-title">Update email</h4>
-                                <p class="mb-0">Your current email address is <span class="text-primary">example@gmail.com</span>
-                                </p>
-                            </div>
+<!--                        <div class="card border">-->
+<!--                            &lt;!&ndash; Card header &ndash;&gt;-->
+<!--                            <div class="card-header border-bottom">-->
+<!--                                <h4 class="card-header-title">Update email</h4>-->
+<!--                                <p class="mb-0">Your current email address is <span class="text-primary">example@gmail.com</span>-->
+<!--                                </p>-->
+<!--                            </div>-->
 
-                            <!-- Card body START -->
-                            <div class="card-body">
-                                <form>
-                                    <!-- Email -->
-                                    <label class="form-label">Enter your new email id<span class="text-danger">*</span></label>
-                                    <input type="email" class="form-control" placeholder="Enter your email id">
+<!--                            &lt;!&ndash; Card body START &ndash;&gt;-->
+<!--                            <div class="card-body">-->
+<!--                                <form>-->
+<!--                                    &lt;!&ndash; Email &ndash;&gt;-->
+<!--                                    <label class="form-label">Enter your new email id<span class="text-danger">*</span></label>-->
+<!--                                    <input type="email" class="form-control" placeholder="Enter your email id">-->
 
-                                    <div class="text-end mt-3">
-                                        <a href="#" class="btn btn-primary mb-0">Save Email</a>
-                                    </div>
-                                </form>
-                            </div>
-                            <!-- Card body END -->
-                        </div>
+<!--                                    <div class="text-end mt-3">-->
+<!--                                        <a href="#" class="btn btn-primary mb-0">Save Email</a>-->
+<!--                                    </div>-->
+<!--                                </form>-->
+<!--                            </div>-->
+<!--                            &lt;!&ndash; Card body END &ndash;&gt;-->
+<!--                        </div>-->
                         <!-- Update email END -->
 
                         <!-- Update Password START -->
