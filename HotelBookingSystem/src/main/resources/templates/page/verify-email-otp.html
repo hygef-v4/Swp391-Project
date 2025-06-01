@@ -84,18 +84,17 @@
                                 </div>
                             </form>
 
-                            <!-- Error -->
-                            <p th:if="${error}" th:text="${error}" class="text-danger mt-3 text-center"></p>
-
                             <!-- Resend + Back -->
                             <div class="mt-3 text-center">
-                                <a th:href="@{/register}" class="text-decoration-none">Back to Register</a>
+                                <a th:href="@{/register}" class="text-decoration-none text-primary">Back to Register</a>
                                 <span class="mx-2 text-muted">|</span>
-                                <a href="#" class="text-decoration-none text-primary">Resend OTP</a> <!-- TODO -->
-                            </div>
-
-                            <div class="text-primary-hover text-body mt-3 text-center small">
-                                &copy; 2025 Booking. Built by <a href="#">Cuong</a>.
+                                <form th:action="@{/resend-otp}" method="post" style="display: inline;">
+                                    <button type="submit" class="btn btn-link text-primary p-0 m-0 align-baseline" style="border: none; background: none;">
+                                        Resend OTP
+                                    </button>
+                                    <p th:if="${message}" class="text-success" th:text="${message}"></p>
+                                    <p th:if="${error}" class="text-danger" th:text="${error}"></p>
+                                </form>
                             </div>
                         </div>
                     </div>
