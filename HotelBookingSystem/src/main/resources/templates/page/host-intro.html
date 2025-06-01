@@ -107,7 +107,9 @@
                     <!-- Info -->
                     <p class="mb-4">Nhanh chóng nói rằng đã có sự sắp xếp phù hợp. Về sau, nghi ngờ dặm dài của đứa trẻ. Tập thể dục niềm vui người đàn ông trẻ em vui mừng.</p> <!-- Translated (Note: Original English seems like placeholder text, so translation might be odd) -->
                     <!-- Button -->
-                    <a href="add-hotel.html" class="btn btn-primary-soft mb-4">Thêm Chỗ Nghỉ <i class="fa-solid fa-arrow-right-long fa-fw"></i></a> <!-- Translated -->
+                     <div id="hostBtnContainer2">
+                        <a class="btn btn-primary-soft mb-4" id="registerHostBtn2">Thêm Chỗ Nghỉ <i class="fa-solid fa-arrow-right-long fa-fw"></i></a> <!-- Translated -->
+                     </div>
                     <!-- List -->
                     <h6 class="fw-normal mb-1">Tạo Chỗ Nghỉ Mới</h6> <!-- Translated -->
                     <ul class="list-group list-group-borderless mb-0 small">
@@ -351,7 +353,7 @@
 
                             <!-- Button -->
                             <div class="col-lg-3 col-xxl-2 d-grid" id="hostBtnContainer">
-                                <a href="#" class="btn btn-primary mb-0" id="registerHostBtn">Trở Thành Chủ Nhà</a>
+                                <a class="btn btn-primary mb-0" id="registerHostBtn">Trở Thành Chủ Nhà</a>
                             </div>
 
                             <script th:inline="javascript">
@@ -370,6 +372,20 @@
             `;
                                     }
                                 });
+
+                                const registerBtn2 = document.getElementById('registerHostBtn2');
+                                const container2 = document.getElementById("hostBtnContainer2");
+
+                                registerBtn2.addEventListener("click", function (e) {
+                                    e.preventDefault();
+                                    if (isLoggedIn) {
+                                        window.location.href = "/register-host";
+                                    } else {
+                                        container2.innerHTML = `
+                <a href="/login" class="btn btn-warning mb-0">Vui lòng đăng nhập</a>
+            `;
+                                    }
+                                });                              
                             </script>
 
                         </div>
