@@ -8,7 +8,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.swp391.hotelbookingsystem.constant.ConstantVariables;
-import org.swp391.hotelbookingsystem.dto.UserWithProfileDTO;
 import org.swp391.hotelbookingsystem.model.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.swp391.hotelbookingsystem.service.*;

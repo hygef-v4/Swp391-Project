@@ -1,6 +1,5 @@
 package org.swp391.hotelbookingsystem.repository;
 
-import org.swp391.hotelbookingsystem.dto.UserWithProfileDTO;
 import org.swp391.hotelbookingsystem.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -73,11 +72,11 @@ public class UserRepo {
             """;
 
 
-    public List<UserWithProfileDTO> getAllUsersWithProfile() {
+    public List<User> getAllUsersWithProfile() {
         return jdbc.query(SELECT_USERS_WITH_PROFILE, (rs, rowNum) -> {
-            UserWithProfileDTO user = new UserWithProfileDTO();
-            user.setUserID(rs.getInt("userID"));
-            user.setFullName(rs.getString("fullName"));
+            User user = new User();
+            user.setId(rs.getInt("userID"));
+            user.setFullname(rs.getString("fullName"));
             user.setEmail(rs.getString("email"));
             user.setPassword(rs.getString("password"));
             user.setPhone(rs.getString("phone"));
@@ -199,7 +198,7 @@ public class UserRepo {
         jdbc.update(sql, user.getFullname(), user.getPhone(), user.getEmail());
     }
 
-    public List<UserWithProfileDTO> searchUsersWithProfileByName(String search) {
+    public List<User> searchUsersWithProfileByName(String search) {
         String sql = """
         SELECT u.user_id AS userID,
                u.full_name AS fullName,
@@ -217,9 +216,9 @@ public class UserRepo {
 
         String wildcard = "%" + search + "%";
         return jdbc.query(sql, new Object[]{wildcard}, (rs, rowNum) -> {
-            UserWithProfileDTO user = new UserWithProfileDTO();
-            user.setUserID(rs.getInt("userID"));
-            user.setFullName(rs.getString("fullName"));
+            User user = new User();
+            user.setId(rs.getInt("userID"));
+            user.setFullname(rs.getString("fullName"));
             user.setEmail(rs.getString("email"));
             user.setPassword(rs.getString("password"));
             user.setPhone(rs.getString("phone"));

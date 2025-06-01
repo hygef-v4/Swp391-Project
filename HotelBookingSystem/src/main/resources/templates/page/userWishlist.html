@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+
+<!-- Mirrored from stackbros.in/bookinga/landing/account-wishlist.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:07:33 GMT -->
+<head>
+  <title>Booking - Multipurpose Online Booking Theme</title>
+
+  <!-- Meta Tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="author" content="StackBros">
+  <meta name="description" content="Booking - Multipurpose Online Booking Theme">
+
+  <!-- Dark mode -->
+  <script>
+    const storedTheme = localStorage.getItem('theme')
+
+    const getPreferredTheme = () => {
+      if (storedTheme) {
+        return storedTheme
+      }
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    }
+
+    const setTheme = function (theme) {
+      if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.documentElement.setAttribute('data-bs-theme', 'dark')
+      } else {
+        document.documentElement.setAttribute('data-bs-theme', theme)
+      }
+    }
+
+    setTheme(getPreferredTheme())
+
+    window.addEventListener('DOMContentLoaded', () => {
+      var el = document.querySelector('.theme-icon-active');
+      if(el != 'undefined' && el != null) {
+        const showActiveTheme = theme => {
+          const activeThemeIcon = document.querySelector('.theme-icon-active use')
+          const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+          const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
+
+          document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+            element.classList.remove('active')
+          })
+
+          btnToActive.classList.add('active')
+          activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+        }
+
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+          if (storedTheme !== 'light' || storedTheme !== 'dark') {
+            setTheme(getPreferredTheme())
+          }
+        })
+
+        showActiveTheme(getPreferredTheme())
+
+        document.querySelectorAll('[data-bs-theme-value]')
+                .forEach(toggle => {
+                  toggle.addEventListener('click', () => {
+                    const theme = toggle.getAttribute('data-bs-theme-value')
+                    localStorage.setItem('theme', theme)
+                    setTheme(theme)
+                    showActiveTheme(theme)
+                  })
+                })
+
+      }
+    })
+
+  </script>
+
+  <!-- Favicon -->
+  <link rel="shortcut icon" href="/assets/images/favicon.ico">
+
+  <!-- Google Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com/">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Poppins:wght@400;500;700&amp;display=swap">
+
+  <!-- Plugins CSS -->
+  <link rel="stylesheet" type="text/css" href="/assets/vendor/font-awesome/css/all.min.css">
+  <link rel="stylesheet" type="text/css" href="/assets/vendor/bootstrap-icons/bootstrap-icons.css">
+  <link rel="stylesheet" type="text/css" href="/assets/vendor/aos/aos.css">
+  <link rel="stylesheet" type="text/css" href="/assets/vendor/flatpickr/css/flatpickr.min.css">
+  <link rel="stylesheet" type="text/css" href="/assets/vendor/choices/css/choices.min.css">
+
+  <!-- Theme CSS -->
+  <link rel="stylesheet" type="text/css" href="/assets/css/style.css">
+
+</head>
+
+<body class="dashboard">
+
+<!-- Header START -->
+<div th:replace="~{common/header :: header}"></div>
+<!-- Header END -->
+
+<!-- **************** MAIN CONTENT START **************** -->
+<main>
+  <section class="pt-5">
+    <div class="container">
+      <div class="row">
+        <!-- Sidebar START -->
+        <div th:replace="~{common/sidebar-profile :: sidebar}"></div>
+        <!-- Sidebar END -->
+
+        <!-- Main content START -->
+        <div class="col-lg-8">
+          <h2 class="mb-4">Danh Sách Khách Sạn Yêu Thích</h2>
+
+          <!-- Thông báo khi không có mục yêu thích -->
+          <div th:if="${favorites.size() == 0}">
+            <p class="text-muted">Bạn chưa thêm khách sạn nào vào danh sách yêu thích.</p>
+          </div>
+
+          <!-- Danh sách khách sạn yêu thích -->
+          <div th:if="${favorites.size() > 0}">
+            <div th:each="favorite : ${favorites}" class="card mb-3 shadow-sm">
+              <div class="row g-0">
+
+                <!-- Ảnh khách sạn (nếu có) -->
+                <div class="col-md-4" th:if="${favorite.hotel.hotelImageUrl != null}">
+                  <img th:src="${favorite.hotel.hotelImageUrl}" class="img-fluid rounded-start" alt="Hotel Image">
+                </div>
+
+                <!-- Thông tin khách sạn -->
+                <div th:if="${favorite.hotel != null}" class="col-md-8">
+                  <div class="card-body">
+                    <!-- Tên khách sạn -->
+                    <h5 class="card-title" th:text="${favorite.hotel.hotelName}">Tên khách sạn</h5>
+
+
+                    <!-- Địa chỉ khách sạn -->
+                    <p class="card-text text-muted" th:text="${favorite.hotel.address}">
+                      Địa chỉ khách sạn
+                    </p>
+
+                    <!-- Nút hành động -->
+                    <div class="d-flex justify-content-between align-items-center">
+                      <a th:href="@{/hotel-detail(hotelId=${favorite.hotel.hotelId})}" class="btn btn-primary btn-sm">
+                        Xem chi tiết
+                      </a>
+                      <button class="btn btn-danger btn-sm" th:attr="data-id=${favorite.hotel.hotelId}" onclick="removeFavorite(this)">
+                        Xóa
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Danh sách END -->
+        </div>
+        <!-- Main content END -->
+      </div>
+    </div>
+  </section>
+</main>
+
+
+        <!-- Main content END -->
+      </div>
+    </div>
+  </section>
+  <!-- =======================
+  Content END -->
+
+</main>
+<!-- **************** MAIN CONTENT END **************** -->
+
+<!-- =======================
+Footer START -->
+<div th:replace="~{common/footer :: footer}"></div>
+<!-- =======================
+Footer END -->
+
+<!-- Back to top -->
+<div class="back-top"></div>
+
+<!-- Bootstrap JS -->
+<script src="assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Vendors -->
+<script src="assets/vendor/aos/aos.js"></script>
+<script src="assets/vendor/flatpickr/js/flatpickr.min.js"></script>
+<script src="assets/vendor/choices/js/choices.min.js"></script>
+
+<!-- ThemeFunctions -->
+<script src="assets/js/functions.js"></script>
+
+</body>
+
+<!-- Mirrored from stackbros.in/bookinga/landing/account-wishlist.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:07:33 GMT -->
+</html>

@@ -172,7 +172,7 @@
                         <form class="rounded position-relative" th:action="@{/admin-user-list}" method="get">
                             <input type="hidden" name="role" th:value="${role}"/>
                             <input class="form-control bg-transparent" name="search" type="search"
-                                   th:value="${search}" placeholder="Search by name">
+                                   th:value="${search}" placeholder="Tìm kiếm...">
                             <button class="bg-transparent p-2 position-absolute top-50 end-0 translate-middle-y border-0 text-primary-hover text-reset"
                                     type="submit">
                                 <i class="fas fa-search fs-6"></i>
@@ -223,7 +223,7 @@
 
                         <!-- Full Name -->
                         <div class="col-2">
-                            <span class="fw-semibold" th:text="${user.fullName}">Full Name</span>
+                            <span class="fw-semibold" th:text="${user.fullname}">Full Name</span>
                         </div>
 
                         <!-- Email -->
@@ -239,10 +239,10 @@
                         <!-- Role -->
                         <div class="col-2 text-center">
                             <div class="dropdown">
-                                <form th:action="@{'/admin/user/change-role/' + ${user.userID}}" method="post">
+                                <form th:action="@{'/admin/user/change-role/' + ${user.id}}" method="post">
                                     <input type="hidden" name="search" th:value="${search}" />
                                     <input type="hidden" name="role" th:value="${role}" />
-                                    <input type="hidden" name="newRole" th:id="'newRoleInput__' + ${user.userID}" />
+                                    <input type="hidden" name="newRole" th:id="'newRoleInput__' + ${user.id}" />
 
                                     <!-- Button that triggers dropdown -->
                                     <button class="btn btn-sm dropdown-toggle px-3 py-2 rounded-pill text-info bg-light-info border-0"
@@ -257,25 +257,25 @@
                                     <ul class="dropdown-menu text-center shadow">
                                         <li>
                                             <button class="dropdown-item" type="submit"
-                                                    th:onclick="'document.getElementById(\'newRoleInput__' + ${user.userID} + '\').value=\'CUSTOMER\''">
+                                                    th:onclick="'document.getElementById(\'newRoleInput__' + ${user.id} + '\').value=\'CUSTOMER\''">
                                                 KHÁCH HÀNG
                                             </button>
                                         </li>
                                         <li>
                                             <button class="dropdown-item" type="submit"
-                                                    th:onclick="'document.getElementById(\'newRoleInput__' + ${user.userID} + '\').value=\'HOTEL OWNER\''">
+                                                    th:onclick="'document.getElementById(\'newRoleInput__' + ${user.id} + '\').value=\'HOTEL OWNER\''">
                                                 CHỦ KHÁCH SẠN
                                             </button>
                                         </li>
                                         <li>
                                             <button class="dropdown-item" type="submit"
-                                                    th:onclick="'document.getElementById(\'newRoleInput__' + ${user.userID} + '\').value=\'MODERATOR\''">
+                                                    th:onclick="'document.getElementById(\'newRoleInput__' + ${user.id} + '\').value=\'MODERATOR\''">
                                                 QUẢN LÝ WEB
                                             </button>
                                         </li>
                                         <li>
                                             <button class="dropdown-item" type="submit"
-                                                    th:onclick="'document.getElementById(\'newRoleInput__' + ${user.userID} + '\').value=\'ADMIN\''">
+                                                    th:onclick="'document.getElementById(\'newRoleInput__' + ${user.id} + '\').value=\'ADMIN\''">
                                                 QUẢN TRỊ VIÊN
                                             </button>
                                         </li>
@@ -287,7 +287,7 @@
 
                         <!-- Status toggle -->
                         <div class="col-2 text-center">
-                            <form th:action="@{'/admin/user/toggle-status/' + ${user.userID}}" method="post">
+                            <form th:action="@{'/admin/user/toggle-status/' + ${user.id}}" method="post">
                                 <button type="submit" class="btn btn-sm px-3"
                                         th:classappend="${user.active} ? 'btn-success' : 'btn-danger'"
                                         th:title="${user.active} ? 'Click to deactivate' : 'Click to activate'">

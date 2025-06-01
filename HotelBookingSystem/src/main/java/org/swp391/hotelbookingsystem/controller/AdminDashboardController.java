@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.swp391.hotelbookingsystem.constant.ConstantVariables;
-import org.swp391.hotelbookingsystem.dto.UserWithProfileDTO;
 import org.swp391.hotelbookingsystem.model.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.swp391.hotelbookingsystem.service.*;
@@ -49,7 +48,7 @@ public class AdminDashboardController {
         List<User> hotelOwnerList = userService.getUsersByRole("HOTEL OWNER");
         model.addAttribute("numberOfHotelOwners", hotelOwnerList.size());
 
-        List<UserWithProfileDTO> getTop5UsersWithProfile = userService.getTop5Users();
+        List<User> getTop5UsersWithProfile = userService.getTop5Users();
         model.addAttribute("userList", getTop5UsersWithProfile);
 
         List<Hotel> popularHotels = hotelService.getTop8HighRatedHotels();
