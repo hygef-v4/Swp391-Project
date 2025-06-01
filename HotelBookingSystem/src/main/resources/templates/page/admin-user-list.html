@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+
+<!-- Mirrored from stackbros.in/bookinga/landing/admin-user-list.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:07:54 GMT -->
+<head>
+    <title>Booking - Multipurpose Online Booking Theme</title>
+
+    <!-- Meta Tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="author" content="StackBros">
+    <meta name="description" content="Booking - Multipurpose Online Booking Theme">
+
+    <!-- Dark mode -->
+    <script>
+        const storedTheme = localStorage.getItem('theme')
+
+        const getPreferredTheme = () => {
+            if (storedTheme) {
+                return storedTheme
+            }
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        }
+
+        const setTheme = function (theme) {
+            if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.setAttribute('data-bs-theme', 'dark')
+            } else {
+                document.documentElement.setAttribute('data-bs-theme', theme)
+            }
+        }
+
+        setTheme(getPreferredTheme())
+
+        window.addEventListener('DOMContentLoaded', () => {
+            var el = document.querySelector('.theme-icon-active');
+            if (el != 'undefined' && el != null) {
+                const showActiveTheme = theme => {
+                    const activeThemeIcon = document.querySelector('.theme-icon-active use')
+                    const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+                    const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
+
+                    document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+                        element.classList.remove('active')
+                    })
+
+                    btnToActive.classList.add('active')
+                    activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+                }
+
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                    if (storedTheme !== 'light' || storedTheme !== 'dark') {
+                        setTheme(getPreferredTheme())
+                    }
+                })
+
+                showActiveTheme(getPreferredTheme())
+
+                document.querySelectorAll('[data-bs-theme-value]')
+                    .forEach(toggle => {
+                        toggle.addEventListener('click', () => {
+                            const theme = toggle.getAttribute('data-bs-theme-value')
+                            localStorage.setItem('theme', theme)
+                            setTheme(theme)
+                            showActiveTheme(theme)
+                        })
+                    })
+
+            }
+        })
+
+    </script>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" th:href="@{assets/images/favicon.ico}">
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Poppins:wght@400;500;700&amp;display=swap">
+
+    <!-- Plugins CSS -->
+    <link rel="stylesheet" type="text/css" th:href="@{assets/vendor/font-awesome/css/all.min.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{assets/vendor/bootstrap-icons/bootstrap-icons.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{assets/vendor/overlay-scrollbar/css/overlayscrollbars.min.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{assets/vendor/choices/css/choices.min.css}">
+
+    <!-- Theme CSS -->
+    <link rel="stylesheet" type="text/css" th:href="@{assets/css/style.css}">
+
+</head>
+
+<body>
+
+<!-- **************** MAIN CONTENT START **************** -->
+<main>
+
+    <!-- Sidebar START -->
+    <div th:replace="~{common-admin/admin-sidebar :: admin_sidebar}"></div>
+    <!-- Sidebar END -->
+
+    <!-- Page content START -->
+    <div class="page-content">
+
+        <!-- Top bar START -->
+        <div th:replace="~{common-admin/admin-topbar :: admin_topbar}"></div>
+        <!-- Top bar END -->
+
+        <!-- Page main content START -->
+        <div class="page-content-wrapper p-xxl-4">
+
+            <!-- Title -->
+            <div class="row">
+                <div class="col-12 mb-4 mb-sm-5">
+                    <div class="d-sm-flex justify-content-between align-items-center">
+                        <h1 class="h3 mb-3 mb-sm-0">Danh sách người dùng</h1>
+                        <!--						<div class="d-grid"><a href="#" class="btn btn-primary mb-0"><i class="bi bi-filetype-pdf me-2"></i>Generate Report</a>	</div>					-->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters START -->
+            <div class="row g-4 align-items-center">
+                <div class="col-12 d-flex justify-content-between flex-wrap gap-3">
+                    <!-- Tabs -->
+                    <div class="col-lg-6">
+                        <ul class="nav nav-pills nav-pills-soft nav-responsive" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <a class="nav-link mb-0"
+                                   th:classappend="${#strings.isEmpty(role)} ? 'active border' : ''"
+                                   th:href="@{/admin-user-list}">
+                                    Tất cả
+                                </a>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <a class="nav-link mb-0"
+                                   th:classappend="${role} == 'CUSTOMER' ? 'active border' : ''"
+                                   th:href="@{/admin-user-list(role='CUSTOMER')}">
+                                    Khách hàng
+                                </a>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <a class="nav-link mb-0"
+                                   th:classappend="${role} == 'HOTEL OWNER' ? 'active border' : ''"
+                                   th:href="@{/admin-user-list(role='HOTEL OWNER')}">
+                                    Chủ khách sạn
+                                </a>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <a class="nav-link mb-0"
+                                   th:classappend="${role} == 'MODERATOR' ? 'active border' : ''"
+                                   th:href="@{/admin-user-list(role='MODERATOR')}">
+                                    Quản lý Web
+                                </a>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <a class="nav-link mb-0"
+                                   th:classappend="${role} == 'ADMIN' ? 'active border' : ''"
+                                   th:href="@{/admin-user-list(role='ADMIN')}">
+                                    Quản trị viên
+                                </a>
+                            </li>
+                        </ul>
+
+
+                    </div>
+
+                    <!-- Search -->
+                    <div class="col-md-6 col-lg-3">
+                        <form class="rounded position-relative" th:action="@{/admin-user-list}" method="get">
+                            <input type="hidden" name="role" th:value="${role}"/>
+                            <input class="form-control bg-transparent" name="search" type="search"
+                                   th:value="${search}" placeholder="Tìm kiếm...">
+                            <button class="bg-transparent p-2 position-absolute top-50 end-0 translate-middle-y border-0 text-primary-hover text-reset"
+                                    type="submit">
+                                <i class="fas fa-search fs-6"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <!-- Select -->
+                <!--				<div class="col-md-6 col-lg-3">-->
+                <!--					<form>-->
+                <!--						<select class="form-select js-choice" aria-label=".form-select-sm">-->
+                <!--							<option value="">Sort by hotels</option>-->
+                <!--							<option>Pride moon Village Resort & Spa</option>-->
+                <!--							<option>Courtyard by Marriott New York</option>-->
+                <!--							<option>Park Plaza Lodge Hotel</option>-->
+                <!--							<option>Royal Beach Resort</option>-->
+                <!--						</select>-->
+                <!--					</form>-->
+                <!--				</div>-->
+            </div>
+            <!-- Filters END -->
+
+            <!-- Guest list START -->
+            <div class="card shadow mt-5">
+                <div class="card-body">
+                    <!-- Table header -->
+                    <div class="bg-light rounded p-3 d-none d-lg-block">
+                        <div class="row g-4 fw-semibold small text-uppercase">
+                            <div class="col-1">Avatar</div>
+                            <div class="col-2">Họ Tên</div>
+                            <div class="col-3">Email</div>
+                            <div class="col-2">Số Điện Thoại</div>
+                            <div class="col-2 text-center">Vai Trò</div>
+                            <div class="col-2 text-center">Status</div>
+                        </div>
+                    </div>
+                    <!-- Table body -->
+                    <div th:each="user : ${userList}"
+                         class="row row-cols-6 align-items-center border-bottom g-4 px-2 py-4">
+                        <!-- Avatar -->
+                        <div class="col-1 text-center">
+                            <div class="avatar avatar-sm">
+                                <img class="avatar-img rounded-circle shadow" th:src="${user.avatarUrl}" alt="avatar"
+                                     width="48" height="48" style="object-fit: cover;">
+                            </div>
+                        </div>
+
+
+                        <!-- Full Name -->
+                        <div class="col-2">
+                            <span class="fw-semibold" th:text="${user.fullname}">Full Name</span>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="col-3">
+                            <span class="text-break small" th:text="${user.email}">email@example.com</span>
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="col-2">
+                            <span class="text-dark fw-medium small" th:text="${user.phone}">0123456789</span>
+                        </div>
+
+                        <!-- Role -->
+                        <div class="col-2 text-center">
+                            <div class="dropdown">
+                                <form th:action="@{'/admin/user/change-role/' + ${user.id}}" method="post">
+                                    <input type="hidden" name="search" th:value="${search}" />
+                                    <input type="hidden" name="role" th:value="${role}" />
+                                    <input type="hidden" name="newRole" th:id="'newRoleInput__' + ${user.id}" />
+
+                                    <!-- Button that triggers dropdown -->
+                                    <button class="btn btn-sm dropdown-toggle px-3 py-2 rounded-pill text-info bg-light-info border-0"
+                                            type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <span th:text="${user.role == 'CUSTOMER' ? 'KHÁCH HÀNG'
+                                : (user.role == 'HOTEL OWNER' ? 'CHỦ KHÁCH SẠN'
+                                : (user.role == 'MODERATOR' ? 'QUẢN LÝ WEB'
+                                : (user.role == 'ADMIN' ? 'QUẢN TRỊ VIÊN' : user.role)))}">Vai trò</span>
+                                    </button>
+
+                                    <!-- Dropdown menu -->
+                                    <ul class="dropdown-menu text-center shadow">
+                                        <li>
+                                            <button class="dropdown-item" type="submit"
+                                                    th:onclick="'document.getElementById(\'newRoleInput__' + ${user.id} + '\').value=\'CUSTOMER\''">
+                                                KHÁCH HÀNG
+                                            </button>
+                                        </li>
+                                        <li>
+                                            <button class="dropdown-item" type="submit"
+                                                    th:onclick="'document.getElementById(\'newRoleInput__' + ${user.id} + '\').value=\'HOTEL OWNER\''">
+                                                CHỦ KHÁCH SẠN
+                                            </button>
+                                        </li>
+                                        <li>
+                                            <button class="dropdown-item" type="submit"
+                                                    th:onclick="'document.getElementById(\'newRoleInput__' + ${user.id} + '\').value=\'MODERATOR\''">
+                                                QUẢN LÝ WEB
+                                            </button>
+                                        </li>
+                                        <li>
+                                            <button class="dropdown-item" type="submit"
+                                                    th:onclick="'document.getElementById(\'newRoleInput__' + ${user.id} + '\').value=\'ADMIN\''">
+                                                QUẢN TRỊ VIÊN
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </form>
+                            </div>
+                        </div>
+
+
+                        <!-- Status toggle -->
+                        <div class="col-2 text-center">
+                            <form th:action="@{'/admin/user/toggle-status/' + ${user.id}}" method="post">
+                                <button type="submit" class="btn btn-sm px-3"
+                                        th:classappend="${user.active} ? 'btn-success' : 'btn-danger'"
+                                        th:title="${user.active} ? 'Click to deactivate' : 'Click to activate'">
+                                    <i class="bi"
+                                       th:classappend="${user.active} ? 'bi-check-circle' : 'bi-slash-circle'"></i>
+                                    <span th:text="${user.active} ? 'Active' : 'Inactive'"></span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Guest list END -->
+            <!-- === PAGINATION BLOCK (saved for future use) ===
+            <div class="card-footer pt-0">
+                <div class="d-sm-flex justify-content-sm-between align-items-sm-center">
+                    <p class="mb-sm-0 text-center text-sm-start">Showing 1 to 8 of 20 entries</p>
+                    <nav class="mb-sm-0 d-flex justify-content-center" aria-label="navigation">
+                        <ul class="pagination pagination-sm pagination-primary-soft mb-0">
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1">Prev</a>
+                            </li>
+                            <li class="page-item"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item active"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item disabled"><a class="page-link" href="#">..</a></li>
+                            <li class="page-item"><a class="page-link" href="#">15</a></li>
+                            <li class="page-item">
+                                <a class="page-link" href="#">Next</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+            === END PAGINATION BLOCK -->
+        </div>
+        <!-- Page main content END -->
+    </div>
+    <!-- Page content END -->
+
+</main>
+<!-- **************** MAIN CONTENT END **************** -->
+
+<!-- Bootstrap JS -->
+<script src="assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Vendor -->
+<script src="assets/vendor/overlay-scrollbar/js/overlayscrollbars.min.js"></script>
+<script src="assets/vendor/choices/js/choices.min.js"></script>
+
+<!-- ThemeFunctions -->
+<script src="assets/js/functions.js"></script>
+
+</body>
+
+<!-- Mirrored from stackbros.in/bookinga/landing/admin-user-list.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:07:54 GMT -->
+</html>

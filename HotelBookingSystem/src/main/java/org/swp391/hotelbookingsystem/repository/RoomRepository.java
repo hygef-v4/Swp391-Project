@@ -1,27 +1,31 @@
 package org.swp391.hotelbookingsystem.repository;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.swp391.hotelbookingsystem.model.Room;
 
-import java.util.List;
-
 @Repository
 public class RoomRepository {
-
     @Autowired
-    private JdbcTemplate jdbcTemplate;
+    JdbcTemplate jdbcTemplate;
 
     private static final BeanPropertyRowMapper<Room> ROOM_MAPPER = new BeanPropertyRowMapper<>(Room.class);
 
+    public List<String> getRoomImages(int id) {
+        String query = "select image_url from RoomImages where room_id = ?";
+        return jdbcTemplate.queryForList(query, String.class, id);
+    }
+
     public int insertRoom(Room room) {
         String sql = """
-            INSERT INTO Rooms (hotel_id, title, description, price, max_guests, room_type_id, quantity, status)
-            OUTPUT INSERTED.room_id
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        """;
+                    INSERT INTO Rooms (hotel_id, title, description, price, max_guests, room_type_id, quantity, status)
+                    OUTPUT INSERTED.room_id
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """;
 
         return jdbcTemplate.queryForObject(sql, Integer.class,
                 room.getHotelId(),
@@ -47,19 +51,25 @@ public class RoomRepository {
 
     public List<Room> getRoomsByHotelId(int hotelId) {
         String sql = """
-            SELECT 
-                room_id AS roomId,
-                hotel_id AS hotelId,
-                title,
-                description,
-                price,
-                max_guests AS maxGuests,
-                room_type_id AS roomTypeId,
-                status,
-                quantity
-            FROM Rooms
-            WHERE hotel_id = ?
-        """;
+                    SELECT 
+                        room_id AS roomId,
+                        hotel_id AS hotelId,
+                        title,
+                        description,
+                        price,
+                        max_guests AS maxGuests,
+                        room_type_id AS roomTypeId,
+                        status,
+                        quantity
+                    FROM Rooms
+                    WHERE hotel_id = ?
+                """;
         return jdbcTemplate.query(sql, ROOM_MAPPER, hotelId);
+    }
+
+    private static final String COUNT_ROOMS = "SELECT SUM(quantity) FROM Rooms";
+
+    public int countRooms() {
+        return jdbcTemplate.queryForObject(COUNT_ROOMS, Integer.class);
     }
 }

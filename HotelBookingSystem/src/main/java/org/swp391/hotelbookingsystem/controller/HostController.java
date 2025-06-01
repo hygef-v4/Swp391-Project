@@ -41,6 +41,9 @@ public class HostController {
     @Autowired
     HotelService hotelService;
 
+    @Autowired
+    UserService userService;
+
     @GetMapping("/register-host")
     public String showRegisterHostPage(Model model, HttpSession session) {
         session.setAttribute(ConstantVariables.ROOM_TYPES, roomTypeService.getAllRoomTypes());
@@ -65,10 +68,38 @@ public class HostController {
     }
 
 
-    @GetMapping("/add-listing")
+    // đang để chung với register-host, có thể tách ra
+    @GetMapping("/add-hotel")
     public String showAddListingPage(Model model) {
-        return "page/add-listing";
+       return "redirect:/register-host";
     }
+
+    @GetMapping("/add-room")
+    public String showAddRoomForm(@RequestParam("hotelId") int hotelId, Model model, HttpSession session) {
+        // Pass hotelId to the form
+        model.addAttribute("hotelId", hotelId);
+
+        // Room types and locations (store in session, same as /register-host)
+        session.setAttribute(ConstantVariables.ROOM_TYPES, roomTypeService.getAllRoomTypes());
+        session.setAttribute(ConstantVariables.LOCATIONS, locationService.getAllLocations());
+
+        // Get amenities with joined category
+        List<Amenity> amenities = amenityService.getAllAmenitiesWithCategory();
+
+        // Group amenities by category name
+        Map<String, List<Amenity>> groupedAmenities = new LinkedHashMap<>();
+        for (Amenity amenity : amenities) {
+            String categoryName = amenity.getCategory().getName();
+            groupedAmenities
+                    .computeIfAbsent(categoryName, k -> new ArrayList<>())
+                    .add(amenity);
+        }
+
+        model.addAttribute("groupedAmenities", groupedAmenities);
+
+        return "host/host-add-room";
+    }
+
 
 
     // You might also have a GET mapping for the host-intro page
@@ -94,7 +125,59 @@ public class HostController {
 
         List<Hotel> hotels = hotelService.getHotelsByHostId(user.getId());
         model.addAttribute("hotels", hotels);
+
         return "host/host-listing";
+    }
+
+
+    @PostMapping("/add-room")
+    public String handleAddRoom(
+            @RequestParam("hotelId") int hotelId,
+            @RequestParam("roomTypeId") int roomTypeId,
+            @RequestParam("roomTitle") String roomTitle,
+            @RequestParam("roomMaxGuests") int roomMaxGuests,
+            @RequestParam("roomQuantity") int roomQuantity,
+            @RequestParam("roomPrice") float roomPrice,
+            @RequestParam("roomDescription") String roomDescription,
+            @RequestParam(value = "amenities", required = false) List<Integer> amenityIds,
+            @RequestParam("roomImageFiles") MultipartFile[] roomImageFiles,
+            HttpSession session,
+            Model model
+    ) {
+        try {
+            // Upload room images
+            List<String> roomImageUrls = new ArrayList<>();
+            if (roomImageFiles != null) {
+                for (MultipartFile file : roomImageFiles) {
+                    if (!file.isEmpty() && file.getContentType().startsWith("image/")) {
+                        String url = (String) cloudinaryService
+                                .uploadImage(file, "room-images/" + hotelId)
+                                .get("secure_url");
+                        roomImageUrls.add(url);
+                    }
+                }
+            }
+
+            // Build and save room
+            Room room = Room.builder()
+                    .hotelId(hotelId)
+                    .title(roomTitle)
+                    .description(roomDescription)
+                    .roomTypeId(roomTypeId)
+                    .maxGuests(roomMaxGuests)
+                    .quantity(roomQuantity)
+                    .price(roomPrice)
+                    .status("active")
+                    .build();
+
+            roomService.saveRoom(room, amenityIds, roomImageUrls);
+
+            return "redirect:/host-listing"; // or /host-dashboard if preferred
+        } catch (Exception e) {
+            e.printStackTrace();
+            model.addAttribute("error", "Lỗi khi thêm phòng: " + e.getMessage());
+            return "host/host-add-room"; // fallback to the same page on error
+        }
     }
 
 
@@ -113,7 +196,7 @@ public class HostController {
             @RequestParam("roomTitle") String roomTitle,
             @RequestParam("roomMaxGuests") int roomMaxGuests,
             @RequestParam("roomQuantity") int roomQuantity,
-            @RequestParam("roomPrice") BigDecimal roomPrice,
+            @RequestParam("roomPrice") float roomPrice,
             @RequestParam("roomDescription") String roomDescription,
             @RequestParam(value = "amenities", required = false) List<Integer> amenityIds,
 
@@ -125,6 +208,14 @@ public class HostController {
         try {
             User user = (User) session.getAttribute("user");
             int userId =   user.getId();
+
+            if (!"HOTEL OWNER".equalsIgnoreCase(user.getRole())) {
+                user.setRole("HOTEL OWNER");
+                userService.updateUserRoleToHost(userId);
+                session.setAttribute("user", user); // cập nhật session
+            }
+
+
 
             // Validate & upload hotel image
             if (hotelImage.isEmpty() || hotelImage.getContentType() == null || !hotelImage.getContentType().startsWith("image/")) {
@@ -148,6 +239,7 @@ public class HostController {
                     .hotelImageUrl(hotelImageUrl)
                     .policy(hotelPolicies)
                     .build(); // no .rating() // because it's optional
+
 
 
             Hotel savedHotel = hotelService.saveHotel(hotel);

@@ -1,20 +1,29 @@
 package org.swp391.hotelbookingsystem.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.swp391.hotelbookingsystem.model.Room;
 import org.swp391.hotelbookingsystem.repository.RoomRepository;
 
-import java.util.List;
-
 @Service
 public class RoomService {
-
     private final RoomRepository roomRepository;
 
     @Autowired
     public RoomService(RoomRepository roomRepository) {
         this.roomRepository = roomRepository;
+    }
+
+    public List<Room> getRoomByHotelId(int id){
+        List<Room> rooms = roomRepository.getRoomsByHotelId(id);
+
+        for(Room room : rooms){
+            room.setImages(roomRepository.getRoomImages(room.getRoomId()));
+        }
+
+        return rooms;
     }
 
     public void saveRoom(Room room, List<Integer> amenityIds, List<String> imageUrls) {
@@ -34,6 +43,10 @@ public class RoomService {
                 roomRepository.linkRoomAmenity(roomId, amenityId);
             }
         }
+    }
+
+    public int countRooms() {
+        return roomRepository.countRooms();
     }
 
     /**
