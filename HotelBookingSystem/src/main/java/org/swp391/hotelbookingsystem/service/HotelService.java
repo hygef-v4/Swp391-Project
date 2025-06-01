@@ -35,8 +35,24 @@ public class HotelService {
         return hotelRepository.insertHotel(hotel);
     }
 
+    public int countHotels() {
+        return hotelRepository.countHotels();
+    }
+
+    public List<Hotel> getTop4PopularHotels() {
+        return hotelRepository.getTop4PopularHotels();
+    }
+
+    public List<Hotel> getAllHotels() {
+        return hotelRepository.getAllHotels();
+    }
+
     public List<Hotel> getHotelsByHostId(int hostId) {
         return hotelRepository.findByHostId(hostId);
+    }
+
+    public List<Hotel> searchHotel(String keyword) {
+        return hotelRepository.searchHotel(keyword);
     }
 
 }

@@ -1076,41 +1076,37 @@ var e = {
 
     // START: 27 Traffic Chart 3
     trafficsplineChart: function () {
-        var cpv = e.select('#ChartGuesttraffic');
-        if (e.isVariableDefined(cpv)) {
-            // CHART: Page Views
-            var options = {
-                series: [{
-                    name: 'Check-in',
-                    data: [31, 40, 28, 51, 42, 109, 100]
-                }, {
-                    name: 'Check-out',
-                    data: [11, 32, 45, 32, 34, 52, 41]
-                }],
-                chart: {
-                    height: 350,
-                    type: 'area'
-                },
-                colors: [
-                    ThemeColor.getCssVariableValue('--bs-primary'),
-                    ThemeColor.getCssVariableValue('--bs-info')
-                ],
-                dataLabels: {
-                    enabled: false
-                },
-                stroke: {
-                    curve: 'smooth'
-                },
-                xaxis: {
-                    type: 'day',
-                    categories: ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"]
-                },
-            };
+        var chartData = document.querySelector("#chartData");
+        if (!chartData) return;
 
-            var chart = new ApexCharts(document.querySelector("#ChartGuesttraffic"), options);
-            chart.render();
-        }
+        var labels = JSON.parse(chartData.dataset.labels);
+        var checkIn = JSON.parse(chartData.dataset.checkin);
+        var checkOut = JSON.parse(chartData.dataset.checkout);
+
+        var options = {
+            series: [
+                { name: 'Check-in', data: checkIn },
+                { name: 'Check-out', data: checkOut }
+            ],
+            chart: {
+                height: 350,
+                type: 'area'
+            },
+            xaxis: {
+                categories: labels,
+                type: 'category'
+            },
+            colors: [
+                ThemeColor.getCssVariableValue('--bs-primary'),
+                ThemeColor.getCssVariableValue('--bs-info')
+            ],
+            stroke: { curve: 'smooth' },
+            dataLabels: { enabled: false }
+        };
+
+        new ApexCharts(document.querySelector("#ChartGuesttraffic"), options).render();
     },
+
     // END: Traffic Chart 3
 
     // START: 28 Traffic Chart 4
@@ -1149,7 +1145,7 @@ var e = {
                         }
                     }
                 }]
-            };
+            }
             var chart = new ApexCharts(document.querySelector("#ChartTrafficRooms"), options);
             chart.render();
         }

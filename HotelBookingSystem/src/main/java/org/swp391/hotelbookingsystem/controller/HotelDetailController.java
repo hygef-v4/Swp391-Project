@@ -56,6 +56,8 @@ public class HotelDetailController {
                 }
             }
         }
+        
+        model.addAttribute("hotel", hotel);
 
         List<Room> rooms = roomService.getRoomByHotelId(hotelId);
         for(Room room : rooms){

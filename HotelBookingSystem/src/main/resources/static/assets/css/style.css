@@ -22339,14 +22339,7 @@ html[dir=rtl] .choices__input {
 
 /*User CSS*/
 /*# sourceMappingURL=style.css.map */
-.img-hover-zoom {
-  transition: transform 0.3s ease;
-}
-.img-hover-zoom:hover {
-  transform: scale(1.1);
-  cursor: pointer;
-  box-shadow: 0 8px 16px rgba(125, 122, 122, 0.2);
-}
+
 
 .card-img-scale-wrapper {
   position: relative;
@@ -22365,7 +22358,6 @@ html[dir=rtl] .choices__input {
 
 }
 
-
 .clickable-img:hover {
   transform: scale(1.1);
   cursor: pointer;
@@ -22374,8 +22366,6 @@ html[dir=rtl] .choices__input {
 
 .collapse-inline {
     display: inline;
-<<<<<<< Updated upstream
-=======
 }
 
 /* LOCATION IMAGES */
@@ -22429,5 +22419,4 @@ html[dir=rtl] .choices__input {
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
->>>>>>> Stashed changes
 }

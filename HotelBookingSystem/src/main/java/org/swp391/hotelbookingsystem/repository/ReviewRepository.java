@@ -40,7 +40,28 @@ public class ReviewRepository {
 
     private static final String SELECT_TOP_5_PUBLIC_POSITIVE_REVIEWS_WITH_USER = SELECT_TOP_PUBLIC_POSITIVE_REVIEWS_WITH_USER.replace("SELECT", "SELECT TOP 5");
 
+    private static final String SECLECT_RECENT_REVIEWS = """
+               SELECT TOP 4
+                    r.review_id AS reviewId,
+                    r.booking_id AS bookingId,
+                    r.reviewer_id AS reviewerId,
+                    r.rating,
+                    r.comment,
+                    r.is_public AS isPublic,
+                    r.created_at AS createdAt,
+                    u.full_name AS fullName,
+                    up.avatar_url AS avatarUrl,
+                    up.bio
+                FROM Reviews r
+                JOIN Users u ON r.reviewer_id = u.user_id
+                LEFT JOIN UserProfiles up ON u.user_id = up.user_id
+                WHERE u.role ='customer'
+                ORDER BY r.created_at DESC
+            """;
     // --- Repository Methods ---
+    public List<Review> getRecentPublicReviews() {
+        return jdbcTemplate.query(SECLECT_RECENT_REVIEWS, REVIEW_MAPPER);
+    }
 
     public List<Review> getTopPublicPositiveReviews() {
         return jdbcTemplate.query(SELECT_TOP_PUBLIC_POSITIVE_REVIEWS_WITH_USER, REVIEW_MAPPER);
