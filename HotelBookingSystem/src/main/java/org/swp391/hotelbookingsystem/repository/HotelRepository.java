@@ -82,9 +82,14 @@ public class HotelRepository {
                    h.rating,
                    h.latitude,
                    h.longitude,
-                   h.description
+                   MIN(r.price) AS minPrice,
+                   l.city_name AS cityName
             FROM Hotels h
             JOIN Locations l ON h.location_id = l.location_id
+            LEFT JOIN Rooms r ON h.hotel_id = r.hotel_id
+            GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
+                     h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude,
+                     l.city_name
             """;
 
 

@@ -47,4 +47,8 @@ public class HotelService {
         return hotelRepository.findByHostId(hostId);
     }
 
+    public List<Hotel> searchHotel(String keyword) {
+        return hotelRepository.searchHotel(keyword);
+    }
+
 }

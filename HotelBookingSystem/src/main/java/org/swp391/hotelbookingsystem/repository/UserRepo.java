@@ -70,6 +70,7 @@ public class UserRepo {
             JOIN UserProfiles up ON u.user_id = up.user_id
             """;
 
+
     public List<UserWithProfileDTO> getAllUsersWithProfile() {
         return jdbc.query(SELECT_USERS_WITH_PROFILE, (rs, rowNum) -> {
             UserWithProfileDTO user = new UserWithProfileDTO();
@@ -167,6 +168,63 @@ public class UserRepo {
         String sql = "UPDATE Users SET full_name = ?, phone = ? WHERE email = ?";
         jdbc.update(sql, user.getFullname(), user.getPhone(), user.getEmail());
     }
+
+    public List<UserWithProfileDTO> searchUsersWithProfileByName(String search) {
+        String sql = """
+        SELECT u.user_id AS userID,
+               u.full_name AS fullName,
+               u.email,
+               u.password_hash AS password,
+               u.phone,
+               u.role,
+               u.is_active,
+               up.avatar_url AS avatarUrl,
+               up.bio
+        FROM Users u
+        LEFT JOIN UserProfiles up ON u.user_id = up.user_id
+        WHERE u.full_name LIKE ? 
+        """;
+
+        String wildcard = "%" + search + "%";
+        return jdbc.query(sql, new Object[]{wildcard}, (rs, rowNum) -> {
+            UserWithProfileDTO user = new UserWithProfileDTO();
+            user.setUserID(rs.getInt("userID"));
+            user.setFullName(rs.getString("fullName"));
+            user.setEmail(rs.getString("email"));
+            user.setPassword(rs.getString("password"));
+            user.setPhone(rs.getString("phone"));
+            user.setRole(rs.getString("role"));
+            user.setActive(rs.getBoolean("is_active"));
+            user.setAvatarUrl(rs.getString("avatarUrl"));
+            user.setBio(rs.getString("bio"));
+            return user;
+        });
+    }
+
+    public User findUserById(int userId) {
+        String sql = "SELECT * FROM Users WHERE user_id = ?";
+        try {
+            return jdbc.queryForObject(sql, (rs, rowNum) -> {
+                User user = new User();
+                user.setId(rs.getInt("user_id"));
+                user.setFullname(rs.getString("full_name"));
+                user.setEmail(rs.getString("email"));
+                user.setPassword(rs.getString("password_hash"));
+                user.setPhone(rs.getString("phone"));
+                user.setRole(rs.getString("role"));
+                user.setActive(rs.getBoolean("is_active"));
+                return user;
+            }, userId);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public void updateUserStatus(int userId, boolean isActive) {
+        String sql = "UPDATE Users SET is_active = ? WHERE user_id = ?";
+        jdbc.update(sql, isActive, userId);
+    }
+
 
 
 }

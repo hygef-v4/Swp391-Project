@@ -18,12 +18,28 @@ public class UserService {
         this.userRepo = userRepo;
     }
 
+    public void updateUserRole(int userId, String newRole) {
+        userRepo.updateUserRoleById(userId, newRole);
+    }
+
     public User findByEmail(String email) {
         return userRepo.findByEmail(email);
     }
 
     public List<User> getAllUsers() {
         return userRepo.getAllUser();
+    }
+
+    public List<UserWithProfileDTO> searchUsersByName(String search) {
+        return userRepo.searchUsersWithProfileByName(search);
+    }
+
+    public void toggleUserStatus(int userId) {
+        User user = userRepo.findUserById(userId);
+        if (user != null) {
+            boolean newStatus = !user.isActive();
+            userRepo.updateUserStatus(userId, newStatus);
+        }
     }
 
     //  Update role to HOTEL OWNER by user ID
