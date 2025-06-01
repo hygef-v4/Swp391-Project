@@ -67,10 +67,6 @@
     <link rel="stylesheet" th:href="@{/assets/vendor/font-awesome/css/all.min.css}">
     <link rel="stylesheet" th:href="@{/assets/vendor/bootstrap-icons/bootstrap-icons.css}">
     <link rel="stylesheet" th:href="@{/assets/css/style.css}">
-
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-
-
 </head>
 
 <body>
@@ -99,7 +95,10 @@
                                     <p class="mb-0">New here? <a th:href="@{/register}">Create an account</a></p>
                                     <br>
                                     <div th:if="${param.error}" class="alert alert-danger">
-                                        Invalid email or password.
+                                            <span th:switch="${param.error[0]}">
+                                                <span th:case="'inactive'"> Your account has been deactivated. Please contact support.</span>
+                                                <span th:case="'true'"> Invalid email or password. Please try again.</span>
+                                            </span>
                                     </div>
 
                                     <!-- Form START -->
@@ -131,10 +130,6 @@
 
                                         <!-- CSRF hidden input -->
                                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                                        <!-- reCAPTCHA checkbox widget -->
-                                        <div class="mb-3">
-                                            <div class="g-recaptcha" data-sitekey="6Le0s0wrAAAAABsrxrXOnjCwKKNhbhFio6XxJZat"></div>
-                                        </div>
 
                                         <!-- Submit -->
                                         <div>
@@ -152,17 +147,8 @@
                                             <a th:href="@{/oauth2/authorization/google}" class="btn btn-light mb-0">
                                                 <i class="fab fa-fw fa-google text-google-icon me-2"></i>Login with Google
                                             </a>
-
-                                            <!--                                            <a th:href="@{/oauth2/authorization/facebook}" class="btn btn-light mb-0">-->
-                                            <!--                                                <i class="fab fa-fw fa-facebook-f text-facebook me-2"></i>Login with Facebook-->
-                                            <!--                                            </a>-->
                                         </div>
 
-                                        <!-- Footer -->
-<!--                                        <div class="text-primary-hover text-body mt-3 text-center">-->
-<!--                                            Copyrights ©2025 Booking. Build by-->
-<!--                                            <a href="#" class="text-body">Cuong</a>.-->
-<!--                                        </div>-->
                                     </form>
                                     <!-- Form END -->
 
@@ -181,29 +167,6 @@
 
 <script th:src="@{/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
 <script th:src="@{/assets/js/functions.js}"></script>
-
-<!-- reCAPTCHA hidden input -->
-<script src="https://www.google.com/recaptcha/api.js" async defer></script>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const form = document.getElementById("login-form");
-        const errorContainer = document.createElement("div");
-        errorContainer.style.color = "red";
-        errorContainer.style.marginTop = "10px";
-        form.appendChild(errorContainer);
-
-        form.addEventListener("submit", function (e) {
-            const response = grecaptcha.getResponse();
-            if (response.length === 0) {
-                e.preventDefault(); // Stop form submission
-                errorContainer.textContent = "Please complete the reCAPTCHA to continue.";
-            } else {
-                errorContainer.textContent = ""; // Clear error if passed
-            }
-        });
-    });
-</script>
 
 </body>
 </html>

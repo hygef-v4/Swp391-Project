@@ -229,7 +229,7 @@
                                                 <label for="hotelImageUpload" class="form-label">Hoặc chọn ảnh từ máy
                                                     tính của bạn</label>
                                                 <!--                                                upload file here-->
-                                                <input required class="form-control" type="file" id="hotelImageUpload"
+                                                <input  class="form-control" type="file" id="hotelImageUpload"
                                                        name="hotelImage" accept="image/*">
                                                 <small class="form-text text-muted">Chọn ảnh JPG/PNG từ thiết
                                                     bị.</small>
@@ -559,18 +559,15 @@ Footer END -->
 
 <!-- Bootstrap JS -->
 <script src="assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-
 <!-- Vendors -->
 <script src="assets/vendor/choices/js/choices.min.js"></script>
 <script src="assets/vendor/stepper/js/bs-stepper.min.js"></script>
 <script src="assets/vendor/quill/js/quill.min.js"></script>
 <script src="assets/vendor/dropzone/js/dropzone.js"></script>
-
 <!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
         crossorigin=""></script>
-
 <!-- ThemeFunctions -->
 <script src="assets/js/functions.js"></script>
 
@@ -933,15 +930,17 @@ Footer END -->
 <!--hotel image upload-->
 <script>
     const dropzone = document.getElementById("hotelMainImage");
-    const preview = document.getElementById("imagePreview");
+    const fileInput = document.getElementById("hotelImageUpload");
+    const previewImage = document.getElementById("imagePreview");
     const hiddenInput = document.getElementById("imageUrl");
 
-    // Prevent default behavior
+    let currentFile = null;
+
+    // Prevent default drag behaviors
     ["dragenter", "dragover", "dragleave", "drop"].forEach(eventName => {
-        dropzone.addEventListener(eventName, (e) => e.preventDefault());
+        dropzone.addEventListener(eventName, e => e.preventDefault());
     });
 
-    // Highlight on drag
     dropzone.addEventListener("dragover", () => {
         dropzone.classList.add("dragover");
     });
@@ -950,35 +949,53 @@ Footer END -->
         dropzone.classList.remove("dragover");
     });
 
-    // Handle drop
     dropzone.addEventListener("drop", (e) => {
         dropzone.classList.remove("dragover");
-
         const file = e.dataTransfer.files[0];
-        if (!file) return;
+        if (file) handleFile(file);
+    });
 
+    fileInput.addEventListener("change", () => {
+        const file = fileInput.files[0];
+        if (file) handleFile(file);
+    });
+
+    function handleFile(file) {
         const validTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
         if (!validTypes.includes(file.type)) {
             alert("Chỉ chấp nhận ảnh JPG, PNG, GIF hoặc WEBP.");
             return;
         }
 
-        // Preview the image
+        currentFile = file;
+        hiddenInput.value = ""; // clear existing URL
+
         const reader = new FileReader();
-        reader.onload = function (event) {
-            preview.src = event.target.result;
-            preview.style.display = "block";
-            hiddenInput.value = ''; // clear URL, still local
+        reader.onload = function (e) {
+            previewImage.src = e.target.result;
+            previewImage.style.display = "block";
+
+            // Add delete button if not already added
+            if (!document.getElementById("deleteImageBtn")) {
+                const deleteBtn = document.createElement("button");
+                deleteBtn.type = "button";
+                deleteBtn.textContent = "Xóa ảnh";
+                deleteBtn.className = "btn btn-danger btn-sm mt-2";
+                deleteBtn.id = "deleteImageBtn";
+                deleteBtn.onclick = () => {
+                    previewImage.src = "";
+                    previewImage.style.display = "none";
+                    fileInput.value = "";
+                    hiddenInput.value = "";
+                    deleteBtn.remove();
+                };
+                previewImage.insertAdjacentElement("afterend", deleteBtn);
+            }
         };
         reader.readAsDataURL(file);
-
-        // Optional: Also set the input field if you need it for upload later
-        const fileInput = document.getElementById("hotelImageUpload");
-        const dataTransfer = new DataTransfer();
-        dataTransfer.items.add(file);
-        fileInput.files = dataTransfer.files;
-    });
+    }
 </script>
+
 
 <!--room image upload-->
 <script>
@@ -1060,6 +1077,7 @@ Footer END -->
         fileInputRoom.files = dt.files;
     }
 </script>
+
 
 
 </body>

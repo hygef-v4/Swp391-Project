@@ -24,12 +24,26 @@ public class FormLoginSuccessHandler implements AuthenticationSuccessHandler {
                                         Authentication authentication) throws IOException, ServletException {
 
         Object principal = authentication.getPrincipal();
+
         if (principal instanceof UserDetails userDetails) {
             User user = userRepo.findByEmail(userDetails.getUsername());
-            request.getSession().setAttribute("email", user.getEmail());
-            request.getSession().setAttribute("name", user.getFullname());
+            if (user != null) {
+                if (!user.isActive()) {
+                    response.sendRedirect("/login?error=inactive");
+                    return;
+                } else {
+                    request.getSession().setAttribute("user", user);
+                    switch (user.getRole()) {
+                        case "ADMIN", "MODERATOR" -> response.sendRedirect("/home");
+                        case "HOTEL OWNER" -> response.sendRedirect("/home");
+                        case "CUSTOMER", "GUEST" -> response.sendRedirect("/home");
+                        default -> response.sendRedirect("/home");
+                    }
+                }
+            } else {
+                response.sendRedirect("/login?error=true");
+                return;
+            }
         }
-
-        response.sendRedirect("/home");
     }
 }

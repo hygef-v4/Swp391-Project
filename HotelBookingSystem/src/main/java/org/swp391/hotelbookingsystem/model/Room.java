@@ -15,9 +15,10 @@ public class Room {
     private String title;
     private String description;
     private float price;
-    private int maxGuest;
+    private int maxGuests;
     private String status;
     private int quantity;
+    private int roomTypeId;
 
     private String roomType;
 
