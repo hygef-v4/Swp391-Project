@@ -763,41 +763,18 @@ Footer END -->
 							<h5 class="mb-0">Cơ sở vật chất</h5>
 
 							<!-- List -->
-							<div class="col-md-6">
-								<!-- List -->
-								<ul class="list-group list-group-borderless mt-2 mb-2">
-									<li class="list-group-item d-flex mb-0">
-										<i class="fa-solid fa-check-circle text-success me-2"></i><span class="h6 fw-light mb-0">Swimming pool</span>
-									</li>
-									<li class="list-group-item d-flex mb-0">
-										<i class="fa-solid fa-check-circle text-success me-2"></i><span class="h6 fw-light mb-0">Spa</span>
-									</li>
-									<li class="list-group-item d-flex mb-0">
-										<i class="fa-solid fa-check-circle text-success me-2"></i><span class="h6 fw-light mb-0">Kids play area.</span>
-									</li>
-									<li class="list-group-item d-flex mb-0">
-										<i class="fa-solid fa-check-circle text-success me-2"></i><span class="h6 fw-light mb-0">Gym</span>
-									</li>
-								</ul>
-							</div>
+							<div class="col-md-12" th:each="category: ${room.categories}">
+								<h6 class="card-title mb-0" th:text="${category.name}"></h5>
 
-							<!-- List -->
-							<div class="col-md-6">
 								<!-- List -->
-								<ul class="list-group list-group-borderless mt-2 mb-2">
-									<li class="list-group-item d-flex mb-0">
-										<i class="fa-solid fa-check-circle text-success me-2"></i><span class="h6 fw-light mb-0">TV</span>
-									</li>
-									<li class="list-group-item d-flex mb-0">
-										<i class="fa-solid fa-check-circle text-success me-2"></i><span class="h6 fw-light mb-0">Mirror</span>
-									</li>
-									<li class="list-group-item d-flex mb-0">
-										<i class="fa-solid fa-check-circle text-success me-2"></i><span class="h6 fw-light mb-0">AC</span>
-									</li>
-									<li class="list-group-item d-flex mb-0">
-										<i class="fa-solid fa-check-circle text-success me-2"></i><span class="h6 fw-light mb-0">Slippers</span>
-									</li>
-								</ul>
+								<div style="column-count: 2; column-gap: 1.5rem;">
+									<ul class="list-group list-group-borderless mt-2 mb-2">
+										<li class="list-group-item d-flex mb-0" th:each="amenity: ${category.amenities}">
+											<i class="fa-solid fa-check-circle text-success me-2"></i>
+											<span class="h6 fw-light mb-0" th:text="${amenity.name}"></span>
+										</li>
+									</ul>
+								</div>
 							</div>
 
 							<div class="d-sm-flex justify-content-sm-between align-items-center mt-2 mb-0">
