@@ -60,7 +60,7 @@ public class AmenityRepository {
             amenity.setAmenityId(rs.getInt("amenity_id"));
             amenity.setName(rs.getString("amenity_name"));
             amenity.setCategoryId(rs.getInt("category_id"));
-            amenity.setCategory(category); // ✅ important for grouping by name
+            amenity.setCategory(category);
 
             return amenity;
         });
