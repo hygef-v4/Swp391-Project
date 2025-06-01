@@ -1,0 +1,76 @@
+<section class="pt-4" th:fragment="menu">
+    <div class="container">
+        <div class="card rounded-3 border p-3 pb-2">
+            <!-- Avatar and info START -->
+            <div class="d-sm-flex align-items-center">
+                <div class="avatar avatar-xl mb-2 mb-sm-0">
+                    <img class="avatar-img rounded-circle" src="assets/images/avatar/01.jpg" alt="">
+                </div>
+                <h4 class="mb-2 mb-sm-0 ms-sm-3">
+                    <span class="fw-light">Chào</span> <span th:text="${session.user.fullname}">Tên người dùng</span>
+                </h4>
+
+                <a href="/add-hotel" class="btn btn-sm btn-primary-soft mb-0 ms-auto flex-shrink-0"><i
+                        class="bi bi-plus-lg fa-fw me-2"></i>Thêm khách sạn mới</a> <!-- Translated -->
+            </div>
+            <!-- Avatar and info START -->
+
+            <!-- Responsive navbar toggler -->
+            <button class="btn btn-primary w-100 d-block d-xl-none mt-2" type="button" data-bs-toggle="offcanvas"
+                    data-bs-target="#dashboardMenu" aria-controls="dashboardMenu">
+                <i class="bi bi-list"></i> Menu Bảng điều khiển <!-- Translated -->
+            </button>
+
+            <!-- Nav links START -->
+            <div class="offcanvas-xl offcanvas-end mt-xl-3" tabindex="-1" id="dashboardMenu">
+                <div class="offcanvas-header border-bottom p-3">
+                    <h5 class="offcanvas-title">Menu</h5> <!-- Translated (or "Danh mục") -->
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#dashboardMenu"
+                            aria-label="Đóng"></button> <!-- Translated -->
+                </div>
+                <!-- Offcanvas body -->
+                <div class="offcanvas-body p-3 p-xl-0">
+                    <!-- Nav item -->
+                    <div class="navbar navbar-expand-xl">
+                        <ul class="navbar-nav navbar-offcanvas-menu">
+
+                            <li class="nav-item"><a class="nav-link active" href="/host-dashboard"><i
+                                    class="bi bi-house-door fa-fw me-1"></i>Bảng điều khiển</a></li> <!-- Translated -->
+
+                            <li class="nav-item"><a class="nav-link" th:href="@{/host-listing}"><i
+                                    class="bi bi-journals fa-fw me-1"></i>Khách sạn</a></li>
+
+                            <li class="nav-item"><a class="nav-link" href="agent-bookings.html"><i
+                                    class="bi bi-bookmark-heart fa-fw me-1"></i>Đặt chỗ</a></li> <!-- Translated -->
+
+                            <li class="nav-item"><a class="nav-link" href="agent-activities.html"><i
+                                    class="bi bi-bell fa-fw me-1"></i>Hoạt động</a></li> <!-- Translated -->
+
+                            <li class="nav-item"><a class="nav-link" href="agent-earnings.html"><i
+                                    class="bi bi-graph-up-arrow fa-fw me-1"></i>Thu nhập</a></li> <!-- Translated -->
+
+                            <li class="nav-item"><a class="nav-link" href="agent-reviews.html"><i
+                                    class="bi bi-star fa-fw me-1"></i>Đánh giá</a></li> <!-- Translated -->
+
+                            <li><a class="nav-link" href="agent-settings.html"><i class="bi bi-gear fa-fw me-1"></i>Cài
+                                đặt</a></li> <!-- Translated -->
+
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="dropdoanMenu" data-bs-toggle="dropdown"
+                                   aria-haspopup="true" aria-expanded="false">
+                                    <i class="bi bi-list-ul fa-fw me-1"></i>Menu thả xuống <!-- Translated -->
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="dropdoanMenu">
+                                    <!-- Dropdown menu -->
+                                    <li><a class="dropdown-item" href="#">Mục 1</a></li> <!-- Translated -->
+                                    <li><a class="dropdown-item" href="#">Mục 2</a></li> <!-- Translated -->
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!-- Nav links END -->
+        </div>
+    </div>
+</section>

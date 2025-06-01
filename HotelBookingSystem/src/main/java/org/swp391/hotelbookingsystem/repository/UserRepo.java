@@ -21,7 +21,6 @@ public class UserRepo {
         String sql = "INSERT INTO Users (full_name,email, password_hash) VALUES (?, ?, ?)";
         jdbc.update(sql, user.getFullname(), user.getEmail(), user.getPassword());
     }
-
     public void saveUserFromGoogle(User user) {
         String sql = "INSERT INTO Users (full_name, email) VALUES (?, ?)";
         jdbc.update(sql, user.getFullname(), user.getEmail());
@@ -162,6 +161,11 @@ public class UserRepo {
     public void updateUserRoleById(int userId, String newRole) {
         String sql = "UPDATE Users SET role = ? WHERE user_id = ?";
         jdbc.update(sql, newRole, userId);
+    }
+
+    public void updateUser(User user) {
+        String sql = "UPDATE Users SET full_name = ?, phone = ? WHERE email = ?";
+        jdbc.update(sql, user.getFullname(), user.getPhone(), user.getEmail());
     }
 
 

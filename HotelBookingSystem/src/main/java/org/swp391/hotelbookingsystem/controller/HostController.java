@@ -65,9 +65,10 @@ public class HostController {
     }
 
 
-    @GetMapping("/add-listing")
+    // đang để chung với register-host, có thể tách ra
+    @GetMapping("/add-hotel")
     public String showAddListingPage(Model model) {
-        return "page/add-listing";
+       return "redirect:/register-host";
     }
 
 
@@ -83,6 +84,21 @@ public class HostController {
         model.addAttribute("message", "Hotel registration successful! Welcome to your dashboard.");
         return "host/host-dashboard"; // Create this Thymeleaf template
     }
+
+    @GetMapping("/host-listing")
+    public String viewHostListings(HttpSession session, Model model) {
+        User user = (User) session.getAttribute("user");
+
+        if (user == null) {
+            return "redirect:/login"; // not logged in
+        }
+
+        List<Hotel> hotels = hotelService.getHotelsByHostId(user.getId());
+        model.addAttribute("hotels", hotels);
+
+        return "host/host-listing";
+    }
+
 
     @PostMapping("/register-host")
     public String handleRegisterHost(

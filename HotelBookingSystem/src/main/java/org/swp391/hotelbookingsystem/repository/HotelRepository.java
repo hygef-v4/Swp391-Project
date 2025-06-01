@@ -198,4 +198,33 @@ public class HotelRepository {
         return hotel;
     }
 
+    public List<Hotel> findByHostId(int hostId) {
+        String sql = """
+                    SELECT h.hotel_id AS hotelId,
+                           h.host_id AS hostId,
+                           h.hotel_name AS hotelName,
+                           h.address,
+                           h.description,
+                           h.location_id AS locationId,
+                           h.hotel_image_url AS hotelImageUrl,
+                           h.rating,
+                           h.latitude,
+                           h.longitude,
+                           h.policy,
+                           MIN(r.price) AS minPrice,
+                           l.city_name AS cityName
+                    FROM Hotels h
+                    JOIN Locations l ON h.location_id = l.location_id
+                    LEFT JOIN Rooms r ON h.hotel_id = r.hotel_id
+                    WHERE h.host_id = ?
+                    GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
+                             h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude,
+                             h.policy, l.city_name
+                    ORDER BY h.hotel_id DESC
+                """;
+
+        return jdbcTemplate.query(sql, new Object[]{hostId}, HOTEL_MAPPER);
+    }
+
+
 }

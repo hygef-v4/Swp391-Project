@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <title>Booking - Multipurpose Online Booking Theme</title>
+
+  <!-- Meta Tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="author" content="StackBros">
+  <meta name="description" content="Booking - Multipurpose Online Booking Theme">
+
+  <!-- Dark mode -->
+  <script>
+    const storedTheme = localStorage.getItem('theme')
+
+    const getPreferredTheme = () => {
+      if (storedTheme) {
+        return storedTheme
+      }
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    }
+
+    const setTheme = function (theme) {
+      if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.documentElement.setAttribute('data-bs-theme', 'dark')
+      } else {
+        document.documentElement.setAttribute('data-bs-theme', theme)
+      }
+    }
+
+    setTheme(getPreferredTheme())
+
+    window.addEventListener('DOMContentLoaded', () => {
+      var el = document.querySelector('.theme-icon-active');
+      if(el != 'undefined' && el != null) {
+        const showActiveTheme = theme => {
+          const activeThemeIcon = document.querySelector('.theme-icon-active use')
+          const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+          const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
+
+          document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+            element.classList.remove('active')
+          })
+
+          btnToActive.classList.add('active')
+          activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+        }
+
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+          if (storedTheme !== 'light' || storedTheme !== 'dark') {
+            setTheme(getPreferredTheme())
+          }
+        })
+
+        showActiveTheme(getPreferredTheme())
+
+        document.querySelectorAll('[data-bs-theme-value]')
+                .forEach(toggle => {
+                  toggle.addEventListener('click', () => {
+                    const theme = toggle.getAttribute('data-bs-theme-value')
+                    localStorage.setItem('theme', theme)
+                    setTheme(theme)
+                    showActiveTheme(theme)
+                  })
+                })
+
+      }
+    })
+
+  </script>
+
+  <!-- Favicon -->
+  <link rel="shortcut icon" th:href="@{/assets/images/favicon.ico}">
+
+  <!-- Google Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com/">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Poppins:wght@400;500;700&amp;display=swap">
+
+  <!-- Plugins CSS -->
+  <link rel="stylesheet" th:href="@{/assets/vendor/font-awesome/css/all.min.css}">
+  <link rel="stylesheet" th:href="@{/assets/vendor/bootstrap-icons/bootstrap-icons.css}">
+
+  <!-- Theme CSS -->
+  <link rel="stylesheet" th:href="@{/assets/css/style.css}">
+
+</head>
+
+<body class="dashboard">
+<!-- **************** MAIN CONTENT START **************** -->
+<main>
+  <!-- =======================
+  Content START -->
+  <section class="pt-3">
+    <div class="container">
+      <div class="row g-2 g-lg-4">
+        <!-- Sidebar START -->
+        <div class="col-lg-4 col-xl-3" th:fragment="sidebar">
+          <div class="offcanvas-lg offcanvas-end" tabindex="-1" id="offcanvasSidebar" >
+            <div class="offcanvas-header justify-content-end pb-2">
+              <button  type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#offcanvasSidebar" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body p-3 p-lg-0">
+              <div class="card bg-light w-100">
+                <div class="position-absolute top-0 end-0 p-3">
+                  <a href="#" class="text-primary-hover" data-bs-toggle="tooltip" data-bs-title="Edit profile">
+                    <i class="bi bi-pencil-square"></i>
+                  </a>
+                </div>
+                <div class="card-body p-3">
+                  <div class="text-center mb-3">
+                    <div class="avatar avatar-xl mb-2">
+                      <img class="avatar-img rounded-circle border border-2 border-white" src="assets/images/avatar/01.jpg" alt="">
+                    </div>
+                    <h6 class="mb-0"><span th:text="${session.user.fullname != '' ? session.user.fullname : 'No Name'}"></span></h6>
+                    <a href="#" class="text-reset text-primary-hover small"><span th:text="${session.user.email}"></span></a>
+                    <hr>
+                  </div>
+
+                  <!-- Sidebar menu item START -->
+                  <ul class="nav nav-pills-primary-soft flex-column">
+                    <li class="nav-item">
+                      <a class="nav-link" href="account-profile.html"><i class="bi bi-person fa-fw me-2"></i>My Profile</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link active" href="bookingHistory"><i class="bi bi-ticket-perforated fa-fw me-2"></i>My Bookings</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="account-travelers.html"><i class="bi bi-people fa-fw me-2"></i>Travelers</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="account-payment-details.html"><i class="bi bi-wallet fa-fw me-2"></i>Payment Details</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="account-wishlist.html"><i class="bi bi-heart fa-fw me-2"></i>Wishlist</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="account-settings.html"><i class="bi bi-gear fa-fw me-2"></i>Settings</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="account-delete.html"><i class="bi bi-trash fa-fw me-2"></i>Delete Profile</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link text-danger bg-danger-soft-hover" href="#"><i class="fas fa-sign-out-alt fa-fw me-2"></i>Sign Out</a>
+                    </li>
+                  </ul>
+                  <!-- Sidebar menu item END -->
+                </div>
+                <!-- Card body END -->
+              </div>
+            </div>
+          </div>
+          <!-- Responsive offcanvas body END -->
+        </div>
+        <!-- Sidebar END -->
+</main>
+<!-- **************** MAIN CONTENT END **************** -->
+
+<!-- Back to top -->
+<div class="back-top"></div>
+
+<!-- Bootstrap JS -->
+<script src="assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- ThemeFunctions -->
+<script src="assets/js/functions.js"></script>
+
+</body>
+
+<!-- Mirrored from stackbros.in/bookinga/landing/account-bookings.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:07:33 GMT -->
+</html>

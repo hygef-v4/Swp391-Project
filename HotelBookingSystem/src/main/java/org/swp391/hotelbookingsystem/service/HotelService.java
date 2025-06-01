@@ -42,4 +42,9 @@ public class HotelService {
     public List<Hotel> getAllHotels() {
         return hotelRepository.getAllHotels();
     }
+
+    public List<Hotel> getHotelsByHostId(int hostId) {
+        return hotelRepository.findByHostId(hostId);
+    }
+
 }

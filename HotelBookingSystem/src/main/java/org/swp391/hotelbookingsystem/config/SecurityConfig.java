@@ -39,6 +39,7 @@ public class SecurityConfig {
                                 "/css/**", "/js/**", "/images/**", "/assets/**",
                                 "/api/files/**" //  Allow API access
                         ).permitAll()
+                        .requestMatchers("/user-profile", "/update-user-profile").authenticated() // Chỉ cho phép người đã xác thực
                         .anyRequest().permitAll() // in dev mode
                 )
                 .formLogin(form -> form
