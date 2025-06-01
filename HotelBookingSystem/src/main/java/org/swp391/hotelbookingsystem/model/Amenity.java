@@ -14,5 +14,6 @@ public class Amenity {
     private String name;
     private int categoryId;
 
+    private int roomId;
     private AmenityCategory category;  // Optional for JOIN
 }

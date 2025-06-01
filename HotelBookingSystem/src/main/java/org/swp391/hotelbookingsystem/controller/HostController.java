@@ -115,7 +115,7 @@ public class HostController {
             @RequestParam("roomTitle") String roomTitle,
             @RequestParam("roomMaxGuests") int roomMaxGuests,
             @RequestParam("roomQuantity") int roomQuantity,
-            @RequestParam("roomPrice") BigDecimal roomPrice,
+            @RequestParam("roomPrice") float roomPrice,
             @RequestParam("roomDescription") String roomDescription,
             @RequestParam(value = "amenities", required = false) List<Integer> amenityIds,
 
