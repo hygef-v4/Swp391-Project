@@ -41,6 +41,9 @@ public class HostController {
     @Autowired
     HotelService hotelService;
 
+    @Autowired
+    UserService userService;
+
     @GetMapping("/register-host")
     public String showRegisterHostPage(Model model, HttpSession session) {
         session.setAttribute(ConstantVariables.ROOM_TYPES, roomTypeService.getAllRoomTypes());
@@ -128,6 +131,14 @@ public class HostController {
             User user = (User) session.getAttribute("user");
             int userId =   user.getId();
 
+            if (!"HOTEL OWNER".equalsIgnoreCase(user.getRole())) {
+                user.setRole("HOTEL OWNER");
+                userService.updateUserRoleToHost(userId);
+                session.setAttribute("user", user); // cập nhật session
+            }
+
+
+
             // Validate & upload hotel image
             if (hotelImage.isEmpty() || hotelImage.getContentType() == null || !hotelImage.getContentType().startsWith("image/")) {
                 model.addAttribute("error", "Chỉ được tải lên tệp ảnh (JPG, PNG, ...)");
@@ -150,6 +161,7 @@ public class HostController {
                     .hotelImageUrl(hotelImageUrl)
                     .policy(hotelPolicies)
                     .build(); // no .rating() // because it's optional
+
 
 
             Hotel savedHotel = hotelService.saveHotel(hotel);
