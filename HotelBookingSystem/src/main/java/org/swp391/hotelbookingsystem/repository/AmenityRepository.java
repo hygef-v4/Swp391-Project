@@ -66,4 +66,33 @@ public class AmenityRepository {
         });
     }
 
+    public List<Amenity> getRoomAmenities(int roomId) {
+        String sql = """
+            SELECT 
+                a.amenity_id,
+                a.name AS amenity_name,
+                a.category_id,
+                ar.room_id,
+                c.name AS category_name
+            FROM Amenities a
+            JOIN AmenityCategories c ON a.category_id = c.category_id
+            JOIN RoomAmenities ar on a.amenity_id = ar.amenity_id
+            WHERE ar.room_id = ?
+        """;
+
+        return jdbcTemplate.query(sql, ps -> ps.setInt(1, roomId), (rs, rowNum) -> {
+            AmenityCategory category = new AmenityCategory();
+            category.setCategoryId(rs.getInt("category_id"));
+            category.setName(rs.getString("category_name"));
+
+            Amenity amenity = new Amenity();
+            amenity.setAmenityId(rs.getInt("amenity_id"));
+            amenity.setName(rs.getString("amenity_name"));
+            amenity.setCategoryId(rs.getInt("category_id"));
+            amenity.setRoomId(rs.getInt("room_id"));
+            amenity.setCategory(category);
+
+            return amenity;
+        });
+    }
 }

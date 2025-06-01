@@ -22,4 +22,6 @@ public class Room {
     private String roomType;
 
     private List<String> images;
+    private List<Amenity> amenities;
+    private List<AmenityCategory> categories;
 }

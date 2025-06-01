@@ -25,4 +25,7 @@ public class AmenityService {
         return amenityRepository.getAllAmenitiesWithCategory();
     }
 
+    public List<Amenity> getRoomAmenities(int roomId){
+        return amenityRepository.getRoomAmenities(roomId);
+    }
 }
