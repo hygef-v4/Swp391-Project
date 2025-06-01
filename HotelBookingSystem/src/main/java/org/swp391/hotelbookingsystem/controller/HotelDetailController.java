@@ -42,20 +42,27 @@ public class HotelDetailController {
         }
         model.addAttribute("hotel", hotel);
 
+        String description = hotel.getDescription();
 
-        int index = hotel.getDescription().indexOf("<br><br><b>");
-        if(index != -1){
-            model.addAttribute("short", hotel.getDescription().substring(0, index));
-            model.addAttribute("long", hotel.getDescription().substring(index));
-        }else{
-            if(hotel.getDescription().length() > 800){
-                model.addAttribute("short", hotel.getDescription().substring(0, 800));
-                model.addAttribute("long", hotel.getDescription().substring(800));                
-            }else{
-                model.addAttribute("short", hotel.getDescription());
-                model.addAttribute("long", "");
+        if (description != null) {
+            int index = description.indexOf("<br><br><b>");
+            if (index != -1) {
+                model.addAttribute("short", description.substring(0, index));
+                model.addAttribute("long", description.substring(index));
+            } else {
+                if (description.length() > 800) {
+                    model.addAttribute("short", description.substring(0, 800));
+                    model.addAttribute("long", description.substring(800));
+                } else {
+                    model.addAttribute("short", description);
+                    model.addAttribute("long", "");
+                }
             }
+        } else {
+            model.addAttribute("short", "");
+            model.addAttribute("long", "");
         }
+
 
         List<Room> rooms = roomService.getRoomByHotelId(hotelId);
         model.addAttribute("rooms", rooms);
