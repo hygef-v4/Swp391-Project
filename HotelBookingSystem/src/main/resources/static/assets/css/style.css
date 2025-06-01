@@ -22339,14 +22339,7 @@ html[dir=rtl] .choices__input {
 
 /*User CSS*/
 /*# sourceMappingURL=style.css.map */
-.img-hover-zoom {
-  transition: transform 0.3s ease;
-}
-.img-hover-zoom:hover {
-  transform: scale(1.1);
-  cursor: pointer;
-  box-shadow: 0 8px 16px rgba(125, 122, 122, 0.2);
-}
+
 
 .card-img-scale-wrapper {
   position: relative;
@@ -22365,7 +22358,6 @@ html[dir=rtl] .choices__input {
 
 }
 
-
 .clickable-img:hover {
   transform: scale(1.1);
   cursor: pointer;
@@ -22374,4 +22366,41 @@ html[dir=rtl] .choices__input {
 
 .collapse-inline {
     display: inline;
+}
+
+/* LOCATION IMAGES */
+.location-image-container {
+  width: 130px;   /* Adjust image circle size as needed */
+  height: 130px;  /* Adjust image circle size as needed (keep same as width for a circle) */
+  border-radius: 50%;
+  overflow: hidden; /* This is crucial to keep the zoom effect contained within the circle */
+  position: relative;
+
+}
+
+.location-image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;   /* Ensures the image fills the circle, cropping if necessary */
+  object-position: center; /* Centers the image within the frame */
+  display: block;      /* Removes any extra space below the image */
+}
+
+/* Apply transition and zoom specifically to the image with the .img-hover-zoom class */
+.location-image-container img.img-hover-zoom {
+  transition: transform 0.3s ease-in-out;
+}
+
+.location-image-container img.img-hover-zoom:hover {
+  transform: scale(1.1); /* Adjust zoom level (e.g., 1.05 for less, 1.15 for more) */
+}
+
+/* Styling for the text link below the image */
+.card .card-title a.stretched-link:hover {
+  text-decoration: underline; /* Adds underline on hover for the city name */
+}
+
+.card .card-title a.stretched-link {
+  color: inherit;
+  text-decoration: none;
 }
