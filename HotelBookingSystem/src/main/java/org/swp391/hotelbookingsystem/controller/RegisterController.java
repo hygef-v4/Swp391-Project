@@ -1,7 +1,10 @@
 package org.swp391.hotelbookingsystem.controller;
 
-import org.swp391.hotelbookingsystem.repository.UserRepo;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import org.swp391.hotelbookingsystem.model.User;
+import org.swp391.hotelbookingsystem.repository.UserRepo;
+import org.swp391.hotelbookingsystem.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -13,6 +16,9 @@ public class RegisterController {
 
     @Autowired
     private UserRepo userRepo;
+
+    @Autowired
+    private EmailService emailService;
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -27,7 +33,8 @@ public class RegisterController {
             @RequestParam("password") String password,
             @RequestParam("confirmPassword") String confirmPassword,
             @RequestParam("fullname") String fullname,
-            Model model) {
+            Model model,
+            HttpSession session) {
 
 
         if (email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
@@ -58,10 +65,15 @@ public class RegisterController {
             return "page/register";
         }
 
+        String otp = String.valueOf((int) (Math.random() * 900000) + 100000);
+        emailService.sendOtpEmail(email, otp);
+        userRepo.saveEmailOtpToken(email, otp);
+
         User user = new User(email, hashedPassword);
         user.setFullname(fullname);
-        userRepo.saveUser(user);   // insert user into the database
+        session.setAttribute("user", user);
 
-        return "redirect:/login";
+        return "page/verify-email-otp";
+
     }
 }

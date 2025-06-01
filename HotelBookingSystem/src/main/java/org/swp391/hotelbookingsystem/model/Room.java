@@ -1,21 +1,25 @@
 package org.swp391.hotelbookingsystem.model;
 
+import java.util.List;
+
 import lombok.*;
 
-import java.math.BigDecimal;
-
-@Data
 @Builder
-@NoArgsConstructor
+@Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class Room {
     private int roomId;
     private int hotelId;
     private String title;
     private String description;
-    private BigDecimal price;
+    private float price;
     private int maxGuests;
-    private int roomTypeId;
     private String status;
     private int quantity;
+    private int roomTypeId;
+
+    private String roomType;
+
+    private List<String> images;
 }

@@ -43,8 +43,7 @@ public class HotelRepository {
             GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
                      h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude,
                      l.city_name
-            ORDER BY h.rating DESC
-            """;
+            """;            
 
     private static final String SELECT_HOTELS_BY_RATING = """
             SELECT h.hotel_id AS hotelId,
@@ -147,33 +146,56 @@ public class HotelRepository {
 
     public List<Hotel> searchHotel(String search) {
         String query = """
-                SELECT h.hotel_id AS hotelId,
-                       h.host_id AS hostId,
-                       h.hotel_name AS hotelName,
-                       h.address,
-                       h.description,
-                       h.location_id AS locationId,
-                       h.hotel_image_url AS hotelImageUrl,
-                       h.rating,
-                       h.latitude,
-                       h.longitude,
-                       h.description,
-                       MIN(r.price) AS minPrice,
-                       l.city_name AS cityName
-                FROM Hotels h
-                JOIN Locations l ON h.location_id = l.location_id
-                JOIN Rooms r ON h.hotel_id = r.hotel_id
-                WHERE h.hotel_name like ?
-                GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
-                         h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude,
-                         l.city_name
-                ORDER BY h.rating DESC
-                """;
+            SELECT h.hotel_id AS hotelId,
+                   h.host_id AS hostId,
+                   h.hotel_name AS hotelName,
+                   h.address,
+                   h.description,
+                   h.location_id AS locationId,
+                   h.hotel_image_url AS hotelImageUrl,
+                   h.rating,
+                   h.latitude,
+                   h.longitude,
+                   MIN(r.price) AS minPrice,
+                   l.city_name AS cityName
+            FROM Hotels h
+            JOIN Locations l ON h.location_id = l.location_id
+            JOIN Rooms r ON h.hotel_id = r.hotel_id
+            WHERE h.hotel_name like ?
+            GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
+                     h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude,
+                     l.city_name
+            """;            
         return jdbcTemplate.query(query, ps -> {
             ps.setString(1, "%" + search + "%");
         }, HOTEL_MAPPER);
     }
 
+    public Hotel getHotelById(int id){
+        String query = """
+            SELECT h.hotel_id AS hotelId,
+                   h.host_id AS hostId,
+                   h.hotel_name AS hotelName,
+                   h.address,
+                   h.description,
+                   h.location_id AS locationId,
+                   h.hotel_image_url AS hotelImageUrl,
+                   h.rating,
+                   h.latitude,
+                   h.longitude,
+                   h.policy,
+                   MIN(r.price) AS minPrice,
+                   l.city_name AS cityName
+            FROM Hotels h
+            JOIN Locations l ON h.location_id = l.location_id
+            JOIN Rooms r ON h.hotel_id = r.hotel_id
+            WHERE h.hotel_id like ?
+            GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
+                     h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude, h.policy,
+                     l.city_name
+            """;            
+        return jdbcTemplate.queryForObject(query, HOTEL_MAPPER, id);
+    }    
     public Hotel insertHotel(Hotel hotel) {
         String sql = """
                     INSERT INTO Hotels 
