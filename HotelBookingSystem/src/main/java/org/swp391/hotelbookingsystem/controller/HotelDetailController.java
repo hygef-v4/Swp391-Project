@@ -39,20 +39,6 @@ public class HotelDetailController {
         Hotel hotel = hotelService.getHotelById(hotelId);
         hotel.setPolicy(hotel.getPolicy().replace("<li>", "<li class=\"list-group-item d-flex\"><i class=\"bi bi-arrow-right me-2\"></i>"));
         model.addAttribute("hotel", hotel);
-<<<<<<< Updated upstream
-        
-        int index = hotel.getDescription().indexOf("<br><br><b>");
-        if(index != -1){
-            model.addAttribute("short", hotel.getDescription().substring(0, index));
-            model.addAttribute("long", hotel.getDescription().substring(index));
-        }else{
-            if(hotel.getDescription().length() > 800){
-                model.addAttribute("short", hotel.getDescription().substring(0, 800));
-                model.addAttribute("long", hotel.getDescription().substring(800));                
-            }else{
-                model.addAttribute("short", hotel.getDescription());
-                model.addAttribute("long", "");
-=======
 
         String description = hotel.getDescription();
         if (description != null) {
@@ -68,7 +54,6 @@ public class HotelDetailController {
                     model.addAttribute("short", description);
                     model.addAttribute("long", "");
                 }
->>>>>>> Stashed changes
             }
         }
 
