@@ -32,9 +32,17 @@ public class HotelDetailController {
         model.addAttribute("locations", locations);
 
         Hotel hotel = hotelService.getHotelById(hotelId);
-        hotel.setPolicy(hotel.getPolicy().replace("<li>", "<li class=\"list-group-item d-flex\"><i class=\"bi bi-arrow-right me-2\"></i>"));
+        if (hotel.getPolicy() != null) {
+            hotel.setPolicy(hotel.getPolicy().replace(
+                    "<li>",
+                    "<li class=\"list-group-item d-flex\"><i class=\\\"bi bi-arrow-right me-2\\\"></i>"
+            ));
+        } else {
+            hotel.setPolicy("");
+        }
         model.addAttribute("hotel", hotel);
-        
+
+
         int index = hotel.getDescription().indexOf("<br><br><b>");
         if(index != -1){
             model.addAttribute("short", hotel.getDescription().substring(0, index));
