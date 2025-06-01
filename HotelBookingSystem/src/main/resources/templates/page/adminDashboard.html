@@ -391,18 +391,18 @@
                                                      alt="avatar">
                                             </div>
                                             <div class="ms-sm-2 mt-2 mt-sm-0">
-                                                <h6 class="mb-1" th:text="${user.fullName}">User Name</h6>
+                                                <h6 class="mb-1" th:text="${user.fullname}">User Name</h6>
                                                 <p class="mb-0 small"
                                                    th:text="${user.role}">Role
                                                 </p>
                                                 <ul class="nav nav-divider small">
                                                     <li class="nav-item"
-                                                        th:text="${user.isActive} ? 'Active' : 'Deactive'">Status
+                                                        th:text="${user.active} ? 'Active' : 'Deactive'">Status
                                                     </li>
                                                 </ul>
                                             </div>
                                         </div>
-                                        <a th:href="@{'/admin/user/view/' + ${user.userID}}"
+                                        <a th:href="@{'/admin/user/view/' + ${user.id}}"
                                            class="btn btn-sm btn-light mb-0 ms-3 px-2">
                                             <i class="fa-solid fa-chevron-right fa-fw"></i>
                                         </a>

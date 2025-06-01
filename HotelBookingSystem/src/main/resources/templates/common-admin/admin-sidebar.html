@@ -66,7 +66,7 @@
                     </a>
                     <ul class="nav collapse flex-column" id="collapseauthentication" data-bs-parent="#navbar-sidebar">
                         <li class="nav-item"><a class="nav-link" th:href="@{/register}">Đăng ký</a></li>
-                        <li class="nav-item"><a class="nav-link" th:href="@{/login}">Đăng nhập</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/login">Đăng nhập</a></li>
                         <li class="nav-item"><a class="nav-link" href="forgot-password.html">Quên mật khẩu</a></li>
                         <li class="nav-item"><a class="nav-link" href="error.html">Error 404</a></li>
                     </ul>
@@ -76,7 +76,7 @@
 
             <!-- Sidebar footer START -->
             <div class="d-flex align-items-center justify-content-between text-primary-hover mt-auto p-3">
-                <a class="h6 fw-light mb-0 text-body" th:href="@{/login}" data-bs-toggle="tooltip"
+                <a class="h6 fw-light mb-0 text-body" href="/logout" data-bs-toggle="tooltip"
                    data-bs-placement="top" aria-label="Sign out">
                     <i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất
                 </a>

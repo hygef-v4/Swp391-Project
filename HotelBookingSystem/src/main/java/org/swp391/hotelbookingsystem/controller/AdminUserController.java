@@ -2,16 +2,11 @@ package org.swp391.hotelbookingsystem.controller;
 
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import org.swp391.hotelbookingsystem.constant.ConstantVariables;
-import org.swp391.hotelbookingsystem.dto.UserWithProfileDTO;
 import org.swp391.hotelbookingsystem.model.User;
-import org.swp391.hotelbookingsystem.model.*;
 import org.swp391.hotelbookingsystem.service.*;
 
 import java.util.*;
@@ -26,11 +21,11 @@ public class AdminUserController {
     public String getUserList(@RequestParam(value = "search", required = false) String search,
                               @RequestParam(value = "role", required = false) String role,
                               Model model, HttpSession session) {
-        List<UserWithProfileDTO> users;
+        List<User> users;
 
         if (search != null && !search.isBlank() && role != null && !role.isBlank()) {
             users = userService.getAllUsersWithProfile().stream()
-                    .filter(u -> u.getFullName().toLowerCase().contains(search.toLowerCase()))
+                    .filter(u -> u.getFullname().toLowerCase().contains(search.toLowerCase()))
                     .filter(u -> role.equalsIgnoreCase(u.getRole()))
                     .toList();
         } else if (search != null && !search.isBlank()) {

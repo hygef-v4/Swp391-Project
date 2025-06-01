@@ -2,7 +2,6 @@ package org.swp391.hotelbookingsystem.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.swp391.hotelbookingsystem.dto.UserWithProfileDTO;
 import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.repository.UserRepo;
 
@@ -30,7 +29,7 @@ public class UserService {
         return userRepo.getAllUser();
     }
 
-    public List<UserWithProfileDTO> searchUsersByName(String search) {
+    public List<User> searchUsersByName(String search) {
         return userRepo.searchUsersWithProfileByName(search);
     }
 
@@ -51,12 +50,12 @@ public class UserService {
         return userRepo.getUsersByRole(role);
     }
 
-    public List<UserWithProfileDTO> getAllUsersWithProfile() {
+    public List<User> getAllUsersWithProfile() {
         return userRepo.getAllUsersWithProfile();
     }
 
-    public List<UserWithProfileDTO> getTop5Users() {
-        List<UserWithProfileDTO> allUsers = userRepo.getAllUsersWithProfile();
+    public List<User> getTop5Users() {
+        List<User> allUsers = userRepo.getAllUsersWithProfile();
         return allUsers.size() > 5 ? allUsers.subList(0, 5) : allUsers;
     }
 }
