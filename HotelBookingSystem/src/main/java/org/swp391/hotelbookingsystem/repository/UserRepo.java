@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -52,9 +54,8 @@ public class UserRepo {
         ));
     }
 
-    // Lưu token vào bảng PasswordResetTokens
     public void savePasswordResetToken(int userId, String token) {
-        String sql = "INSERT INTO PasswordResetTokens (user_id, token, expiry_date) VALUES (?, ?, DATEADD(MINUTE, 30, GETDATE()))";
+        String sql = "INSERT INTO Tokens (user_id, token, expiry_date, token_type) VALUES (?, ?, DATEADD(MINUTE, 30, GETDATE()), 'reset password')";
         jdbc.update(sql, userId, token);
     }
 
@@ -62,7 +63,7 @@ public class UserRepo {
     public User findUserByToken(String token) {
         String sql = """
             SELECT u.* FROM Users u
-            JOIN PasswordResetTokens t ON u.user_id = t.user_id
+            JOIN Tokens t ON u.user_id = t.user_id
             WHERE t.token = ? AND t.expiry_date > GETDATE()
         """;
         try {
@@ -84,8 +85,37 @@ public class UserRepo {
 
     // Xóa token đã dùng hoặc hết hạn
     public void deleteToken(String token) {
-        String sql = "DELETE FROM PasswordResetTokens WHERE token = ?";
+        String sql = "DELETE FROM Tokens WHERE token = ?";
         jdbc.update(sql, token);
+    }
+
+    public void saveEmailOtpToken(String email, String otp) {
+        String sql = """
+            INSERT INTO Tokens (user_id, token, expiry_date, token_type)
+            VALUES ((SELECT user_id FROM Users WHERE email = ?), ?, ?, 'email verify')
+        """;
+        LocalDateTime expiry = LocalDateTime.now().plusMinutes(5);
+        jdbc.update(sql, email, otp, Timestamp.valueOf(expiry));
+    }
+
+    public boolean isValidEmailOtp(String email, String otp) {
+        String sql = """
+            SELECT COUNT(*) FROM Tokens
+            WHERE token = ? AND token_type = 'email verify'
+            AND expiry_date > GETDATE()
+            AND (user_id = (SELECT user_id FROM Users WHERE email = ?) OR user_id IS NULL)
+        """;
+        Integer count = jdbc.queryForObject(sql, Integer.class, otp, email);
+        return count != null && count > 0;
+    }
+
+    public void deleteEmailOtp(String email, String otp) {
+        String sql = """
+            DELETE FROM Tokens
+            WHERE token = ? AND token_type = 'email verify'
+            AND (user_id = (SELECT user_id FROM Users WHERE email = ?) OR user_id IS NULL)
+        """;
+        jdbc.update(sql, otp, email);
     }
 
     // Cập nhật mật khẩu mới

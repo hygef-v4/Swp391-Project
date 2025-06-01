@@ -5,10 +5,10 @@ import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.stereotype.Service;
-import org.thymeleaf.spring6.SpringTemplateEngine;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 @Service
 public class EmailService {
@@ -34,6 +34,14 @@ public class EmailService {
         helper.setText(htmlContent, true);
         helper.setFrom("your_email@gmail.com");
 
+        mailSender.send(message);
+    }
+
+    public void sendOtpEmail(String toEmail, String otp) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(toEmail);
+        message.setSubject("Xác minh email - Mã OTP của bạn");
+        message.setText("Xin chào,\n\nMã OTP xác thực email của bạn là: " + otp + "\nMã này sẽ hết hạn sau 5 phút.\n\nTrân trọng.");
         mailSender.send(message);
     }
 }
