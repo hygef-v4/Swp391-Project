@@ -4,13 +4,10 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-@ToString
 @Builder
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
 public class Review {
     private int reviewId;           // review_id
     private int bookingId;          // booking_id
