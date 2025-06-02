@@ -42,4 +42,16 @@ public class UserWishlistRepository {
                 .build();
     }
 
+    public void deleteFavorite(int userId, int hotelId) {
+        String sql = "DELETE FROM favorites WHERE user_id = ? AND hotel_id = ?";
+        jdbc.update(sql, userId, hotelId);
+    }
+
+    public void addFavorite(int userId, int hotelId) {
+        String sql = "INSERT INTO favorites (user_id, hotel_id) VALUES (?, ?)";
+        jdbc.update(sql, userId, hotelId);
+    }
+
+
+
 }
