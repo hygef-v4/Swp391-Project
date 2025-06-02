@@ -254,4 +254,9 @@ public class HotelRepository {
     }
 
 
+    public void deleteHotelById(int hotelId) {
+        String sql = "DELETE FROM Hotels WHERE hotel_id = ?";
+        jdbcTemplate.update(sql, hotelId);
+    }
+
 }

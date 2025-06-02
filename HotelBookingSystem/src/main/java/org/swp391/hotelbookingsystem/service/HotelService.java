@@ -55,4 +55,7 @@ public class HotelService {
         return hotelRepository.searchHotel(keyword);
     }
 
+    public void deleteById(int hotelId) {
+        hotelRepository.deleteHotelById(hotelId);
+    }
 }

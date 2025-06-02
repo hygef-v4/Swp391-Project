@@ -260,23 +260,67 @@
                                                         <i class="bi bi-gear fa-fw me-1"></i> Quản lý
                                                     </a>
 
-<!--                                                    &lt;!&ndash; (Optional) Toggle Status &ndash;&gt;-->
-<!--                                                    <form th:action="@{/toggle-hotel-status}" method="post">-->
-<!--                                                        <input type="hidden" name="hotelId" th:value="${hotel.hotelId}" />-->
-<!--                                                        <button type="submit"-->
-<!--                                                                th:classappend="${hotel.active} ? 'btn-outline-secondary' : 'btn-outline-success'"-->
-<!--                                                                class="btn btn-sm mb-0">-->
-<!--                                                            <i th:class="${hotel.active} ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>-->
-<!--                                                            <span th:text="${hotel.active} ? 'Ẩn' : 'Hiện'"></span>-->
-<!--                                                        </button>-->
-<!--                                                    </form>-->
 
-                                                    <!-- Delete -->
-                                                    <a th:href="@{/delete-hotel/{id}(id=${hotel.hotelId})}"
-                                                       class="btn btn-sm btn-outline-danger mb-0"
-                                                       onclick="return confirm('Bạn có chắc chắn muốn xoá khách sạn này không?');">
-                                                        <i class="bi bi-trash3 fa-fw me-1"></i> Xóa
-                                                    </a>
+                                                    <!-- Delete Button Form -->
+                                                    <form th:action="@{/host/request-delete-hotel}" method="post"
+                                                          class="d-inline-block">
+                                                        <input type="hidden" name="hotelId"
+                                                               th:value="${hotel.hotelId}"/>
+                                                        <button type="submit"
+                                                                class="btn btn-sm btn-outline-danger mb-0"
+                                                                onclick="return confirm('Bạn có chắc chắn muốn yêu cầu xóa khách sạn này không?');">
+                                                            <i class="bi bi-trash3 fa-fw me-1"></i> Yêu cầu xóa
+                                                        </button>
+                                                    </form>
+
+                                                    <!-- OTP Modal (Ensure it's on the page you redirect to, e.g., host-listing.html) -->
+                                                    <div class="modal fade" id="otpModal" tabindex="-1"
+                                                         aria-labelledby="otpModalLabel" aria-hidden="true">
+                                                        <div class="modal-dialog modal-dialog-centered">
+                                                            <div class="modal-content">
+                                                                <form th:action="@{/host/confirm-delete-hotel}"
+                                                                      method="post" id="otpForm">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title" id="otpModalLabel">Nhập
+                                                                            mã OTP</h5>
+                                                                        <button type="button" class="btn-close"
+                                                                                data-bs-dismiss="modal"
+                                                                                aria-label="Đóng"></button>
+                                                                    </div>
+                                                                    <div class="modal-body">
+                                                                        <p>Mã xác nhận đã được gửi tới email của bạn.
+                                                                            Vui lòng nhập mã để xác nhận xóa khách
+                                                                            sạn.</p>
+                                                                        <!-- Display OTP error if any -->
+                                                                        <div th:if="${otpError}"
+                                                                             class="alert alert-danger" role="alert"
+                                                                             th:text="${otpError}">
+                                                                        </div>
+                                                                        <div class="mb-3">
+                                                                            <label for="otpInput" class="form-label">Mã
+                                                                                OTP:</label>
+                                                                            <input type="text" name="otp" id="otpInput"
+                                                                                   class="form-control"
+                                                                                   placeholder="Nhập mã OTP" required
+                                                                                   autofocus>
+                                                                        </div>
+                                                                        <input type="hidden" name="hotelId"
+                                                                               id="otpHotelId">
+                                                                    </div>
+                                                                    <div class="modal-footer">
+                                                                        <button type="button" class="btn btn-secondary"
+                                                                                data-bs-dismiss="modal">Hủy
+                                                                        </button>
+                                                                        <button type="submit" class="btn btn-danger">Xác
+                                                                            nhận xóa
+                                                                        </button>
+                                                                    </div>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+
                                                 </div>
 
                                             </div>
@@ -316,6 +360,43 @@
 
 <!-- ThemeFunctions -->
 <script src="assets/js/functions.js"></script>
+
+<!-- JavaScript to trigger the modal -->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    document.addEventListener('DOMContentLoaded', function () {
+        // Thymeleaf will replace [[${showOtpModalForHotelId}]] with the actual value or null if not present
+        const hotelIdForOtp = /*[[${showOtpModalForHotelId}]]*/ null;
+        const otpErrorMessage = /*[[${otpError}]]*/ null; // Get OTP specific error
+
+        if (hotelIdForOtp) {
+            const otpModalElement = document.getElementById('otpModal');
+            const otpHotelIdInput = document.getElementById('otpHotelId'); // Input field for hotelId in modal form
+            const otpInputElement = document.getElementById('otpInput'); // The OTP text input
+
+            if (otpModalElement && otpHotelIdInput) {
+                otpHotelIdInput.value = hotelIdForOtp; // Set the hidden hotelId field
+
+                const modal = new bootstrap.Modal(otpModalElement);
+                modal.show();
+
+                // If there was an OTP error on a previous attempt, clear the input and focus
+                if (otpErrorMessage && otpInputElement) {
+                    otpInputElement.value = ''; // Clear previous incorrect OTP
+                    // The error message is already displayed via Thymeleaf th:if block
+                }
+
+                // Focus the OTP input field when modal is shown
+                otpModalElement.addEventListener('shown.bs.modal', function () {
+                    if (otpInputElement) {
+                        otpInputElement.focus();
+                    }
+                });
+            }
+        }
+
+    });
+</script>
 
 </body>
 
