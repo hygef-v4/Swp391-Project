@@ -31,72 +31,41 @@
         setTheme(getPreferredTheme())
 
         window.addEventListener('DOMContentLoaded', () => {
-            var el = document.querySelector('.theme-icon-active');
-            if (el != 'undefined' && el != null) {
+            const el = document.querySelector('.theme-icon-active');
+            if (el !== undefined && el !== null) {
                 const showActiveTheme = theme => {
-                    const activeThemeIcon = document.querySelector('.theme-icon-active use')
-                    const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
-                    const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
+                    const activeThemeIcon = document.querySelector('.theme-icon-active use');
+                    const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`);
+                    const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href');
 
                     document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
-                        element.classList.remove('active')
-                    })
+                        element.classList.remove('active');
+                    });
 
-                    btnToActive.classList.add('active')
-                    activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+                    btnToActive.classList.add('active');
+                    activeThemeIcon.setAttribute('href', svgOfActiveBtn);
                 }
 
                 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-                    if (storedTheme !== 'light' || storedTheme !== 'dark') {
-                        setTheme(getPreferredTheme())
+                    if (storedTheme !== 'light' && storedTheme !== 'dark') {
+                        setTheme(getPreferredTheme());
                     }
-                })
+                });
 
-                showActiveTheme(getPreferredTheme())
+                showActiveTheme(getPreferredTheme());
 
                 document.querySelectorAll('[data-bs-theme-value]')
                     .forEach(toggle => {
                         toggle.addEventListener('click', () => {
-                            const theme = toggle.getAttribute('data-bs-theme-value')
-                            localStorage.setItem('theme', theme)
-                            setTheme(theme)
-                            showActiveTheme(theme)
-                        })
-                    })
-
+                            const theme = toggle.getAttribute('data-bs-theme-value');
+                            localStorage.setItem('theme', theme);
+                            setTheme(theme);
+                            showActiveTheme(theme);
+                        });
+                    });
             }
-        }
-        const dropArea = document.getElementById("roomImagesDropzone");
-        dropArea.addEventListener("dragover", (e) => {
-            e.preventDefault();
-            dropArea.classList.add("bg-light"); // visual feedback
         });
 
-        dropArea.addEventListener("dragleave", (e) => {
-            e.preventDefault();
-            dropArea.classList.remove("bg-light");
-        });
-
-        dropArea.addEventListener("drop", (e) => {
-            e.preventDefault();
-            dropArea.classList.remove("bg-light");
-            handleFilesFromDataTransfer(e.dataTransfer.files);
-        });
-
-        // Handle paste from clipboard
-        dropArea.addEventListener("paste", (e) => {
-            const clipboardItems = e.clipboardData.items;
-            const files = [];
-            for (let item of clipboardItems) {
-                if (item.kind === "file") {
-                    const file = item.getAsFile();
-                    if (file && file.type.startsWith("image/")) {
-                        files.push(file);
-                    }
-                }
-            }
-            handleFilesFromDataTransfer(files);
-        });
 
         // Combine logic to add files to preview & form input
         function handleFilesFromDataTransfer(fileList) {
@@ -111,10 +80,6 @@
             updateManualFileInput();
             renderPreviews();
         }
-
-
-        )
-
     </script>
 
     <!-- Favicon -->
