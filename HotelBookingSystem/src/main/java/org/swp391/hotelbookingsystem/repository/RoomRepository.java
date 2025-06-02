@@ -72,4 +72,17 @@ public class RoomRepository {
     public int countRooms() {
         return jdbcTemplate.queryForObject(COUNT_ROOMS, Integer.class);
     }
+
+
+    public int getTotalRoomsByHostId(int hostId) {
+        String sql = """
+                SELECT SUM(r.quantity)
+                FROM Rooms r
+                JOIN Hotels h ON r.hotel_id = h.hotel_id
+                WHERE h.host_id = ?
+            """;
+        Integer total = jdbcTemplate.queryForObject(sql, Integer.class, hostId);
+        return total != null ? total : 0; // Handle null in case no rooms exist
+    }
+
 }
