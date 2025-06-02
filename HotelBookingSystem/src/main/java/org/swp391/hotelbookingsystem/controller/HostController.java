@@ -135,20 +135,30 @@ public class HostController {
 
 
     @GetMapping("/host-dashboard")
-    public String showHostDashboard(Model model) {
+    public String showHostDashboard(HttpSession session, Model model) {
+        User host = (User) session.getAttribute("user");
+        if (host == null) {
+            return "redirect:/login"; // Or handle unauthorized access
+        }
+
+        int totalRooms = roomService.getTotalRoomsByHostId(host.getId());
+        model.addAttribute("totalRooms", totalRooms);
         model.addAttribute("message", "Hotel registration successful! Welcome to your dashboard.");
         return "host/host-dashboard";
     }
 
     @GetMapping("/host-listing")
     public String viewHostListings(HttpSession session, Model model) {
-        User user = (User) session.getAttribute("user");
+        User host = (User) session.getAttribute("user");
 
-        if (user == null) {
+        if (host == null) {
             return "redirect:/login"; // not logged in
         }
 
-        List<Hotel> hotels = hotelService.getHotelsByHostId(user.getId());
+        int totalRooms = roomService.getTotalRoomsByHostId(host.getId());
+        model.addAttribute("totalRooms", totalRooms);
+
+        List<Hotel> hotels = hotelService.getHotelsByHostId(host.getId());
         model.addAttribute("hotels", hotels);
 
         return "host/host-listing";
