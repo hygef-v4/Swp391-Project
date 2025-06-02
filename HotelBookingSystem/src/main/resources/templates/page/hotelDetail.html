@@ -517,7 +517,7 @@ About hotel START -->
 								<div class="card bg-light p-4 mb-4">
 									<div class="row g-4 align-items-center">
 										<!-- Rating info -->
-										<div class="col-md-4">
+										<div th:if="${hotel.rating != 0}" class="col-md-4">
 											<div class="text-center">
 												<!-- Info -->
 												<h2 class="mb-0" th:text="${hotel.rating}"></h2>
@@ -533,7 +533,7 @@ About hotel START -->
 										</div>
 
 										<!-- Progress-bar START -->
-										<div class="col-md-8">
+										<div th:class="${hotel.rating == 0 ? 'col-md-12' : 'col-md-8'}">
 											<div class="card-body p-0">
 												<div class="row gx-3 g-2 align-items-center">
 													<!-- Leave review START -->
@@ -673,7 +673,7 @@ About hotel START -->
 						</div>		
 
 						<!-- Rating -->
-						<ul class="list-inline mb-2">
+						<ul class="list-inline mb-2" th:if="${hotel.rating != 0}">
 							<li class="list-inline-item me-1 h6 fw-light mb-0"><i class="bi bi-arrow-right me-2"></i><span th:text="${hotel.rating}"></span></li>
 							<li class="list-inline-item me-0"><i th:class="(${hotel.rating <= 0.2} ? 'fa-regular fa-star' : (${hotel.rating >= 0.8} ? 'fa-solid fa-star' : 'fa-solid fa-star-half-alt')) + ' text-warning'"></i></li>
 							<li class="list-inline-item me-0"><i th:class="(${hotel.rating <= 1.2} ? 'fa-regular fa-star' : (${hotel.rating >= 1.8} ? 'fa-solid fa-star' : 'fa-solid fa-star-half-alt')) + ' text-warning'"></i></li>
@@ -681,6 +681,8 @@ About hotel START -->
 							<li class="list-inline-item me-0"><i th:class="(${hotel.rating <= 3.2} ? 'fa-regular fa-star' : (${hotel.rating >= 3.8} ? 'fa-solid fa-star' : 'fa-solid fa-star-half-alt')) + ' text-warning'"></i></li>
 							<li class="list-inline-item me-0"><i th:class="(${hotel.rating <= 4.2} ? 'fa-regular fa-star' : (${hotel.rating >= 4.8} ? 'fa-solid fa-star' : 'fa-solid fa-star-half-alt')) + ' text-warning'"></i></li>
 						</ul>
+
+						<div class="list-inline mb-2" th:if="${hotel.rating == 0}">Chưa được đánh giá</div>
 
 						<!-- Button -->
 						<div class="d-grid">
