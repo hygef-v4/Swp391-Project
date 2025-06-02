@@ -35,7 +35,7 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers("/admin-dashboard").hasRole("ADMIN")
                         .requestMatchers("/admin-dashboard").hasRole("MODERATOR")
-                        .requestMatchers("/host-dashboard").hasRole("HOTEL_OWNER")
+                        .requestMatchers("/host-dashboard").hasRole("HOTEL OWNER")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
