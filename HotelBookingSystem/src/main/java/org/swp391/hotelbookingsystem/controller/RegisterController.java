@@ -57,6 +57,17 @@ public class RegisterController {
             return "page/register";
         }
 
+        if (password.length() < 8) {
+            model.addAttribute("error", "Password must be at least 8 characters long.");
+            return "page/register";
+        }
+
+        String passwordPattern = "^(?=.*[A-Z])(?=.*[\\W_]).+$";
+        if (!password.matches(passwordPattern)) {
+            model.addAttribute("error", "Password must contain at least one uppercase letter and one special character.");
+            return "page/register";
+        }
+
         String hashedPassword = passwordEncoder.encode(password);
         User existingUser = userRepo.findByEmail(email);
 

@@ -104,7 +104,11 @@
                     <!-- Password -->
                     <div class="mb-3 position-relative">
                       <label class="form-label">Enter password</label>
-                      <input type="password" name="password" class="form-control fakepassword" id="psw-input" minlength="8" required>
+                      <input type="password" name="password" class="form-control fakepassword" id="psw-input"
+                             minlength="8"
+                             pattern="^(?=.*[A-Z])(?=.*[\W_]).+$"
+                             title="Password must contain at least one uppercase letter and one special character"
+                             required>
                       <span class="position-absolute top-50 end-0 translate-middle-y p-0 mt-3">
                         <i class="fakepasswordicon fas fa-eye-slash cursor-pointer p-2"></i>
                       </span>
