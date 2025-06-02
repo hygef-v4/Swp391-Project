@@ -14,21 +14,6 @@ public class BookingService {
 
     @Autowired
     private BookingRepo bookingRepo;
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
-
-    public List<Booking> getAllBookings() {
-        return bookingRepo.findAll();
-    }
-
-    public Booking getBookingById(int id) {
-        return bookingRepo.findById(id);
-    }
-
-    public boolean bookRoom(Booking booking) {
-        if (booking.getCheckIn().isAfter(booking.getCheckOut())) return false;
-        return bookingRepo.save(booking) > 0;
-    }
 
     public void cancelBooking(int id) {
         bookingRepo.updateStatus(id, "cancelled");
