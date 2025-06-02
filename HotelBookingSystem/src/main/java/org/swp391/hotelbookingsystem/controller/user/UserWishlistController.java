@@ -1,4 +1,4 @@
-package org.swp391.hotelbookingsystem.controller;
+package org.swp391.hotelbookingsystem.controller.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

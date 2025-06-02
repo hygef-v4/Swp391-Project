@@ -1,4 +1,4 @@
-package org.swp391.hotelbookingsystem.controller;
+package org.swp391.hotelbookingsystem.controller.shared;
 
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;

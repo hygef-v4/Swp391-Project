@@ -1,4 +1,4 @@
-package org.swp391.hotelbookingsystem.controller;
+package org.swp391.hotelbookingsystem.controller.auth;
 
 import jakarta.servlet.http.HttpSession;
 import org.swp391.hotelbookingsystem.model.User;

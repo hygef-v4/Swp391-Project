@@ -1,4 +1,4 @@
-package org.swp391.hotelbookingsystem.controller;
+package org.swp391.hotelbookingsystem.controller.admin;
 
 import jakarta.servlet.http.HttpSession;
 import org.springframework.security.core.Authentication;
