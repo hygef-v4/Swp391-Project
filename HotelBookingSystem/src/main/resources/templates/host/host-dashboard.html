@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="vi"> <!-- Changed lang to Vietnamese -->
+
+<!-- Mirrored from stackbros.in/bookinga/landing/agent-dashboard.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:05:49 GMT -->
+<head>
+    <title>Booking - Chủ đề Đặt phòng Trực tuyến Đa năng</title> <!-- Translated -->
+
+    <!-- Meta Tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="author" content="StackBros">
+    <meta name="description" content="Booking - Chủ đề Đặt phòng Trực tuyến Đa năng"> <!-- Translated -->
+
+    <!-- Dark mode -->
+    <script>
+        const storedTheme = localStorage.getItem('theme')
+
+        const getPreferredTheme = () => {
+            if (storedTheme) {
+                return storedTheme
+            }
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        }
+
+        const setTheme = function (theme) {
+            if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.setAttribute('data-bs-theme', 'dark')
+            } else {
+                document.documentElement.setAttribute('data-bs-theme', theme)
+            }
+        }
+
+        setTheme(getPreferredTheme())
+
+        window.addEventListener('DOMContentLoaded', () => {
+            var el = document.querySelector('.theme-icon-active');
+            if(el != 'undefined' && el != null) {
+                const showActiveTheme = theme => {
+                    const activeThemeIcon = document.querySelector('.theme-icon-active use')
+                    const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+                    const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
+
+                    document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+                        element.classList.remove('active')
+                    })
+
+                    btnToActive.classList.add('active')
+                    activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+                }
+
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                    if (storedTheme !== 'light' || storedTheme !== 'dark') {
+                        setTheme(getPreferredTheme())
+                    }
+                })
+
+                showActiveTheme(getPreferredTheme())
+
+                document.querySelectorAll('[data-bs-theme-value]')
+                    .forEach(toggle => {
+                        toggle.addEventListener('click', () => {
+                            const theme = toggle.getAttribute('data-bs-theme-value')
+                            localStorage.setItem('theme', theme)
+                            setTheme(theme)
+                            showActiveTheme(theme)
+                        })
+                    })
+
+            }
+        })
+
+    </script>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="assets/images/favicon.ico">
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Poppins:wght@400;500;700&display=swap">
+
+    <!-- Plugins CSS -->
+    <link rel="stylesheet" type="text/css" href="assets/vendor/font-awesome/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="assets/vendor/bootstrap-icons/bootstrap-icons.css">
+    <link rel="stylesheet" type="text/css" href="assets/vendor/apexcharts/css/apexcharts.css">
+    <link rel="stylesheet" type="text/css" href="assets/vendor/choices/css/choices.min.css">
+
+    <!-- Theme CSS -->
+    <link rel="stylesheet" type="text/css" href="assets/css/style.css">
+
+</head>
+
+<body>
+
+
+<div th:replace="~{common/header :: header}"></div>
+
+<!-- **************** MAIN CONTENT START **************** -->
+<main>
+
+<!--    menu-->
+    <section th:replace="~{common-host/menu-host :: menu}"></section>
+
+
+
+
+    <section class="pt-0">
+        <div class="container vstack gap-4">
+            <!-- Title START -->
+            <div class="row">
+                <div class="col-12">
+                    <h1 class="fs-4 mb-0"><i class="bi bi-house-door fa-fw me-1"></i>Bảng điều khiển</h1> <!-- Translated -->
+                </div>
+            </div>
+            <!-- Title END -->
+
+            <!-- Counter START -->
+            <div class="row g-4">
+                <!-- Counter item -->
+                <div class="col-sm-6 col-xl-3">
+                    <div class="card card-body border">
+                        <div class="d-flex align-items-center">
+                            <!-- Icon -->
+                            <div class="icon-xl bg-success rounded-3 text-white">
+                                <i class="bi bi-journals"></i>
+                            </div>
+                            <!-- Content -->
+                            <div class="ms-3">
+                                <h4>56</h4>
+                                <span>Tổng số Danh mục</span> <!-- Translated -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Counter item -->
+                <div class="col-sm-6 col-xl-3">
+                    <div class="card card-body border">
+                        <div class="d-flex align-items-center">
+                            <!-- Icon -->
+                            <div class="icon-xl bg-info rounded-3 text-white">
+                                <i class="bi bi-graph-up-arrow"></i>
+                            </div>
+                            <!-- Content -->
+                            <div class="ms-3">
+                                <h4>$2,55,365</h4>
+                                <span>Thu nhập</span> <!-- Translated -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Counter item -->
+                <div class="col-sm-6 col-xl-3">
+                    <div class="card card-body border">
+                        <div class="d-flex align-items-center">
+                            <!-- Icon -->
+                            <div class="icon-xl bg-warning rounded-3 text-white">
+                                <i class="bi bi-bar-chart-line-fill"></i>
+                            </div>
+                            <!-- Content -->
+                            <div class="ms-3">
+                                <h4>15K</h4>
+                                <span>Lượt truy cập</span> <!-- Translated -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Counter item -->
+                <div class="col-sm-6 col-xl-3">
+                    <div class="card card-body border">
+                        <div class="d-flex align-items-center">
+                            <!-- Icon -->
+                            <div class="icon-xl bg-primary rounded-3 text-white">
+                                <i class="bi bi-star"></i>
+                            </div>
+                            <!-- Content -->
+                            <div class="ms-3">
+                                <h4>12K</h4>
+                                <span>Tổng số Đánh giá</span> <!-- Translated -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Counter END -->
+
+            <!-- Graph START -->
+            <div class="row g-4">
+                <!-- Booking Chart START -->
+                <div class="col-lg-7 col-xl-8">
+                    <!-- Chart START -->
+                    <div class="card border h-100">
+                        <!-- Card header -->
+                        <div class="card-header border-bottom">
+                            <h5 class="card-header-title">Thống kê Đặt chỗ</h5> <!-- Translated -->
+                        </div>
+                        <!-- Card body -->
+                        <div class="card-body">
+                            <!-- Apex chart -->
+                            <div id="apexChartTrafficStats" class="mt-2"></div>
+                        </div>
+                    </div>
+                    <!-- Chart END -->
+                </div>
+                <!-- Booking Chart END -->
+
+                <!-- Booking graph START -->
+                <div class="col-lg-4">
+                    <div class="card border h-100">
+
+                        <!-- Card header -->
+                        <div class="card-header border-bottom d-flex justify-content-between align-items-center">
+                            <h5 class="card-header-title">Lưu lượng Đặt chỗ</h5> <!-- Translated -->
+                            <a href="#" class="btn btn-link p-0 mb-0">Xem tất cả</a> <!-- Translated -->
+                        </div>
+
+                        <!-- Card body START -->
+                        <div class="card-body p-3">
+                            <!-- Chart -->
+                            <div class="col-sm-6 mx-auto">
+                                <div class="d-flex justify-content-center" id="ChartTrafficViews"></div>
+                            </div>
+
+                            <!-- Content -->
+                            <ul class="list-group list-group-borderless align-items-center mt-3">
+                                <li class="list-group-item"><i class="text-primary fas fa-circle me-2"></i>Tự nhiên</li> <!-- Translated -->
+                                <li class="list-group-item"><i class="text-success fas fa-circle me-2"></i>Google</li> <!-- Kept Google -->
+                                <li class="list-group-item"><i class="text-warning fas fa-circle me-2"></i>Mạng xã hội</li> <!-- Translated -->
+                                <li class="list-group-item"><i class="text-danger fas fa-circle me-2"></i>Chương trình giới thiệu</li> <!-- Translated -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Booking graph END -->
+            </div>
+            <!-- Graph END -->
+
+            <!-- Booking table START -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card border rounded-3">
+                        <!-- Card header START -->
+                        <div class="card-header border-bottom">
+                            <div class="d-sm-flex justify-content-between align-items-center">
+                                <h5 class="mb-2 mb-sm-0">Đặt chỗ Sắp tới</h5> <!-- Translated -->
+                                <a href="#" class="btn btn-sm btn-primary mb-0">Xem Tất cả</a> <!-- Translated -->
+                            </div>
+                        </div>
+                        <!-- Card header END -->
+
+                        <!-- Card body START -->
+                        <div class="card-body">
+                            <!-- Search and select START -->
+                            <div class="row g-3 align-items-center justify-content-between mb-3">
+                                <!-- Search -->
+                                <div class="col-md-8">
+                                    <form class="rounded position-relative">
+                                        <input class="form-control pe-5" type="search" placeholder="Tìm kiếm" aria-label="Tìm kiếm"> <!-- Translated -->
+                                        <button class="btn border-0 px-3 py-0 position-absolute top-50 end-0 translate-middle-y" type="submit"><i class="fas fa-search fs-6"></i></button>
+                                    </form>
+                                </div>
+
+                                <!-- Select option -->
+                                <div class="col-md-3">
+                                    <!-- Short by filter -->
+                                    <form>
+                                        <select class="form-select js-choice" aria-label=".form-select-sm">
+                                            <option value="">Sắp xếp theo</option> <!-- Translated -->
+                                            <option>Miễn phí</option> <!-- Translated -->
+                                            <option>Mới nhất</option> <!-- Translated -->
+                                            <option>Cũ nhất</option> <!-- Translated -->
+                                        </select>
+                                    </form>
+                                </div>
+                            </div>
+                            <!-- Search and select END -->
+
+                            <!-- Hotel room list START -->
+                            <div class="table-responsive border-0">
+                                <table class="table align-middle p-4 mb-0 table-hover table-shrink">
+                                    <!-- Table head -->
+                                    <thead class="table-light">
+                                    <tr>
+                                        <th scope="col" class="border-0 rounded-start">#</th>
+                                        <th scope="col" class="border-0">Tên</th> <!-- Translated -->
+                                        <th scope="col" class="border-0">Loại</th> <!-- Translated -->
+                                        <th scope="col" class="border-0">Ngày</th> <!-- Translated -->
+                                        <th scope="col" class="border-0">Trạng thái</th> <!-- Translated -->
+                                        <th scope="col" class="border-0">Thanh toán</th> <!-- Translated -->
+                                        <th scope="col" class="border-0 rounded-end">Hành động</th> <!-- Translated -->
+                                    </tr>
+                                    </thead>
+
+                                    <!-- Table body START -->
+                                    <tbody class="border-top-0">
+                                    <!-- Table item -->
+                                    <tr>
+                                        <td> <h6 class="mb-0">01</h6> </td>
+                                        <td> <h6 class="mb-0"><a href="#">Phòng Deluxe View Hồ Bơi</a></h6> </td> <!-- Translated -->
+                                        <td> Có Bữa Sáng </td> <!-- Translated -->
+                                        <td> Tháng 11 22 - 25 </td> <!-- Translated -->
+                                        <td> <div class="badge text-bg-success">Đã đặt</div> </td> <!-- Translated -->
+                                        <td> <div class="badge bg-success bg-opacity-10 text-success">Thanh toán đầy đủ</div> </td> <!-- Translated -->
+                                        <td> <a href="#" class="btn btn-sm btn-light mb-0">Xem</a> </td> <!-- Translated -->
+                                    </tr>
+
+                                    <!-- Table item -->
+                                    <tr>
+                                        <td> <h6 class="mb-0">02</h6> </td>
+                                        <td> <h6 class="mb-0"><a href="#">Phòng Deluxe View Hồ Bơi kèm Bữa Sáng</a></h6> </td> <!-- Translated -->
+                                        <td> Hủy miễn phí | Chỉ bữa sáng </td> <!-- Translated -->
+                                        <td> Tháng 11 24 - 28 </td> <!-- Translated -->
+                                        <td> <div class="badge text-bg-success">Đã đặt</div> </td> <!-- Translated -->
+                                        <td> <div class="badge bg-orange bg-opacity-10 text-orange">Tại cơ sở</div> </td> <!-- Translated -->
+                                        <td> <a href="#" class="btn btn-sm btn-light mb-0">Xem</a> </td> <!-- Translated -->
+                                    </tr>
+
+                                    <!-- Table item -->
+                                    <tr>
+                                        <td> <h6 class="mb-0">03</h6> </td>
+                                        <td> <h6 class="mb-0"><a href="#">Phòng Luxury có Ban Công</a></h6> </td> <!-- Translated -->
+                                        <td> Hủy miễn phí | Bữa sáng + Bữa trưa/tối </td> <!-- Translated -->
+                                        <td> Tháng 11 24 - 28 </td> <!-- Translated -->
+                                        <td> <div class="badge text-bg-info">Đã giữ chỗ</div> </td> <!-- Translated -->
+                                        <td> <div class="badge bg-info bg-opacity-10 text-info">Thanh toán một nửa</div> </td> <!-- Translated -->
+                                        <td> <a href="#" class="btn btn-sm btn-light mb-0">Xem</a> </td> <!-- Translated -->
+                                    </tr>
+
+                                    <!-- Table item -->
+                                    <tr>
+                                        <td> <h6 class="mb-0">04</h6> </td>
+                                        <td> <h6 class="mb-0"><a href="#">Phòng Deluxe Giường Đôi Có Ban Công</a></h6> </td> <!-- Translated -->
+                                        <td> Hủy miễn phí </td> <!-- Translated -->
+                                        <td> Tháng 11 28 - 30 </td> <!-- Translated -->
+                                        <td> <div class="badge text-bg-success">Đã đặt</div> </td> <!-- Translated -->
+                                        <td> <div class="badge bg-success bg-opacity-10 text-success">Thanh toán đầy đủ</div> </td> <!-- Translated -->
+                                        <td> <a href="#" class="btn btn-sm btn-light mb-0">Xem</a> </td> <!-- Translated -->
+                                    </tr>
+
+                                    <!-- Table item -->
+                                    <tr>
+                                        <td> <h6 class="mb-0">05</h6> </td>
+                                        <td> <h6 class="mb-0"><a href="#">Phòng Hủy Miễn Phí | Bữa sáng + Bữa trưa</a></h6> </td> <!-- Translated -->
+                                        <td> Hủy miễn phí </td> <!-- Translated -->
+                                        <td> Tháng 11 28 - 30 </td> <!-- Translated -->
+                                        <td> <div class="badge text-bg-info">Đã giữ chỗ</div> </td> <!-- Translated -->
+                                        <td> <div class="badge bg-success bg-opacity-10 text-success">Thanh toán đầy đủ</div> </td> <!-- Translated -->
+                                        <td> <a href="#" class="btn btn-sm btn-light mb-0">Xem</a> </td> <!-- Translated -->
+                                    </tr>
+                                    </tbody>
+                                    <!-- Table body END -->
+                                </table>
+                            </div>
+                            <!-- Hotel room list END -->
+                        </div>
+                        <!-- Card body END -->
+
+                        <!-- Card footer START -->
+
+                        <!-- Card footer END -->
+                    </div>
+                </div>
+            </div>
+            <!-- Booking table END -->
+        </div>
+    </section>
+    <!-- =======================
+    Content END -->
+
+</main>
+<!-- **************** MAIN CONTENT END **************** -->
+
+
+<div th:replace="~{common/footer :: footer}"></div>
+
+
+<div class="back-top"></div>
+
+<!-- Bootstrap JS -->
+<script src="assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Vendors -->
+<script src="assets/vendor/apexcharts/js/apexcharts.min.js"></script>
+<script src="assets/vendor/choices/js/choices.min.js"></script>
+
+<!-- ThemeFunctions -->
+<script src="assets/js/functions.js"></script>
+
+</body>
+
+<!-- Mirrored from stackbros.in/bookinga/landing/agent-dashboard.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:06:13 GMT -->
+</html>

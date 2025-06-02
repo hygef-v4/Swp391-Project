@@ -95,12 +95,16 @@
                                     <p class="mb-0">New here? <a th:href="@{/register}">Create an account</a></p>
                                     <br>
                                     <div th:if="${param.error}" class="alert alert-danger">
-                                        Invalid email or password.
+                                            <span th:switch="${param.error[0]}">
+                                                <span th:case="'inactive'"> Your account has been deactivated. Please contact support.</span>
+                                                <span th:case="'true'"> Invalid email or password. Please try again.</span>
+                                            </span>
                                     </div>
 
                                     <!-- Form START -->
-                                    <form th:action="@{/login}" method="post" class="mt-4 text-start">
-                                        <!-- Email -->
+                                    <form id="login-form" th:action="@{/login}" method="post" class="mt-4 text-start">
+
+                                    <!-- Email -->
                                         <div class="mb-3">
                                             <label class="form-label">Enter email</label>
                                             <input type="email" name="username" class="form-control" required>
@@ -143,17 +147,8 @@
                                             <a th:href="@{/oauth2/authorization/google}" class="btn btn-light mb-0">
                                                 <i class="fab fa-fw fa-google text-google-icon me-2"></i>Login with Google
                                             </a>
-
-                                            <!--                                            <a th:href="@{/oauth2/authorization/facebook}" class="btn btn-light mb-0">-->
-                                            <!--                                                <i class="fab fa-fw fa-facebook-f text-facebook me-2"></i>Login with Facebook-->
-                                            <!--                                            </a>-->
                                         </div>
 
-                                        <!-- Footer -->
-                                        <div class="text-primary-hover text-body mt-3 text-center">
-                                            Copyrights ©2025 Booking. Build by
-                                            <a href="#" class="text-body">Cuong</a>.
-                                        </div>
                                     </form>
                                     <!-- Form END -->
 

@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="vi"> <!-- Changed lang to Vietnamese -->
+
+<!-- Mirrored from stackbros.in/Hamoraa/landing/join-us.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:07:12 GMT -->
+<head>
+    <title>Hamora - Giao Diện Đặt Phòng Trực Tuyến Đa Năng</title> <!-- Translated -->
+
+    <!-- Meta Tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="author" content="StackBros">
+    <meta name="description" content="Hamora - Giao Diện Đặt Phòng Trực Tuyến Đa Năng"> <!-- Translated -->
+
+    <!-- Dark mode -->
+    <script>
+        const storedTheme = localStorage.getItem('theme')
+
+        const getPreferredTheme = () => {
+            if (storedTheme) {
+                return storedTheme
+            }
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        }
+
+        const setTheme = function (theme) {
+            if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.setAttribute('data-bs-theme', 'dark')
+            } else {
+                document.documentElement.setAttribute('data-bs-theme', theme)
+            }
+        }
+
+        setTheme(getPreferredTheme())
+
+        window.addEventListener('DOMContentLoaded', () => {
+            var el = document.querySelector('.theme-icon-active');
+            if(el != 'undefined' && el != null) {
+                const showActiveTheme = theme => {
+                    const activeThemeIcon = document.querySelector('.theme-icon-active use')
+                    const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+                    const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
+
+                    document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+                        element.classList.remove('active')
+                    })
+
+                    btnToActive.classList.add('active')
+                    activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+                }
+
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                    if (storedTheme !== 'light' || storedTheme !== 'dark') {
+                        setTheme(getPreferredTheme())
+                    }
+                })
+
+                showActiveTheme(getPreferredTheme())
+
+                document.querySelectorAll('[data-bs-theme-value]')
+                    .forEach(toggle => {
+                        toggle.addEventListener('click', () => {
+                            const theme = toggle.getAttribute('data-bs-theme-value')
+                            localStorage.setItem('theme', theme)
+                            setTheme(theme)
+                            showActiveTheme(theme)
+                        })
+                    })
+
+            }
+        })
+
+    </script>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="assets/images/favicon.ico">
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Poppins:wght@400;500;700&display=swap">
+
+    <!-- Plugins CSS -->
+    <link rel="stylesheet" type="text/css" href="assets/vendor/font-awesome/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="assets/vendor/bootstrap-icons/bootstrap-icons.css">
+    <link rel="stylesheet" type="text/css" href="assets/vendor/tiny-slider/tiny-slider.css">
+    <!-- Theme CSS -->
+    <link rel="stylesheet" type="text/css" href="assets/css/style.css">
+
+</head>
+
+<body>
+
+<!-- Header START -->
+<div th:replace="~{common/header :: header}"></div><!-- Header END -->
+
+<!-- **************** MAIN CONTENT START **************** -->
+<main>
+
+    <!-- =======================
+    Main Banner START -->
+    <section class="pt-4 pt-md-5">
+        <div class="container">
+            <div class="row g-4 align-items-center">
+                <div class="col-lg-7">
+                    <!-- Title -->
+                    <h1 class="mb-4 display-5">Đăng Chỗ Nghỉ Của Bạn trên <span class="text-primary">Hamora</span></h1> <!-- Translated -->
+                    <!-- Info -->
+                    <p class="mb-4">Nhanh chóng nói rằng đã có sự sắp xếp phù hợp. Về sau, nghi ngờ dặm dài của đứa trẻ. Tập thể dục niềm vui người đàn ông trẻ em vui mừng.</p> <!-- Translated (Note: Original English seems like placeholder text, so translation might be odd) -->
+                    <!-- Button -->
+                     <div id="hostBtnContainer2">
+                        <a class="btn btn-primary-soft mb-4" id="registerHostBtn2">Thêm Chỗ Nghỉ <i class="fa-solid fa-arrow-right-long fa-fw"></i></a> <!-- Translated -->
+                     </div>
+                    <!-- List -->
+                    <h6 class="fw-normal mb-1">Tạo Chỗ Nghỉ Mới</h6> <!-- Translated -->
+                    <ul class="list-group list-group-borderless mb-0 small">
+                        <li class="list-group-item d-flex mb-0">
+                            <i class="fa-solid fa-check-circle text-success me-2 mt-1"></i>Hơn 5,1 triệu chỗ nghỉ cho thuê du lịch đã được đăng
+                        </li> <!-- Translated -->
+                        <li class="list-group-item d-flex mb-0">
+                            <i class="fa-solid fa-check-circle text-success me-2 mt-1"></i>Giường ngủ một người cho rằng bữa sáng trong ngày đã được hoàn thành tùy thuộc vào các câu hỏi.
+                        </li> <!-- Translated (Note: Original English seems like placeholder text) -->
+                        <li class="list-group-item d-flex mb-0">
+                            <i class="fa-solid fa-check-circle text-success me-2 mt-1"></i>Phần chênh lệch chi phí sẽ do khách hàng chịu trong trường hợp đó.
+                        </li> <!-- Translated -->
+                    </ul>
+                </div>
+                <!-- Image -->
+                <div class="col-lg-5 text-center">
+                    <img src="assets/images/element/join-us.svg" alt="Tham gia cùng chúng tôi"> <!-- Translated alt text -->
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- =======================
+    Main Banner END -->
+
+    <!-- =======================
+    Counter START -->
+    <section class="pt-0">
+        <div class="container">
+            <div class="row g-4 align-items-center">
+                <!-- Title -->
+                <div class="col-sm-6 col-md-3">
+                    <h4 class="mb-0">Số Liệu Toàn Cầu</h4> <!-- Translated -->
+                </div>
+
+                <!-- Counter item -->
+                <div class="col-sm-6 col-md-3">
+                    <div class="card card-body text-center bg-light">
+                        <div class="d-flex justify-content-center">
+                            <h3 class="purecounter text-orange mb-0" data-purecounter-start="0" data-purecounter-end="28"	data-purecounter-delay="300">0</h3>
+                            <span class="h3 text-orange mb-0">Tr+</span> <!-- Tr for Triệu (Million) -->
+                        </div>
+                        <h6 class="fw-normal mb-0">Tổng Số Người Dùng</h6> <!-- Translated -->
+                    </div>
+                </div>
+
+                <!-- Counter item -->
+                <div class="col-sm-6 col-md-3">
+                    <div class="card card-body text-center bg-light">
+                        <div class="d-flex justify-content-center">
+                            <h3 class="purecounter text-info mb-0" data-purecounter-start="0" data-purecounter-end="51"	data-purecounter-delay="300">0</h3>
+                            <span class="h3 text-info mb-0">Tr+</span> <!-- Tr for Triệu (Million) -->
+                        </div>
+                        <h6 class="fw-normal mb-0">Tổng Số Chỗ Nghỉ</h6> <!-- Translated -->
+                    </div>
+                </div>
+
+                <!-- Counter item -->
+                <div class="col-sm-6 col-md-3">
+                    <div class="card card-body text-center bg-light">
+                        <div class="d-flex justify-content-center">
+                            <h3 class="purecounter text-primary mb-0" data-purecounter-start="0" data-purecounter-end="41"	data-purecounter-delay="300">0</h3>
+                            <span class="h3 text-primary mb-0">+</span>
+                        </div>
+                        <h6 class="fw-normal mb-0">Ngôn Ngữ</h6> <!-- Translated -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- =======================
+    Counter END -->
+
+    <!-- =======================
+    Benefits START -->
+    <section class="pt-0 pt-md-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="bg-light p-4 p-sm-5 rounded-3">
+                        <!-- Title -->
+                        <h2 class="fs-3 text-center mb-4 mb-sm-5">Tại Sao Nên Hợp Tác Với Chúng Tôi</h2> <!-- Translated -->
+
+                        <div class="row g-4">
+                            <!-- Card START -->
+                            <div class="col-md-6">
+                                <div class="card card-body p-4">
+                                    <div><img src="assets/images/element/18.svg" class="h-70px mb-3" alt="Biểu tượng tài sản"></div> <!-- Generic alt -->
+                                    <h5>Đăng bất kỳ loại hình chỗ nghỉ nào</h5> <!-- Translated -->
+                                    <p class="mb-0">Nhanh chóng nói rằng đã có sự sắp xếp phù hợp. Về sau, nghi ngờ dặm dài của đứa trẻ. Tập thể dục niềm vui người đàn ông trẻ em vui mừng.</p> <!-- Translated (Note: Original English seems like placeholder text) -->
+                                </div>
+                            </div>
+                            <!-- Card END -->
+
+                            <!-- Card START -->
+                            <div class="col-md-6">
+                                <div class="card card-body p-4">
+                                    <div><img src="assets/images/element/21.svg" class="h-70px mb-3" alt="Biểu tượng nhập liệu"></div> <!-- Generic alt -->
+                                    <h5>Nhập chi tiết dễ dàng</h5> <!-- Translated -->
+                                    <p class="mb-0">Hai trước khi thu hẹp không dựa vào việc ngoại trừ khoảnh khắc bản thân. Sự thất vọng đảm bảo Bà đã dẫn dắt chắc chắn mở ra. Bị phản bội.</p> <!-- Translated (Note: Original English seems like placeholder text) -->
+                                </div>
+                            </div>
+                            <!-- Card END -->
+
+                            <!-- Card START -->
+                            <div class="col-md-6">
+                                <div class="card card-body p-4">
+                                    <div><img src="assets/images/element/19.svg" class="h-70px mb-3" alt="Biểu tượng hướng dẫn"></div> <!-- Generic alt -->
+                                    <h5>Hướng dẫn từng bước</h5> <!-- Translated -->
+                                    <p class="mb-0">Phòng ốc ôi thôi đã hoàn toàn bị chiếm bởi điều tồi tệ hơn. Điểm sợ hãi nhưng có thể kết thúc luật. Điểm sợ hãi nhưng có thể kết thúc luật.</p> <!-- Translated (Note: Original English seems like placeholder text) -->
+                                </div>
+                            </div>
+                            <!-- Card END -->
+
+                            <!-- Card START -->
+                            <div class="col-md-6">
+                                <div class="card card-body p-4">
+                                    <div><img src="assets/images/element/20.svg" class="h-70px mb-3" alt="Biểu tượng giảm giá"></div> <!-- Generic alt -->
+                                    <h5>Giảm giá tuyệt vời</h5> <!-- Translated -->
+                                    <p class="mb-0">Những người tiềm năng nên bắt đầu một cách rộng rãi và sau đó thu hẹp danh sách của họ xuống các trường đại học phù hợp nhất với các chuyên gia</p> <!-- Translated -->
+                                </div>
+                            </div>
+                            <!-- Card END -->
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- =======================
+    Benefits END -->
+
+    <!-- =======================
+    Testimonials START -->
+    <section>
+        <div class="container">
+            <div class="row justify-content-between mb-5">
+                <!-- Title -->
+                <div class="col-md-6">
+                    <h2 class="mb-0">Khách Hàng Nói Gì Về Hamora</h2> <!-- Translated -->
+                </div>
+                <!-- Info -->
+                <div class="col-md-5">
+                    <p class="mb-0">Vì nó tương phản đến vậy ôi công cụ ước tính. Kích thước như cơ thể ai đó đã có. Sự ra đi khiếm khuyết sắp xếp say đắm đã làm. Hành vi từ chối thêm vào điều đáng giá nhỏ bé.</p> <!-- Translated (Note: Original English seems like placeholder text) -->
+                </div>
+            </div>
+
+            <div class="row">
+
+                <div class="col-lg-3">
+
+                </div>
+
+
+                <!-- Testimonials START -->
+                <div class="col-lg-9">
+                    <div class="tiny-slider arrow-round arrow-blur arrow-hover">
+                        <div class="tiny-slider-inner" data-autoplay="true" data-arrow="true" data-dots="false" data-items="1">
+                            <!-- Slider item START -->
+                            <div>
+                                <div class="row g-4">
+                                    <!-- Image -->
+                                    <div class="col-md-4">
+                                        <img src="assets/images/team/09.jpg" class="rounded" alt="Lori Stevens"> <!-- Translated alt text -->
+                                    </div>
+                                    <!-- Content -->
+                                    <div class="col-md-8">
+                                        <div class="d-flex">
+                                            <!-- Quotation -->
+                                            <span class="display-5 opacity-2"><i class="bi bi-quote"></i></span>
+                                            <!-- Content -->
+                                            <div class="ms-3">
+                                                <h5 class="mb-3 text-primary">Công việc tuyệt vời được thực hiện bởi Hamora</h5> <!-- Translated -->
+                                                <p class="mb-3">Kích thước như cơ thể ai đó đã có. Sự ra đi khiếm khuyết sắp xếp say đắm đã làm. Nhanh chóng nói rằng đã có sự sắp xếp phù hợp. Về sau, nghi ngờ dặm dài của đứa trẻ. Tập thể dục niềm vui người đàn ông trẻ em vui mừng. Hành vi từ chối thêm vào điều đáng giá nhỏ bé. Sự ra đi khiếm khuyết sắp xếp say đắm đã làm. Hành vi từ chối thêm vào điều đáng giá nhỏ bé.</p> <!-- Translated (Note: Original English seems like placeholder text) -->
+
+                                                <h6 class="mb-0">Lori Stevens</h6>
+                                                <small>CEO của Blogzine</small> <!-- Translated -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Slider item end -->
+
+                            <!-- Slider item START -->
+                            <div>
+                                <div class="row g-4">
+                                    <!-- Image -->
+                                    <div class="col-md-4">
+                                        <img src="assets/images/team/06.jpg" class="rounded" alt="Dennis Barrett"> <!-- Translated alt text -->
+                                    </div>
+                                    <!-- Content -->
+                                    <div class="col-md-8">
+                                        <div class="d-flex">
+                                            <!-- Quotation -->
+                                            <span class="display-5 opacity-2"><i class="bi bi-quote"></i></span>
+                                            <!-- Content -->
+                                            <div class="ms-3">
+                                                <h5 class="mb-3 text-primary">Công việc tuyệt vời được thực hiện bởi Hamora</h5> <!-- Translated -->
+                                                <p class="mb-3">Kích thước như cơ thể ai đó đã có. Sự ra đi khiếm khuyết sắp xếp say đắm đã làm. Nhanh chóng nói rằng đã có sự sắp xếp phù hợp. Về sau, nghi ngờ dặm dài của đứa trẻ. Tập thể dục niềm vui người đàn ông trẻ em vui mừng. Hành vi từ chối thêm vào điều đáng giá nhỏ bé. Sự ra đi khiếm khuyết sắp xếp say đắm đã làm. Hành vi từ chối thêm vào điều đáng giá nhỏ bé.</p> <!-- Translated (Note: Original English seems like placeholder text) -->
+
+                                                <h6 class="mb-0">Dennis Barrett</h6>
+                                                <small>CEO của Wizixo</small> <!-- Translated -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Slider item end -->
+
+                        </div>
+                    </div>
+                </div>
+                <!-- Testimonials END -->
+            </div>
+
+        </div>
+    </section>
+    <!-- =======================
+    Testimonials END -->
+
+    <!-- =======================
+    Action box START -->
+    <section>
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-12">
+                    <!-- Action box START -->
+                    <div class="card card-body shadow p-4">
+                        <div class="row g-4 justify-content-between align-items-center">
+                            <!-- Image -->
+                            <div class="col-sm-3 col-lg-2">
+                                <img src="assets/images/element/22.svg" alt="Biểu tượng lựa chọn"> <!-- Generic alt -->
+                            </div>
+
+                            <!-- Title and content -->
+                            <div class="col-sm-9 col-lg-6 col-xl-7">
+                                <h4>Tại sao bạn chọn chúng tôi</h4> <!-- Translated -->
+                                <p class="mb-0">Nước đúng lúc điên rồ nhận biết nếu ôi sự thật. Lớn ở trên là để có nghĩa. Dashwood cung cấp mạnh mẽ hơn là.</p> <!-- Translated (Note: Original English seems like placeholder text) -->
+                            </div>
+
+                            <!-- Button -->
+                            <div class="col-lg-3 col-xxl-2 d-grid" id="hostBtnContainer">
+                                <a class="btn btn-primary mb-0" id="registerHostBtn">Trở Thành Chủ Nhà</a>
+                            </div>
+
+                            <script th:inline="javascript">
+                                const isLoggedIn = /*[[${session.user != null}]]*/ false;
+
+                                const registerBtn = document.getElementById("registerHostBtn");
+                                const container = document.getElementById("hostBtnContainer");
+
+                                registerBtn.addEventListener("click", function (e) {
+                                    e.preventDefault();
+                                    if (isLoggedIn) {
+                                        window.location.href = "/register-host";
+                                    } else {
+                                        container.innerHTML = `
+                <a href="/login" class="btn btn-warning mb-0">Vui lòng đăng nhập</a>
+            `;
+                                    }
+                                });
+
+                                const registerBtn2 = document.getElementById('registerHostBtn2');
+                                const container2 = document.getElementById("hostBtnContainer2");
+
+                                registerBtn2.addEventListener("click", function (e) {
+                                    e.preventDefault();
+                                    if (isLoggedIn) {
+                                        window.location.href = "/register-host";
+                                    } else {
+                                        container2.innerHTML = `
+                <a href="/login" class="btn btn-warning mb-0">Vui lòng đăng nhập</a>
+            `;
+                                    }
+                                });                              
+                            </script>
+
+                        </div>
+                    </div>
+                    <!-- Action box END -->
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- =======================
+    Action box END -->
+
+</main>
+<!-- **************** MAIN CONTENT END **************** -->
+
+<!-- =======================
+Footer START -->
+<div th:replace="~{common/footer :: footer}"></div>
+<!-- =======================
+Footer END -->
+
+<!-- Back to top -->
+<div class="back-top"></div>
+
+<!-- Bootstrap JS -->
+<script src="assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Vendors -->
+<script src="assets/vendor/tiny-slider/tiny-slider.js"></script>
+<script src="assets/vendor/purecounterjs/dist/purecounter_vanilla.html"></script>
+
+<!-- ThemeFunctions -->
+<script src="assets/js/functions.js"></script>
+
+</body>
+
+<!-- Mirrored from stackbros.in/Hamoraa/landing/join-us.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:07:14 GMT -->
+</html>

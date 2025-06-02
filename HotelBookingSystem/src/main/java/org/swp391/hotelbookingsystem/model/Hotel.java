@@ -4,7 +4,6 @@ import lombok.*;
 
 import java.math.BigDecimal;
 
-@ToString
 @Builder
 @Data
 @AllArgsConstructor
@@ -20,6 +19,7 @@ public class Hotel {
     private double rating;
     private BigDecimal latitude;
     private BigDecimal longitude;
+    private String policy;
 
     private String cityName; // Added field for city name
     private BigDecimal minPrice; // For the minimum room price

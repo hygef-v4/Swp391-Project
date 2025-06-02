@@ -20,4 +20,10 @@ public class LocationService {
         if(locationId == -1) return locationRepository.getAllLocations();
         return locationRepository.getLocation(locationId);
     }
+
+    public List<Location> getTop5Locations() {
+        List<Location> allLocations = locationRepository.getAllLocations();
+        return allLocations.size() > 5 ? allLocations.subList(0, 5) : allLocations;
+    }
+
 }

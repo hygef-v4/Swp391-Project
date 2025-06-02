@@ -1,7 +1,10 @@
 package org.swp391.hotelbookingsystem.controller;
 
-import org.swp391.hotelbookingsystem.repository.UserRepo;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import org.swp391.hotelbookingsystem.model.User;
+import org.swp391.hotelbookingsystem.repository.UserRepo;
+import org.swp391.hotelbookingsystem.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -13,6 +16,9 @@ public class RegisterController {
 
     @Autowired
     private UserRepo userRepo;
+
+    @Autowired
+    private EmailService emailService;
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -26,7 +32,10 @@ public class RegisterController {
             @RequestParam("email") String email,
             @RequestParam("password") String password,
             @RequestParam("confirmPassword") String confirmPassword,
-            Model model) {
+            @RequestParam("fullname") String fullname,
+            Model model,
+            HttpSession session) {
+
 
         if (email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
             model.addAttribute("error", "All fields are required.");
@@ -43,13 +52,28 @@ public class RegisterController {
             return "page/register";
         }
 
+        if (!fullname.matches("^[\\p{L} '\\-]+$")) {
+            model.addAttribute("error", "Full name must not contain special characters.");
+            return "page/register";
+        }
+
         String hashedPassword = passwordEncoder.encode(password);
+        User existingUser = userRepo.findByEmail(email);
+
+        if (existingUser != null) {
+            model.addAttribute("error", "Email already exists.");
+            return "page/register";
+        }
+
+        String otp = String.valueOf((int) (Math.random() * 900000) + 100000);
+        emailService.sendOtpEmail(email, otp);
+        userRepo.saveEmailOtpToken(email, otp);
 
         User user = new User(email, hashedPassword);
-        userRepo.saveUser(user);
+        user.setFullname(fullname);
+        session.setAttribute("user", user);
 
-        model.addAttribute("email", email);
+        return "page/verify-email-otp";
 
-        return "redirect:/login";
     }
 }

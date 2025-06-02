@@ -104,7 +104,7 @@
                     <!-- Password -->
                     <div class="mb-3 position-relative">
                       <label class="form-label">Enter password</label>
-                      <input type="password" name="password" class="form-control fakepassword" id="psw-input" required>
+                      <input type="password" name="password" class="form-control fakepassword" id="psw-input" minlength="8" required>
                       <span class="position-absolute top-50 end-0 translate-middle-y p-0 mt-3">
                         <i class="fakepasswordicon fas fa-eye-slash cursor-pointer p-2"></i>
                       </span>
@@ -113,7 +113,13 @@
                     <!-- Confirm Password -->
                     <div class="mb-3">
                       <label class="form-label">Confirm Password</label>
-                      <input type="password" name="confirmPassword" class="form-control" required>
+                      <input type="password" name="confirmPassword" class="form-control" minlength="8" required>
+                    </div>
+
+                    <!-- Full Name -->
+                    <div class="mb-3">
+                      <label class="form-label">Full Name</label>
+                      <input type="text" name="fullname" class="form-control" required>
                     </div>
 
                     <!-- Submit -->
@@ -130,12 +136,6 @@
                       <a th:href="@{/oauth2/authorization/google}" class="btn btn-light mb-0">
                         <i class="fab fa-fw fa-google text-google-icon me-2"></i>Login with Google
                       </a>
-                    </div>
-
-                    <!-- Footer -->
-                    <div class="text-primary-hover text-body mt-3 text-center">
-                      Copyrights ©2025 Booking. Build by
-                      <a href="#" class="text-body">Cuong</a>.
                     </div>
                   </form>
                   <!-- Register Form END -->

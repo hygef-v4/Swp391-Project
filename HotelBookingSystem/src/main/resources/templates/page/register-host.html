@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Đăng Ký Khách Sạn Của Bạn - Booking</title>
+
+    <!-- Meta Tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="author" content="StackBros">
+    <meta name="description" content="Đăng ký khách sạn của bạn và bắt đầu cho thuê phòng trên Booking.">
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin=""/>
+
+    <!-- Dark mode -->
+    <script>
+        const storedTheme = localStorage.getItem('theme')
+
+        const getPreferredTheme = () => {
+            if (storedTheme) {
+                return storedTheme
+            }
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        }
+
+        const setTheme = function (theme) {
+            if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.setAttribute('data-bs-theme', 'dark')
+            } else {
+                document.documentElement.setAttribute('data-bs-theme', theme)
+            }
+        }
+
+        setTheme(getPreferredTheme())
+
+        window.addEventListener('DOMContentLoaded', () => {
+            var el = document.querySelector('.theme-icon-active');
+            if (el != 'undefined' && el != null) {
+                const showActiveTheme = theme => {
+                    const activeThemeIcon = document.querySelector('.theme-icon-active use')
+                    const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+                    const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
+
+                    document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+                        element.classList.remove('active')
+                    })
+
+                    btnToActive.classList.add('active')
+                    activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+                }
+
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                    if (storedTheme !== 'light' || storedTheme !== 'dark') {
+                        setTheme(getPreferredTheme())
+                    }
+                })
+
+                showActiveTheme(getPreferredTheme())
+
+                document.querySelectorAll('[data-bs-theme-value]')
+                    .forEach(toggle => {
+                        toggle.addEventListener('click', () => {
+                            const theme = toggle.getAttribute('data-bs-theme-value')
+                            localStorage.setItem('theme', theme)
+                            setTheme(theme)
+                            showActiveTheme(theme)
+                        })
+                    })
+
+            }
+        })
+
+    </script>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="assets/images/favicon.ico">
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Poppins:wght@400;500;700&display=swap">
+
+    <!-- Plugins CSS -->
+    <link rel="stylesheet" type="text/css" href="assets/vendor/font-awesome/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="assets/vendor/bootstrap-icons/bootstrap-icons.css">
+    <link rel="stylesheet" type="text/css" href="assets/vendor/choices/css/choices.min.css">
+    <link rel="stylesheet" type="text/css" href="assets/vendor/stepper/css/bs-stepper.min.css">
+    <link rel="stylesheet" type="text/css" href="assets/vendor/quill/css/quill.snow.css">
+    <link rel="stylesheet" type="text/css" href="assets/vendor/dropzone/css/dropzone.css">
+
+
+    <!-- Theme CSS -->
+    <link rel="stylesheet" type="text/css" href="assets/css/style.css">
+    <style>
+        /* Ensure map has a height */
+        #hotelLocationMap {
+            height: 350px; /* You can adjust this height */
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 0.25rem;
+        }
+
+        /* Corrected map container ID for styling if needed */
+        #interactiveHotelMap {
+            height: 300px; /* Or whatever height you set in the HTML */
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 0.25rem;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- Header START -->
+<div th:replace="~{common/header :: header}"></div>
+<!-- Header END -->
+
+<!-- **************** MAIN CONTENT START **************** -->
+<main>
+
+    <!-- =======================
+    Page Banner START -->
+    <section class="pt-4 pt-md-5 pb-0">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <h1 class="fs-2 mb-2">Đăng Ký Khách Sạn Của Bạn</h1>
+                    <p class="mb-0">Chia sẻ thông tin khách sạn của bạn và bắt đầu tiếp cận hàng triệu khách hàng. Chúng
+                        tôi sẽ hướng dẫn bạn qua từng bước.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- =======================
+    Page Banner END -->
+
+    <!-- =======================
+    Steps START -->
+    <section>
+        <div class="container">
+            <div id="hostStepper" class="bs-stepper stepper-outline">
+                <!-- Step Buttons START -->
+                <div class="bs-stepper-header" role="tablist">
+                    <!-- Step 1 -->
+                    <div class="step" data-target="#step-hotel-1">
+                        <div class="text-center">
+                            <button type="button" class="btn btn-link step-trigger mb-0" role="tab"
+                                    id="stepperHotelTrigger1" aria-controls="step-hotel-1">
+                                <span class="bs-stepper-circle">1</span>
+                            </button>
+                            <h6 class="bs-stepper-label d-none d-md-block">Thông Tin Khách Sạn</h6>
+                        </div>
+                    </div>
+                    <div class="line"></div>
+
+                    <!-- Step 2 -->
+                    <div class="step" data-target="#step-hotel-2">
+                        <div class="text-center">
+                            <button type="button" class="btn btn-link step-trigger mb-0" role="tab"
+                                    id="stepperHotelTrigger2" aria-controls="step-hotel-2">
+                                <span class="bs-stepper-circle">2</span>
+                            </button>
+                            <h6 class="bs-stepper-label d-none d-md-block">Chi Tiết Loại Phòng Cơ Bản</h6>
+                        </div>
+                    </div>
+                    <div class="line"></div>
+
+                    <!-- Step 3 -->
+                    <div class="step" data-target="#step-hotel-3">
+                        <div class="text-center">
+                            <button type="button" class="btn btn-link step-trigger mb-0" role="tab"
+                                    id="stepperHotelTrigger3" aria-controls="step-hotel-3">
+                                <span class="bs-stepper-circle">3</span>
+                            </button>
+                            <h6 class="bs-stepper-label d-none d-md-block">Chính Sách & Đăng Ký</h6>
+                        </div>
+                    </div>
+                </div>
+                <!-- Step Buttons END -->
+
+                <!-- Step content START -->
+                <div class="bs-stepper-content p-0 pt-4 pt-md-5">
+                    <form th:action="@{/register-host}" method="POST" enctype="multipart/form-data">
+
+                        <!-- Step 1 content START: Hotel Information -->
+                        <div id="step-hotel-1" role="tabpanel" class="content fade"
+                             aria-labelledby="stepperHotelTrigger1">
+                            <div class="vstack gap-4">
+                                <h4 class="mb-0">Cung cấp thông tin về khách sạn của bạn</h4>
+
+                                <!-- Hotel Basic Information -->
+                                <div class="card shadow">
+                                    <div class="card-header border-bottom">
+                                        <h5 class="mb-0">Thông Tin Cơ Bản Khách Sạn</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="col-12 mb-3">
+                                            <label class="form-label">Tên khách sạn của bạn *</label>
+                                            <input class="form-control" type="text"
+                                                   placeholder="Ví dụ: Khách Sạn Sen Vàng" id="hotelName"
+                                                   name="hotelName">
+
+                                        </div>
+                                        <div class="col-12 mb-3">
+                                            <label for="hotelDescription" class="form-label">Mô tả về khách sạn của bạn
+                                                *</label>
+                                            <textarea id="hotelDescription" name="hotelDescription" class="form-control"
+                                                      rows="5"></textarea>
+
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Ảnh đại diện khách sạn *</label>
+
+                                            <div class="dropzone dropzone-custom"
+                                                 data-dropzone='{"maxFiles": 1, "addRemoveLinks": true, "acceptedFiles": "image/*"}'
+                                                 id="hotelMainImage">
+                                                <div class="dz-message needsclick">
+                                                    <i class="bi bi-image-fill display-3"></i>
+                                                    <p>Kéo thả một ảnh hoặc nhấp để tải lên.</p>
+                                                </div>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label for="hotelImageUpload" class="form-label">Hoặc chọn ảnh từ máy
+                                                    tính của bạn</label>
+                                                <!--                                                upload file here-->
+                                                <input  class="form-control" type="file" id="hotelImageUpload"
+                                                       name="hotelImage" accept="image/*">
+                                                <small class="form-text text-muted">Chọn ảnh JPG/PNG từ thiết
+                                                    bị.</small>
+                                            </div>
+
+                                            <!--  Preview and hidden input -->
+                                            <img id="imagePreview" src=""
+                                                 style="max-width: 300px; display:none; margin-top:10px;"/>
+                                            <input type="hidden" id="imageUrl" name="imageUrl">
+
+                                            <small>Ảnh này sẽ là ảnh chính cho khách sạn của bạn.</small>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <!-- Hotel Location -->
+                                <div class="card shadow">
+                                    <div class="card-header border-bottom">
+                                        <h5 class="mb-0">Vị Trí Khách Sạn</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-12">
+                                                <label class="form-label" for="hotelAddress">Địa chỉ khách sạn *</label>
+                                                <input class="form-control" type="text"
+                                                       placeholder="Ví dụ: 123 Đường ABC, Phường XYZ, Quận 1"
+                                                       name="hotelAddress" id="hotelAddress">
+                                                <small>Địa chỉ chính xác sẽ giúp khách hàng tìm thấy bạn. Nhập địa chỉ
+                                                    có thể giúp định vị bản đồ.</small>
+                                            </div>
+
+                                            <div class="col-md">
+                                                <label class="form-label" for="hotelLocation">Khu vực/Địa điểm *</label>
+                                                <select class="form-select js-choice" id="hotelLocation"
+                                                        name="hotelLocationId" data-search-enabled="true">
+                                                    <option value="">Chọn địa điểm</option>
+                                                    <!--/* Iterate over locations from the model */-->
+                                                    <th:block th:each="location : ${session.locations}">
+                                                        <option th:value="${location.id}"
+                                                                th:text="${location.cityName}">Location Name
+                                                        </option>
+                                                    </th:block>
+                                                </select>
+                                            </div>
+
+                                            <!-- Interactive Map Integration START -->
+                                            <div class="col-12 mt-3">
+                                                <label class="form-label">Chọn vị trí trên bản đồ hoặc nhập tọa độ thủ
+                                                    công:</label>
+                                                <div id="interactiveHotelMap">
+                                                    <!-- Map will be initialized here by Leaflet -->
+                                                </div>
+                                                <small class="form-text text-muted">Kéo thả ghim hoặc nhấp vào bản đồ để
+                                                    chọn vị trí. Tọa độ sẽ tự động cập nhật bên dưới.</small>
+                                            </div>
+                                            <!-- Interactive Map Integration END -->
+
+                                            <!-- Manual Latitude and Longitude Input START -->
+                                            <div class="col-md-6 mt-2">
+                                                <label for="hotelLatitudeManual" class="form-label">Vĩ độ
+                                                    (Latitude)</label>
+                                                <input type="text" class="form-control" id="hotelLatitudeManual"
+                                                       name="hotelLatitude" placeholder="Ví dụ: 21.028511">
+                                            </div>
+                                            <div class="col-md-6 mt-2">
+                                                <label for="hotelLongitudeManual" class="form-label">Kinh độ
+                                                    (Longitude)</label>
+                                                <input type="text" class="form-control" id="hotelLongitudeManual"
+                                                       name="hotelLongitude" placeholder="Ví dụ: 105.854167">
+                                            </div>
+                                            <div class="col-12">
+                                                <small class="form-text text-muted">
+                                                    Tọa độ sẽ được cập nhật từ bản đồ, hoặc bạn có thể nhập thủ công.
+                                                </small>
+                                            </div>
+                                            <!-- Manual Latitude and Longitude Input END -->
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <button class="btn btn-primary next-btn mb-0">Tiếp Theo</button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Step 1 content END -->
+
+                        <!-- Step 2 content START: Initial Room Type Details -->
+                        <div id="step-hotel-2" role="tabpanel" class="content fade"
+                             aria-labelledby="stepperHotelTrigger2">
+                            <div class="vstack gap-4">
+                                <h4 class="mb-0">Thiết lập loại phòng đầu tiên của bạn</h4>
+                                <p>Bạn có thể thêm nhiều loại phòng khác sau khi khách sạn được đăng ký.</p>
+
+                                <!-- Room Details -->
+                                <div class="card shadow">
+                                    <div class="card-header border-bottom">
+                                        <h5 class="mb-0">Thông Tin Loại Phòng</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label for="roomCategory" class="form-label">Loại phòng (Hạng phòng)
+                                                    *</label>
+                                                <select name="roomTypeId" required class="form-select js-choice"
+                                                        id="roomCategory">
+                                                    <option value="">Chọn loại phòng</option>
+                                                    <option th:each="type : ${session.roomTypes}"
+                                                            th:value="${type.roomTypeId}"
+                                                            th:text="${type.name}"
+                                                    >
+                                                    </option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Tên/Tiêu đề phòng *</label>
+                                                <input type="text" class="form-control"
+                                                       placeholder="Ví dụ: Phòng Standard giường đôi hướng phố"
+                                                       name="roomTitle" id="roomTitle">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Số khách tối đa / phòng *</label>
+                                                <input name="roomMaxGuests" type="number" class="form-control"
+                                                       placeholder="Số lượng khách"
+                                                       min="1" id="roomMaxGuests">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Số lượng phòng loại này *</label>
+                                                <input type="number" class="form-control" placeholder="Số lượng" min="1"
+                                                       name="roomQuantity" id="roomQuantity">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Giá mỗi đêm (VND) *</label>
+                                                <input type="number" class="form-control" placeholder="Giá phòng"
+                                                       name="roomPrice" min="0" id="roomPrice">
+                                            </div>
+                                            <div class="col-12">
+                                                <label class="form-label" for="roomDescription">Mô tả chi tiết về loại
+                                                    phòng này *</label>
+                                                <textarea id="roomDescription" name="roomDescription"
+                                                          class="form-control" rows="5" required
+                                                          placeholder="Mô tả về kích thước phòng, loại giường, tầm nhìn, và các đặc điểm nổi bật khác.">
+</textarea>
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Room Amenities -->
+                                <div class="card shadow">
+                                    <div class="card-header border-bottom">
+                                        <h5 class="mb-0">Tiện Nghi Phòng</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <label class="form-label mb-3">Chọn các tiện nghi có trong loại phòng
+                                            này:</label>
+
+<!--                                        Map.Entry<String, List<Amenity>> entry : groupedAmenities.entrySet()-->
+                                        <div th:each="entry : ${groupedAmenities}">
+                                            <h6 class="fw-bold mb-2" th:text="${entry.key}">Tên danh mục</h6>
+                                            <div class="row">
+                                                <div class="col-sm-6 col-md-4" th:each="amenity : ${entry.value}">
+                                                    <div class="form-check mb-2">
+                                                        <input class="form-check-input"
+                                                               type="checkbox"
+                                                               th:id="'amenity-' + ${amenity.amenityId}"
+                                                               th:name="amenities"
+                                                               th:value="${amenity.amenityId}"/>
+                                                        <label class="form-check-label"
+                                                               th:for="'amenity-' + ${amenity.amenityId}"
+                                                               th:text="${amenity.name}"></label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <hr class="my-3"/>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Room Photos -->
+                                <div class="card shadow">
+                                    <div class="card-header border-bottom">
+                                        <h5 class="mb-0">Hình Ảnh Loại Phòng</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <label class="form-label">Tải lên hình ảnh cho loại phòng này (ít nhất 3 ảnh)
+                                            *</label>
+                                        <div class="dropzone dropzone-custom"
+                                             data-dropzone='{"maxFiles": 10, "addRemoveLinks": true, "acceptedFiles": "image/*"}'
+                                             id="roomImages">
+                                            <div class="dz-message needsclick">
+                                                <i class="bi bi-images display-3"></i>
+                                                <p>Kéo thả tệp vào đây hoặc nhấp để tải lên.</p>
+                                            </div>
+                                        </div>
+                                        <div class="mt-3">
+                                            <label for="roomImageUpload" class="form-label">Hoặc chọn ảnh từ máy tính
+                                                của bạn</label>
+                                            <input class="form-control" type="file" id="roomImageUpload"
+                                                 name="roomImageFiles"  accept="image/*" multiple>
+                                            <small>Chọn nhiều ảnh JPG/PNG từ thiết bị của bạn.</small>
+                                            <div id="roomImagePreviewContainer"
+                                                 class="mt-3 d-flex flex-wrap gap-2"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="hstack gap-2 flex-wrap justify-content-between">
+                                <button class="btn btn-secondary prev-btn mb-0">Trước</button>
+                                <button class="btn btn-primary next-btn mb-0">Tiếp Theo</button>
+                            </div>
+                        </div>
+                        <!-- Step 2 content END -->
+
+                        <!-- Step 3 content START: Policies & Registration -->
+                        <div id="step-hotel-3" role="tabpanel" class="content fade"
+                             aria-labelledby="stepperHotelTrigger3">
+                            <div class="vstack gap-4">
+                                <h4 class="mb-0">Chính sách khách sạn và hoàn tất đăng ký</h4>
+
+                                <!-- Hotel Policies / House Rules -->
+                                <div class="card shadow">
+                                    <div class="card-header border-bottom">
+                                        <h5 class="mb-0">Nội Quy & Chính Sách Khách Sạn</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <label class="form-label">Quy định chung cho khách (ví dụ: giờ nhận/trả phòng,
+                                            chính
+                                            sách hút thuốc, vật nuôi, hủy phòng...)</label>
+                                        <textarea name="hotelPolicies" class="form-control" rows="5"
+                                                  placeholder="Ví dụ: Giờ nhận phòng: 14:00, Giờ trả phòng: 12:00. Không hút thuốc trong phòng. Cho phép vật nuôi nhỏ với phụ phí..."
+                                                  id="hotelPolicies"></textarea>
+                                    </div>
+                                </div>
+
+
+
+                                <!-- Summary Review -->
+                                <div class="card shadow">
+                                    <div class="card-header border-bottom">
+                                        <h5 class="mb-0">Xem Lại Thông Tin Đăng Ký</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <p>Vui lòng kiểm tra lại tất cả thông tin bạn đã cung cấp. Bạn có thể quay lại
+                                            các bước
+                                            trước để chỉnh sửa nếu cần.</p>
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item"><strong>Tên khách sạn:</strong> <span
+                                                    id="summaryHotelName">[Sẽ hiển thị ở đây]</span></li>
+                                            <li class="list-group-item"><strong>Địa chỉ:</strong> <span
+                                                    id="summaryHotelAddress">[Sẽ hiển thị ở đây]</span></li>
+                                            <li class="list-group-item"><strong>Thành phố:</strong> <span
+                                                    id="summaryHotelCity">[Sẽ hiển thị ở đây]</span>
+                                            </li>
+                                            <li class="list-group-item"><strong>Vĩ độ:</strong> <span
+                                                    id="summaryLatitude">[Sẽ hiển thị ở đây]</span>
+                                            </li>
+                                            <li class="list-group-item"><strong>Kinh độ:</strong> <span
+                                                    id="summaryLongitude">[Sẽ hiển thị ở đây]</span>
+                                            </li>
+                                            <li class="list-group-item"><strong>Loại phòng cơ bản:</strong> <span
+                                                    id="summaryRoomTitle">[Sẽ hiển thị ở đây]</span></li>
+                                            <li class="list-group-item"><strong>Giá phòng cơ bản:</strong> <span
+                                                    id="summaryRoomPrice">[Sẽ hiển thị ở đây]</span> VND
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Terms and Conditions -->
+                                <div class="card shadow">
+                                    <div class="card-header border-bottom">
+                                        <h5 class="mb-0">Điều Khoản & Cam Kết</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="agreeTerms"
+                                                   required>
+                                            <label class="form-check-label" for="agreeTerms">
+                                                Tôi đồng ý với <a href="terms-of-service.html" target="_blank">Điều
+                                                khoản Dịch
+                                                vụ</a> và <a href="privacy-policy.html" target="_blank">Chính sách Bảo
+                                                mật</a>
+                                                của Booking.
+                                            </label>
+                                        </div>
+                                        <div class="form-check mt-2">
+                                            <input class="form-check-input" type="checkbox" value="" id="hostCommitment"
+                                                   required>
+                                            <label class="form-check-label" for="hostCommitment">
+                                                Tôi cam kết cung cấp thông tin chính xác, dịch vụ chất lượng và tuân thủ
+                                                các
+                                                tiêu chuẩn của Booking.
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="hstack gap-2 flex-wrap justify-content-between">
+                                    <button class="btn btn-secondary prev-btn mb-0">Trước</button>
+                                    <button type="submit" class="btn btn-success mb-0">Gửi Đăng Ký Khách Sạn</button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Step 3 content END -->
+
+                    </form>
+                </div>
+                <!-- Step content END -->
+            </div>
+        </div>
+    </section>
+    <!-- =======================
+    Steps END -->
+
+</main>
+<!-- **************** MAIN CONTENT END **************** -->
+
+<!-- =======================
+Footer START -->
+<div th:replace="~{common/footer :: footer}"></div>
+<!-- =======================
+Footer END -->
+
+<!-- Back to top -->
+<div class="back-top"></div>
+
+<!-- Bootstrap JS -->
+<script src="assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Vendors -->
+<script src="assets/vendor/choices/js/choices.min.js"></script>
+<script src="assets/vendor/stepper/js/bs-stepper.min.js"></script>
+<script src="assets/vendor/quill/js/quill.min.js"></script>
+<script src="assets/vendor/dropzone/js/dropzone.js"></script>
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""></script>
+<!-- ThemeFunctions -->
+<script src="assets/js/functions.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var stepperEl = document.querySelector('#hostStepper');
+        var stepper;
+
+
+        if (stepperEl) {
+            stepper = new Stepper(stepperEl, {
+                linear: false, // Set to true if you want to enforce step-by-step progression
+                animation: true
+            });
+        }
+
+
+        // Initialize Choices.js
+        var choiceElements = document.querySelectorAll('.js-choice');
+        choiceElements.forEach(function (el) {
+            const enableSearch = el.id === 'hotelLocation';
+            new Choices(el, {
+                searchEnabled: enableSearch,
+                itemSelectText: 'Nhấn để chọn',
+            });
+        });
+        // Finds all selects with .js-choice
+        // Enables search only for #hotelLocation
+        //   Adds placeholder text “Nhấn để chọn”
+
+        // --- Leaflet Map Integration ---
+        var map;
+        var marker;
+        const hotelLatInput = document.getElementById('hotelLatitudeManual');
+        const hotelLngInput = document.getElementById('hotelLongitudeManual');
+        const hotelAddressInput = document.getElementById('hotelAddress');
+        const hotelLocationSelect = document.getElementById('hotelLocation');
+        var mapInitialized = false;           //A flag to prevent the map from being initialized multiple times.
+        let geocodeDebounceTimer; // Timer for debouncing address input
+
+        // Define approximate bounds for Vietnam
+        // Southwest corner (e.g., Ca Mau peninsula) and Northeast corner (e.g., near Chinese border)
+        // You can get more precise bounds from http://bboxfinder.com/
+        const vietnamBounds = L.latLngBounds(        // bounding box for the whole country of Vietnam.
+            L.latLng(8.18, 102.14), // Southwest
+            L.latLng(23.39, 109.46)  // Northeast
+        );
+
+        function initializeHotelMap() {
+            if (mapInitialized || !document.getElementById('interactiveHotelMap')) return;
+
+            let defaultLat = 16.0479; // Approx center of Vietnam (Da Nang) for a broader initial view
+            let defaultLng = 108.2208;
+            let defaultZoom = 6;     // Zoom level to see most of Vietnam
+
+            // If existing lat/lng are provided and within Vietnam, use them
+            if (hotelLatInput && hotelLatInput.value && hotelLngInput && hotelLngInput.value) {
+                try {
+                    const latVal = parseFloat(hotelLatInput.value);
+                    const lngVal = parseFloat(hotelLngInput.value);
+                    if (!isNaN(latVal) && !isNaN(lngVal) && vietnamBounds.contains(L.latLng(latVal, lngVal))) {
+                        defaultLat = latVal;
+                        defaultLng = lngVal;
+                        defaultZoom = 15; // Zoom in closer if specific coords are given
+                    } else if (!isNaN(latVal) && !isNaN(lngVal)) {
+                        console.warn("Initial coordinates are outside Vietnam bounds. Using default.");
+                    }
+                } catch (e) {
+                    console.warn("Could not parse initial lat/lng from input fields.");
+                }
+            }
+
+            map = L.map('interactiveHotelMap', {
+                center: [defaultLat, defaultLng], // Set initial center
+                zoom: defaultZoom,                 // Set initial zoom
+                maxBounds: vietnamBounds,          // Restrict panning to these bounds
+                maxBoundsViscosity: 1.0,           // Make bounds completely solid
+                minZoom: 5                         // Prevent zooming out too far from Vietnam
+            });
+
+            // Set view again to ensure it respects bounds if center was slightly off
+            map.fitBounds(vietnamBounds); // This will try to fit Vietnam in view
+            // Then, if specific coords were given, zoom to them if they are within bounds
+            if (defaultZoom === 15) { // Indicates specific coords were likely used
+                map.setView([defaultLat, defaultLng], defaultZoom);
+            }
+
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            // Ensure initial marker position is within bounds
+            let initialMarkerPos = L.latLng(defaultLat, defaultLng);
+            if (!vietnamBounds.contains(initialMarkerPos)) {
+                initialMarkerPos = vietnamBounds.getCenter(); // Fallback to center of bounds
+            }
+
+            marker = L.marker(initialMarkerPos, {
+                draggable: true
+            }).addTo(map);
+
+
+            function updateLatLngInputs(latlng) {
+                if (hotelLatInput) hotelLatInput.value = latlng.lat.toFixed(6);      //Converts the latitude to a string with 6 decimal places
+                if (hotelLngInput) hotelLngInput.value = latlng.lng.toFixed(6);
+            }
+
+            marker.on('dragend', function (event) {
+                const newPos = marker.getLatLng();
+                // Snap marker back inside bounds if dragged out (though maxBounds on map should mostly prevent this view)
+                if (!vietnamBounds.contains(newPos)) {
+                    marker.setLatLng(vietnamBounds.closestLayerPoint(map.latLngToLayerPoint(newPos)));
+                }
+                updateLatLngInputs(marker.getLatLng());
+            });
+
+            // If the user clicks anywhere on the map, the marker jumps to that point.
+            //     Then updates the input fields with the clicked location
+            map.on('click', function (e) {
+                // Click event latlng should already be within map's maxBounds
+                marker.setLatLng(e.latlng);
+                updateLatLngInputs(e.latlng);
+            });
+
+
+            if (hotelLatInput && hotelLngInput && (!hotelLatInput.value || !hotelLngInput.value || !vietnamBounds.contains(L.latLng(parseFloat(hotelLatInput.value), parseFloat(hotelLngInput.value))))) {
+                updateLatLngInputs(marker.getLatLng());
+            }
+            mapInitialized = true;
+        }
+
+        // Function to display address suggestions
+        function displayAddressSuggestions(results) {
+            addressSuggestionsContainer.innerHTML = ''; // Clear old suggestions
+            if (results && results.length > 0) {
+                results.forEach(place => {
+                    const item = document.createElement('a'); // Use <a> for list-group-item-action
+                    item.href = '#'; // Prevent page jump
+                    item.classList.add('list-group-item', 'list-group-item-action');
+                    item.textContent = place.display_name;
+                    item.setAttribute('data-lat', place.lat); // Store lat/lon for direct use
+                    item.setAttribute('data-lon', place.lon);
+
+                    item.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        hotelAddressInput.value = this.textContent; // Use display_name for input
+                        addressSuggestionsContainer.style.display = 'none';
+                        addressSuggestionsContainer.innerHTML = '';
+
+                        const lat = parseFloat(this.getAttribute('data-lat'));
+                        const lon = parseFloat(this.getAttribute('data-lon'));
+
+                        if (!isNaN(lat) && !isNaN(lon) && vietnamBounds.contains(L.latLng(lat, lon))) {
+                            map.setView([lat, lon], 15); // Zoom in closer
+                            marker.setLatLng([lat, lon]);
+                            if (hotelLatInput) hotelLatInput.value = lat.toFixed(6);
+                            if (hotelLngInput) hotelLngInput.value = lon.toFixed(6);
+                            map.lastGeocodedQuery = this.textContent; // Update context
+                        } else {
+                            // Fallback if suggestion data is incomplete or out of bounds
+                            geocodeAddressAndSetMap();
+                        }
+                    });
+                    addressSuggestionsContainer.appendChild(item);
+                });
+                addressSuggestionsContainer.style.display = 'block';
+            } else {
+                addressSuggestionsContainer.style.display = 'none';
+            }
+        }
+
+        // Function to fetch address suggestions
+        function fetchAddressSuggestions(inputValue) {
+            if (inputValue.length < 3) { // Don't search for very short strings
+                addressSuggestionsContainer.style.display = 'none';
+                addressSuggestionsContainer.innerHTML = '';
+                return;
+            }
+            const vnViewbox = `${vietnamBounds.getWest()},${vietnamBounds.getSouth()},${vietnamBounds.getEast()},${vietnamBounds.getNorth()}`;
+            const nominatimSuggestUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(inputValue)}&limit=5&countrycodes=vn&viewbox=${vnViewbox}&bounded=1&addressdetails=1`;
+
+            fetch(nominatimSuggestUrl)
+                .then(response => response.json())
+                .then(data => {
+                    displayAddressSuggestions(data);
+                })
+                .catch(error => {
+                    console.error('Error fetching address suggestions:', error);
+                    addressSuggestionsContainer.style.display = 'none';
+                });
+        }
+
+        function geocodeAddressAndSetMap() {
+            if (!map) {
+                if (!mapInitialized) initializeHotelMap();
+                if (!map) {
+                    console.error("Map not initialized, cannot geocode.");
+                    return;
+                }
+            }
+            if (!hotelAddressInput) return;
+
+            const address = hotelAddressInput.value;
+            let cityName = "";
+            if (hotelLocationSelect && hotelLocationSelect.value) {
+                const selectedOption = hotelLocationSelect.options[hotelLocationSelect.selectedIndex];
+                if (selectedOption && selectedOption.value && selectedOption.text !== "Chọn địa điểm") {
+                    cityName = selectedOption.text;
+                }
+            }
+
+            let queryParts = [];
+            if (address && address.trim()) {
+                queryParts.push(address.trim());
+            }
+            if (cityName) {
+                if (!address || !address.trim() || address.toLowerCase().indexOf(cityName.toLowerCase()) === -1) {
+                    queryParts.push(cityName);
+                }
+            }
+
+            if (queryParts.length === 0 && cityName) {
+                queryParts.push(cityName);
+            }
+
+            if (queryParts.length === 0) return;
+
+            // Adding "Việt Nam" helps bias, but countrycodes is more explicit
+            // queryParts.push("Việt Nam"); // Optional: can keep or remove if countrycodes is used
+            let query = queryParts.join(", ");
+
+            if (map.lastGeocodedQuery === query) return;
+
+            // Add countrycodes=vn to restrict search to Vietnam
+            // Add viewbox for biasing, using Vietnam's rough bounding box
+            // viewbox=longitude_min,latitude_min,longitude_max,latitude_max
+            const vnViewbox = `${vietnamBounds.getWest()},${vietnamBounds.getSouth()},${vietnamBounds.getEast()},${vietnamBounds.getNorth()}`;
+            const nominatimUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&countrycodes=vn&viewbox=${vnViewbox}&bounded=1`;
+
+
+            fetch(nominatimUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Nominatim API request failed: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data && data.length > 0) {
+                        // Optionally, you could check if data[0] is within vietnamBounds before using it
+                        // but countrycodes=vn should already ensure this.
+                        const lat = parseFloat(data[0].lat);
+                        const lon = parseFloat(data[0].lon);
+
+                        if (vietnamBounds.contains(L.latLng(lat, lon))) {
+                            map.setView([lat, lon], (address && address.trim()) ? 15 : 13);
+                            marker.setLatLng([lat, lon]);
+                            if (hotelLatInput) hotelLatInput.value = lat.toFixed(6);
+                            if (hotelLngInput) hotelLngInput.value = lon.toFixed(6);
+                            map.lastGeocodedQuery = query;
+                        } else {
+                            console.warn('Geocoded result is outside Vietnam bounds (should not happen with countrycodes=vn):', data[0].display_name);
+                        }
+                    } else {
+                        console.warn('Geocoding: No results found for query in Vietnam:', query);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error geocoding:', error);
+                    if (map) map.lastGeocodedQuery = null;
+                });
+        }
+
+        if (hotelAddressInput) {
+            hotelAddressInput.addEventListener('input', function () {
+                clearTimeout(geocodeDebounceTimer);
+                geocodeDebounceTimer = setTimeout(() => {
+                    geocodeAddressAndSetMap();
+                }, 1000);
+            });
+            hotelAddressInput.addEventListener('blur', geocodeAddressAndSetMap);
+        }
+
+        if (hotelLocationSelect) {
+            hotelLocationSelect.addEventListener('change', geocodeAddressAndSetMap);
+        }
+
+        if (stepperEl) {
+            stepperEl.addEventListener('shown.bs-stepper', function (event) {
+                if (event.detail.indexStep === 0) {
+                    if (!mapInitialized) {
+                        initializeHotelMap();
+                    }
+                    if (map) {
+                        setTimeout(function () {
+                            map.invalidateSize();
+                        }, 100);
+                    }
+                }
+                if (event.detail.indexStep === 2) {
+                    updateSummary();
+                }
+            });
+        }
+
+        if (document.querySelector('#step-hotel-1.active') || (stepper && stepper._currentIndex === 0)) {
+            if (!mapInitialized) {
+                initializeHotelMap();
+            }
+            if (map) {
+                setTimeout(function () {
+                    map.invalidateSize();
+                }, 100);
+            }
+        }
+
+        function updateSummary() {
+            document.getElementById('summaryHotelName').textContent = document.getElementById('hotelName')?.value || '[Chưa nhập]';
+            document.getElementById('summaryHotelAddress').textContent = document.getElementById('hotelAddress')?.value || '[Chưa nhập]';
+            let selectedCityText = '[Chưa chọn]';
+            if (hotelLocationSelect && hotelLocationSelect.value) {
+                const selectedOption = hotelLocationSelect.options[hotelLocationSelect.selectedIndex];
+                if (selectedOption && selectedOption.value && selectedOption.text !== "Chọn địa điểm") {
+                    selectedCityText = selectedOption.text;
+                }
+            }
+            document.getElementById('summaryHotelCity').textContent = selectedCityText;
+            document.getElementById('summaryLatitude').textContent = hotelLatInput?.value || '[Chưa chọn]';
+            document.getElementById('summaryLongitude').textContent = hotelLngInput?.value || '[Chưa chọn]';
+            document.getElementById('summaryRoomTitle').textContent = document.getElementById('roomTitle')?.value || '[Chưa nhập]';
+            document.getElementById('summaryRoomPrice').textContent = document.getElementById('roomPrice')?.value || '[Chưa nhập]';
+        }
+
+        // next button
+        const nextButtons = document.querySelectorAll('.next-btn');
+        nextButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                if (stepper) {
+                    stepper.next();
+                }
+            });
+        });
+
+        // back button
+        const prevButtons = document.querySelectorAll('.prev-btn');
+        prevButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                if (stepper) {
+                    stepper.previous();
+                }
+            });
+        });
+
+        const reviewStepTrigger = document.getElementById('stepperHotelTrigger3');
+        if (reviewStepTrigger) {
+            reviewStepTrigger.addEventListener('click', updateSummary);
+        }
+
+        if (document.querySelector('#step-hotel-3.active') || (stepper && stepper._currentIndex === 2)) {
+            updateSummary();
+        }
+    });
+</script>
+
+<!--hotel image upload-->
+<script>
+    const dropzone = document.getElementById("hotelMainImage");
+    const fileInput = document.getElementById("hotelImageUpload");
+    const previewImage = document.getElementById("imagePreview");
+    const hiddenInput = document.getElementById("imageUrl");
+
+    let currentFile = null;
+
+    // Prevent default drag behaviors
+    ["dragenter", "dragover", "dragleave", "drop"].forEach(eventName => {
+        dropzone.addEventListener(eventName, e => e.preventDefault());
+    });
+
+    dropzone.addEventListener("dragover", () => {
+        dropzone.classList.add("dragover");
+    });
+
+    dropzone.addEventListener("dragleave", () => {
+        dropzone.classList.remove("dragover");
+    });
+
+    dropzone.addEventListener("drop", (e) => {
+        dropzone.classList.remove("dragover");
+        const file = e.dataTransfer.files[0];
+        if (file) handleFile(file);
+    });
+
+    fileInput.addEventListener("change", () => {
+        const file = fileInput.files[0];
+        if (file) handleFile(file);
+    });
+
+    function handleFile(file) {
+        const validTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+        if (!validTypes.includes(file.type)) {
+            alert("Chỉ chấp nhận ảnh JPG, PNG, GIF hoặc WEBP.");
+            return;
+        }
+
+        currentFile = file;
+        hiddenInput.value = ""; // clear existing URL
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            previewImage.src = e.target.result;
+            previewImage.style.display = "block";
+
+            // Add delete button if not already added
+            if (!document.getElementById("deleteImageBtn")) {
+                const deleteBtn = document.createElement("button");
+                deleteBtn.type = "button";
+                deleteBtn.textContent = "Xóa ảnh";
+                deleteBtn.className = "btn btn-danger btn-sm mt-2";
+                deleteBtn.id = "deleteImageBtn";
+                deleteBtn.onclick = () => {
+                    previewImage.src = "";
+                    previewImage.style.display = "none";
+                    fileInput.value = "";
+                    hiddenInput.value = "";
+                    deleteBtn.remove();
+                };
+                previewImage.insertAdjacentElement("afterend", deleteBtn);
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+</script>
+
+
+<!--room image upload-->
+<script>
+    const dropzoneRoom = document.getElementById("roomImages");
+    const fileInputRoom = document.getElementById("roomImageUpload");
+    const previewContainer = document.getElementById("roomImagePreviewContainer");
+
+    let fileList = [];
+
+    // Prevent default behavior
+    ["dragenter", "dragover", "dragleave", "drop"].forEach(eventName => {
+        dropzoneRoom.addEventListener(eventName, e => e.preventDefault());
+    });
+
+    dropzoneRoom.addEventListener("dragover", () => {
+        dropzoneRoom.classList.add("dragover");
+    });
+
+    dropzoneRoom.addEventListener("dragleave", () => {
+        dropzoneRoom.classList.remove("dragover");
+    });
+
+    dropzoneRoom.addEventListener("drop", (e) => {
+        dropzoneRoom.classList.remove("dragover");
+        addFiles(Array.from(e.dataTransfer.files));
+    });
+
+    fileInputRoom.addEventListener("change", () => {
+        addFiles(Array.from(fileInputRoom.files));
+    });
+
+    function addFiles(newFiles) {
+        const validTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+        newFiles.forEach(file => {
+            if (validTypes.includes(file.type)) {
+                fileList.push(file);
+            } else {
+                alert("Không chấp nhận file: " + file.name);
+            }
+        });
+        renderPreviews();
+        updateInputFiles();
+    }
+
+    function renderPreviews() {
+        previewContainer.innerHTML = "";
+        fileList.forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const wrapper = document.createElement("div");
+                wrapper.classList.add("position-relative");
+
+                const img = document.createElement("img");
+                img.src = e.target.result;
+                img.style.maxWidth = "150px";
+                img.classList.add("rounded");
+
+                const deleteBtn = document.createElement("button");
+                deleteBtn.type = "button";
+                deleteBtn.innerHTML = "&times;";
+                deleteBtn.classList.add("btn", "btn-danger", "btn-sm", "position-absolute", "top-0", "end-0");
+                deleteBtn.onclick = () => {
+                    fileList.splice(index, 1);
+                    renderPreviews();
+                    updateInputFiles();
+                };
+
+                wrapper.appendChild(img);
+                wrapper.appendChild(deleteBtn);
+                previewContainer.appendChild(wrapper);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function updateInputFiles() {
+        const dt = new DataTransfer();
+        fileList.forEach(file => dt.items.add(file));
+        fileInputRoom.files = dt.files;
+    }
+</script>
+
+
+
+</body>
+</html>

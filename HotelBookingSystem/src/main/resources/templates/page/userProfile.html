@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+
+<!-- Mirrored from stackbros.in/bookinga/landing/account-profile.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:07:32 GMT -->
+<head>
+    <title>Booking - Multipurpose Online Booking Theme</title>
+
+    <!-- Meta Tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="author" content="StackBros">
+    <meta name="description" content="Booking - Multipurpose Online Booking Theme">
+
+    <!-- Dark mode -->
+    <script>
+        const storedTheme = localStorage.getItem('theme')
+
+        const getPreferredTheme = () => {
+            if (storedTheme) {
+                return storedTheme
+            }
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        }
+
+        const setTheme = function (theme) {
+            if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.setAttribute('data-bs-theme', 'dark')
+            } else {
+                document.documentElement.setAttribute('data-bs-theme', theme)
+            }
+        }
+
+        setTheme(getPreferredTheme())
+
+        window.addEventListener('DOMContentLoaded', () => {
+            var el = document.querySelector('.theme-icon-active');
+            if (el != 'undefined' && el != null) {
+                const showActiveTheme = theme => {
+                    const activeThemeIcon = document.querySelector('.theme-icon-active use')
+                    const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+                    const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
+
+                    document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+                        element.classList.remove('active')
+                    })
+
+                    btnToActive.classList.add('active')
+                    activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+                }
+
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                    if (storedTheme !== 'light' || storedTheme !== 'dark') {
+                        setTheme(getPreferredTheme())
+                    }
+                })
+
+                showActiveTheme(getPreferredTheme())
+
+                document.querySelectorAll('[data-bs-theme-value]')
+                    .forEach(toggle => {
+                        toggle.addEventListener('click', () => {
+                            const theme = toggle.getAttribute('data-bs-theme-value')
+                            localStorage.setItem('theme', theme)
+                            setTheme(theme)
+                            showActiveTheme(theme)
+                        })
+                    })
+
+            }
+        })
+
+    </script>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/assets/images/favicon.ico">
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Poppins:wght@400;500;700&amp;display=swap">
+
+    <!-- Plugins CSS -->
+    <link rel="stylesheet" type="text/css" href="/assets/vendor/font-awesome/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="/assets/vendor/bootstrap-icons/bootstrap-icons.css">
+    <link rel="stylesheet" type="text/css" href="/assets/vendor/aos/aos.css">
+    <link rel="stylesheet" type="text/css" href="/assets/vendor/flatpickr/css/flatpickr.min.css">
+    <link rel="stylesheet" type="text/css" href="/assets/vendor/choices/css/choices.min.css">
+
+    <!-- Theme CSS -->
+    <link rel="stylesheet" type="text/css" href="/assets/css/style.css">
+
+</head>
+
+<body class="dashboard">
+
+<!-- Header START -->
+<div th:replace="~{common/header :: header}"></div>
+<!-- Header END -->
+
+<!-- **************** MAIN CONTENT START **************** -->
+<main>
+
+    <!-- =======================
+    Content START -->
+    <section class="pt-3">
+        <div class="container">
+            <div class="row">
+
+                <!-- Sidebar START -->
+                <div th:replace="~{common/sidebar-profile :: sidebar}"></div>
+                <!-- Sidebar END -->
+
+                <!-- Main content START -->
+                <div class="col-lg-8 col-xl-9">
+
+                    <!-- Offcanvas menu button -->
+                    <div class="d-grid mb-0 d-lg-none w-100">
+                        <button class="btn btn-primary mb-4" type="button" data-bs-toggle="offcanvas"
+                                data-bs-target="#offcanvasSidebar" aria-controls="offcanvasSidebar">
+                            <i class="fas fa-sliders-h"></i> Menu
+                        </button>
+                    </div>
+
+                    <div class="vstack gap-4">
+                        <!-- Bắt đầu phần thông báo -->
+                        <div class="mb-4">
+                            <!-- Thông báo thành công -->
+                            <div th:if="${success}" class="alert alert-success alert-dismissible fade show"
+                                 role="alert">
+                                <span th:text="${success}"></span>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                        aria-label="Đóng"></button>
+                            </div>
+
+                            <!-- Thông báo lỗi -->
+                            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <span th:text="${error}"></span>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                        aria-label="Đóng"></button>
+                            </div>
+                        </div>
+                        <!-- Kết thúc phần thông báo -->
+                        <!-- Verified message -->
+                        <!--                        <div class="bg-light rounded p-3">-->
+                        <!--                             Progress bar -->
+                        <!--                            <div class="overflow-hidden">-->
+                        <!--                                <h6>Complete Your Profile</h6>-->
+                        <!--                                <div class="progress progress-sm bg-success bg-opacity-10">-->
+                        <!--                                    <div class="progress-bar bg-success aos" role="progressbar" data-aos="slide-right" data-aos-delay="200" data-aos-duration="1000" data-aos-easing="ease-in-out" style="width: 85%" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100">-->
+                        <!--                                        <span class="progress-percent-simple h6 fw-light ms-auto">85%</span>-->
+                        <!--                                    </div>-->
+                        <!--                                </div>-->
+                        <!--                                <p class="mb-0">Get the best out of booking by adding the remaining details!</p>-->
+                        <!--                            </div>-->
+                        <!--                             Content -->
+                        <!--                            <div class="bg-body rounded p-3 mt-3">-->
+                        <!--                                <ul class="list-inline hstack flex-wrap gap-2 justify-content-between mb-0">-->
+                        <!--                                    <li class="list-inline-item h6 fw-normal mb-0"><a href="#"><i class="bi bi-check-circle-fill text-success me-2"></i>Verified Email</a></li>-->
+                        <!--                                    <li class="list-inline-item h6 fw-normal mb-0"><a href="#"><i class="bi bi-check-circle-fill text-success me-2"></i>Verified Mobile Number</a></li>-->
+                        <!--                                    <li class="list-inline-item h6 fw-normal mb-0"><a href="#" class="text-primary"><i class="bi bi-plus-circle-fill me-2"></i>Complete Basic Info</a></li>-->
+                        <!--                                </ul>-->
+                        <!--                            </div>-->
+                        <!--                        </div>-->
+
+                        <!-- Personal info START -->
+                        <div class="card border">
+                            <!-- Card header -->
+                            <div class="card-header border-bottom">
+                                <h4 class="mb-4">Cập nhật thông tin cá nhân</h4>
+                            </div>
+                            <!-- Card body START -->
+                            <div class="card-body">
+                                <!-- Form START -->
+                                <form th:action="@{/update-user-profile}" method="post" class="row g-3">
+                                    <!-- Profile photo -->
+                                    <div class="col-12">
+                                        <label class="form-label">Upload your profile photo<span
+                                                class="text-danger">*</span></label>
+                                        <div class="d-flex align-items-center">
+                                            <label class="position-relative me-4" for="uploadfile-1"
+                                                   title="Replace this pic">
+                                                <!-- Avatar place holder -->
+                                                <span class="avatar avatar-xl">
+												<img id="uploadfile-1-preview"
+                                                     class="avatar-img rounded-circle border border-white border-3 shadow"
+                                                     src="assets/images/avatar/01.jpg" alt="">
+											</span>
+                                            </label>
+                                            <!-- Upload button -->
+                                            <label class="btn btn-sm btn-primary-soft mb-0"
+                                                   for="uploadfile-1">Change</label>
+                                            <input id="uploadfile-1" class="form-control d-none" type="file">
+                                        </div>
+                                    </div>
+
+                                    <!-- Tên người dùng -->
+                                    <div class="col-md-6">
+                                        <label class="form-label">Tên người dùng</label>
+                                        <input type="text" class="form-control" name="fullname" th:value="${session.user.fullname}" required>
+                                    </div>
+
+
+                                    <!-- Email -->
+                                    <div class="col-md-6">
+                                        <label class="form-label">Email<span
+                                                class="text-danger">*</span></label>
+                                        <input type="email" class="form-control" name="email" th:value="${session.user.email}"
+                                               placeholder="Enter your email id">
+                                    </div>
+
+                                    <!-- Số điện thoại -->
+                                    <div class="col-md-6">
+                                        <label class="form-label">Số điện thoại</label>
+                                        <input type="text" class="form-control" name="phone" th:value="${session.user.phone}" required>
+                                    </div>
+
+
+                                    <!--                                     Nationality-->
+                                    <!--                                    <div class="col-md-6">-->
+                                    <!--                                        <label class="form-label">Nationality<span class="text-danger">*</span></label>-->
+                                    <!--                                        <select class="form-select js-choice">-->
+                                    <!--                                            <option value="">Select your country</option>-->
+                                    <!--                                            <option>USA</option>-->
+                                    <!--                                            <option selected>Paris</option>-->
+                                    <!--                                            <option>India</option>-->
+                                    <!--                                            <option>UK</option>-->
+                                    <!--                                        </select>-->
+                                    <!--                                    </div>-->
+
+                                    <!--                                     Date of birth-->
+<!--                                    <div class="col-md-6">-->
+<!--                                        <label class="form-label">Date of Birth<span-->
+<!--                                                class="text-danger">*</span></label>-->
+<!--                                        <input type="text" class="form-control flatpickr" value="29 Aug 1996"-->
+<!--                                               placeholder="Enter date of birth" data-date-format="d M Y">-->
+<!--                                    </div>-->
+
+                                    <!--Gender-->
+                                    <div class="col-md-6">
+                                        <label class="form-label">Select Gender<span
+                                                class="text-danger">*</span></label>
+                                        <div class="d-flex gap-4">
+                                            <div class="form-check radio-bg-light">
+                                                <input class="form-check-input" type="radio" name="flexRadioDefault"
+                                                       id="flexRadioDefault1" checked="">
+                                                <label class="form-check-label" for="flexRadioDefault1">
+                                                    Male
+                                                </label>
+                                            </div>
+                                            <div class="form-check radio-bg-light">
+                                                <input class="form-check-input" type="radio" name="flexRadioDefault"
+                                                       id="flexRadioDefault2">
+                                                <label class="form-check-label" for="flexRadioDefault2">
+                                                    Female
+                                                </label>
+                                            </div>
+                                            <div class="form-check radio-bg-light">
+                                                <input class="form-check-input" type="radio" name="flexRadioDefault"
+                                                       id="flexRadioDefault3">
+                                                <label class="form-check-label" for="flexRadioDefault3">
+                                                    Others
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Address -->
+                                    <div class="col-12">
+                                        <label class="form-label">Address</label>
+                                        <textarea class="form-control" rows="3" name="address" >Your address</textarea>
+                                    </div>
+
+                                    <!-- Button -->
+                                    <div class="col-12 text-end">
+                                        <button type="submit" class="btn btn-primary">Cập nhật</button>
+                                    </div>
+                                </form>
+                                <!-- Form END -->
+                            </div>
+                            <!-- Card body END -->
+                        </div>
+                        <!-- Personal info END -->
+
+                        <!-- Update email START -->
+<!--                        <div class="card border">-->
+<!--                            &lt;!&ndash; Card header &ndash;&gt;-->
+<!--                            <div class="card-header border-bottom">-->
+<!--                                <h4 class="card-header-title">Update email</h4>-->
+<!--                                <p class="mb-0">Your current email address is <span class="text-primary">example@gmail.com</span>-->
+<!--                                </p>-->
+<!--                            </div>-->
+
+<!--                            &lt;!&ndash; Card body START &ndash;&gt;-->
+<!--                            <div class="card-body">-->
+<!--                                <form>-->
+<!--                                    &lt;!&ndash; Email &ndash;&gt;-->
+<!--                                    <label class="form-label">Enter your new email id<span class="text-danger">*</span></label>-->
+<!--                                    <input type="email" class="form-control" placeholder="Enter your email id">-->
+
+<!--                                    <div class="text-end mt-3">-->
+<!--                                        <a href="#" class="btn btn-primary mb-0">Save Email</a>-->
+<!--                                    </div>-->
+<!--                                </form>-->
+<!--                            </div>-->
+<!--                            &lt;!&ndash; Card body END &ndash;&gt;-->
+<!--                        </div>-->
+                        <!-- Update email END -->
+
+                        <!-- Update Password START -->
+<div class="card border">
+    <div class="card-header border-bottom">
+        <h4 class="card-header-title">Update Password</h4>
+    </div>
+
+    <form class="card-body" th:action="@{/update-password}" method="post">
+        <!-- Token -->
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+        <!-- Current Password -->
+        <div class="mb-3" th:if="${!passwordNotSet}">
+            <label class="form-label">Mật khẩu hiện tại</label>
+            <input class="form-control" type="password" name="currentPassword"
+                placeholder="Nhập mật khẩu hiện tại">
+        </div>
+        
+        <!-- New Password -->
+        <div class="mb-3">
+            <label class="form-label">Mật khẩu mới</label>
+            <input class="form-control" type="password" name="newPassword"
+                placeholder="Nhập mật khẩu mới" required minlength="8">
+        </div>
+        
+        <!-- Confirm Password -->
+        <div class="mb-3">
+            <label class="form-label">Xác nhận mật khẩu mới</label>
+            <input class="form-control" type="password" name="confirmPassword"
+                placeholder="Nhập lại mật khẩu mới" required>
+        </div>
+        
+        <!-- Submit Button -->
+        <div class="text-end">
+            <button type="submit" class="btn btn-primary mb-0">Đổi mật khẩu</button>
+        </div>
+    </form>
+</div>
+<!-- Update Password END -->
+                    </div>
+                </div>
+                <!-- Main content END -->
+
+            </div>
+        </div>
+    </section>
+    <!-- =======================
+    Content END -->
+
+</main>
+<!-- **************** MAIN CONTENT END **************** -->
+
+<!-- =======================
+Footer START -->
+<div th:replace="~{common/footer :: footer}"></div>
+<!-- =======================
+Footer END -->
+
+<!-- Back to top -->
+<div class="back-top"></div>
+
+<!-- Bootstrap JS -->
+<script src="assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Vendors -->
+<script src="assets/vendor/aos/aos.js"></script>
+<script src="assets/vendor/flatpickr/js/flatpickr.min.js"></script>
+<script src="assets/vendor/choices/js/choices.min.js"></script>
+
+<!-- ThemeFunctions -->
+<script src="assets/js/functions.js"></script>
+
+</body>
+
+<!-- Mirrored from stackbros.in/bookinga/landing/account-profile.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:07:33 GMT -->
+</html>

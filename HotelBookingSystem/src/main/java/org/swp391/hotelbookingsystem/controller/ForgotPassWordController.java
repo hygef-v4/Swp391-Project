@@ -39,7 +39,6 @@ public class ForgotPassWordController {
         }
 
         String token = java.util.UUID.randomUUID().toString();
-        user.setResetToken(token);
         userRepo.savePasswordResetToken(user.getId(), token);
 
         try {

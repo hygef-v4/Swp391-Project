@@ -2,25 +2,20 @@ package org.swp391.hotelbookingsystem.model;
 
 import lombok.*;
 
-
-@ToString
 @Builder
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
 public class User {
-    private String id;
+    private int id;
     private String fullname;
     private String email;
     private String password;
     private String phone;
     private String role;
     private boolean active;
-    private String createdAt;
-    private String updatedAt;
-    private String resetToken;
+    private String avatarUrl;
+    private String bio;
 
     public User(String email, String password) {
         this.email = email;
