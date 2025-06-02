@@ -346,10 +346,10 @@ Title and Tabs START -->
 							<label class="form-label">Cơ sở vật chất</label>
 							<div class="row g-3">
 								<!-- checkbox -->
-								<div class="col-sm-6 col-md-4 col-lg-3 col-xl-2" th:each="amenities: ${amenities}">
+								<div class="col-sm-6 col-md-4 col-lg-3 col-xl-2" th:each="amenity: ${amenities}">
 									<div class="form-check">
 										<input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
-										<label class="form-check-label h6 fw-light mb-0" for="flexCheckDefault" th:text="${amenities.name}">
+										<label class="form-check-label h6 fw-light mb-0" for="flexCheckDefault" th:text="${amenity.name}">
 										</label>
 									</div>
 								</div>
@@ -404,7 +404,7 @@ Hotel grid START -->
 						<!-- Rating and cart -->
 						<div class="d-flex justify-content-between mb-3">
 							<a th:href="'/hotel-detail?hotelId=' + ${hotel.hotelId}" class="badge bg-dark text-white"><i class="bi fa-fw bi-star-fill me-2 text-warning"></i><span th:text="${hotel.rating}"></span></a>
-							<a th:href="'/hotel-detail?hotelId=' + ${hotel.hotelId}" class="h6 mb-0 z-index-2"><i class="bi fa-fw bi-bookmark"></i></a>
+							<a class="h6 mb-0 z-index-2"><i class="bi fa-fw bi-bookmark"></i></a>
 						</div>
 
 						<!-- Title -->
