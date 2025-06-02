@@ -30,6 +30,10 @@ public class HotelController {
         List<Hotel> hotel = hotelService.getHotelsByLocation(locationId, search);
         model.addAttribute("hotels", hotel);
 
+        String request = "";
+        if(locationId != -1) request += "&locationId=" + locationId;
+        model.addAttribute("request", request);
+
         return "page/hotelList";
     }
 }

@@ -441,12 +441,25 @@ Hotel grid START -->
 			<div class="col-12">
 				<nav class="mt-4 d-flex justify-content-center" aria-label="navigation">
 					<ul class="pagination pagination-primary-soft d-inline-block d-md-flex rounded mb-0">
+<<<<<<< Updated upstream
 						<li class="page-item mb-0 disabled"><a class="page-link" href="#" tabindex="-1"><i class="fa-solid fa-angle-left"></i></a></li>
 						<li class="page-item mb-0 active disabled"><a class="page-link" href="#">1</a></li>
 						<li class="page-item mb-0"><a class="page-link" href="#">2</a></li>
 						<li class="page-item mb-0 disabled"><a class="page-link" href="#">..</a></li>
 						<li class="page-item mb-0"><a class="page-link" href="#">6</a></li>
 						<li class="page-item mb-0"><a class="page-link" href="#"><i class="fa-solid fa-angle-right"></i></a></li>
+=======
+						<li th:if="${pagination >= 2}" th:class="'page-item mb-0' + ${page == 1 ? ' disabled' : ''}"><a class="page-link" th:href="'/hotel-list?page=' + ${page-1} + ${request}"><i class="fa-solid fa-angle-left"></i></a></li>
+						<li th:if="${pagination >= 1}" th:class="'page-item mb-0' + ${page == 1 ? ' active disabled' : ''}"><a class="page-link" th:href="'/hotel-list?page=1' + ${request}">1</a></li>
+						<li th:if="${pagination >= 2}" th:class="'page-item mb-0' + ${page == 2 ? ' active disabled' : ''}"><a class="page-link" th:href="'/hotel-list?page=2' + ${request}">2</a></li>
+						<li th:if="${pagination >= 5 && page-2 > 2}" class="page-item mb-0 disabled"><a class="page-link">...</a></li>
+						<li th:if="${pagination >= 4 && page != 1 && page-1 != 1 && page-1 != 2}" class="page-item mb-0"><a class="page-link" th:href="'/hotel-list?page=' + ${page-1} + ${request}" th:text="${page-1}"></a></li>
+						<li th:if="${pagination >= 4 && page != 1 && page != 2 && page != pagination}" class="page-item mb-0 active disabled"><a class="page-link" th:text="${page}"></a></li>
+						<li th:if="${pagination >= 4 && page+1 != 2 && page+1 != pagination && page != pagination}" class="page-item mb-0"><a class="page-link" th:href="'/hotel-list?page=' + ${page+1} + ${request}" th:text="${page+1}"></a></li>
+						<li th:if="${pagination >= 4 && pagination > page+2}" class="page-item mb-0 disabled"><a class="page-link">...</a></li>
+						<li th:if="${pagination >= 3}" th:class="'page-item mb-0' + ${page == pagination ? ' active disabled' : ''}"><a class="page-link" th:href="'/hotel-list?page=' + ${pagination} + ${request}" th:text="${pagination}"></a></li>
+						<li th:if="${pagination >= 2}" th:class="'page-item mb-0' + ${page == pagination ? ' disabled' : ''}"><a class="page-link" th:href="'/hotel-list?page=' + ${page+1} + ${request}"><i class="fa-solid fa-angle-right"></i></a></li>
+>>>>>>> Stashed changes
 					</ul>
 				</nav>
 			</div>
