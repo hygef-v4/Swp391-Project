@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.swp391.hotelbookingsystem.constant.ConstantVariables;
 import org.swp391.hotelbookingsystem.model.Location;
 import org.swp391.hotelbookingsystem.model.Review;
-import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.service.LocationService;
 import org.swp391.hotelbookingsystem.service.HotelService;
 import org.swp391.hotelbookingsystem.model.Hotel;

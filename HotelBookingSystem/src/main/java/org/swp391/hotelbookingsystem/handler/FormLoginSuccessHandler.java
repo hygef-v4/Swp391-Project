@@ -34,9 +34,9 @@ public class FormLoginSuccessHandler implements AuthenticationSuccessHandler {
                 } else {
                     request.getSession().setAttribute("user", user);
                     switch (user.getRole()) {
-                        case "ADMIN", "MODERATOR" -> response.sendRedirect("/home");
-                        case "HOTEL OWNER" -> response.sendRedirect("/home");
-                        case "CUSTOMER", "GUEST" -> response.sendRedirect("/home");
+                        case "ADMIN", "MODERATOR" -> response.sendRedirect("/admin-dashboard");
+                        case "HOTEL OWNER" -> response.sendRedirect("/host-dashboard");
+                        case "CUSTOMER" -> response.sendRedirect("/home");
                         default -> response.sendRedirect("/home");
                     }
                 }

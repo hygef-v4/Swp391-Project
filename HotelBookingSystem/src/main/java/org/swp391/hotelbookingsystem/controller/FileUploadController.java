@@ -8,9 +8,8 @@ import org.swp391.hotelbookingsystem.service.CloudinaryService;
 import java.io.IOException;
 import java.util.Map;
 
-// FileUploadController.java
-@RestController
-@RequestMapping("/api/files")
+@RestController           // returns JSON responses
+@RequestMapping("/api/files")                 //prefixed with /api/files.
 public class FileUploadController {
 
 
@@ -22,7 +21,7 @@ public class FileUploadController {
 
     @PostMapping("/upload/image")
     public ResponseEntity<?> uploadImage(
-            @RequestParam("file") MultipartFile file,
+            @RequestParam("file") MultipartFile file,             // Accepts the uploaded file (from a form field named "file").
             @RequestParam(value = "folder", required = false) String folderName) throws IOException {
 
         String contentType = file.getContentType();
@@ -32,14 +31,12 @@ public class FileUploadController {
 
 
         Map result = cloudinaryService.uploadImage(file, folderName);
-        String imageUrl = (String) result.get("secure_url"); // or "url" if you want HTTP
+        String imageUrl = (String) result.get("secure_url"); // get image url
 
         return ResponseEntity.ok(Map.of(
                 "message", "Upload successful",
                 "url", imageUrl
         ));
     }
-
-
 
 }

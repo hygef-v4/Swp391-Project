@@ -38,6 +38,10 @@ public class HotelListController {
         model.addAttribute("page", page);
         model.addAttribute("pagination", (int)Math.ceil((double)hotel.size() / 12));
 
+        String request = "";
+        if(locationId != -1) request += "&locationId=" + locationId;
+        model.addAttribute("request", request);
+
         return "page/hotelList";
     }
 }

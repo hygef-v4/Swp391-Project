@@ -21,6 +21,11 @@ public class AdminUserController {
     public String getUserList(@RequestParam(value = "search", required = false) String search,
                               @RequestParam(value = "role", required = false) String role,
                               Model model, HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        if (user == null || !user.getRole().equals("ADMIN")) {
+            return "redirect:/login";
+        }
+
         List<User> users;
 
         if (search != null && !search.isBlank() && role != null && !role.isBlank()) {
