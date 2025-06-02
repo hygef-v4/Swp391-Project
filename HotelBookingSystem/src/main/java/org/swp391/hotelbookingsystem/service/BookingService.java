@@ -22,11 +22,9 @@ public class BookingService {
     public List<Booking> getUpcomingBookings(int customerId) {
         return bookingRepo.findUpcomingBookings(customerId);
     }
-
     public List<Booking> getCompletedBookings(int customerId) {
         return bookingRepo.findCompletedBookings(customerId);
     }
-
     public List<Booking> getCancelledBookings(int customerId) {
         return bookingRepo.findCancelledBookings(customerId);
     }
