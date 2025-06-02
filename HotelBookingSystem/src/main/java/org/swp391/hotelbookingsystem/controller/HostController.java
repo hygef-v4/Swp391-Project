@@ -100,7 +100,10 @@ public class HostController {
 
     @GetMapping("/add-room")
     public String showAddRoomForm(@RequestParam("hotelId") int hotelId, Model model, HttpSession session) {
-
+        User host = (User) session.getAttribute("user");
+        if (host==null ||!host.getRole().equalsIgnoreCase("HOTEL OWNER")) {
+            return "redirect:/login"; // Or handle unauthorized access
+        }
 
 
         model.addAttribute("hotelId", hotelId);
@@ -137,7 +140,7 @@ public class HostController {
     @GetMapping("/host-dashboard")
     public String showHostDashboard(HttpSession session, Model model) {
         User host = (User) session.getAttribute("user");
-        if (host == null) {
+        if (host==null ||!host.getRole().equalsIgnoreCase("HOTEL OWNER")) {
             return "redirect:/login"; // Or handle unauthorized access
         }
 
@@ -151,7 +154,7 @@ public class HostController {
     public String viewHostListings(HttpSession session, Model model) {
         User host = (User) session.getAttribute("user");
 
-        if (host == null) {
+        if (host==null ||!host.getRole().equalsIgnoreCase("HOTEL OWNER")) {
             return "redirect:/login"; // not logged in
         }
 
