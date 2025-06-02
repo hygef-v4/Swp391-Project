@@ -388,6 +388,8 @@
                                     <div class="card-body">
                                         <label class="form-label mb-3">Chọn các tiện nghi có trong loại phòng
                                             này:</label>
+
+<!--                                        Map.Entry<String, List<Amenity>> entry : groupedAmenities.entrySet()-->
                                         <div th:each="entry : ${groupedAmenities}">
                                             <h6 class="fw-bold mb-2" th:text="${entry.key}">Tên danh mục</h6>
                                             <div class="row">
@@ -594,6 +596,9 @@ Footer END -->
                 itemSelectText: 'Nhấn để chọn',
             });
         });
+        // Finds all selects with .js-choice
+        // Enables search only for #hotelLocation
+        //   Adds placeholder text “Nhấn để chọn”
 
         // --- Leaflet Map Integration ---
         var map;
@@ -602,13 +607,13 @@ Footer END -->
         const hotelLngInput = document.getElementById('hotelLongitudeManual');
         const hotelAddressInput = document.getElementById('hotelAddress');
         const hotelLocationSelect = document.getElementById('hotelLocation');
-        var mapInitialized = false;
+        var mapInitialized = false;           //A flag to prevent the map from being initialized multiple times.
         let geocodeDebounceTimer; // Timer for debouncing address input
 
         // Define approximate bounds for Vietnam
         // Southwest corner (e.g., Ca Mau peninsula) and Northeast corner (e.g., near Chinese border)
         // You can get more precise bounds from http://bboxfinder.com/
-        const vietnamBounds = L.latLngBounds(
+        const vietnamBounds = L.latLngBounds(        // bounding box for the whole country of Vietnam.
             L.latLng(8.18, 102.14), // Southwest
             L.latLng(23.39, 109.46)  // Northeast
         );
@@ -669,7 +674,7 @@ Footer END -->
 
 
             function updateLatLngInputs(latlng) {
-                if (hotelLatInput) hotelLatInput.value = latlng.lat.toFixed(6);
+                if (hotelLatInput) hotelLatInput.value = latlng.lat.toFixed(6);      //Converts the latitude to a string with 6 decimal places
                 if (hotelLngInput) hotelLngInput.value = latlng.lng.toFixed(6);
             }
 
@@ -682,11 +687,14 @@ Footer END -->
                 updateLatLngInputs(marker.getLatLng());
             });
 
+            // If the user clicks anywhere on the map, the marker jumps to that point.
+            //     Then updates the input fields with the clicked location
             map.on('click', function (e) {
                 // Click event latlng should already be within map's maxBounds
                 marker.setLatLng(e.latlng);
                 updateLatLngInputs(e.latlng);
             });
+
 
             if (hotelLatInput && hotelLngInput && (!hotelLatInput.value || !hotelLngInput.value || !vietnamBounds.contains(L.latLng(parseFloat(hotelLatInput.value), parseFloat(hotelLngInput.value))))) {
                 updateLatLngInputs(marker.getLatLng());
@@ -694,7 +702,7 @@ Footer END -->
             mapInitialized = true;
         }
 
-        // NEW: Function to display address suggestions
+        // Function to display address suggestions
         function displayAddressSuggestions(results) {
             addressSuggestionsContainer.innerHTML = ''; // Clear old suggestions
             if (results && results.length > 0) {
@@ -734,7 +742,7 @@ Footer END -->
             }
         }
 
-        // NEW: Function to fetch address suggestions
+        // Function to fetch address suggestions
         function fetchAddressSuggestions(inputValue) {
             if (inputValue.length < 3) { // Don't search for very short strings
                 addressSuggestionsContainer.style.display = 'none';

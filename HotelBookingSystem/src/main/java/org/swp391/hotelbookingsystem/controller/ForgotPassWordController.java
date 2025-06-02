@@ -19,17 +19,14 @@ public class ForgotPassWordController {
     @Autowired
     private EmailService emailService;
 
-
     @Autowired
     private PasswordEncoder passwordEncoder;
-
 
     @GetMapping("/forgotPassword")
     public String showForgotPasswordForm() {
         return "page/forgotPassword";
     }
 
-    // Xử lý form submit
     @PostMapping("/forgotPassword")
     public String processForgotPassword(HttpServletRequest request, @RequestParam("email") String email, Model model) {
         User user = userRepo.findByEmail(email);
@@ -44,10 +41,8 @@ public class ForgotPassWordController {
         try {
             emailService.sendResetPasswordEmail(email, token);
         } catch (jakarta.mail.MessagingException e) {
-            e.printStackTrace();
             return "redirect:/forgotPassword?mailerror";
         }
-
 
         return "redirect:/forgotPassword?success";
     }
@@ -70,7 +65,6 @@ public class ForgotPassWordController {
             return "redirect:/forgotPassword?invalid";
         }
 
-        // Hash password (bạn nên dùng BCrypt)
         String hashed = passwordEncoder.encode(password);
         userRepo.updatePassword(user.getId(), hashed);
         userRepo.deleteToken(token);

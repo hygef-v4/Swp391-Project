@@ -54,9 +54,15 @@ public class HostController {
 
 
         //  Group by category name instead of ID
-        Map<String, List<Amenity>> groupedAmenities = new LinkedHashMap<>();
+        Map<String, List<Amenity>> groupedAmenities = new LinkedHashMap<>();  // use LinkedHashMap to maintain insertion order
         for (Amenity amenity : amenities) {
-            String categoryName = amenity.getCategory().getName(); // assumes Amenity has getCategory().getName()
+            String categoryName = amenity.getCategory().getName();
+
+
+//            if (!groupedAmenities.containsKey(categoryName)) {
+//                groupedAmenities.put(categoryName, new ArrayList<>());
+//            }
+//            groupedAmenities.get(categoryName).add(amenity);
 
             groupedAmenities
                     .computeIfAbsent(categoryName, k -> new ArrayList<>())
@@ -70,16 +76,36 @@ public class HostController {
 
     // đang để chung với register-host, có thể tách ra
     @GetMapping("/add-hotel")
-    public String showAddListingPage(Model model) {
-       return "redirect:/register-host";
+    public String showAddListingPage(Model model, HttpSession session) {
+        session.setAttribute(ConstantVariables.ROOM_TYPES, roomTypeService.getAllRoomTypes());
+        session.setAttribute(ConstantVariables.LOCATIONS, locationService.getAllLocations());
+
+        //  Get amenities with joined category
+        List<Amenity> amenities = amenityService.getAllAmenitiesWithCategory();
+
+
+        //  Group by category name instead of ID
+        Map<String, List<Amenity>> groupedAmenities = new LinkedHashMap<>();
+        for (Amenity amenity : amenities) {
+            String categoryName = amenity.getCategory().getName();
+
+            groupedAmenities
+                    .computeIfAbsent(categoryName, k -> new ArrayList<>())
+                    .add(amenity);
+        }
+
+        model.addAttribute("groupedAmenities", groupedAmenities);
+        return "page/register-host";
     }
 
     @GetMapping("/add-room")
     public String showAddRoomForm(@RequestParam("hotelId") int hotelId, Model model, HttpSession session) {
-        // Pass hotelId to the form
+
+
+
         model.addAttribute("hotelId", hotelId);
 
-        // Room types and locations (store in session, same as /register-host)
+
         session.setAttribute(ConstantVariables.ROOM_TYPES, roomTypeService.getAllRoomTypes());
         session.setAttribute(ConstantVariables.LOCATIONS, locationService.getAllLocations());
 
@@ -102,17 +128,16 @@ public class HostController {
 
 
 
-    // You might also have a GET mapping for the host-intro page
     @GetMapping("/host-intro")
     public String showHostIntroPage() {
         return "page/host-intro";
     }
 
-    // A simple host dashboard placeholder
+
     @GetMapping("/host-dashboard")
     public String showHostDashboard(Model model) {
         model.addAttribute("message", "Hotel registration successful! Welcome to your dashboard.");
-        return "host/host-dashboard"; // Create this Thymeleaf template
+        return "host/host-dashboard";
     }
 
     @GetMapping("/host-listing")
@@ -140,7 +165,7 @@ public class HostController {
             @RequestParam("roomPrice") float roomPrice,
             @RequestParam("roomDescription") String roomDescription,
             @RequestParam(value = "amenities", required = false) List<Integer> amenityIds,
-            @RequestParam("roomImageFiles") MultipartFile[] roomImageFiles,
+            @RequestParam("roomImageFiles") MultipartFile[] roomImageFiles,    //MultipartFile = Spring's file upload object
             HttpSession session,
             Model model
     ) {
@@ -207,14 +232,13 @@ public class HostController {
     ) {
         try {
             User user = (User) session.getAttribute("user");
-            int userId =   user.getId();
+            int userId = user.getId();
 
             if (!"HOTEL OWNER".equalsIgnoreCase(user.getRole())) {
                 user.setRole("HOTEL OWNER");
                 userService.updateUserRoleToHost(userId);
                 session.setAttribute("user", user); // cập nhật session
             }
-
 
 
             // Validate & upload hotel image
@@ -239,7 +263,6 @@ public class HostController {
                     .hotelImageUrl(hotelImageUrl)
                     .policy(hotelPolicies)
                     .build(); // no .rating() // because it's optional
-
 
 
             Hotel savedHotel = hotelService.saveHotel(hotel);
