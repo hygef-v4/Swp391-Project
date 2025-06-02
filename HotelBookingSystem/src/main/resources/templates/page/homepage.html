@@ -124,7 +124,6 @@
     <!-- Theme CSS -->
     <link rel="stylesheet" type="text/css" href="/assets/css/style.css">
 
-
 </head>
 
 <body class="has-navbar-mobile">
@@ -957,6 +956,20 @@
     </section>
     <!-- =======================
     Download app END -->
+
+    <!--    chatbot   -->
+    <!-- Dialogflow Messenger SDK -->
+    <script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
+    <!-- Chat widget -->
+    <df-messenger
+            chat-icon="https://i.postimg.cc/CMfW7z2D/logo-hamora.png"
+            intent="WELCOME"
+            chat-title="Hamora - support"
+            agent-id="023c3c70-2f21-41f5-9a7c-47668c8638ef"
+            language-code="vi"
+            expand
+    ></df-messenger>
+    <!--    chatbot END  -->
 
 </main>
 <!-- **************** MAIN CONTENT END **************** -->
