@@ -4,6 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.swp391.hotelbookingsystem.model.Favorites;
 import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.repository.UserWishlistRepository;
@@ -18,13 +21,13 @@ public class UserWishlistController {
     private UserWishlistRepository userWishlistRepository;
 
     @GetMapping("/user-wishlist")
-    public String viewUserWishlist(HttpSession session, Model model) {
+    public String viewUserWishlist(HttpSession session, Model model, RedirectAttributes redirectAttributes) {
         // Lấy thông tin người dùng từ session
         User sessionUser = (User) session.getAttribute("user");
 
         if (sessionUser == null) {
             // Nếu người dùng chưa đăng nhập, chuyển hướng về trang đăng nhập
-            model.addAttribute("error", "Bạn cần đăng nhập để xem danh sách yêu thích.");
+            redirectAttributes.addFlashAttribute("errorMessage", "Bạn cần đăng nhập để thực hiện hành động này.");
             return "redirect:/login";
         }
 
@@ -43,11 +46,58 @@ public class UserWishlistController {
 
         } catch (Exception e) {
             // Xử lý lỗi (nếu có)
-            model.addAttribute("error", "Đã xảy ra lỗi khi tải danh sách yêu thích.");
-            return "page/error"; // Hoặc trang báo lỗi tùy chọn
+            redirectAttributes.addFlashAttribute("errorMessage", "Đã xảy ra lỗi khi tải danh sách yêu thích.");
+            return "redirect:/error";
         }
 
         // Trả về trang danh sách yêu thích
         return "page/userWishlist";
     }
+
+    @PostMapping("/remove-favorite")
+    public String removeFavorite(@RequestParam("hotelId") int hotelId, HttpSession session, RedirectAttributes redirectAttributes) {
+        // Lấy thông tin người dùng từ session
+        User sessionUser = (User) session.getAttribute("user");
+
+        if (sessionUser == null) {
+            // Nếu người dùng chưa đăng nhập, chuyển hướng về trang đăng nhập
+            redirectAttributes.addFlashAttribute("errorMessage", "Bạn cần đăng nhập để thực hiện hành động này.");
+            return "redirect:/login";
+        }
+
+        try {
+            // Xoá mục yêu thích
+            userWishlistRepository.deleteFavorite(sessionUser.getId(), hotelId);
+            redirectAttributes.addFlashAttribute("successMessage", "Xoá thành công mục yêu thích.");
+        } catch (Exception e) {
+            // Xử lý lỗi khi xoá
+            redirectAttributes.addFlashAttribute("errorMessage", "Đã xảy ra lỗi khi xoá mục yêu thích.");
+        }
+
+        // Chuyển hướng về trang danh sách yêu thích
+        return "redirect:/user-wishlist";
+    }
+
+    @PostMapping("/add-favorite")
+    public String addFavorite(@RequestParam("hotelId") int hotelId, HttpSession session, RedirectAttributes redirectAttributes) {
+        // Lấy thông tin người dùng từ session
+        User sessionUser = (User) session.getAttribute("user");
+
+        if (sessionUser == null) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Bạn cần đăng nhập để thực hiện hành động này.");
+            return "redirect:/login";
+        }
+
+        try {
+            // Gọi repository để thêm khách sạn vào danh sách yêu thích
+            userWishlistRepository.addFavorite(sessionUser.getId(), hotelId);
+            redirectAttributes.addFlashAttribute("successMessage", "Khách sạn đã được thêm vào danh sách yêu thích.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Xảy ra lỗi khi thêm vào danh sách yêu thích.");
+        }
+
+        // Chuyển hướng về trang chi tiết khách sạn
+        return "redirect:/hotel-detail?hotelId=" + hotelId;
+    }
+
 }

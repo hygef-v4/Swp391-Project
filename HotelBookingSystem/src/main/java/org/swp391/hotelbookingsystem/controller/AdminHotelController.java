@@ -36,7 +36,10 @@ public class AdminHotelController {
     public String getHotelDashboard(@RequestParam(value = "search", required = false) String search, Model model, HttpSession session) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         model.addAttribute(ConstantVariables.PAGE_TITLE, "Hamora Booking - Hotel Management");
-
+        User user = (User) session.getAttribute("user");
+        if (user == null || !user.getRole().equals("ADMIN")) {
+            return "redirect:/login";
+        }
 
         List<Hotel> hotels;
         if (search != null && !search.trim().isEmpty()) {

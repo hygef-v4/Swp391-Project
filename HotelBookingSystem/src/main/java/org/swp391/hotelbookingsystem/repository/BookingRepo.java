@@ -14,19 +14,26 @@ public class BookingRepo {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    // Lấy tất cả bookings
     public List<Booking> findAll() {
         String sql = "SELECT * FROM Bookings";
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Booking.class));
     }
 
-    // Tìm booking theo ID
     public Booking findById(int id) {
         String sql = "SELECT * FROM Bookings WHERE booking_id = ?";
         return jdbcTemplate.queryForObject(sql, new BeanPropertyRowMapper<>(Booking.class), id);
     }
 
-    // Thêm booking mới
+    public int updateStatus(int bookingId, String status) {
+        String sql = "UPDATE Bookings SET status = ? WHERE booking_id = ?";
+        return jdbcTemplate.update(sql, status, bookingId);
+    }
+
+    public int deleteById(int id) {
+        String sql = "DELETE FROM Bookings WHERE booking_id = ?";
+        return jdbcTemplate.update(sql, id);
+    }
+
     public int save(Booking booking) {
         String sql = """
                 INSERT INTO Bookings (room_id, customer_id, coupon_id, check_in, check_out, total_price, status, created_at)
@@ -42,18 +49,6 @@ public class BookingRepo {
                 booking.getStatus(),
                 booking.getCreatedAt()
         );
-    }
-
-    // Cập nhật trạng thái booking
-    public int updateStatus(int bookingId, String status) {
-        String sql = "UPDATE Bookings SET status = ? WHERE booking_id = ?";
-        return jdbcTemplate.update(sql, status, bookingId);
-    }
-
-    // Xoá booking theo ID
-    public int deleteById(int id) {
-        String sql = "DELETE FROM Bookings WHERE booking_id = ?";
-        return jdbcTemplate.update(sql, id);
     }
 
     public List<Booking> findUpcomingBookings(int customerId) {
@@ -82,7 +77,7 @@ public class BookingRepo {
         String sql = """
             SELECT * FROM Bookings
             WHERE customer_id = ?
-              AND status = 'cancelled'
+              AND (status = 'cancelled' OR status = 'rejected')
             ORDER BY created_at DESC
         """;
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Booking.class), customerId);

@@ -16,10 +16,10 @@ public class RoomService {
         this.roomRepository = roomRepository;
     }
 
-    public List<Room> getRoomByHotelId(int id){
+    public List<Room> getRoomByHotelId(int id) {
         List<Room> rooms = roomRepository.getRoomsByHotelId(id);
 
-        for(Room room : rooms){
+        for (Room room : rooms) {
             room.setImages(roomRepository.getRoomImages(room.getRoomId()));
         }
 
@@ -54,5 +54,10 @@ public class RoomService {
      */
     public List<Room> getRoomsByHotelId(int hotelId) {
         return roomRepository.getRoomsByHotelId(hotelId);
+    }
+
+
+    public int getTotalRoomsByHostId(int hostId) {
+        return roomRepository.getTotalRoomsByHostId(hostId);
     }
 }

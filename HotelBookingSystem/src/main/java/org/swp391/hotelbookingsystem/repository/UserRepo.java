@@ -68,7 +68,7 @@ public class UserRepo {
                    up.avatar_url AS avatarUrl,
                    up.bio
             FROM Users u
-            JOIN UserProfiles up ON u.user_id = up.user_id
+            LEFT JOIN UserProfiles up ON u.user_id = up.user_id
             """;
 
 

@@ -3,7 +3,7 @@
 
 <!-- Mirrored from stackbros.in/bookinga/landing/account-wishlist.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:07:33 GMT -->
 <head>
-  <title>Booking - Multipurpose Online Booking Theme</title>
+  <title>Hamora - Wishlist</title>
 
   <!-- Meta Tags -->
   <meta charset="utf-8">
@@ -106,9 +106,28 @@
         <div th:replace="~{common/sidebar-profile :: sidebar}"></div>
         <!-- Sidebar END -->
 
+
         <!-- Main content START -->
         <div class="col-lg-8">
           <h2 class="mb-4">Danh Sách Khách Sạn Yêu Thích</h2>
+
+          <!-- Thêm phần hiển thị thông báo -->
+          <div class="container mt-3">
+            <!-- Thông báo thành công -->
+            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+              <strong>Thành công!</strong> <span th:text="${successMessage}"></span>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <!-- Thông báo lỗi -->
+            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+              <strong>Lỗi!</strong> <span th:text="${errorMessage}"></span>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          </div>
+          <!-- Kết thúc phần hiển thị thông báo -->
+
+
 
           <!-- Thông báo khi không có mục yêu thích -->
           <div th:if="${favorites.size() == 0}">
@@ -142,9 +161,12 @@
                       <a th:href="@{/hotel-detail(hotelId=${favorite.hotel.hotelId})}" class="btn btn-primary btn-sm">
                         Xem chi tiết
                       </a>
-                      <button class="btn btn-danger btn-sm" th:attr="data-id=${favorite.hotel.hotelId}" onclick="removeFavorite(this)">
-                        Xóa
-                      </button>
+                      <form th:action="@{/remove-favorite(hotelId=${favorite.hotel.hotelId})}" method="post">
+                        <button type="submit" class="btn btn-danger btn-sm">
+                          Xóa
+                        </button>
+                      </form>
+
                     </div>
                   </div>
                 </div>

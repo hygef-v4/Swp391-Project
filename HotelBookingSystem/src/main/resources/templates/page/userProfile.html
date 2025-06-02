@@ -3,7 +3,7 @@
 
 <!-- Mirrored from stackbros.in/bookinga/landing/account-profile.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:07:32 GMT -->
 <head>
-    <title>Booking - Multipurpose Online Booking Theme</title>
+    <title>Hamora - User's Profile</title>
 
     <!-- Meta Tags -->
     <meta charset="utf-8">
@@ -206,7 +206,7 @@
                                         <label class="form-label">Email<span
                                                 class="text-danger">*</span></label>
                                         <input type="email" class="form-control" name="email" th:value="${session.user.email}"
-                                               placeholder="Enter your email id">
+                                               placeholder="Enter your email id" readonly style="opacity: 0.5; pointer-events: none;">
                                     </div>
 
                                     <!-- Số điện thoại -->
@@ -237,39 +237,39 @@
 <!--                                    </div>-->
 
                                     <!--Gender-->
-                                    <div class="col-md-6">
-                                        <label class="form-label">Select Gender<span
-                                                class="text-danger">*</span></label>
-                                        <div class="d-flex gap-4">
-                                            <div class="form-check radio-bg-light">
-                                                <input class="form-check-input" type="radio" name="flexRadioDefault"
-                                                       id="flexRadioDefault1" checked="">
-                                                <label class="form-check-label" for="flexRadioDefault1">
-                                                    Male
-                                                </label>
-                                            </div>
-                                            <div class="form-check radio-bg-light">
-                                                <input class="form-check-input" type="radio" name="flexRadioDefault"
-                                                       id="flexRadioDefault2">
-                                                <label class="form-check-label" for="flexRadioDefault2">
-                                                    Female
-                                                </label>
-                                            </div>
-                                            <div class="form-check radio-bg-light">
-                                                <input class="form-check-input" type="radio" name="flexRadioDefault"
-                                                       id="flexRadioDefault3">
-                                                <label class="form-check-label" for="flexRadioDefault3">
-                                                    Others
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
+<!--                                    <div class="col-md-6">-->
+<!--                                        <label class="form-label">Select Gender<span-->
+<!--                                                class="text-danger">*</span></label>-->
+<!--                                        <div class="d-flex gap-4">-->
+<!--                                            <div class="form-check radio-bg-light">-->
+<!--                                                <input class="form-check-input" type="radio" name="flexRadioDefault"-->
+<!--                                                       id="flexRadioDefault1" checked="">-->
+<!--                                                <label class="form-check-label" for="flexRadioDefault1">-->
+<!--                                                    Male-->
+<!--                                                </label>-->
+<!--                                            </div>-->
+<!--                                            <div class="form-check radio-bg-light">-->
+<!--                                                <input class="form-check-input" type="radio" name="flexRadioDefault"-->
+<!--                                                       id="flexRadioDefault2">-->
+<!--                                                <label class="form-check-label" for="flexRadioDefault2">-->
+<!--                                                    Female-->
+<!--                                                </label>-->
+<!--                                            </div>-->
+<!--                                            <div class="form-check radio-bg-light">-->
+<!--                                                <input class="form-check-input" type="radio" name="flexRadioDefault"-->
+<!--                                                       id="flexRadioDefault3">-->
+<!--                                                <label class="form-check-label" for="flexRadioDefault3">-->
+<!--                                                    Others-->
+<!--                                                </label>-->
+<!--                                            </div>-->
+<!--                                        </div>-->
+<!--                                    </div>-->
 
                                     <!-- Address -->
-                                    <div class="col-12">
-                                        <label class="form-label">Address</label>
-                                        <textarea class="form-control" rows="3" name="address" >Your address</textarea>
-                                    </div>
+<!--                                    <div class="col-12">-->
+<!--                                        <label class="form-label">Address</label>-->
+<!--                                        <textarea class="form-control" rows="3" name="address" >Your address</textarea>-->
+<!--                                    </div>-->
 
                                     <!-- Button -->
                                     <div class="col-12 text-end">
@@ -310,7 +310,7 @@
                         <!-- Update Password START -->
 <div class="card border">
     <div class="card-header border-bottom">
-        <h4 class="card-header-title">Update Password</h4>
+        <h4 class="card-header-title">Cập nhật mật khẩu</h4>
     </div>
 
     <form class="card-body" th:action="@{/update-password}" method="post">

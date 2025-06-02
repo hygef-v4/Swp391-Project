@@ -2,12 +2,9 @@ package org.swp391.hotelbookingsystem.config;
 
 import org.swp391.hotelbookingsystem.handler.FormLoginSuccessHandler;
 import org.swp391.hotelbookingsystem.handler.OAuth2LoginSuccessHandler;
-import org.swp391.hotelbookingsystem.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -17,9 +14,6 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-
-    @Autowired
-    private CustomUserDetailsService userDetailsService;
 
     @Autowired
     private OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
@@ -35,23 +29,24 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/login", "/register", "/forgot-password",
+                                "/login", "/", "/register", "/forgot-password",
                                 "/css/**", "/js/**", "/images/**", "/assets/**",
-                                "/api/files/**" //  Allow API access
+                                "/api/files/**", "/home", "/hotel-list", "/hotel-detail", "/error"
                         ).permitAll()
-                        .requestMatchers("/user-profile", "/update-user-profile").authenticated() // Chỉ cho phép người đã xác thực
-                        .anyRequest().permitAll() // in dev mode
+                        .requestMatchers("/admin-dashboard").hasRole("ADMIN")
+                        .requestMatchers("/admin-dashboard").hasRole("MODERATOR")
+                        .requestMatchers("/host-dashboard").hasRole("HOTEL OWNER")
+                        .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/home", true)
                         .successHandler(formLoginSuccessHandler)
                         .failureUrl("/login?error=true")
                         .permitAll()
                 )
                 .rememberMe(r -> r
                         .key("bKJHkjsdf8723hJKH8sd89fjsd0239JKLHkjasdf987sdf")
-                        .tokenValiditySeconds(7 * 24 * 60 * 60) // 7 ngày
+                        .tokenValiditySeconds(7 * 24 * 60 * 60)
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/login")
@@ -65,10 +60,5 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
     }
 }

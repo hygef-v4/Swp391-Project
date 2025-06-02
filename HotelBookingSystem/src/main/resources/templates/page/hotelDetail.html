@@ -262,7 +262,21 @@ Search END -->
 	
 <!-- =======================
 Main Title START -->
-<section class="py-0 pt-sm-5">
+	<div class="container mt-3">
+		<!-- Thông báo thành công -->
+		<div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+			<strong>Thành công!</strong> <span th:text="${successMessage}"></span>
+			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		</div>
+
+		<!-- Thông báo lỗi -->
+		<div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+			<strong>Lỗi!</strong> <span th:text="${errorMessage}"></span>
+			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		</div>
+	</div>
+
+	<section class="py-0 pt-sm-5">
 	<div class="container position-relative">
 		<!-- Title and button START -->
 		<div class="row mb-3">
@@ -285,8 +299,13 @@ Main Title START -->
 					<ul class="list-inline text-end">
 						<!-- Heart icon -->
 						<li class="list-inline-item">
-							<a href="#" class="btn btn-sm btn-light px-2"><i class="fa-solid fa-fw fa-heart"></i></a>
+							<form th:action="@{/add-favorite(hotelId=${hotel.hotelId})}" method="post" style="display: inline;">
+								<button type="submit" class="btn btn-sm btn-light px-2">
+									<i class="fa-solid fa-fw fa-heart"></i>
+								</button>
+							</form>
 						</li>
+
 						<!-- Share icon -->
 						<li class="list-inline-item dropdown">
 							<!-- Share button -->

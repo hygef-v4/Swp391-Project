@@ -127,7 +127,7 @@
                                 <i class="bi bi-info-circle-fill small"></i>
                             </a>
                         </h6>
-                        <h2 class="text-success">$25,869</h2>
+                        <h2 class="text-success">$0</h2>
                         <p class="mb-2"><span class="text-primary me-1">0.20%<i class="bi bi-arrow-up"></i></span>vs last month</p>
                         <div class="mt-auto text-primary-hover"><a href="#" class="text-decoration-underline p-0 mb-0">View statement</a></div>
                     </div>
@@ -137,8 +137,8 @@
                 <div class="col-md-6 col-xl-4">
                     <div class="card card-body border p-4 h-100">
                         <h6>Booked Rooms</h6>
-                        <h2 class="text-info">58</h2>
-                        <p class="mb-2"><span class="text-danger me-1">102</span>Total Rooms</p>
+                        <h2 class="text-info">0</h2>
+                        <p class="mb-2"><span class="text-danger me-1">Total room</span>Total Rooms</p>
                         <div class="mt-auto text-primary-hover"><a href="#" class="text-decoration-underline p-0 mb-0">View Bookings</a></div>
                     </div>
                 </div>
@@ -147,8 +147,9 @@
                 <div class="col-md-6 col-xl-4">
                     <div class="card card-body border p-4 h-100">
                         <h6>Available Rooms</h6>
-                        <h2 class="text-warning">42</h2>
-                        <p class="mb-2"><span class="text-danger me-1">102</span>Total Rooms</p>
+<!--                        de tam-->
+                        <h2 class="text-warning" th:text="${totalRooms}">0</h2>
+                        <p class="mb-2"><span class="text-danger me-1" th:text="${totalRooms}" >102</span>Total Rooms</p>
                         <div class="mt-auto text-primary-hover"><a href="#" class="text-decoration-underline p-0 mb-0">View Rooms</a></div>
                     </div>
                 </div>
@@ -211,12 +212,12 @@
                                                 <!-- Price -->
                                                 <div class="d-flex align-items-center">
                                                     <h5 class="fw-bold mb-0 me-1" th:text="${#numbers.formatDecimal(hotel.minPrice, 0, 'COMMA', 3, 'POINT')} + ' VNĐ'">Price</h5>
-                                                    <span class="mb-0 me-2">/day</span>
+                                                    <span class="mb-0 me-2">/ngày</span>
                                                 </div>
                                                 <!-- Buttons -->
                                                 <div class="hstack gap-2 mt-3 mt-sm-0">
                                                     <a th:href="@{/add-room(hotelId=${hotel.hotelId})}" class="btn btn-sm btn-primary mb-0">
-                                                        <i class="bi bi-plus-circle fa-fw me-1"></i>Add Room
+                                                        <i class="bi bi-plus-circle fa-fw me-1"></i> Thêm phòng
                                                     </a>
 
                                                     <a th:href="@{/delete-hotel/{id}(id=${hotel.hotelId})}" class="btn btn-sm btn-danger mb-0"
