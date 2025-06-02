@@ -34,6 +34,23 @@ public class BookingRepo {
         return jdbcTemplate.update(sql, id);
     }
 
+    public int save(Booking booking) {
+        String sql = """
+                INSERT INTO Bookings (room_id, customer_id, coupon_id, check_in, check_out, total_price, status, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """;
+        return jdbcTemplate.update(sql,
+                booking.getRoomId(),
+                booking.getCustomerId(),
+                booking.getCouponId(),
+                booking.getCheckIn(),
+                booking.getCheckOut(),
+                booking.getTotalPrice(),
+                booking.getStatus(),
+                booking.getCreatedAt()
+        );
+    }
+
     public List<Booking> findUpcomingBookings(int customerId) {
         String sql = """
             SELECT * FROM Bookings
