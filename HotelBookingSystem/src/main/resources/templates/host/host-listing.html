@@ -211,7 +211,13 @@
                                             <div class="d-sm-flex justify-content-sm-between align-items-center mt-3 mt-md-auto">
                                                 <!-- Price -->
                                                 <div class="d-flex align-items-center">
-                                                    <h5 class="fw-bold mb-0 me-1" th:text="${#numbers.formatDecimal(hotel.minPrice, 0, 'COMMA', 3, 'POINT')} + ' VNĐ'">Price</h5>
+                                                    <h5 class="fw-bold mb-0 me-1"
+                                                        th:utext="${#numbers.formatDecimal(hotel.minPrice, 0, 'COMMA', 0, 'POINT')} + ' <small>đ</small>'">
+                                                        Price
+                                                    </h5>
+
+
+
                                                     <span class="mb-0 me-2">/ngày</span>
                                                 </div>
                                                 <!-- Buttons -->
