@@ -1,12 +1,11 @@
 package org.swp391.hotelbookingsystem.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.repository.UserRepo;
 import org.swp391.hotelbookingsystem.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +19,8 @@ public class RegisterController {
     @Autowired
     private EmailService emailService;
 
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @GetMapping("/register")
     public String registerForm() {
@@ -37,7 +37,7 @@ public class RegisterController {
             HttpSession session) {
 
 
-        if (email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
+        if (email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty() || fullname.isEmpty()) {
             model.addAttribute("error", "All fields are required.");
             return "page/register";
         }
