@@ -36,6 +36,11 @@ public class AdminDashboardController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         model.addAttribute(ConstantVariables.PAGE_TITLE, "Hamora Booking");
 
+        User user = (User) session.getAttribute("user");
+        if (user == null || !user.getRole().equals("ADMIN")) {
+            return "redirect:/login";
+        }
+
         int numberOfHotels = hotelService.countHotels();
         model.addAttribute("numberOfHotels", numberOfHotels);
 

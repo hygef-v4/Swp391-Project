@@ -159,7 +159,7 @@
                             </li>
 
                             <!-- Quản trị viên -->
-                            <li><a class="dropdown-item" th:href="@{/admin-dashboard}">Quản trị viên</a></li>
+                            <li><a class="dropdown-item" th:if="${session.user != null and session.user.role.equals('ADMIN')}" th:href="@{/admin-dashboard}">Quản trị viên</a></li>
 
                         </ul>
                     </li>
