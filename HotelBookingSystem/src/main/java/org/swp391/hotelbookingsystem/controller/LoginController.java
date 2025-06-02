@@ -18,11 +18,8 @@ public class LoginController {
     public String logout(HttpServletRequest request, HttpServletResponse response) throws ServletException {
         HttpSession session = request.getSession();
         if (session != null) {
-            session.invalidate(); // clears everything and ends the session
+            session.invalidate();
         }
-
         return "redirect:/login";
     }
-
-
 }

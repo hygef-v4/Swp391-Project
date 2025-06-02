@@ -4,7 +4,6 @@ import jakarta.servlet.http.HttpSession;
 import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.repository.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,8 +15,6 @@ public class OtpController {
 
     @Autowired
     private UserRepo userRepo;
-
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Autowired
     private EmailService emailService;
@@ -52,16 +49,11 @@ public class OtpController {
             return "page/register";
         }
 
-        // Sinh lại OTP mới
         String otp = String.valueOf((int) (Math.random() * 900000) + 100000);
-
-        // Gửi email
         emailService.sendOtpEmail(user.getEmail(), otp);
-
-        // Lưu OTP vào DB
         userRepo.saveEmailOtpToken(user.getEmail(), otp);
 
-        model.addAttribute("message", "OTP đã được gửi lại đến email của bạn.");
+        model.addAttribute("message", "The OTP has been resent to your email.");
         return "page/verify-email-otp";
     }
 
