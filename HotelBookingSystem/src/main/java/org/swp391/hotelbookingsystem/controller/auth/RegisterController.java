@@ -3,18 +3,18 @@ package org.swp391.hotelbookingsystem.controller.auth;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.swp391.hotelbookingsystem.model.User;
-import org.swp391.hotelbookingsystem.repository.UserRepo;
 import org.swp391.hotelbookingsystem.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.swp391.hotelbookingsystem.service.UserService;
 
 @Controller
 public class RegisterController {
 
     @Autowired
-    private UserRepo userRepo;
+    private UserService userService;
 
     @Autowired
     private EmailService emailService;
@@ -47,7 +47,7 @@ public class RegisterController {
             return "page/register";
         }
 
-        if (userRepo.findByEmail(email) != null) {
+        if (userService.findByEmail(email) != null) {
             model.addAttribute("error", "Email already exists.");
             return "page/register";
         }
@@ -69,7 +69,7 @@ public class RegisterController {
         }
 
         String hashedPassword = passwordEncoder.encode(password);
-        User existingUser = userRepo.findByEmail(email);
+        User existingUser = userService.findByEmail(email);
 
         if (existingUser != null) {
             model.addAttribute("error", "Email already exists.");
@@ -78,7 +78,7 @@ public class RegisterController {
 
         String otp = String.valueOf((int) (Math.random() * 900000) + 100000);
         emailService.sendOtpEmail(email, otp);
-        userRepo.saveEmailOtpToken(email, otp);
+        userService.saveEmailOtpToken(email, otp);
 
         User user = new User(email, hashedPassword);
         user.setFullName(fullname);
