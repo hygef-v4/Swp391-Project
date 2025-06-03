@@ -58,4 +58,8 @@ public class UserService {
         List<User> allUsers = userRepo.getAllUsersWithProfile();
         return allUsers.size() > 5 ? allUsers.subList(0, 5) : allUsers;
     }
+
+    public void updateUser(User user) {
+        userRepo.updateUser(user);
+    }
 }

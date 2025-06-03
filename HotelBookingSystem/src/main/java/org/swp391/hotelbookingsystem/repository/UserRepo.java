@@ -194,9 +194,14 @@ public class UserRepo {
     }
 
     public void updateUser(User user) {
-        String sql = "UPDATE Users SET full_name = ?, phone = ? WHERE email = ?";
-        jdbc.update(sql, user.getFullName(), user.getPhone(), user.getEmail());
+        String sql = """
+                      UPDATE Users 
+                      SET full_name = ?, phone = ?, gender = ?, bio = ?, date_of_birth = ? 
+                      WHERE email = ?
+                     """;
+        jdbc.update(sql, user.getFullName(), user.getPhone(), user.getGender(), user.getBio(), user.getDob(), user.getEmail());
     }
+
 
     public List<User> searchUsersWithProfileByName(String search) {
         String sql = """

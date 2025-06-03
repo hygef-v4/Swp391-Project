@@ -174,30 +174,30 @@
                                 <!-- Form START -->
                                 <form th:action="@{/update-user-profile}" method="post" class="row g-3">
                                     <!-- Profile photo -->
-                                    <div class="col-12">
-                                        <label class="form-label">Upload your profile photo<span
-                                                class="text-danger">*</span></label>
-                                        <div class="d-flex align-items-center">
-                                            <label class="position-relative me-4" for="uploadfile-1"
-                                                   title="Replace this pic">
-                                                <!-- Avatar place holder -->
-                                                <span class="avatar avatar-xl">
-												<img id="uploadfile-1-preview"
-                                                     class="avatar-img rounded-circle border border-white border-3 shadow"
-                                                     src="assets/images/avatar/01.jpg" alt="">
-											</span>
-                                            </label>
-                                            <!-- Upload button -->
-                                            <label class="btn btn-sm btn-primary-soft mb-0"
-                                                   for="uploadfile-1">Change</label>
-                                            <input id="uploadfile-1" class="form-control d-none" type="file">
-                                        </div>
-                                    </div>
+<!--                                    <div class="col-12">-->
+<!--                                        <label class="form-label">Upload your profile photo<span-->
+<!--                                                class="text-danger">*</span></label>-->
+<!--                                        <div class="d-flex align-items-center">-->
+<!--                                            <label class="position-relative me-4" for="uploadfile-1"-->
+<!--                                                   title="Replace this pic">-->
+<!--                                                &lt;!&ndash; Avatar place holder &ndash;&gt;-->
+<!--                                                <span class="avatar avatar-xl">-->
+<!--												<img id="uploadfile-1-preview"-->
+<!--                                                     class="avatar-img rounded-circle border border-white border-3 shadow"-->
+<!--                                                     src="assets/images/avatar/01.jpg" alt="">-->
+<!--											</span>-->
+<!--                                            </label>-->
+<!--                                            &lt;!&ndash; Upload button &ndash;&gt;-->
+<!--                                            <label class="btn btn-sm btn-primary-soft mb-0"-->
+<!--                                                   for="uploadfile-1">Change</label>-->
+<!--                                            <input id="uploadfile-1" class="form-control d-none" type="file">-->
+<!--                                        </div>-->
+<!--                                    </div>-->
 
                                     <!-- Tên người dùng -->
                                     <div class="col-md-6">
                                         <label class="form-label">Tên người dùng</label>
-                                        <input type="text" class="form-control" name="fullname" th:value="${session.user.fullname}" required>
+                                        <input type="text" class="form-control" name="fullname" th:value="${session.user.fullName}" required>
                                     </div>
 
 
@@ -229,47 +229,28 @@
                                     <!--                                    </div>-->
 
                                     <!--                                     Date of birth-->
-<!--                                    <div class="col-md-6">-->
-<!--                                        <label class="form-label">Date of Birth<span-->
-<!--                                                class="text-danger">*</span></label>-->
-<!--                                        <input type="text" class="form-control flatpickr" value="29 Aug 1996"-->
-<!--                                               placeholder="Enter date of birth" data-date-format="d M Y">-->
-<!--                                    </div>-->
+                                    <div class="col-md-6">
+                                        <label class="form-label">Date of Birth</label>
+                                        <input type="date" class="form-control" name="dob" th:value="${session.user.dob}">
+                                    </div>
+
 
                                     <!--Gender-->
-<!--                                    <div class="col-md-6">-->
-<!--                                        <label class="form-label">Select Gender<span-->
-<!--                                                class="text-danger">*</span></label>-->
-<!--                                        <div class="d-flex gap-4">-->
-<!--                                            <div class="form-check radio-bg-light">-->
-<!--                                                <input class="form-check-input" type="radio" name="flexRadioDefault"-->
-<!--                                                       id="flexRadioDefault1" checked="">-->
-<!--                                                <label class="form-check-label" for="flexRadioDefault1">-->
-<!--                                                    Male-->
-<!--                                                </label>-->
-<!--                                            </div>-->
-<!--                                            <div class="form-check radio-bg-light">-->
-<!--                                                <input class="form-check-input" type="radio" name="flexRadioDefault"-->
-<!--                                                       id="flexRadioDefault2">-->
-<!--                                                <label class="form-check-label" for="flexRadioDefault2">-->
-<!--                                                    Female-->
-<!--                                                </label>-->
-<!--                                            </div>-->
-<!--                                            <div class="form-check radio-bg-light">-->
-<!--                                                <input class="form-check-input" type="radio" name="flexRadioDefault"-->
-<!--                                                       id="flexRadioDefault3">-->
-<!--                                                <label class="form-check-label" for="flexRadioDefault3">-->
-<!--                                                    Others-->
-<!--                                                </label>-->
-<!--                                            </div>-->
-<!--                                        </div>-->
-<!--                                    </div>-->
+                                    <div class="col-md-6">
+                                        <label class="form-label">Gender</label>
+                                        <select class="form-select" name="gender">
+                                            <option value="Male" th:selected="${session.user.gender eq 'Male'}">Male</option>
+                                            <option value="Female" th:selected="${session.user.gender eq 'Female'}">Female</option>
+                                            <option value="Other" th:selected="${session.user.gender eq 'Other'}">Other</option>
+                                        </select>
+                                    </div>
 
-                                    <!-- Address -->
-<!--                                    <div class="col-12">-->
-<!--                                        <label class="form-label">Address</label>-->
-<!--                                        <textarea class="form-control" rows="3" name="address" >Your address</textarea>-->
-<!--                                    </div>-->
+
+<!--                                     Bio-->
+                                    <div class="col-12">
+                                        <label class="form-label">Bio</label>
+                                        <textarea class="form-control" name="bio" th:text="${session.user.bio}"></textarea>
+                                    </div>
 
                                     <!-- Button -->
                                     <div class="col-12 text-end">
