@@ -44,4 +44,22 @@ public class EmailService {
         message.setText("Xin chào,\n\nMã OTP xác thực email của bạn là: " + otp + "\nMã này sẽ hết hạn sau 5 phút.\n\nTrân trọng.");
         mailSender.send(message);
     }
+
+    public void sendHotelDeleteConfirmationEmail(String toEmail, String hotelName, String otp) throws MessagingException {
+        Context context = new Context();
+        context.setVariable("hotelName", hotelName);
+        context.setVariable("otp", otp);
+
+        String htmlContent = templateEngine.process("email/confirm-hotel-delete", context);
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+        helper.setTo(toEmail);
+        helper.setSubject("Xác nhận xóa khách sạn: " + hotelName);
+        helper.setText(htmlContent, true);
+        helper.setFrom("your_email@gmail.com");
+
+        mailSender.send(message);
+    }
+
 }

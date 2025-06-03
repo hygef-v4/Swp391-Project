@@ -1,4 +1,4 @@
-package org.swp391.hotelbookingsystem.controller;
+package org.swp391.hotelbookingsystem.controller.shared;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

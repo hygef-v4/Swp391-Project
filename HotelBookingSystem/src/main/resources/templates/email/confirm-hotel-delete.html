@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Xác nhận xóa khách sạn</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; max-width: 600px; margin: auto;">
+<h2 style="color: #dc3545;">Xin chào!</h2>
+
+<p>Bạn đã yêu cầu xóa khách sạn <strong th:text="${hotelName}">Tên khách sạn</strong> khỏi hệ thống Hamora.</p>
+
+<p>Mã xác nhận (OTP) của bạn là:</p>
+
+<p style="font-size: 24px; font-weight: bold; text-align: center; color: #dc3545;">
+    <span th:text="${otp}">123456</span>
+</p>
+
+<p style="color: gray; font-size: 14px;">
+    Mã xác nhận sẽ hết hạn sau 10 phút vì lý do bảo mật.
+</p>
+
+<hr style="margin: 30px 0;">
+<p style="font-size: 13px; color: #888;">
+    Nếu bạn không yêu cầu hành động này, vui lòng bỏ qua email này hoặc liên hệ hỗ trợ Hamora.
+</p>
+
+<p style="font-weight: bold;">Trân trọng,<br>Hamora Booking Team</p>
+</body>
+</html>

@@ -34,7 +34,7 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             var el = document.querySelector('.theme-icon-active');
-            if(el != 'undefined' && el != null) {
+            if (el != 'undefined' && el != null) {
                 const showActiveTheme = theme => {
                     const activeThemeIcon = document.querySelector('.theme-icon-active use')
                     const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
@@ -77,7 +77,8 @@
     <!-- Google Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com/">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Poppins:wght@400;500;700&amp;display=swap">
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Poppins:wght@400;500;700&amp;display=swap">
 
     <!-- Plugins CSS -->
     <link rel="stylesheet" type="text/css" href="assets/vendor/font-awesome/css/all.min.css">
@@ -123,13 +124,17 @@
                 <div class="col-md-6 col-xl-4">
                     <div class="card card-body border p-4 h-100">
                         <h6>Earning
-                            <a tabindex="0" class="h6 mb-0" role="button" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="top" data-bs-content="After US royalty withholding tax" data-bs-original-title="" title="">
+                            <a tabindex="0" class="h6 mb-0" role="button" data-bs-toggle="popover"
+                               data-bs-trigger="focus" data-bs-placement="top"
+                               data-bs-content="After US royalty withholding tax" data-bs-original-title="" title="">
                                 <i class="bi bi-info-circle-fill small"></i>
                             </a>
                         </h6>
                         <h2 class="text-success">$0</h2>
-                        <p class="mb-2"><span class="text-primary me-1">0.20%<i class="bi bi-arrow-up"></i></span>vs last month</p>
-                        <div class="mt-auto text-primary-hover"><a href="#" class="text-decoration-underline p-0 mb-0">View statement</a></div>
+                        <p class="mb-2"><span class="text-primary me-1">0.20%<i class="bi bi-arrow-up"></i></span>vs
+                            last month</p>
+                        <div class="mt-auto text-primary-hover"><a href="#" class="text-decoration-underline p-0 mb-0">View
+                            statement</a></div>
                     </div>
                 </div>
 
@@ -139,7 +144,8 @@
                         <h6>Booked Rooms</h6>
                         <h2 class="text-info">0</h2>
                         <p class="mb-2"><span class="text-danger me-1">Total room</span>Total Rooms</p>
-                        <div class="mt-auto text-primary-hover"><a href="#" class="text-decoration-underline p-0 mb-0">View Bookings</a></div>
+                        <div class="mt-auto text-primary-hover"><a href="#" class="text-decoration-underline p-0 mb-0">View
+                            Bookings</a></div>
                     </div>
                 </div>
 
@@ -147,10 +153,11 @@
                 <div class="col-md-6 col-xl-4">
                     <div class="card card-body border p-4 h-100">
                         <h6>Available Rooms</h6>
-<!--                        de tam-->
+                        <!--                        de tam-->
                         <h2 class="text-warning" th:text="${totalRooms}">0</h2>
-                        <p class="mb-2"><span class="text-danger me-1" th:text="${totalRooms}" >102</span>Total Rooms</p>
-                        <div class="mt-auto text-primary-hover"><a href="#" class="text-decoration-underline p-0 mb-0">View Rooms</a></div>
+                        <p class="mb-2"><span class="text-danger me-1" th:text="${totalRooms}">102</span>Total Rooms</p>
+                        <div class="mt-auto text-primary-hover"><a href="#" class="text-decoration-underline p-0 mb-0">View
+                            Rooms</a></div>
                     </div>
                 </div>
 
@@ -163,9 +170,17 @@
 
                     <div class="card border">
                         <!-- Card header -->
-                        <div class="card-header border-bottom">
-                            <h5 class="card-header-title">Khách sạn của tôi <span class="badge bg-primary bg-opacity-10 text-primary ms-2">[[${hotels.size()}]]</span></h5>
+                        <div class="card-header border-bottom d-flex justify-content-between align-items-center">
+                            <h5 class="card-header-title mb-0">
+                                Khách sạn của tôi
+                                <span class="badge bg-primary bg-opacity-10 text-primary ms-2">[[${hotels.size()}]]</span>
+                            </h5>
+
+                            <a href="/add-hotel" class="btn btn-sm btn-primary-soft">
+                                <i class="bi bi-plus-lg me-1"></i> Thêm khách sạn mới
+                            </a>
                         </div>
+
 
                         <!-- Card body START -->
                         <div class="card-body vstack gap-3">
@@ -176,7 +191,8 @@
                                     <div class="col-md-3 col-lg-2">
 
                                         <a th:href="@{/hotel-detail(hotelId=${hotel.hotelId})}">
-                                            <img th:src="${hotel.hotelImageUrl}" class="card-img rounded-2" alt="Hotel image">
+                                            <img th:src="${hotel.hotelImageUrl}" class="card-img rounded-2"
+                                                 alt="Hotel image">
                                         </a>
 
 
@@ -188,18 +204,22 @@
 
                                             <!-- Buttons -->
                                             <div class="list-inline-item dropdown position-absolute top-0 end-0">
-                                                <a href="#" class="btn btn-sm btn-round btn-light" role="button" id="dropdownAction" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <a href="#" class="btn btn-sm btn-round btn-light" role="button"
+                                                   id="dropdownAction" data-bs-toggle="dropdown" aria-expanded="false">
                                                     <i class="bi bi-three-dots-vertical"></i>
                                                 </a>
                                                 <ul class="dropdown-menu dropdown-menu-end min-w-auto shadow rounded">
-                                                    <li><a class="dropdown-item" href="#"><i class="bi bi-info-circle me-1"></i>Report</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="bi bi-slash-circle me-1"></i>Disable</a></li>
+                                                    <li><a class="dropdown-item" href="#"><i
+                                                            class="bi bi-info-circle me-1"></i>Report</a></li>
+                                                    <li><a class="dropdown-item" href="#"><i
+                                                            class="bi bi-slash-circle me-1"></i>Disable</a></li>
                                                 </ul>
                                             </div>
 
                                             <!-- Title -->
                                             <h5 class="card-title mb-0 me-5">
-                                                <a th:href="@{/hotel-detail/{id}(id=${hotel.hotelId})}" th:text="${hotel.hotelName}">Hotel Name</a>
+                                                <a th:href="@{/hotel-detail/{id}(id=${hotel.hotelId})}"
+                                                   th:text="${hotel.hotelName}">Hotel Name</a>
                                             </h5>
                                             <small>
                                                 <i class="bi bi-geo-alt me-2"></i>
@@ -211,20 +231,98 @@
                                             <div class="d-sm-flex justify-content-sm-between align-items-center mt-3 mt-md-auto">
                                                 <!-- Price -->
                                                 <div class="d-flex align-items-center">
-                                                    <h5 class="fw-bold mb-0 me-1" th:text="${#numbers.formatDecimal(hotel.minPrice, 0, 'COMMA', 3, 'POINT')} + ' VNĐ'">Price</h5>
-                                                    <span class="mb-0 me-2">/day</span>
+                                                    <h5 class="fw-bold mb-0 me-1"
+                                                        th:utext="${#numbers.formatDecimal(hotel.minPrice, 0, 'COMMA', 0, 'POINT')} + ' <small>đ</small>'">
+                                                        Price
+                                                    </h5>
+
+
+                                                    <span class="mb-0 me-2">/ngày</span>
                                                 </div>
-                                                <!-- Buttons -->
+                                                <!-- Action Buttons for Each Hotel -->
                                                 <div class="hstack gap-2 mt-3 mt-sm-0">
-                                                    <a th:href="@{/add-room(hotelId=${hotel.hotelId})}" class="btn btn-sm btn-primary mb-0">
-                                                        <i class="bi bi-plus-circle fa-fw me-1"></i>Add Room
+
+                                                    <!-- View Detail -->
+                                                    <a th:href="@{/hotel-detail(hotelId=${hotel.hotelId})}"
+                                                       class="btn btn-sm btn-outline-secondary mb-0">
+                                                        <i class="bi bi-eye fa-fw me-1"></i> Xem chi tiết
                                                     </a>
 
-                                                    <a th:href="@{/delete-hotel/{id}(id=${hotel.hotelId})}" class="btn btn-sm btn-danger mb-0"
-                                                       onclick="return confirm('Are you sure you want to delete this hotel?');">
-                                                        <i class="bi bi-trash3 fa-fw me-1"></i>Delete
+                                                    <!-- Add Room -->
+                                                    <a th:href="@{/add-room(hotelId=${hotel.hotelId})}"
+                                                       class="btn btn-sm btn-outline-primary mb-0">
+                                                        <i class="bi bi-plus-circle fa-fw me-1"></i> Thêm phòng
                                                     </a>
+
+                                                    <!-- Manage -->
+                                                    <a th:href="@{/manage-hotel(hotelId=${hotel.hotelId})}"
+                                                       class="btn btn-sm btn-outline-warning mb-0">
+                                                        <i class="bi bi-gear fa-fw me-1"></i> Quản lý
+                                                    </a>
+
+
+                                                    <!-- Delete Button Form -->
+                                                    <form th:action="@{/host/request-delete-hotel}" method="post"
+                                                          class="d-inline-block">
+                                                        <input type="hidden" name="hotelId"
+                                                               th:value="${hotel.hotelId}"/>
+                                                        <button type="submit"
+                                                                class="btn btn-sm btn-outline-danger mb-0"
+                                                                onclick="return confirm('Bạn có chắc chắn muốn yêu cầu xóa khách sạn này không?');">
+                                                            <i class="bi bi-trash3 fa-fw me-1"></i> Yêu cầu xóa
+                                                        </button>
+                                                    </form>
+
+                                                    <!-- OTP Modal (Ensure it's on the page you redirect to, e.g., host-listing.html) -->
+                                                    <div class="modal fade" id="otpModal" tabindex="-1"
+                                                         aria-labelledby="otpModalLabel" aria-hidden="true">
+                                                        <div class="modal-dialog modal-dialog-centered">
+                                                            <div class="modal-content">
+                                                                <form th:action="@{/host/confirm-delete-hotel}"
+                                                                      method="post" id="otpForm">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title" id="otpModalLabel">Nhập
+                                                                            mã OTP</h5>
+                                                                        <button type="button" class="btn-close"
+                                                                                data-bs-dismiss="modal"
+                                                                                aria-label="Đóng"></button>
+                                                                    </div>
+                                                                    <div class="modal-body">
+                                                                        <p>Mã xác nhận đã được gửi tới email của bạn.
+                                                                            Vui lòng nhập mã để xác nhận xóa khách
+                                                                            sạn.</p>
+                                                                        <!-- Display OTP error if any -->
+                                                                        <div th:if="${otpError}"
+                                                                             class="alert alert-danger" role="alert"
+                                                                             th:text="${otpError}">
+                                                                        </div>
+                                                                        <div class="mb-3">
+                                                                            <label for="otpInput" class="form-label">Mã
+                                                                                OTP:</label>
+                                                                            <input type="text" name="otp" id="otpInput"
+                                                                                   class="form-control"
+                                                                                   placeholder="Nhập mã OTP" required
+                                                                                   autofocus>
+                                                                        </div>
+                                                                        <input type="hidden" name="hotelId"
+                                                                               id="otpHotelId">
+                                                                    </div>
+                                                                    <div class="modal-footer">
+                                                                        <button type="button" class="btn btn-secondary"
+                                                                                data-bs-dismiss="modal">Hủy
+                                                                        </button>
+                                                                        <button type="submit" class="btn btn-danger">Xác
+                                                                            nhận xóa
+                                                                        </button>
+                                                                    </div>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+
                                                 </div>
+
                                             </div>
                                         </div>
                                     </div>
@@ -262,6 +360,43 @@
 
 <!-- ThemeFunctions -->
 <script src="assets/js/functions.js"></script>
+
+<!-- JavaScript to trigger the modal -->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    document.addEventListener('DOMContentLoaded', function () {
+        // Thymeleaf will replace [[${showOtpModalForHotelId}]] with the actual value or null if not present
+        const hotelIdForOtp = /*[[${showOtpModalForHotelId}]]*/ null;
+        const otpErrorMessage = /*[[${otpError}]]*/ null; // Get OTP specific error
+
+        if (hotelIdForOtp) {
+            const otpModalElement = document.getElementById('otpModal');
+            const otpHotelIdInput = document.getElementById('otpHotelId'); // Input field for hotelId in modal form
+            const otpInputElement = document.getElementById('otpInput'); // The OTP text input
+
+            if (otpModalElement && otpHotelIdInput) {
+                otpHotelIdInput.value = hotelIdForOtp; // Set the hidden hotelId field
+
+                const modal = new bootstrap.Modal(otpModalElement);
+                modal.show();
+
+                // If there was an OTP error on a previous attempt, clear the input and focus
+                if (otpErrorMessage && otpInputElement) {
+                    otpInputElement.value = ''; // Clear previous incorrect OTP
+                    // The error message is already displayed via Thymeleaf th:if block
+                }
+
+                // Focus the OTP input field when modal is shown
+                otpModalElement.addEventListener('shown.bs.modal', function () {
+                    if (otpInputElement) {
+                        otpInputElement.focus();
+                    }
+                });
+            }
+        }
+
+    });
+</script>
 
 </body>
 

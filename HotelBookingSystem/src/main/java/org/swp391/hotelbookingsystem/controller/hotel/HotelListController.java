@@ -1,4 +1,4 @@
-package org.swp391.hotelbookingsystem.controller;
+package org.swp391.hotelbookingsystem.controller.hotel;
 
 import java.util.List;
 
@@ -32,7 +32,7 @@ public class HotelListController {
         List<Hotel> current;
         if(hotel.size() < item){
             current = hotel.subList((page-1) * 12, hotel.size());
-        }else current = hotel.subList((page-1) * 12, page * 12);
+        }else current = hotel.subList((page-1) * 12, item);
         model.addAttribute("hotels", current);
 
         model.addAttribute("page", page);

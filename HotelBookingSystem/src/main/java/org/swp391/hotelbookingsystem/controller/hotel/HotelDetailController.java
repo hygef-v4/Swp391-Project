@@ -1,4 +1,4 @@
-package org.swp391.hotelbookingsystem.controller;
+package org.swp391.hotelbookingsystem.controller.hotel;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;

@@ -21,12 +21,13 @@ public class CloudinaryService {
             throw new IllegalArgumentException("Only image files are allowed");
         }
 
-        //Map<String, Object> uploadOptions = new HashMap<>();
-        //uploadOptions.put("folder", folder);
-        //uploadOptions.put("resource_type", "image");
         return cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap(
                 "folder", folder,           //Tells Cloudinary which folder to store the file in.
-                "resource_type", "image"           //tells Cloudinary this is an image file.
+                "resource_type", "image" ,          //tells Cloudinary this is an image file.
+
+                // Apply compression at upload
+                "transformation", new com.cloudinary.Transformation().quality("auto")  // auto compress
+                        .fetchFormat("auto")       // auto convert to webp/avif to minimize storage
         ));
 
 

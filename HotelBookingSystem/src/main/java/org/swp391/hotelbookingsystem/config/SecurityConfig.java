@@ -25,16 +25,19 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/api/files/**") //  disable CSRF for file upload API, need for Postman
+                        .ignoringRequestMatchers("/api/files/**", "/webhook")
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/login", "/register", "/forgot-password",
+                                "/login", "/", "/register", "/forgot-password",
                                 "/css/**", "/js/**", "/images/**", "/assets/**",
-                                "/api/files/**"
+                                "/api/files/**", "/home", "/hotel-list", "/hotel-detail", "/error"
                         ).permitAll()
-                        .requestMatchers("/user-profile", "/update-user-profile").authenticated()
-                        .anyRequest().permitAll()
+                        .requestMatchers("/admin-dashboard").hasRole("ADMIN")
+                        .requestMatchers("/admin-dashboard").hasRole("MODERATOR")
+                        .requestMatchers("/host-dashboard").hasRole("HOTEL OWNER")
+                        .requestMatchers("/webhook").permitAll()
+                        .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
