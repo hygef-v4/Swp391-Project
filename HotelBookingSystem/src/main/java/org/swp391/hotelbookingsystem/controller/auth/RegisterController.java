@@ -81,7 +81,7 @@ public class RegisterController {
         userRepo.saveEmailOtpToken(email, otp);
 
         User user = new User(email, hashedPassword);
-        user.setFullname(fullname);
+        user.setFullName(fullname);
         session.setAttribute("user", user);
 
         return "page/verify-email-otp";

@@ -22,7 +22,7 @@ public class UserProfileController {
         User sessionUser = (User) session.getAttribute("user");
 
         if (sessionUser != null) {
-            model.addAttribute("fullname", sessionUser.getFullname());
+            model.addAttribute("fullname", sessionUser.getFullName());
             model.addAttribute("phone", sessionUser.getPhone());
             model.addAttribute("passwordNotSet", sessionUser.getPassword() == null);
         } else {
@@ -41,7 +41,7 @@ public class UserProfileController {
         User sessionUser = (User) session.getAttribute("user");
 
         if (sessionUser != null) {
-            sessionUser.setFullname(fullname);
+            sessionUser.setFullName(fullname);
             sessionUser.setPhone(phone);
             userRepo.updateUser(sessionUser);
 
