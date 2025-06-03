@@ -1,25 +1,5 @@
+/****** Object:  Table [dbo].[Amenities]    Script Date: 06/03/25 10:54:20 PM ******/
 
-USE master;
-GO
-
-IF EXISTS (SELECT NAME FROM sys.databases WHERE NAME = 'RoomBooking')
-BEGIN
-	ALTER DATABASE RoomBooking SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
-	DROP DATABASE RoomBooking;
-END
-GO
-
-CREATE DATABASE RoomBooking;
-GO
-
-USE RoomBooking;
-GO
-
-/****** Object:  Table [dbo].[Amenities]    Script Date: 06/03/25 09:21:42 PM ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
 CREATE TABLE [dbo].[Amenities](
 	[amenity_id] [int] IDENTITY(1,1) NOT NULL,
 	[name] [nvarchar](100) NOT NULL,
@@ -30,7 +10,7 @@ PRIMARY KEY CLUSTERED
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[AmenityCategories]    Script Date: 06/03/25 09:21:42 PM ******/
+/****** Object:  Table [dbo].[AmenityCategories]    Script Date: 06/03/25 10:54:20 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -44,7 +24,7 @@ PRIMARY KEY CLUSTERED
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Bookings]    Script Date: 06/03/25 09:21:42 PM ******/
+/****** Object:  Table [dbo].[Bookings]    Script Date: 06/03/25 10:54:20 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -65,7 +45,7 @@ PRIMARY KEY CLUSTERED
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Coupons]    Script Date: 06/03/25 09:21:42 PM ******/
+/****** Object:  Table [dbo].[Coupons]    Script Date: 06/03/25 10:54:20 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -87,7 +67,7 @@ PRIMARY KEY CLUSTERED
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Favorites]    Script Date: 06/03/25 09:21:42 PM ******/
+/****** Object:  Table [dbo].[Favorites]    Script Date: 06/03/25 10:54:20 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -102,7 +82,7 @@ PRIMARY KEY CLUSTERED
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Hotels]    Script Date: 06/03/25 09:21:42 PM ******/
+/****** Object:  Table [dbo].[Hotels]    Script Date: 06/03/25 10:54:20 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -125,7 +105,7 @@ PRIMARY KEY CLUSTERED
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Locations]    Script Date: 06/03/25 09:21:42 PM ******/
+/****** Object:  Table [dbo].[Locations]    Script Date: 06/03/25 10:54:20 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -140,7 +120,7 @@ PRIMARY KEY CLUSTERED
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Messages]    Script Date: 06/03/25 09:21:42 PM ******/
+/****** Object:  Table [dbo].[Messages]    Script Date: 06/03/25 10:54:20 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -157,7 +137,7 @@ PRIMARY KEY CLUSTERED
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Notifications]    Script Date: 06/03/25 09:21:42 PM ******/
+/****** Object:  Table [dbo].[Notifications]    Script Date: 06/03/25 10:54:20 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -173,7 +153,7 @@ PRIMARY KEY CLUSTERED
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Payments]    Script Date: 06/03/25 09:21:42 PM ******/
+/****** Object:  Table [dbo].[Payments]    Script Date: 06/03/25 10:54:20 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -191,7 +171,7 @@ PRIMARY KEY CLUSTERED
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Reports]    Script Date: 06/03/25 09:21:42 PM ******/
+/****** Object:  Table [dbo].[Reports]    Script Date: 06/03/25 10:54:20 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -209,7 +189,7 @@ PRIMARY KEY CLUSTERED
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Reviews]    Script Date: 06/03/25 09:21:42 PM ******/
+/****** Object:  Table [dbo].[Reviews]    Script Date: 06/03/25 10:54:20 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -228,7 +208,7 @@ PRIMARY KEY CLUSTERED
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[RoomAmenities]    Script Date: 06/03/25 09:21:42 PM ******/
+/****** Object:  Table [dbo].[RoomAmenities]    Script Date: 06/03/25 10:54:20 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -243,7 +223,7 @@ PRIMARY KEY CLUSTERED
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[RoomImages]    Script Date: 06/03/25 09:21:42 PM ******/
+/****** Object:  Table [dbo].[RoomImages]    Script Date: 06/03/25 10:54:20 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -258,7 +238,7 @@ PRIMARY KEY CLUSTERED
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Rooms]    Script Date: 06/03/25 09:21:42 PM ******/
+/****** Object:  Table [dbo].[Rooms]    Script Date: 06/03/25 10:54:20 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -279,7 +259,7 @@ PRIMARY KEY CLUSTERED
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[RoomTypes]    Script Date: 06/03/25 09:21:42 PM ******/
+/****** Object:  Table [dbo].[RoomTypes]    Script Date: 06/03/25 10:54:20 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -294,7 +274,7 @@ PRIMARY KEY CLUSTERED
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Tokens]    Script Date: 06/03/25 09:21:42 PM ******/
+/****** Object:  Table [dbo].[Tokens]    Script Date: 06/03/25 10:54:20 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -311,7 +291,7 @@ PRIMARY KEY CLUSTERED
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[UserCoupons]    Script Date: 06/03/25 09:21:42 PM ******/
+/****** Object:  Table [dbo].[UserCoupons]    Script Date: 06/03/25 10:54:20 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -326,7 +306,7 @@ PRIMARY KEY CLUSTERED
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[UserNotifications]    Script Date: 06/03/25 09:21:42 PM ******/
+/****** Object:  Table [dbo].[UserNotifications]    Script Date: 06/03/25 10:54:20 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -341,7 +321,7 @@ PRIMARY KEY CLUSTERED
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Users]    Script Date: 06/03/25 09:21:42 PM ******/
+/****** Object:  Table [dbo].[Users]    Script Date: 06/03/25 10:54:20 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1319,7 +1299,25 @@ INSERT [dbo].[Hotels] ([hotel_id], [host_id], [hotel_name], [hotel_image_url], [
 GO
 INSERT [dbo].[Hotels] ([hotel_id], [host_id], [hotel_name], [hotel_image_url], [address], [location_id], [latitude], [longitude], [rating], [description], [policy]) VALUES (37, 18, N'test 5', N'https://res.cloudinary.com/dw5obru2d/image/upload/v1748853372/hotel-main-images/ipd6ungdh8x0pywvi3qh.png', N'đại học fpt', 1, 21.013529, 105.525262, CAST(0.0 AS Decimal(3, 1)), N'23432', N'okol')
 GO
-INSERT [dbo].[Hotels] ([hotel_id], [host_id], [hotel_name], [hotel_image_url], [address], [location_id], [latitude], [longitude], [rating], [description], [policy]) VALUES (39, 12, N'test 4', N'https://res.cloudinary.com/dw5obru2d/image/upload/v1748960056/hotel-main-images/zbpq82mt6mgwe5xahcfs.jpg', N'đại học fpt', 1, 21.013529, 105.525262, CAST(0.0 AS Decimal(3, 1)), N'123321', N'21312')
+INSERT [dbo].[Hotels] ([hotel_id], [host_id], [hotel_name], [hotel_image_url], [address], [location_id], [latitude], [longitude], [rating], [description], [policy]) VALUES (40, 18, N'Hamora heheQ', N'https://res.cloudinary.com/dw5obru2d/image/upload/v1748961989/hotel-main-images/jkiumxk9puinwtbogq9e.jpg', N'đại học fpt', 1, 21.013529, 105.525262, CAST(0.0 AS Decimal(3, 1)), N'324E3', N'231e12e')
+GO
+INSERT [dbo].[Hotels] ([hotel_id], [host_id], [hotel_name], [hotel_image_url], [address], [location_id], [latitude], [longitude], [rating], [description], [policy]) VALUES (41, 18, N'test 4', N'https://res.cloudinary.com/dw5obru2d/image/upload/v1748962511/hotel-main-images/u8smtuerd5jf18nyrip4.jpg', N'đại học fpt', 1, 21.013529, 105.525262, CAST(0.0 AS Decimal(3, 1)), N'12312', N'123123')
+GO
+INSERT [dbo].[Hotels] ([hotel_id], [host_id], [hotel_name], [hotel_image_url], [address], [location_id], [latitude], [longitude], [rating], [description], [policy]) VALUES (42, 19, N'sf', N'https://res.cloudinary.com/dw5obru2d/image/upload/v1748962618/hotel-main-images/s3oir1ohsklii4bscx6z.jpg', N'Ba đình', 1, 21.034445, 105.831827, CAST(0.0 AS Decimal(3, 1)), N'sdf', N'đá')
+GO
+INSERT [dbo].[Hotels] ([hotel_id], [host_id], [hotel_name], [hotel_image_url], [address], [location_id], [latitude], [longitude], [rating], [description], [policy]) VALUES (43, 16, N'super fpt', N'https://res.cloudinary.com/dw5obru2d/image/upload/v1748962832/hotel-main-images/tlgatbepyyd88t5s3lt4.jpg', N'đại học fpt', 1, 21.013529, 105.525262, CAST(0.0 AS Decimal(3, 1)), N'213', N'ewr32')
+GO
+INSERT [dbo].[Hotels] ([hotel_id], [host_id], [hotel_name], [hotel_image_url], [address], [location_id], [latitude], [longitude], [rating], [description], [policy]) VALUES (44, 16, N'super1', N'https://res.cloudinary.com/dw5obru2d/image/upload/v1748962968/hotel-main-images/fgwjob6mwgwths7fyawb.jpg', N'đại học fpt', 1, 21.013529, 105.525262, CAST(0.0 AS Decimal(3, 1)), N'21312', N'213213')
+GO
+INSERT [dbo].[Hotels] ([hotel_id], [host_id], [hotel_name], [hotel_image_url], [address], [location_id], [latitude], [longitude], [rating], [description], [policy]) VALUES (45, 16, N'test 421312123', N'https://res.cloudinary.com/dw5obru2d/image/upload/v1748963811/hotel-main-images/zygmdoidns5wd8fh8ega.jpg', N'đại học fpt', 1, 21.013529, 105.525262, CAST(0.0 AS Decimal(3, 1)), N'213123', N'12e12')
+GO
+INSERT [dbo].[Hotels] ([hotel_id], [host_id], [hotel_name], [hotel_image_url], [address], [location_id], [latitude], [longitude], [rating], [description], [policy]) VALUES (46, 18, N'test12312', N'https://res.cloudinary.com/dw5obru2d/image/upload/v1748964022/hotel-main-images/rwcmfkov4o9exwgnxhzl.jpg', N'đại học fpt', 1, 21.013529, 105.525262, CAST(0.0 AS Decimal(3, 1)), N'12312', N'2132131')
+GO
+INSERT [dbo].[Hotels] ([hotel_id], [host_id], [hotel_name], [hotel_image_url], [address], [location_id], [latitude], [longitude], [rating], [description], [policy]) VALUES (47, 17, N'test 4', N'https://res.cloudinary.com/dw5obru2d/image/upload/v1748964563/hotel-main-images/ahty9cmldxorkuc86odt.jpg', N'đại học fpt', 1, 21.013529, 105.525262, CAST(0.0 AS Decimal(3, 1)), N'123', N'21312312')
+GO
+INSERT [dbo].[Hotels] ([hotel_id], [host_id], [hotel_name], [hotel_image_url], [address], [location_id], [latitude], [longitude], [rating], [description], [policy]) VALUES (48, 24, N'áda', N'https://res.cloudinary.com/dw5obru2d/image/upload/v1748964883/hotel-main-images/keqhxvmwje9t8syecuzb.jpg', N'Ba đình', 1, 21.034445, 105.831827, CAST(0.0 AS Decimal(3, 1)), N'ád', N'ád')
+GO
+INSERT [dbo].[Hotels] ([hotel_id], [host_id], [hotel_name], [hotel_image_url], [address], [location_id], [latitude], [longitude], [rating], [description], [policy]) VALUES (49, 15, N'12', N'https://res.cloudinary.com/dw5obru2d/image/upload/v1748965146/hotel-main-images/yf1223xyghim2fxrdhsx.jpg', N'đại học fpt', 2, 10.841417, 106.810074, CAST(0.0 AS Decimal(3, 1)), N'e21', N'12312')
 GO
 SET IDENTITY_INSERT [dbo].[Hotels] OFF
 GO
@@ -13001,13 +12999,49 @@ INSERT [dbo].[RoomAmenities] ([room_id], [amenity_id]) VALUES (236, 78)
 GO
 INSERT [dbo].[RoomAmenities] ([room_id], [amenity_id]) VALUES (236, 86)
 GO
-INSERT [dbo].[RoomAmenities] ([room_id], [amenity_id]) VALUES (238, 1)
+INSERT [dbo].[RoomAmenities] ([room_id], [amenity_id]) VALUES (240, 45)
 GO
-INSERT [dbo].[RoomAmenities] ([room_id], [amenity_id]) VALUES (238, 2)
+INSERT [dbo].[RoomAmenities] ([room_id], [amenity_id]) VALUES (240, 69)
 GO
-INSERT [dbo].[RoomAmenities] ([room_id], [amenity_id]) VALUES (238, 5)
+INSERT [dbo].[RoomAmenities] ([room_id], [amenity_id]) VALUES (240, 84)
 GO
-INSERT [dbo].[RoomAmenities] ([room_id], [amenity_id]) VALUES (238, 84)
+INSERT [dbo].[RoomAmenities] ([room_id], [amenity_id]) VALUES (241, 1)
+GO
+INSERT [dbo].[RoomAmenities] ([room_id], [amenity_id]) VALUES (241, 4)
+GO
+INSERT [dbo].[RoomAmenities] ([room_id], [amenity_id]) VALUES (241, 58)
+GO
+INSERT [dbo].[RoomAmenities] ([room_id], [amenity_id]) VALUES (242, 6)
+GO
+INSERT [dbo].[RoomAmenities] ([room_id], [amenity_id]) VALUES (242, 67)
+GO
+INSERT [dbo].[RoomAmenities] ([room_id], [amenity_id]) VALUES (243, 4)
+GO
+INSERT [dbo].[RoomAmenities] ([room_id], [amenity_id]) VALUES (243, 29)
+GO
+INSERT [dbo].[RoomAmenities] ([room_id], [amenity_id]) VALUES (243, 45)
+GO
+INSERT [dbo].[RoomAmenities] ([room_id], [amenity_id]) VALUES (244, 29)
+GO
+INSERT [dbo].[RoomAmenities] ([room_id], [amenity_id]) VALUES (244, 45)
+GO
+INSERT [dbo].[RoomAmenities] ([room_id], [amenity_id]) VALUES (245, 1)
+GO
+INSERT [dbo].[RoomAmenities] ([room_id], [amenity_id]) VALUES (245, 4)
+GO
+INSERT [dbo].[RoomAmenities] ([room_id], [amenity_id]) VALUES (246, 4)
+GO
+INSERT [dbo].[RoomAmenities] ([room_id], [amenity_id]) VALUES (246, 45)
+GO
+INSERT [dbo].[RoomAmenities] ([room_id], [amenity_id]) VALUES (247, 1)
+GO
+INSERT [dbo].[RoomAmenities] ([room_id], [amenity_id]) VALUES (247, 4)
+GO
+INSERT [dbo].[RoomAmenities] ([room_id], [amenity_id]) VALUES (248, 53)
+GO
+INSERT [dbo].[RoomAmenities] ([room_id], [amenity_id]) VALUES (249, 29)
+GO
+INSERT [dbo].[RoomAmenities] ([room_id], [amenity_id]) VALUES (249, 45)
 GO
 SET IDENTITY_INSERT [dbo].[RoomImages] ON 
 GO
@@ -16031,9 +16065,27 @@ INSERT [dbo].[RoomImages] ([image_id], [room_id], [image_url]) VALUES (1517, 236
 GO
 INSERT [dbo].[RoomImages] ([image_id], [room_id], [image_url]) VALUES (1518, 236, N'https://res.cloudinary.com/dw5obru2d/image/upload/v1748853377/room-images/37/sx01qk2xkyodvet4xlgm.jpg')
 GO
-INSERT [dbo].[RoomImages] ([image_id], [room_id], [image_url]) VALUES (1521, 238, N'https://res.cloudinary.com/dw5obru2d/image/upload/v1748960057/room-images/39/cfmxpw6tpy2cwcrjgi7i.jpg')
+INSERT [dbo].[RoomImages] ([image_id], [room_id], [image_url]) VALUES (1523, 240, N'https://res.cloudinary.com/dw5obru2d/image/upload/v1748961991/room-images/40/z83ejfszc77jhwyps17y.jpg')
 GO
-INSERT [dbo].[RoomImages] ([image_id], [room_id], [image_url]) VALUES (1522, 238, N'https://res.cloudinary.com/dw5obru2d/image/upload/v1748960059/room-images/39/dthjo7u00mmxrk5arnfz.jpg')
+INSERT [dbo].[RoomImages] ([image_id], [room_id], [image_url]) VALUES (1524, 240, N'https://res.cloudinary.com/dw5obru2d/image/upload/v1748961992/room-images/40/slsjxchbzdcit99fc7zb.jpg')
+GO
+INSERT [dbo].[RoomImages] ([image_id], [room_id], [image_url]) VALUES (1525, 241, N'https://res.cloudinary.com/dw5obru2d/image/upload/v1748962513/room-images/41/k2qcrzqkqftuw7wtgsvp.jpg')
+GO
+INSERT [dbo].[RoomImages] ([image_id], [room_id], [image_url]) VALUES (1526, 242, N'https://res.cloudinary.com/dw5obru2d/image/upload/v1748962620/room-images/42/ilevbr11u13sqz4z7wuj.jpg')
+GO
+INSERT [dbo].[RoomImages] ([image_id], [room_id], [image_url]) VALUES (1527, 243, N'https://res.cloudinary.com/dw5obru2d/image/upload/v1748962834/room-images/43/ltu1v2fan68uyasxivoj.jpg')
+GO
+INSERT [dbo].[RoomImages] ([image_id], [room_id], [image_url]) VALUES (1528, 244, N'https://res.cloudinary.com/dw5obru2d/image/upload/v1748962970/room-images/44/ju54pwpxtngkhxf7hewb.jpg')
+GO
+INSERT [dbo].[RoomImages] ([image_id], [room_id], [image_url]) VALUES (1529, 245, N'https://res.cloudinary.com/dw5obru2d/image/upload/v1748963812/room-images/45/rxa35bienjeycuzqowhe.jpg')
+GO
+INSERT [dbo].[RoomImages] ([image_id], [room_id], [image_url]) VALUES (1530, 246, N'https://res.cloudinary.com/dw5obru2d/image/upload/v1748964024/room-images/46/s27ixnznvn7qjq0zjszz.jpg')
+GO
+INSERT [dbo].[RoomImages] ([image_id], [room_id], [image_url]) VALUES (1531, 247, N'https://res.cloudinary.com/dw5obru2d/image/upload/v1748964565/room-images/47/wzbpyyfgxnva2wgj7xvq.jpg')
+GO
+INSERT [dbo].[RoomImages] ([image_id], [room_id], [image_url]) VALUES (1532, 248, N'https://res.cloudinary.com/dw5obru2d/image/upload/v1748964886/room-images/48/r8lsowzzgqftkstzw2kn.jpg')
+GO
+INSERT [dbo].[RoomImages] ([image_id], [room_id], [image_url]) VALUES (1533, 249, N'https://res.cloudinary.com/dw5obru2d/image/upload/v1748965148/room-images/49/ccrand3j05q8bjw0cosb.jpg')
 GO
 SET IDENTITY_INSERT [dbo].[RoomImages] OFF
 GO
@@ -16499,9 +16551,25 @@ INSERT [dbo].[Rooms] ([room_id], [hotel_id], [title], [description], [price], [m
 GO
 INSERT [dbo].[Rooms] ([room_id], [hotel_id], [title], [description], [price], [max_guests], [room_type_id], [status], [quantity]) VALUES (236, 37, N'phòng ngủ', N'213123123', CAST(800000.00 AS Decimal(10, 2)), 5, 2, N'active', 123)
 GO
-INSERT [dbo].[Rooms] ([room_id], [hotel_id], [title], [description], [price], [max_guests], [room_type_id], [status], [quantity]) VALUES (238, 39, N'phòng đẹp', N'fwer3wf', CAST(56756.00 AS Decimal(10, 2)), 12, 1, N'active', 32)
+INSERT [dbo].[Rooms] ([room_id], [hotel_id], [title], [description], [price], [max_guests], [room_type_id], [status], [quantity]) VALUES (240, 40, N'phòng đẹp', N'ewqewq', CAST(123213.00 AS Decimal(10, 2)), 23, 1, N'active', 123)
 GO
-INSERT [dbo].[Rooms] ([room_id], [hotel_id], [title], [description], [price], [max_guests], [room_type_id], [status], [quantity]) VALUES (239, 39, N'2312', N'123', CAST(12312.00 AS Decimal(10, 2)), 12312, 1, N'active', 2131)
+INSERT [dbo].[Rooms] ([room_id], [hotel_id], [title], [description], [price], [max_guests], [room_type_id], [status], [quantity]) VALUES (241, 41, N'phòng đẹp', N'eqwe2213', CAST(123123.00 AS Decimal(10, 2)), 12, 1, N'active', 213)
+GO
+INSERT [dbo].[Rooms] ([room_id], [hotel_id], [title], [description], [price], [max_guests], [room_type_id], [status], [quantity]) VALUES (242, 42, N'ád', N'ádd', CAST(21323.00 AS Decimal(10, 2)), 3, 1, N'active', 2)
+GO
+INSERT [dbo].[Rooms] ([room_id], [hotel_id], [title], [description], [price], [max_guests], [room_type_id], [status], [quantity]) VALUES (243, 43, N'phòng đẹp', N'ưqe213', CAST(123123.00 AS Decimal(10, 2)), 12, 1, N'active', 321)
+GO
+INSERT [dbo].[Rooms] ([room_id], [hotel_id], [title], [description], [price], [max_guests], [room_type_id], [status], [quantity]) VALUES (244, 44, N'phòng đẹp', N'e12e12', CAST(321312.00 AS Decimal(10, 2)), 123, 1, N'active', 123)
+GO
+INSERT [dbo].[Rooms] ([room_id], [hotel_id], [title], [description], [price], [max_guests], [room_type_id], [status], [quantity]) VALUES (245, 45, N'phòng ngủ', N'2131231231', CAST(3213.00 AS Decimal(10, 2)), 12312, 1, N'active', 312312)
+GO
+INSERT [dbo].[Rooms] ([room_id], [hotel_id], [title], [description], [price], [max_guests], [room_type_id], [status], [quantity]) VALUES (246, 46, N'phòng đẹp', N'2dwqd', CAST(213213.00 AS Decimal(10, 2)), 123, 1, N'active', 12312)
+GO
+INSERT [dbo].[Rooms] ([room_id], [hotel_id], [title], [description], [price], [max_guests], [room_type_id], [status], [quantity]) VALUES (247, 47, N'123123', N'213123', CAST(12312.00 AS Decimal(10, 2)), 12312, 1, N'active', 213)
+GO
+INSERT [dbo].[Rooms] ([room_id], [hotel_id], [title], [description], [price], [max_guests], [room_type_id], [status], [quantity]) VALUES (248, 48, N'ád', N'123', CAST(312.00 AS Decimal(10, 2)), 123, 1, N'active', 23)
+GO
+INSERT [dbo].[Rooms] ([room_id], [hotel_id], [title], [description], [price], [max_guests], [room_type_id], [status], [quantity]) VALUES (249, 49, N'phòng ngủ', N'213321', CAST(12312.00 AS Decimal(10, 2)), 123, 1, N'active', 213)
 GO
 SET IDENTITY_INSERT [dbo].[Rooms] OFF
 GO
@@ -16541,7 +16609,7 @@ SET IDENTITY_INSERT [dbo].[Users] ON
 GO
 INSERT [dbo].[Users] ([user_id], [full_name], [email], [password_hash], [phone], [role], [is_active], [gender], [date_of_birth], [avatar_url], [bio]) VALUES (1, N'Alice Nguyen', N'alice.nguyen@example.com', N'hashedpw1', N'0901234567', N'CUSTOMER', 1, NULL, NULL, N'/assets/images/team/01.jpg', N'Yêu thích du lịch và khám phá.')
 GO
-INSERT [dbo].[Users] ([user_id], [full_name], [email], [password_hash], [phone], [role], [is_active], [gender], [date_of_birth], [avatar_url], [bio]) VALUES (2, N'Bob Tran', N'bob.tran@example.com', N'hashedpw2', N'0912345678', N'HOTEL OWNER', 1, NULL, NULL, N'/assets/images/team/02.jpg', N'Chủ nhà thân thiện và nhiệt tình.')
+INSERT [dbo].[Users] ([user_id], [full_name], [email], [password_hash], [phone], [role], [is_active], [gender], [date_of_birth], [avatar_url], [bio]) VALUES (2, N'Bob Tran', N'bob.tran@example.com', N'hashedpw2', N'0912345678', N'HOTEL_OWNER', 1, NULL, NULL, N'/assets/images/team/02.jpg', N'Chủ nhà thân thiện và nhiệt tình.')
 GO
 INSERT [dbo].[Users] ([user_id], [full_name], [email], [password_hash], [phone], [role], [is_active], [gender], [date_of_birth], [avatar_url], [bio]) VALUES (3, N'Charlie Le', N'charlie.le@example.com', N'hashedpw3', N'0923456789', N'CUSTOMER', 1, NULL, NULL, N'/assets/images/team/03.jpg', N'Khách hàng thường xuyên đặt phòng.')
 GO
@@ -16549,7 +16617,7 @@ INSERT [dbo].[Users] ([user_id], [full_name], [email], [password_hash], [phone],
 GO
 INSERT [dbo].[Users] ([user_id], [full_name], [email], [password_hash], [phone], [role], [is_active], [gender], [date_of_birth], [avatar_url], [bio]) VALUES (5, N'Eric Pham', N'eric.pham@example.com', N'hashedpw5', N'0945678901', N'CUSTOMER', 1, NULL, NULL, N'/assets/images/team/05.jpg', N'Du khách quốc tế đến từ Úc.')
 GO
-INSERT [dbo].[Users] ([user_id], [full_name], [email], [password_hash], [phone], [role], [is_active], [gender], [date_of_birth], [avatar_url], [bio]) VALUES (6, N'Fiona Do', N'fiona.do@example.com', N'hashedpw6', N'0956789012', N'HOTEL OWNER', 1, NULL, NULL, NULL, NULL)
+INSERT [dbo].[Users] ([user_id], [full_name], [email], [password_hash], [phone], [role], [is_active], [gender], [date_of_birth], [avatar_url], [bio]) VALUES (6, N'Fiona Do', N'fiona.do@example.com', N'hashedpw6', N'0956789012', N'HOTEL_OWNER', 1, NULL, NULL, NULL, NULL)
 GO
 INSERT [dbo].[Users] ([user_id], [full_name], [email], [password_hash], [phone], [role], [is_active], [gender], [date_of_birth], [avatar_url], [bio]) VALUES (7, N'George Nguyen', N'george.nguyen@example.com', N'hashedpw7', N'0967890123', N'ADMIN', 1, NULL, NULL, N'/assets/images/team/07.jpg', N'Quản trị viên hệ thống.')
 GO
@@ -16559,27 +16627,27 @@ INSERT [dbo].[Users] ([user_id], [full_name], [email], [password_hash], [phone],
 GO
 INSERT [dbo].[Users] ([user_id], [full_name], [email], [password_hash], [phone], [role], [is_active], [gender], [date_of_birth], [avatar_url], [bio]) VALUES (10, N'Jack Le', N'jack.le@example.com', N'hashedpw10', N'0990123456', N'CUSTOMER', 1, NULL, NULL, N'/assets/images/team/10.jpg', N'Thích trải nghiệm những nơi mới.')
 GO
-INSERT [dbo].[Users] ([user_id], [full_name], [email], [password_hash], [phone], [role], [is_active], [gender], [date_of_birth], [avatar_url], [bio]) VALUES (11, N'hai vo', N'haivo5229@gmail.com', NULL, N'', N'HOTEL OWNER', 1, NULL, NULL, NULL, NULL)
+INSERT [dbo].[Users] ([user_id], [full_name], [email], [password_hash], [phone], [role], [is_active], [gender], [date_of_birth], [avatar_url], [bio]) VALUES (11, N'hai vo', N'haivo5229@gmail.com', NULL, N'', N'HOTEL_OWNER', 1, NULL, NULL, NULL, NULL)
 GO
-INSERT [dbo].[Users] ([user_id], [full_name], [email], [password_hash], [phone], [role], [is_active], [gender], [date_of_birth], [avatar_url], [bio]) VALUES (12, N'Khuat Quang Hung', N'hungsct1702@gmail.com', N'$2a$10$tDBk8WHonOl3yBV5sL2W4OShTpKe7auOHBArVwJAxVMBL5aQPNPTG', N'0327715098', N'HOTEL OWNER', 1, NULL, NULL, NULL, NULL)
+INSERT [dbo].[Users] ([user_id], [full_name], [email], [password_hash], [phone], [role], [is_active], [gender], [date_of_birth], [avatar_url], [bio]) VALUES (12, N'Khuat Quang Hung', N'hungsct1702@gmail.com', N'$2a$10$tDBk8WHonOl3yBV5sL2W4OShTpKe7auOHBArVwJAxVMBL5aQPNPTG', N'0327715098', N'HOTEL_OWNER', 1, NULL, NULL, NULL, NULL)
 GO
 INSERT [dbo].[Users] ([user_id], [full_name], [email], [password_hash], [phone], [role], [is_active], [gender], [date_of_birth], [avatar_url], [bio]) VALUES (13, N'Hải Nam', N'vunam1315@gmail.com', NULL, N'', N'ADMIN', 1, NULL, NULL, NULL, NULL)
 GO
 INSERT [dbo].[Users] ([user_id], [full_name], [email], [password_hash], [phone], [role], [is_active], [gender], [date_of_birth], [avatar_url], [bio]) VALUES (14, N'Võ Minh Tài', N'minhtaivo22@gmail.com', N'$2a$10$iGRZu8pWTNStT1HK51nHLOgyKoVEPJRAkEHUOm9FnJE.Z7zagRvqu', N'0839498777', N'CUSTOMER', 1, NULL, NULL, NULL, NULL)
 GO
-INSERT [dbo].[Users] ([user_id], [full_name], [email], [password_hash], [phone], [role], [is_active], [gender], [date_of_birth], [avatar_url], [bio]) VALUES (15, N'Charles', N'akira72005@gmail.com', NULL, N'', N'HOTEL OWNER', 1, NULL, NULL, NULL, NULL)
+INSERT [dbo].[Users] ([user_id], [full_name], [email], [password_hash], [phone], [role], [is_active], [gender], [date_of_birth], [avatar_url], [bio]) VALUES (15, N'Charles', N'akira72005@gmail.com', NULL, N'', N'HOTEL_OWNER', 1, NULL, NULL, NULL, NULL)
 GO
-INSERT [dbo].[Users] ([user_id], [full_name], [email], [password_hash], [phone], [role], [is_active], [gender], [date_of_birth], [avatar_url], [bio]) VALUES (16, N'Hưng Quang', N'quanghung1702zz@gmail.com', NULL, N'', N'CUSTOMER', 1, NULL, NULL, NULL, NULL)
+INSERT [dbo].[Users] ([user_id], [full_name], [email], [password_hash], [phone], [role], [is_active], [gender], [date_of_birth], [avatar_url], [bio]) VALUES (16, N'Hưng Quang', N'quanghung1702zz@gmail.com', NULL, N'', N'HOTEL_OWNER', 1, NULL, NULL, NULL, NULL)
 GO
-INSERT [dbo].[Users] ([user_id], [full_name], [email], [password_hash], [phone], [role], [is_active], [gender], [date_of_birth], [avatar_url], [bio]) VALUES (17, N'Hung Khuat', N'hungkhuattest2005@gmail.com', NULL, N'', N'HOTEL OWNER', 1, NULL, NULL, NULL, NULL)
+INSERT [dbo].[Users] ([user_id], [full_name], [email], [password_hash], [phone], [role], [is_active], [gender], [date_of_birth], [avatar_url], [bio]) VALUES (17, N'Hung Khuat', N'hungkhuattest2005@gmail.com', NULL, N'', N'HOTEL_OWNER', 1, NULL, NULL, NULL, NULL)
 GO
-INSERT [dbo].[Users] ([user_id], [full_name], [email], [password_hash], [phone], [role], [is_active], [gender], [date_of_birth], [avatar_url], [bio]) VALUES (18, N'Akira', N'hungquang172k5@gmail.com', NULL, N'', N'HOTEL OWNER', 1, NULL, NULL, NULL, NULL)
+INSERT [dbo].[Users] ([user_id], [full_name], [email], [password_hash], [phone], [role], [is_active], [gender], [date_of_birth], [avatar_url], [bio]) VALUES (18, N'Akira', N'hungquang172k5@gmail.com', NULL, N'', N'HOTEL_OWNER', 1, NULL, NULL, NULL, NULL)
 GO
-INSERT [dbo].[Users] ([user_id], [full_name], [email], [password_hash], [phone], [role], [is_active], [gender], [date_of_birth], [avatar_url], [bio]) VALUES (19, N'Hamora', N'hamoraplatform@gmail.com', NULL, N'', N'CUSTOMER', 1, NULL, NULL, NULL, NULL)
+INSERT [dbo].[Users] ([user_id], [full_name], [email], [password_hash], [phone], [role], [is_active], [gender], [date_of_birth], [avatar_url], [bio]) VALUES (19, N'Hamora', N'hamoraplatform@gmail.com', NULL, N'', N'HOTEL_OWNER', 1, NULL, NULL, NULL, NULL)
 GO
 INSERT [dbo].[Users] ([user_id], [full_name], [email], [password_hash], [phone], [role], [is_active], [gender], [date_of_birth], [avatar_url], [bio]) VALUES (21, N'Nam Vũ', N'mainam1367@gmail.com', NULL, N'', N'CUSTOMER', 1, NULL, NULL, NULL, NULL)
 GO
-INSERT [dbo].[Users] ([user_id], [full_name], [email], [password_hash], [phone], [role], [is_active], [gender], [date_of_birth], [avatar_url], [bio]) VALUES (24, N'Cường Đào', N'geogremafloy@gmail.com', NULL, N'', N'HOTEL OWNER', 1, NULL, NULL, NULL, NULL)
+INSERT [dbo].[Users] ([user_id], [full_name], [email], [password_hash], [phone], [role], [is_active], [gender], [date_of_birth], [avatar_url], [bio]) VALUES (24, N'Cường Đào', N'geogremafloy@gmail.com', NULL, N'', N'HOTEL_OWNER', 1, NULL, NULL, NULL, NULL)
 GO
 INSERT [dbo].[Users] ([user_id], [full_name], [email], [password_hash], [phone], [role], [is_active], [gender], [date_of_birth], [avatar_url], [bio]) VALUES (25, N'Tài Minh', N'minhtaivo11@gmail.com', N'$2a$10$Y1CM1OvE/vqfoU0wsWYy1.YjnCZzQL6WqWuJ9XSyfcMLc87FJ8Ngm', N'0839498777', N'ADMIN', 1, NULL, NULL, NULL, NULL)
 GO
@@ -16589,7 +16657,7 @@ SET IDENTITY_INSERT [dbo].[Users] OFF
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [UQ__Amenitie__72E12F1BDB6AD8D0]    Script Date: 06/03/25 09:21:44 PM ******/
+/****** Object:  Index [UQ__Amenitie__72E12F1B1479F2FC]    Script Date: 06/03/25 10:54:22 PM ******/
 ALTER TABLE [dbo].[Amenities] ADD UNIQUE NONCLUSTERED 
 (
 	[name] ASC
@@ -16597,7 +16665,7 @@ ALTER TABLE [dbo].[Amenities] ADD UNIQUE NONCLUSTERED
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [UQ__AmenityC__72E12F1BE619ECA8]    Script Date: 06/03/25 09:21:44 PM ******/
+/****** Object:  Index [UQ__AmenityC__72E12F1B68930207]    Script Date: 06/03/25 10:54:22 PM ******/
 ALTER TABLE [dbo].[AmenityCategories] ADD UNIQUE NONCLUSTERED 
 (
 	[name] ASC
@@ -16605,7 +16673,7 @@ ALTER TABLE [dbo].[AmenityCategories] ADD UNIQUE NONCLUSTERED
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [UQ__Coupons__357D4CF92FC20876]    Script Date: 06/03/25 09:21:44 PM ******/
+/****** Object:  Index [UQ__Coupons__357D4CF928EAEE0A]    Script Date: 06/03/25 10:54:22 PM ******/
 ALTER TABLE [dbo].[Coupons] ADD UNIQUE NONCLUSTERED 
 (
 	[code] ASC
@@ -16613,7 +16681,7 @@ ALTER TABLE [dbo].[Coupons] ADD UNIQUE NONCLUSTERED
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [UQ__Location__1AA4F7B5CBD61D32]    Script Date: 06/03/25 09:21:44 PM ******/
+/****** Object:  Index [UQ__Location__1AA4F7B5CE73C2D1]    Script Date: 06/03/25 10:54:22 PM ******/
 ALTER TABLE [dbo].[Locations] ADD UNIQUE NONCLUSTERED 
 (
 	[city_name] ASC
@@ -16621,7 +16689,7 @@ ALTER TABLE [dbo].[Locations] ADD UNIQUE NONCLUSTERED
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [UQ__Users__AB6E616473014B9F]    Script Date: 06/03/25 09:21:44 PM ******/
+/****** Object:  Index [UQ__Users__AB6E616499D8CF82]    Script Date: 06/03/25 10:54:22 PM ******/
 ALTER TABLE [dbo].[Users] ADD UNIQUE NONCLUSTERED 
 (
 	[email] ASC
@@ -16785,9 +16853,7 @@ ALTER TABLE [dbo].[Users]  WITH CHECK ADD  CONSTRAINT [CHK_Users_Gender] CHECK  
 GO
 ALTER TABLE [dbo].[Users] CHECK CONSTRAINT [CHK_Users_Gender]
 GO
-ALTER TABLE [dbo].[Users]  WITH CHECK ADD CHECK  (([role]='ADMIN' OR [role]='MODERATOR' OR [role]='HOTEL OWNER' OR [role]='CUSTOMER' OR [role]='GUEST'))
-GO
-ALTER TABLE [dbo].[Users]  WITH CHECK ADD  CONSTRAINT [CK_Users_Role] CHECK  (([role]='ADMIN' OR [role]='MODERATOR' OR [role]='HOTEL OWNER' OR [role]='CUSTOMER'))
+ALTER TABLE [dbo].[Users]  WITH CHECK ADD  CONSTRAINT [CK_Users_Role] CHECK  (([role]='HOTEL_OWNER' OR [role]='CUSTOMER' OR [role]='MODERATOR' OR [role]='ADMIN'))
 GO
 ALTER TABLE [dbo].[Users] CHECK CONSTRAINT [CK_Users_Role]
 GO
