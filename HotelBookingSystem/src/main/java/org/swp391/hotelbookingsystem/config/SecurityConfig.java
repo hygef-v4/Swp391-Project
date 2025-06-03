@@ -5,11 +5,13 @@ import org.swp391.hotelbookingsystem.handler.OAuth2LoginSuccessHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authorization.AuthorizationManagers;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
 
 @Configuration
 @EnableWebSecurity
@@ -29,20 +31,30 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/login", "/", "/register", "/forgot-password",
+                                "/", "/home", "/error",
+                                "/login", "/register", "/forgot-password",
+                                "/hotel-list", "/hotel-detail",
                                 "/css/**", "/js/**", "/images/**", "/assets/**",
-                                "/api/files/**", "/home", "/hotel-list", "/hotel-detail", "/error"
+                                "/api/files/**"
                         ).permitAll()
-                        .requestMatchers("/admin-dashboard").hasRole("ADMIN")
-                        .requestMatchers("/admin-dashboard").hasRole("MODERATOR")
-                        .requestMatchers("/host-dashboard").hasRole("HOTEL OWNER")
+                        .requestMatchers("/admin-dashboard").access(AuthorizationManagers.allOf(
+                                new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
+                                new WebExpressionAuthorizationManager("hasRole('ADMIN')")
+                        ))
+                        .requestMatchers("/admin-dashboard").access(AuthorizationManagers.allOf(
+                                new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
+                                new WebExpressionAuthorizationManager("hasRole('MODERATOR')")
+                        ))
+                        .requestMatchers("/host-dashboard").access(AuthorizationManagers.allOf(
+                                new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
+                                new WebExpressionAuthorizationManager("hasRole('HOTEL OWNER')")
+                        ))
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
                         .successHandler(formLoginSuccessHandler)
                         .failureUrl("/login?error=true")
-                        .permitAll()
                 )
                 .rememberMe(r -> r
                         .key("bKJHkjsdf8723hJKH8sd89fjsd0239JKLHkjasdf987sdf")
