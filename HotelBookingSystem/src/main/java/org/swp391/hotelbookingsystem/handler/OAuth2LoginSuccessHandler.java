@@ -36,7 +36,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         if (user == null) {
             user = new User();
             user.setEmail(email);
-            user.setFullname(name);
+            user.setFullName(name);
             user.setActive(true);
             user.setRole("CUSTOMER");
             userRepo.saveUserFromGoogle(user);
