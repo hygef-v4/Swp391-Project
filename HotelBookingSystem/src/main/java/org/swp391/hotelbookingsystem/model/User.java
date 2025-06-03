@@ -2,6 +2,8 @@ package org.swp391.hotelbookingsystem.model;
 
 import lombok.*;
 
+import java.sql.Date;
+
 @Builder
 @Data
 @AllArgsConstructor
@@ -17,6 +19,7 @@ public class User {
     private String gender;
     private String avatarUrl;
     private String bio;
+    private Date dob;
 
     public User(String email, String password) {
         this.email = email;
