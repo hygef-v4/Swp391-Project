@@ -42,9 +42,6 @@ public class HostDashboardController {
         //     return "redirect:/login"; // Or handle unauthorized access
         // }
 
-        int totalRooms = roomService.getTotalRoomsByHostId(host.getId());
-        model.addAttribute("totalRooms", totalRooms);
-        model.addAttribute("message", "Hotel registration successful! Welcome to your dashboard.");
         return "host/host-dashboard";
     }
 
