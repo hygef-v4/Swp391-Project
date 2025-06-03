@@ -10,7 +10,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
 
 @Configuration
@@ -32,7 +34,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/", "/home", "/error", "webhook",
-                                "/login", "/register", "/forgot-password",
+                                "/login", "/register", "/verify-email-otp", "/resend-otp", "/forgotPassword", "/resetPassword",
                                 "/hotel-list", "/hotel-detail",
                                 "/css/**", "/js/**", "/images/**", "/assets/**",
                                 "/api/files/**"
@@ -64,7 +66,11 @@ public class SecurityConfig {
                         .loginPage("/login")
                         .successHandler(oAuth2LoginSuccessHandler)
                 )
-                .logout(logout -> logout.permitAll());
+                .logout(logout -> logout.permitAll())
+                .exceptionHandling(ex -> ex
+                        .accessDeniedHandler(accessDeniedHandler)
+                        .authenticationEntryPoint(authenticationEntryPoint)
+                );
 
         return http.build();
     }
@@ -73,4 +79,17 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
+// AccessDeniedHandler: user đã login nhưng không đủ quyền
+private final AccessDeniedHandler accessDeniedHandler = (request, response, ex) -> {
+    System.out.println("🚫 ACCESS DENIED | User: " + request.getUserPrincipal()
+        + " | URI: " + request.getRequestURI());
+    response.sendRedirect("/error?access-denied");
+};
+
+// AuthenticationEntryPoint: chưa login mà truy cập trang cần quyền
+private final AuthenticationEntryPoint authenticationEntryPoint = (request, response, ex) -> {
+    System.out.println("🔒 UNAUTHORIZED ACCESS | URI: " + request.getRequestURI());
+    response.sendRedirect("/login?unauthorized");
+};
 }
