@@ -124,7 +124,6 @@
     <!-- Theme CSS -->
     <link rel="stylesheet" type="text/css" href="/assets/css/style.css">
 
-
 </head>
 
 <body class="has-navbar-mobile">
@@ -275,7 +274,8 @@
                                     <!-- Date input -->
                                     <div class="form-control-border form-control-transparent form-fs-md">
                                         <label class="form-label">Nhận phòng – Trả phòng</label>
-                                        <input type="text" class="form-control flatpickr" data-mode="range" name="dateRange" placeholder="Chọn ngày">
+                                        <input type="text" class="form-control flatpickr" data-mode="range"
+                                               name="dateRange" placeholder="Chọn ngày">
                                     </div>
                                 </div>
                             </div>
@@ -883,9 +883,10 @@
                     <div class="card bg-transparent text-center p-1 h-100 d-flex flex-column">
 
                         <a th:href="@{/hotel-list(locationId=${location.id})}"
-                           class="location-image-container d-block mx-auto mb-2"> <!-- d-block and mx-auto to center it if its width is less than 100% of column -->
+                           class="location-image-container d-block mx-auto mb-2">
+                            <!-- d-block and mx-auto to center it if its width is less than 100% of column -->
 
-                            <img  th:src="@{${location.imageUrl}}" class="img-hover-zoom"
+                            <img th:src="@{${location.imageUrl}}" class="img-hover-zoom"
                                  th:alt="${'Khám phá ' + location.cityName}">
                         </a>
 
@@ -956,6 +957,20 @@
     <!-- =======================
     Download app END -->
 
+    <!--    chatbot   -->
+    <!-- Dialogflow Messenger SDK -->
+    <script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
+    <!-- Chat widget -->
+    <df-messenger
+            chat-icon="https://i.postimg.cc/CMfW7z2D/logo-hamora.png"
+            intent="WELCOME"
+            chat-title="Hamora - support"
+            agent-id="023c3c70-2f21-41f5-9a7c-47668c8638ef"
+            language-code="vi"
+            expand
+    ></df-messenger>
+    <!--    chatbot END  -->
+
 </main>
 <!-- **************** MAIN CONTENT END **************** -->
 
@@ -1018,11 +1033,11 @@ Footer END -->
 <!-- ThemeFunctions -->
 <script src="/assets/js/functions.js"></script>
 <script>
-	flatpickr(".flatpickr", {
-		mode: "range",
-		dateFormat: "d/m/Y", // Định dạng kiểu Việt Nam
-		locale: "vn" // Đặt ngôn ngữ tiếng Việt
-	});
+    flatpickr(".flatpickr", {
+        mode: "range",
+        dateFormat: "d/m/Y", // Định dạng kiểu Việt Nam
+        locale: "vn" // Đặt ngôn ngữ tiếng Việt
+    });
 </script>
 
 <!--<script>-->
