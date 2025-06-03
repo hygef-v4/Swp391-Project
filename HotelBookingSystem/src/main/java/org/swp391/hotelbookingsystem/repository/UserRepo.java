@@ -20,11 +20,11 @@ public class UserRepo {
 
     public void saveUser(User user) {
         String sql = "INSERT INTO Users (full_name,email, password_hash) VALUES (?, ?, ?)";
-        jdbc.update(sql, user.getFullname(), user.getEmail(), user.getPassword());
+        jdbc.update(sql, user.getFullName(), user.getEmail(), user.getPassword());
     }
     public void saveUserFromGoogle(User user) {
         String sql = "INSERT INTO Users (full_name, email) VALUES (?, ?)";
-        jdbc.update(sql, user.getFullname(), user.getEmail());
+        jdbc.update(sql, user.getFullName(), user.getEmail());
     }
 
     public User findByEmail(String email) {
@@ -33,7 +33,7 @@ public class UserRepo {
             return jdbc.queryForObject(sql, (rs, rowNum) -> {
                 User user = new User();
                 user.setId(rs.getInt("user_id"));
-                user.setFullname(rs.getString("full_name"));
+                user.setFullName(rs.getString("full_name"));
                 user.setEmail(rs.getString("email"));
                 user.setPassword(rs.getString("password_hash"));
                 user.setPhone(rs.getString("phone"));
@@ -76,7 +76,7 @@ public class UserRepo {
         return jdbc.query(SELECT_USERS_WITH_PROFILE, (rs, rowNum) -> {
             User user = new User();
             user.setId(rs.getInt("userID"));
-            user.setFullname(rs.getString("fullName"));
+            user.setFullName(rs.getString("fullName"));
             user.setEmail(rs.getString("email"));
             user.setPassword(rs.getString("password"));
             user.setPhone(rs.getString("phone"));
@@ -94,7 +94,7 @@ public class UserRepo {
         return jdbc.query(SELECT_USERS_BY_ROLE, (rs, rowNum) -> {
             User user = new User();
             user.setId(rs.getInt("userID"));
-            user.setFullname(rs.getString("fullName"));
+            user.setFullName(rs.getString("fullName"));
             user.setEmail(rs.getString("email"));
             user.setPassword(rs.getString("password"));
             user.setPhone(rs.getString("phone"));
@@ -129,7 +129,7 @@ public class UserRepo {
             return jdbc.queryForObject(sql, (rs, rowNum) -> {
                 User user = new User();
                 user.setId(rs.getInt("user_id"));
-                user.setFullname(rs.getString("full_name"));
+                user.setFullName(rs.getString("full_name"));
                 user.setEmail(rs.getString("email"));
                 user.setPassword(rs.getString("password_hash"));
                 user.setPhone(rs.getString("phone"));
@@ -195,7 +195,7 @@ public class UserRepo {
 
     public void updateUser(User user) {
         String sql = "UPDATE Users SET full_name = ?, phone = ? WHERE email = ?";
-        jdbc.update(sql, user.getFullname(), user.getPhone(), user.getEmail());
+        jdbc.update(sql, user.getFullName(), user.getPhone(), user.getEmail());
     }
 
     public List<User> searchUsersWithProfileByName(String search) {
@@ -218,7 +218,7 @@ public class UserRepo {
         return jdbc.query(sql, new Object[]{wildcard}, (rs, rowNum) -> {
             User user = new User();
             user.setId(rs.getInt("userID"));
-            user.setFullname(rs.getString("fullName"));
+            user.setFullName(rs.getString("fullName"));
             user.setEmail(rs.getString("email"));
             user.setPassword(rs.getString("password"));
             user.setPhone(rs.getString("phone"));
@@ -236,7 +236,7 @@ public class UserRepo {
             return jdbc.queryForObject(sql, (rs, rowNum) -> {
                 User user = new User();
                 user.setId(rs.getInt("user_id"));
-                user.setFullname(rs.getString("full_name"));
+                user.setFullName(rs.getString("full_name"));
                 user.setEmail(rs.getString("email"));
                 user.setPassword(rs.getString("password_hash"));
                 user.setPhone(rs.getString("phone"));

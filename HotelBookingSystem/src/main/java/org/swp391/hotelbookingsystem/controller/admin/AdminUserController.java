@@ -30,7 +30,7 @@ public class AdminUserController {
 
         if (search != null && !search.isBlank() && role != null && !role.isBlank()) {
             users = userService.getAllUsersWithProfile().stream()
-                    .filter(u -> u.getFullname().toLowerCase().contains(search.toLowerCase()))
+                    .filter(u -> u.getFullName().toLowerCase().contains(search.toLowerCase()))
                     .filter(u -> role.equalsIgnoreCase(u.getRole()))
                     .toList();
         } else if (search != null && !search.isBlank()) {
