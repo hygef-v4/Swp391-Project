@@ -20,8 +20,6 @@ public class UpdatePasswordController {
     private PasswordEncoder passwordEncoder;
 
     private static final String USER_PROFILE_PAGE = "redirect:/user-profile";
-    private static final String ERROR_NEW_PASSWORD_MISMATCH = "Mật khẩu mới và xác nhận mật khẩu không khớp.";
-    private static final String SUCCESS_PASSWORD_UPDATE = "Cập nhật mật khẩu thành công!";
 
     @PostMapping("/update-password")
     public String updatePassword(@RequestParam(value = "currentPassword", required = false) String currentPassword,
@@ -43,7 +41,7 @@ public class UpdatePasswordController {
         }
 
         if (!newPassword.equals(confirmPassword)) {
-            redirectAttributes.addFlashAttribute("error", ERROR_NEW_PASSWORD_MISMATCH);
+            redirectAttributes.addFlashAttribute("error", "Mật khẩu mới và xác nhận mật khẩu không khớp.");
             return USER_PROFILE_PAGE;
         }
 
@@ -52,7 +50,7 @@ public class UpdatePasswordController {
         userRepo.updateUserPassword(sessionUser.getEmail(), encodedPassword);
 
         session.setAttribute("user", sessionUser);
-        redirectAttributes.addFlashAttribute("success", SUCCESS_PASSWORD_UPDATE);
+        redirectAttributes.addFlashAttribute("success", "Cập nhật mật khẩu thành công!");
         return USER_PROFILE_PAGE;
     }
 }
