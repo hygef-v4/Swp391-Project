@@ -36,7 +36,7 @@ public class HotelDeleteController {
             RedirectAttributes redirectAttributes
     ) { // Removed throws MessagingException, handle it inside
         User user = (User) session.getAttribute("user");
-        if (user == null || !"HOTEL OWNER".equalsIgnoreCase(user.getRole())) {
+        if (user == null || !"HOTEL_OWNER".equalsIgnoreCase(user.getRole())) {
             redirectAttributes.addFlashAttribute("error", "Bạn không có quyền thực hiện hành động này.");
             return "redirect:/host-listing";
         }
@@ -79,7 +79,7 @@ public class HotelDeleteController {
             RedirectAttributes redirectAttributes
     ) {
         User user = (User) session.getAttribute("user");
-        if (user == null || !"HOTEL OWNER".equalsIgnoreCase(user.getRole())) {
+        if (user == null || !"HOTEL_OWNER".equalsIgnoreCase(user.getRole())) {
             redirectAttributes.addFlashAttribute("error", "Bạn không có quyền thực hiện hành động này.");
             return "redirect:/host-listing"; // Or appropriate error page
         }

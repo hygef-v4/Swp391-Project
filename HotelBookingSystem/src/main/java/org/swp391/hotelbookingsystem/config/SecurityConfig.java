@@ -35,7 +35,7 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers("/admin-dashboard").hasRole("ADMIN")
                         .requestMatchers("/admin-dashboard").hasRole("MODERATOR")
-                        .requestMatchers("/host-dashboard").hasRole("HOTEL OWNER")
+                        .requestMatchers("/host-dashboard","/add-hotel","/add-room","/request-delete-hotel").hasRole("HOTEL_OWNER")
                         .requestMatchers("/webhook").permitAll()
                         .anyRequest().authenticated()
                 )

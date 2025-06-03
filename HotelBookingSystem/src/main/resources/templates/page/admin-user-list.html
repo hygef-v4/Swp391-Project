@@ -143,8 +143,8 @@
                             </li>
                             <li class="nav-item" role="presentation">
                                 <a class="nav-link mb-0"
-                                   th:classappend="${role} == 'HOTEL OWNER' ? 'active border' : ''"
-                                   th:href="@{/admin-user-list(role='HOTEL OWNER')}">
+                                   th:classappend="${role} == 'HOTEL_OWNER' ? 'active border' : ''"
+                                   th:href="@{/admin-user-list(role='HOTEL_OWNER')}">
                                     Chủ khách sạn
                                 </a>
                             </li>
@@ -248,7 +248,7 @@
                                     <button class="btn btn-sm dropdown-toggle px-3 py-2 rounded-pill text-info bg-light-info border-0"
                                             type="button" data-bs-toggle="dropdown" aria-expanded="false">
                 <span th:text="${user.role == 'CUSTOMER' ? 'KHÁCH HÀNG'
-                                : (user.role == 'HOTEL OWNER' ? 'CHỦ KHÁCH SẠN'
+                                : (user.role == 'HOTEL_OWNER' ? 'CHỦ KHÁCH SẠN'
                                 : (user.role == 'MODERATOR' ? 'QUẢN LÝ WEB'
                                 : (user.role == 'ADMIN' ? 'QUẢN TRỊ VIÊN' : user.role)))}">Vai trò</span>
                                     </button>
@@ -263,7 +263,7 @@
                                         </li>
                                         <li>
                                             <button class="dropdown-item" type="submit"
-                                                    th:onclick="'document.getElementById(\'newRoleInput__' + ${user.id} + '\').value=\'HOTEL OWNER\''">
+                                                    th:onclick="'document.getElementById(\'newRoleInput__' + ${user.id} + '\').value=\'HOTEL_OWNER\''">
                                                 CHỦ KHÁCH SẠN
                                             </button>
                                         </li>

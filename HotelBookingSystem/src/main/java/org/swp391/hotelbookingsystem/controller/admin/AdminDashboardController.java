@@ -50,7 +50,7 @@ public class AdminDashboardController {
         List<User> customerList = userService.getUsersByRole("CUSTOMER");
         model.addAttribute("numberOfCustomers", customerList.size());
 
-        List<User> hotelOwnerList = userService.getUsersByRole("HOTEL OWNER");
+        List<User> hotelOwnerList = userService.getUsersByRole("HOTEL_OWNER");
         model.addAttribute("numberOfHotelOwners", hotelOwnerList.size());
 
         List<User> getTop5UsersWithProfile = userService.getTop5Users();

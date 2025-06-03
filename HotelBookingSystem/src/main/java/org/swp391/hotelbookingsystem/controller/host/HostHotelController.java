@@ -47,7 +47,7 @@ public class HostHotelController {
     public String viewHostListings(HttpSession session, Model model) {
         User host = (User) session.getAttribute("user");
 
-        if (host == null || !host.getRole().equalsIgnoreCase("HOTEL OWNER")) {
+        if (host == null || !host.getRole().equalsIgnoreCase("HOTEL_OWNER")) {
             return "redirect:/login"; // not logged in
         }
 
@@ -88,7 +88,7 @@ public class HostHotelController {
     @GetMapping("/add-room")
     public String showAddRoomForm(@RequestParam("hotelId") int hotelId, Model model, HttpSession session) {
         User host = (User) session.getAttribute("user");
-        if (host == null || !host.getRole().equalsIgnoreCase("HOTEL OWNER")) {
+        if (host == null || !host.getRole().equalsIgnoreCase("HOTEL_OWNER")) {
             return "redirect:/login"; // Or handle unauthorized access
         }
 
