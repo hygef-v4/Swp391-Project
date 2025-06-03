@@ -109,16 +109,18 @@ public class HostRegisterController {
             User user = (User) session.getAttribute("user");
             int userId = user.getId();
 
-            if (!"HOTEL OWNER".equalsIgnoreCase(user.getRole())) {
-                user.setRole("HOTEL OWNER");
+            if (!"HOTEL_OWNER".equalsIgnoreCase(user.getRole())) {
+                user.setRole("HOTEL_OWNER");
                 userService.updateUserRoleToHost(userId);
                 session.setAttribute("user", user);
 
+                //  Prepare a new list of authorities for Spring Security (required format: "ROLE_<role_name>")
                 List<SimpleGrantedAuthority> updatedAuthorities = new ArrayList<>();
-                updatedAuthorities.add(new SimpleGrantedAuthority("ROLE_HOTEL_OWNER"));
+                updatedAuthorities.add(new SimpleGrantedAuthority("ROLE_HOTEL_OWNER"));   //Create new authorities (permissions/roles),
 
-                Authentication newAuth = new UsernamePasswordAuthenticationToken(user, null, updatedAuthorities);
-                SecurityContextHolder.getContext().setAuthentication(newAuth);
+                Authentication newAuth = new UsernamePasswordAuthenticationToken(user, null, updatedAuthorities);  // Create a new Authentication object with updated role (Spring Security token)
+
+                SecurityContextHolder.getContext().setAuthentication(newAuth);   //  Replace the current authentication in the Spring Security context to avoid user re-login
             }
 
 
