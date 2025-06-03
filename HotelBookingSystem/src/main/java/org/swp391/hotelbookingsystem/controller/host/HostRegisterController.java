@@ -2,6 +2,10 @@ package org.swp391.hotelbookingsystem.controller.host;
 
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -108,8 +112,15 @@ public class HostRegisterController {
             if (!"HOTEL OWNER".equalsIgnoreCase(user.getRole())) {
                 user.setRole("HOTEL OWNER");
                 userService.updateUserRoleToHost(userId);
-                session.setAttribute("user", user); // cập nhật session
+                session.setAttribute("user", user);
+
+                List<SimpleGrantedAuthority> updatedAuthorities = new ArrayList<>();
+                updatedAuthorities.add(new SimpleGrantedAuthority("ROLE_HOTEL_OWNER"));
+
+                Authentication newAuth = new UsernamePasswordAuthenticationToken(user, null, updatedAuthorities);
+                SecurityContextHolder.getContext().setAuthentication(newAuth);
             }
+
 
 
             // Validate & upload hotel image

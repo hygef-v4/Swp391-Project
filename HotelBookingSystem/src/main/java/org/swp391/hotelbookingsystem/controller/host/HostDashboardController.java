@@ -38,7 +38,7 @@ public class HostDashboardController {
     @GetMapping("/host-dashboard")
     public String showHostDashboard(HttpSession session, Model model) {
         User host = (User) session.getAttribute("user");
-        if (host==null ||!host.getRole().equalsIgnoreCase("HOTEL OWNER")) {
+        if (host==null ||!host.getRole().equalsIgnoreCase("HOTEL_OWNER")) {
             return "redirect:/login"; // Or handle unauthorized access
         }
 

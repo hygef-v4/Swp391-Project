@@ -41,9 +41,9 @@ public class UserService {
         }
     }
 
-    //  Update role to HOTEL OWNER by user ID
+    //  Update role to HOTEL_OWNER by user ID
     public void updateUserRoleToHost(int userId) {
-        userRepo.updateUserRoleById(userId, "HOTEL OWNER");
+        userRepo.updateUserRoleById(userId, "HOTEL_OWNER");
     }
 
     public List<User> getUsersByRole(String role) {
