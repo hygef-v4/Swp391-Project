@@ -21,7 +21,7 @@ public class OtpController {
 
     @PostMapping("/verify-email-otp")
     public String verifyOtp(@RequestParam("otp") String otp, HttpSession session, Model model) {
-        User user = (User) session.getAttribute("user");
+        User user = (User) session.getAttribute("register_user");
 
         if (user == null) {
             model.addAttribute("error", "Session expired. Please register again.");
