@@ -90,4 +90,12 @@ public class UserService {
     public void deleteToken(String token) {
         userRepo.deleteToken(token);
     }
+
+    public void updateUser(User user) {
+        userRepo.updateUser(user);
+    }
+
+    public void updateUserPassword(String email, String encodedPassword) {
+        userRepo.updateUserPassword(email,encodedPassword);
+    }
 }

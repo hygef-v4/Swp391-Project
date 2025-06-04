@@ -54,4 +54,5 @@ public class UpdatePasswordController {
         redirectAttributes.addFlashAttribute("success", "Cập nhật mật khẩu thành công!");
         return USER_PROFILE_PAGE;
     }
+
 }
