@@ -31,28 +31,26 @@ public class UpdatePasswordController {
 
         User sessionUser = (User) session.getAttribute("user");
 
-        if (sessionUser == null) {
-            redirectAttributes.addFlashAttribute("error", "Người dùng chưa đăng nhập!");
-            return USER_PROFILE_PAGE;
+        try {
+            // Validate mật khẩu
+            userService.validatePasswordChange(sessionUser, currentPassword, newPassword, confirmPassword);
+
+            // Cập nhật mật khẩu mới
+            userService.updateUserPassword(sessionUser, newPassword);
+
+            // Thay đổi trong session
+            session.setAttribute("user", sessionUser);
+            redirectAttributes.addFlashAttribute("success", "Cập nhật mật khẩu thành công!");
+        } catch (IllegalArgumentException e) {
+            // Thông báo lỗi nếu validate thất bại
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        } catch (Exception e) {
+            // Xử lý các lỗi khác
+            redirectAttributes.addFlashAttribute("error", "Đã xảy ra lỗi khi cập nhật mật khẩu. Vui lòng thử lại.");
         }
 
-        if (sessionUser.getPassword() != null && !passwordEncoder.matches(currentPassword, sessionUser.getPassword())) {
-            redirectAttributes.addFlashAttribute("error", "Mật khẩu hiện tại không chính xác.");
-            return USER_PROFILE_PAGE;
-        }
-
-        if (!newPassword.equals(confirmPassword)) {
-            redirectAttributes.addFlashAttribute("error", "Mật khẩu mới và xác nhận mật khẩu không khớp.");
-            return USER_PROFILE_PAGE;
-        }
-
-        String encodedPassword = passwordEncoder.encode(newPassword);
-        sessionUser.setPassword(encodedPassword);
-        userService.updateUserPassword(sessionUser.getEmail(), encodedPassword);
-
-        session.setAttribute("user", sessionUser);
-        redirectAttributes.addFlashAttribute("success", "Cập nhật mật khẩu thành công!");
         return USER_PROFILE_PAGE;
     }
+
 
 }
