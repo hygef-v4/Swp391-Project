@@ -83,5 +83,9 @@ public class BookingRepo {
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Booking.class), customerId);
     }
 
+    public String getImagesByBookingId(int bookingId) {
+        String sql = "select top 1 image_url  from RoomImages ri join Bookings b on ri.room_id = b.room_id where booking_id = ?";
+        return jdbcTemplate.queryForObject(sql, String.class, bookingId);
+    }
 
 }

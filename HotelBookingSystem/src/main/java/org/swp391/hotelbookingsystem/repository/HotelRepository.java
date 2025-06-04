@@ -35,8 +35,8 @@ public class HotelRepository {
                    h.longitude,
                    h.description,
                    MIN(r.price) AS minPrice,
-                   SUM(r.max_guests) as maxGuests,
-                   SUM(r.quantity) as roomQuantity,
+                   SUM(r.max_guests) AS maxGuests,
+                   SUM(r.quantity) AS roomQuantity,
                    l.city_name AS cityName
             FROM Hotels h
             JOIN Locations l ON h.location_id = l.location_id

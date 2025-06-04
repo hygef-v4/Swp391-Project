@@ -140,7 +140,9 @@
                                     <div th:each="booking : ${upcomingBookings}" class="card border mb-4">
                                         <div class="card-header border-bottom d-md-flex justify-content-md-between align-items-center">
                                             <div class="d-flex align-items-center">
-                                                <div class="icon-lg bg-light rounded-circle flex-shrink-0"><i class="fa-solid fa-bed"></i></div>
+                                                <div class="icon-lg bg-light rounded-circle flex-shrink-0 overflow-hidden" style="width: 50px; height: 50px;">
+                                                    <img th:src="${booking.imageUrl}" alt="Room Image" style="width: 100%; height: 100%; object-fit: cover;">
+                                                </div>
                                                 <div class="ms-2">
                                                     <h6 class="card-title mb-0">Booking ID: <span th:text="${booking.bookingId}"></span></h6>
                                                     <ul class="nav nav-divider small">
@@ -180,7 +182,9 @@
                                     <div th:each="booking : ${cancelledBookings}" class="card border mb-4">
                                         <div class="card-header border-bottom d-md-flex justify-content-md-between align-items-center">
                                             <div class="d-flex align-items-center">
-                                                <div class="icon-lg bg-light rounded-circle flex-shrink-0"><i class="fa-solid fa-hotel"></i></div>
+                                                <div class="icon-lg bg-light rounded-circle flex-shrink-0 overflow-hidden" style="width: 50px; height: 50px;">
+                                                    <img th:src="${booking.imageUrl}" alt="Room Image" style="width: 100%; height: 100%; object-fit: cover;">
+                                                </div>
                                                 <div class="ms-2">
                                                     <h6 class="card-title mb-0">Booking ID: <span th:text="${booking.bookingId}"></span></h6>
                                                     <ul class="nav nav-divider small">
@@ -189,7 +193,7 @@
                                                 </div>
                                             </div>
                                             <div class="mt-2 mt-md-0">
-                                                <a href="#" class="btn btn-primary-soft mb-0">View Details</a>
+                                                <a th:href="@{'/booking-detail/' + ${booking.bookingId}}" class="btn btn-primary-soft mb-0">View Details</a>
                                             </div>
                                         </div>
                                         <div class="card-body">
@@ -219,7 +223,9 @@
                                     <div th:each="booking : ${completedBookings}" class="card border mb-4">
                                         <div class="card-header border-bottom d-md-flex justify-content-md-between align-items-center">
                                             <div class="d-flex align-items-center">
-                                                <div class="icon-lg bg-light rounded-circle flex-shrink-0"><i class="fa-solid fa-check-circle"></i></div>
+                                                <div class="icon-lg bg-light rounded-circle flex-shrink-0 overflow-hidden" style="width: 50px; height: 50px;">
+                                                    <img th:src="${booking.imageUrl}" alt="Room Image" style="width: 100%; height: 100%; object-fit: cover;">
+                                                </div>
                                                 <div class="ms-2">
                                                     <h6 class="card-title mb-0">Booking ID: <span th:text="${booking.bookingId}"></span></h6>
                                                     <ul class="nav nav-divider small">
@@ -228,7 +234,7 @@
                                                 </div>
                                             </div>
                                             <div class="mt-2 mt-md-0">
-                                                <a href="#" class="btn btn-primary-soft mb-0">View Details</a>
+                                                <a th:href="@{'/booking-detail/' + ${booking.bookingId}}" class="btn btn-primary-soft mb-0">View Details</a>
                                             </div>
                                         </div>
                                         <div class="card-body">
@@ -284,5 +290,4 @@ Footer END -->
 
 </body>
 
-<!-- Mirrored from stackbros.in/bookinga/landing/account-bookings.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:07:33 GMT -->
 </html>

@@ -21,13 +21,14 @@ public class HotelListController {
 
     @GetMapping("/hotel-list")
     public String hotelList(
-        @RequestParam(value = "locationId", defaultValue = "-1") int locationId,
-        @RequestParam(value = "adults", defaultValue = "1") int adults, 
-        @RequestParam(value = "children", defaultValue = "0") int children, 
-        @RequestParam(value = "rooms", defaultValue = "1") int rooms, 
-        @RequestParam(value = "search", defaultValue = "") String search, 
-        @RequestParam(value = "page", defaultValue = "1") int page, Model model
-    ){
+            @RequestParam(value = "locationId", defaultValue = "-1") int locationId,
+            @RequestParam(value = "adults", defaultValue = "1") int adults,
+            @RequestParam(value = "children", defaultValue = "0") int children,
+            @RequestParam(value = "rooms", defaultValue = "-1") int rooms,
+            @RequestParam(value = "search", defaultValue = "") String search,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+
+            Model model){
         List<Location> location = locationService.getLocationById(locationId);
         model.addAttribute("hamora", locationId == -1 ? new Location(locationId, "Hamora", "assets/images/bg/05.jpg") : location.get(0));
         List<Location> locations = locationService.getAllLocations();
