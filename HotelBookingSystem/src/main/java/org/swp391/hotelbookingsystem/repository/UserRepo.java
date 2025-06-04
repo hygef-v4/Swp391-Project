@@ -65,10 +65,9 @@ public class UserRepo {
                    u.phone, 
                    u.role, 
                    u.is_active,
-                   up.avatar_url AS avatarUrl,
-                   up.bio
+                   u.avatar_url AS avatarUrl,
+                   u.bio
             FROM Users u
-            LEFT JOIN UserProfiles up ON u.user_id = up.user_id
             """;
 
 
@@ -207,10 +206,9 @@ public class UserRepo {
                u.phone,
                u.role,
                u.is_active,
-               up.avatar_url AS avatarUrl,
-               up.bio
+               u.avatar_url AS avatarUrl,
+               u.bio
         FROM Users u
-        LEFT JOIN UserProfiles up ON u.user_id = up.user_id
         WHERE u.full_name LIKE ? 
         """;
 

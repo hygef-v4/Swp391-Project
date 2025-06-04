@@ -20,32 +20,46 @@ public class AdminUserController {
     @GetMapping("/admin-user-list")
     public String getUserList(@RequestParam(value = "search", required = false) String search,
                               @RequestParam(value = "role", required = false) String role,
+                              @RequestParam(value = "page", defaultValue = "1") int page,
                               Model model, HttpSession session) {
         User user = (User) session.getAttribute("user");
         if (user == null || !user.getRole().equals("ADMIN")) {
             return "redirect:/login";
         }
 
-        List<User> users;
+        List<User> filteredUsers;
 
         if (search != null && !search.isBlank() && role != null && !role.isBlank()) {
-            users = userService.getAllUsersWithProfile().stream()
+            filteredUsers = userService.getAllUsersWithProfile().stream()
                     .filter(u -> u.getFullName().toLowerCase().contains(search.toLowerCase()))
                     .filter(u -> role.equalsIgnoreCase(u.getRole()))
                     .toList();
         } else if (search != null && !search.isBlank()) {
-            users = userService.searchUsersByName(search);
+            filteredUsers = userService.searchUsersByName(search);
         } else if (role != null && !role.isBlank()) {
-            users = userService.getAllUsersWithProfile().stream()
+            filteredUsers = userService.getAllUsersWithProfile().stream()
                     .filter(u -> role.equalsIgnoreCase(u.getRole()))
                     .toList();
         } else {
-            users = userService.getAllUsersWithProfile();
+            filteredUsers = userService.getAllUsersWithProfile();
         }
 
+
+        int pageSize = 10;
+        int totalUsers = filteredUsers.size();
+        int startIndex = (page - 1) * pageSize;
+        int endIndex = Math.min(startIndex + pageSize, totalUsers);
+
+        List<User> currentPageUsers = (startIndex < totalUsers) ? filteredUsers.subList(startIndex, endIndex) : List.of();
+
+        model.addAttribute("startIndex", startIndex);
+        model.addAttribute("endIndex", endIndex);
+        model.addAttribute("totalUsers", totalUsers);
         model.addAttribute("search", search);
         model.addAttribute("role", role);
-        model.addAttribute("userList", users);
+        model.addAttribute("userList", currentPageUsers);
+        model.addAttribute("page", page);
+        model.addAttribute("pagination", (int) Math.ceil((double) totalUsers / pageSize));
 
         return "page/admin-user-list";
     }
