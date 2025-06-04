@@ -24,6 +24,7 @@ public class UserProfileController {
 
         if (sessionUser != null) {
             model.addAttribute("fullname", sessionUser.getFullName());
+            model.addAttribute("email", sessionUser.getEmail());
             model.addAttribute("phone", sessionUser.getPhone());
             model.addAttribute("dob", sessionUser.getDob());
             model.addAttribute("bio", sessionUser.getBio());
@@ -34,7 +35,7 @@ public class UserProfileController {
             return "redirect:/login";
         }
 
-        model.addAttribute("pageTitle", "User Profile");
+
         return "page/userProfile";
     }
 
@@ -45,6 +46,7 @@ public class UserProfileController {
                                     @RequestParam("bio") String bio,
                                     @RequestParam("gender") String gender,
                                     HttpSession session, RedirectAttributes redirectAttributes) {
+
         User sessionUser = (User) session.getAttribute("user");
 
         if (sessionUser != null) {
@@ -55,7 +57,9 @@ public class UserProfileController {
             sessionUser.setGender(gender);
 
             userService.updateUser(sessionUser);
+
             session.setAttribute("user", sessionUser);
+            // Cập nhật thông tin người dùng trong session
             redirectAttributes.addFlashAttribute("success", "Cập nhật thông tin thành công.");
         } else {
             redirectAttributes.addFlashAttribute("error", "Người dùng chưa đăng nhập. Không thể cập nhật thông tin.");

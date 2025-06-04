@@ -39,6 +39,10 @@ public class UserRepo {
                 user.setPhone(rs.getString("phone"));
                 user.setRole(rs.getString("role"));
                 user.setActive(rs.getBoolean("is_active"));
+                user.setDob(rs.getDate("date_of_birth")); // Load trường ngày sinh
+                user.setBio(rs.getString("bio"));        // Load trường bio
+                user.setGender(rs.getString("gender"));  // Load trường gender
+
                 return user;
             }, email);
         } catch (Exception e) {
