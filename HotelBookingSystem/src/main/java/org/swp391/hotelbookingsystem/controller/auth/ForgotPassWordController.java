@@ -7,14 +7,14 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.swp391.hotelbookingsystem.model.User;
-import org.swp391.hotelbookingsystem.repository.UserRepo;
 import org.swp391.hotelbookingsystem.service.EmailService;
+import org.swp391.hotelbookingsystem.service.UserService;
 
 @Controller
 public class ForgotPassWordController {
 
     @Autowired
-    private UserRepo userRepo;
+    private UserService userService;
 
     @Autowired
     private EmailService emailService;
@@ -29,14 +29,14 @@ public class ForgotPassWordController {
 
     @PostMapping("/forgotPassword")
     public String processForgotPassword(HttpServletRequest request, @RequestParam("email") String email, Model model) {
-        User user = userRepo.findByEmail(email);
+        User user = userService.findByEmail(email);
 
         if (user == null) {
             return "redirect:/forgotPassword?error";
         }
 
         String token = java.util.UUID.randomUUID().toString();
-        userRepo.savePasswordResetToken(user.getId(), token);
+        userService.savePasswordResetToken(user.getId(), token);
 
         try {
             emailService.sendResetPasswordEmail(email, token);
@@ -49,7 +49,7 @@ public class ForgotPassWordController {
 
     @GetMapping("/resetPassword")
     public String showResetForm(@RequestParam("token") String token, Model model) {
-        User user = userRepo.findUserByToken(token);
+        User user = userService.findUserByToken(token);
         if (user == null) {
             return "redirect:/forgotPassword?invalid";
         }
@@ -60,14 +60,14 @@ public class ForgotPassWordController {
     @PostMapping("/resetPassword")
     public String processReset(@RequestParam("token") String token,
                                @RequestParam("password") String password) {
-        User user = userRepo.findUserByToken(token);
+        User user = userService.findUserByToken(token);
         if (user == null) {
             return "redirect:/forgotPassword?invalid";
         }
 
         String hashed = passwordEncoder.encode(password);
-        userRepo.updatePassword(user.getId(), hashed);
-        userRepo.deleteToken(token);
+        userService.updatePassword(user.getId(), hashed);
+        userService.deleteToken(token);
 
         return "redirect:/login?resetSuccess";
     }
