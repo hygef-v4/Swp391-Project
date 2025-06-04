@@ -62,4 +62,10 @@ public class UserService {
     public void updateUser(User user) {
         userRepo.updateUser(user);
     }
+
+    public void updateUserPassword(String email, String encodedPassword) {
+        userRepo.updateUserPassword(email,encodedPassword);
+    }
 }
+
+

@@ -9,12 +9,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.swp391.hotelbookingsystem.service.UserService;
 
 @Controller
 public class UpdatePasswordController {
 
     @Autowired
-    private UserRepo userRepo;
+    private UserService userService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -47,7 +48,7 @@ public class UpdatePasswordController {
 
         String encodedPassword = passwordEncoder.encode(newPassword);
         sessionUser.setPassword(encodedPassword);
-        userRepo.updateUserPassword(sessionUser.getEmail(), encodedPassword);
+        userService.updateUserPassword(sessionUser.getEmail(), encodedPassword);
 
         session.setAttribute("user", sessionUser);
         redirectAttributes.addFlashAttribute("success", "Cập nhật mật khẩu thành công!");
