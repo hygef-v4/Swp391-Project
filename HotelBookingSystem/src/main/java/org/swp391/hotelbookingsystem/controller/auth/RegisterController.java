@@ -69,20 +69,14 @@ public class RegisterController {
         }
 
         String hashedPassword = passwordEncoder.encode(password);
-        User existingUser = userService.findByEmail(email);
-
-        if (existingUser != null) {
-            model.addAttribute("error", "Email already exists.");
-            return "page/register";
-        }
 
         String otp = String.valueOf((int) (Math.random() * 900000) + 100000);
         emailService.sendOtpEmail(email, otp);
         userService.saveEmailOtpToken(email, otp);
 
         User user = new User(email, hashedPassword);
-        user.setFullName(fullname);
-        session.setAttribute("user", user);
+        user.setFullName(fullname.trim());
+        session.setAttribute("register_user", user);
 
         return "page/verify-email-otp";
 
