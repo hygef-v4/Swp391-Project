@@ -50,17 +50,28 @@ public class UserProfileController {
         User sessionUser = (User) session.getAttribute("user");
 
         if (sessionUser != null) {
-            sessionUser.setFullName(fullname);
-            sessionUser.setPhone(phone);
-            sessionUser.setDob(java.sql.Date.valueOf(dob)); // Convert to SQL Date
-            sessionUser.setBio(bio);
-            sessionUser.setGender(gender);
 
-            userService.updateUser(sessionUser);
+            try {
+                // Gọi validate từ UserService
+                userService.validateUserProfile(fullname, phone, dob, bio);
 
-            session.setAttribute("user", sessionUser);
-            // Cập nhật thông tin người dùng trong session
-            redirectAttributes.addFlashAttribute("success", "Cập nhật thông tin thành công.");
+                // Cập nhật thông tin người dùng nếu hợp lệ
+                sessionUser.setFullName(fullname);
+                sessionUser.setPhone(phone);
+                sessionUser.setDob(java.sql.Date.valueOf(dob));
+                sessionUser.setBio(bio);
+                sessionUser.setGender(gender);
+
+                userService.updateUser(sessionUser);
+
+                session.setAttribute("user", sessionUser); // Cập nhật session
+                redirectAttributes.addFlashAttribute("success", "Cập nhật thông tin thành công.");
+            } catch (IllegalArgumentException e) {
+                redirectAttributes.addFlashAttribute("error", e.getMessage());
+            } catch (Exception e) {
+                redirectAttributes.addFlashAttribute("error", "Đã xảy ra lỗi khi cập nhật thông tin. Vui lòng thử lại.");
+            }
+
         } else {
             redirectAttributes.addFlashAttribute("error", "Người dùng chưa đăng nhập. Không thể cập nhật thông tin.");
         }

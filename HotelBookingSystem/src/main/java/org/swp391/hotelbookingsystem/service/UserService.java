@@ -98,4 +98,28 @@ public class UserService {
     public void updateUserPassword(String email, String encodedPassword) {
         userRepo.updateUserPassword(email,encodedPassword);
     }
+
+    public void validateUserProfile(String fullname, String phone, String dob, String bio) {
+        // Kiểm tra trường fullname
+        if (fullname == null || fullname.isBlank()) {
+            throw new IllegalArgumentException("Tên người dùng không được để trống.");
+        }
+
+        // Validate số điện thoại (chỉ chấp nhận 10-15 ký tự số)
+        if (!phone.matches("\\d{10,15}")) {
+            throw new IllegalArgumentException("Số điện thoại không hợp lệ. Chỉ chấp nhận từ 10-15 chữ số.");
+        }
+
+        // Kiểm tra ngày sinh
+        if (dob == null || dob.isBlank()) {
+            throw new IllegalArgumentException("Ngày sinh không được để trống.");
+        }
+        // Kiểm tra thông tin giới thiệu
+        if ( bio.length() > 255) { // Không bắt buộc nhưng không được dài quá 255 ký tự
+            throw new IllegalArgumentException("Thông tin giới thiệu không được dài quá 255 ký tự.");
+        }
+
+
+    }
+
 }
