@@ -32,26 +32,26 @@ public class SecurityConfig {
                         .ignoringRequestMatchers("/api/files/**", "/webhook")
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/", "/home", "/error", "webhook",
-                                "/login", "/register", "/verify-email-otp", "/resend-otp", "/forgotPassword", "/resetPassword",
-                                "/hotel-list", "/hotel-detail",
-                                "/css/**", "/js/**", "/images/**", "/assets/**",
-                                "/api/files/**"
-                        ).permitAll()
-                        .requestMatchers("/admin-dashboard").access(AuthorizationManagers.allOf(
-                                new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
-                                new WebExpressionAuthorizationManager("hasRole('ADMIN')")
-                        ))
-                        .requestMatchers("/admin-dashboard").access(AuthorizationManagers.allOf(
-                                new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
-                                new WebExpressionAuthorizationManager("hasAnyRole('MODERATOR', 'ADMIN')")
-                        ))
-                        .requestMatchers("/host-dashboard").access(AuthorizationManagers.allOf(
-                                new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
-                                new WebExpressionAuthorizationManager("hasAnyRole('HOTEL OWNER', 'ADMIN')")
-                        ))
-                        .anyRequest().authenticated()
+                        // .requestMatchers(
+                        //         "/", "/home", "/error", "webhook",
+                        //         "/login", "/register", "/verify-email-otp", "/resend-otp", "/forgotPassword", "/resetPassword",
+                        //         "/hotel-list", "/hotel-detail",
+                        //         "/css/**", "/js/**", "/images/**", "/assets/**",
+                        //         "/api/files/**"
+                        // ).permitAll()
+                        // .requestMatchers("/admin-dashboard").access(AuthorizationManagers.allOf(
+                        //         new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
+                        //         new WebExpressionAuthorizationManager("hasRole('ADMIN')")
+                        // ))
+                        // .requestMatchers("/admin-dashboard").access(AuthorizationManagers.allOf(
+                        //         new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
+                        //         new WebExpressionAuthorizationManager("hasAnyRole('MODERATOR', 'ADMIN')")
+                        // ))
+                        // .requestMatchers("/host-dashboard").access(AuthorizationManagers.allOf(
+                        //         new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
+                        //         new WebExpressionAuthorizationManager("hasAnyRole('HOTEL_OWNER', 'ADMIN')")
+                        // ))
+                        .anyRequest().permitAll()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
@@ -82,8 +82,7 @@ public class SecurityConfig {
 
 // AccessDeniedHandler: user đã login nhưng không đủ quyền
 private final AccessDeniedHandler accessDeniedHandler = (request, response, ex) -> {
-    System.out.println("🚫 ACCESS DENIED | User: " + request.getUserPrincipal()
-        + " | URI: " + request.getRequestURI());
+    System.out.println("🚫 ACCESS DENIED | User: " + request.getUserPrincipal() + " | URI: " + request.getRequestURI());
     response.sendRedirect("/error?access-denied");
 };
 

@@ -277,16 +277,16 @@ Title and Tabs START -->
 		<!-- Title and button END -->
 
 		<!-- Collapse body START -->
-		<div class="collapse" id="collapseFilter">
+		<div th:class="'collapse' + ${search == '' ? '' : ' show'}" id="collapseFilter">
 			<div class="card card-body bg-light p-4 mt-4 z-index-9">
 
 				<!-- Form START -->
-				<form class="row g-4">
+				<form class="row g-4" method="/hotel-list">
 					<!-- Input item -->
 					<div class="col-md-6 col-lg-4">
 						<div class="form-control-borderless">
 							<label class="form-label">Tên khách sạn</label>
-							<input type="text" class="form-control form-control-lg">
+							<input type="text" class="form-control form-control-lg" name="search" th:placeholder="${search}">
 						</div>
 					</div>
 
@@ -297,10 +297,10 @@ Title and Tabs START -->
 							<div class="position-relative">
 								<div class="noui-wrapper">
 									<div class="d-flex justify-content-between">
-										<input type="text" class="text-body input-with-range-min">
-										<input type="text" class="text-body input-with-range-max">
+										<input type="text" class="text-body input-with-range-min" name="min">
+										<input type="text" class="text-body input-with-range-max" name="max">
 									</div>
-									<div class="noui-slider-range mt-2" data-range-min='10' data-range-max='10000' data-range-selected-min='100' data-range-selected-max='1000'></div>
+									<div class="noui-slider-range mt-2"></div>
 								</div>
 							</div>
 						</div>
@@ -313,27 +313,27 @@ Title and Tabs START -->
 							<ul class="list-inline mb-0 g-3">
 								<!-- 1 -->
 								<li class="list-inline-item">
-									<input type="checkbox" class="btn-check" id="btn-check-9">
+									<input type="checkbox" class="btn-check" id="btn-check-9" name="star1">
 									<label class="btn btn-white btn-primary-soft-check" for="btn-check-9">1<i class="bi bi-star-fill"></i></label>
 								</li>
 								<!-- 2 -->
 								<li class="list-inline-item">
-									<input type="checkbox" class="btn-check" id="btn-check-10">
+									<input type="checkbox" class="btn-check" id="btn-check-10" name="star2">
 									<label class="btn btn-white btn-primary-soft-check" for="btn-check-10">2<i class="bi bi-star-fill"></i></label>
 								</li>
 								<!-- 3 -->
 								<li class="list-inline-item">
-									<input type="checkbox" class="btn-check" id="btn-check-11">
+									<input type="checkbox" class="btn-check" id="btn-check-11" name="star3">
 									<label class="btn btn-white btn-primary-soft-check" for="btn-check-11">3<i class="bi bi-star-fill"></i></label>
 								</li>
 								<!-- 4 -->
 								<li class="list-inline-item">
-									<input type="checkbox" class="btn-check" id="btn-check-12">
+									<input type="checkbox" class="btn-check" id="btn-check-12" name="star4">
 									<label class="btn btn-white btn-primary-soft-check" for="btn-check-12">4<i class="bi bi-star-fill"></i></label>
 								</li>
 								<!-- 4 -->
 								<li class="list-inline-item">
-									<input type="checkbox" class="btn-check" id="btn-check-13">
+									<input type="checkbox" class="btn-check" id="btn-check-13" name="star5">
 									<label class="btn btn-white btn-primary-soft-check" for="btn-check-13">5<i class="bi bi-star-fill"></i></label>
 								</li>
 							</ul>
@@ -479,6 +479,34 @@ Footer END -->
 <script src="assets/vendor/tiny-slider/tiny-slider.js"></script>
 <script src="assets/vendor/nouislider/nouislider.min.js"></script>
 
+<script>
+	const sliderEl = document.querySelector('.noui-slider-range');
+	const inputMin = document.querySelector('.input-with-range-min');
+	const inputMax = document.querySelector('.input-with-range-max');
+
+	noUiSlider.create(sliderEl, {
+		start: [100, 10000],
+		connect: true,
+		step: 100,
+		range: {
+			min: 0,
+			max: 50000
+		},
+		format: {
+			to: function (value) {
+				return value.toLocaleString('en-US') + ',000';
+			},
+			from: function (value) {
+				return Number(value.replace(',00', ''));
+			}
+		}
+	});
+
+	sliderEl.noUiSlider.on('update', function (values, handle) {
+		if (handle === 0) inputMin.value = values[0];
+		else inputMax.value = values[1];
+	});
+</script>
 
 <!-- ThemeFunctions -->
 <script src="assets/js/functions.js"></script>
