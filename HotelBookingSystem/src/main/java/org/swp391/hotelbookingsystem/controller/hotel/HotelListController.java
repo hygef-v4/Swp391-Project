@@ -24,7 +24,7 @@ public class HotelListController {
             @RequestParam(value = "locationId", defaultValue = "-1") int locationId,
             @RequestParam(value = "adults", defaultValue = "1") int adults,
             @RequestParam(value = "children", defaultValue = "0") int children,
-            @RequestParam(value = "rooms", defaultValue = "-1") int rooms,
+            @RequestParam(value = "rooms", defaultValue = "1") int rooms,
             @RequestParam(value = "search", defaultValue = "") String search,
             @RequestParam(value = "page", defaultValue = "1") int page,
 
@@ -35,7 +35,9 @@ public class HotelListController {
         model.addAttribute("locations", locations);
 
         model.addAttribute("search", search.trim());
-
+        model.addAttribute("adults", adults);
+        model.addAttribute("children", children);
+        model.addAttribute("rooms", rooms);
 
         List<Hotel> hotel = hotelService.getHotelsByLocation(locationId, (adults + children), rooms, search.trim());
         int item = page * 12;

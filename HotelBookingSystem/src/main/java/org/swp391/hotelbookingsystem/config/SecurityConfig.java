@@ -51,7 +51,7 @@ public class SecurityConfig {
                                 new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
                                 new WebExpressionAuthorizationManager("hasAnyRole('HOTEL_OWNER', 'ADMIN')")
                         ))
-                        .anyRequest().permitAll()
+                        .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
