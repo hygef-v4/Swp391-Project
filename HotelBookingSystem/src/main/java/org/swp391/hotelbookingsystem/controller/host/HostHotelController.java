@@ -92,6 +92,13 @@ public class HostHotelController {
             return "redirect:/login"; // Or handle unauthorized access
         }
 
+        Hotel hotel = hotelService.getHotelById(hotelId);
+        if (hotel == null || hotel.getHostId() != host.getId()) {
+            return "redirect:/host-listing"; // prevent unauthorized access
+        }
+
+
+
 
         model.addAttribute("hotelId", hotelId);
 

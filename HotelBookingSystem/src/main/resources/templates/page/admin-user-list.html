@@ -223,7 +223,7 @@
 
                         <!-- Full Name -->
                         <div class="col-2">
-                            <span class="fw-semibold" th:text="${user.fullname}">Full Name</span>
+                            <span class="fw-semibold" th:text="${user.fullName}">Full Name</span>
                         </div>
 
                         <!-- Email -->
@@ -296,6 +296,73 @@
                                     <span th:text="${user.active} ? 'Active' : 'Inactive'"></span>
                                 </button>
                             </form>
+                        </div>
+                    </div>
+                    <div class="card-footer pt-0">
+                        <div class="d-sm-flex justify-content-sm-between align-items-sm-center mt-4">
+                            <p class="mb-sm-0 text-center text-sm-start">
+                                Hiển thị <span th:text="${startIndex + 1}">1</span>
+                                đến <span th:text="${endIndex}">8</span>
+                                trong số <span th:text="${totalUsers}">20</span> người dùng
+                            </p>
+                            <nav class="mb-sm-0 d-flex justify-content-center" aria-label="navigation">
+                                <ul class="pagination pagination-primary-soft pagination-sm mb-0">
+                                    <li th:if="${pagination >= 2}" th:class="'page-item mb-0' + (${page == 1} ? ' disabled' : '')">
+                                        <a class="page-link"
+                                           th:href="@{/admin-user-list(page=${page - 1}, search=${search}, role=${role})}">
+                                            <i class="fa-solid fa-angle-left"></i>
+                                        </a>
+                                    </li>
+
+                                    <li th:if="${pagination >= 1}" th:class="'page-item mb-0' + (${page == 1} ? ' active disabled' : '')">
+                                        <a class="page-link"
+                                           th:href="@{/admin-user-list(page=1, search=${search}, role=${role})}">1</a>
+                                    </li>
+
+                                    <li th:if="${pagination >= 2}" th:class="'page-item mb-0' + (${page == 2} ? ' active disabled' : '')">
+                                        <a class="page-link"
+                                           th:href="@{/admin-user-list(page=2, search=${search}, role=${role})}">2</a>
+                                    </li>
+
+                                    <li th:if="${pagination >= 5 and page - 2 > 2}" class="page-item mb-0 disabled">
+                                        <a class="page-link">...</a>
+                                    </li>
+
+                                    <li th:if="${pagination >= 4 and page != 1 and page - 1 != 1 and page - 1 != 2}" class="page-item mb-0">
+                                        <a class="page-link"
+                                           th:href="@{/admin-user-list(page=${page - 1}, search=${search}, role=${role})}"
+                                           th:text="${page - 1}"></a>
+                                    </li>
+
+                                    <li th:if="${pagination >= 4 and page != 1 and page != 2 and page != pagination}" class="page-item mb-0 active disabled">
+                                        <a class="page-link" th:text="${page}"></a>
+                                    </li>
+
+                                    <li th:if="${pagination >= 4 and page + 1 != 2 and page + 1 != pagination and page != pagination}" class="page-item mb-0">
+                                        <a class="page-link"
+                                           th:href="@{/admin-user-list(page=${page + 1}, search=${search}, role=${role})}"
+                                           th:text="${page + 1}"></a>
+                                    </li>
+
+                                    <li th:if="${pagination >= 4 and pagination > page + 2}" class="page-item mb-0 disabled">
+                                        <a class="page-link">...</a>
+                                    </li>
+
+                                    <li th:if="${pagination >= 3}" th:class="'page-item mb-0' + (${page == pagination} ? ' active disabled' : '')">
+                                        <a class="page-link"
+                                           th:href="@{/admin-user-list(page=${pagination}, search=${search}, role=${role})}"
+                                           th:text="${pagination}"></a>
+                                    </li>
+
+                                    <li th:if="${pagination >= 2}" th:class="'page-item mb-0' + (${page == pagination} ? ' disabled' : '')">
+                                        <a class="page-link"
+                                           th:href="@{/admin-user-list(page=${page + 1}, search=${search}, role=${role})}">
+                                            <i class="fa-solid fa-angle-right"></i>
+                                        </a>
+                                    </li>
+                                </ul>
+
+                            </nav>
                         </div>
                     </div>
                 </div>

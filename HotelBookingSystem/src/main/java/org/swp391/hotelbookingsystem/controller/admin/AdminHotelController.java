@@ -33,7 +33,9 @@ public class AdminHotelController {
     LocationService locationService;
 
     @GetMapping("/admin-hotel-list")
-    public String getHotelDashboard(@RequestParam(value = "search", required = false) String search, Model model, HttpSession session) {
+    public String getHotelDashboard(@RequestParam(value = "search", required = false) String search,
+                                    @RequestParam(value = "page", defaultValue = "1") int page,
+                                    Model model, HttpSession session) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         model.addAttribute(ConstantVariables.PAGE_TITLE, "Hamora Booking - Hotel Management");
         User user = (User) session.getAttribute("user");
@@ -41,15 +43,27 @@ public class AdminHotelController {
             return "redirect:/login";
         }
 
-        List<Hotel> hotels;
+        List<Hotel> filteredHotels;
         if (search != null && !search.trim().isEmpty()) {
-            hotels = hotelService.searchHotel(search);
+            filteredHotels = hotelService.searchHotel(search);
         } else {
-            hotels = hotelService.getAllHotels();
+            filteredHotels = hotelService.getAllHotels();
         }
 
+        int pageSize = 10;
+        int totalHotels = filteredHotels.size();
+        int startIndex = (page - 1) * pageSize;
+        int endIndex = Math.min(startIndex + pageSize, totalHotels);
+        List<Hotel> currentHotels = (startIndex < totalHotels) ? filteredHotels.subList(startIndex, endIndex) : List.of();
+
         model.addAttribute("search", search);
-        model.addAttribute("hotelList", hotels);
+        model.addAttribute("hotelList", currentHotels);
+        model.addAttribute("page", page);
+        model.addAttribute("pagination", (int) Math.ceil((double) totalHotels / pageSize));
+        model.addAttribute("startIndex", startIndex); // +1 to match display
+        model.addAttribute("endIndex", endIndex);
+        model.addAttribute("totalHotels", totalHotels);
+
 
         return "page/admin-hotel-list";
     }

@@ -26,6 +26,8 @@ public class HotelListController {
         List<Location> locations = locationService.getAllLocations();
         model.addAttribute("locations", locations);
 
+        model.addAttribute("search", search);
+
         List<Hotel> hotel = hotelService.getHotelsByLocation(locationId, search);
         int item = page * 12;
         

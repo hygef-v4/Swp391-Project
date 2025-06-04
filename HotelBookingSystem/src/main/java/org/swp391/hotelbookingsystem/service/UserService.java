@@ -59,13 +59,35 @@ public class UserService {
         return allUsers.size() > 5 ? allUsers.subList(0, 5) : allUsers;
     }
 
-    public void updateUser(User user) {
-        userRepo.updateUser(user);
+    public void saveEmailOtpToken(String email, String otp) {
+        userRepo.saveEmailOtpToken(email, otp);
     }
 
-    public void updateUserPassword(String email, String encodedPassword) {
-        userRepo.updateUserPassword(email,encodedPassword);
+    public boolean isValidEmailOtp(String email, String otp) {
+        return userRepo.isValidEmailOtp(email, otp);
+    }
+
+    public void saveUser(User user) {
+        userRepo.saveUser(user);
+    }
+
+    public void deleteEmailOtp(String email, String otp) {
+        userRepo.deleteEmailOtp(email, otp);
+    }
+
+    public void savePasswordResetToken(int id, String token) {
+        userRepo.savePasswordResetToken(id, token);
+    }
+
+    public User findUserByToken(String token) {
+        return userRepo.findUserByToken(token);
+    }
+
+    public void updatePassword(int id, String hashed) {
+        userRepo.updatePassword(id, hashed);
+    }
+
+    public void deleteToken(String token) {
+        userRepo.deleteToken(token);
     }
 }
-
-
