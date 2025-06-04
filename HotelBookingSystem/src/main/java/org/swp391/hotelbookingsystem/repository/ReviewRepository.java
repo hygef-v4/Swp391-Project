@@ -55,7 +55,7 @@ public class ReviewRepository {
             u.date_of_birth AS dob
         FROM Reviews r
         JOIN Users u ON r.reviewer_id = u.user_id
-        WHERE u.role = 'CUSTOMER'
+        WHERE  r.is_public = 1 AND u.role = 'CUSTOMER'
         ORDER BY r.created_at DESC
     """;
 

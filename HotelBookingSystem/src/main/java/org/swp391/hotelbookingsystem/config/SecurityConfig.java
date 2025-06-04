@@ -39,7 +39,7 @@ public class SecurityConfig {
                         //         "/css/**", "/js/**", "/images/**", "/assets/**",
                         //         "/api/files/**"
                         // ).permitAll()
-                        // .requestMatchers("/admin-dashboard").access(AuthorizationManagers.allOf(
+                        // .requestMatchers("/admin-dashboard", "/admin-user-list", "/admin-hotel-list").access(AuthorizationManagers.allOf(
                         //         new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
                         //         new WebExpressionAuthorizationManager("hasRole('ADMIN')")
                         // ))
@@ -47,7 +47,7 @@ public class SecurityConfig {
                         //         new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
                         //         new WebExpressionAuthorizationManager("hasAnyRole('MODERATOR', 'ADMIN')")
                         // ))
-                        // .requestMatchers("/host-dashboard").access(AuthorizationManagers.allOf(
+                        // .requestMatchers("/host-dashboard","/add-hotel","/add-room","/request-delete-hotel").access(AuthorizationManagers.allOf(
                         //         new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
                         //         new WebExpressionAuthorizationManager("hasAnyRole('HOTEL_OWNER', 'ADMIN')")
                         // ))

@@ -124,9 +124,9 @@
                 <div class="col-lg-5">
                     <!-- Tabs -->
                     <ul class="nav nav-pills-shadow nav-responsive">
-<!--                        <li class="nav-item">-->
-<!--                            <a class="nav-link mb-0 me-sm-2 active" data-bs-toggle="tab" href="#tab-1">Tất cả</a>-->
-<!--                        </li>-->
+                        <!--                        <li class="nav-item">-->
+                        <!--                            <a class="nav-link mb-0 me-sm-2 active" data-bs-toggle="tab" href="#tab-1">Tất cả</a>-->
+                        <!--                        </li>-->
                         <!--                        <li class="nav-item">-->
                         <!--                            <a class="nav-link mb-0 me-sm-2" data-bs-toggle="tab" href="#tab-2">Còn phòng</a>-->
                         <!--                        </li>-->
@@ -141,7 +141,8 @@
                         <!-- Search -->
                         <div class="col-md-8">
                             <form class="rounded position-relative" method="get" th:action="@{/admin-hotel-list}">
-                                <input class="form-control bg-transparent" type="search" name="search" placeholder="Tìm kiếm..."
+                                <input class="form-control bg-transparent" type="search" name="search"
+                                       placeholder="Tìm kiếm..."
                                        aria-label="Search" th:value="${search}">
                                 <button class="bg-transparent p-2 position-absolute top-50 end-0 translate-middle-y border-0 text-primary-hover text-reset"
                                         type="submit">
@@ -151,24 +152,24 @@
 
                         </div>
                         <!-- Tabs -->
-<!--                        <div class="d-flex justify-content-end mt-2 mt-sm-0">-->
-<!--                            <ul class="nav nav-pills nav-pills-dark" id="room-pills-tab" role="tablist">-->
-<!--                                &lt;!&ndash; Tab item &ndash;&gt;-->
-<!--                                <li class="nav-item">-->
-<!--                                    <button class="nav-link rounded-start rounded-0 active" id="grid-tab"-->
-<!--                                            data-bs-toggle="tab" data-bs-target="#grid-tab-pane" type="button"-->
-<!--                                            role="tab" aria-controls="grid-tab-pane" aria-selected="true"><i-->
-<!--                                            class="bi fa-fw bi-grid-fill"></i></button>-->
-<!--                                </li>-->
-<!--                                &lt;!&ndash; Tab item &ndash;&gt;-->
-<!--                                <li class="nav-item">-->
-<!--                                    <button class="nav-link rounded-end rounded-0" id="list-tab" data-bs-toggle="tab"-->
-<!--                                            data-bs-target="#list-tab-pane" type="button" role="tab"-->
-<!--                                            aria-controls="list-tab-pane" aria-selected="false"><i-->
-<!--                                            class="bi fa-fw bi-list-ul"></i></button>-->
-<!--                                </li>-->
-<!--                            </ul>-->
-<!--                        </div>-->
+                        <!--                        <div class="d-flex justify-content-end mt-2 mt-sm-0">-->
+                        <!--                            <ul class="nav nav-pills nav-pills-dark" id="room-pills-tab" role="tablist">-->
+                        <!--                                &lt;!&ndash; Tab item &ndash;&gt;-->
+                        <!--                                <li class="nav-item">-->
+                        <!--                                    <button class="nav-link rounded-start rounded-0 active" id="grid-tab"-->
+                        <!--                                            data-bs-toggle="tab" data-bs-target="#grid-tab-pane" type="button"-->
+                        <!--                                            role="tab" aria-controls="grid-tab-pane" aria-selected="true"><i-->
+                        <!--                                            class="bi fa-fw bi-grid-fill"></i></button>-->
+                        <!--                                </li>-->
+                        <!--                                &lt;!&ndash; Tab item &ndash;&gt;-->
+                        <!--                                <li class="nav-item">-->
+                        <!--                                    <button class="nav-link rounded-end rounded-0" id="list-tab" data-bs-toggle="tab"-->
+                        <!--                                            data-bs-target="#list-tab-pane" type="button" role="tab"-->
+                        <!--                                            aria-controls="list-tab-pane" aria-selected="false"><i-->
+                        <!--                                            class="bi fa-fw bi-list-ul"></i></button>-->
+                        <!--                                </li>-->
+                        <!--                            </ul>-->
+                        <!--                        </div>-->
                     </div>
                 </div>
             </div>
@@ -256,18 +257,74 @@
 
                     <!-- Pagination START -->
                     <div class="d-sm-flex justify-content-sm-between align-items-sm-center mt-4">
-                        <p class="mb-sm-0 text-center text-sm-start">Hiển thị 1 đến 8 trong số 20 khách sạn</p>
+                        <p class="mb-sm-0 text-center text-sm-start">
+                            Hiển thị <span th:text="${startIndex + 1}">1</span>
+                            đến <span th:text="${endIndex}">8</span>
+                            trong số <span th:text="${totalHotels}">20</span> khách sạn
+                        </p>
                         <nav class="mb-sm-0 d-flex justify-content-center" aria-label="navigation">
-                            <ul class="pagination pagination-sm pagination-primary-soft mb-0">
-                                <li class="page-item disabled">
-                                    <a class="page-link" href="#" tabindex="-1">Trước</a>
+                            <ul class="pagination pagination-primary-soft pagination-sm mb-0">
+                                <li th:if="${pagination >= 2}"
+                                    th:class="'page-item mb-0' + (${page == 1} ? ' disabled' : '')">
+                                    <a class="page-link"
+                                       th:href="@{/admin-hotel-list(page=${page - 1}, search=${search})}">
+                                        <i class="fa-solid fa-angle-left"></i>
+                                    </a>
                                 </li>
-                                <li class="page-item"><a class="page-link" href="#">1</a></li>
-                                <li class="page-item active"><a class="page-link" href="#">2</a></li>
-                                <li class="page-item disabled"><a class="page-link" href="#">..</a></li>
-                                <li class="page-item"><a class="page-link" href="#">15</a></li>
-                                <li class="page-item">
-                                    <a class="page-link" href="#">Tiếp</a>
+
+                                <li th:if="${pagination >= 1}"
+                                    th:class="'page-item mb-0' + (${page == 1} ? ' active disabled' : '')">
+                                    <a class="page-link"
+                                       th:href="@{/admin-hotel-list(page=1, search=${search})}">1</a>
+                                </li>
+
+                                <li th:if="${pagination >= 2}"
+                                    th:class="'page-item mb-0' + (${page == 2} ? ' active disabled' : '')">
+                                    <a class="page-link"
+                                       th:href="@{/admin-hotel-list(page=2, search=${search})}">2</a>
+                                </li>
+
+                                <li th:if="${pagination >= 5 and page - 2 > 2}" class="page-item mb-0 disabled">
+                                    <a class="page-link">...</a>
+                                </li>
+
+                                <li th:if="${pagination >= 4 and page != 1 and page - 1 != 1 and page - 1 != 2}"
+                                    class="page-item mb-0">
+                                    <a class="page-link"
+                                       th:href="@{/admin-hotel-list(page=${page - 1}, search=${search})}"
+                                       th:text="${page - 1}"></a>
+                                </li>
+
+                                <li th:if="${pagination >= 4 and page != 1 and page != 2 and page != pagination}"
+                                    class="page-item mb-0 active disabled">
+                                    <a class="page-link" th:text="${page}"></a>
+                                </li>
+
+                                <li th:if="${pagination >= 4 and page + 1 != 2 and page + 1 != pagination and page != pagination}"
+                                    class="page-item mb-0">
+                                    <a class="page-link"
+                                       th:href="@{/admin-hotel-list(page=${page + 1}, search=${search})}"
+                                       th:text="${page + 1}"></a>
+                                </li>
+
+                                <li th:if="${pagination >= 4 and pagination > page + 2}"
+                                    class="page-item mb-0 disabled">
+                                    <a class="page-link">...</a>
+                                </li>
+
+                                <li th:if="${pagination >= 3}"
+                                    th:class="'page-item mb-0' + (${page == pagination} ? ' active disabled' : '')">
+                                    <a class="page-link"
+                                       th:href="@{/admin-hotel-list(page=${pagination}, search=${search})}"
+                                       th:text="${pagination}"></a>
+                                </li>
+
+                                <li th:if="${pagination >= 2}"
+                                    th:class="'page-item mb-0' + (${page == pagination} ? ' disabled' : '')">
+                                    <a class="page-link"
+                                       th:href="@{/admin-hotel-list(page=${page + 1}, search=${search})}">
+                                        <i class="fa-solid fa-angle-right"></i>
+                                    </a>
                                 </li>
                             </ul>
                         </nav>
