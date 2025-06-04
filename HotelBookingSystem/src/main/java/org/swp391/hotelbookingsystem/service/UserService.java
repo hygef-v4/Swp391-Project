@@ -6,11 +6,16 @@ import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.repository.UserRepo;
 
 import java.util.List;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Service
 public class UserService {
 
     private final UserRepo userRepo;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
 
     @Autowired
     public UserService(UserRepo userRepo) {
@@ -95,9 +100,18 @@ public class UserService {
         userRepo.updateUser(user);
     }
 
-    public void updateUserPassword(String email, String encodedPassword) {
-        userRepo.updateUserPassword(email,encodedPassword);
+    // Hàm cập nhật mật khẩu
+    public void updateUserPassword(User sessionUser, String newPassword) {
+        if (sessionUser == null) {
+            throw new IllegalArgumentException("Người dùng không tồn tại.");
+        }
+
+        // Mã hóa và cập nhật mật khẩu mới
+        String encodedPassword = passwordEncoder.encode(newPassword);
+        sessionUser.setPassword(encodedPassword);
+        userRepo.updateUserPassword(sessionUser.getEmail(), encodedPassword);
     }
+
 
     public void validateUserProfile(String fullname, String phone, String dob, String bio) {
         // Kiểm tra trường fullname
@@ -121,5 +135,34 @@ public class UserService {
 
 
     }
+
+    public void validatePasswordChange(User sessionUser, String currentPassword, String newPassword, String confirmPassword) {
+        // Kiểm tra người dùng có đăng nhập hay không
+        if (sessionUser == null) {
+            throw new IllegalArgumentException("Người dùng chưa đăng nhập!");
+        }
+
+        // Nếu mật khẩu đã được thiết lập, kiểm tra mật khẩu hiện tại
+        if (sessionUser.getPassword() != null && !passwordEncoder.matches(currentPassword, sessionUser.getPassword())) {
+            throw new IllegalArgumentException("Mật khẩu hiện tại không chính xác.");
+        }
+
+        // Kiểm tra nếu mật khẩu mới và xác nhận mật khẩu không khớp
+        if (!newPassword.equals(confirmPassword)) {
+            throw new IllegalArgumentException("Mật khẩu mới và xác nhận mật khẩu không khớp.");
+        }
+
+        // Kiểm tra chiều dài mật khẩu mới
+        if (newPassword.length() < 8) {
+            throw new IllegalArgumentException("Mật khẩu mới phải có ít nhất 8 ký tự.");
+        }
+
+        // Kiểm tra nếu mật khẩu mới trùng với mật khẩu hiện tại
+        if (passwordEncoder.matches(newPassword, sessionUser.getPassword())) {
+            throw new IllegalArgumentException("Mật khẩu mới không được trùng với mật khẩu hiện tại.");
+        }
+
+    }
+
 
 }
