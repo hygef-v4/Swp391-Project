@@ -75,9 +75,7 @@ public class HostHotelController {
         for (Amenity amenity : amenities) {
             String categoryName = amenity.getCategory().getName();
 
-            groupedAmenities
-                    .computeIfAbsent(categoryName, k -> new ArrayList<>())
-                    .add(amenity);
+            groupedAmenities.computeIfAbsent(categoryName, k -> new ArrayList<>()).add(amenity);
         }
 
         model.addAttribute("groupedAmenities", groupedAmenities);
