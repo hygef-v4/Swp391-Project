@@ -1,6 +1,7 @@
 package org.swp391.hotelbookingsystem.service;
 
 import com.cloudinary.Cloudinary;
+import com.cloudinary.Transformation;
 import com.cloudinary.utils.ObjectUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,7 +17,7 @@ public class CloudinaryService {
         this.cloudinary = cloudinary;
     }
 
-    public Map<?, ?> uploadImage(MultipartFile file, String folder) throws IOException {
+    public Map<String, Object> uploadImage(MultipartFile file, String folder) throws IOException {
         if (file.isEmpty() || file.getContentType() == null || !file.getContentType().startsWith("image/")) {
             throw new IllegalArgumentException("Only image files are allowed");
         }
@@ -26,7 +27,7 @@ public class CloudinaryService {
                 "resource_type", "image" ,          //tells Cloudinary this is an image file.
 
                 // Apply compression at upload
-                "transformation", new com.cloudinary.Transformation().quality("auto")  // auto compress
+                "transformation", new Transformation().quality("auto")  // auto compress
                         .fetchFormat("auto")       // auto convert to webp/avif to minimize storage
         ));
 
@@ -35,11 +36,11 @@ public class CloudinaryService {
     }
 
 
-    public Map<?, ?> uploadVideo(MultipartFile file, String folder) throws IOException {
-        return cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap(
-                "folder", folder,
-                "resource_type", "video"
-        ));
-    }
+//    public Map<String, Object> uploadVideo(MultipartFile file, String folder) throws IOException {
+//        return cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap(
+//                "folder", folder,
+//                "resource_type", "video"
+//        ));
+//    }
 
 }
