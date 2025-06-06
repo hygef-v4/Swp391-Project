@@ -28,4 +28,15 @@ public class BookingService {
     public List<Booking> getCancelledBookings(int customerId) {
         return bookingRepo.findCancelledBookings(customerId);
     }
+    public Booking findById(int id) {
+        return bookingRepo.findById(id);
+    }
+
+    public String getImageByBookingId(int bookingId) {
+        return bookingRepo.getImagesByBookingId(bookingId);
+    }
+
+    public void updateStatus(Booking booking, String status) {
+        bookingRepo.updateStatus(booking.getBookingId(), status);
+    }
 }

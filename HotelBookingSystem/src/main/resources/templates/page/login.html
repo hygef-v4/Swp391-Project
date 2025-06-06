@@ -91,28 +91,29 @@
                             <div class="col-lg-6 order-1">
                                 <div class="p-4 p-sm-7">
 
-                                    <h1 class="mb-2 h3">Welcome back</h1>
-                                    <p class="mb-0">New here? <a th:href="@{/register}">Create an account</a></p>
+
+                                    <h1 class="mb-2 h3">Chào mừng bạn trở lại</h1>
+                                    <p class="mb-0">Chưa có tài khoản? <a th:href="@{/register}">Đăng ký ngay</a></p>
                                     <br>
                                     <div th:if="${param.error}" class="alert alert-danger">
                                             <span th:switch="${param.error[0]}">
-                                                <span th:case="'inactive'"> Your account has been deactivated. Please contact support.</span>
-                                                <span th:case="'true'"> Invalid email or password. Please try again.</span>
+                                                <span th:case="'inactive'"> Tài khoản của bạn đã bị vô hiệu hoá. Vui lòng liên hệ bộ phận hỗ trợ.</span>
+                                                <span th:case="'true'"> Emai hoặc mật khẩu không đúng. Vui lòng thử lại.</span>
                                             </span>
                                     </div>
 
                                     <!-- Form START -->
                                     <form id="login-form" th:action="@{/login}" method="post" class="mt-4 text-start">
 
-                                    <!-- Email -->
+                                        <!-- Email -->
                                         <div class="mb-3">
-                                            <label class="form-label">Enter email</label>
+                                            <label class="form-label">Email</label>
                                             <input type="email" name="username" class="form-control" required>
                                         </div>
 
                                         <!-- Password -->
                                         <div class="mb-3 position-relative">
-                                            <label class="form-label">Enter password</label>
+                                            <label class="form-label">Mật khẩu</label>
                                             <input type="password" name="password" class="form-control fakepassword" id="psw-input" minlength="8" maxlength="32" required>
                                             <span class="position-absolute top-50 end-0 translate-middle-y p-0 mt-3">
                                                 <i class="fakepasswordicon fas fa-eye-slash cursor-pointer p-2"></i>
@@ -123,9 +124,9 @@
                                         <div class="mb-3 d-sm-flex justify-content-between">
                                             <div>
                                                 <input type="checkbox" class="form-check-input" id="rememberCheck" name="remember-me">
-                                                <label class="form-check-label" for="rememberCheck">Remember me?</label>
+                                                <label class="form-check-label" for="rememberCheck">Ghi nhớ đăng nhập?</label>
                                             </div>
-                                            <a th:href="@{/forgotPassword}">Forgot password?</a>
+                                            <a th:href="@{/forgotPassword}">Quên mật khẩu?</a>
                                         </div>
 
                                         <!-- CSRF hidden input -->
@@ -133,24 +134,23 @@
 
                                         <!-- Submit -->
                                         <div>
-                                            <button type="submit" class="btn btn-primary w-100 mb-0">Login</button>
+                                            <button type="submit" class="btn btn-primary w-100 mb-0">Đăng nhập</button>
                                         </div>
 
                                         <!-- Divider -->
                                         <div class="position-relative my-4">
                                             <hr>
-                                            <p class="small bg-mode position-absolute top-50 start-50 translate-middle px-2">Or login with</p>
+                                            <p class="small bg-mode position-absolute top-50 start-50 translate-middle px-2">Hoặc đăng nhập bằng</p>
                                         </div>
 
                                         <!-- Social Buttons -->
                                         <div class="vstack gap-3">
                                             <a th:href="@{/oauth2/authorization/google}" class="btn btn-light mb-0">
-                                                <i class="fab fa-fw fa-google text-google-icon me-2"></i>Login with Google
+                                                <i class="fab fa-fw fa-google text-google-icon me-2"></i>Đăng nhập bằng Google
                                             </a>
                                         </div>
 
-                                    </form>
-                                    <!-- Form END -->
+                                    </form>          <!-- Form END -->
 
                                 </div>
                             </div>

@@ -75,9 +75,7 @@ public class HostHotelController {
         for (Amenity amenity : amenities) {
             String categoryName = amenity.getCategory().getName();
 
-            groupedAmenities
-                    .computeIfAbsent(categoryName, k -> new ArrayList<>())
-                    .add(amenity);
+            groupedAmenities.computeIfAbsent(categoryName, k -> new ArrayList<>()).add(amenity);
         }
 
         model.addAttribute("groupedAmenities", groupedAmenities);
@@ -91,6 +89,13 @@ public class HostHotelController {
         if (host == null || !host.getRole().equalsIgnoreCase("HOTEL_OWNER")) {
             return "redirect:/login"; // Or handle unauthorized access
         }
+
+        Hotel hotel = hotelService.getHotelById(hotelId);
+        if (hotel == null || hotel.getHostId() != host.getId()) {
+            return "redirect:/host-listing"; // prevent unauthorized access
+        }
+
+
 
 
         model.addAttribute("hotelId", hotelId);

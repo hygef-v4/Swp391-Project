@@ -633,7 +633,8 @@ var e = {
                     animate: "false",
                     position: "top",
                     dateFormat: dateFormat, //Check supported characters here: https://flatpickr.js.org/formatting/
-                    disableMobile: "true"
+                    disableMobile: "true",
+                    minDate: "today"  
                 });
 
             });
@@ -702,6 +703,14 @@ var e = {
                     range: {
                         min: [nouiMin],
                         max: [nouiMax]
+                    },
+                    format: {
+                        to: function (value) {
+                            return value.toLocaleString('en-US') + ',000';
+                        },
+                        from: function (value) {
+                            return Number(value.replace(',00', ''));
+                        }
                     }
                 });
 
@@ -831,10 +840,10 @@ var e = {
     guestSelector: function () {
         if (e.isVariableDefined(e.select('.guest-selector'))) {
 
-            let adults = 1;
-            let child = 0;
-            let rooms = 1;
-            let totalAdults = 1;
+            let adults = parseInt(document.getElementById('adultsInput').value);
+            let child = parseInt(document.getElementById('childrenInput').value);
+            let rooms = parseInt(document.getElementById('roomsInput').value);
+            let totalAdults = adults + child;
 
             let selectionResult = document.querySelector('.selection-result');
 
@@ -852,18 +861,17 @@ var e = {
 
             function addElement(type) {
                 if (type == 'adult') {
-                    adults++;
+                    adults = adults < 100 ? adults + 1 : adults;
                     totalAdults = adults + child;
 
                     showElements();
                 } else if (type == 'child') {
-                    child = child + 1;
-                    console.log(child);
+                    child = child < 100 ? child + 1 : child;
                     totalAdults = adults + child;
 
                     showElements();
                 } else if (type == 'room') {
-                    rooms++;
+                    rooms = rooms < 10 ? rooms + 1 : rooms;
 
                     showElements();
                 }

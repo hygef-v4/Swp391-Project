@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <title>Hamora - Booking Detail</title>
+
+    <!-- Meta Tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="author" content="StackBros">
+    <meta name="description" content="Booking - Multipurpose Online Booking Theme">
+
+    <!-- Dark mode -->
+    <script>
+        const storedTheme = localStorage.getItem('theme')
+
+        const getPreferredTheme = () => {
+            if (storedTheme) {
+                return storedTheme
+            }
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        }
+
+        const setTheme = function (theme) {
+            if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.setAttribute('data-bs-theme', 'dark')
+            } else {
+                document.documentElement.setAttribute('data-bs-theme', theme)
+            }
+        }
+
+        setTheme(getPreferredTheme())
+
+        window.addEventListener('DOMContentLoaded', () => {
+            var el = document.querySelector('.theme-icon-active');
+            if(el != 'undefined' && el != null) {
+                const showActiveTheme = theme => {
+                    const activeThemeIcon = document.querySelector('.theme-icon-active use')
+                    const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+                    const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
+
+                    document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+                        element.classList.remove('active')
+                    })
+
+                    btnToActive.classList.add('active')
+                    activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+                }
+
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                    if (storedTheme !== 'light' || storedTheme !== 'dark') {
+                        setTheme(getPreferredTheme())
+                    }
+                })
+
+                showActiveTheme(getPreferredTheme())
+
+                document.querySelectorAll('[data-bs-theme-value]')
+                    .forEach(toggle => {
+                        toggle.addEventListener('click', () => {
+                            const theme = toggle.getAttribute('data-bs-theme-value')
+                            localStorage.setItem('theme', theme)
+                            setTheme(theme)
+                            showActiveTheme(theme)
+                        })
+                    })
+
+            }
+        })
+
+    </script>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="@{/assets/images/favicon.ico}">
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Poppins:wght@400;500;700&amp;display=swap">
+
+    <!-- Plugins CSS -->
+    <link rel="stylesheet" th:href="@{/assets/vendor/font-awesome/css/all.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/vendor/bootstrap-icons/bootstrap-icons.css}">
+
+    <!-- Theme CSS -->
+    <link rel="stylesheet" th:href="@{/assets/css/style.css}">
+
+</head>
+
+<body class="dashboard">
+<div th:replace="~{common/header :: header}"></div>
+<!-- **************** MAIN CONTENT START **************** -->
+<main>
+    <section class="pt-3">
+        <div class="container">
+            <div class="row g-2 g-lg-4">
+                <div th:replace="~{common/sidebar-profile :: sidebar}"></div>
+
+                <div class="col-lg-8 col-xl-9 ps-xl-5">
+                    <div class="card border">
+                        <div class="card-header border-bottom d-flex justify-content-between align-items-center">
+                            <h4 class="card-title mb-0">Chi tiết đặt phòng</h4>
+                            <a th:href="@{/bookingHistory}" class="btn btn-sm btn-light"><i class="fa fa-arrow-left me-1"></i>Quay lại trang lịch sử đặt phòng</a>
+                        </div>
+
+                        <div class="card-body">
+                            <div class="text-center mb-4">
+                                <img th:src="${booking.imageUrl != null ? booking.imageUrl : '/assets/images/default-room.jpg'}"
+                                     alt="Room Image"
+                                     class="rounded img-fluid"
+                                     style="max-height: 300px; object-fit: cover;">
+                            </div>
+
+                            <div class="row g-4 px-3 text-center justify-content-center">
+                                <div class="col-sm-6 col-md-4">
+                                    <p class="mb-1 fw-semibold text-muted">Mã đặt phòng</p>
+                                    <h6 th:text="${booking.bookingId}">3</h6>
+                                </div>
+                                <div class="col-sm-6 col-md-4">
+                                    <p class="mb-1 fw-semibold text-muted">Trạng thái</p>
+                                    <h6 th:text="${booking.status}">approved</h6>
+                                </div>
+                                <div class="col-sm-6 col-md-4">
+                                    <p class="mb-1 fw-semibold text-muted">Mã phòng</p>
+                                    <h6 th:text="${booking.roomId}">2</h6>
+                                </div>
+                                <div class="col-sm-6 col-md-4">
+                                    <p class="mb-1 fw-semibold text-muted">Ngày nhận phòng</p>
+                                    <h6 th:text="${#temporals.format(booking.checkIn, 'EEE dd MMM yyyy')}"></h6>
+                                </div>
+                                <div class="col-sm-6 col-md-4">
+                                    <p class="mb-1 fw-semibold text-muted">Ngày trả phòng</p>
+                                    <h6 th:text="${#temporals.format(booking.checkOut, 'EEE dd MMM yyyy')}"></h6>
+                                </div>
+                                <div class="col-sm-6 col-md-4">
+                                    <p class="mb-1 fw-semibold text-muted">Tổng tiền</p>
+                                    <h6 th:text="${#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 2, 'POINT')} + ' VND'"></h6>
+                                </div>
+                            </div>
+
+                            <div class="text-center mt-4">
+                                <a th:if="${isCancelable}"
+                                   href="#"
+                                   th:attr="data-cancel-url=@{'/cancel-booking/' + ${booking.bookingId}}"
+                                   class="btn btn-danger"
+                                   onclick="confirmCancel(this)">Huỷ đặt phòng</a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+<!-- **************** MAIN CONTENT END **************** -->
+
+<!-- =======================
+Footer START -->
+<div th:replace="~{common/footer :: footer}"></div>
+<!-- =======================
+Footer END -->
+
+<!-- Back to top -->
+<div class="back-top"></div>
+
+<!-- Bootstrap JS -->
+<script src="assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- ThemeFunctions -->
+<script th:src="@{/assets/js/functions.js}"></script>
+
+<script>
+    function confirmCancel(element) {
+        const cancelUrl = element.getAttribute('data-cancel-url');
+        if (confirm("Bạn có chắc chắn muốn huỷ đặt phòng này không?")) {
+            window.location.href = cancelUrl;
+        }
+    }
+</script>
+
+</body>
+
+</html>

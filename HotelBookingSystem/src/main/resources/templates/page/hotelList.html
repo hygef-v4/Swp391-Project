@@ -128,7 +128,7 @@ Main Banner START -->
 								<label class="form-label">Địa điểm</label>
 								<select name="locationId" class="form-select js-choice"
 										data-search-enabled="true">
-									<option value="-1">Chọn địa điểm</option>
+									<option value="-1">Tất cả mọi nơi</option>
 									<option
 											th:each="location : ${locations}"
 											th:value="${location.id}"
@@ -136,7 +136,6 @@ Main Banner START -->
 											th:selected="${location.id == hamora.id}"
 									>
 									</option>
-
 								</select>
 							</div>
 						</div>
@@ -165,9 +164,9 @@ Main Banner START -->
 								<label class="form-label"> Khách & Phòng</label>
 								<div class="dropdown guest-selector me-2">
 									<input readonly type="text"
-											class="form-guest-selector form-control selection-result"
-											value="1 Khách 1 Phòng" data-bs-auto-close="outside"
-											data-bs-toggle="dropdown">
+										   class="form-guest-selector form-control selection-result"
+										   th:value="${adults+children} + ' Khách ' + ${rooms} + ' Phòng'" data-bs-auto-close="outside"
+										   data-bs-toggle="dropdown">
 
 									<!-- dropdown items -->
 									<ul class="dropdown-menu guest-selector-dropdown">
@@ -182,7 +181,7 @@ Main Banner START -->
 												<button type="button"
 														class="btn btn-link adult-remove p-0 mb-0"><i
 														class="bi bi-dash-circle fs-5 fa-fw"></i></button>
-												<h6 class="guest-selector-count mb-0 adults">1</h6>
+												<h6 class="guest-selector-count mb-0 adults" th:text="${adults}"></h6>
 												<button type="button" class="btn btn-link adult-add p-0 mb-0"><i
 														class="bi bi-plus-circle fs-5 fa-fw"></i></button>
 											</div>
@@ -202,7 +201,7 @@ Main Banner START -->
 												<button type="button"
 														class="btn btn-link child-remove p-0 mb-0"><i
 														class="bi bi-dash-circle fs-5 fa-fw"></i></button>
-												<h6 class="guest-selector-count mb-0 child">0</h6>
+												<h6 class="guest-selector-count mb-0 child" th:text="${children}"></h6>
 												<button type="button" class="btn btn-link child-add p-0 mb-0"><i
 														class="bi bi-plus-circle fs-5 fa-fw"></i></button>
 											</div>
@@ -221,7 +220,7 @@ Main Banner START -->
 											<div class="hstack gap-1 align-items-center">
 												<button type="button" class="btn btn-link room-remove p-0 mb-0">
 													<i class="bi bi-dash-circle fs-5 fa-fw"></i></button>
-												<h6 class="guest-selector-count mb-0 rooms">1</h6>
+												<h6 class="guest-selector-count mb-0 rooms" th:text="${rooms}"></h6>
 												<button type="button" class="btn btn-link room-add p-0 mb-0"><i
 														class="bi bi-plus-circle fs-5 fa-fw"></i></button>
 											</div>
@@ -235,9 +234,9 @@ Main Banner START -->
 
 				<!--                        hidden field for adults, children, and rooms-->
 
-				<input type="hidden" name="adults" id="adultsInput" value="1">
-				<input type="hidden" name="children" id="childrenInput" value="0">
-				<input type="hidden" name="rooms" id="roomsInput" value="1">
+				<input type="hidden" name="adults" id="adultsInput" th:value="${adults}">
+				<input type="hidden" name="children" id="childrenInput" th:value="${children}">
+				<input type="hidden" name="rooms" id="roomsInput" th:value="${rooms}">
 
 
 				<!-- Button -->
@@ -277,21 +276,21 @@ Title and Tabs START -->
 		<!-- Title and button END -->
 
 		<!-- Collapse body START -->
-		<div class="collapse" id="collapseFilter">
+		<div th:class="'collapse' + ${search == '' ? '' : ' show'}" id="collapseFilter">
 			<div class="card card-body bg-light p-4 mt-4 z-index-9">
 
 				<!-- Form START -->
-				<form class="row g-4">
+				<form class="row g-4" method="/hotel-list">
 					<!-- Input item -->
 					<div class="col-md-6 col-lg-4">
 						<div class="form-control-borderless">
 							<label class="form-label">Tên khách sạn</label>
-							<input type="text" class="form-control form-control-lg">
+							<input type="text" class="form-control form-control-lg" name="search" th:placeholder="${search}">
 						</div>
 					</div>
 
 					<!-- nouislider item -->
-					<div class="col-md-6 col-lg-3">
+					<div class="col-md-6 col-lg-4">
 						<div class="form-control-borderless">
 							<label class="form-label">Khoảng giá</label>
 							<div class="position-relative">
@@ -300,7 +299,7 @@ Title and Tabs START -->
 										<input type="text" class="text-body input-with-range-min">
 										<input type="text" class="text-body input-with-range-max">
 									</div>
-									<div class="noui-slider-range mt-2" data-range-min='10' data-range-max='10000' data-range-selected-min='100' data-range-selected-max='1000'></div>
+									<div class="noui-slider-range mt-2" data-range-min='100' data-range-max='50000' data-range-selected-min='200' data-range-selected-max='15000'></div>
 								</div>
 							</div>
 						</div>
@@ -313,27 +312,27 @@ Title and Tabs START -->
 							<ul class="list-inline mb-0 g-3">
 								<!-- 1 -->
 								<li class="list-inline-item">
-									<input type="checkbox" class="btn-check" id="btn-check-9">
+									<input type="checkbox" class="btn-check" id="btn-check-9" name="star1">
 									<label class="btn btn-white btn-primary-soft-check" for="btn-check-9">1<i class="bi bi-star-fill"></i></label>
 								</li>
 								<!-- 2 -->
 								<li class="list-inline-item">
-									<input type="checkbox" class="btn-check" id="btn-check-10">
+									<input type="checkbox" class="btn-check" id="btn-check-10" name="star2">
 									<label class="btn btn-white btn-primary-soft-check" for="btn-check-10">2<i class="bi bi-star-fill"></i></label>
 								</li>
 								<!-- 3 -->
 								<li class="list-inline-item">
-									<input type="checkbox" class="btn-check" id="btn-check-11">
+									<input type="checkbox" class="btn-check" id="btn-check-11" name="star3">
 									<label class="btn btn-white btn-primary-soft-check" for="btn-check-11">3<i class="bi bi-star-fill"></i></label>
 								</li>
 								<!-- 4 -->
 								<li class="list-inline-item">
-									<input type="checkbox" class="btn-check" id="btn-check-12">
+									<input type="checkbox" class="btn-check" id="btn-check-12" name="star4">
 									<label class="btn btn-white btn-primary-soft-check" for="btn-check-12">4<i class="bi bi-star-fill"></i></label>
 								</li>
 								<!-- 4 -->
 								<li class="list-inline-item">
-									<input type="checkbox" class="btn-check" id="btn-check-13">
+									<input type="checkbox" class="btn-check" id="btn-check-13" name="star5">
 									<label class="btn btn-white btn-primary-soft-check" for="btn-check-13">5<i class="bi bi-star-fill"></i></label>
 								</li>
 							</ul>

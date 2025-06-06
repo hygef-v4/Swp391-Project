@@ -23,5 +23,6 @@ public class Hotel {
 
     private String cityName; // Added field for city name
     private BigDecimal minPrice; // For the minimum room price
-
+    private int maxGuests;
+    private int roomQuantity;
 }

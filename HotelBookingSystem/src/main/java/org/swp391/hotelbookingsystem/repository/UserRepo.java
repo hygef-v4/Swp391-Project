@@ -39,6 +39,10 @@ public class UserRepo {
                 user.setPhone(rs.getString("phone"));
                 user.setRole(rs.getString("role"));
                 user.setActive(rs.getBoolean("is_active"));
+                user.setDob(rs.getDate("date_of_birth")); // Load trường ngày sinh
+                user.setBio(rs.getString("bio"));        // Load trường bio
+                user.setGender(rs.getString("gender"));  // Load trường gender
+
                 return user;
             }, email);
         } catch (Exception e) {
@@ -193,9 +197,14 @@ public class UserRepo {
     }
 
     public void updateUser(User user) {
-        String sql = "UPDATE Users SET full_name = ?, phone = ? WHERE email = ?";
-        jdbc.update(sql, user.getFullName(), user.getPhone(), user.getEmail());
+        String sql = """
+                      UPDATE Users 
+                      SET full_name = ?, phone = ?, gender = ?, bio = ?, date_of_birth = ? 
+                      WHERE email = ?
+                     """;
+        jdbc.update(sql, user.getFullName(), user.getPhone(), user.getGender(), user.getBio(), user.getDob(), user.getEmail());
     }
+
 
     public List<User> searchUsersWithProfileByName(String search) {
         String sql = """
