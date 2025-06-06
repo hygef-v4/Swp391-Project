@@ -29,13 +29,13 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/api/files/**", "/webhook")
+                        .ignoringRequestMatchers("/api/files/**", "/webhook", "/filter-hotels")
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/", "/home", "/error", "webhook",
+                                "/", "/home", "/error", "/webhook",
                                 "/login", "/register", "/verify-email-otp", "/resend-otp", "/forgotPassword", "/resetPassword",
-                                "/hotel-list", "/hotel-detail",
+                                "/hotel-list", "/filter-hotels", "/hotel-detail",
                                 "/css/**", "/js/**", "/images/**", "/assets/**",
                                 "/api/files/**"
                         ).permitAll()
