@@ -65,13 +65,13 @@
                 <div class="col-md-6 col-lg-5">
                     <div class="card shadow border-0 rounded-3">
                         <div class="card-body p-4 p-sm-5">
-                            <h3 class="mb-3 text-center">Email Verification</h3>
-                            <p class="text-center">Enter the OTP we sent to your email to complete registration.</p>
+                            <h3 class="mb-3 text-center">Xác minh email</h3>
+                            <p class="text-center">Nhập mã OTP đã được gửi đến email của bạn để hoàn tất đăng ký .</p>
 
                             <form th:action="@{/verify-email-otp}" method="post">
                                 <!-- OTP Input -->
                                 <div class="mb-3">
-                                    <label class="form-label">Verification Code (OTP)</label>
+                                    <label class="form-label">Mã xác minh (OTP)</label>
                                     <input type="number" name="otp" class="form-control" placeholder="Enter OTP" required>
                                 </div>
 
@@ -80,17 +80,17 @@
 
                                 <!-- Submit -->
                                 <div class="d-grid">
-                                    <button type="submit" class="btn btn-primary">Verify</button>
+                                    <button type="submit" class="btn btn-primary">Xác minh</button>
                                 </div>
                             </form>
 
                             <!-- Resend + Back -->
                             <div class="mt-3 text-center">
-                                <a th:href="@{/register}" class="text-decoration-none text-primary">Back to Register</a>
+                                <a th:href="@{/register}" class="text-decoration-none text-primary">Quay lại trang đăng ký</a>
                                 <span class="mx-2 text-muted">|</span>
                                 <form th:action="@{/resend-otp}" method="post" style="display: inline;">
                                     <button type="submit" class="btn btn-link text-primary p-0 m-0 align-baseline" style="border: none; background: none;">
-                                        Resend OTP
+                                        Gửi lại mã OTP
                                     </button>
                                     <p th:if="${message}" class="text-success" th:text="${message}"></p>
                                     <p th:if="${error}" class="text-danger" th:text="${error}"></p>

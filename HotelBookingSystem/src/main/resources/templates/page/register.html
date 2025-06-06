@@ -87,8 +87,8 @@
               <!-- Form Section -->
               <div class="col-lg-6 order-1">
                 <div class="p-4 p-sm-6">
-                  <h1 class="mb-2 h3">Create new account</h1>
-                  <p class="mb-0">Already a member? <a th:href="@{/login}">Log in</a></p>
+                  <h1 class="mb-2 h3">Tạo tài khoản mớí</h1>
+                  <p class="mb-0">Đã có tài khoản? <a th:href="@{/login}">Đăng nhập</a></p>
                   <br>
                   <!-- Error message display -->
                   <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
@@ -97,13 +97,13 @@
                   <form th:action="@{/register}" method="post" class="mt-4 text-start">
                     <!-- Email -->
                     <div class="mb-3">
-                      <label class="form-label">Enter email</label>
+                      <label class="form-label">Email</label>
                       <input type="email" name="email" class="form-control" required th:value="${email}">
                     </div>
 
                     <!-- Password -->
                     <div class="mb-3 position-relative">
-                      <label class="form-label">Enter password</label>
+                      <label class="form-label">Mật khẩu</label>
                       <input type="password" name="password" class="form-control fakepassword" id="psw-input"
                              minlength="8"
                              maxlength="32"
@@ -117,29 +117,29 @@
 
                     <!-- Confirm Password -->
                     <div class="mb-3">
-                      <label class="form-label">Confirm Password</label>
+                      <label class="form-label">Nhập lại mật khẩu</label>
                       <input type="password" name="confirmPassword" class="form-control" minlength="8" maxlength="32" required>
                     </div>
 
                     <!-- Full Name -->
                     <div class="mb-3">
-                      <label class="form-label">Full Name</label>
+                      <label class="form-label">Họ và tên</label>
                       <input type="text" name="fullname" class="form-control" maxlength="100" required>
                     </div>
 
                     <!-- Submit -->
-                    <div><button type="submit" class="btn btn-primary w-100 mb-0">Register</button></div>
+                    <div><button type="submit" class="btn btn-primary w-100 mb-0">Đăng ký</button></div>
 
                     <!-- Divider -->
                     <div class="position-relative my-4">
                       <hr>
-                      <p class="small position-absolute top-50 start-50 translate-middle bg-mode px-1 px-sm-2">Or log in with</p>
+                      <p class="small position-absolute top-50 start-50 translate-middle bg-mode px-1 px-sm-2">Hoặc đăng nhập bằng</p>
                     </div>
 
                     <!-- Social login -->
                     <div class="vstack gap-3">
                       <a th:href="@{/oauth2/authorization/google}" class="btn btn-light mb-0">
-                        <i class="fab fa-fw fa-google text-google-icon me-2"></i>Login with Google
+                        <i class="fab fa-fw fa-google text-google-icon me-2"></i>Đăng nhập bằng Google
                       </a>
                     </div>
                   </form>

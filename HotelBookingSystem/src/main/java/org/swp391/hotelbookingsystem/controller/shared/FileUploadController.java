@@ -20,9 +20,9 @@ public class FileUploadController {
     }
 
     @PostMapping("/upload/image")
-    public ResponseEntity<?> uploadImage(
-            @RequestParam("file") MultipartFile file,             // Accepts the uploaded file (from a form field named "file").
-            @RequestParam(value = "folder", required = false) String folderName) throws IOException {
+    public ResponseEntity<?> uploadImage(                      // Used to construct HTTP responses with status codes and data.
+                                                               @RequestParam("file") MultipartFile file,             // Accepts the uploaded file (from a form field named "file").
+                                                               @RequestParam(value = "folder", required = false) String folderName) throws IOException {
 
         String contentType = file.getContentType();
         if (contentType == null || !contentType.startsWith("image/")) {
@@ -30,13 +30,16 @@ public class FileUploadController {
         }
 
 
-        Map result = cloudinaryService.uploadImage(file, folderName);
+        Map<String, Object> result = cloudinaryService.uploadImage(file, folderName);
         String imageUrl = (String) result.get("secure_url"); // get image url
+        int width = (int) result.get("width");
+        int height = (int) result.get("height");
 
         return ResponseEntity.ok(Map.of(
                 "message", "Upload successful",
-                "url", imageUrl
-        ));
+                "url", imageUrl,
+                "width", width,
+                "height", height));
     }
 
 }

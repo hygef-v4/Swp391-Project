@@ -38,33 +38,33 @@ public class RegisterController {
 
 
         if (email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty() || fullname.isEmpty()) {
-            model.addAttribute("error", "All fields are required.");
+            model.addAttribute("error", "Vui lòng điền đầy đủ tất cả các trường.");
             return "page/register";
         }
 
         if (!password.equals(confirmPassword)) {
-            model.addAttribute("error", "Passwords do not match.");
+            model.addAttribute("error", "Mật khẩu nhập lại không khớp.");
             return "page/register";
         }
 
         if (userService.findByEmail(email) != null) {
-            model.addAttribute("error", "Email already exists.");
+            model.addAttribute("error", "Email đã tồn tại. Vui lòng sử dụng email khác.");
             return "page/register";
         }
 
         if (!fullname.matches("^[\\p{L} '\\-]+$")) {
-            model.addAttribute("error", "Full name must not contain special characters.");
+            model.addAttribute("error", "Họ và tên không được chứa ký tự đặc biệt hoặc số.");
             return "page/register";
         }
 
         if (password.length() < 8) {
-            model.addAttribute("error", "Password must be at least 8 characters long.");
+            model.addAttribute("error", "Mật khẩu phải có ít nhất 8 ký tự.");
             return "page/register";
         }
 
         String passwordPattern = "^(?=.*[A-Z])(?=.*[\\W_]).+$";
         if (!password.matches(passwordPattern)) {
-            model.addAttribute("error", "Password must contain at least one uppercase letter and one special character.");
+            model.addAttribute("error", "Mật khẩu phải chứa ít nhất một chữ cái in hoa hoặc một ký tự đặc biệt .");
             return "page/register";
         }
 

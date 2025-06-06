@@ -128,7 +128,7 @@ Main Banner START -->
 								<label class="form-label">Địa điểm</label>
 								<select name="locationId" class="form-select js-choice"
 										data-search-enabled="true">
-									<option value="-1">Chọn địa điểm</option>
+									<option value="-1">Tất cả mọi nơi</option>
 									<option
 											th:each="location : ${locations}"
 											th:value="${location.id}"
@@ -136,7 +136,6 @@ Main Banner START -->
 											th:selected="${location.id == hamora.id}"
 									>
 									</option>
-
 								</select>
 							</div>
 						</div>
@@ -165,9 +164,9 @@ Main Banner START -->
 								<label class="form-label"> Khách & Phòng</label>
 								<div class="dropdown guest-selector me-2">
 									<input readonly type="text"
-											class="form-guest-selector form-control selection-result"
-											value="1 Khách 1 Phòng" data-bs-auto-close="outside"
-											data-bs-toggle="dropdown">
+										   class="form-guest-selector form-control selection-result"
+										   th:value="${adults+children} + ' Khách ' + ${rooms} + ' Phòng'" data-bs-auto-close="outside"
+										   data-bs-toggle="dropdown">
 
 									<!-- dropdown items -->
 									<ul class="dropdown-menu guest-selector-dropdown">
@@ -182,7 +181,7 @@ Main Banner START -->
 												<button type="button"
 														class="btn btn-link adult-remove p-0 mb-0"><i
 														class="bi bi-dash-circle fs-5 fa-fw"></i></button>
-												<h6 class="guest-selector-count mb-0 adults">1</h6>
+												<h6 class="guest-selector-count mb-0 adults" th:text="${adults}"></h6>
 												<button type="button" class="btn btn-link adult-add p-0 mb-0"><i
 														class="bi bi-plus-circle fs-5 fa-fw"></i></button>
 											</div>
@@ -202,7 +201,7 @@ Main Banner START -->
 												<button type="button"
 														class="btn btn-link child-remove p-0 mb-0"><i
 														class="bi bi-dash-circle fs-5 fa-fw"></i></button>
-												<h6 class="guest-selector-count mb-0 child">0</h6>
+												<h6 class="guest-selector-count mb-0 child" th:text="${children}"></h6>
 												<button type="button" class="btn btn-link child-add p-0 mb-0"><i
 														class="bi bi-plus-circle fs-5 fa-fw"></i></button>
 											</div>
@@ -221,7 +220,7 @@ Main Banner START -->
 											<div class="hstack gap-1 align-items-center">
 												<button type="button" class="btn btn-link room-remove p-0 mb-0">
 													<i class="bi bi-dash-circle fs-5 fa-fw"></i></button>
-												<h6 class="guest-selector-count mb-0 rooms">1</h6>
+												<h6 class="guest-selector-count mb-0 rooms" th:text="${rooms}"></h6>
 												<button type="button" class="btn btn-link room-add p-0 mb-0"><i
 														class="bi bi-plus-circle fs-5 fa-fw"></i></button>
 											</div>
@@ -235,9 +234,9 @@ Main Banner START -->
 
 				<!--                        hidden field for adults, children, and rooms-->
 
-				<input type="hidden" name="adults" id="adultsInput" value="1">
-				<input type="hidden" name="children" id="childrenInput" value="0">
-				<input type="hidden" name="rooms" id="roomsInput" value="1">
+				<input type="hidden" name="adults" id="adultsInput" th:value="${adults}">
+				<input type="hidden" name="children" id="childrenInput" th:value="${children}">
+				<input type="hidden" name="rooms" id="roomsInput" th:value="${rooms}">
 
 
 				<!-- Button -->
@@ -291,16 +290,16 @@ Title and Tabs START -->
 					</div>
 
 					<!-- nouislider item -->
-					<div class="col-md-6 col-lg-3">
+					<div class="col-md-6 col-lg-4">
 						<div class="form-control-borderless">
 							<label class="form-label">Khoảng giá</label>
 							<div class="position-relative">
 								<div class="noui-wrapper">
 									<div class="d-flex justify-content-between">
-										<input type="text" class="text-body input-with-range-min" name="min">
-										<input type="text" class="text-body input-with-range-max" name="max">
+										<input type="text" class="text-body input-with-range-min">
+										<input type="text" class="text-body input-with-range-max">
 									</div>
-									<div class="noui-slider-range mt-2"></div>
+									<div class="noui-slider-range mt-2" data-range-min='100' data-range-max='50000' data-range-selected-min='200' data-range-selected-max='15000'></div>
 								</div>
 							</div>
 						</div>
@@ -479,34 +478,6 @@ Footer END -->
 <script src="assets/vendor/tiny-slider/tiny-slider.js"></script>
 <script src="assets/vendor/nouislider/nouislider.min.js"></script>
 
-<script>
-	const sliderEl = document.querySelector('.noui-slider-range');
-	const inputMin = document.querySelector('.input-with-range-min');
-	const inputMax = document.querySelector('.input-with-range-max');
-
-	noUiSlider.create(sliderEl, {
-		start: [100, 10000],
-		connect: true,
-		step: 100,
-		range: {
-			min: 0,
-			max: 50000
-		},
-		format: {
-			to: function (value) {
-				return value.toLocaleString('en-US') + ',000';
-			},
-			from: function (value) {
-				return Number(value.replace(',00', ''));
-			}
-		}
-	});
-
-	sliderEl.noUiSlider.on('update', function (values, handle) {
-		if (handle === 0) inputMin.value = values[0];
-		else inputMax.value = values[1];
-	});
-</script>
 
 <!-- ThemeFunctions -->
 <script src="assets/js/functions.js"></script>

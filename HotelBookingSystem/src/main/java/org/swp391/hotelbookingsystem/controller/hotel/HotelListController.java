@@ -20,15 +20,26 @@ public class HotelListController {
     LocationService locationService;
 
     @GetMapping("/hotel-list")
-    public String hotelList(@RequestParam(value = "locationId", defaultValue = "-1") int locationId, @RequestParam(value = "search", defaultValue = "") String search, @RequestParam(value = "page", defaultValue = "1") int page, Model model){
+    public String hotelList(
+            @RequestParam(value = "locationId", defaultValue = "-1") int locationId,
+            @RequestParam(value = "adults", defaultValue = "1") int adults,
+            @RequestParam(value = "children", defaultValue = "0") int children,
+            @RequestParam(value = "rooms", defaultValue = "1") int rooms,
+            @RequestParam(value = "search", defaultValue = "") String search,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+
+            Model model){
         List<Location> location = locationService.getLocationById(locationId);
         model.addAttribute("hamora", locationId == -1 ? new Location(locationId, "Hamora", "assets/images/bg/05.jpg") : location.get(0));
         List<Location> locations = locationService.getAllLocations();
         model.addAttribute("locations", locations);
 
-        model.addAttribute("search", search);
+        model.addAttribute("search", search.trim());
+        model.addAttribute("adults", adults);
+        model.addAttribute("children", children);
+        model.addAttribute("rooms", rooms);
 
-        List<Hotel> hotel = hotelService.getHotelsByLocation(locationId, search);
+        List<Hotel> hotel = hotelService.getHotelsByLocation(locationId, (adults + children), rooms, search.trim());
         int item = page * 12;
         
         List<Hotel> current;
@@ -42,6 +53,9 @@ public class HotelListController {
 
         String request = "";
         if(locationId != -1) request += "&locationId=" + locationId;
+        if(adults != 1) request += "&adults=" + adults;
+        if(children != 0) request += "&children=" + children;
+        if(rooms != 1) request += "&rooms=" + rooms;
         model.addAttribute("request", request);
 
         return "page/hotelList";
