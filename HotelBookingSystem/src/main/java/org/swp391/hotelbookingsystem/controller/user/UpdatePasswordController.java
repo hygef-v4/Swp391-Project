@@ -20,8 +20,6 @@ public class UpdatePasswordController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    private static final String USER_PROFILE_PAGE = "redirect:/user-profile";
-
     @PostMapping("/update-password")
     public String updatePassword(@RequestParam(value = "currentPassword", required = false) String currentPassword,
                                  @RequestParam("newPassword") String newPassword,
@@ -49,7 +47,7 @@ public class UpdatePasswordController {
             redirectAttributes.addFlashAttribute("error", "Đã xảy ra lỗi khi cập nhật mật khẩu. Vui lòng thử lại.");
         }
 
-        return USER_PROFILE_PAGE;
+        return "redirect:/user-profile";
     }
 
 
