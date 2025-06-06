@@ -1,5 +1,6 @@
 package org.swp391.hotelbookingsystem.config;
 
+import org.swp391.hotelbookingsystem.handler.CustomUserDetailsService;
 import org.swp391.hotelbookingsystem.handler.FormLoginSuccessHandler;
 import org.swp391.hotelbookingsystem.handler.OAuth2LoginSuccessHandler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,9 @@ public class SecurityConfig {
 
     @Autowired
     private FormLoginSuccessHandler formLoginSuccessHandler;
+
+    @Autowired
+    private CustomUserDetailsService customUserDetailsService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -61,6 +65,7 @@ public class SecurityConfig {
                 .rememberMe(r -> r
                         .key("bKJHkjsdf8723hJKH8sd89fjsd0239JKLHkjasdf987sdf")
                         .tokenValiditySeconds(7 * 24 * 60 * 60)
+                        .userDetailsService(customUserDetailsService)
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/login")
@@ -82,13 +87,13 @@ public class SecurityConfig {
 
 // AccessDeniedHandler: user đã login nhưng không đủ quyền
 private final AccessDeniedHandler accessDeniedHandler = (request, response, ex) -> {
-    System.out.println("🚫 ACCESS DENIED | User: " + request.getUserPrincipal() + " | URI: " + request.getRequestURI());
+    System.out.println("ACCESS DENIED | User: " + request.getUserPrincipal() + " | URI: " + request.getRequestURI());
     response.sendRedirect("/error?access-denied");
 };
 
 // AuthenticationEntryPoint: chưa login mà truy cập trang cần quyền
 private final AuthenticationEntryPoint authenticationEntryPoint = (request, response, ex) -> {
-    System.out.println("🔒 UNAUTHORIZED ACCESS | URI: " + request.getRequestURI());
+    System.out.println("UNAUTHORIZED ACCESS | URI: " + request.getRequestURI());
     response.sendRedirect("/login?unauthorized");
 };
 }
