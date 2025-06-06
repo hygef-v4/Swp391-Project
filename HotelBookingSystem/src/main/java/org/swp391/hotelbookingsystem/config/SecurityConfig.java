@@ -37,7 +37,7 @@ public class SecurityConfig {
                                 "/login", "/register", "/verify-email-otp", "/resend-otp", "/forgotPassword", "/resetPassword",
                                 "/hotel-list", "/hotel-detail",
                                 "/css/**", "/js/**", "/images/**", "/assets/**",
-                                "/api/files/**"
+                                "/api/files/**", "user-profile", "user-wishlist"
                         ).permitAll()
                         .requestMatchers("/admin-dashboard", "/admin-user-list", "/admin-hotel-list").access(AuthorizationManagers.allOf(
                                 new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
