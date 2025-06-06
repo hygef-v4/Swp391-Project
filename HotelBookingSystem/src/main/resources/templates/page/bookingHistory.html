@@ -111,7 +111,7 @@
                     <div class="card border bg-transparent">
                         <!-- Card header -->
                         <div class="card-header bg-transparent border-bottom">
-                            <h4 class="card-header-title">My Bookings</h4>
+                            <h4 class="card-header-title">Lịch sử đặt phòng</h4>
                         </div>
 
                         <!-- Card body START -->
@@ -120,13 +120,13 @@
                             <!-- Tabs -->
                             <ul class="nav nav-tabs nav-bottom-line nav-responsive nav-justified">
                                 <li class="nav-item">
-                                    <a class="nav-link mb-0 active" data-bs-toggle="tab" href="#tab-1"><i class="bi bi-briefcase-fill fa-fw me-1"></i>Upcoming Booking</a>
+                                    <a class="nav-link mb-0 active" data-bs-toggle="tab" href="#tab-1"><i class="bi bi-briefcase-fill fa-fw me-1"></i>Sắp tới</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link mb-0" data-bs-toggle="tab" href="#tab-2"><i class="bi bi-x-octagon fa-fw me-1"></i>Canceled Booking</a>
+                                    <a class="nav-link mb-0" data-bs-toggle="tab" href="#tab-2"><i class="bi bi-x-octagon fa-fw me-1"></i>Đã huỷ</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link mb-0" data-bs-toggle="tab" href="#tab-3"><i class="bi bi-patch-check fa-fw me-1"></i>Completed Booking</a>
+                                    <a class="nav-link mb-0" data-bs-toggle="tab" href="#tab-3"><i class="bi bi-patch-check fa-fw me-1"></i>Đã hoàn thành</a>
                                 </li>
                             </ul>
 
@@ -135,7 +135,7 @@
 
                                 <!-- Tab content item START -->
                                 <div class="tab-pane fade show active" id="tab-1">
-                                    <h6>Upcoming booking (<span th:text="${upcomingBookings.size()}"></span>)</h6>
+                                    <h6>Sắp tới (<span th:text="${upcomingBookings.size()}"></span>)</h6>
 
                                     <div th:each="booking : ${upcomingBookings}" class="card border mb-4">
                                         <div class="card-header border-bottom d-md-flex justify-content-md-between align-items-center">
@@ -144,29 +144,29 @@
                                                     <img th:src="${booking.imageUrl}" alt="Room Image" style="width: 100%; height: 100%; object-fit: cover;">
                                                 </div>
                                                 <div class="ms-2">
-                                                    <h6 class="card-title mb-0">Booking ID: <span th:text="${booking.bookingId}"></span></h6>
+                                                    <h6 class="card-title mb-0">Mã đặt phòng: <span th:text="${booking.bookingId}"></span></h6>
                                                     <ul class="nav nav-divider small">
-                                                        <li class="nav-item">Room ID: <span th:text="${booking.roomId}"></span></li>
-                                                        <li class="nav-item">Status: <span th:text="${booking.status}"></span></li>
+                                                        <li class="nav-item">Mã phòng: <span th:text="${booking.roomId}"></span></li>
+                                                        <li class="nav-item">Trạng thái: <span th:text="${booking.status}"></span></li>
                                                     </ul>
                                                 </div>
                                             </div>
                                             <div class="mt-2 mt-md-0">
-                                                <a th:href="@{'/booking-detail/' + ${booking.bookingId}}" class="btn btn-primary-soft mb-0">View Details</a>
+                                                <a th:href="@{'/booking-detail/' + ${booking.bookingId}}" class="btn btn-primary-soft mb-0">Xem chi tiết</a>
                                             </div>
                                         </div>
                                         <div class="card-body">
                                             <div class="row g-3">
                                                 <div class="col-sm-6 col-md-4">
-                                                    <span>Check-in</span>
+                                                    <span>Ngày nhận phòng</span>
                                                     <h6 class="mb-0" th:text="${#temporals.format(booking.checkIn, 'EEE dd MMM yyyy')}"></h6>
                                                 </div>
                                                 <div class="col-sm-6 col-md-4">
-                                                    <span>Check-out</span>
+                                                    <span>Ngày trả phòng</span>
                                                     <h6 class="mb-0" th:text="${#temporals.format(booking.checkOut, 'EEE dd MMM yyyy')}"></h6>
                                                 </div>
                                                 <div class="col-md-4">
-                                                    <span>Total Price</span>
+                                                    <span>Tổng tiền</span>
                                                     <h6 class="mb-0" th:text="${#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 2, 'POINT')} + ' VND'"></h6>
                                                 </div>
                                             </div>
@@ -177,7 +177,7 @@
 
                                 <!-- Tab content item START -->
                                 <div class="tab-pane fade" id="tab-2">
-                                    <h6>Cancelled booking (<span th:text="${cancelledBookings.size()}"></span>)</h6>
+                                    <h6>Đã huỷ (<span th:text="${cancelledBookings.size()}"></span>)</h6>
 
                                     <div th:each="booking : ${cancelledBookings}" class="card border mb-4">
                                         <div class="card-header border-bottom d-md-flex justify-content-md-between align-items-center">
@@ -186,28 +186,28 @@
                                                     <img th:src="${booking.imageUrl}" alt="Room Image" style="width: 100%; height: 100%; object-fit: cover;">
                                                 </div>
                                                 <div class="ms-2">
-                                                    <h6 class="card-title mb-0">Booking ID: <span th:text="${booking.bookingId}"></span></h6>
+                                                    <h6 class="card-title mb-0">Mã đặt phòng: <span th:text="${booking.bookingId}"></span></h6>
                                                     <ul class="nav nav-divider small">
-                                                        <li class="nav-item">Status: <span th:text="${booking.status}"></span></li>
+                                                        <li class="nav-item">Trạng thái: <span th:text="${booking.status}"></span></li>
                                                     </ul>
                                                 </div>
                                             </div>
                                             <div class="mt-2 mt-md-0">
-                                                <a th:href="@{'/booking-detail/' + ${booking.bookingId}}" class="btn btn-primary-soft mb-0">View Details</a>
+                                                <a th:href="@{'/booking-detail/' + ${booking.bookingId}}" class="btn btn-primary-soft mb-0">Xem chi tiết</a>
                                             </div>
                                         </div>
                                         <div class="card-body">
                                             <div class="row g-3">
                                                 <div class="col-sm-6 col-md-4">
-                                                    <span>Check-in</span>
+                                                    <span>Ngày nhận phòng</span>
                                                     <h6 class="mb-0" th:text="${#temporals.format(booking.checkIn, 'EEE dd MMM yyyy')}"></h6>
                                                 </div>
                                                 <div class="col-sm-6 col-md-4">
-                                                    <span>Check-out</span>
+                                                    <span>Ngày trả phòng</span>
                                                     <h6 class="mb-0" th:text="${#temporals.format(booking.checkOut, 'EEE dd MMM yyyy')}"></h6>
                                                 </div>
                                                 <div class="col-md-4">
-                                                    <span>Total Price</span>
+                                                    <span>Tổng tiền</span>
                                                     <h6 class="mb-0" th:text="${#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 2, 'POINT')} + ' VND'"></h6>
                                                 </div>
                                             </div>
@@ -218,7 +218,7 @@
 
                                 <!-- Tab content item START -->
                                 <div class="tab-pane fade" id="tab-3">
-                                    <h6>Completed booking (<span th:text="${completedBookings.size()}"></span>)</h6>
+                                    <h6>Đã hoàn thành (<span th:text="${completedBookings.size()}"></span>)</h6>
 
                                     <div th:each="booking : ${completedBookings}" class="card border mb-4">
                                         <div class="card-header border-bottom d-md-flex justify-content-md-between align-items-center">
@@ -227,9 +227,9 @@
                                                     <img th:src="${booking.imageUrl}" alt="Room Image" style="width: 100%; height: 100%; object-fit: cover;">
                                                 </div>
                                                 <div class="ms-2">
-                                                    <h6 class="card-title mb-0">Booking ID: <span th:text="${booking.bookingId}"></span></h6>
+                                                    <h6 class="card-title mb-0">Mã đặt phòng: <span th:text="${booking.bookingId}"></span></h6>
                                                     <ul class="nav nav-divider small">
-                                                        <li class="nav-item">Status: <span th:text="${booking.status}"></span></li>
+                                                        <li class="nav-item">Trạng thái: <span th:text="${booking.status}"></span></li>
                                                     </ul>
                                                 </div>
                                             </div>
@@ -240,15 +240,15 @@
                                         <div class="card-body">
                                             <div class="row g-3">
                                                 <div class="col-sm-6 col-md-4">
-                                                    <span>Check-in</span>
+                                                    <span>Ngày nhận phòng</span>
                                                     <h6 class="mb-0" th:text="${#temporals.format(booking.checkIn, 'EEE dd MMM yyyy')}"></h6>
                                                 </div>
                                                 <div class="col-sm-6 col-md-4">
-                                                    <span>Check-out</span>
+                                                    <span>Ngày trả phòng</span>
                                                     <h6 class="mb-0" th:text="${#temporals.format(booking.checkOut, 'EEE dd MMM yyyy')}"></h6>
                                                 </div>
                                                 <div class="col-md-4">
-                                                    <span>Total Price</span>
+                                                    <span>Tổng tiền</span>
                                                     <h6 class="mb-0" th:text="${#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 2, 'POINT')} + ' VND'"></h6>
                                                 </div>
                                             </div>
