@@ -24,12 +24,12 @@ public class OtpController {
         User user = (User) session.getAttribute("register_user");
 
         if (user == null) {
-            model.addAttribute("error", "Session expired. Please register again.");
+            model.addAttribute("error", "Phiên làm việc đã hết hạn. Vui lòng đăng ký lại.");
             return "page/register";
         }
 
         if (!userService.isValidEmailOtp(user.getEmail(), otp)) {
-            model.addAttribute("error", "Invalid or expired OTP.");
+            model.addAttribute("error", "Mã OTP không hợp lệ hoặc đã hết hạn.");
             return "page/verify-email-otp";
         }
 
@@ -45,7 +45,7 @@ public class OtpController {
         User user = (User) session.getAttribute("user");
 
         if (user == null) {
-            model.addAttribute("error", "Session expired. Please register again.");
+            model.addAttribute("error", "Phiên làm việc đã hết hạn. Vui long đăng ký lại.");
             return "page/register";
         }
 
@@ -53,7 +53,7 @@ public class OtpController {
         emailService.sendOtpEmail(user.getEmail(), otp);
         userService.saveEmailOtpToken(user.getEmail(), otp);
 
-        model.addAttribute("message", "The OTP has been resent to your email.");
+        model.addAttribute("message", "Mã OTP đã được gửi lại đến email của bạn.");
         return "page/verify-email-otp";
     }
 
