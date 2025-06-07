@@ -14,7 +14,7 @@
 	<!-- Dark mode -->
 	<script>
 		const storedTheme = localStorage.getItem('theme')
- 
+
 		const getPreferredTheme = () => {
 			if (storedTheme) {
 				return storedTheme
@@ -244,7 +244,7 @@ Main Banner START -->
 					<button type="submit" class="icon-lg btn btn-round btn-primary mb-0">
 						<i class="bi bi-search fa-fw"></i>
 					</button>
-				</div>
+				</div>			
 			</form>
 			<!-- Booking from END -->
 		</div>
@@ -280,7 +280,7 @@ Title and Tabs START -->
 			<div class="card card-body bg-light p-4 mt-4 z-index-9">
 
 				<!-- Form START -->
-				<form class="row g-4" action="/filter-hotels" method="POST" id="filter">
+				<form class="row g-4" action="/hotel-list" method="GET" id="filter">
 					<!-- Input item -->
 					<div class="col-sm-12 col-md-6">
 						<div class="form-control-borderless">
@@ -299,7 +299,7 @@ Title and Tabs START -->
 										<input type="text" class="text-body input-with-range-min" name="min" id="min">
 										<input type="text" class="text-body input-with-range-max" name="max" id="max">
 									</div>
-									<div class="noui-slider-range mt-2" data-range-min='100' data-range-max='50000' th:data-range-selected-min='${min}' th:data-range-selected-max='${max}'></div>
+									<div class="noui-slider-range mt-2" data-range-min='100' data-range-max='5000' th:data-range-selected-min='${min}' th:data-range-selected-max='${max}'></div>
 								</div>
 							</div>
 						</div>
@@ -308,7 +308,7 @@ Title and Tabs START -->
 					<!-- Check box item -->
 					<div class="col-12">
 						<div class="form-control-borderless">
-							<label class="form-label">Cơ sở vật chất</label>
+							<!-- <label class="form-label">Cơ sở vật chất</label> -->
 							<div class="row g-3">
 								<!-- checkbox -->
 								<div class="col-sm-6 col-md-4 col-lg-3 col-xl-2" th:each="amenity: ${amenities}">
@@ -322,6 +322,11 @@ Title and Tabs START -->
 						</div>
 					</div>
 
+					<input type="hidden" name="locationId" th:value="${hamora.id}">
+					<input type="hidden" name="adults" th:value="${adults}">
+					<input type="hidden" name="children" th:value="${children}">
+					<input type="hidden" name="rooms" th:value="${rooms}">					
+
 					<!-- Button -->
 					<div class="text-end align-items-center">
 						<button class="btn btn-link p-0 mb-0" onclick="">Reset</button>
@@ -332,7 +337,7 @@ Title and Tabs START -->
 			</div>
 		</div>
 		<!-- Collapse body END -->
-
+<!--
 		<script>
 			let filter = document.getElementById("filter");
 
@@ -360,7 +365,7 @@ Title and Tabs START -->
 				min = "200,000";
 				max = "15,000,000";
 			}
-		</script>
+		</script>-->
 	</div>
 </section>
 <!-- =======================
@@ -378,7 +383,7 @@ Hotel grid START -->
 					<!-- Slider START -->
 					<div class="card-img-scale-wrapper rounded-3">
 
-						<a th:href="'/hotel-detail?hotelId=' + ${hotel.hotelId}">
+						<a th:href="'/hotel-detail?hotelId=' + ${hotel.hotelId} + ${redirect}">
 							<img class="card-img clickable-img" th:src="${hotel.hotelImageUrl}" alt="hotel image">
 						</a>
 
@@ -396,11 +401,11 @@ Hotel grid START -->
 					<div class="card-body px-3 pb-0">
 						<!-- Rating and cart -->
 						<div class="d-flex justify-content-start mb-3">
-							<a th:href="'/hotel-detail?hotelId=' + ${hotel.hotelId}" class="badge bg-dark text-white"><i class="bi fa-fw bi-star-fill me-2 text-warning"></i><span th:text="${hotel.rating}"></span></a>
+							<a th:href="'/hotel-detail?hotelId=' + ${hotel.hotelId} + ${redirect}" class="badge bg-dark text-white"><i class="bi fa-fw bi-star-fill me-2 text-warning"></i><span th:text="${hotel.rating == 0 ? '--' : hotel.rating}"></span></a>
 						</div>
 
 						<!-- Title -->
-						<h5 class="card-title"><a th:href="'/hotel-detail?hotelId=' + ${hotel.hotelId}" th:text="${hotel.hotelName}" class="stretched-link two-line-ellipsis">.</a></h5>
+						<h5 class="card-title"><a th:href="'/hotel-detail?hotelId=' + ${hotel.hotelId} + ${redirect}" th:text="${hotel.hotelName}" class="stretched-link two-line-ellipsis">.</a></h5>
 					</div>
 					<!-- Card body END -->
 
@@ -415,7 +420,7 @@ Hotel grid START -->
 							</div>
 							<!-- Button -->
 							<div class="mt-2 mt-sm-0">
-								<a th:href="'/hotel-detail?hotelId=' + ${hotel.hotelId}" class="btn btn-sm btn-primary-soft mb-0 w-100">View Detail<i class="bi bi-arrow-right ms-2"></i></a>    
+								<a th:href="'/hotel-detail?hotelId=' + ${hotel.hotelId} + ${redirect}" class="btn btn-sm btn-primary-soft mb-0 w-100">View Detail<i class="bi bi-arrow-right ms-2"></i></a>    
 							</div>
 						</div>
 					</div>

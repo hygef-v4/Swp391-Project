@@ -1,6 +1,5 @@
 package org.swp391.hotelbookingsystem.controller.auth;
 
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -15,11 +14,12 @@ public class LoginController {
     }
 
     @GetMapping("/logout")
-    public String logout(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+    public String logout(HttpServletRequest request, HttpServletResponse response) {
         HttpSession session = request.getSession();
         if (session != null) {
             session.invalidate();
         }
         return "redirect:/login";
     }
+
 }

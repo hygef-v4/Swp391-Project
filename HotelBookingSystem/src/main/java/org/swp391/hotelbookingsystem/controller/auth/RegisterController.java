@@ -62,9 +62,9 @@ public class RegisterController {
             return "page/register";
         }
 
-        String passwordPattern = "^(?=.*[A-Z])(?=.*[\\W_]).+$";
+        String passwordPattern = "^(?=.*[A-Z])(?=.*\\d)(?=.*[\\W_]).+$";
         if (!password.matches(passwordPattern)) {
-            model.addAttribute("error", "Mật khẩu phải chứa ít nhất một chữ cái in hoa hoặc một ký tự đặc biệt .");
+            model.addAttribute("error", "Mật khẩu phải chứa ít nhất một chữ cái in hoa, một chữ số và một ký tự đặc biệt.");
             return "page/register";
         }
 

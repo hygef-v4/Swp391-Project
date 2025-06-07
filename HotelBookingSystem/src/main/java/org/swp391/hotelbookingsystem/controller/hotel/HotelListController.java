@@ -33,7 +33,7 @@ public class HotelListController {
 
         @RequestParam(value = "name", defaultValue = "") String name,
         @RequestParam(value = "min", defaultValue = "200,000") String min,
-        @RequestParam(value = "max", defaultValue = "15,000,000") String max,
+        @RequestParam(value = "max", defaultValue = "1,500,000") String max,
 
         @RequestParam(value = "page", defaultValue = "1") int page,
         Model model
@@ -65,6 +65,12 @@ public class HotelListController {
 
         model.addAttribute("page", page);
         model.addAttribute("pagination", (int)Math.ceil((double)hotel.size() / 12));
+
+        String redirect = "";
+        if(adults != 1) redirect += "&adults=" + adults;
+        if(children != 0) redirect += "&children=" + children;
+        if(rooms != 1) redirect += "&rooms=" + rooms;
+        model.addAttribute("redirect", redirect);
 
         String request = "";
         if(locationId != -1) request += "&locationId=" + locationId;

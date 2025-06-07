@@ -699,7 +699,7 @@ var e = {
                 noUiSlider.create(slider, {
                     start: [nouiSelectedMin, nouiSelectedMax],
                     connect: true,
-                    step: 1,
+                    step: 100,
                     range: {
                         min: [nouiMin],
                         max: [nouiMax]
@@ -893,7 +893,6 @@ var e = {
                 let roomText = 'Phòng';
                 let guestText = 'Khách';
                 let resultText = totalAdults + ' ' + guestText + ' ' + rooms + ' ' + roomText;
-                console.log(resultText);
                 selectionResult.setAttribute('value', resultText);
             }
 

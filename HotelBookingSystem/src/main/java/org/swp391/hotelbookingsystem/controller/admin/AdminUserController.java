@@ -27,18 +27,21 @@ public class AdminUserController {
             return "redirect:/login";
         }
 
+        String trimmedSearch = (search != null) ? search.trim().replaceAll("\\s+", " ") : null;
+        String trimmedRole = (role != null) ? role.trim() : null;
+
         List<User> filteredUsers;
 
-        if (search != null && !search.isBlank() && role != null && !role.isBlank()) {
+        if (trimmedSearch != null && !trimmedSearch.isBlank() && trimmedRole != null && !trimmedRole.isBlank()) {
             filteredUsers = userService.getAllUsersWithProfile().stream()
-                    .filter(u -> u.getFullName().toLowerCase().contains(search.toLowerCase()))
-                    .filter(u -> role.equalsIgnoreCase(u.getRole()))
+                    .filter(u -> u.getFullName().toLowerCase().contains(trimmedSearch.toLowerCase()))
+                    .filter(u -> trimmedRole.equalsIgnoreCase(u.getRole()))
                     .toList();
-        } else if (search != null && !search.isBlank()) {
+        } else if (trimmedSearch != null && !trimmedSearch.isBlank()) {
             filteredUsers = userService.searchUsersByName(search);
-        } else if (role != null && !role.isBlank()) {
+        } else if (trimmedRole != null && !trimmedRole.isBlank()) {
             filteredUsers = userService.getAllUsersWithProfile().stream()
-                    .filter(u -> role.equalsIgnoreCase(u.getRole()))
+                    .filter(u -> trimmedRole.equalsIgnoreCase(u.getRole()))
                     .toList();
         } else {
             filteredUsers = userService.getAllUsersWithProfile();
@@ -55,8 +58,8 @@ public class AdminUserController {
         model.addAttribute("startIndex", startIndex);
         model.addAttribute("endIndex", endIndex);
         model.addAttribute("totalUsers", totalUsers);
-        model.addAttribute("search", search);
-        model.addAttribute("role", role);
+        model.addAttribute("search", trimmedSearch);
+        model.addAttribute("role", trimmedRole);
         model.addAttribute("userList", currentPageUsers);
         model.addAttribute("page", page);
         model.addAttribute("pagination", (int) Math.ceil((double) totalUsers / pageSize));
@@ -71,19 +74,7 @@ public class AdminUserController {
                                    HttpSession session) {
         userService.toggleUserStatus(userId);
 
-        // Redirect back with search and role preserved
-        String redirectUrl = "/admin-user-list";
-        if ((search != null && !search.isBlank()) || (role != null && !role.isBlank())) {
-            redirectUrl += "?";
-            if (search != null && !search.isBlank()) {
-                redirectUrl += "search=" + search;
-            }
-            if (role != null && !role.isBlank()) {
-                redirectUrl += (search != null && !search.isBlank()) ? "&" : "";
-                redirectUrl += "role=" + role;
-            }
-        }
-        return "redirect:" + redirectUrl;
+        return "redirect:" + buildRedirectUrl("/admin-user-list", search, role);
     }
 
     @PostMapping("/admin/user/change-role/{userID}")
@@ -93,20 +84,19 @@ public class AdminUserController {
                                  @RequestParam(value = "role", required = false) String role,
                                  HttpSession session) {
         userService.updateUserRole(userId, newRole);
-        String redirectUrl = "/admin-user-list";
+
+        return "redirect:" + buildRedirectUrl("/admin-user-list", search, role);
+    }
+
+    private String buildRedirectUrl(String base, String search, String role) {
+        search = (search != null && !search.trim().isEmpty()) ? search.trim() : null;
+        role = (role != null && !role.trim().isEmpty()) ? role.trim() : null;
+
         List<String> params = new ArrayList<>();
+        if (search != null) params.add("search=" + search);
+        if (role != null) params.add("role=" + role);
 
-        if (role != null && !role.isBlank()) {
-            params.add("role=" + role);
-        }
-        if (search != null && !search.isBlank()) {
-            params.add("search=" + search);
-        }
-        if (!params.isEmpty()) {
-            redirectUrl += "?" + String.join("&", params);
-        }
-
-        return "redirect:" + redirectUrl;
+        return base + (params.isEmpty() ? "" : "?" + String.join("&", params));
     }
 
 

@@ -39,12 +39,14 @@ public class AdminHotelController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         model.addAttribute(ConstantVariables.PAGE_TITLE, "Hamora Booking - Hotel Management");
         User user = (User) session.getAttribute("user");
-        if (user == null || !user.getRole().equals("ADMIN")) {
+        if (user == null) {
             return "redirect:/login";
         }
 
+        String trimmedSearch = (search != null) ? search.trim().replaceAll("\\s+", " ") : null;
+
         List<Hotel> filteredHotels;
-        if (search != null && !search.trim().isEmpty()) {
+        if (trimmedSearch != null && !trimmedSearch.isEmpty()) {
             filteredHotels = hotelService.searchHotel(search);
         } else {
             filteredHotels = hotelService.getAllHotels();
@@ -56,7 +58,7 @@ public class AdminHotelController {
         int endIndex = Math.min(startIndex + pageSize, totalHotels);
         List<Hotel> currentHotels = (startIndex < totalHotels) ? filteredHotels.subList(startIndex, endIndex) : List.of();
 
-        model.addAttribute("search", search);
+        model.addAttribute("search", trimmedSearch);
         model.addAttribute("hotelList", currentHotels);
         model.addAttribute("page", page);
         model.addAttribute("pagination", (int) Math.ceil((double) totalHotels / pageSize));
