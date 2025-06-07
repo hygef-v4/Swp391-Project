@@ -86,7 +86,6 @@ public class UserRepo {
         }
     }
 
-    // Xóa token đã dùng hoặc hết hạn
     public void deleteToken(String token) {
         String sql = "DELETE FROM Tokens WHERE token = ?";
         jdbc.update(sql, token);
