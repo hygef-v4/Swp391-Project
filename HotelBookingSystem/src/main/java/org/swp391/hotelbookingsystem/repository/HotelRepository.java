@@ -20,33 +20,7 @@ public class HotelRepository {
     // SQL Queries
     private static final String COUNT_HOTELS = """
             SELECT COUNT(*) FROM Hotels
-            """;
-
-    private static final String SELECT_HOTEL_BY_LOCATION = """
-            SELECT h.hotel_id AS hotelId,
-                   h.host_id AS hostId,
-                   h.hotel_name AS hotelName,
-                   h.address,
-                   h.description,
-                   h.location_id AS locationId,
-                   h.hotel_image_url AS hotelImageUrl,
-                   h.rating,
-                   h.latitude,
-                   h.longitude,
-                   h.description,
-                   MIN(r.price) AS minPrice,
-                   SUM(r.max_guests) AS maxGuests,
-                   SUM(r.quantity) AS roomQuantity,
-                   l.city_name AS cityName
-            FROM Hotels h
-            JOIN Locations l ON h.location_id = l.location_id
-            LEFT JOIN Rooms r ON h.hotel_id = r.hotel_id
-            WHERE (h.location_id = ? OR ? = -1) AND h.hotel_name like ?
-            GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
-                     h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude,
-                     l.city_name
-            HAVING SUM(r.max_guests) >= ? AND SUM(r.quantity) >= ?
-            """;            
+            """;         
 
     private static final String SELECT_HOTELS_BY_RATING = """
             SELECT h.hotel_id AS hotelId,
@@ -140,13 +114,40 @@ public class HotelRepository {
         return jdbcTemplate.query(SELECT_TOP_8_HOTELS, HOTEL_MAPPER);
     }
 
-    public List<Hotel> getHotelsByLocation(int locationId, int maxGuests, int roomQuantity, String search) {
-        return jdbcTemplate.query(SELECT_HOTEL_BY_LOCATION, ps -> {
+    public List<Hotel> getHotelsByLocation(int locationId, int maxGuests, int roomQuantity, String name, int min, int max){
+        String query = """
+            SELECT h.hotel_id AS hotelId,
+                   h.host_id AS hostId,
+                   h.hotel_name AS hotelName,
+                   h.address,
+                   h.description,
+                   h.location_id AS locationId,
+                   h.hotel_image_url AS hotelImageUrl,
+                   h.rating,
+                   h.latitude,
+                   h.longitude,
+                   h.description,
+                   MIN(r.price) AS minPrice,
+                   SUM(r.max_guests) AS maxGuests,
+                   SUM(r.quantity) AS roomQuantity,
+                   l.city_name AS cityName
+            FROM Hotels h
+            JOIN Locations l ON h.location_id = l.location_id
+            LEFT JOIN Rooms r ON h.hotel_id = r.hotel_id
+            WHERE (h.location_id = ? OR ? = -1) AND h.hotel_name like ?
+            GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
+                     h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude,
+                     l.city_name
+            HAVING SUM(r.max_guests) >= ? AND SUM(r.quantity) >= ? AND MIN(r.price) >= ? AND MIN(r.price) <= ? 
+        """;         
+        return jdbcTemplate.query(query, ps -> {
             ps.setInt(1, locationId);
             ps.setInt(2, locationId);
-            ps.setString(3, "%" + search + "%");
+            ps.setString(3, "%" + name + "%");
             ps.setInt(4, maxGuests);
             ps.setInt(5, roomQuantity);
+            ps.setInt(6, min);
+            ps.setInt(7, max);
         }, HOTEL_MAPPER);
     }
 

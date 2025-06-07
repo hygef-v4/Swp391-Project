@@ -18,6 +18,14 @@ public class UserRepo {
         this.jdbc = jdbc;
     }
 
+    public List<User> getAllUser() {
+        String sql = "SELECT * FROM Users";
+        return jdbc.query(sql, (rs, rowNum) -> new User(
+                rs.getString("email"),
+                rs.getString("password_hash")
+        ));
+    }
+
     public void saveUser(User user) {
         String sql = "INSERT INTO Users (full_name,email, password_hash) VALUES (?, ?, ?)";
         jdbc.update(sql, user.getFullName(), user.getEmail(), user.getPassword());
@@ -39,10 +47,10 @@ public class UserRepo {
                 user.setPhone(rs.getString("phone"));
                 user.setRole(rs.getString("role"));
                 user.setActive(rs.getBoolean("is_active"));
-                user.setDob(rs.getDate("date_of_birth")); // Load trường ngày sinh
-                user.setBio(rs.getString("bio"));        // Load trường bio
-                user.setGender(rs.getString("gender"));  // Load trường gender
-
+                user.setDob(rs.getDate("date_of_birth"));
+                user.setBio(rs.getString("bio"));
+                user.setGender(rs.getString("gender"));
+                user.setAvatarUrl(rs.getString("avatar_url"));
                 return user;
             }, email);
         } catch (Exception e) {
@@ -50,78 +58,11 @@ public class UserRepo {
         }
     }
 
-    private static String SELECT_USERS_BY_ROLE = """
-            SELECT u.user_id AS userID, 
-                   u.full_name AS fullName, 
-                   u.email, 
-                   u.password_hash AS password, 
-                   u.phone, 
-                   u.role, 
-                   u.is_active
-            FROM Users u WHERE role = ?
-            """;
-
-    private static String SELECT_USERS_WITH_PROFILE = """
-            SELECT u.user_id AS userID, 
-                   u.full_name AS fullName, 
-                   u.email, 
-                   u.password_hash AS password, 
-                   u.phone, 
-                   u.role, 
-                   u.is_active,
-                   u.avatar_url AS avatarUrl,
-                   u.bio
-            FROM Users u
-            """;
-
-
-    public List<User> getAllUsersWithProfile() {
-        return jdbc.query(SELECT_USERS_WITH_PROFILE, (rs, rowNum) -> {
-            User user = new User();
-            user.setId(rs.getInt("userID"));
-            user.setFullName(rs.getString("fullName"));
-            user.setEmail(rs.getString("email"));
-            user.setPassword(rs.getString("password"));
-            user.setPhone(rs.getString("phone"));
-            user.setRole(rs.getString("role"));
-            user.setActive(rs.getBoolean("is_active"));
-            user.setAvatarUrl(rs.getString("avatarUrl"));
-            user.setBio(rs.getString("bio"));
-            return user;
-        });
-    }
-
-
-
-    public List<User> getUsersByRole(String role) {
-        return jdbc.query(SELECT_USERS_BY_ROLE, (rs, rowNum) -> {
-            User user = new User();
-            user.setId(rs.getInt("userID"));
-            user.setFullName(rs.getString("fullName"));
-            user.setEmail(rs.getString("email"));
-            user.setPassword(rs.getString("password"));
-            user.setPhone(rs.getString("phone"));
-            user.setRole(rs.getString("role"));
-            user.setActive(rs.getBoolean("is_active"));
-            return user;
-        }, role);
-    }
-
-
-    public List<User> getAllUser() {
-        String sql = "SELECT * FROM Users";
-        return jdbc.query(sql, (rs, rowNum) -> new User(
-                rs.getString("email"),
-                rs.getString("password_hash")
-        ));
-    }
-
     public void savePasswordResetToken(int userId, String token) {
         String sql = "INSERT INTO Tokens (user_id, token, expiry_date, token_type) VALUES (?, ?, DATEADD(MINUTE, 30, GETDATE()), 'reset password')";
         jdbc.update(sql, userId, token);
     }
 
-    // Tìm user thông qua token còn hiệu lực
     public User findUserByToken(String token) {
         String sql = """
             SELECT u.* FROM Users u
@@ -184,6 +125,64 @@ public class UserRepo {
     public void updatePassword(int userId, String hashedPassword) {
         String sql = "UPDATE Users SET password_hash = ? WHERE user_id = ?";
         jdbc.update(sql, hashedPassword, userId);
+    }
+
+
+    private static String SELECT_USERS_BY_ROLE = """
+            SELECT u.user_id AS userID, 
+                   u.full_name AS fullName, 
+                   u.email, 
+                   u.password_hash AS password, 
+                   u.phone, 
+                   u.role, 
+                   u.is_active
+            FROM Users u WHERE role = ?
+            """;
+
+    private static String SELECT_USERS_WITH_PROFILE = """
+            SELECT u.user_id AS userID, 
+                   u.full_name AS fullName, 
+                   u.email, 
+                   u.password_hash AS password, 
+                   u.phone, 
+                   u.role, 
+                   u.is_active,
+                   u.avatar_url AS avatarUrl,
+                   u.bio
+            FROM Users u
+            """;
+
+
+    public List<User> getAllUsersWithProfile() {
+        return jdbc.query(SELECT_USERS_WITH_PROFILE, (rs, rowNum) -> {
+            User user = new User();
+            user.setId(rs.getInt("userID"));
+            user.setFullName(rs.getString("fullName"));
+            user.setEmail(rs.getString("email"));
+            user.setPassword(rs.getString("password"));
+            user.setPhone(rs.getString("phone"));
+            user.setRole(rs.getString("role"));
+            user.setActive(rs.getBoolean("is_active"));
+            user.setAvatarUrl(rs.getString("avatarUrl"));
+            user.setBio(rs.getString("bio"));
+            return user;
+        });
+    }
+
+
+
+    public List<User> getUsersByRole(String role) {
+        return jdbc.query(SELECT_USERS_BY_ROLE, (rs, rowNum) -> {
+            User user = new User();
+            user.setId(rs.getInt("userID"));
+            user.setFullName(rs.getString("fullName"));
+            user.setEmail(rs.getString("email"));
+            user.setPassword(rs.getString("password"));
+            user.setPhone(rs.getString("phone"));
+            user.setRole(rs.getString("role"));
+            user.setActive(rs.getBoolean("is_active"));
+            return user;
+        }, role);
     }
 
     public void updateUserPassword(String email, String encodedPassword) {

@@ -276,67 +276,33 @@ Title and Tabs START -->
 		<!-- Title and button END -->
 
 		<!-- Collapse body START -->
-		<div th:class="'collapse' + ${search == '' ? '' : ' show'}" id="collapseFilter">
+		<div th:class="'collapse' + ${name != '' ? ' show' : ''}" id="collapseFilter">
 			<div class="card card-body bg-light p-4 mt-4 z-index-9">
 
 				<!-- Form START -->
-				<form class="row g-4" method="/hotel-list">
+				<form class="row g-4" action="/filter-hotels" method="POST" id="filter">
 					<!-- Input item -->
-					<div class="col-md-6 col-lg-4">
+					<div class="col-sm-12 col-md-6">
 						<div class="form-control-borderless">
 							<label class="form-label">Tên khách sạn</label>
-							<input type="text" class="form-control form-control-lg" name="search" th:placeholder="${search}">
+							<input type="text" class="form-control form-control-lg" name="name" th:value="${name}">
 						</div>
 					</div>
 
 					<!-- nouislider item -->
-					<div class="col-md-6 col-lg-4">
+					<div class="col-sm-12 col-md-6">
 						<div class="form-control-borderless">
 							<label class="form-label">Khoảng giá</label>
 							<div class="position-relative">
 								<div class="noui-wrapper">
 									<div class="d-flex justify-content-between">
-										<input type="text" class="text-body input-with-range-min">
-										<input type="text" class="text-body input-with-range-max">
+										<input type="text" class="text-body input-with-range-min" name="min" id="min">
+										<input type="text" class="text-body input-with-range-max" name="max" id="max">
 									</div>
-									<div class="noui-slider-range mt-2" data-range-min='100' data-range-max='50000' data-range-selected-min='200' data-range-selected-max='15000'></div>
+									<div class="noui-slider-range mt-2" data-range-min='100' data-range-max='50000' th:data-range-selected-min='${min}' th:data-range-selected-max='${max}'></div>
 								</div>
 							</div>
 						</div>
-					</div>
-
-					<!-- Star rating -->
-					<div class="col-md-6 col-lg-5">
-						<div class="form-control-borderless">
-							<label class="form-label">Đánh giá</label>
-							<ul class="list-inline mb-0 g-3">
-								<!-- 1 -->
-								<li class="list-inline-item">
-									<input type="checkbox" class="btn-check" id="btn-check-9" name="star1">
-									<label class="btn btn-white btn-primary-soft-check" for="btn-check-9">1<i class="bi bi-star-fill"></i></label>
-								</li>
-								<!-- 2 -->
-								<li class="list-inline-item">
-									<input type="checkbox" class="btn-check" id="btn-check-10" name="star2">
-									<label class="btn btn-white btn-primary-soft-check" for="btn-check-10">2<i class="bi bi-star-fill"></i></label>
-								</li>
-								<!-- 3 -->
-								<li class="list-inline-item">
-									<input type="checkbox" class="btn-check" id="btn-check-11" name="star3">
-									<label class="btn btn-white btn-primary-soft-check" for="btn-check-11">3<i class="bi bi-star-fill"></i></label>
-								</li>
-								<!-- 4 -->
-								<li class="list-inline-item">
-									<input type="checkbox" class="btn-check" id="btn-check-12" name="star4">
-									<label class="btn btn-white btn-primary-soft-check" for="btn-check-12">4<i class="bi bi-star-fill"></i></label>
-								</li>
-								<!-- 4 -->
-								<li class="list-inline-item">
-									<input type="checkbox" class="btn-check" id="btn-check-13" name="star5">
-									<label class="btn btn-white btn-primary-soft-check" for="btn-check-13">5<i class="bi bi-star-fill"></i></label>
-								</li>
-							</ul>
-						</div>	
 					</div>
 
 					<!-- Check box item -->
@@ -358,7 +324,7 @@ Title and Tabs START -->
 
 					<!-- Button -->
 					<div class="text-end align-items-center">
-						<button class="btn btn-link p-0 mb-0">Reset</button>
+						<button class="btn btn-link p-0 mb-0" onclick="">Reset</button>
 						<button class="btn btn-dark mb-0 ms-3">Áp dụng</button>
 					</div>
 				</form>
@@ -367,6 +333,34 @@ Title and Tabs START -->
 		</div>
 		<!-- Collapse body END -->
 
+		<script>
+			let filter = document.getElementById("filter");
+
+			let name = filter.elements["name"].value
+			let min = filter.elements["min"].value
+			let max = filter.elements["max"].value
+
+			filter.addEventListener("submit", function(e){
+				e.preventDefault();
+
+				fetch('/filter-hotels', {
+					method: 'POST',
+					body: new URLSearchParams({
+						name: name,
+						min: min,
+						max: max,
+					})
+				})
+				.then(res => res.text())
+    			.then(data => console.log(data));
+			})
+
+			function reset(){
+				name = "";
+				min = "200,000";
+				max = "15,000,000";
+			}
+		</script>
 	</div>
 </section>
 <!-- =======================
@@ -401,9 +395,8 @@ Hotel grid START -->
 					<!-- Card body START -->
 					<div class="card-body px-3 pb-0">
 						<!-- Rating and cart -->
-						<div class="d-flex justify-content-between mb-3">
+						<div class="d-flex justify-content-start mb-3">
 							<a th:href="'/hotel-detail?hotelId=' + ${hotel.hotelId}" class="badge bg-dark text-white"><i class="bi fa-fw bi-star-fill me-2 text-warning"></i><span th:text="${hotel.rating}"></span></a>
-							<a class="h6 mb-0 z-index-2"><i class="bi fa-fw bi-bookmark"></i></a>
 						</div>
 
 						<!-- Title -->
