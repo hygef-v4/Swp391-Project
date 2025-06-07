@@ -120,11 +120,19 @@ public class UserRepo {
         jdbc.update(sql, otp, email);
     }
 
+    public void deleteEmailOtp(String email) {
+        String sql = """
+            DELETE FROM Tokens
+            WHERE token_type = 'email verify'
+            AND (user_id = (SELECT user_id FROM Users WHERE email = ?) OR user_id IS NULL)
+        """;
+        jdbc.update(sql, email);
+    }
+
     public void updatePassword(int userId, String hashedPassword) {
         String sql = "UPDATE Users SET password_hash = ? WHERE user_id = ?";
         jdbc.update(sql, hashedPassword, userId);
     }
-
 
     private static String SELECT_USERS_BY_ROLE = """
             SELECT u.user_id AS userID, 
