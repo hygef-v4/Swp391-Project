@@ -121,7 +121,6 @@ public class UserRepo {
         jdbc.update(sql, otp, email);
     }
 
-    // Cập nhật mật khẩu mới
     public void updatePassword(int userId, String hashedPassword) {
         String sql = "UPDATE Users SET password_hash = ? WHERE user_id = ?";
         jdbc.update(sql, hashedPassword, userId);
