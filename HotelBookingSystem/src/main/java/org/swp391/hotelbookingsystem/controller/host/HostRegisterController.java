@@ -176,7 +176,7 @@ public class HostRegisterController {
                     .build();
 
             roomService.saveRoom(room, amenityIds, roomImageUrls);
-            return "redirect:/host-dashboard"; // Redirect to the host dashboard after successful registration
+            return "redirect:/host-dashboard";
         } catch (Exception e) {
             e.printStackTrace();
             model.addAttribute("error", "Đã xảy ra lỗi khi tạo khách sạn: " + e.getMessage());

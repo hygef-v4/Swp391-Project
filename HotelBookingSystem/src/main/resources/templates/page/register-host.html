@@ -822,6 +822,43 @@ Footer END -->
 <!-- ThemeFunctions -->
 <script src="assets/js/functions.js"></script>
 
+
+<!--
+                      Map & Location Functions
+initializeHotelMap() - Creates interactive Leaflet map with Vietnam bounds and draggable marker
+updateLatLngInputs(latlng) - Updates latitude/longitude input fields when marker moves
+
+geocodeAddressAndSetMap() - Converts address text to coordinates and updates map position
+
+                 Form Validation Functions
+validateImageUploads() - Checks if required hotel and room images are uploaded (multiple validation methods)
+showNotification(type, title, message, duration) - Displays colored notification popups
+showErrorNotification() / showSuccessNotification() / showWarningNotification() - Wrapper functions for specific notification types
+showFieldError(element, message) - Adds error styling and message to form fields
+removeFieldError(element) - Removes error styling and messages
+showFieldSuccess(element) - Adds success styling to valid form fields
+validateField(element) - Validates individual form field against defined rules
+validateSelect(element) - Validates dropdown selections
+validateFileInput(element) - Validates file upload inputs
+validateCheckboxes() - Validates required checkboxes and amenity selections
+validateCurrentStep() - Validates all fields in the currently visible step
+validateCurrentStepFields(stepNumber) - Comprehensive validation for specific steps
+markStepAsCompleted(stepNumber) - Adds visual "completed" styling to step headers
+
+             Stepper Navigation Functions
+updateSummary() - Populates the final review step with user-entered data
+controlStepHeaderButtons() - Prevents skipping ahead to incomplete steps
+getCurrentStepIndex() - Returns which step (0-2) is currently active
+isStepCompleted(stepNumber) - Checks if a step has been marked as completed
+
+              Image Upload Functions
+Hotel Image Upload:
+handleFile(file) - Processes single hotel image upload (drag/drop or file input)
+Room Image Upload:
+addFiles(newFiles) - Adds multiple room images to upload queue
+renderPreviews() - Creates thumbnail previews with delete buttons
+updateInputFiles() - Syncs file list with actual form input for submission-->
+
 <script>
     // Global variables to track dropzone uploads - make them truly global
     var hotelImageUploaded = false;
@@ -955,66 +992,7 @@ Footer END -->
             mapInitialized = true;
         }
 
-        // Function to display address suggestions
-        function displayAddressSuggestions(results) {
-            addressSuggestionsContainer.innerHTML = ''; // Clear old suggestions
-            if (results && results.length > 0) {
-                results.forEach(place => {
-                    const item = document.createElement('a'); // Use <a> for list-group-item-action
-                    item.href = '#'; // Prevent page jump
-                    item.classList.add('list-group-item', 'list-group-item-action');
-                    item.textContent = place.display_name;
-                    item.setAttribute('data-lat', place.lat); // Store lat/lon for direct use
-                    item.setAttribute('data-lon', place.lon);
 
-                    item.addEventListener('click', function (e) {
-                        e.preventDefault();
-                        hotelAddressInput.value = this.textContent; // Use display_name for input
-                        addressSuggestionsContainer.style.display = 'none';
-                        addressSuggestionsContainer.innerHTML = '';
-
-                        const lat = parseFloat(this.getAttribute('data-lat'));
-                        const lon = parseFloat(this.getAttribute('data-lon'));
-
-                        if (!isNaN(lat) && !isNaN(lon) && vietnamBounds.contains(L.latLng(lat, lon))) {
-                            map.setView([lat, lon], 15); // Zoom in closer
-                            marker.setLatLng([lat, lon]);
-                            if (hotelLatInput) hotelLatInput.value = lat.toFixed(6);
-                            if (hotelLngInput) hotelLngInput.value = lon.toFixed(6);
-                            map.lastGeocodedQuery = this.textContent; // Update context
-                        } else {
-                            // Fallback if suggestion data is incomplete or out of bounds
-                            geocodeAddressAndSetMap();
-                        }
-                    });
-                    addressSuggestionsContainer.appendChild(item);
-                });
-                addressSuggestionsContainer.style.display = 'block';
-            } else {
-                addressSuggestionsContainer.style.display = 'none';
-            }
-        }
-
-        // Function to fetch address suggestions
-        function fetchAddressSuggestions(inputValue) {
-            if (inputValue.length < 3) { // Don't search for very short strings
-                addressSuggestionsContainer.style.display = 'none';
-                addressSuggestionsContainer.innerHTML = '';
-                return;
-            }
-            const vnViewbox = `${vietnamBounds.getWest()},${vietnamBounds.getSouth()},${vietnamBounds.getEast()},${vietnamBounds.getNorth()}`;
-            const nominatimSuggestUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(inputValue)}&limit=5&countrycodes=vn&viewbox=${vnViewbox}&bounded=1&addressdetails=1`;
-
-            fetch(nominatimSuggestUrl)
-                .then(response => response.json())
-                .then(data => {
-                    displayAddressSuggestions(data);
-                })
-                .catch(error => {
-                    console.error('Error fetching address suggestions:', error);
-                    addressSuggestionsContainer.style.display = 'none';
-                });
-        }
 
         function geocodeAddressAndSetMap() {
             if (!map) {
