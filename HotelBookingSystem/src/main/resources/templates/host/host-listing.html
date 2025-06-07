@@ -306,14 +306,15 @@
                                                                         </div>
                                                                         <input type="hidden" name="hotelId"
                                                                                id="otpHotelId">
+                                                                        <input type="hidden" name="isCancelled" id="isCancelled" value="false" />
+
                                                                     </div>
                                                                     <div class="modal-footer">
-                                                                        <button type="button" class="btn btn-secondary"
-                                                                                data-bs-dismiss="modal">Hủy
-                                                                        </button>
-                                                                        <button type="submit" class="btn btn-danger">Xác
-                                                                            nhận xóa
-                                                                        </button>
+                                                                        <!-- Cancel button sets cancel flag and submits -->
+                                                                        <button type="button" class="btn btn-secondary" onclick="submitCancel()">Hủy</button>
+
+                                                                        <!-- Confirm deletion -->
+                                                                        <button type="submit" class="btn btn-danger">Xác nhận xóa</button>
                                                                     </div>
                                                                 </form>
                                                             </div>
@@ -360,6 +361,13 @@
 
 <!-- ThemeFunctions -->
 <script src="assets/js/functions.js"></script>
+
+<script>
+    function submitCancel() {
+        document.getElementById("isCancelled").value = "true";
+        document.getElementById("otpForm").submit();
+    }
+</script>
 
 <!-- JavaScript to trigger the modal -->
 <script th:inline="javascript">

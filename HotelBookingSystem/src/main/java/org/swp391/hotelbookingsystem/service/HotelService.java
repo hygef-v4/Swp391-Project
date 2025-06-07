@@ -71,7 +71,10 @@ public class HotelService {
         return hotelRepository.findValidTokenType(token, userId);
     }
 
-    public void deleteHotelDeleteToken(String token, int userId) {
-        hotelRepository.deleteToken(token, userId);
+
+
+    public void cancelHotelDeleteToken(int userId, int hotelId) {
+        hotelRepository.cancelHotelDeleteToken(userId, hotelId);
     }
+
 }
