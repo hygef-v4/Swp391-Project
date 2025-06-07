@@ -30,7 +30,7 @@ public class EmailService {
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
         helper.setTo(to);
-        helper.setSubject("Reset your password");
+        helper.setSubject("Đặt lại mật khẩu của bạn");
         helper.setText(htmlContent, true);
         helper.setFrom("your_email@gmail.com");
 

@@ -86,7 +86,6 @@ public class UserRepo {
         }
     }
 
-    // Xóa token đã dùng hoặc hết hạn
     public void deleteToken(String token) {
         String sql = "DELETE FROM Tokens WHERE token = ?";
         jdbc.update(sql, token);
@@ -121,7 +120,6 @@ public class UserRepo {
         jdbc.update(sql, otp, email);
     }
 
-    // Cập nhật mật khẩu mới
     public void updatePassword(int userId, String hashedPassword) {
         String sql = "UPDATE Users SET password_hash = ? WHERE user_id = ?";
         jdbc.update(sql, hashedPassword, userId);

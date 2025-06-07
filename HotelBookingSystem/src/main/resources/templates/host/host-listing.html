@@ -218,7 +218,7 @@
 
                                             <!-- Title -->
                                             <h5 class="card-title mb-0 me-5">
-                                                <a th:href="@{/hotel-detail/{id}(id=${hotel.hotelId})}"
+                                                <a th:href="@{/hotel-detail(hotelId=${hotel.hotelId})}"
                                                    th:text="${hotel.hotelName}">Hotel Name</a>
                                             </h5>
                                             <small>
