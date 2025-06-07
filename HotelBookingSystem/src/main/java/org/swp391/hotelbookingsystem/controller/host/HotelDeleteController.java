@@ -4,7 +4,6 @@ import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -13,8 +12,8 @@ import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.service.EmailService;
 import org.swp391.hotelbookingsystem.service.HotelService;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/host")
@@ -25,9 +24,6 @@ public class HotelDeleteController {
 
     @Autowired
     private EmailService emailService;
-
-    @Autowired
-    private JdbcTemplate jdbc;
 
     @PostMapping("/request-delete-hotel")
     public String requestHotelDeletion(
@@ -49,33 +45,30 @@ public class HotelDeleteController {
 
         try {
             String otp = String.valueOf((int) (Math.random() * 900000) + 100000); // 6-digit OTP
-            String token = otp + ":" + hotelId;  // Store both OTP and hotelId
+            String token = otp + ":" + hotelId; // <-- This will now match later
             String tokenType = "hotel delete";
-            LocalDateTime expiry = LocalDateTime.now().plusMinutes(10); // OTP valid for 10 minutes
+            LocalDateTime expiry = LocalDateTime.now().plusMinutes(10);
 
-            jdbc.update("INSERT INTO Tokens (user_id, token, expiry_date, token_type) VALUES (?, ?, ?, ?)",
-                    user.getId(), token, Timestamp.valueOf(expiry), tokenType);
-
+            hotelService.insertHotelDeletionToken(user.getId(), token, expiry, tokenType);
             emailService.sendHotelDeleteConfirmationEmail(user.getEmail(), hotel.getHotelName(), otp);
 
-            // This is the key change: signal to show OTP modal for this hotelId
             redirectAttributes.addFlashAttribute("showOtpModalForHotelId", hotelId);
             redirectAttributes.addFlashAttribute("message", "Mã xác nhận đã được gửi tới email của bạn. Vui lòng nhập mã OTP để hoàn tất.");
         } catch (MessagingException e) {
-            // Log the exception
             redirectAttributes.addFlashAttribute("error", "Lỗi khi gửi email xác nhận: " + e.getMessage());
         } catch (Exception e) {
-            // Log the exception
             redirectAttributes.addFlashAttribute("error", "Đã xảy ra lỗi khi yêu cầu xóa khách sạn: " + e.getMessage());
         }
+
         return "redirect:/host-listing";
     }
+
 
     @PostMapping("/confirm-delete-hotel")
     public String confirmHotelDeletion(
             @RequestParam("otp") String otp,
             @RequestParam("hotelId") int hotelId,
-            HttpSession session, // Add session to check user
+            HttpSession session,
             RedirectAttributes redirectAttributes
     ) {
         User user = (User) session.getAttribute("user");
@@ -92,30 +85,24 @@ public class HotelDeleteController {
 
         try {
             String tokenToVerify = otp + ":" + hotelId;
-
-            String sql = "SELECT token_type FROM Tokens WHERE token = ? AND user_id = ? AND expiry_date > GETDATE()"; // Assuming SQL Server
-            String tokenType = jdbc.queryForObject(sql, String.class, tokenToVerify, user.getId());
+            String tokenType = hotelService.getHotelDeleteTokenType(tokenToVerify, user.getId());
 
             if (!"hotel delete".equals(tokenType)) {
                 redirectAttributes.addFlashAttribute("error", "Mã OTP không hợp lệ, đã hết hạn, hoặc không dành cho bạn.");
-
                 redirectAttributes.addFlashAttribute("showOtpModalForHotelId", hotelId);
                 redirectAttributes.addFlashAttribute("otpError", "Mã OTP không hợp lệ hoặc đã hết hạn.");
                 return "redirect:/host-listing";
             }
 
             hotelService.deleteById(hotelId);
-            jdbc.update("DELETE FROM Tokens WHERE token = ? AND user_id = ?", tokenToVerify, user.getId());
+            hotelService.deleteHotelDeleteToken(tokenToVerify, user.getId());
 
             redirectAttributes.addFlashAttribute("message", "Khách sạn '" + hotel.getHotelName() + "' đã được xóa thành công.");
-
         } catch (EmptyResultDataAccessException e) {
             redirectAttributes.addFlashAttribute("error", "Mã OTP không hợp lệ hoặc đã hết hạn.");
-            // Optionally, make the modal reappear for the same hotelId
             redirectAttributes.addFlashAttribute("showOtpModalForHotelId", hotelId);
             redirectAttributes.addFlashAttribute("otpError", "Mã OTP không hợp lệ hoặc đã hết hạn.");
         } catch (Exception e) {
-            // Log the exception
             redirectAttributes.addFlashAttribute("error", "Xóa khách sạn thất bại: " + e.getMessage());
         }
 
