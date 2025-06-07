@@ -65,6 +65,6 @@ public class AdminDashboardController {
         List<Location> getTop5Location = locationService.getTop5Locations();
         model.addAttribute("locationList", getTop5Location);
 
-        return "page/adminDashboard";
+        return "admin/admin-dashboard";
     }
 }

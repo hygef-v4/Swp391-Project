@@ -64,14 +64,13 @@ public class AdminUserController {
         model.addAttribute("page", page);
         model.addAttribute("pagination", (int) Math.ceil((double) totalUsers / pageSize));
 
-        return "page/admin-user-list";
+        return "admin/admin-user-list";
     }
 
     @PostMapping("/admin/user/toggle-status/{userID}")
     public String toggleUserStatus(@PathVariable("userID") int userId,
                                    @RequestParam(value = "search", required = false) String search,
-                                   @RequestParam(value = "role", required = false) String role,
-                                   HttpSession session) {
+                                   @RequestParam(value = "role", required = false) String role) {
         userService.toggleUserStatus(userId);
 
         return "redirect:" + buildRedirectUrl("/admin-user-list", search, role);
@@ -81,8 +80,7 @@ public class AdminUserController {
     public String changeUserRole(@PathVariable("userID") int userId,
                                  @RequestParam("newRole") String newRole,
                                  @RequestParam(value = "search", required = false) String search,
-                                 @RequestParam(value = "role", required = false) String role,
-                                 HttpSession session) {
+                                 @RequestParam(value = "role", required = false) String role) {
         userService.updateUserRole(userId, newRole);
 
         return "redirect:" + buildRedirectUrl("/admin-user-list", search, role);
