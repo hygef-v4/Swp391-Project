@@ -35,21 +35,9 @@ public class HotelDetailController {
     AmenityService amenityService;
 
     @GetMapping("/hotel-detail")
-    public String hotelDetail(
-        @RequestParam(value = "hotelId") int hotelId,
-    
-        @RequestParam(value = "adults", defaultValue = "1") int adults,
-        @RequestParam(value = "children", defaultValue = "0") int children,
-        @RequestParam(value = "rooms", defaultValue = "1") int roomQuantity,
-        
-        Model model, HttpSession session
-    ){
+    public String hotelDetail(@RequestParam(value = "hotelId") int hotelId, Model model, HttpSession session) {
         List<Location> locations = locationService.getAllLocations();
         model.addAttribute("locations", locations);
-
-        model.addAttribute("adults", adults);
-        model.addAttribute("children", children);
-        model.addAttribute("roomQuantity", roomQuantity);
 
         Hotel hotel = hotelService.getHotelById(hotelId);
         hotel.setPolicy(hotel.getPolicy().replace("<li>", "<li class=\"list-group-item d-flex\"><i class=\"bi bi-arrow-right me-2\"></i>"));

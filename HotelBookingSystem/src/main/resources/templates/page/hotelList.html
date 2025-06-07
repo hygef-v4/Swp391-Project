@@ -336,29 +336,6 @@ Title and Tabs START -->
 			</div>
 		</div>
 		<!-- Collapse body END -->
-<!--
-		<script>
-			let filter = document.getElementById("filter");
-
-			let name = filter.elements["name"].value
-			let min = filter.elements["min"].value
-			let max = filter.elements["max"].value
-
-			filter.addEventListener("submit", function(e){
-				e.preventDefault();
-
-				fetch('/filter-hotels', {
-					method: 'POST',
-					body: new URLSearchParams({
-						name: name,
-						min: min,
-						max: max,
-					})
-				})
-				.then(res => res.text())
-    			.then(data => console.log(data));
-			})
-		</script>-->
 	</div>
 </section>
 <!-- =======================

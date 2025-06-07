@@ -55,7 +55,7 @@ public class UserWishlistController {
     }
 
     @PostMapping("/remove-favorite")
-    public String removeFavorite(@RequestParam("hotelId") int hotelId, HttpSession session, RedirectAttributes redirectAttributes) {
+    public String removeFavorite(@RequestParam("hotelId") int hotelId, @RequestParam(value = "redirect", defaultValue = "false") boolean redirect, HttpSession session, RedirectAttributes redirectAttributes) {
         // Lấy thông tin người dùng từ session
         User sessionUser = (User) session.getAttribute("user");
 
@@ -75,11 +75,12 @@ public class UserWishlistController {
         }
 
         // Chuyển hướng về trang danh sách yêu thích
+        if(redirect) return "redirect:/hotel-detail?hotelId=" + hotelId;
         return "redirect:/user-wishlist";
     }
 
     @PostMapping("/add-favorite")
-    public String addFavorite(@RequestParam("hotelId") int hotelId, HttpSession session, RedirectAttributes redirectAttributes) {
+    public String addFavorite(@RequestParam("hotelId") int hotelId, @RequestParam(value = "redirect", defaultValue = "false") boolean redirect, HttpSession session, RedirectAttributes redirectAttributes) {
         // Lấy thông tin người dùng từ session
         User sessionUser = (User) session.getAttribute("user");
 
@@ -97,7 +98,8 @@ public class UserWishlistController {
         }
 
         // Chuyển hướng về trang chi tiết khách sạn
-        return "redirect:/hotel-detail?hotelId=" + hotelId;
+        if(redirect) return "redirect:/hotel-detail?hotelId=" + hotelId;
+        return "redirect:/user-wishlist";
     }
 
 }

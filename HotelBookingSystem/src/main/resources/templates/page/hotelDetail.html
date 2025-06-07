@@ -173,7 +173,7 @@ Search START -->
 							<div class="dropdown guest-selector me-2">
 								<input readonly type="text"
 										class="form-guest-selector form-control selection-result"
-										th:value="${adults+children} + ' Khách ' + ${roomQuantity} + ' Phòng'" data-bs-auto-close="outside"
+										value="1 Khách 1 Phòng" data-bs-auto-close="outside"
 										data-bs-toggle="dropdown">
 
 								<!-- dropdown items -->
@@ -189,7 +189,7 @@ Search START -->
 											<button type="button"
 													class="btn btn-link adult-remove p-0 mb-0"><i
 													class="bi bi-dash-circle fs-5 fa-fw"></i></button>
-											<h6 class="guest-selector-count mb-0 adults" th:text="${adults}"></h6>
+											<h6 class="guest-selector-count mb-0 adults">1</h6>
 											<button type="button" class="btn btn-link adult-add p-0 mb-0"><i
 													class="bi bi-plus-circle fs-5 fa-fw"></i></button>
 										</div>
@@ -209,7 +209,7 @@ Search START -->
 											<button type="button"
 													class="btn btn-link child-remove p-0 mb-0"><i
 													class="bi bi-dash-circle fs-5 fa-fw"></i></button>
-											<h6 class="guest-selector-count mb-0 child" th:text="${children}"></h6>
+											<h6 class="guest-selector-count mb-0 child">0</h6>
 											<button type="button" class="btn btn-link child-add p-0 mb-0"><i
 													class="bi bi-plus-circle fs-5 fa-fw"></i></button>
 										</div>
@@ -228,7 +228,7 @@ Search START -->
 										<div class="hstack gap-1 align-items-center">
 											<button type="button" class="btn btn-link room-remove p-0 mb-0">
 												<i class="bi bi-dash-circle fs-5 fa-fw"></i></button>
-											<h6 class="guest-selector-count mb-0 rooms" th:text="${roomQuantity}"></h6>
+											<h6 class="guest-selector-count mb-0 rooms">1</h6>
 											<button type="button" class="btn btn-link room-add p-0 mb-0"><i
 													class="bi bi-plus-circle fs-5 fa-fw"></i></button>
 										</div>
@@ -298,7 +298,7 @@ Main Title START -->
 					<ul class="list-inline text-end">
 						<!-- Heart icon -->
 						<li class="list-inline-item">
-							<form th:action="${(favorite ? 'remove-favorite' : '/add-favorite') + '?hotelId=' + hotel.hotelId}" method="post" style="display: inline;">
+							<form th:action="${(favorite ? 'remove-favorite' : '/add-favorite') + '?hotelId=' + hotel.hotelId + '&redirect=true'}" method="post" style="display: inline;">
 								<button type="submit" class="btn btn-sm btn-light px-2">
 									<i th:class="'fa-solid fa-fw fa-heart' + ${favorite ? ' text-danger' : ''}"></i>
 								</button>
