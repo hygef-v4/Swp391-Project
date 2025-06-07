@@ -34,7 +34,7 @@ public class HotelDeleteController {
             @RequestParam("hotelId") int hotelId,
             HttpSession session,
             RedirectAttributes redirectAttributes
-    ) { // Removed throws MessagingException, handle it inside
+    ) {
         User user = (User) session.getAttribute("user");
         if (user == null || !"HOTEL_OWNER".equalsIgnoreCase(user.getRole())) {
             redirectAttributes.addFlashAttribute("error", "Bạn không có quyền thực hiện hành động này.");
@@ -74,14 +74,14 @@ public class HotelDeleteController {
     @PostMapping("/confirm-delete-hotel")
     public String confirmHotelDeletion(
             @RequestParam("otp") String otp,
-            @RequestParam("hotelId") int hotelId, // Make sure this is submitted by the OTP form
+            @RequestParam("hotelId") int hotelId,
             HttpSession session, // Add session to check user
             RedirectAttributes redirectAttributes
     ) {
         User user = (User) session.getAttribute("user");
         if (user == null || !"HOTEL_OWNER".equalsIgnoreCase(user.getRole())) {
             redirectAttributes.addFlashAttribute("error", "Bạn không có quyền thực hiện hành động này.");
-            return "redirect:/host-listing"; // Or appropriate error page
+            return "redirect:/host-listing";
         }
 
         Hotel hotel = hotelService.getHotelById(hotelId);
@@ -92,20 +92,19 @@ public class HotelDeleteController {
 
         try {
             String tokenToVerify = otp + ":" + hotelId;
-            // Important: Use GETDATE() for SQL Server, NOW() for MySQL/PostgreSQL
-            // Make sure your Tokens table has a user_id column that matches the user trying to delete
+
             String sql = "SELECT token_type FROM Tokens WHERE token = ? AND user_id = ? AND expiry_date > GETDATE()"; // Assuming SQL Server
             String tokenType = jdbc.queryForObject(sql, String.class, tokenToVerify, user.getId());
 
-            if (!"hotel delete".equals(tokenType)) { // queryForObject throws EmptyResultDataAccessException if no row found
+            if (!"hotel delete".equals(tokenType)) {
                 redirectAttributes.addFlashAttribute("error", "Mã OTP không hợp lệ, đã hết hạn, hoặc không dành cho bạn.");
-                // Optionally, to make the modal reappear with an error for the same hotelId:
+
                 redirectAttributes.addFlashAttribute("showOtpModalForHotelId", hotelId);
                 redirectAttributes.addFlashAttribute("otpError", "Mã OTP không hợp lệ hoặc đã hết hạn.");
                 return "redirect:/host-listing";
             }
 
-            hotelService.deleteById(hotelId); // This should also handle related entities if cascaded or done in service
+            hotelService.deleteById(hotelId);
             jdbc.update("DELETE FROM Tokens WHERE token = ? AND user_id = ?", tokenToVerify, user.getId());
 
             redirectAttributes.addFlashAttribute("message", "Khách sạn '" + hotel.getHotelName() + "' đã được xóa thành công.");
