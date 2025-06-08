@@ -9,7 +9,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="author" content="StackBros">
-    <meta name="description" content="Booking - Multipurpose Online Booking Theme">
+    <meta name="description" content="Đặt phòng - Chủ đề đặt phòng trực tuyến đa mục đích">
 
     <!-- Dark mode -->
     <script>
@@ -124,7 +124,7 @@
             <!-- Title START -->
             <div class="row">
                 <div class="col-12">
-                    <h1 class="fs-4 mb-0"><i class="bi bi-journals fa-fw me-1"></i>Listings</h1>
+                    <h1 class="fs-4 mb-0"><i class="bi bi-journals fa-fw me-1"></i>Danh sách khách sạn</h1>
                 </div>
             </div>
             <!-- Title END -->
@@ -135,41 +135,40 @@
                 <!-- Earning item -->
                 <div class="col-md-6 col-xl-4">
                     <div class="card card-body border p-4 h-100">
-                        <h6>Earning
+                        <h6>Doanh thu
                             <a tabindex="0" class="h6 mb-0" role="button" data-bs-toggle="popover"
                                data-bs-trigger="focus" data-bs-placement="top"
-                               data-bs-content="After US royalty withholding tax" data-bs-original-title="" title="">
+                               data-bs-content="Sau khi trừ thuế khấu trừ tại nguồn Hoa Kỳ" data-bs-original-title="" title="">
                                 <i class="bi bi-info-circle-fill small"></i>
                             </a>
                         </h6>
                         <h2 class="text-success">$0</h2>
-                        <p class="mb-2"><span class="text-primary me-1">0.20%<i class="bi bi-arrow-up"></i></span>vs
-                            last month</p>
-                        <div class="mt-auto text-primary-hover"><a href="#" class="text-decoration-underline p-0 mb-0">View
-                            statement</a></div>
+
+                        <div class="mt-auto text-primary-hover"><a href="#" class="text-decoration-underline p-0 mb-0">Xem
+                            báo cáo</a></div>
                     </div>
                 </div>
 
                 <!-- Booked Rooms item -->
                 <div class="col-md-6 col-xl-4">
                     <div class="card card-body border p-4 h-100">
-                        <h6>Booked Rooms</h6>
+                        <h6>Phòng đã đặt</h6>
                         <h2 class="text-info">0</h2>
-                        <p class="mb-2"><span class="text-danger me-1">Total room</span>Total Rooms</p>
-                        <div class="mt-auto text-primary-hover"><a href="#" class="text-decoration-underline p-0 mb-0">View
-                            Bookings</a></div>
+                        <p class="mb-2"><span class="text-danger me-1">Tổng phòng</span>Tổng số phòng</p>
+                        <div class="mt-auto text-primary-hover"><a href="#" class="text-decoration-underline p-0 mb-0">Xem
+                            đặt phòng</a></div>
                     </div>
                 </div>
 
                 <!-- Available Rooms item -->
                 <div class="col-md-6 col-xl-4">
                     <div class="card card-body border p-4 h-100">
-                        <h6>Available Rooms</h6>
+                        <h6>Phòng trống</h6>
                         <!--                        de tam-->
                         <h2 class="text-warning" th:text="${totalRooms}">0</h2>
-                        <p class="mb-2"><span class="text-danger me-1" th:text="${totalRooms}">102</span>Total Rooms</p>
-                        <div class="mt-auto text-primary-hover"><a href="#" class="text-decoration-underline p-0 mb-0">View
-                            Rooms</a></div>
+                        <p class="mb-2"><span class="text-danger me-1" th:text="${totalRooms}">102</span>Tổng số phòng</p>
+                        <div class="mt-auto text-primary-hover"><a href="#" class="text-decoration-underline p-0 mb-0">Xem
+                            phòng</a></div>
                     </div>
                 </div>
 
@@ -204,7 +203,7 @@
 
                                         <a th:href="@{/hotel-detail(hotelId=${hotel.hotelId})}">
                                             <img th:src="${hotel.hotelImageUrl}" class="card-img rounded-2"
-                                                 alt="Hotel image">
+                                                 alt="Hình ảnh khách sạn">
                                         </a>
 
 
@@ -222,20 +221,20 @@
                                                 </a>
                                                 <ul class="dropdown-menu dropdown-menu-end min-w-auto shadow rounded">
                                                     <li><a class="dropdown-item" href="#"><i
-                                                            class="bi bi-info-circle me-1"></i>Report</a></li>
+                                                            class="bi bi-info-circle me-1"></i>Báo cáo</a></li>
                                                     <li><a class="dropdown-item" href="#"><i
-                                                            class="bi bi-slash-circle me-1"></i>Disable</a></li>
+                                                            class="bi bi-slash-circle me-1"></i>Vô hiệu hóa</a></li>
                                                 </ul>
                                             </div>
 
                                             <!-- Title -->
                                             <h5 class="card-title mb-0 me-5">
                                                 <a th:href="@{/hotel-detail(hotelId=${hotel.hotelId})}"
-                                                   th:text="${hotel.hotelName}">Hotel Name</a>
+                                                   th:text="${hotel.hotelName}">Tên khách sạn</a>
                                             </h5>
                                             <small>
                                                 <i class="bi bi-geo-alt me-2"></i>
-                                                <span th:text="${hotel.address + ', ' + hotel.cityName}">Hotel Address</span>
+                                                <span th:text="${hotel.address + ', ' + hotel.cityName}">Địa chỉ khách sạn</span>
                                             </small>
 
 
@@ -245,7 +244,7 @@
                                                 <div class="d-flex align-items-center">
                                                     <h5 class="fw-bold mb-0 me-1"
                                                         th:utext="${#numbers.formatDecimal(hotel.minPrice, 0, 'COMMA', 0, 'POINT')} + ' <small>đ</small>'">
-                                                        Price
+                                                        Giá
                                                     </h5>
 
 
@@ -281,7 +280,7 @@
                                                         <button type="submit"
                                                                 class="btn btn-sm btn-outline-danger mb-0"
                                                                 onclick="return confirm('Bạn có chắc chắn muốn yêu cầu xóa khách sạn này không?');">
-                                                            <i class="bi bi-trash3 fa-fw me-1"></i> Yêu cầu xóa
+                                                            <i class="bi bi-trash3 fa-fw me-1"></i> Xóa khách sạn
                                                         </button>
                                                     </form>
 
