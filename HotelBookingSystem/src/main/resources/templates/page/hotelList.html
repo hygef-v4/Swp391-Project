@@ -313,10 +313,11 @@ Title and Tabs START -->
 					<!-- Check box item -->
 					<div class="col-12">
 						<div class="form-control-borderless">
+							<label class="form-label">Cơ sở vật chất</label>
 							<!-- <label class="form-label">Cơ sở vật chất</label> -->
 							<div th:each="category: ${categories}" class="row g-3">
 								<!-- checkbox -->
-								<h5 class="col-12" th:text="${category.name}"></h5>
+								<h6 class="col-12" th:text="${category.name}"></h6>
 								<div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 mt-0" th:each="amenity: ${category.amenities}">
 									<div class="form-check">
 										<input class="form-check-input" type="checkbox" th:value="${amenity.amenityId}" th:id="${amenity.amenityId}" name="amenities">
@@ -330,7 +331,7 @@ Title and Tabs START -->
 
 					<!-- Button -->
 					<div class="text-end align-items-center">
-						<a class="btn btn-link p-0 mb-0" th:href="@{/hotel-list(locationId=${hamora.id}, adults=${adults}, children=${children}, rooms=${rooms})}">Reset</a>
+						<a class="btn btn-link p-0 mb-0" th:href="${'/hotel-list?locationId=' + hamora.id + redirect}">Reset</a>
 						<button class="btn btn-dark mb-0 ms-3">Áp dụng</button>
 					</div>
 				</form>
@@ -392,7 +393,7 @@ Hotel grid START -->
 							</div>
 							<!-- Button -->
 							<div class="mt-2 mt-sm-0">
-								<a th:href="'/hotel-detail?hotelId=' + ${hotel.hotelId} + ${redirect}" class="btn btn-sm btn-primary-soft mb-0 w-100">View Detail<i class="bi bi-arrow-right ms-2"></i></a>    
+								<a th:href="'/hotel-detail?hotelId=' + ${hotel.hotelId} + ${redirect}" class="btn btn-sm btn-primary-soft mb-0 w-100">Xem Chi Tiết<i class="bi bi-arrow-right ms-2"></i></a>    
 							</div>
 						</div>
 					</div>

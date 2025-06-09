@@ -140,6 +140,7 @@ public class HotelRepository {
                              h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude,
                              l.city_name
                     HAVING SUM(r.max_guests) >= ? AND SUM(r.quantity) >= ? AND MIN(r.price) >= ? AND MIN(r.price) <= ? 
+                    ORDER BY h.rating DESC
                 """;
         return jdbcTemplate.query(query, ps -> {
             ps.setInt(1, locationId);
