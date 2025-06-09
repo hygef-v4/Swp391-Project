@@ -861,17 +861,17 @@ var e = {
 
             function addElement(type) {
                 if (type == 'adult') {
-                    adults = adults < 100 ? adults + 1 : adults;
+                    adults = adults < 50 ? adults + 1 : adults;
                     totalAdults = adults + child;
 
                     showElements();
                 } else if (type == 'child') {
-                    child = child < 100 ? child + 1 : child;
+                    child = child < 50 ? child + 1 : child;
                     totalAdults = adults + child;
 
                     showElements();
                 } else if (type == 'room') {
-                    rooms = rooms < 10 ? rooms + 1 : rooms;
+                    rooms = rooms < 20 ? rooms + 1 : rooms;
 
                     showElements();
                 }

@@ -5,7 +5,6 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.swp391.hotelbookingsystem.model.Hotel;
-import org.swp391.hotelbookingsystem.model.Location;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;

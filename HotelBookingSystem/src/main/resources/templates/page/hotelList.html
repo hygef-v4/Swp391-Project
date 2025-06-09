@@ -161,7 +161,7 @@ Main Banner START -->
 							<i class="bi bi-person fs-3 me-2 mt-2"></i>
 							<!-- Dropdown input -->
 							<div class="w-100">
-								<label class="form-label"> Khách & Phòng</label>
+								<label class="form-label">Khách & Phòng</label>
 								<div class="dropdown guest-selector me-2">
 									<input readonly type="text"
 										   class="form-guest-selector form-control selection-result"
@@ -281,6 +281,11 @@ Title and Tabs START -->
 
 				<!-- Form START -->
 				<form class="row g-4" action="/hotel-list" method="GET" id="filter">
+					<input type="hidden" name="locationId" th:value="${hamora.id}">
+					<input type="hidden" name="adults" th:value="${adults}">
+					<input type="hidden" name="children" th:value="${children}">
+					<input type="hidden" name="rooms" th:value="${rooms}">	
+
 					<!-- Input item -->
 					<div class="col-sm-12 col-md-6">
 						<div class="form-control-borderless">
@@ -309,26 +314,23 @@ Title and Tabs START -->
 					<div class="col-12">
 						<div class="form-control-borderless">
 							<!-- <label class="form-label">Cơ sở vật chất</label> -->
-							<div class="row g-3">
+							<div th:each="category: ${categories}" class="row g-3">
 								<!-- checkbox -->
-								<div class="col-sm-6 col-md-4 col-lg-3 col-xl-2" th:each="amenity: ${amenities}">
+								<h5 class="col-12" th:text="${category.name}"></h5>
+								<div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 mt-0" th:each="amenity: ${category.amenities}">
 									<div class="form-check">
-										<input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
-										<label class="form-check-label h6 fw-light mb-0" for="flexCheckDefault" th:text="${amenity.name}">
+										<input class="form-check-input" type="checkbox" th:value="${amenity.amenityId}" th:id="${amenity.amenityId}" name="amenities">
+										<label class="form-check-label h6 fw-light mb-0" th:for="${amenity.amenityId}" th:text="${amenity.name}">
 										</label>
 									</div>
 								</div>
 							</div> <!-- Row END -->
 						</div>
-					</div>
-
-					<input type="hidden" name="locationId" th:value="${hamora.id}">
-					<input type="hidden" name="adults" th:value="${adults}">
-					<input type="hidden" name="children" th:value="${children}">
-					<input type="hidden" name="rooms" th:value="${rooms}">					
+					</div>				
 
 					<!-- Button -->
 					<div class="text-end align-items-center">
+						<a class="btn btn-link p-0 mb-0" th:href="@{/hotel-list(locationId=${hamora.id}, adults=${adults}, children=${children}, rooms=${rooms})}">Reset</a>
 						<button class="btn btn-dark mb-0 ms-3">Áp dụng</button>
 					</div>
 				</form>
