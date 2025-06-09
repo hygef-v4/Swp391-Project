@@ -790,8 +790,8 @@ Footer END -->
                     return false;
                 }
             } else if (element.id === 'roomQuantity') {
-                if (numValue < 1 || numValue > 1000) {
-                    showFieldError(element, 'Số lượng phòng phải từ 1 đến 1000');
+                if (numValue < 1 || numValue > 100) {
+                    showFieldError(element, 'Số lượng phòng phải từ 1 đến 100');
                     return false;
                 }
             } else if (element.id === 'roomPrice') {

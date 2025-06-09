@@ -68,12 +68,19 @@ public class HotelDeleteController {
     public String confirmHotelDeletion(
             @RequestParam("otp") String otp,
             @RequestParam("hotelId") int hotelId,
+            @RequestParam(value = "isCancelled", defaultValue = "false") boolean isCancelled,
             HttpSession session,
             RedirectAttributes redirectAttributes
     ) {
         User user = (User) session.getAttribute("user");
         if (user == null || !"HOTEL_OWNER".equalsIgnoreCase(user.getRole())) {
             redirectAttributes.addFlashAttribute("error", "Bạn không có quyền thực hiện hành động này.");
+            return "redirect:/host-listing";
+        }
+
+        if (isCancelled) {
+            hotelService.cancelHotelDeleteToken(user.getId(), hotelId);
+            redirectAttributes.addFlashAttribute("message", "Yêu cầu xóa khách sạn đã được hủy.");
             return "redirect:/host-listing";
         }
 
@@ -95,7 +102,7 @@ public class HotelDeleteController {
             }
 
             hotelService.deleteById(hotelId);
-            hotelService.deleteHotelDeleteToken(tokenToVerify, user.getId());
+
 
             redirectAttributes.addFlashAttribute("message", "Khách sạn '" + hotel.getHotelName() + "' đã được xóa thành công.");
         } catch (EmptyResultDataAccessException e) {
@@ -108,4 +115,5 @@ public class HotelDeleteController {
 
         return "redirect:/host-listing";
     }
+
 }
