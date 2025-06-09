@@ -45,7 +45,7 @@ public class HotelDeleteController {
 
         try {
             String otp = String.valueOf((int) (Math.random() * 900000) + 100000); // 6-digit OTP
-            String token = otp + ":" + hotelId; // <-- This will now match later
+            String token = otp + ":" + hotelId;
             String tokenType = "hotel delete";
             LocalDateTime expiry = LocalDateTime.now().plusMinutes(10);
 
