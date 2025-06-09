@@ -5,8 +5,9 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.swp391.hotelbookingsystem.model.Hotel;
-import org.swp391.hotelbookingsystem.model.Location;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -21,32 +22,6 @@ public class HotelRepository {
     private static final String COUNT_HOTELS = """
             SELECT COUNT(*) FROM Hotels
             """;
-
-    private static final String SELECT_HOTEL_BY_LOCATION = """
-            SELECT h.hotel_id AS hotelId,
-                   h.host_id AS hostId,
-                   h.hotel_name AS hotelName,
-                   h.address,
-                   h.description,
-                   h.location_id AS locationId,
-                   h.hotel_image_url AS hotelImageUrl,
-                   h.rating,
-                   h.latitude,
-                   h.longitude,
-                   h.description,
-                   MIN(r.price) AS minPrice,
-                   SUM(r.max_guests) AS maxGuests,
-                   SUM(r.quantity) AS roomQuantity,
-                   l.city_name AS cityName
-            FROM Hotels h
-            JOIN Locations l ON h.location_id = l.location_id
-            LEFT JOIN Rooms r ON h.hotel_id = r.hotel_id
-            WHERE (h.location_id = ? OR ? = -1) AND h.hotel_name like ?
-            GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
-                     h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude,
-                     l.city_name
-            HAVING SUM(r.max_guests) >= ? AND SUM(r.quantity) >= ?
-            """;            
 
     private static final String SELECT_HOTELS_BY_RATING = """
             SELECT h.hotel_id AS hotelId,
@@ -140,68 +115,96 @@ public class HotelRepository {
         return jdbcTemplate.query(SELECT_TOP_8_HOTELS, HOTEL_MAPPER);
     }
 
-    public List<Hotel> getHotelsByLocation(int locationId, int maxGuests, int roomQuantity, String search) {
-        return jdbcTemplate.query(SELECT_HOTEL_BY_LOCATION, ps -> {
+    public List<Hotel> getHotelsByLocation(int locationId, int maxGuests, int roomQuantity, String name, int min, int max) {
+        String query = """
+                    SELECT h.hotel_id AS hotelId,
+                           h.host_id AS hostId,
+                           h.hotel_name AS hotelName,
+                           h.address,
+                           h.description,
+                           h.location_id AS locationId,
+                           h.hotel_image_url AS hotelImageUrl,
+                           h.rating,
+                           h.latitude,
+                           h.longitude,
+                           h.description,
+                           MIN(r.price) AS minPrice,
+                           SUM(r.max_guests) AS maxGuests,
+                           SUM(r.quantity) AS roomQuantity,
+                           l.city_name AS cityName
+                    FROM Hotels h
+                    JOIN Locations l ON h.location_id = l.location_id
+                    LEFT JOIN Rooms r ON h.hotel_id = r.hotel_id
+                    WHERE (h.location_id = ? OR ? = -1) AND h.hotel_name like ?
+                    GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
+                             h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude,
+                             l.city_name
+                    HAVING SUM(r.max_guests) >= ? AND SUM(r.quantity) >= ? AND MIN(r.price) >= ? AND MIN(r.price) <= ? 
+                """;
+        return jdbcTemplate.query(query, ps -> {
             ps.setInt(1, locationId);
             ps.setInt(2, locationId);
-            ps.setString(3, "%" + search + "%");
+            ps.setString(3, "%" + name + "%");
             ps.setInt(4, maxGuests);
             ps.setInt(5, roomQuantity);
+            ps.setInt(6, min);
+            ps.setInt(7, max);
         }, HOTEL_MAPPER);
     }
 
     public List<Hotel> searchHotel(String search) {
         String query = """
-            SELECT h.hotel_id AS hotelId,
-                   h.host_id AS hostId,
-                   h.hotel_name AS hotelName,
-                   h.address,
-                   h.description,
-                   h.location_id AS locationId,
-                   h.hotel_image_url AS hotelImageUrl,
-                   h.rating,
-                   h.latitude,
-                   h.longitude,
-                   MIN(r.price) AS minPrice,
-                   l.city_name AS cityName
-            FROM Hotels h
-            JOIN Locations l ON h.location_id = l.location_id
-            JOIN Rooms r ON h.hotel_id = r.hotel_id
-            WHERE h.hotel_name like ?
-            GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
-                     h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude,
-                     l.city_name
-            """;            
+                SELECT h.hotel_id AS hotelId,
+                       h.host_id AS hostId,
+                       h.hotel_name AS hotelName,
+                       h.address,
+                       h.description,
+                       h.location_id AS locationId,
+                       h.hotel_image_url AS hotelImageUrl,
+                       h.rating,
+                       h.latitude,
+                       h.longitude,
+                       MIN(r.price) AS minPrice,
+                       l.city_name AS cityName
+                FROM Hotels h
+                JOIN Locations l ON h.location_id = l.location_id
+                JOIN Rooms r ON h.hotel_id = r.hotel_id
+                WHERE h.hotel_name like ?
+                GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
+                         h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude,
+                         l.city_name
+                """;
         return jdbcTemplate.query(query, ps -> {
             ps.setString(1, "%" + search + "%");
         }, HOTEL_MAPPER);
     }
 
-    public Hotel getHotelById(int id){
+    public Hotel getHotelById(int id) {
         String query = """
-            SELECT h.hotel_id AS hotelId,
-                   h.host_id AS hostId,
-                   h.hotel_name AS hotelName,
-                   h.address,
-                   h.description,
-                   h.location_id AS locationId,
-                   h.hotel_image_url AS hotelImageUrl,
-                   h.rating,
-                   h.latitude,
-                   h.longitude,
-                   h.policy,
-                   MIN(r.price) AS minPrice,
-                   l.city_name AS cityName
-            FROM Hotels h
-            JOIN Locations l ON h.location_id = l.location_id
-            JOIN Rooms r ON h.hotel_id = r.hotel_id
-            WHERE h.hotel_id like ?
-            GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
-                     h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude, h.policy,
-                     l.city_name
-            """;            
+                SELECT h.hotel_id AS hotelId,
+                       h.host_id AS hostId,
+                       h.hotel_name AS hotelName,
+                       h.address,
+                       h.description,
+                       h.location_id AS locationId,
+                       h.hotel_image_url AS hotelImageUrl,
+                       h.rating,
+                       h.latitude,
+                       h.longitude,
+                       h.policy,
+                       MIN(r.price) AS minPrice,
+                       l.city_name AS cityName
+                FROM Hotels h
+                JOIN Locations l ON h.location_id = l.location_id
+                JOIN Rooms r ON h.hotel_id = r.hotel_id
+                WHERE h.hotel_id like ?
+                GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
+                         h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude, h.policy,
+                         l.city_name
+                """;
         return jdbcTemplate.queryForObject(query, HOTEL_MAPPER, id);
-    }    
+    }
+
     public Hotel insertHotel(Hotel hotel) {
         String sql = """
                     INSERT INTO Hotels 
@@ -263,6 +266,30 @@ public class HotelRepository {
     public void deleteHotelById(int hotelId) {
         String sql = "DELETE FROM Hotels WHERE hotel_id = ?";
         jdbcTemplate.update(sql, hotelId);
+    }
+
+    public Integer isFavoriteHotel(int userId, int hotelId) {
+        String sql = """
+                SELECT COUNT(*) FROM Favorites
+                WHERE user_id = ? AND hotel_id = ?
+                """;
+        return jdbcTemplate.queryForObject(sql, Integer.class, userId, hotelId);
+    }
+
+    public void insertHotelDeletionToken(int userId, String token, LocalDateTime expiry, String tokenType) {
+        String sql = "INSERT INTO Tokens (user_id, token, expiry_date, token_type) VALUES (?, ?, ?, ?)";
+        jdbcTemplate.update(sql, userId, token, Timestamp.valueOf(expiry), tokenType);
+    }
+
+    public String findValidTokenType(String token, int userId) {
+        String sql = "SELECT token_type FROM Tokens WHERE token = ? AND user_id = ? AND expiry_date > GETDATE()";
+        return jdbcTemplate.queryForObject(sql, String.class, token, userId);
+    }
+
+
+    public void cancelHotelDeleteToken(int userId, int hotelId) {
+        String sql = "DELETE FROM Tokens WHERE user_id = ? AND token LIKE ?";
+        jdbcTemplate.update(sql, userId, "%:" + hotelId);
     }
 
 }

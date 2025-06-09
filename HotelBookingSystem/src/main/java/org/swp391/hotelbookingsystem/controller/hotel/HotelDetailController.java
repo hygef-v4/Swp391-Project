@@ -15,10 +15,13 @@ import org.swp391.hotelbookingsystem.model.AmenityCategory;
 import org.swp391.hotelbookingsystem.model.Hotel;
 import org.swp391.hotelbookingsystem.model.Location;
 import org.swp391.hotelbookingsystem.model.Room;
+import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.service.AmenityService;
 import org.swp391.hotelbookingsystem.service.HotelService;
 import org.swp391.hotelbookingsystem.service.LocationService;
 import org.swp391.hotelbookingsystem.service.RoomService;
+
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class HotelDetailController {
@@ -32,13 +35,37 @@ public class HotelDetailController {
     AmenityService amenityService;
 
     @GetMapping("/hotel-detail")
-    public String hotelDetail(@RequestParam(value = "hotelId") int hotelId, Model model){
+    public String hotelDetail(
+        @RequestParam(value = "hotelId") int hotelId,
+    
+        @RequestParam(value = "adults", defaultValue = "1") int adults,
+        @RequestParam(value = "children", defaultValue = "0") int children,
+        @RequestParam(value = "rooms", defaultValue = "1") int roomQuantity,
+        
+        Model model, HttpSession session
+    ){
         List<Location> locations = locationService.getAllLocations();
         model.addAttribute("locations", locations);
+
+        model.addAttribute("adults", adults);
+        model.addAttribute("children", children);
+        model.addAttribute("roomQuantity", roomQuantity);
 
         Hotel hotel = hotelService.getHotelById(hotelId);
         hotel.setPolicy(hotel.getPolicy().replace("<li>", "<li class=\"list-group-item d-flex\"><i class=\"bi bi-arrow-right me-2\"></i>"));
         model.addAttribute("hotel", hotel);
+
+        User user = (User) session.getAttribute("user");
+        boolean favorite = false;
+        if (user != null) {
+            favorite = hotelService.isFavoriteHotel(user.getId(), hotelId);
+        }model.addAttribute("favorite", favorite);
+
+        String redirect = "";
+        if(adults != 1) redirect += "&adults=" + adults;
+        if(children != 0) redirect += "&children=" + children;
+        if(roomQuantity != 1) redirect += "&rooms=" + roomQuantity;
+        model.addAttribute("redirect", redirect);
 
         String description = hotel.getDescription();
         if (description != null) {
@@ -61,6 +88,8 @@ public class HotelDetailController {
 
         List<Room> rooms = roomService.getRoomByHotelId(hotelId);
         for(Room room : rooms){
+            room.setDescription("<li>Sức chứa: " + room.getMaxGuests() + " Người</li>" + room.getDescription());
+
             List<Amenity> amenities = amenityService.getRoomAmenities(room.getRoomId());
             List<AmenityCategory> categories = new ArrayList<>();
             String category = "";

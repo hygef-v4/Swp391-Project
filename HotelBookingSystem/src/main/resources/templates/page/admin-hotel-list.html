@@ -140,7 +140,8 @@
                     <div class="d-sm-flex gap-4 justify-content-between justify-content-lg-end">
                         <!-- Search -->
                         <div class="col-md-8">
-                            <form class="rounded position-relative" method="get" th:action="@{/admin-hotel-list}">
+                            <form class="rounded position-relative" method="get" th:action="@{/admin-hotel-list}"
+                                  onsubmit="this.search.value = this.search.value.trim().replace(/\s+/g, ' ')">
                                 <input class="form-control bg-transparent" type="search" name="search"
                                        placeholder="Tìm kiếm..."
                                        aria-label="Search" th:value="${search}">

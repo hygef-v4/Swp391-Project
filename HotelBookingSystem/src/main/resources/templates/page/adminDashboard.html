@@ -201,7 +201,7 @@
                             <div class="row g-4">
                                 <!-- Card img -->
                                 <div class="col-md-3">
-                                    <img th:src="@{${hotel.hotelImageUrl}}" class="rounded-2 img-fluid object-fit-cover"
+                                    <img th:href="@{'/hotels/' + ${hotel.hotelId}}" th:src="@{${hotel.hotelImageUrl}}" class="rounded-2 img-fluid object-fit-cover"
                                          style="width: 100%; height: 100px;" alt="Hotel image"/>
                                 </div>
 

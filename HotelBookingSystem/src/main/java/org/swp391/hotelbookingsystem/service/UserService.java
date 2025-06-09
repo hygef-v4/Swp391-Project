@@ -180,5 +180,7 @@ public class UserService {
 
     }
 
-
+    public void deleteEmailOtp(String email) {
+        userRepo.deleteEmailOtp(email);
+    }
 }

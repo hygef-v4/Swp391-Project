@@ -169,7 +169,8 @@
 
                     <!-- Search -->
                     <div class="col-md-6 col-lg-3">
-                        <form class="rounded position-relative" th:action="@{/admin-user-list}" method="get">
+                        <form class="rounded position-relative" th:action="@{/admin-user-list}" method="get"
+                              onsubmit="this.search.value = this.search.value.trim().replace(/\s+/g, ' ')">
                             <input type="hidden" name="role" th:value="${role}"/>
                             <input class="form-control bg-transparent" name="search" type="search"
                                    th:value="${search}" placeholder="Tìm kiếm...">
@@ -288,6 +289,8 @@
                         <!-- Status toggle -->
                         <div class="col-2 text-center">
                             <form th:action="@{'/admin/user/toggle-status/' + ${user.id}}" method="post">
+                                <input type="hidden" name="search" th:value="${search}" />
+                                <input type="hidden" name="role" th:value="${role}" />
                                 <button type="submit" class="btn btn-sm px-3"
                                         th:classappend="${user.active} ? 'btn-success' : 'btn-danger'"
                                         th:title="${user.active} ? 'Click to deactivate' : 'Click to activate'">

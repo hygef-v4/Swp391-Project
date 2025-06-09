@@ -163,89 +163,88 @@ Search START -->
                 </div>
 
                 <!-- Guest -->
-                <div class="col-lg-4">
-                    <div class="form-control-border form-control-transparent form-fs-md d-flex">
-                        <!-- Icon -->
-                        <i class="bi bi-person fs-3 me-2 mt-2"></i>
-                        <!-- Dropdown input -->
-                        <div class="w-100">
-                            <label class="form-label"> Khách & Phòng</label>
-                            <div class="dropdown guest-selector me-2">
-                                <input readonly type="text"
-                                        class="form-guest-selector form-control selection-result"
-                                        value="1 Khách 1 Phòng" data-bs-auto-close="outside"
-                                        data-bs-toggle="dropdown">
+				<div class="col-lg-4">
+					<div class="form-control-border form-control-transparent form-fs-md d-flex">
+						<!-- Icon -->
+						<i class="bi bi-person fs-3 me-2 mt-2"></i>
+						<!-- Dropdown input -->
+						<div class="w-100">
+							<label class="form-label">Khách & Phòng</label>
+							<div class="dropdown guest-selector me-2">
+								<input readonly type="text"
+										class="form-guest-selector form-control selection-result"
+										th:value="${adults+children} + ' Khách ' + ${roomQuantity} + ' Phòng'" data-bs-auto-close="outside"
+										data-bs-toggle="dropdown">
 
-                                <!-- dropdown items -->
-                                <ul class="dropdown-menu guest-selector-dropdown">
-                                    <!-- Adult -->
-                                    <li class="d-flex justify-content-between">
-                                        <div>
-                                            <h6 class="mb-0">Người lớn</h6>
-                                            <small>18 tuổi trở lên</small>
-                                        </div>
+								<!-- dropdown items -->
+								<ul class="dropdown-menu guest-selector-dropdown">
+									<!-- Adult -->
+									<li class="d-flex justify-content-between">
+										<div>
+											<h6 class="mb-0">Người lớn</h6>
+											<small>18 tuổi trở lên</small>
+										</div>
 
-                                        <div class="hstack gap-1 align-items-center">
-                                            <button type="button"
-                                                    class="btn btn-link adult-remove p-0 mb-0"><i
-                                                    class="bi bi-dash-circle fs-5 fa-fw"></i></button>
-                                            <h6 class="guest-selector-count mb-0 adults">1</h6>
-                                            <button type="button" class="btn btn-link adult-add p-0 mb-0"><i
-                                                    class="bi bi-plus-circle fs-5 fa-fw"></i></button>
-                                        </div>
-                                    </li>
+										<div class="hstack gap-1 align-items-center">
+											<button type="button"
+													class="btn btn-link adult-remove p-0 mb-0"><i
+													class="bi bi-dash-circle fs-5 fa-fw"></i></button>
+											<h6 class="guest-selector-count mb-0 adults" th:text="${adults}"></h6>
+											<button type="button" class="btn btn-link adult-add p-0 mb-0"><i
+													class="bi bi-plus-circle fs-5 fa-fw"></i></button>
+										</div>
+									</li>
 
-                                    <!-- Divider -->
-                                    <li class="dropdown-divider"></li>
+									<!-- Divider -->
+									<li class="dropdown-divider"></li>
 
-                                    <!-- Child -->
-                                    <li class="d-flex justify-content-between">
-                                        <div>
-                                            <h6 class="mb-0">Trẻ em </h6>
-                                            <small>0-17 tuổi</small>
-                                        </div>
+									<!-- Child -->
+									<li class="d-flex justify-content-between">
+										<div>
+											<h6 class="mb-0">Trẻ em </h6>
+											<small>0-17 tuổi</small>
+										</div>
 
-                                        <div class="hstack gap-1 align-items-center">
-                                            <button type="button"
-                                                    class="btn btn-link child-remove p-0 mb-0"><i
-                                                    class="bi bi-dash-circle fs-5 fa-fw"></i></button>
-                                            <h6 class="guest-selector-count mb-0 child">0</h6>
-                                            <button type="button" class="btn btn-link child-add p-0 mb-0"><i
-                                                    class="bi bi-plus-circle fs-5 fa-fw"></i></button>
-                                        </div>
-                                    </li>
+										<div class="hstack gap-1 align-items-center">
+											<button type="button"
+													class="btn btn-link child-remove p-0 mb-0"><i
+													class="bi bi-dash-circle fs-5 fa-fw"></i></button>
+											<h6 class="guest-selector-count mb-0 child" th:text="${children}"></h6>
+											<button type="button" class="btn btn-link child-add p-0 mb-0"><i
+													class="bi bi-plus-circle fs-5 fa-fw"></i></button>
+										</div>
+									</li>
 
-                                    <!-- Divider -->
-                                    <li class="dropdown-divider"></li>
+									<!-- Divider -->
+									<li class="dropdown-divider"></li>
 
-                                    <!-- Rooms -->
-                                    <li class="d-flex justify-content-between">
-                                        <div>
-                                            <h6 class="mb-0">Phòng </h6>
-                                            <!-- <small>Tối đa 8 phòng</small> -->
-                                        </div>
+									<!-- Rooms -->
+									<li class="d-flex justify-content-between">
+										<div>
+											<h6 class="mb-0">Phòng </h6>
+											<!-- <small>Tối đa 8 phòng</small> -->
+										</div>
 
-                                        <div class="hstack gap-1 align-items-center">
-                                            <button type="button" class="btn btn-link room-remove p-0 mb-0">
-                                                <i class="bi bi-dash-circle fs-5 fa-fw"></i></button>
-                                            <h6 class="guest-selector-count mb-0 rooms">1</h6>
-                                            <button type="button" class="btn btn-link room-add p-0 mb-0"><i
-                                                    class="bi bi-plus-circle fs-5 fa-fw"></i></button>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+										<div class="hstack gap-1 align-items-center">
+											<button type="button" class="btn btn-link room-remove p-0 mb-0">
+												<i class="bi bi-dash-circle fs-5 fa-fw"></i></button>
+											<h6 class="guest-selector-count mb-0 rooms" th:text="${roomQuantity}"></h6>
+											<button type="button" class="btn btn-link room-add p-0 mb-0"><i
+													class="bi bi-plus-circle fs-5 fa-fw"></i></button>
+										</div>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 
-            <!--                        hidden field for adults, children, and rooms-->
+			<!--                        hidden field for adults, children, and rooms-->
 
-            <input type="hidden" name="adults" id="adultsInput" value="1">
-            <input type="hidden" name="children" id="childrenInput" value="0">
-            <input type="hidden" name="rooms" id="roomsInput" value="1">
-
+			<input type="hidden" name="adults" id="adultsInput" th:value="${adults}">
+			<input type="hidden" name="children" id="childrenInput" th:value="${children}">
+			<input type="hidden" name="rooms" id="roomsInput" th:value="${roomQuantity}">
 
             <!-- Button -->
             <div class="btn-position-md-middle">
@@ -299,9 +298,9 @@ Main Title START -->
 					<ul class="list-inline text-end">
 						<!-- Heart icon -->
 						<li class="list-inline-item">
-							<form th:action="@{/add-favorite(hotelId=${hotel.hotelId})}" method="post" style="display: inline;">
+							<form th:action="${(favorite ? 'remove-favorite' : '/add-favorite') + '?hotelId=' + hotel.hotelId + '&detail=true' + redirect}" method="post" style="display: inline;">
 								<button type="submit" class="btn btn-sm btn-light px-2">
-									<i class="fa-solid fa-fw fa-heart"></i>
+									<i th:class="'fa-solid fa-fw fa-heart' + ${favorite ? ' text-danger' : ''}"></i>
 								</button>
 							</form>
 						</li>
@@ -314,9 +313,9 @@ Main Title START -->
 							</a>
 							<!-- dropdown button -->
 							<ul class="dropdown-menu dropdown-menu-end min-w-auto shadow rounded" aria-labelledby="dropdownShare">
-								<li><a class="dropdown-item" href="#"><i class="fab fa-twitter-square me-2"></i>Twitter</a></li>
-								<li><a class="dropdown-item" href="#"><i class="fab fa-facebook-square me-2"></i>Facebook</a></li>
-								<li><a class="dropdown-item" href="#"><i class="fa-solid fa-copy me-2"></i>Copy link</a></li>
+								<li><a class="dropdown-item" th:href="'https://www.facebook.com/sharer/sharer.php?u=localhost:8386/hotel-detail?hotelId=' + ${hotel.hotelId}" target="_blank"><i class="fab fa-facebook-square me-2"></i>Facebook</a></li>
+								<li><a class="dropdown-item" th:href="'https://twitter.com/intent/tweet?url=localhost:8386/hotel-detail?hotelId=' + ${hotel.hotelId}" target="_blank"><i class="fab fa-twitter-square me-2"></i>Twitter</a></li>
+								<li><a class="dropdown-item" th:href="'hotel-detail?hotelId=' + ${hotel.hotelId}" onclick="event.preventDefault();navigator.clipboard.writeText(this.href)"><i class="fa-solid fa-copy me-2"></i>Copy link</a></li>
 							</ul>
 						</li>
 					</ul>
@@ -465,7 +464,7 @@ About hotel START -->
 							<div class="vstack gap-4">
 
 								<!-- Room item START -->
-								<div class="card shadow p-3" th:each="room: ${rooms}" th:if="${room.quantity > 0}">
+								<div class="card shadow p-3" th:each="room: ${rooms}">
 									<div class="row g-4">
 										<!-- Card img -->
 										<div class="col-md-5 position-relative d-flex flex-column justify-content-center">
@@ -498,7 +497,7 @@ About hotel START -->
 												</div>                 
 
 												<!-- Price and Button -->
-												<div class="d-sm-flex justify-content-sm-between align-items-center mt-auto">
+												<div class="d-sm-flex justify-content-sm-between align-items-center mt-2">
 													<!-- Button -->
 													<div class="d-flex align-items-center">
 														<h5 class="fw-bold mb-0 me-1" th:text="${#numbers.formatDecimal(room.price, 0, 'COMMA', 0, 'POINT')} + '₫'"></h5>
@@ -686,7 +685,7 @@ About hotel START -->
 						<!-- Title -->
 						<div class="d-sm-flex justify-content-sm-between align-items-center mb-3">
 							<div>
-								<span>Giá bắt đầu từ</span>
+								<span>Giá chỉ từ</span>
 								<h4 class="card-title mb-0" th:text="${#numbers.formatDecimal(hotel.minPrice, 0, 'COMMA', 0, 'POINT')} + '₫'"></h4>
 							</div>
 						</div>		
@@ -854,7 +853,7 @@ Footer END -->
 	function initMap() {
 	map = new google.maps.Map(document.getElementById('map'), {
 		center: {lat: lat, lng: lng},
-		zoom: 20
+		zoom: 18
 	});
 	}
 </script>

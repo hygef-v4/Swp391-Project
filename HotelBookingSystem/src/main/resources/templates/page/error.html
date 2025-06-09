@@ -96,19 +96,10 @@
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-md-10 text-center mx-auto">
-                    <!-- Hình ảnh -->
                     <img th:src="@{/assets/images/element/error.svg}" class="h-lg-500px mb-4" alt="Lỗi 404">
-
-                    <!-- Mã lỗi -->
-                    <h1 class="display-1 text-primary mb-0">404</h1>
-
-                    <!-- Tiêu đề -->
+                    <h1 th:text="${status}" class="display-1 text-primary mb-0">404</h1>
                     <h2>Rất tiếc, đã xảy ra sự cố!</h2>
-
-                    <!-- Mô tả -->
                     <p class="mb-4">Trang bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.</p>
-
-                    <!-- Nút về trang chủ -->
                     <a th:href="@{/}" class="btn btn-light mb-0">Về trang chủ</a>
                 </div>
             </div>

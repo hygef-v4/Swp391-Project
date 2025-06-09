@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.swp391.hotelbookingsystem.model.Hotel;
 import org.swp391.hotelbookingsystem.repository.HotelRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -26,8 +27,8 @@ public class HotelService {
         return hotelRepository.getTop8HighRatedHotels();
     }
 
-    public List<Hotel> getHotelsByLocation(int id, int maxGuests, int roomQuantity, String search) {
-        return hotelRepository.getHotelsByLocation(id, maxGuests, roomQuantity, search);
+    public List<Hotel> getHotelsByLocation(int id, int maxGuests, int roomQuantity, String name, int min, int max) {
+        return hotelRepository.getHotelsByLocation(id, maxGuests, roomQuantity, name, min, max);
     }
 
     public Hotel saveHotel(Hotel hotel) {
@@ -57,4 +58,23 @@ public class HotelService {
     public void deleteById(int hotelId) {
         hotelRepository.deleteHotelById(hotelId);
     }
+
+    public boolean isFavoriteHotel(int userId, int hotelId) {
+        return hotelRepository.isFavoriteHotel(userId, hotelId) != 0;
+    }
+    
+    public void insertHotelDeletionToken(int userId, String token, LocalDateTime expiry, String tokenType) {
+        hotelRepository.insertHotelDeletionToken(userId, token, expiry, tokenType);
+    }
+
+    public String getHotelDeleteTokenType(String token, int userId) {
+        return hotelRepository.findValidTokenType(token, userId);
+    }
+
+
+
+    public void cancelHotelDeleteToken(int userId, int hotelId) {
+        hotelRepository.cancelHotelDeleteToken(userId, hotelId);
+    }
+
 }

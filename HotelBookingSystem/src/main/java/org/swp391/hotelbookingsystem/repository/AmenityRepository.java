@@ -49,6 +49,7 @@ public class AmenityRepository {
             c.name AS category_name
         FROM Amenities a
         JOIN AmenityCategories c ON a.category_id = c.category_id
+        ORDER BY c.category_id
     """;
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
@@ -78,6 +79,7 @@ public class AmenityRepository {
             JOIN AmenityCategories c ON a.category_id = c.category_id
             JOIN RoomAmenities ar on a.amenity_id = ar.amenity_id
             WHERE ar.room_id = ?
+            ORDER BY c.category_id
         """;
 
         return jdbcTemplate.query(sql, ps -> ps.setInt(1, roomId), (rs, rowNum) -> {
