@@ -67,6 +67,7 @@ public class HotelRepository {
             GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
                      h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude,
                      l.city_name
+            ORDER BY h.hotel_id ASC
             """;
 
 
