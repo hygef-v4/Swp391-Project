@@ -5,7 +5,6 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.swp391.hotelbookingsystem.model.Hotel;
-import org.swp391.hotelbookingsystem.model.Location;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -269,6 +268,14 @@ public class HotelRepository {
         jdbcTemplate.update(sql, hotelId);
     }
 
+    public Integer isFavoriteHotel(int userId, int hotelId) {
+        String sql = """
+                SELECT COUNT(*) FROM Favorites
+                WHERE user_id = ? AND hotel_id = ?
+                """;
+        return jdbcTemplate.queryForObject(sql, Integer.class, userId, hotelId);
+    }
+
     public void insertHotelDeletionToken(int userId, String token, LocalDateTime expiry, String tokenType) {
         String sql = "INSERT INTO Tokens (user_id, token, expiry_date, token_type) VALUES (?, ?, ?, ?)";
         jdbcTemplate.update(sql, userId, token, Timestamp.valueOf(expiry), tokenType);
@@ -279,10 +286,10 @@ public class HotelRepository {
         return jdbcTemplate.queryForObject(sql, String.class, token, userId);
     }
 
-    public void deleteToken(String token, int userId) {
-        String sql = "DELETE FROM Tokens WHERE token = ? AND user_id = ?";
-        jdbcTemplate.update(sql, token, userId);
-    }
 
+    public void cancelHotelDeleteToken(int userId, int hotelId) {
+        String sql = "DELETE FROM Tokens WHERE user_id = ? AND token LIKE ?";
+        jdbcTemplate.update(sql, userId, "%:" + hotelId);
+    }
 
 }

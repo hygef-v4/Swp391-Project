@@ -59,6 +59,10 @@ public class HotelService {
         hotelRepository.deleteHotelById(hotelId);
     }
 
+    public boolean isFavoriteHotel(int userId, int hotelId) {
+        return hotelRepository.isFavoriteHotel(userId, hotelId) != 0;
+    }
+    
     public void insertHotelDeletionToken(int userId, String token, LocalDateTime expiry, String tokenType) {
         hotelRepository.insertHotelDeletionToken(userId, token, expiry, tokenType);
     }
@@ -67,7 +71,10 @@ public class HotelService {
         return hotelRepository.findValidTokenType(token, userId);
     }
 
-    public void deleteHotelDeleteToken(String token, int userId) {
-        hotelRepository.deleteToken(token, userId);
+
+
+    public void cancelHotelDeleteToken(int userId, int hotelId) {
+        hotelRepository.cancelHotelDeleteToken(userId, hotelId);
     }
+
 }

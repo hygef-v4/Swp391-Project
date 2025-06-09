@@ -46,20 +46,19 @@ public class EmailService {
     }
 
     public void sendHotelDeleteConfirmationEmail(String toEmail, String hotelName, String otp) throws MessagingException {
-        Context context = new Context();
+        Context context = new Context();     //Context holds all the dynamic variables you want to inject into the HTML template.
         context.setVariable("hotelName", hotelName);
         context.setVariable("otp", otp);
 
-        String htmlContent = templateEngine.process("email/confirm-hotel-delete", context);
+        String htmlContent = templateEngine.process("email/confirm-hotel-delete", context);  // Inject the variables from context into the HTML template and return the final HTML string
 
-        MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+        MimeMessage message = mailSender.createMimeMessage();  // Creates email object
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);   // Helps build a multipart (HTML-capable) email
         helper.setTo(toEmail);
         helper.setSubject("Xác nhận xóa khách sạn: " + hotelName);
-        helper.setText(htmlContent, true);
-        helper.setFrom("your_email@gmail.com");
+        helper.setText(htmlContent, true);  // Sets the email body as HTML
 
-        mailSender.send(message);
+        mailSender.send(message); // Opens a connection to Gmail SMTP at smtp.gmail.com:587
     }
 
 }

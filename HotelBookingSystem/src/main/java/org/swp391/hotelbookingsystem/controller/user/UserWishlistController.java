@@ -55,7 +55,16 @@ public class UserWishlistController {
     }
 
     @PostMapping("/remove-favorite")
-    public String removeFavorite(@RequestParam("hotelId") int hotelId, HttpSession session, RedirectAttributes redirectAttributes) {
+    public String removeFavorite(
+        @RequestParam("hotelId") int hotelId, 
+        @RequestParam(value = "detail", defaultValue = "false") boolean detail,
+
+        @RequestParam(value = "adults", defaultValue = "1") int adults,
+        @RequestParam(value = "children", defaultValue = "0") int children,
+        @RequestParam(value = "rooms", defaultValue = "1") int rooms,
+        
+        HttpSession session, RedirectAttributes redirectAttributes
+    ) {
         // Lấy thông tin người dùng từ session
         User sessionUser = (User) session.getAttribute("user");
 
@@ -75,11 +84,27 @@ public class UserWishlistController {
         }
 
         // Chuyển hướng về trang danh sách yêu thích
-        return "redirect:/user-wishlist";
+        if(detail){
+            String redirect = "";
+            if(adults != 1) redirect += "&adults=" + adults;
+            if(children != 0) redirect += "&children=" + children;
+            if(rooms != 1) redirect += "&rooms=" + rooms;
+
+            return "redirect:/hotel-detail?hotelId=" + hotelId + redirect;
+        }return "redirect:/user-wishlist";
     }
 
     @PostMapping("/add-favorite")
-    public String addFavorite(@RequestParam("hotelId") int hotelId, HttpSession session, RedirectAttributes redirectAttributes) {
+    public String addFavorite(
+        @RequestParam("hotelId") int hotelId, 
+        @RequestParam(value = "detail", defaultValue = "false") boolean detail,
+
+        @RequestParam(value = "adults", defaultValue = "1") int adults,
+        @RequestParam(value = "children", defaultValue = "0") int children,
+        @RequestParam(value = "rooms", defaultValue = "1") int rooms,
+        
+        HttpSession session, RedirectAttributes redirectAttributes
+    ) {
         // Lấy thông tin người dùng từ session
         User sessionUser = (User) session.getAttribute("user");
 
@@ -97,7 +122,14 @@ public class UserWishlistController {
         }
 
         // Chuyển hướng về trang chi tiết khách sạn
-        return "redirect:/hotel-detail?hotelId=" + hotelId;
+        if(detail){
+            String redirect = "";
+            if(adults != 1) redirect += "&adults=" + adults;
+            if(children != 0) redirect += "&children=" + children;
+            if(rooms != 1) redirect += "&rooms=" + rooms;
+
+            return "redirect:/hotel-detail?hotelId=" + hotelId + redirect;
+        }return "redirect:/user-wishlist";
     }
 
 }

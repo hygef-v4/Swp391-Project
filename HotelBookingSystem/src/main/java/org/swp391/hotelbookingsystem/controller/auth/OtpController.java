@@ -57,6 +57,8 @@ public class OtpController {
             return "page/verify-email-otp";
         }
 
+        userService.deleteEmailOtp(user.getEmail());
+
         String otp = String.valueOf((int) (Math.random() * 900000) + 100000);
         emailService.sendOtpEmail(user.getEmail(), otp);
         userService.saveEmailOtpToken(user.getEmail(), otp);

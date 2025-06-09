@@ -121,6 +121,21 @@ public class HostHotelController {
         return "host/host-add-room";
     }
 
+    @GetMapping("/manage-hotel")
+    public String showManageHotelPage(@RequestParam("hotelId") int hotelId, Model model, HttpSession session) {
+        User host = (User) session.getAttribute("user");
+        if (host == null || !host.getRole().equalsIgnoreCase("HOTEL_OWNER")) {
+            return "redirect:/login";
+        }
+
+        Hotel hotel = hotelService.getHotelById(hotelId);
+        if (hotel == null || hotel.getHostId() != host.getId()) {
+            return "redirect:/host-listing";
+        }
+
+        return "host/host-manage-hotel";
+    }
+
 
     @PostMapping("/add-room")
     public String handleAddRoom(
@@ -171,4 +186,6 @@ public class HostHotelController {
             return "host/host-add-room"; // fallback to the same page on error
         }
     }
+
+
 }
