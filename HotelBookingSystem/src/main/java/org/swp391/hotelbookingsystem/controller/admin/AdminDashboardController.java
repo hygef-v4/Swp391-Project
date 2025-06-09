@@ -56,7 +56,7 @@ public class AdminDashboardController {
         List<User> getTop5UsersWithProfile = userService.getTop5Users();
         model.addAttribute("userList", getTop5UsersWithProfile);
 
-        List<Hotel> popularHotels = hotelService.getTop8HighRatedHotels();
+        List<Hotel> popularHotels = hotelService.getTop4PopularHotels();
         model.addAttribute("popularHotels", popularHotels);
 
         List<Review> recentReviews = reviewService.getRecentPublicReviews();
