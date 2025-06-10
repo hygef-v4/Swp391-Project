@@ -160,6 +160,8 @@
 
                             <!-- Quản trị viên -->
                             <li><a class="dropdown-item" th:if="${session.user != null and session.user.role.equals('ADMIN')}" th:href="@{/admin-dashboard}">Quản trị viên</a></li>
+                            <!-- Quản lý -->
+                            <li><a class="dropdown-item" th:if="${session.user != null and session.user.role.equals('MODERATOR')}" th:href="@{/moderator-dashboard}">Quản lý</a></li>
 
                         </ul>
                     </li>

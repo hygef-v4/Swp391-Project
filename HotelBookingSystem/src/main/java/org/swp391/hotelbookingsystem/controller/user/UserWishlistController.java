@@ -91,7 +91,8 @@ public class UserWishlistController {
             if(rooms != 1) redirect += "&rooms=" + rooms;
 
             return "redirect:/hotel-detail?hotelId=" + hotelId + redirect;
-        }return "redirect:/user-wishlist";
+        }
+        return "redirect:/user-wishlist";
     }
 
     @PostMapping("/add-favorite")
@@ -129,7 +130,8 @@ public class UserWishlistController {
             if(rooms != 1) redirect += "&rooms=" + rooms;
 
             return "redirect:/hotel-detail?hotelId=" + hotelId + redirect;
-        }return "redirect:/user-wishlist";
+        }
+        return "redirect:/user-wishlist";
     }
 
 }
