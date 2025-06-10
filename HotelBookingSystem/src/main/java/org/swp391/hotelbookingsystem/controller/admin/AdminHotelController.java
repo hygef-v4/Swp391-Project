@@ -51,7 +51,7 @@ public class AdminHotelController {
             filteredHotels = hotelService.getAllHotels();
         }
 
-        int pageSize = 10;
+        int pageSize = 12;
         int totalHotels = filteredHotels.size();
         int startIndex = (page - 1) * pageSize;
         int endIndex = Math.min(startIndex + pageSize, totalHotels);
