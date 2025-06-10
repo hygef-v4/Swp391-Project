@@ -36,7 +36,20 @@ public class BookingService {
         return bookingRepo.getImagesByBookingId(bookingId);
     }
 
+    public String getHotelNameByBookingId(int bookingId) {
+        return bookingRepo.getHotelNameByBookingId(bookingId);
+    }
+
     public void updateStatus(Booking booking, String status) {
         bookingRepo.updateStatus(booking.getBookingId(), status);
     }
+
+    public List<Booking> getAllBookings() {
+        return bookingRepo.findAll();
+    }
+
+    public List<Booking> searchBookings(String keyword) {
+        return bookingRepo.searchByKeyword(keyword);
+    }
+
 }

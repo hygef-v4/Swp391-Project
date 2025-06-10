@@ -88,4 +88,19 @@ public class BookingRepo {
         return jdbcTemplate.queryForObject(sql, String.class, bookingId);
     }
 
+    public String getHotelNameByBookingId(int bookingId) {
+        String sql = "SELECT h.hotel_name AS hotel_name " +
+                "FROM Bookings b " +
+                "JOIN Rooms r ON b.room_id = r.room_id " +
+                "JOIN Hotels h ON r.hotel_id = h.hotel_id " +
+                "WHERE b.booking_id = ?";
+        return jdbcTemplate.queryForObject(sql, String.class, bookingId);
+    }
+
+
+    public List<Booking> searchByKeyword(String keyword) {
+        String sql = "SELECT * FROM Bookings WHERE Bookings.check_in LIKE ? OR Bookings.customer_id LIKE ? OR Bookings.status LIKE ?";
+        String q = "%" + keyword + "%";
+        return jdbcTemplate.query(sql, new Object[]{q, q, q}, new BeanPropertyRowMapper<>(Booking.class));
+    }
 }

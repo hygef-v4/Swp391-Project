@@ -20,4 +20,6 @@ public class Booking {
     private String status;
     private LocalDateTime createdAt;
     private String imageUrl;
+    private String roomName;
+    private String hotelName;
 }

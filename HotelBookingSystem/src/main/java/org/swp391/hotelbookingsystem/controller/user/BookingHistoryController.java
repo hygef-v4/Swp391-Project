@@ -65,8 +65,7 @@ public class BookingHistoryController {
         booking.setImageUrl(image);
         model.addAttribute("booking", booking);
         boolean isCancelable = false;
-        if ("approved".equalsIgnoreCase(booking.getStatus()) &&
-                booking.getCheckIn().isAfter(LocalDate.now().atStartOfDay())) {
+        if ("approved".equalsIgnoreCase(booking.getStatus()) && booking.getCheckIn().isAfter(LocalDate.now().atStartOfDay())) {
             isCancelable = true;
         }
         model.addAttribute("isCancelable", isCancelable);
@@ -82,8 +81,7 @@ public class BookingHistoryController {
 
         Booking booking = bookingService.findById(bookingId);
         if (booking != null && booking.getCustomerId() == user.getId()) {
-            if ("approved".equalsIgnoreCase(booking.getStatus()) &&
-                    booking.getCheckIn().isAfter(LocalDate.now().atStartOfDay())) {
+            if ("approved".equalsIgnoreCase(booking.getStatus()) && booking.getCheckIn().isAfter(LocalDate.now().atStartOfDay())) {
                 bookingService.updateStatus(booking, "cancelled");
             }
         }
