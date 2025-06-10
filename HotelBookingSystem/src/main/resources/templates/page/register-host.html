@@ -667,14 +667,15 @@
                                         <h5 class="mb-0">Hình Ảnh Loại Phòng</h5>
                                     </div>
                                     <div class="card-body">
-                                        <label class="form-label">Tải lên hình ảnh cho loại phòng này (ít nhất 3 ảnh)
+                                        <label class="form-label">Tải lên hình ảnh cho loại phòng này (từ 3 đến 5 ảnh)
                                             *</label>
                                         <div class="dropzone dropzone-custom"
-                                             data-dropzone='{"maxFiles": 10, "addRemoveLinks": true, "acceptedFiles": "image/*"}'
+                                             data-dropzone='{"maxFiles": 5, "addRemoveLinks": true, "acceptedFiles": "image/*"}'
                                              id="roomImages">
                                             <div class="dz-message needsclick">
                                                 <i class="bi bi-images display-3"></i>
                                                 <p>Kéo thả tệp vào đây hoặc nhấp để tải lên.</p>
+                                                <p><small class="text-muted">Tối thiểu 3 ảnh, tối đa 5 ảnh</small></p>
                                             </div>
                                         </div>
                                         <div class="mt-3">
@@ -682,7 +683,7 @@
                                                 của bạn</label>
                                             <input class="form-control" type="file" id="roomImageUpload"
                                                    name="roomImageFiles" accept="image/*" multiple>
-                                            <small>Chọn nhiều ảnh JPG/PNG từ thiết bị của bạn.</small>
+                                            <small>Chọn từ 3-5 ảnh JPG/PNG từ thiết bị của bạn.</small>
                                             <div id="roomImagePreviewContainer"
                                                  class="mt-3 d-flex flex-wrap gap-2"></div>
                                         </div>
@@ -1177,19 +1178,30 @@ updateInputFiles() - Syncs file list with actual form input for submission-->
             // Check room images - multiple methods: file input, preview containers, global counter
             const roomImageInput = document.getElementById('roomImageUpload');
             const roomImagePreviews = document.querySelectorAll('#roomImagePreviewContainer img');
+            const maxRoomImages = 5;
+            const minRoomImages = 3;
 
             let roomImagesValid = false;
+            let roomImagesCount = 0;
+            let roomImagesErrorMessage = '';
 
-            // Check file input (traditional upload)
-            if (roomImageInput && roomImageInput.files.length >= 3) {
-                roomImagesValid = true;
+            // Get the actual count from different sources
+            if (roomImageInput && roomImageInput.files.length > 0) {
+                roomImagesCount = roomImageInput.files.length;
+            } else if (roomImagePreviews.length > 0) {
+                roomImagesCount = roomImagePreviews.length;
+            } else if (window.roomImagesCount > 0) {
+                roomImagesCount = window.roomImagesCount;
             }
-            // Check preview container for images (drag-and-drop or any upload)
-            else if (roomImagePreviews.length >= 3) {
-                roomImagesValid = true;
-            }
-            // Check global counter (set by drag-and-drop handlers)
-            else if (window.roomImagesCount >= 3) {
+
+            // Validate room images count
+            if (roomImagesCount < minRoomImages) {
+                roomImagesErrorMessage = `Vui lòng tải lên ít nhất ${minRoomImages} ảnh phòng (hiện tại: ${roomImagesCount}/${maxRoomImages})`;
+                roomImagesValid = false;
+            } else if (roomImagesCount > maxRoomImages) {
+                roomImagesErrorMessage = `Số lượng ảnh vượt quá giới hạn. Tối đa ${maxRoomImages} ảnh (hiện tại: ${roomImagesCount}/${maxRoomImages})`;
+                roomImagesValid = false;
+            } else {
                 roomImagesValid = true;
             }
 
@@ -1207,10 +1219,21 @@ updateInputFiles() - Syncs file list with actual form input for submission-->
                 fileInputCount: roomImageInput ? roomImageInput.files.length : 0,
                 previewCount: roomImagePreviews.length,
                 globalCount: window.roomImagesCount,
+                actualCount: roomImagesCount,
+                minRequired: minRoomImages,
+                maxAllowed: maxRoomImages,
+                errorMessage: roomImagesErrorMessage,
                 finalResult: roomImagesValid
             });
 
-            return { hotelImageValid, roomImagesValid };
+            return { 
+                hotelImageValid, 
+                roomImagesValid, 
+                roomImagesCount, 
+                roomImagesErrorMessage,
+                maxRoomImages,
+                minRoomImages
+            };
         }
 
         // Notification System
@@ -1478,8 +1501,9 @@ updateInputFiles() - Syncs file list with actual form input for submission-->
                     return false;
                 }
             } else if (element.id === 'roomImageUpload') {
-                if (files.length < 3) {
-                    showFieldError(element, 'Vui lòng tải lên ít nhất 3 ảnh phòng');
+                const imageValidation = validateImageUploads();
+                if (!imageValidation.roomImagesValid) {
+                    showFieldError(element, imageValidation.roomImagesErrorMessage);
                     return false;
                 }
             }
@@ -1679,9 +1703,13 @@ updateInputFiles() - Syncs file list with actual form input for submission-->
                 }
 
                 if (!imageValidation.roomImagesValid) {
-                    emptyRequiredFields.push('Hình ảnh phòng (tối thiểu 3 ảnh)');
                     const roomImageInput = document.getElementById('roomImageUpload');
-                    showFieldError(roomImageInput, 'Vui lòng tải lên ít nhất 3 ảnh phòng');
+                    if (imageValidation.roomImagesCount < imageValidation.minRoomImages) {
+                        emptyRequiredFields.push(`Hình ảnh phòng (tối thiểu ${imageValidation.minRoomImages} ảnh)`);
+                    } else if (imageValidation.roomImagesCount > imageValidation.maxRoomImages) {
+                        invalidFields.push(`Hình ảnh phòng (vượt quá ${imageValidation.maxRoomImages} ảnh)`);
+                    }
+                    showFieldError(roomImageInput, imageValidation.roomImagesErrorMessage);
                     allFieldsValid = false;
                     if (!firstInvalidElement) firstInvalidElement = roomImageInput;
                 }
@@ -1931,9 +1959,13 @@ updateInputFiles() - Syncs file list with actual form input for submission-->
                 // Check room images
                 const imageValidation = validateImageUploads();
                 if (!imageValidation.roomImagesValid) {
-                    emptyFields.push('Hình ảnh phòng (tối thiểu 3 ảnh)');
                     const roomImageInput = document.getElementById('roomImageUpload');
-                    showFieldError(roomImageInput, 'Vui lòng tải lên ít nhất 3 ảnh phòng');
+                    if (imageValidation.roomImagesCount < imageValidation.minRoomImages) {
+                        emptyFields.push(`Hình ảnh phòng (tối thiểu ${imageValidation.minRoomImages} ảnh)`);
+                    } else if (imageValidation.roomImagesCount > imageValidation.maxRoomImages) {
+                        emptyFields.push(`Hình ảnh phòng (vượt quá ${imageValidation.maxRoomImages} ảnh)`);
+                    }
+                    showFieldError(roomImageInput, imageValidation.roomImagesErrorMessage);
                     isValid = false;
                     if (!firstInvalidElement) firstInvalidElement = roomImageInput;
                 }
@@ -2216,13 +2248,39 @@ updateInputFiles() - Syncs file list with actual form input for submission-->
 
     function addFiles(newFiles) {
         const validTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+        const maxImages = 5;
+        let validFilesToAdd = [];
+        
         newFiles.forEach(file => {
-            if (validTypes.includes(file.type)) {
-                fileList.push(file);
-            } else {
-                alert("Không chấp nhận file: " + file.name);
+            if (!validTypes.includes(file.type)) {
+                alert("Không chấp nhận file: " + file.name + ". Chỉ chấp nhận ảnh JPG, PNG, GIF hoặc WEBP.");
+                return;
+            }
+            
+            if (fileList.length + validFilesToAdd.length < maxImages) {
+                validFilesToAdd.push(file);
             }
         });
+        
+        // Check if we're trying to add too many files
+        if (fileList.length + validFilesToAdd.length > maxImages) {
+            const remainingSlots = maxImages - fileList.length;
+            if (remainingSlots > 0) {
+                validFilesToAdd = validFilesToAdd.slice(0, remainingSlots);
+                alert(`Chỉ có thể tải lên tối đa ${maxImages} ảnh. Đã thêm ${remainingSlots} ảnh đầu tiên.`);
+            } else {
+                alert(`Đã đạt giới hạn tối đa ${maxImages} ảnh. Vui lòng xóa bớt ảnh hiện tại trước khi thêm ảnh mới.`);
+                return;
+            }
+        }
+        
+        if (fileList.length + newFiles.length > maxImages) {
+            const totalAttempted = fileList.length + newFiles.length;
+            alert(`Không thể thêm tất cả ảnh. Bạn đang cố thêm ${newFiles.length} ảnh nhưng chỉ còn ${maxImages - fileList.length} vị trí trống (tối đa ${maxImages} ảnh).`);
+        }
+        
+        // Add valid files to the list
+        fileList.push(...validFilesToAdd);
 
         // Update global room images count
         roomImagesCount = fileList.length;
@@ -2230,6 +2288,18 @@ updateInputFiles() - Syncs file list with actual form input for submission-->
 
         renderPreviews();
         updateInputFiles();
+        
+        // Show success message if files were added
+        if (validFilesToAdd.length > 0) {
+            const successMsg = validFilesToAdd.length === 1 ? 
+                `Đã thêm 1 ảnh. Tổng cộng: ${fileList.length}/${maxImages} ảnh.` :
+                `Đã thêm ${validFilesToAdd.length} ảnh. Tổng cộng: ${fileList.length}/${maxImages} ảnh.`;
+            
+            // Show notification if the notification system is available
+            if (typeof showSuccessNotification === 'function') {
+                showSuccessNotification('Thêm ảnh thành công!', successMsg, 3000);
+            }
+        }
     }
 
     function renderPreviews() {
