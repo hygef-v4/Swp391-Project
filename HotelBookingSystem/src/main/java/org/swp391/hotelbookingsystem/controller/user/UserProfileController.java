@@ -35,7 +35,6 @@ public class UserProfileController {
             return "redirect:/login";
         }
 
-
         return "page/userProfile";
     }
 
