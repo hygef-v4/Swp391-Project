@@ -14,8 +14,11 @@ import java.util.*;
 @Controller
 public class AdminUserController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+
+    public AdminUserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping("/admin-user-list")
     public String getUserList(@RequestParam(value = "search", required = false) String search,

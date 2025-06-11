@@ -17,20 +17,28 @@ import java.util.*;
 @Controller
 public class AdminHotelController {
 
-    @Autowired
+    final
     HotelService hotelService;
 
-    @Autowired
+    final
     RoomService roomService;
 
-    @Autowired
+    final
     ReviewService reviewService;
 
-    @Autowired
+    final
     UserService userService;
 
-    @Autowired
+    final
     LocationService locationService;
+
+    public AdminHotelController(HotelService hotelService, RoomService roomService, ReviewService reviewService, UserService userService, LocationService locationService) {
+        this.hotelService = hotelService;
+        this.roomService = roomService;
+        this.reviewService = reviewService;
+        this.userService = userService;
+        this.locationService = locationService;
+    }
 
     @GetMapping("/admin-hotel-list")
     public String getHotelDashboard(@RequestParam(value = "search", required = false) String search,
