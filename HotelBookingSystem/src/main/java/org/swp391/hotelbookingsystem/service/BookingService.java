@@ -21,6 +21,8 @@ public class BookingService {
     // Đặt lại trạng thái
     public void updateStatus(Booking booking, String status) {
         bookingRepo.updateStatus(booking.getBookingId(), status);
+    }
+
     public List<Booking> getUpcomingBookings(int customerId) {
         return bookingRepo.findUpcomingBookings(customerId);
     }
@@ -98,6 +100,5 @@ public class BookingService {
     public List<BookingRepo.DailyStat> getCheckOutStats() {
         return bookingRepo.getCheckOutStats();
     }
-
 
 }
