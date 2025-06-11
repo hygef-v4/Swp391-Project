@@ -1,10 +1,214 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<!--<!DOCTYPE html>-->
+<!--<html xmlns:th="http://www.thymeleaf.org" lang="en">-->
+<!--<head>-->
+<!--    <title>Admin Booking List</title>-->
+<!--    <meta charset="utf-8">-->
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1">-->
+<!--    <link rel="stylesheet" th:href="@{/assets/css/style.css}">-->
+<!--    <link rel="stylesheet" th:href="@{/assets/vendor/bootstrap-icons/bootstrap-icons.css}">-->
+<!--    <script th:src="@{/assets/js/functions.js}"></script>-->
 
-</body>
-</html>
+<!--    &lt;!&ndash; Dark mode &ndash;&gt;-->
+<!--    <script>-->
+<!--        const storedTheme = localStorage.getItem('theme')-->
+
+<!--        const getPreferredTheme = () => {-->
+<!--            if (storedTheme) {-->
+<!--                return storedTheme-->
+<!--            }-->
+<!--            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'-->
+<!--        }-->
+
+<!--        const setTheme = function (theme) {-->
+<!--            if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {-->
+<!--                document.documentElement.setAttribute('data-bs-theme', 'dark')-->
+<!--            } else {-->
+<!--                document.documentElement.setAttribute('data-bs-theme', theme)-->
+<!--            }-->
+<!--        }-->
+
+<!--        setTheme(getPreferredTheme())-->
+
+<!--        window.addEventListener('DOMContentLoaded', () => {-->
+<!--            var el = document.querySelector('.theme-icon-active');-->
+<!--            if (el != 'undefined' && el != null) {-->
+<!--                const showActiveTheme = theme => {-->
+<!--                    const activeThemeIcon = document.querySelector('.theme-icon-active use')-->
+<!--                    const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)-->
+<!--                    const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')-->
+
+<!--                    document.querySelectorAll('[data-bs-theme-value]').forEach(element => {-->
+<!--                        element.classList.remove('active')-->
+<!--                    })-->
+
+<!--                    btnToActive.classList.add('active')-->
+<!--                    activeThemeIcon.setAttribute('href', svgOfActiveBtn)-->
+<!--                }-->
+
+<!--                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {-->
+<!--                    if (storedTheme !== 'light' || storedTheme !== 'dark') {-->
+<!--                        setTheme(getPreferredTheme())-->
+<!--                    }-->
+<!--                })-->
+
+<!--                showActiveTheme(getPreferredTheme())-->
+
+<!--                document.querySelectorAll('[data-bs-theme-value]')-->
+<!--                    .forEach(toggle => {-->
+<!--                        toggle.addEventListener('click', () => {-->
+<!--                            const theme = toggle.getAttribute('data-bs-theme-value')-->
+<!--                            localStorage.setItem('theme', theme)-->
+<!--                            setTheme(theme)-->
+<!--                            showActiveTheme(theme)-->
+<!--                        })-->
+<!--                    })-->
+
+<!--            }-->
+<!--        })-->
+
+<!--    </script>-->
+
+<!--    &lt;!&ndash; Favicon &ndash;&gt;-->
+<!--    <link rel="shortcut icon" th:href="@{assets/images/favicon.ico}">-->
+
+<!--    &lt;!&ndash; Google Font &ndash;&gt;-->
+<!--    <link rel="preconnect" href="https://fonts.googleapis.com/">-->
+<!--    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>-->
+<!--    <link rel="stylesheet"-->
+<!--          href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Poppins:wght@400;500;700&amp;display=swap">-->
+
+<!--    &lt;!&ndash; Plugins CSS &ndash;&gt;-->
+<!--    <link rel="stylesheet" type="text/css" th:href="@{assets/vendor/font-awesome/css/all.min.css}">-->
+<!--    <link rel="stylesheet" type="text/css" th:href="@{assets/vendor/bootstrap-icons/bootstrap-icons.css}">-->
+<!--    <link rel="stylesheet" type="text/css" th:href="@{assets/vendor/overlay-scrollbar/css/overlayscrollbars.min.css}">-->
+<!--    <link rel="stylesheet" type="text/css" th:href="@{assets/vendor/apexcharts/css/apexcharts.css}">-->
+
+<!--    &lt;!&ndash; Theme CSS &ndash;&gt;-->
+<!--    <link rel="stylesheet" type="text/css" th:href="@{assets/css/style.css}">-->
+
+<!--</head>-->
+
+<!--<body>-->
+
+<!--&lt;!&ndash; **************** MAIN CONTENT START **************** &ndash;&gt;-->
+<!--<main>-->
+
+<!--    &lt;!&ndash; Sidebar START &ndash;&gt;-->
+<!--    <div th:replace="~{common-admin/admin-sidebar :: admin_sidebar}"></div>-->
+<!--    &lt;!&ndash; Sidebar END &ndash;&gt;-->
+
+<!--    &lt;!&ndash; Page content START &ndash;&gt;-->
+<!--    <div class="page-content">-->
+
+<!--        &lt;!&ndash; Top bar START &ndash;&gt;-->
+<!--        <div th:replace="~{common-admin/admin-topbar :: admin_topbar}"></div>-->
+<!--        &lt;!&ndash; Top bar END &ndash;&gt;-->
+
+<!--        &lt;!&ndash; Title &ndash;&gt;-->
+<!--        <div class="container mt-4">-->
+<!--            <div class="d-flex justify-content-between align-items-center mb-4">-->
+<!--                <h1>Booking</h1>-->
+<!--                <a th:href="@{/admin/rooms/add}" class="btn btn-primary-soft">-->
+<!--                    <i class="bi bi-plus-lg"></i> Add New Room-->
+<!--                </a>-->
+<!--            </div>-->
+
+<!--            &lt;!&ndash; Counters &ndash;&gt;-->
+<!--            <div class="row g-4 mb-5">-->
+<!--                <div class="col-md-6 col-xxl-3" th:each="c : ${counters}">-->
+<!--                    <div class="card card-body shadow p-4">-->
+<!--                        <div class="d-flex justify-content-between mb-3">-->
+<!--                            <div>-->
+<!--                                <span th:text="${c.label}"></span>-->
+<!--                                <h3 class="mb-0 mt-2" th:text="${c.count}"></h3>-->
+<!--                            </div>-->
+<!--                            <div class="icon-lg rounded-circle flex-shrink-0 bg-opacity-10 mb-0"-->
+<!--                                 th:classappend=" 'bg-' + ${c.color} + ' text-' + ${c.color} ">-->
+<!--                                <i class="bi" th:classappend=" ' ' + ${c.icon} + ' fa-fw'"></i>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                        <span>-->
+<!--                            <span th:text="${c.todayLabel}" th:class="${'text-' + c.color}"></span> today-->
+<!--                        </span>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+
+<!--            &lt;!&ndash; Tabs + Search &ndash;&gt;-->
+<!--            <div class="row g-4 justify-content-between align-items-center">-->
+<!--                <div class="col-lg-5">-->
+<!--                    <ul class="nav nav-pills-shadow nav-responsive">-->
+<!--                        <li class="nav-item"><a class="nav-link" th:classappend="${status == null} ? 'active'" th:href="@{/admin/bookings}">All Status</a></li>-->
+<!--                        <li class="nav-item"><a class="nav-link" th:classappend="${status == 'available'} ? 'active'" th:href="@{/admin/bookings(status='available')}">Available</a></li>-->
+<!--                        <li class="nav-item"><a class="nav-link" th:classappend="${status == 'soldout'} ? 'active'" th:href="@{/admin/bookings(status='soldout')}">Sold Out</a></li>-->
+<!--                    </ul>-->
+<!--                </div>-->
+
+<!--                <div class="col-lg-6 col-xxl-5">-->
+<!--                    <form class="d-flex" method="get" th:action="@{/admin/bookings}">-->
+<!--                        <input name="keyword" type="text" class="form-control" placeholder="Search" th:value="${keyword}">-->
+<!--                        <button class="btn btn-outline-primary" type="submit">-->
+<!--                            <i class="fas fa-search"></i>-->
+<!--                        </button>-->
+<!--                    </form>-->
+<!--                </div>-->
+<!--            </div>-->
+
+<!--            &lt;!&ndash; Room List - Grid View &ndash;&gt;-->
+<!--            <div class="tab-content mt-5" id="myTabContent">-->
+<!--                <div class="tab-pane fade show active" id="grid-tab-pane">-->
+<!--                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xxl-5 g-4">-->
+<!--                        <div class="col" th:each="room : ${rooms}">-->
+<!--                            <div class="card shadow h-100">-->
+<!--                                <div class="position-relative">-->
+<!--                                    <img th:src="@{${room.imageUrl}}" class="card-img-top" alt="Room Image">-->
+<!--                                    <div class="card-img-overlay d-flex flex-column p-3">-->
+<!--                                        <div class="d-flex justify-content-between align-items-center">-->
+<!--                                            <div class="badge text-bg-dark">-->
+<!--                                                <i class="bi bi-star-fill text-warning"></i>-->
+<!--                                                <span th:text="${room.rating}"></span>-->
+<!--                                            </div>-->
+<!--                                            <div class="dropdown">-->
+<!--                                                <a class="btn btn-sm btn-round btn-light" data-bs-toggle="dropdown"><i class="bi bi-three-dots-vertical"></i></a>-->
+<!--                                                <ul class="dropdown-menu dropdown-menu-end">-->
+<!--                                                    <li><a class="dropdown-item" href="#">Report</a></li>-->
+<!--                                                    <li><a class="dropdown-item" href="#">Disable</a></li>-->
+<!--                                                </ul>-->
+<!--                                            </div>-->
+<!--                                        </div>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+
+<!--                                <div class="card-body px-3">-->
+<!--                                    <h5 class="card-title mb-1">-->
+<!--                                        <a th:href="@{'/admin/bookings/' + ${room.id}}" th:text="${room.name}"></a>-->
+<!--                                    </h5>-->
+<!--                                    <ul class="list-group list-group-borderless small mt-2 mb-0">-->
+<!--                                        <li class="list-group-item pb-0"><i class="fa-solid fa-building me-2"></i><span th:text="${room.floor}"></span></li>-->
+<!--                                        <li class="list-group-item pb-0"><i class="fa-solid fa-bed me-2"></i><span th:text="${room.bedType}"></span></li>-->
+<!--                                    </ul>-->
+<!--                                </div>-->
+
+<!--                                <div class="card-footer pt-0">-->
+<!--                                    <div class="hstack gap-2 mb-2">-->
+<!--                                        <h6 class="fw-normal mb-0" th:text="'$' + ${room.price}"></h6>-->
+<!--                                        <small>/per person</small>-->
+<!--                                    </div>-->
+<!--                                    <a th:href="@{'/admin/bookings/' + ${room.id}}" class="btn btn-sm btn-primary-soft w-100">View detail</a>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+
+<!--                    &lt;!&ndash; Pagination &ndash;&gt;-->
+<!--                    <div class="d-flex justify-content-between align-items-center mt-4">-->
+<!--                        <p>Showing <span th:text="${page.start}"></span> to <span th:text="${page.end}"></span> of <span th:text="${page.total}"></span> entries</p>-->
+<!--                        <div th:replace="~{fragments/pagination :: pagination(page=${page})}"></div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</main>-->
+<!--</body>-->
+<!--</html>-->

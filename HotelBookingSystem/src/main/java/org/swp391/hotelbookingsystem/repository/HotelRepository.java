@@ -72,27 +72,31 @@ public class HotelRepository {
 
 
     private static final String SELECT_TOP_4_POPULAR_HOTELS = """
-            SELECT TOP 4
-                   h.hotel_id AS hotelId,
-                   h.host_id AS hostId,
-                   h.hotel_name AS hotelName,
-                   h.address,
-                   h.description,
-                   h.location_id AS locationId,
-                   h.hotel_image_url AS hotelImageUrl,
-                   h.rating,
-                   h.latitude,
-                   h.longitude,
-                   COUNT(b.booking_id) AS total_bookings,
-                   MIN(r.price) AS min_price
-            FROM Hotels h
-            JOIN Rooms r ON h.hotel_id = r.hotel_id
-            JOIN Bookings b ON r.room_id = b.room_id
-            JOIN Locations l ON h.location_id = l.location_id
-            GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
-                     h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude
-            ORDER BY COUNT(b.booking_id) DESC
+                SELECT TOP 4
+                       h.hotel_id AS hotelId,
+                       h.host_id AS hostId,
+                       h.hotel_name AS hotelName,
+                       h.address,
+                       h.description,
+                       h.location_id AS locationId,
+                       h.hotel_image_url AS hotelImageUrl,
+                       h.rating,
+                       h.latitude,
+                       h.longitude,
+                       COUNT(b.booking_id) AS total_bookings,
+                       MIN(r.price) AS min_price,
+                       h.status,
+                       l.city_name AS cityName
+                FROM Hotels h
+                JOIN Rooms r ON h.hotel_id = r.hotel_id
+                JOIN Locations l ON h.location_id = l.location_id
+                JOIN Bookings b ON r.room_id = b.room_id
+                WHERE b.status = 'approved'
+                GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
+                         h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude, h.status, l.city_name
+                ORDER BY COUNT(b.booking_id) DESC
             """;
+
 
 
     // Methods
@@ -141,6 +145,7 @@ public class HotelRepository {
                              h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude,
                              l.city_name
                     HAVING SUM(r.max_guests) >= ? AND SUM(r.quantity) >= ? AND MIN(r.price) >= ? AND MIN(r.price) <= ? 
+                    ORDER BY h.rating DESC
                 """;
         return jdbcTemplate.query(query, ps -> {
             ps.setInt(1, locationId);
