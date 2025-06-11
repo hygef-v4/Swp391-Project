@@ -32,21 +32,6 @@ public class BookingHistoryController {
         List<Booking> completedBookings = bookingService.getCompletedBookings(customerId);
         List<Booking> cancelledBookings = bookingService.getCancelledBookings(customerId);
 
-        for (Booking booking : upcomingBookings) {
-            String image = bookingService.getImageByBookingId(booking.getBookingId());
-            booking.setImageUrl(image);
-        }
-
-        for (Booking booking : completedBookings) {
-            String image = bookingService.getImageByBookingId(booking.getBookingId());
-            booking.setImageUrl(image);
-        }
-
-        for (Booking booking : cancelledBookings) {
-            String image = bookingService.getImageByBookingId(booking.getBookingId());
-            booking.setImageUrl(image);
-        }
-
         model.addAttribute("upcomingBookings", upcomingBookings);
         model.addAttribute("completedBookings", completedBookings);
         model.addAttribute("cancelledBookings", cancelledBookings);
@@ -64,6 +49,10 @@ public class BookingHistoryController {
         String image = bookingService.getImageByBookingId(booking.getBookingId());
         booking.setImageUrl(image);
         model.addAttribute("booking", booking);
+        String hotelName = bookingService.getHotelNameByBookingId(booking.getBookingId());
+        booking.setHotelName(hotelName);
+        String roomName = bookingService.getRoomNameByBookingId(booking.getBookingId());
+        booking.setRoomName(roomName);
         boolean isCancelable = false;
         if ("approved".equalsIgnoreCase(booking.getStatus()) && booking.getCheckIn().isAfter(LocalDate.now().atStartOfDay())) {
             isCancelable = true;

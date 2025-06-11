@@ -1,8 +1,6 @@
 package org.swp391.hotelbookingsystem.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.swp391.hotelbookingsystem.model.Booking;
 import org.swp391.hotelbookingsystem.repository.BookingRepo;
@@ -15,23 +13,22 @@ public class BookingService {
     @Autowired
     private BookingRepo bookingRepo;
 
+    // Hủy đơn đặt phòng
     public void cancelBooking(int id) {
         bookingRepo.updateStatus(id, "cancelled");
     }
 
-    public List<Booking> getUpcomingBookings(int customerId) {
-        return bookingRepo.findUpcomingBookings(customerId);
-    }
-    public List<Booking> getCompletedBookings(int customerId) {
-        return bookingRepo.findCompletedBookings(customerId);
-    }
-    public List<Booking> getCancelledBookings(int customerId) {
-        return bookingRepo.findCancelledBookings(customerId);
-    }
-    public Booking findById(int id) {
-        return bookingRepo.findById(id);
+    // Đặt lại trạng thái
+    public void updateStatus(Booking booking, String status) {
+        bookingRepo.updateStatus(booking.getBookingId(), status);
     }
 
+    // Cập nhật hoàn tiền
+    public void updateRefund(int bookingId, Double amount, String status) {
+        bookingRepo.updateRefund(bookingId, amount, status);
+    }
+
+    // Lấy ảnh và tên khách sạn
     public String getImageByBookingId(int bookingId) {
         return bookingRepo.getImagesByBookingId(bookingId);
     }
@@ -40,8 +37,9 @@ public class BookingService {
         return bookingRepo.getHotelNameByBookingId(bookingId);
     }
 
-    public void updateStatus(Booking booking, String status) {
-        bookingRepo.updateStatus(booking.getBookingId(), status);
+    // Lấy thông tin đặt phòng
+    public Booking findById(int id) {
+        return bookingRepo.findById(id);
     }
 
     public List<Booking> getAllBookings() {
@@ -52,4 +50,30 @@ public class BookingService {
         return bookingRepo.searchByKeyword(keyword);
     }
 
+    // Lấy theo loại lịch sử
+    public List<Booking> getUpcomingBookings(int customerId) {
+        return bookingRepo.findUpcomingBookings(customerId);
+    }
+
+    public List<Booking> getCompletedBookings(int customerId) {
+        return bookingRepo.findCompletedBookings(customerId);
+    }
+
+    public List<Booking> getCancelledBookings(int customerId) {
+        return bookingRepo.findCancelledBookings(customerId);
+    }
+
+    // Lấy các booking theo trạng thái refund
+    public List<Booking> getBookingsByRefundStatus(String status) {
+        return bookingRepo.findByRefundStatus(status);
+    }
+
+    // Lấy theo khách sạn (ví dụ dùng trong admin hoặc host dashboard)
+    public List<Booking> getBookingsByHotel(int hotelId) {
+        return bookingRepo.findByHotelId(hotelId);
+    }
+
+    public String getRoomNameByBookingId(int bookingId) {
+        return bookingRepo.getRoomNameByBookingId(bookingId);
+    }
 }
