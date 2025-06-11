@@ -1,6 +1,8 @@
 package org.swp391.hotelbookingsystem.controller.user;
 
 import jakarta.servlet.http.HttpSession;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.repository.UserRepo;
@@ -20,7 +22,19 @@ public class UpdatePasswordController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    private static final String USER_PROFILE_PAGE = "redirect:/user-profile";
+    @GetMapping("/user-change-password")
+    public String showUserProfile(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
+        User sessionUser = (User) session.getAttribute("user");
+
+        if (sessionUser != null) {
+            model.addAttribute("passwordNotSet", sessionUser.getPassword() == null);
+        } else {
+            redirectAttributes.addFlashAttribute("error", "Người dùng chưa đăng nhập. Vui lòng đăng nhập để truy cập thông tin cá nhân.");
+            return "redirect:/login";
+        }
+
+        return "page/changePassword";
+    }
 
     @PostMapping("/update-password")
     public String updatePassword(@RequestParam(value = "currentPassword", required = false) String currentPassword,
@@ -49,7 +63,7 @@ public class UpdatePasswordController {
             redirectAttributes.addFlashAttribute("error", "Đã xảy ra lỗi khi cập nhật mật khẩu. Vui lòng thử lại.");
         }
 
-        return USER_PROFILE_PAGE;
+        return "redirect:/user-change-password";
     }
 
 

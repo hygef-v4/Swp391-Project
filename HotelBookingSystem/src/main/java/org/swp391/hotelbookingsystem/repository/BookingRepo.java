@@ -83,7 +83,6 @@ public class BookingRepo {
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Booking.class), customerId);
     }
 
-
     // 8. Lấy danh sách completed booking
     public List<Booking> findCompletedBookings(int customerId) {
         String sql = """
@@ -171,4 +170,35 @@ public class BookingRepo {
         """;
         return jdbcTemplate.queryForObject(sql, String.class, bookingId);
     }
+
+    public record DailyStat(String date, int count) {
+
+    }
+
+    public List<DailyStat> getCheckInStats() {
+        String sql = """
+                    SELECT CONVERT(VARCHAR, CAST(check_in AS DATE), 23) AS date, COUNT(*) AS count
+                    FROM Bookings
+                    WHERE status = 'approved'
+                    GROUP BY CAST(check_in AS DATE)
+                    ORDER BY CAST(check_in AS DATE)
+                """;
+        return jdbcTemplate.query(sql, (rs, rowNum)
+                -> new DailyStat(rs.getString("date"), rs.getInt("count"))
+        );
+    }
+
+    public List<DailyStat> getCheckOutStats() {
+        String sql = """
+                    SELECT CONVERT(VARCHAR, CAST(check_out AS DATE), 23) AS date, COUNT(*) AS count
+                    FROM Bookings
+                    WHERE status = 'approved'
+                    GROUP BY CAST(check_out AS DATE)
+                    ORDER BY CAST(check_out AS DATE)
+                """;
+        return jdbcTemplate.query(sql, (rs, rowNum)
+                -> new DailyStat(rs.getString("date"), rs.getInt("count"))
+        );
+    }
+
 }
