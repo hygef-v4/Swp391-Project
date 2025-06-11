@@ -19,11 +19,14 @@ import java.util.UUID;
 @RequestMapping("/host")
 public class HotelDeleteController {
 
-    @Autowired
-    private HotelService hotelService;
+    private final HotelService hotelService;
 
-    @Autowired
-    private EmailService emailService;
+    private final EmailService emailService;
+
+    public HotelDeleteController(HotelService hotelService, EmailService emailService) {
+        this.hotelService = hotelService;
+        this.emailService = emailService;
+    }
 
     @PostMapping("/request-delete-hotel")
     public String requestHotelDeletion(
