@@ -563,7 +563,7 @@
                                                         <input class="form-check-input"
                                                                type="checkbox"
                                                                th:id="'amenity-' + ${amenity.amenityId}"
-                                                               th:name="amenityIds"
+                                                               th:name="amenities"
                                                                th:value="${amenity.amenityId}"/>
                                                         <label class="form-check-label"
                                                                th:for="'amenity-' + ${amenity.amenityId}"
@@ -879,9 +879,9 @@ Footer END -->
     }
 
     function validateAmenities() {
-        const amenityCheckboxes = document.querySelectorAll('input[name="amenityIds"]:checked');
+        const amenityCheckboxes = document.querySelectorAll('input[name="amenities"]:checked');
         const amenitiesContainer = document.getElementById('amenitiesContainer');
-        const allAmenityCheckboxes = document.querySelectorAll('input[name="amenityIds"]');
+        const allAmenityCheckboxes = document.querySelectorAll('input[name="amenities"]');
 
         if (amenityCheckboxes.length === 0) {
             // Add error styling to container
@@ -988,7 +988,7 @@ Footer END -->
         if (!validateAmenities()) {
             isValid = false;
             emptyFields.push('Tiện nghi phòng');
-            const firstAmenity = document.querySelector('input[name="amenityIds"]');
+            const firstAmenity = document.querySelector('input[name="amenities"]');
             if (!firstInvalidElement && firstAmenity) {
                 firstInvalidElement = firstAmenity;
             }
@@ -1260,7 +1260,7 @@ Footer END -->
                 validateSelect(element);
             } else if (element.type === 'file') {
                 validateImages();
-            } else if (element.type === 'checkbox' && element.name === 'amenityIds') {
+            } else if (element.type === 'checkbox' && element.name === 'amenities') {
                 // Real-time amenity validation when any checkbox is clicked
                 validateAmenities();
             }
@@ -1326,7 +1326,7 @@ Footer END -->
 
         // Clear any existing validation styling
         const amenitiesContainer = document.getElementById('amenitiesContainer');
-        const allAmenityCheckboxes = document.querySelectorAll('input[name="amenityIds"]');
+        const allAmenityCheckboxes = document.querySelectorAll('input[name="amenities"]');
 
         if (amenitiesContainer) {
             amenitiesContainer.classList.remove('amenity-section', 'is-invalid', 'is-valid');

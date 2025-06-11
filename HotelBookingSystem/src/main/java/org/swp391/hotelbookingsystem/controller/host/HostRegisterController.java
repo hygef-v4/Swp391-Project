@@ -76,12 +76,6 @@ public class HostRegisterController {
         for (Amenity amenity : amenities) {
             String categoryName = amenity.getCategory().getName();
 
-
-//            if (!groupedAmenities.containsKey(categoryName)) {
-//                groupedAmenities.put(categoryName, new ArrayList<>());
-//            }
-//            groupedAmenities.get(categoryName).add(amenity);
-
             groupedAmenities
                     .computeIfAbsent(categoryName, k -> new ArrayList<>())
                     .add(amenity);
