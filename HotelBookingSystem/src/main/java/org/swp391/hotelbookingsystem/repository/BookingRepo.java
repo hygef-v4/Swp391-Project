@@ -53,33 +53,33 @@ public class BookingRepo {
 
     public List<Booking> findUpcomingBookings(int customerId) {
         String sql = """
-            SELECT * FROM Bookings
-            WHERE customer_id = ?
-              AND check_in > GETDATE()
-              AND status = 'approved'
-            ORDER BY check_in ASC
-        """;
+                    SELECT * FROM Bookings
+                    WHERE customer_id = ?
+                      AND check_in > GETDATE()
+                      AND status = 'approved'
+                    ORDER BY check_in ASC
+                """;
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Booking.class), customerId);
     }
 
     public List<Booking> findCompletedBookings(int customerId) {
         String sql = """
-            SELECT * FROM Bookings
-            WHERE customer_id = ?
-              AND check_out < GETDATE()
-              AND status = 'approved'
-            ORDER BY check_out DESC
-        """;
+                    SELECT * FROM Bookings
+                    WHERE customer_id = ?
+                      AND check_out < GETDATE()
+                      AND status = 'approved'
+                    ORDER BY check_out DESC
+                """;
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Booking.class), customerId);
     }
 
     public List<Booking> findCancelledBookings(int customerId) {
         String sql = """
-            SELECT * FROM Bookings
-            WHERE customer_id = ?
-              AND (status = 'cancelled' OR status = 'rejected')
-            ORDER BY created_at DESC
-        """;
+                    SELECT * FROM Bookings
+                    WHERE customer_id = ?
+                      AND (status = 'cancelled' OR status = 'rejected')
+                    ORDER BY created_at DESC
+                """;
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Booking.class), customerId);
     }
 
@@ -87,5 +87,35 @@ public class BookingRepo {
         String sql = "select top 1 image_url  from RoomImages ri join Bookings b on ri.room_id = b.room_id where booking_id = ?";
         return jdbcTemplate.queryForObject(sql, String.class, bookingId);
     }
+
+    public record DailyStat(String date, int count) {
+    }
+
+    public List<DailyStat> getCheckInStats() {
+        String sql = """
+                    SELECT CONVERT(VARCHAR, CAST(check_in AS DATE), 23) AS date, COUNT(*) AS count
+                    FROM Bookings
+                    WHERE status = 'approved'
+                    GROUP BY CAST(check_in AS DATE)
+                    ORDER BY CAST(check_in AS DATE)
+                """;
+        return jdbcTemplate.query(sql, (rs, rowNum) ->
+                new DailyStat(rs.getString("date"), rs.getInt("count"))
+        );
+    }
+
+    public List<DailyStat> getCheckOutStats() {
+        String sql = """
+                    SELECT CONVERT(VARCHAR, CAST(check_out AS DATE), 23) AS date, COUNT(*) AS count
+                    FROM Bookings
+                    WHERE status = 'approved'
+                    GROUP BY CAST(check_out AS DATE)
+                    ORDER BY CAST(check_out AS DATE)
+                """;
+        return jdbcTemplate.query(sql, (rs, rowNum) ->
+                new DailyStat(rs.getString("date"), rs.getInt("count"))
+        );
+    }
+
 
 }
