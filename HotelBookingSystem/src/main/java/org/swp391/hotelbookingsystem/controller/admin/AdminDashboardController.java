@@ -105,6 +105,12 @@ public class AdminDashboardController {
             throw new RuntimeException(e);
         }
 
+        int checkInCount = checkInData.stream().mapToInt(Integer::intValue).sum();
+        int checkOutCount = checkOutData.stream().mapToInt(Integer::intValue).sum();
+
+        model.addAttribute("checkInCount", checkInCount);
+        model.addAttribute("checkOutCount", checkOutCount);
+
         return "admin/admin-dashboard";
     }
 }
