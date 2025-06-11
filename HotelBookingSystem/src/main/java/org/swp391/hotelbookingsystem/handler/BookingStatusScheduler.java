@@ -1,6 +1,5 @@
 package org.swp391.hotelbookingsystem.handler;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -8,8 +7,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class BookingStatusScheduler {
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
+
+    public BookingStatusScheduler(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     @Scheduled(cron = "0 * * * * *")
     public void autoCompleteBookings() {

@@ -1,7 +1,6 @@
 package org.swp391.hotelbookingsystem.controller.auth;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,14 +12,15 @@ import org.swp391.hotelbookingsystem.service.UserService;
 @Controller
 public class ForgotPassWordController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+    private final EmailService emailService;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private EmailService emailService;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    public ForgotPassWordController(UserService userService, EmailService emailService, PasswordEncoder passwordEncoder) {
+        this.userService = userService;
+        this.emailService = emailService;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @GetMapping("/forgotPassword")
     public String showForgotPasswordForm() {
