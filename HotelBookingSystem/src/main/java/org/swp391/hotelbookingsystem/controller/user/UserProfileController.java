@@ -14,8 +14,11 @@ import org.swp391.hotelbookingsystem.service.UserService;
 @Controller
 public class UserProfileController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+
+    public UserProfileController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping("/user-profile")
     public String showUserProfile(Model model, HttpSession session, RedirectAttributes redirectAttributes) {

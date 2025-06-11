@@ -17,8 +17,11 @@ import java.util.List;
 @Controller
 public class UserWishlistController {
 
-    @Autowired
-    private UserWishlistRepository userWishlistRepository;
+    private final UserWishlistRepository userWishlistRepository;
+
+    public UserWishlistController(UserWishlistRepository userWishlistRepository) {
+        this.userWishlistRepository = userWishlistRepository;
+    }
 
     @GetMapping("/user-wishlist")
     public String viewUserWishlist(HttpSession session, Model model, RedirectAttributes redirectAttributes) {

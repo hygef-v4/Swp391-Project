@@ -16,11 +16,14 @@ import org.swp391.hotelbookingsystem.service.UserService;
 @Controller
 public class UpdatePasswordController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
+
+    public UpdatePasswordController(UserService userService, PasswordEncoder passwordEncoder) {
+        this.userService = userService;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @GetMapping("/user-change-password")
     public String showUserProfile(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
