@@ -17,14 +17,17 @@ import java.util.List;
 
 @Controller
 public class HomeController {
-    @Autowired
-    LocationService locationService;
+    final LocationService locationService;
 
-    @Autowired
-    HotelService hotelService;
+    final HotelService hotelService;
 
-    @Autowired
-    ReviewService reviewService;
+    final ReviewService reviewService;
+
+    public HomeController(LocationService locationService, HotelService hotelService, ReviewService reviewService) {
+        this.locationService = locationService;
+        this.hotelService = hotelService;
+        this.reviewService = reviewService;
+    }
 
     @GetMapping({"/", "/home"})
     public String home(Model model, HttpSession session) {
