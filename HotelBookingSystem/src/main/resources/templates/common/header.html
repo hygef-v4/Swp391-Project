@@ -337,7 +337,7 @@
 
                 <!-- SHOW PROFILE DROPDOWN WHEN LOGGED IN -->
                 <li class="nav-item dropdown" th:if="${session.user != null}">
-                    <a class="avatar avatar-sm p-0" href="#" id="profileDropdown" role="button"
+                    <a class="avatar avatar-sm p-0" href="/user-profile" id="profileDropdown" role="button"
                        data-bs-auto-close="outside" data-bs-display="static" data-bs-toggle="dropdown"
                        aria-expanded="false">
                         <img class="avatar-img rounded-2" th:src="${(session.user.avatarUrl == null) ? '/assets/images/avatar/avatar.jpg' : session.user.avatarUrl}" alt="avatar">
@@ -351,7 +351,7 @@
                                     <img class="avatar-img rounded-circle shadow" th:src="${(session.user.avatarUrl == null) ? '/assets/images/avatar/avatar.jpg' : session.user.avatarUrl}" alt="avatar">
                                 </div>
                                 <div>
-                                    <a class="h6 mt-2 mt-sm-0" href="#">
+                                    <a class="h6 mt-2 mt-sm-0" href="/user-profile">
                                         <span th:text="${session.user.fullName != '' ? session.user.fullName : 'No Name'}"></span>
                                     </a>
                                     <p class="small m-0">

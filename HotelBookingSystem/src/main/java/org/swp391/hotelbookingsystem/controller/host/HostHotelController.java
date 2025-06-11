@@ -23,25 +23,35 @@ import java.util.Map;
 @Controller
 public class HostHotelController {
 
-    @Autowired
+    final
     RoomTypeService roomTypeService;
 
-    @Autowired
+    final
     LocationService locationService;
 
-    @Autowired
+    final
     AmenityService amenityService;
 
-    @Autowired
+    final
     CloudinaryService cloudinaryService;
 
-    @Autowired
+    final
     RoomService roomService;
-    @Autowired
+    final
     HotelService hotelService;
 
-    @Autowired
+    final
     UserService userService;
+
+    public HostHotelController(RoomTypeService roomTypeService, LocationService locationService, AmenityService amenityService, CloudinaryService cloudinaryService, RoomService roomService, HotelService hotelService, UserService userService) {
+        this.roomTypeService = roomTypeService;
+        this.locationService = locationService;
+        this.amenityService = amenityService;
+        this.cloudinaryService = cloudinaryService;
+        this.roomService = roomService;
+        this.hotelService = hotelService;
+        this.userService = userService;
+    }
 
     @GetMapping("/host-listing")
     public String viewHostListings(HttpSession session, Model model) {

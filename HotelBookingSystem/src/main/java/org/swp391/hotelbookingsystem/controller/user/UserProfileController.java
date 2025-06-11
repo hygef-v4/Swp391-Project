@@ -3,7 +3,6 @@ package org.swp391.hotelbookingsystem.controller.user;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.swp391.hotelbookingsystem.model.User;
-import org.swp391.hotelbookingsystem.repository.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,8 +14,11 @@ import org.swp391.hotelbookingsystem.service.UserService;
 @Controller
 public class UserProfileController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+
+    public UserProfileController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping("/user-profile")
     public String showUserProfile(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
@@ -29,7 +31,6 @@ public class UserProfileController {
             model.addAttribute("dob", sessionUser.getDob());
             model.addAttribute("bio", sessionUser.getBio());
             model.addAttribute("gender", sessionUser.getGender());
-            model.addAttribute("passwordNotSet", sessionUser.getPassword() == null);
         } else {
             redirectAttributes.addFlashAttribute("error", "Người dùng chưa đăng nhập. Vui lòng đăng nhập để truy cập thông tin cá nhân.");
             return "redirect:/login";
