@@ -2,7 +2,6 @@ package org.swp391.hotelbookingsystem.controller.auth;
 
 import jakarta.servlet.http.HttpSession;
 import org.swp391.hotelbookingsystem.model.User;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,11 +12,13 @@ import org.swp391.hotelbookingsystem.service.UserService;
 @Controller
 public class OtpController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+    private final EmailService emailService;
 
-    @Autowired
-    private EmailService emailService;
+    public OtpController(UserService userService, EmailService emailService) {
+        this.userService = userService;
+        this.emailService = emailService;
+    }
 
     @PostMapping("/verify-email-otp")
     public String verifyOtp(@RequestParam("otp") String otp, HttpSession session, Model model) {

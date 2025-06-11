@@ -1,6 +1,5 @@
 package org.swp391.hotelbookingsystem.repository;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -13,8 +12,7 @@ import java.util.List;
 @Repository
 public class HotelRepository {
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     private static final BeanPropertyRowMapper<Hotel> HOTEL_MAPPER = new BeanPropertyRowMapper<>(Hotel.class);
 
@@ -97,6 +95,9 @@ public class HotelRepository {
                 ORDER BY COUNT(b.booking_id) DESC
             """;
 
+    public HotelRepository(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
 
     // Methods

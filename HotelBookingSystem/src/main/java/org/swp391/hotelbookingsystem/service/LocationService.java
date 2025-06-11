@@ -1,6 +1,5 @@
 package org.swp391.hotelbookingsystem.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.swp391.hotelbookingsystem.model.Location;
 import org.swp391.hotelbookingsystem.repository.LocationRepository;
@@ -9,8 +8,12 @@ import java.util.List;
 
 @Service
 public class LocationService {
-    @Autowired
-    private LocationRepository locationRepository;
+
+    private final LocationRepository locationRepository;
+
+    public LocationService(LocationRepository locationRepository) {
+        this.locationRepository = locationRepository;
+    }
 
     public List<Location> getAllLocations() {
         return locationRepository.getAllLocations();

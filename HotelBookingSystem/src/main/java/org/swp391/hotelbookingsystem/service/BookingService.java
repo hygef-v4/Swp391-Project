@@ -1,6 +1,5 @@
 package org.swp391.hotelbookingsystem.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.swp391.hotelbookingsystem.model.Booking;
 import org.swp391.hotelbookingsystem.repository.BookingRepo;
@@ -10,8 +9,11 @@ import java.util.List;
 @Service
 public class BookingService {
 
-    @Autowired
-    private BookingRepo bookingRepo;
+    private final BookingRepo bookingRepo;
+
+    public BookingService(BookingRepo bookingRepo) {
+        this.bookingRepo = bookingRepo;
+    }
 
     // Hủy đơn đặt phòng
     public void cancelBooking(int id) {
