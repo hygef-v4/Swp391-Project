@@ -53,30 +53,12 @@ public class BookingService {
         return bookingRepo.getHotelNameByBookingId(bookingId);
     }
 
-    // Lấy thông tin đặt phòng
-    public Booking findById(int id) {
-        return bookingRepo.findById(id);
-    }
-
     public List<Booking> getAllBookings() {
         return bookingRepo.findAll();
     }
 
     public List<Booking> searchBookings(String keyword) {
         return bookingRepo.searchByKeyword(keyword);
-    }
-
-    // Lấy theo loại lịch sử
-    public List<Booking> getUpcomingBookings(int customerId) {
-        return bookingRepo.findUpcomingBookings(customerId);
-    }
-
-    public List<Booking> getCompletedBookings(int customerId) {
-        return bookingRepo.findCompletedBookings(customerId);
-    }
-
-    public List<Booking> getCancelledBookings(int customerId) {
-        return bookingRepo.findCancelledBookings(customerId);
     }
 
     // Lấy các booking theo trạng thái refund
