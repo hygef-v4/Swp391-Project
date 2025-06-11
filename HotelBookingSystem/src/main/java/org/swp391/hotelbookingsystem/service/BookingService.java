@@ -22,6 +22,21 @@ public class BookingService {
     public void updateStatus(Booking booking, String status) {
         bookingRepo.updateStatus(booking.getBookingId(), status);
     }
+    public List<Booking> getUpcomingBookings(int customerId) {
+        return bookingRepo.findUpcomingBookings(customerId);
+    }
+
+    public List<Booking> getCompletedBookings(int customerId) {
+        return bookingRepo.findCompletedBookings(customerId);
+    }
+
+    public List<Booking> getCancelledBookings(int customerId) {
+        return bookingRepo.findCancelledBookings(customerId);
+    }
+
+    public Booking findById(int id) {
+        return bookingRepo.findById(id);
+    }
 
     // Cập nhật hoàn tiền
     public void updateRefund(int bookingId, Double amount, String status) {
@@ -76,4 +91,14 @@ public class BookingService {
     public String getRoomNameByBookingId(int bookingId) {
         return bookingRepo.getRoomNameByBookingId(bookingId);
     }
+
+    public List<BookingRepo.DailyStat> getCheckInStats() {
+        return bookingRepo.getCheckInStats();
+    }
+
+    public List<BookingRepo.DailyStat> getCheckOutStats() {
+        return bookingRepo.getCheckOutStats();
+    }
+
+
 }
