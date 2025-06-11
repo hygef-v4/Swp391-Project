@@ -160,6 +160,8 @@
 
                             <!-- Quản trị viên -->
                             <li><a class="dropdown-item" th:if="${session.user != null and session.user.role.equals('ADMIN')}" th:href="@{/admin-dashboard}">Quản trị viên</a></li>
+                            <!-- Quản lý -->
+                            <li><a class="dropdown-item" th:if="${session.user != null and session.user.role.equals('MODERATOR')}" th:href="@{/moderator-dashboard}">Quản lý</a></li>
 
                         </ul>
                     </li>
@@ -338,7 +340,7 @@
                     <a class="avatar avatar-sm p-0" href="#" id="profileDropdown" role="button"
                        data-bs-auto-close="outside" data-bs-display="static" data-bs-toggle="dropdown"
                        aria-expanded="false">
-                        <img class="avatar-img rounded-2" src="/assets/images/avatar/avatar.jpg" alt="avatar">
+                        <img class="avatar-img rounded-2" th:src="${session.user.avatarUrl}" alt="avatar">
                     </a>
 
                     <ul class="dropdown-menu dropdown-animation dropdown-menu-end shadow pt-3"
@@ -346,7 +348,7 @@
                         <li class="px-3 mb-3">
                             <div class="d-flex align-items-center">
                                 <div class="avatar me-3">
-                                    <img class="avatar-img rounded-circle shadow" src="/assets/images/avatar/avatar.jpg" alt="avatar">
+                                    <img class="avatar-img rounded-circle shadow" th:src="${session.user.avatarUrl}" alt="avatar">
                                 </div>
                                 <div>
                                     <a class="h6 mt-2 mt-sm-0" href="#">

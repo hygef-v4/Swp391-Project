@@ -128,6 +128,22 @@ public class UserService {
         if (dob == null || dob.isBlank()) {
             throw new IllegalArgumentException("Ngày sinh không được để trống.");
         }
+
+        try {
+            // Chuyển chuỗi ngày sinh (dob) sang LocalDate
+            java.time.LocalDate birthDate = java.time.LocalDate.parse(dob);
+            java.time.LocalDate today = java.time.LocalDate.now();
+
+            // Kiểm tra xem ngày sinh có nằm trong tương lai không
+            if (birthDate.isAfter(today)) {
+                throw new IllegalArgumentException("Ngày sinh không được nằm trong tương lai.");
+            }
+        } catch (java.time.format.DateTimeParseException e) {
+            // Bắt lỗi nếu ngày sinh không đúng định dạng
+            throw new IllegalArgumentException("Ngày sinh không hợp lệ. Vui lòng nhập đúng định dạng mm/dd/yyyy.");
+        }
+
+
         // Kiểm tra thông tin giới thiệu
         if ( bio.length() > 255) { // Không bắt buộc nhưng không được dài quá 255 ký tự
             throw new IllegalArgumentException("Thông tin giới thiệu không được dài quá 255 ký tự.");
