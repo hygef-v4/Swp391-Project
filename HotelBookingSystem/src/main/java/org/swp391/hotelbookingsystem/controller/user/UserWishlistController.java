@@ -99,7 +99,6 @@ public class UserWishlistController {
     public String addFavorite(
         @RequestParam("hotelId") int hotelId, 
         @RequestParam(value = "detail", defaultValue = "false") boolean detail,
-
         @RequestParam(value = "adults", defaultValue = "1") int adults,
         @RequestParam(value = "children", defaultValue = "0") int children,
         @RequestParam(value = "rooms", defaultValue = "1") int rooms,
