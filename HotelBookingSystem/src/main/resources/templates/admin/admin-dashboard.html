@@ -331,7 +331,7 @@
                     <div class="col-lg-6 col-xxl-4">
                         <div class="card shadow h-100">
                             <!-- Card header -->
-                            <div class="card-header border-bottom d-flex justify-content-between align-items-center">
+                            <div class="card-header border-bottom d-flex justify-content-between align-items-center p-3">
                                 <h5 class="card-header-title">Địa điểm</h5>
                                 <a href="#" class="btn btn-link p-0 mb-0">Xem tất cả</a>
                             </div>
@@ -512,15 +512,14 @@
                 labels: {
                     formatter: val => Number.isInteger(val) ? val : ''
                 },
-                tickAmount: undefined,
                 min: 0
             },
             stroke: {
                 curve: 'smooth'
             },
             colors: [
-                getComputedStyle(document.documentElement).getPropertyValue('--bs-primary').trim(),
-                getComputedStyle(document.documentElement).getPropertyValue('--bs-info').trim()
+                getComputedStyle(document.documentElement).getPropertyValue('--bs-green').trim(),
+                getComputedStyle(document.documentElement).getPropertyValue('--bs-gray').trim()
             ],
             dataLabels: {
                 enabled: false

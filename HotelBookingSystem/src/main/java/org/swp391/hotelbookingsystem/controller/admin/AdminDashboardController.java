@@ -19,23 +19,32 @@ import java.util.*;
 @Controller
 public class AdminDashboardController {
 
-    @Autowired
+    final
     BookingService bookingService;
 
-    @Autowired
+    final
     HotelService hotelService;
 
-    @Autowired
+    final
     RoomService roomService;
 
-    @Autowired
+    final
     ReviewService reviewService;
 
-    @Autowired
+    final
     UserService userService;
 
-    @Autowired
+    final
     LocationService locationService;
+
+    public AdminDashboardController(BookingService bookingService, HotelService hotelService, RoomService roomService, ReviewService reviewService, UserService userService, LocationService locationService) {
+        this.bookingService = bookingService;
+        this.hotelService = hotelService;
+        this.roomService = roomService;
+        this.reviewService = reviewService;
+        this.userService = userService;
+        this.locationService = locationService;
+    }
 
     @GetMapping("/admin-dashboard")
     public String getDashboard(Model model, HttpSession session) {
