@@ -1,7 +1,6 @@
 package org.swp391.hotelbookingsystem.controller.user;
 
 import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,8 +15,11 @@ import java.util.List;
 @Controller
 public class BookingHistoryController {
 
-    @Autowired
-    private BookingService bookingService;
+    private final BookingService bookingService;
+
+    public BookingHistoryController(BookingService bookingService) {
+        this.bookingService = bookingService;
+    }
 
     @GetMapping("/bookingHistory")
     public String bookingHistory(HttpSession session, Model model) {
@@ -31,21 +33,6 @@ public class BookingHistoryController {
         List<Booking> upcomingBookings = bookingService.getUpcomingBookings(customerId);
         List<Booking> completedBookings = bookingService.getCompletedBookings(customerId);
         List<Booking> cancelledBookings = bookingService.getCancelledBookings(customerId);
-
-        for (Booking booking : upcomingBookings) {
-            String image = bookingService.getImageByBookingId(booking.getBookingId());
-            booking.setImageUrl(image);
-        }
-
-        for (Booking booking : completedBookings) {
-            String image = bookingService.getImageByBookingId(booking.getBookingId());
-            booking.setImageUrl(image);
-        }
-
-        for (Booking booking : cancelledBookings) {
-            String image = bookingService.getImageByBookingId(booking.getBookingId());
-            booking.setImageUrl(image);
-        }
 
         model.addAttribute("upcomingBookings", upcomingBookings);
         model.addAttribute("completedBookings", completedBookings);
@@ -64,9 +51,12 @@ public class BookingHistoryController {
         String image = bookingService.getImageByBookingId(booking.getBookingId());
         booking.setImageUrl(image);
         model.addAttribute("booking", booking);
+        String hotelName = bookingService.getHotelNameByBookingId(booking.getBookingId());
+        booking.setHotelName(hotelName);
+        String roomName = bookingService.getRoomNameByBookingId(booking.getBookingId());
+        booking.setRoomName(roomName);
         boolean isCancelable = false;
-        if ("approved".equalsIgnoreCase(booking.getStatus()) &&
-                booking.getCheckIn().isAfter(LocalDate.now().atStartOfDay())) {
+        if ("approved".equalsIgnoreCase(booking.getStatus()) && booking.getCheckIn().isAfter(LocalDate.now().atStartOfDay())) {
             isCancelable = true;
         }
         model.addAttribute("isCancelable", isCancelable);
@@ -82,8 +72,7 @@ public class BookingHistoryController {
 
         Booking booking = bookingService.findById(bookingId);
         if (booking != null && booking.getCustomerId() == user.getId()) {
-            if ("approved".equalsIgnoreCase(booking.getStatus()) &&
-                    booking.getCheckIn().isAfter(LocalDate.now().atStartOfDay())) {
+            if ("approved".equalsIgnoreCase(booking.getStatus()) && booking.getCheckIn().isAfter(LocalDate.now().atStartOfDay())) {
                 bookingService.updateStatus(booking, "cancelled");
             }
         }

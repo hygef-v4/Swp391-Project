@@ -17,8 +17,11 @@ import java.util.List;
 @Controller
 public class UserWishlistController {
 
-    @Autowired
-    private UserWishlistRepository userWishlistRepository;
+    private final UserWishlistRepository userWishlistRepository;
+
+    public UserWishlistController(UserWishlistRepository userWishlistRepository) {
+        this.userWishlistRepository = userWishlistRepository;
+    }
 
     @GetMapping("/user-wishlist")
     public String viewUserWishlist(HttpSession session, Model model, RedirectAttributes redirectAttributes) {
@@ -99,7 +102,6 @@ public class UserWishlistController {
     public String addFavorite(
         @RequestParam("hotelId") int hotelId, 
         @RequestParam(value = "detail", defaultValue = "false") boolean detail,
-
         @RequestParam(value = "adults", defaultValue = "1") int adults,
         @RequestParam(value = "children", defaultValue = "0") int children,
         @RequestParam(value = "rooms", defaultValue = "1") int rooms,

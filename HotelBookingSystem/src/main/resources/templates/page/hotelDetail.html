@@ -505,7 +505,7 @@ About hotel START -->
 													</div>
 													<!-- Price -->
 													<div class="mt-3 mt-sm-0">
-														<a href="#" class="btn btn-sm btn-primary mb-0">Chọn Phòng</a>    
+														<a href="#" th:class="'btn btn-sm btn-primary mb-0' + ${room.quantity == 0 ? ' disabled' : ''}">Chọn Phòng</a>    
 													</div>                  
 												</div>
 											</div>
@@ -815,7 +815,7 @@ Footer END -->
 								</div>
 								<!-- Price -->
 								<div class="mt-3 mt-sm-0">
-									<a href="#" class="btn btn-sm btn-primary mb-0">Chọn Phòng</a>    
+									<a href="#" th:class="'btn btn-sm btn-primary mb-0' + ${room.quantity == 0 ? ' disabled' : ''}">Chọn Phòng</a>    
 								</div>                  
 							</div>
 						</div> <!-- Row END -->
@@ -853,7 +853,7 @@ Footer END -->
 	function initMap() {
 	map = new google.maps.Map(document.getElementById('map'), {
 		center: {lat: lat, lng: lng},
-		zoom: 18
+		zoom: 19
 	});
 	}
 </script>

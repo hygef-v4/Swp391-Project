@@ -563,7 +563,7 @@
                                                         <input class="form-check-input"
                                                                type="checkbox"
                                                                th:id="'amenity-' + ${amenity.amenityId}"
-                                                               th:name="amenityIds"
+                                                               th:name="amenities"
                                                                th:value="${amenity.amenityId}"/>
                                                         <label class="form-check-label"
                                                                th:for="'amenity-' + ${amenity.amenityId}"
@@ -586,14 +586,14 @@
                                     <h5 class="mb-0">Hình Ảnh Loại Phòng</h5>
                                 </div>
                                 <div class="card-body">
-                                    <label class="form-label">Tải lên hình ảnh cho loại phòng này (ít nhất 3 ảnh, tối đa
-                                        10) *</label>
+                                    <label class="form-label">Tải lên hình ảnh cho loại phòng này (từ 3 đến 5 ảnh) *</label>
                                     <div class="dropzone dropzone-custom mb-3"
-                                         data-dropzone='{"maxFiles": 10, "addRemoveLinks": true, "acceptedFiles": "image/*"}'
+                                         data-dropzone='{"maxFiles": 5, "addRemoveLinks": true, "acceptedFiles": "image/*"}'
                                          id="roomImagesDropzone">
                                         <div class="dz-message needsclick">
                                             <i class="bi bi-images display-3"></i>
                                             <p>Kéo thả tệp vào đây hoặc nhấp để tải lên.</p>
+                                            <p><small class="text-muted">Tối thiểu 3 ảnh, tối đa 5 ảnh</small></p>
                                         </div>
                                     </div>
                                     <div class="mt-3">
@@ -601,7 +601,7 @@
                                             của bạn:</label>
                                         <input class="form-control" type="file" id="roomImageUpload"
                                                name="roomImageFiles" accept=".jpg,.jpeg,.png,.gif,.webp,.bmp,.tiff" multiple>
-                                        <small class="form-text text-muted">Chỉ chấp nhận các định dạng: JPG, JPEG, PNG, GIF, WEBP, BMP, TIFF.
+                                        <small class="form-text text-muted">Chọn từ 3-5 ảnh JPG, JPEG, PNG, GIF, WEBP, BMP, TIFF.
                                             Ảnh đầu tiên sẽ là ảnh đại diện cho loại phòng.</small>
                                         <div id="roomImagePreviewContainer"
                                              class="mt-3 d-flex flex-wrap gap-2"></div>
@@ -834,6 +834,8 @@ Footer END -->
     function validateImages() {
         const fileInput = document.getElementById('roomImageUpload');
         const previewContainer = document.getElementById('roomImagePreviewContainer');
+        const minImages = 3;
+        const maxImages = 5;
 
         let imageCount = 0;
 
@@ -852,11 +854,20 @@ Footer END -->
         imageCount = Math.max(imageCount, window.roomFormValidation.roomImagesCount);
         imageCount = Math.max(imageCount, window.roomFormValidation.currentRoomFiles.length);
 
-        console.log('Image validation - count:', imageCount);
+        console.log('Image validation - count:', imageCount, 'min:', minImages, 'max:', maxImages);
 
-        if (imageCount < 3) {
+        // Validate minimum images
+        if (imageCount < minImages) {
             if (fileInput) {
-                showFieldError(fileInput, 'Vui lòng tải lên ít nhất 3 ảnh phòng');
+                showFieldError(fileInput, `Vui lòng tải lên ít nhất ${minImages} ảnh phòng (hiện tại: ${imageCount}/${maxImages})`);
+            }
+            return false;
+        }
+
+        // Validate maximum images
+        if (imageCount > maxImages) {
+            if (fileInput) {
+                showFieldError(fileInput, `Số lượng ảnh vượt quá giới hạn. Tối đa ${maxImages} ảnh (hiện tại: ${imageCount}/${maxImages})`);
             }
             return false;
         }
@@ -868,9 +879,9 @@ Footer END -->
     }
 
     function validateAmenities() {
-        const amenityCheckboxes = document.querySelectorAll('input[name="amenityIds"]:checked');
+        const amenityCheckboxes = document.querySelectorAll('input[name="amenities"]:checked');
         const amenitiesContainer = document.getElementById('amenitiesContainer');
-        const allAmenityCheckboxes = document.querySelectorAll('input[name="amenityIds"]');
+        const allAmenityCheckboxes = document.querySelectorAll('input[name="amenities"]');
 
         if (amenityCheckboxes.length === 0) {
             // Add error styling to container
@@ -957,7 +968,15 @@ Footer END -->
         console.log('Validating images...');
         if (!validateImages()) {
             isValid = false;
-            emptyFields.push('Hình ảnh phòng (ít nhất 3 ảnh)');
+            const imageCount = Math.max(
+                window.roomFormValidation.roomImagesCount,
+                window.roomFormValidation.currentRoomFiles.length
+            );
+            if (imageCount < 3) {
+                emptyFields.push('Hình ảnh phòng (tối thiểu 3 ảnh)');
+            } else if (imageCount > 5) {
+                emptyFields.push('Hình ảnh phòng (vượt quá 5 ảnh)');
+            }
             const fileInput = document.getElementById('roomImageUpload');
             if (!firstInvalidElement && fileInput) {
                 firstInvalidElement = fileInput;
@@ -969,7 +988,7 @@ Footer END -->
         if (!validateAmenities()) {
             isValid = false;
             emptyFields.push('Tiện nghi phòng');
-            const firstAmenity = document.querySelector('input[name="amenityIds"]');
+            const firstAmenity = document.querySelector('input[name="amenities"]');
             if (!firstInvalidElement && firstAmenity) {
                 firstInvalidElement = firstAmenity;
             }
@@ -1001,25 +1020,72 @@ Footer END -->
 
     // IMAGE UPLOAD HANDLING
     function handleFiles(files) {
+        const maxImages = 5;
+        let validFilesToAdd = [];
+        
         files.forEach(file => {
-            if (isValidImageFile(file)) {
-                // Check for duplicates
-                if (!window.roomFormValidation.currentRoomFiles.some(f => f.name === file.name && f.size === file.size)) {
-                    window.roomFormValidation.currentRoomFiles.push(file);
-                }
-            } else {
+            if (!isValidImageFile(file)) {
                 showErrorNotification(
                     'Định dạng file không hỗ trợ',
                     `File "${file.name}" không phải là ảnh hợp lệ. Chỉ chấp nhận: JPG, JPEG, PNG, GIF, WEBP, BMP, TIFF.`
                 );
+                return;
+            }
+            
+            // Check for duplicates
+            if (window.roomFormValidation.currentRoomFiles.some(f => f.name === file.name && f.size === file.size)) {
+                return; // Skip duplicate files
+            }
+            
+            // Check if we can add more files
+            if (window.roomFormValidation.currentRoomFiles.length + validFilesToAdd.length < maxImages) {
+                validFilesToAdd.push(file);
             }
         });
+        
+        // Check if we're trying to add too many files
+        if (window.roomFormValidation.currentRoomFiles.length + validFilesToAdd.length > maxImages) {
+            const remainingSlots = maxImages - window.roomFormValidation.currentRoomFiles.length;
+            if (remainingSlots > 0) {
+                validFilesToAdd = validFilesToAdd.slice(0, remainingSlots);
+                showErrorNotification(
+                    'Giới hạn số lượng ảnh',
+                    `Chỉ có thể tải lên tối đa ${maxImages} ảnh. Đã thêm ${remainingSlots} ảnh đầu tiên.`
+                );
+            } else {
+                showErrorNotification(
+                    'Đã đạt giới hạn tối đa',
+                    `Đã đạt giới hạn tối đa ${maxImages} ảnh. Vui lòng xóa bớt ảnh hiện tại trước khi thêm ảnh mới.`
+                );
+                return;
+            }
+        }
+        
+        if (window.roomFormValidation.currentRoomFiles.length + files.length > maxImages) {
+            const totalAttempted = window.roomFormValidation.currentRoomFiles.length + files.length;
+            showErrorNotification(
+                'Vượt quá giới hạn',
+                `Không thể thêm tất cả ảnh. Bạn đang cố thêm ${files.length} ảnh nhưng chỉ còn ${maxImages - window.roomFormValidation.currentRoomFiles.length} vị trí trống (tối đa ${maxImages} ảnh).`
+            );
+        }
+        
+        // Add valid files to the list
+        window.roomFormValidation.currentRoomFiles.push(...validFilesToAdd);
 
         // Update counters
         window.roomFormValidation.roomImagesCount = window.roomFormValidation.currentRoomFiles.length;
 
         updateManualFileInput();
         renderPreviews();
+
+        // Show success message if files were added
+        if (validFilesToAdd.length > 0) {
+            const successMsg = validFilesToAdd.length === 1 ? 
+                `Đã thêm 1 ảnh. Tổng cộng: ${window.roomFormValidation.currentRoomFiles.length}/${maxImages} ảnh.` :
+                `Đã thêm ${validFilesToAdd.length} ảnh. Tổng cộng: ${window.roomFormValidation.currentRoomFiles.length}/${maxImages} ảnh.`;
+            
+            showSuccessNotification('Thêm ảnh thành công!', successMsg);
+        }
 
         // Validate after upload
         validateImages();
@@ -1194,7 +1260,7 @@ Footer END -->
                 validateSelect(element);
             } else if (element.type === 'file') {
                 validateImages();
-            } else if (element.type === 'checkbox' && element.name === 'amenityIds') {
+            } else if (element.type === 'checkbox' && element.name === 'amenities') {
                 // Real-time amenity validation when any checkbox is clicked
                 validateAmenities();
             }
@@ -1260,7 +1326,7 @@ Footer END -->
 
         // Clear any existing validation styling
         const amenitiesContainer = document.getElementById('amenitiesContainer');
-        const allAmenityCheckboxes = document.querySelectorAll('input[name="amenityIds"]');
+        const allAmenityCheckboxes = document.querySelectorAll('input[name="amenities"]');
 
         if (amenitiesContainer) {
             amenitiesContainer.classList.remove('amenity-section', 'is-invalid', 'is-valid');

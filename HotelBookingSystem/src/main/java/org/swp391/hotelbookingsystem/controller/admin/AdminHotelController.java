@@ -17,26 +17,33 @@ import java.util.*;
 @Controller
 public class AdminHotelController {
 
-    @Autowired
+    final
     HotelService hotelService;
 
-    @Autowired
+    final
     RoomService roomService;
 
-    @Autowired
+    final
     ReviewService reviewService;
 
-    @Autowired
+    final
     UserService userService;
 
-    @Autowired
+    final
     LocationService locationService;
+
+    public AdminHotelController(HotelService hotelService, RoomService roomService, ReviewService reviewService, UserService userService, LocationService locationService) {
+        this.hotelService = hotelService;
+        this.roomService = roomService;
+        this.reviewService = reviewService;
+        this.userService = userService;
+        this.locationService = locationService;
+    }
 
     @GetMapping("/admin-hotel-list")
     public String getHotelDashboard(@RequestParam(value = "search", required = false) String search,
                                     @RequestParam(value = "page", defaultValue = "1") int page,
                                     Model model, HttpSession session) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         model.addAttribute(ConstantVariables.PAGE_TITLE, "Hamora Booking - Hotel Management");
         User user = (User) session.getAttribute("user");
         if (user == null) {
@@ -52,7 +59,7 @@ public class AdminHotelController {
             filteredHotels = hotelService.getAllHotels();
         }
 
-        int pageSize = 10;
+        int pageSize = 12;
         int totalHotels = filteredHotels.size();
         int startIndex = (page - 1) * pageSize;
         int endIndex = Math.min(startIndex + pageSize, totalHotels);
@@ -67,6 +74,6 @@ public class AdminHotelController {
         model.addAttribute("totalHotels", totalHotels);
 
 
-        return "page/admin-hotel-list";
+        return "admin/admin-hotel-list";
     }
 }

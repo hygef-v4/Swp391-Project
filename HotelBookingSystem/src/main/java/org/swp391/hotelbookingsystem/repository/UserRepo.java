@@ -1,7 +1,6 @@
 package org.swp391.hotelbookingsystem.repository;
 
 import org.swp391.hotelbookingsystem.model.User;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -11,7 +10,7 @@ import java.util.List;
 
 @Repository
 public class UserRepo {
-    @Autowired
+
     private JdbcTemplate jdbc;
 
     public UserRepo(JdbcTemplate jdbc) {

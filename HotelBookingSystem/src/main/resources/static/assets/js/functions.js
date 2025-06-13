@@ -1081,38 +1081,52 @@ var e = {
     },
     // END: Traffic Chart 2
 
+
     // START: 27 Traffic Chart 3
     trafficsplineChart: function () {
-        var chartData = document.querySelector("#chartData");
-        if (!chartData) return;
+        var chartEl = document.querySelector('#ChartGuesttraffic');
+        if (!chartEl) return;
 
-        var labels = JSON.parse(chartData.dataset.labels);
-        var checkIn = JSON.parse(chartData.dataset.checkin);
-        var checkOut = JSON.parse(chartData.dataset.checkout);
+        // Parse data from data attributes
+        var labels = JSON.parse(chartEl.dataset.labels);
+        var checkInData = JSON.parse(chartEl.dataset.checkin);
+        var checkOutData = JSON.parse(chartEl.dataset.checkout);
 
         var options = {
             series: [
-                { name: 'Check-in', data: checkIn },
-                { name: 'Check-out', data: checkOut }
+                {
+                    name: 'Check-in',
+                    data: checkInData
+                },
+                {
+                    name: 'Check-out',
+                    data: checkOutData
+                }
             ],
             chart: {
                 height: 350,
                 type: 'area'
             },
-            xaxis: {
-                categories: labels,
-                type: 'category'
-            },
             colors: [
                 ThemeColor.getCssVariableValue('--bs-primary'),
                 ThemeColor.getCssVariableValue('--bs-info')
             ],
-            stroke: { curve: 'smooth' },
-            dataLabels: { enabled: false }
+            dataLabels: {
+                enabled: false
+            },
+            stroke: {
+                curve: 'smooth'
+            },
+            xaxis: {
+                type: 'category',
+                categories: labels
+            }
         };
 
-        new ApexCharts(document.querySelector("#ChartGuesttraffic"), options).render();
+        var chart = new ApexCharts(chartEl, options);
+        chart.render();
     },
+
 
     // END: Traffic Chart 3
 

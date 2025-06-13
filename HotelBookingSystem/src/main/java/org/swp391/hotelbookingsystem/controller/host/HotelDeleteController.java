@@ -19,11 +19,14 @@ import java.util.UUID;
 @RequestMapping("/host")
 public class HotelDeleteController {
 
-    @Autowired
-    private HotelService hotelService;
+    private final HotelService hotelService;
 
-    @Autowired
-    private EmailService emailService;
+    private final EmailService emailService;
+
+    public HotelDeleteController(HotelService hotelService, EmailService emailService) {
+        this.hotelService = hotelService;
+        this.emailService = emailService;
+    }
 
     @PostMapping("/request-delete-hotel")
     public String requestHotelDeletion(
@@ -45,7 +48,7 @@ public class HotelDeleteController {
 
         try {
             String otp = String.valueOf((int) (Math.random() * 900000) + 100000); // 6-digit OTP
-            String token = otp + ":" + hotelId; // <-- This will now match later
+            String token = otp + ":" + hotelId;
             String tokenType = "hotel delete";
             LocalDateTime expiry = LocalDateTime.now().plusMinutes(10);
 

@@ -201,7 +201,8 @@
                             <div class="row g-4">
                                 <!-- Card img -->
                                 <div class="col-md-3">
-                                    <img th:href="@{'/hotels/' + ${hotel.hotelId}}" th:src="@{${hotel.hotelImageUrl}}" class="rounded-2 img-fluid object-fit-cover"
+                                    <img th:href="@{'/hotels/' + ${hotel.hotelId}}" th:src="@{${hotel.hotelImageUrl}}"
+                                         class="rounded-2 img-fluid object-fit-cover"
                                          style="width: 100%; height: 100px;" alt="Hotel image"/>
                                 </div>
 
@@ -230,13 +231,15 @@
                                             <a th:href="@{'/hotels/' + ${hotel.hotelId}}" th:text="${hotel.hotelName}">Hotel
                                                 Name</a>
                                         </h5>
-                                        <small style="margin-top: 5px; margin-bottom: 5px">
+                                        <small class="text-truncate d-block" style="max-width: 100%;">
                                             <i class="bi bi-geo-fill me-2"></i>
-                                            <span th:text="${hotel.cityName}"
-                                                  style="margin-bottom: 5px">City Name</span><br>
+                                            <span th:text="${hotel.cityName}">City Name</span>
+                                        </small>
+                                        <small class="text-truncate d-block" style="max-width: 100%;">
                                             <i class="bi bi-geo-alt me-2"></i>
                                             <span th:text="${hotel.address}">Address</span>
                                         </small>
+
 
                                         <!-- Price and Buttons -->
                                         <div class="d-sm-flex justify-content-sm-between align-items-center mt-3 mt-md-auto">
@@ -247,10 +250,8 @@
                                                 <span class="mb-0 me-2">/ngày</span>
                                             </div>
                                             <div class="hstack gap-2 mt-3 mt-sm-0">
-                                                <a th:href="@{'/admin/hotels/disable/' + ${hotel.hotelId}}"
-                                                   class="btn btn-sm btn-danger-soft px-2 mb-0">
-                                                    <i class="bi bi-slash-circle fa-fw"></i>
-                                                </a>
+                                                <a th:href="@{'/admin/hotel/view/' + ${hotel.hotelId}}"
+                                                   class="btn btn-sm btn-primary-soft mb-0 w-100">Xem chi tiết</a>
                                             </div>
                                         </div>
                                     </div>
@@ -265,76 +266,72 @@
                 <!-- Widget START -->
                 <div class="row g-4">
                     <!-- Booking Chart START -->
-                    <!--                <div class="col-xxl-8">-->
-                    <!--                    &lt;!&ndash; Chart START &ndash;&gt;-->
-                    <!--                    <div class="card shadow h-100">-->
-                    <!--                        &lt;!&ndash; Card header &ndash;&gt;-->
-                    <!--                        <div class="card-header border-bottom">-->
-                    <!--                            <h5 class="card-header-title">Hoạt động của khách hàng</h5>-->
-                    <!--                        </div>-->
+                    <div class="col-xxl-12">
+                        <div class="card shadow h-100">
+                            <div class="card-header border-bottom">
+                                <h5 class="card-header-title">Hoạt động của khách hàng</h5>
+                            </div>
 
-                    <!--                        &lt;!&ndash; Card body &ndash;&gt;-->
-                    <!--                        <div class="card-body">-->
-                    <!--                            &lt;!&ndash; Content &ndash;&gt;-->
-                    <!--                            <div class="d-flex gap-4 mb-3">-->
-                    <!--                                <h6><span class="fw-light"><i-->
-                    <!--                                        class="bi bi-square-fill text-primary"></i> Nhận phòng:</span> 475 Guests</h6>-->
-                    <!--                                <h6><span class="fw-light"><i class="bi bi-square-fill text-info"></i> Trả phòng:</span>-->
-                    <!--                                    157 Guests</h6>-->
-                    <!--                            </div>-->
-                    <!--                            &lt;!&ndash; Apex chart &ndash;&gt;-->
-                    <!--                            <div id="chartData"-->
-                    <!--                                 th:inline="javascript"-->
-                    <!--                                 th:attr="data-labels=${dateLabels},-->
-                    <!--              data-checkin=${checkInData},-->
-                    <!--              data-checkout=${checkOutData}">-->
-                    <!--                            </div>-->
+                            <div class="card-body">
+                                <div class="d-flex gap-4 mb-3">
+                                    <h6><span class="fw-light"><i class="bi bi-square-fill text-primary"></i> Check-in:</span>
+                                        <span th:text="${checkInCount}">0</span> Khách
+                                    </h6>
+                                    <h6><span class="fw-light"><i
+                                            class="bi bi-square-fill text-info"></i> Check-out:</span>
+                                        <span th:text="${checkOutCount}">0</span> Khách</h6>
+                                </div>
 
-                    <!--                            <div id="ChartGuesttraffic" class="mt-2"></div>-->
-                    <!--                        </div>-->
-                    <!--                    </div>-->
-                    <!--                    &lt;!&ndash; Chart END &ndash;&gt;-->
-                    <!--                </div>-->
-                    <!--                &lt;!&ndash; Booking Chart END &ndash;&gt;-->
+                                <div id="LineChartGuest"
+                                     th:attr="data-labels=${dateLabels},
+                                                data-checkin=${checkInData},
+                                                data-checkout=${checkOutData}"
+                                     class="mt-2">
+                                </div>
 
-                    <!--                &lt;!&ndash; Booking graph START &ndash;&gt;-->
-                    <!--                <div class="col-lg-6 col-xxl-4">-->
-                    <!--                    <div class="card shadow h-100">-->
-                    <!--                        &lt;!&ndash; Card header &ndash;&gt;-->
-                    <!--                        <div class="card-header border-bottom">-->
-                    <!--                            <h5 class="card-header-title">Tình trạng phòng</h5>-->
-                    <!--                        </div>-->
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Booking Chart END -->
 
-                    <!--                        &lt;!&ndash; Card body START &ndash;&gt;-->
-                    <!--                        <div class="card-body p-3">-->
-                    <!--                            &lt;!&ndash; Chart &ndash;&gt;-->
-                    <!--                            <div class="col-sm-6 mx-auto">-->
-                    <!--                                <div class="d-flex justify-content-center" id="ChartTrafficRooms"></div>-->
-                    <!--                            </div>-->
 
-                    <!--                            &lt;!&ndash; Content &ndash;&gt;-->
-                    <!--                            <ul class="list-group list-group-borderless mb-0">-->
-                    <!--                                <li class="list-group-item d-flex justify-content-between">-->
-                    <!--                                    <span class="h6 fw-light mb-0"><i class="text-success fas fa-circle me-2"></i> Còn trống</span>-->
-                    <!--                                    <span class="h6 fw-light mb-0"-->
-                    <!--                                          th:text="${availableRooms} + ' Phòng'">73 Phòng</span>-->
-                    <!--                                </li>-->
-                    <!--                                <li class="list-group-item d-flex justify-content-between">-->
-                    <!--                                    <span class="h6 fw-light mb-0"><i class="text-danger fas fa-circle me-2"></i> Hết phòng</span>-->
-                    <!--                                    <span class="h6 fw-light mb-0"-->
-                    <!--                                          th:text="${totalBookedRooms} + ' Phòng'">245 Phòng</span>-->
-                    <!--                                </li>-->
-                    <!--                            </ul>-->
-                    <!--                        </div>-->
-                    <!--                    </div>-->
-                    <!--                </div>-->
-                    <!--                &lt;!&ndash; Booking graph END &ndash;&gt;-->
+                    <!-- Booking graph START -->
+<!--                    <div class="col-lg-6 col-xxl-4">-->
+<!--                        <div class="card shadow h-100">-->
+<!--                            &lt;!&ndash; Card header &ndash;&gt;-->
+<!--                            <div class="card-header border-bottom">-->
+<!--                                <h5 class="card-header-title">Tình trạng phòng</h5>-->
+<!--                            </div>-->
 
+<!--                            &lt;!&ndash; Card body START &ndash;&gt;-->
+<!--                            <div class="card-body p-3">-->
+<!--                                &lt;!&ndash; Chart &ndash;&gt;-->
+<!--                                <div class="col-sm-6 mx-auto">-->
+<!--                                    <div class="d-flex justify-content-center" id="ChartTrafficRooms"></div>-->
+<!--                                </div>-->
+
+<!--                                &lt;!&ndash; Content &ndash;&gt;-->
+<!--                                <ul class="list-group list-group-borderless mb-0">-->
+<!--                                    <li class="list-group-item d-flex justify-content-between">-->
+<!--                                        <span class="h6 fw-light mb-0"><i class="text-success fas fa-circle me-2"></i> Còn trống</span>-->
+<!--                                        <span class="h6 fw-light mb-0"-->
+<!--                                              th:text="${availableRooms} + ' Phòng'">73 Phòng</span>-->
+<!--                                    </li>-->
+<!--                                    <li class="list-group-item d-flex justify-content-between">-->
+<!--                                        <span class="h6 fw-light mb-0"><i class="text-danger fas fa-circle me-2"></i> Hết phòng</span>-->
+<!--                                        <span class="h6 fw-light mb-0"-->
+<!--                                              th:text="${totalBookedRooms} + ' Phòng'">245 Phòng</span>-->
+<!--                                    </li>-->
+<!--                                </ul>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+                    <!-- Booking graph END -->
                     <!-- Rooms START -->
                     <div class="col-lg-6 col-xxl-4">
                         <div class="card shadow h-100">
                             <!-- Card header -->
-                            <div class="card-header border-bottom d-flex justify-content-between align-items-center">
+                            <div class="card-header border-bottom d-flex justify-content-between align-items-center p-3">
                                 <h5 class="card-header-title">Địa điểm</h5>
                                 <a href="#" class="btn btn-link p-0 mb-0">Xem tất cả</a>
                             </div>
@@ -479,6 +476,60 @@
 
 <!-- ThemeFunctions -->
 <script th:src="@{assets/js/functions.js}"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var chartEl = document.querySelector('#LineChartGuest');
+        if (!chartEl) return;
+
+        var labels = JSON.parse(chartEl.dataset.labels);
+        var checkInData = JSON.parse(chartEl.dataset.checkin);
+        var checkOutData = JSON.parse(chartEl.dataset.checkout);
+
+        var options = {
+            series: [
+                {name: 'Check-in', data: checkInData},
+                {name: 'Check-out', data: checkOutData}
+            ],
+            chart: {
+                type: 'line',
+                height: 350
+            },
+            xaxis: {
+                categories: labels,
+                title: { text: 'Date' },
+                labels: {
+                    rotate: -45,
+                    format: 'yyyy-MM-dd',
+                    formatter: function (val) {
+                        return val; // keep as raw date string
+                    }
+                }
+            },
+            yaxis: {
+                title: {text: 'Guest'},
+                forceNiceScale: true,
+                labels: {
+                    formatter: val => Number.isInteger(val) ? val : ''
+                },
+                min: 0
+            },
+            stroke: {
+                curve: 'smooth'
+            },
+            colors: [
+                getComputedStyle(document.documentElement).getPropertyValue('--bs-green').trim(),
+                getComputedStyle(document.documentElement).getPropertyValue('--bs-gray').trim()
+            ],
+            dataLabels: {
+                enabled: false
+            }
+        };
+
+        new ApexCharts(chartEl, options).render();
+    });
+</script>
+
 
 </body>
 
