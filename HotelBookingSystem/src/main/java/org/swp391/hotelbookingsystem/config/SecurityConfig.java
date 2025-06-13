@@ -49,12 +49,17 @@ public class SecurityConfig {
                         ))
                         .requestMatchers("/admin-dashboard").access(AuthorizationManagers.allOf(
                                 new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
-                                new WebExpressionAuthorizationManager("hasAnyRole('MODERATOR', 'ADMIN')")
+                                new WebExpressionAuthorizationManager("hasAnyRole('ADMIN')")
                         ))
                         .requestMatchers("/host-dashboard","/add-hotel","/add-room","/request-delete-hotel").access(AuthorizationManagers.allOf(
                                 new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
                                 new WebExpressionAuthorizationManager("hasAnyRole('HOTEL_OWNER', 'ADMIN')")
                         ))
+                        .requestMatchers("/moderator-dashboard").access(AuthorizationManagers.allOf(
+                                new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
+                                new WebExpressionAuthorizationManager("hasAnyRole('MODERATOR', 'ADMIN')")
+                        ))
+
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
