@@ -1104,12 +1104,6 @@ updateInputFiles() - Syncs file list with actual form input for submission-->
                 }
                 if (event.detail.indexStep === 2) {
                     updateSummary();
-                    // Show helpful notification on final step - removed since we now have step validation
-                    showSuccessNotification(
-                        'Bước cuối cùng!',
-                        'Tất cả thông tin bước trước đã được hoàn thành. Vui lòng kiểm tra lại và đồng ý với các điều khoản để hoàn tất đăng ký.',
-                        6000
-                    );
                 }
             });
         }
@@ -1396,29 +1390,7 @@ updateInputFiles() - Syncs file list with actual form input for submission-->
             removeFieldError(element);
             element.classList.add('is-valid');
 
-            // Show positive feedback for key fields
-            const importantFields = ['hotelName', 'roomPrice', 'roomQuantity', 'roomMaxGuests'];
-            if (importantFields.includes(element.id) && element.value.trim() !== '') {
-                let successMessage = '';
-                switch(element.id) {
-                    case 'hotelName':
-                        successMessage = 'Tên khách sạn hợp lệ! ✓';
-                        break;
-                    case 'roomPrice':
-                        successMessage = `Giá phòng ${parseInt(element.value).toLocaleString()} VND hợp lệ! ✓`;
-                        break;
-                    case 'roomQuantity':
-                        successMessage = `Số lượng ${element.value} phòng hợp lệ! ✓`;
-                        break;
-                    case 'roomMaxGuests':
-                        successMessage = `Sức chứa ${element.value} khách hợp lệ! ✓`;
-                        break;
-                }
 
-                if (successMessage) {
-                    showNotification('success', 'Hoàn thành!', successMessage, 2000);
-                }
-            }
         }
 
         // Function to validate individual field
@@ -1819,10 +1791,10 @@ updateInputFiles() - Syncs file list with actual form input for submission-->
                         );
                     }
                 } else {
-                    // Show success notification
+                    // Show single submission notification
                     showSuccessNotification(
-                        'Biểu mẫu hợp lệ!',
-                        'Tất cả thông tin đã được điền đầy đủ. Đang gửi đăng ký khách sạn...'
+                        'Đang gửi thông tin...',
+                        'Vui lòng chờ trong giây lát.'
                     );
 
                     // Mark final step as completed
@@ -2015,18 +1987,7 @@ updateInputFiles() - Syncs file list with actual form input for submission-->
                     circle.style.backgroundColor = '#198754';
                     circle.style.color = 'white';
 
-                    // Show success notification
-                    const stepNames = {
-                        1: 'Thông tin khách sạn',
-                        2: 'Chi tiết phòng',
-                        3: 'Chính sách & đăng ký'
-                    };
 
-                    showSuccessNotification(
-                        `Hoàn thành bước ${stepNumber}!`,
-                        `${stepNames[stepNumber]} đã được điền đầy đủ. Có thể tiếp tục bước tiếp theo.`,
-                        3000
-                    );
                 }
             }
         }
@@ -2289,17 +2250,7 @@ updateInputFiles() - Syncs file list with actual form input for submission-->
         renderPreviews();
         updateInputFiles();
         
-        // Show success message if files were added
-        if (validFilesToAdd.length > 0) {
-            const successMsg = validFilesToAdd.length === 1 ? 
-                `Đã thêm 1 ảnh. Tổng cộng: ${fileList.length}/${maxImages} ảnh.` :
-                `Đã thêm ${validFilesToAdd.length} ảnh. Tổng cộng: ${fileList.length}/${maxImages} ảnh.`;
-            
-            // Show notification if the notification system is available
-            if (typeof showSuccessNotification === 'function') {
-                showSuccessNotification('Thêm ảnh thành công!', successMsg, 3000);
-            }
-        }
+
     }
 
     function renderPreviews() {

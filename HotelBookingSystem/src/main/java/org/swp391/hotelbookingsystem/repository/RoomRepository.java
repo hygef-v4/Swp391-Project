@@ -1,8 +1,6 @@
 package org.swp391.hotelbookingsystem.repository;
 
 import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -10,10 +8,14 @@ import org.swp391.hotelbookingsystem.model.Room;
 
 @Repository
 public class RoomRepository {
-    @Autowired
+    final
     JdbcTemplate jdbcTemplate;
 
     private static final BeanPropertyRowMapper<Room> ROOM_MAPPER = new BeanPropertyRowMapper<>(Room.class);
+
+    public RoomRepository(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     public List<String> getRoomImages(int id) {
         String query = "select image_url from RoomImages where room_id = ?";

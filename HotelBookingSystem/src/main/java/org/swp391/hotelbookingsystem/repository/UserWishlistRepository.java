@@ -1,7 +1,6 @@
 package org.swp391.hotelbookingsystem.repository;
 
 import org.swp391.hotelbookingsystem.model.Favorites;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.swp391.hotelbookingsystem.model.Hotel;
@@ -12,8 +11,12 @@ import java.util.List;
 
 @Repository
 public class UserWishlistRepository {
-    @Autowired
-    private JdbcTemplate jdbc;
+
+    private final JdbcTemplate jdbc;
+
+    public UserWishlistRepository(JdbcTemplate jdbc) {
+        this.jdbc = jdbc;
+    }
 
     public List<Favorites> findFavoritesByUserId(int userId) {
         String sql = """

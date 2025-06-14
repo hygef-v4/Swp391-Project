@@ -15,32 +15,39 @@ import java.util.List;
 @Controller
 public class HostDashboardController {
 
-    @Autowired
+    final
     RoomTypeService roomTypeService;
 
-    @Autowired
+    final
     LocationService locationService;
 
-    @Autowired
+    final
     AmenityService amenityService;
 
-    @Autowired
+    final
     CloudinaryService cloudinaryService;
 
-    @Autowired
+    final
     RoomService roomService;
-    @Autowired
+    final
     HotelService hotelService;
 
-    @Autowired
+    final
     UserService userService;
+
+    public HostDashboardController(RoomTypeService roomTypeService, LocationService locationService, AmenityService amenityService, CloudinaryService cloudinaryService, RoomService roomService, HotelService hotelService, UserService userService) {
+        this.roomTypeService = roomTypeService;
+        this.locationService = locationService;
+        this.amenityService = amenityService;
+        this.cloudinaryService = cloudinaryService;
+        this.roomService = roomService;
+        this.hotelService = hotelService;
+        this.userService = userService;
+    }
 
     @GetMapping("/host-dashboard")
     public String showHostDashboard(HttpSession session, Model model) {
-        User host = (User) session.getAttribute("user");
-//        if (host==null ||!host.getRole().equalsIgnoreCase("HOTEL_OWNER")) {
-//            return "redirect:/login"; // Or handle unauthorized access
-//        }
+
 
         return "host/host-dashboard";
     }

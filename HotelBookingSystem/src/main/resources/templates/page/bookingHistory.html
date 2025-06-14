@@ -144,9 +144,9 @@
                                                     <img th:src="${booking.imageUrl}" alt="Room Image" style="width: 100%; height: 100%; object-fit: cover;">
                                                 </div>
                                                 <div class="ms-2">
-                                                    <h6 class="card-title mb-0">Mã đặt phòng: <span th:text="${booking.bookingId}"></span></h6>
+                                                    <h6 class="card-title mb-0"><span th:text="${booking.hotelName}"></span></h6>
                                                     <ul class="nav nav-divider small">
-                                                        <li class="nav-item">Mã phòng: <span th:text="${booking.roomId}"></span></li>
+                                                        <li class="nav-item">Loại phòng: <span th:text="${booking.roomName}"></span></li>
                                                         <li class="nav-item">Trạng thái: <span th:text="${booking.status}"></span></li>
                                                     </ul>
                                                 </div>
@@ -186,8 +186,9 @@
                                                     <img th:src="${booking.imageUrl}" alt="Room Image" style="width: 100%; height: 100%; object-fit: cover;">
                                                 </div>
                                                 <div class="ms-2">
-                                                    <h6 class="card-title mb-0">Mã đặt phòng: <span th:text="${booking.bookingId}"></span></h6>
+                                                    <h6 class="card-title mb-0"><span th:text="${booking.hotelName}"></span></h6>
                                                     <ul class="nav nav-divider small">
+                                                        <li class="nav-item">Loại phòng: <span th:text="${booking.roomName}"></span></li>
                                                         <li class="nav-item">Trạng thái: <span th:text="${booking.status}"></span></li>
                                                     </ul>
                                                 </div>
@@ -227,14 +228,15 @@
                                                     <img th:src="${booking.imageUrl}" alt="Room Image" style="width: 100%; height: 100%; object-fit: cover;">
                                                 </div>
                                                 <div class="ms-2">
-                                                    <h6 class="card-title mb-0">Mã đặt phòng: <span th:text="${booking.bookingId}"></span></h6>
+                                                    <h6 class="card-title mb-0"><span th:text="${booking.hotelName}"></span></h6>
                                                     <ul class="nav nav-divider small">
+                                                        <li class="nav-item">Loại phòng: <span th:text="${booking.roomName}"></span></li>
                                                         <li class="nav-item">Trạng thái: <span th:text="${booking.status}"></span></li>
                                                     </ul>
                                                 </div>
                                             </div>
                                             <div class="mt-2 mt-md-0">
-                                                <a th:href="@{'/booking-detail/' + ${booking.bookingId}}" class="btn btn-primary-soft mb-0">View Details</a>
+                                                <a th:href="@{'/booking-detail/' + ${booking.bookingId}}" class="btn btn-primary-soft mb-0">Xem chi tiết</a>
                                             </div>
                                         </div>
                                         <div class="card-body">

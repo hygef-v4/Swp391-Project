@@ -1,6 +1,5 @@
 package org.swp391.hotelbookingsystem.repository;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -11,8 +10,7 @@ import java.util.List;
 @Repository
 public class ReviewRepository {
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     private static final BeanPropertyRowMapper<Review> REVIEW_MAPPER = new BeanPropertyRowMapper<>(Review.class);
 
@@ -58,6 +56,10 @@ public class ReviewRepository {
         WHERE  r.is_public = 1 AND u.role = 'CUSTOMER'
         ORDER BY r.created_at DESC
     """;
+
+    public ReviewRepository(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     // --- Repository Methods ---
 
