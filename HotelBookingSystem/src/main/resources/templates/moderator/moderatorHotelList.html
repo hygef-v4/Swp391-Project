@@ -1,17 +1,15 @@
-<!-- moderatorUserList.html (mock version for layout testing) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Moderator User List</title>
+    <title>Moderator Hotel List</title>
     <link rel="stylesheet" href="/assets/css/style.css">
     <link rel="stylesheet" href="/assets/vendor/bootstrap-icons/bootstrap-icons.css">
     <link rel="stylesheet" href="/assets/vendor/font-awesome/css/all.min.css">
     <link rel="stylesheet" href="/assets/vendor/bootstrap/dist/css/bootstrap.min.css">
     <script src="/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 </head>
-
 <!-- Dark mode -->
 <script>
     const storedTheme = localStorage.getItem('theme')
@@ -101,67 +99,49 @@
         <!-- Top bar END -->
 
         <div class="page-content-wrapper p-xxl-4">
-            <h1 class="h3 mb-4">Danh sách người dùng</h1>
+            <h1 class="h3 mb-4">Duyệt Khách Sạn</h1>
 
-            <!-- Guest card grid START -->
+            <!-- Hotel card grid START -->
             <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4 mt-4">
 
-                <!-- Mock User Card 1 -->
+                <!-- Mock Hotel Card 1 -->
                 <div class="col">
                     <div class="card shadow h-100">
-                        <div class="card-body d-flex flex-column align-items-center text-center">
-                            <img src="https://via.placeholder.com/80" class="rounded-circle mb-3" style="width: 80px; height: 80px; object-fit: cover;" alt="Avatar">
-                            <h5 class="card-title">Nguyễn Văn A</h5>
-                            <p class="card-text small text-muted">a.nguyen@example.com</p>
-                            <p class="card-text">0909123456</p>
-
-                            <div class="dropdown mb-2">
-                                <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">QUẢN LÝ WEB</button>
-                                <ul class="dropdown-menu">
-                                    <li><button class="dropdown-item">KHÁCH HÀNG</button></li>
-                                    <li><button class="dropdown-item">CHỦ KHÁCH SẠN</button></li>
-                                    <li><button class="dropdown-item">QUẢN LÝ WEB</button></li>
-                                    <li><button class="dropdown-item">QUẢN TRỊ VIÊN</button></li>
-                                </ul>
-                            </div>
-
-                            <button class="btn btn-sm btn-success">
-                                <i class="bi bi-check-circle"></i> Active
-                            </button>
+                        <img src="https://via.placeholder.com/400x200" class="card-img-top" alt="Hotel Image" style="object-fit: cover; height: 180px;">
+                        <div class="card-body">
+                            <h5 class="card-title">Khách Sạn Sài Gòn Star</h5>
+                            <p class="card-text"><i class="bi bi-geo-alt me-2"></i>Quận 1, TP.HCM</p>
+                            <p class="card-text small text-muted">Địa chỉ: 123 Lê Lợi, P. Bến Thành</p>
+                            <p class="card-text small"><strong>Chủ khách sạn:</strong> Nguyễn Văn A</p>
+                        </div>
+                        <div class="card-footer d-flex gap-2">
+                            <button class="btn btn-success w-50"><i class="bi bi-check-circle me-1"></i>Phê duyệt</button>
+                            <button class="btn btn-danger w-50"><i class="bi bi-x-circle me-1"></i>Từ chối</button>
                         </div>
                     </div>
                 </div>
 
-                <!-- Mock User Card 2 -->
+                <!-- Mock Hotel Card 2 -->
                 <div class="col">
                     <div class="card shadow h-100">
-                        <div class="card-body d-flex flex-column align-items-center text-center">
-                            <img src="https://via.placeholder.com/80" class="rounded-circle mb-3" style="width: 80px; height: 80px; object-fit: cover;" alt="Avatar">
-                            <h5 class="card-title">Trần Thị B</h5>
-                            <p class="card-text small text-muted">b.tran@example.com</p>
-                            <p class="card-text">0912345678</p>
-
-                            <div class="dropdown mb-2">
-                                <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">KHÁCH HÀNG</button>
-                                <ul class="dropdown-menu">
-                                    <li><button class="dropdown-item">KHÁCH HÀNG</button></li>
-                                    <li><button class="dropdown-item">CHỦ KHÁCH SẠN</button></li>
-                                    <li><button class="dropdown-item">QUẢN LÝ WEB</button></li>
-                                    <li><button class="dropdown-item">QUẢN TRỊ VIÊN</button></li>
-                                </ul>
-                            </div>
-
-                            <button class="btn btn-sm btn-danger">
-                                <i class="bi bi-slash-circle"></i> Inactive
-                            </button>
+                        <img src="https://via.placeholder.com/400x200" class="card-img-top" alt="Hotel Image" style="object-fit: cover; height: 180px;">
+                        <div class="card-body">
+                            <h5 class="card-title">Resort Biển Xanh</h5>
+                            <p class="card-text"><i class="bi bi-geo-alt me-2"></i>Phú Quốc</p>
+                            <p class="card-text small text-muted">Địa chỉ: 78 Trần Hưng Đạo, Dương Đông</p>
+                            <p class="card-text small"><strong>Chủ khách sạn:</strong> Trần Thị B</p>
+                        </div>
+                        <div class="card-footer d-flex gap-2">
+                            <button class="btn btn-success w-50"><i class="bi bi-check-circle me-1"></i>Phê duyệt</button>
+                            <button class="btn btn-danger w-50"><i class="bi bi-x-circle me-1"></i>Từ chối</button>
                         </div>
                     </div>
                 </div>
 
-                <!-- Add more mock cards as needed -->
+                <!-- More mock hotel cards can be added here -->
 
             </div>
-            <!-- Guest card grid END -->
+            <!-- Hotel card grid END -->
         </div>
     </div>
 </main>
