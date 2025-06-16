@@ -1,15 +1,13 @@
 <!DOCTYPE html>
-<html lang="vi"> <!-- Changed lang to Vietnamese -->
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 
-<!-- Mirrored from stackbros.in/bookinga/landing/agent-dashboard.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:05:49 GMT -->
 <head>
-    <title>Hamora - Bảng điều khiển</title> <!-- Translated -->
+    <title>Bảng Điều Khiển Chủ Nhà - Hamora</title>
 
     <!-- Meta Tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-    <meta name="description" content="Booking - Chủ đề Đặt phòng Trực tuyến Đa năng"> <!-- Translated -->
+    <meta name="description" content="Bảng Điều Khiển Chủ Nhà - Quản lý khách sạn và đặt phòng của bạn">
 
     <!-- Dark mode -->
     <script>
@@ -68,7 +66,6 @@
 
             }
         })
-
     </script>
 
     <!-- Favicon -->
@@ -88,293 +85,576 @@
     <!-- Theme CSS -->
     <link rel="stylesheet" type="text/css" href="assets/css/style.css">
 
+    <style>
+        .metric-card {
+            transition: transform 0.2s ease-in-out;
+        }
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .quick-action-btn {
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .quick-action-btn:hover {
+            border-color: var(--bs-primary);
+            transform: translateY(-2px);
+        }
+        
+        /* Beautiful Zoom Controls */
+        .zoom-controls {
+            display: flex;
+            gap: 4px;
+            background: rgba(255,255,255,0.1);
+            padding: 4px;
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .zoom-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            min-width: 36px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .zoom-btn:hover {
+            background: rgba(255,255,255,0.3);
+            border-color: rgba(255,255,255,0.5);
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        
+        .zoom-btn:active {
+            transform: translateY(0);
+        }
+        
+        .zoom-btn:focus {
+            box-shadow: 0 0 0 2px rgba(255,255,255,0.3);
+            color: white;
+        }
+        
+        /* Beautiful Pagination */
+        .pagination-custom {
+            gap: 8px;
+        }
+        
+        .pagination-custom .page-item .page-link {
+            border: none;
+            background: transparent;
+            color: #6c757d;
+            font-weight: 500;
+            min-width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .pagination-custom .page-item .page-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 12px;
+        }
+        
+        .pagination-custom .page-item .page-link span,
+        .pagination-custom .page-item .page-link {
+            position: relative;
+            z-index: 3;
+        }
+        
+        .pagination-custom .page-item .page-link button {
+            position: relative;
+            z-index: 3;
+            background: transparent;
+            border: none;
+            color: inherit;
+            font-weight: inherit;
+        }
+        
+        .pagination-custom .page-item:hover .page-link::before {
+            opacity: 0.1;
+        }
+        
+        .pagination-custom .page-item:hover .page-link {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+            color: #667eea;
+        }
+        
+        .pagination-custom .page-item.active .page-link {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white !important;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transform: translateY(-2px);
+            z-index: 2;
+        }
+        
+        .pagination-custom .page-item.active .page-link::before {
+            opacity: 0;
+        }
+        
+        .pagination-custom .page-item.disabled .page-link {
+            color: #dee2e6;
+            cursor: not-allowed;
+        }
+        
+        .pagination-custom .page-item.disabled:hover .page-link {
+            transform: none;
+            box-shadow: none;
+        }
+        
+        /* Beautiful Info Badge */
+        .pagination-info-badge {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+        }
+        
+        /* Chart Container Enhancement */
+        .chart-container {
+            position: relative;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        
+        .chart-header-enhanced {
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 20px 20px 0 0;
+        }
+        
+        /* Enhanced Dropdown */
+        .enhanced-dropdown .dropdown-toggle {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+        
+        .enhanced-dropdown .dropdown-toggle:hover,
+        .enhanced-dropdown .dropdown-toggle:focus {
+            background: rgba(255,255,255,0.3);
+            border-color: rgba(255,255,255,0.5);
+            box-shadow: none;
+            color: white;
+        }
+        
+        .enhanced-dropdown .dropdown-menu {
+            background: rgba(255,255,255,0.98);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            padding: 8px;
+        }
+        
+        .enhanced-dropdown .dropdown-item {
+            border-radius: 10px;
+            margin: 2px 0;
+            padding: 8px 12px;
+            transition: all 0.3s ease;
+            color: #495057;
+        }
+        
+        .enhanced-dropdown .dropdown-item:hover {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .enhanced-dropdown .dropdown-item.active {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            font-weight: 600;
+        }
+        
+        .enhanced-dropdown .dropdown-divider {
+            margin: 8px 0;
+            border-color: rgba(102, 126, 234, 0.2);
+        }
+        
+        /* Loading Animation */
+        .chart-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 350px;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 
 <body>
-
 
 <div th:replace="~{common/header :: header}"></div>
 
 <!-- **************** MAIN CONTENT START **************** -->
 <main>
-
-<!--    menu-->
+    <!-- Host Menu -->
     <section th:replace="~{common-host/menu-host :: menu}"></section>
-
-
-
 
     <section class="pt-0">
         <div class="container vstack gap-4">
-            <!-- Title START -->
+            
+            <!-- Welcome Header START -->
             <div class="row">
                 <div class="col-12">
-                    <h1 class="fs-4 mb-0"><i class="bi bi-house-door fa-fw me-1"></i>Bảng điều khiển</h1> <!-- Translated -->
-                </div>
-            </div>
-            <!-- Title END -->
-
-            <!-- Counter START -->
-            <div class="row g-4">
-                <!-- Counter item -->
-                <div class="col-sm-6 col-xl-3">
-                    <div class="card card-body border">
-                        <div class="d-flex align-items-center">
-                            <!-- Icon -->
-                            <div class="icon-xl bg-success rounded-3 text-white">
-                                <i class="bi bi-journals"></i>
-                            </div>
-                            <!-- Content -->
-                            <div class="ms-3">
-                                <h4>56</h4>
-                                <span>Tổng số Danh mục</span> <!-- Translated -->
-                            </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="fs-3 mb-2">
+                                <i class="bi bi-speedometer2 text-primary me-2"></i>
+                                Bảng Điều Khiển Chủ Nhà
+                            </h1>
+                            <p class="text-muted mb-0">Chào mừng trở lại! Đây là những gì đang diễn ra với khách sạn của bạn hôm nay.</p>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Counter item -->
-                <div class="col-sm-6 col-xl-3">
-                    <div class="card card-body border">
-                        <div class="d-flex align-items-center">
-                            <!-- Icon -->
-                            <div class="icon-xl bg-info rounded-3 text-white">
-                                <i class="bi bi-graph-up-arrow"></i>
-                            </div>
-                            <!-- Content -->
-                            <div class="ms-3">
-                                <h4>$2,55,365</h4>
-                                <span>Thu nhập</span> <!-- Translated -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Counter item -->
-                <div class="col-sm-6 col-xl-3">
-                    <div class="card card-body border">
-                        <div class="d-flex align-items-center">
-                            <!-- Icon -->
-                            <div class="icon-xl bg-warning rounded-3 text-white">
-                                <i class="bi bi-bar-chart-line-fill"></i>
-                            </div>
-                            <!-- Content -->
-                            <div class="ms-3">
-                                <h4>15K</h4>
-                                <span>Lượt truy cập</span> <!-- Translated -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Counter item -->
-                <div class="col-sm-6 col-xl-3">
-                    <div class="card card-body border">
-                        <div class="d-flex align-items-center">
-                            <!-- Icon -->
-                            <div class="icon-xl bg-primary rounded-3 text-white">
-                                <i class="bi bi-star"></i>
-                            </div>
-                            <!-- Content -->
-                            <div class="ms-3">
-                                <h4>12K</h4>
-                                <span>Tổng số Đánh giá</span> <!-- Translated -->
-                            </div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-download me-1"></i>Xuất Báo Cáo
+                            </button>
+                            <button class="btn btn-primary btn-sm">
+                                <i class="bi bi-plus-circle me-1"></i>Thêm Khách Sạn Mới
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
-            <!-- Counter END -->
+            <!-- Welcome Header END -->
 
-            <!-- Graph START -->
+            <!-- Key Metrics START -->
             <div class="row g-4">
-                <!-- Booking Chart START -->
-                <div class="col-lg-7 col-xl-8">
-                    <!-- Chart START -->
-                    <div class="card border h-100">
-                        <!-- Card header -->
-                        <div class="card-header border-bottom">
-                            <h5 class="card-header-title">Thống kê Đặt chỗ</h5> <!-- Translated -->
-                        </div>
-                        <!-- Card body -->
+                <!-- Total Hotels -->
+                <div class="col-sm-6 col-xl-3">
+                    <div class="card metric-card border-0 shadow-sm h-100">
                         <div class="card-body">
-                            <!-- Apex chart -->
+                            <div class="d-flex align-items-center">
+                                <div class="icon-xl bg-primary bg-opacity-10 rounded-3 text-primary">
+                                    <i class="bi bi-buildings fs-4"></i>
+                                </div>
+                                <div class="ms-3 flex-grow-1">
+                                    <h3 class="mb-1 fw-bold">8</h3>
+                                    <h6 class="mb-1">Tổng Số Khách Sạn</h6>
+                                    <small class="text-success">
+                                        <i class="bi bi-arrow-up me-1"></i>+2 tháng này
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Monthly Revenue -->
+                <div class="col-sm-6 col-xl-3">
+                    <div class="card metric-card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="icon-xl bg-success bg-opacity-10 rounded-3 text-success">
+                                    <i class="bi bi-cash-stack fs-4"></i>
+                                </div>
+                                <div class="ms-3 flex-grow-1">
+                                    <h3 class="mb-1 fw-bold">$24,580</h3>
+                                    <h6 class="mb-1">Doanh Thu Tháng</h6>
+                                    <small class="text-success">
+                                        <i class="bi bi-arrow-up me-1"></i>+18.5% so với tháng trước
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total Bookings -->
+                <div class="col-sm-6 col-xl-3">
+                    <div class="card metric-card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="icon-xl bg-info bg-opacity-10 rounded-3 text-info">
+                                    <i class="bi bi-calendar-check fs-4"></i>
+                                </div>
+                                <div class="ms-3 flex-grow-1">
+                                    <h3 class="mb-1 fw-bold">156</h3>
+                                    <h6 class="mb-1">Tổng Số Đặt Phòng</h6>
+                                    <small class="text-info">
+                                        <i class="bi bi-clock me-1"></i>12 chờ phê duyệt
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Average Rating -->
+                <div class="col-sm-6 col-xl-3">
+                    <div class="card metric-card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="icon-xl bg-warning bg-opacity-10 rounded-3 text-warning">
+                                    <i class="bi bi-star-fill fs-4"></i>
+                                </div>
+                                <div class="ms-3 flex-grow-1">
+                                    <h3 class="mb-1 fw-bold">4.8</h3>
+                                    <h6 class="mb-1">Đánh Giá Trung Bình</h6>
+                                    <small class="text-muted">
+                                        <i class="bi bi-chat-dots me-1"></i>Dựa trên 340 đánh giá
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Key Metrics END -->
+
+            <!-- Charts and Quick Actions START -->
+            <div class="row g-4">
+                <!-- Enhanced Chart with Toggle -->
+                <div class="col-xl-8">
+                    <div class="card border-0 shadow-sm h-100 chart-container">
+                        <div class="chart-header-enhanced">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center gap-3">
+                                    <h5 class="card-title mb-0" id="chartTitle">Thống Kê Đặt Phòng</h5>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <!-- Zoom Controls -->
+                                    <div class="zoom-controls">
+                                        <button class="btn btn-sm zoom-btn" onclick="zoomIn()" title="Phóng to">
+                                            <i class="bi bi-zoom-in"></i>
+                                        </button>
+                                        <button class="btn btn-sm zoom-btn" onclick="zoomOut()" title="Thu nhỏ">
+                                            <i class="bi bi-zoom-out"></i>
+                                        </button>
+                                        <button class="btn btn-sm zoom-btn" onclick="resetZoom()" title="Đặt lại">
+                                            <i class="bi bi-arrow-clockwise"></i>
+                                        </button>
+                                    </div>
+                                    <div class="enhanced-dropdown dropdown">
+                                        <button class="btn btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                            <i class="bi bi-calendar3 me-2"></i>6 tháng qua
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item" href="#" onclick="changePeriod('latest', 'Mới nhất')">
+                                                <i class="bi bi-calendar-day me-2"></i>Mới nhất
+                                            </a></li>
+                                            <li><a class="dropdown-item" href="#" onclick="changePeriod('30days', '30 ngày qua')">
+                                                <i class="bi bi-calendar-week me-2"></i>30 ngày qua
+                                            </a></li>
+                                            <li><a class="dropdown-item" href="#" onclick="changePeriod('6months', '6 tháng qua')">
+                                                <i class="bi bi-calendar-range me-2"></i>6 tháng qua
+                                            </a></li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li><a class="dropdown-item" href="#" onclick="changePeriod('year2024', 'Năm 2024')">
+                                                <i class="bi bi-calendar4-range me-2"></i>Năm 2024
+                                            </a></li>
+                                            <li><a class="dropdown-item" href="#" onclick="changePeriod('year2023', 'Năm 2023')">
+                                                <i class="bi bi-calendar4-range me-2"></i>Năm 2023
+                                            </a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body p-4">
                             <div id="apexChartTrafficStats" class="mt-2"></div>
-                        </div>
-                    </div>
-                    <!-- Chart END -->
-                </div>
-                <!-- Booking Chart END -->
-
-                <!-- Booking graph START -->
-                <div class="col-lg-4">
-                    <div class="card border h-100">
-
-                        <!-- Card header -->
-                        <div class="card-header border-bottom d-flex justify-content-between align-items-center">
-                            <h5 class="card-header-title">Lưu lượng Đặt chỗ</h5> <!-- Translated -->
-                            <a href="#" class="btn btn-link p-0 mb-0">Xem tất cả</a> <!-- Translated -->
-                        </div>
-
-                        <!-- Card body START -->
-                        <div class="card-body p-3">
-                            <!-- Chart -->
-                            <div class="col-sm-6 mx-auto">
-                                <div class="d-flex justify-content-center" id="ChartTrafficViews"></div>
+                            <div id="chartLoading" class="chart-loading d-none">
+                                <div class="text-center">
+                                    <div class="loading-spinner mb-3"></div>
+                                    <p class="text-muted">Đang tải dữ liệu...</p>
+                                </div>
                             </div>
-
-                            <!-- Content -->
-                            <ul class="list-group list-group-borderless align-items-center mt-3">
-                                <li class="list-group-item"><i class="text-primary fas fa-circle me-2"></i>Tự nhiên</li> <!-- Translated -->
-                                <li class="list-group-item"><i class="text-success fas fa-circle me-2"></i>Google</li> <!-- Kept Google -->
-                                <li class="list-group-item"><i class="text-warning fas fa-circle me-2"></i>Mạng xã hội</li> <!-- Translated -->
-                                <li class="list-group-item"><i class="text-danger fas fa-circle me-2"></i>Chương trình giới thiệu</li> <!-- Translated -->
-                            </ul>
                         </div>
                     </div>
                 </div>
-                <!-- Booking graph END -->
-            </div>
-            <!-- Graph END -->
 
-            <!-- Booking table START -->
+                <!-- Quick Actions -->
+                <div class="col-xl-4">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-header bg-transparent border-bottom-0">
+                            <h5 class="card-title mb-0">Thao Tác Nhanh</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-3">
+                                <a href="#" class="btn btn-outline-primary quick-action-btn text-start">
+                                    <i class="bi bi-plus-circle me-3"></i>
+                                    <span>
+                                        <strong>Thêm Khách Sạn Mới</strong><br>
+                                        <small class="text-muted">Đăng ký tài sản mới</small>
+                                    </span>
+                                </a>
+                                
+                                <a href="#" class="btn btn-outline-success quick-action-btn text-start">
+                                    <i class="bi bi-door-open me-3"></i>
+                                    <span>
+                                        <strong>Quản Lý Phòng</strong><br>
+                                        <small class="text-muted">Thêm hoặc chỉnh sửa loại phòng</small>
+                                    </span>
+                                </a>
+                                
+                                <a href="#" class="btn btn-outline-info quick-action-btn text-start">
+                                    <i class="bi bi-calendar-event me-3"></i>
+                                    <span>
+                                        <strong>Xem Lịch</strong><br>
+                                        <small class="text-muted">Kiểm tra tình trạng phòng</small>
+                                    </span>
+                                </a>
+                                
+                                <a href="#" class="btn btn-outline-warning quick-action-btn text-start">
+                                    <i class="bi bi-star me-3"></i>
+                                    <span>
+                                        <strong>Quản Lý Đánh Giá</strong><br>
+                                        <small class="text-muted">Phản hồi ý kiến khách hàng</small>
+                                    </span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Charts and Quick Actions END -->
+
+            <!-- Recent Bookings START -->
             <div class="row">
                 <div class="col-12">
-                    <div class="card border rounded-3">
-                        <!-- Card header START -->
-                        <div class="card-header border-bottom">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-transparent border-bottom-0">
                             <div class="d-sm-flex justify-content-between align-items-center">
-                                <h5 class="mb-2 mb-sm-0">Đặt chỗ Sắp tới</h5> <!-- Translated -->
-                                <a href="#" class="btn btn-sm btn-primary mb-0">Xem Tất cả</a> <!-- Translated -->
+                                <h5 class="card-title mb-2 mb-sm-0">Đặt Phòng Gần Đây</h5>
+                                <a href="#" class="btn btn-sm btn-primary">Xem Tất Cả Đặt Phòng</a>
                             </div>
                         </div>
-                        <!-- Card header END -->
-
-                        <!-- Card body START -->
+                        
                         <div class="card-body">
-                            <!-- Search and select START -->
-                            <div class="row g-3 align-items-center justify-content-between mb-3">
-                                <!-- Search -->
-                                <div class="col-md-8">
-                                    <form class="rounded position-relative">
-                                        <input class="form-control pe-5" type="search" placeholder="Tìm kiếm" aria-label="Tìm kiếm"> <!-- Translated -->
-                                        <button class="btn border-0 px-3 py-0 position-absolute top-50 end-0 translate-middle-y" type="submit"><i class="fas fa-search fs-6"></i></button>
-                                    </form>
+                            <!-- Filter Controls -->
+                            <div class="row g-3 align-items-center mb-4">
+                                <div class="col-md-6">
+                                    <div class="input-group">
+                                        <input id="bookingSearch" class="form-control" type="search" placeholder="Tìm kiếm đặt phòng...">
+                                        <button class="btn btn-outline-secondary" type="button">
+                                            <i class="bi bi-search"></i>
+                                        </button>
+                                    </div>
                                 </div>
-
-                                <!-- Select option -->
                                 <div class="col-md-3">
-                                    <!-- Short by filter -->
-                                    <form>
-                                        <select class="form-select js-choice" aria-label=".form-select-sm">
-                                            <option value="">Sắp xếp theo</option> <!-- Translated -->
-                                            <option>Miễn phí</option> <!-- Translated -->
-                                            <option>Mới nhất</option> <!-- Translated -->
-                                            <option>Cũ nhất</option> <!-- Translated -->
-                                        </select>
-                                    </form>
+                                    <select id="statusFilter" class="form-select">
+                                        <option>Tất cả trạng thái</option>
+                                        <option>Đã xác nhận</option>
+                                        <option>Đang chờ</option>
+                                        <option>Nhận phòng</option>
+                                        <option>Hoàn thành</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <select id="hotelFilter" class="form-select">
+                                        <option>Tất cả khách sạn</option>
+                                        <option>Khách Sạn Grand Plaza</option>
+                                        <option>Resort Sunset</option>
+                                        <option>Nhà Nghỉ Trung Tâm Thành Phố</option>
+                                    </select>
                                 </div>
                             </div>
-                            <!-- Search and select END -->
+                            
+                            <!-- Enhanced Pagination Info -->
+                            <div class="row mb-3">
+                                <div class="col-12 d-flex justify-content-between align-items-center">
+                                    <div class="pagination-info-badge" id="paginationInfo">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        <span>Hiển thị dữ liệu</span>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <small class="text-muted">Số mục mỗi trang:</small>
+                                        <select class="form-select form-select-sm" style="width: auto;" id="itemsPerPageSelect">
+                                            <option value="3" selected>3</option>
+                                            <option value="5">5</option>
+                                            <option value="10">10</option>
+                                            <option value="15">15</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
 
-                            <!-- Hotel room list START -->
-                            <div class="table-responsive border-0">
-                                <table class="table align-middle p-4 mb-0 table-hover table-shrink">
-                                    <!-- Table head -->
+                            <!-- Bookings Table -->
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
                                     <thead class="table-light">
-                                    <tr>
-                                        <th scope="col" class="border-0 rounded-start">#</th>
-                                        <th scope="col" class="border-0">Tên</th> <!-- Translated -->
-                                        <th scope="col" class="border-0">Loại</th> <!-- Translated -->
-                                        <th scope="col" class="border-0">Ngày</th> <!-- Translated -->
-                                        <th scope="col" class="border-0">Trạng thái</th> <!-- Translated -->
-                                        <th scope="col" class="border-0">Thanh toán</th> <!-- Translated -->
-                                        <th scope="col" class="border-0 rounded-end">Hành động</th> <!-- Translated -->
-                                    </tr>
+                                        <tr>
+                                            <th scope="col" class="border-0">Mã Đặt Phòng</th>
+                                            <th scope="col" class="border-0">Khách</th>
+                                            <th scope="col" class="border-0">Khách Sạn</th>
+                                            <th scope="col" class="border-0">Loại Phòng</th>
+                                            <th scope="col" class="border-0">Nhận Phòng</th>
+                                            <th scope="col" class="border-0">Trả Phòng</th>
+                                            <th scope="col" class="border-0">Trạng Thái</th>
+                                            <th scope="col" class="border-0">Số Tiền</th>
+                                            <th scope="col" class="border-0">Hành Động</th>
+                                        </tr>
                                     </thead>
-
-                                    <!-- Table body START -->
-                                    <tbody class="border-top-0">
-                                    <!-- Table item -->
-                                    <tr>
-                                        <td> <h6 class="mb-0">01</h6> </td>
-                                        <td> <h6 class="mb-0"><a href="#">Phòng Deluxe View Hồ Bơi</a></h6> </td> <!-- Translated -->
-                                        <td> Có Bữa Sáng </td> <!-- Translated -->
-                                        <td> Tháng 11 22 - 25 </td> <!-- Translated -->
-                                        <td> <div class="badge text-bg-success">Đã đặt</div> </td> <!-- Translated -->
-                                        <td> <div class="badge bg-success bg-opacity-10 text-success">Thanh toán đầy đủ</div> </td> <!-- Translated -->
-                                        <td> <a href="#" class="btn btn-sm btn-light mb-0">Xem</a> </td> <!-- Translated -->
-                                    </tr>
-
-                                    <!-- Table item -->
-                                    <tr>
-                                        <td> <h6 class="mb-0">02</h6> </td>
-                                        <td> <h6 class="mb-0"><a href="#">Phòng Deluxe View Hồ Bơi kèm Bữa Sáng</a></h6> </td> <!-- Translated -->
-                                        <td> Hủy miễn phí | Chỉ bữa sáng </td> <!-- Translated -->
-                                        <td> Tháng 11 24 - 28 </td> <!-- Translated -->
-                                        <td> <div class="badge text-bg-success">Đã đặt</div> </td> <!-- Translated -->
-                                        <td> <div class="badge bg-orange bg-opacity-10 text-orange">Tại cơ sở</div> </td> <!-- Translated -->
-                                        <td> <a href="#" class="btn btn-sm btn-light mb-0">Xem</a> </td> <!-- Translated -->
-                                    </tr>
-
-                                    <!-- Table item -->
-                                    <tr>
-                                        <td> <h6 class="mb-0">03</h6> </td>
-                                        <td> <h6 class="mb-0"><a href="#">Phòng Luxury có Ban Công</a></h6> </td> <!-- Translated -->
-                                        <td> Hủy miễn phí | Bữa sáng + Bữa trưa/tối </td> <!-- Translated -->
-                                        <td> Tháng 11 24 - 28 </td> <!-- Translated -->
-                                        <td> <div class="badge text-bg-info">Đã giữ chỗ</div> </td> <!-- Translated -->
-                                        <td> <div class="badge bg-info bg-opacity-10 text-info">Thanh toán một nửa</div> </td> <!-- Translated -->
-                                        <td> <a href="#" class="btn btn-sm btn-light mb-0">Xem</a> </td> <!-- Translated -->
-                                    </tr>
-
-                                    <!-- Table item -->
-                                    <tr>
-                                        <td> <h6 class="mb-0">04</h6> </td>
-                                        <td> <h6 class="mb-0"><a href="#">Phòng Deluxe Giường Đôi Có Ban Công</a></h6> </td> <!-- Translated -->
-                                        <td> Hủy miễn phí </td> <!-- Translated -->
-                                        <td> Tháng 11 28 - 30 </td> <!-- Translated -->
-                                        <td> <div class="badge text-bg-success">Đã đặt</div> </td> <!-- Translated -->
-                                        <td> <div class="badge bg-success bg-opacity-10 text-success">Thanh toán đầy đủ</div> </td> <!-- Translated -->
-                                        <td> <a href="#" class="btn btn-sm btn-light mb-0">Xem</a> </td> <!-- Translated -->
-                                    </tr>
-
-                                    <!-- Table item -->
-                                    <tr>
-                                        <td> <h6 class="mb-0">05</h6> </td>
-                                        <td> <h6 class="mb-0"><a href="#">Phòng Hủy Miễn Phí | Bữa sáng + Bữa trưa</a></h6> </td> <!-- Translated -->
-                                        <td> Hủy miễn phí </td> <!-- Translated -->
-                                        <td> Tháng 11 28 - 30 </td> <!-- Translated -->
-                                        <td> <div class="badge text-bg-info">Đã giữ chỗ</div> </td> <!-- Translated -->
-                                        <td> <div class="badge bg-success bg-opacity-10 text-success">Thanh toán đầy đủ</div> </td> <!-- Translated -->
-                                        <td> <a href="#" class="btn btn-sm btn-light mb-0">Xem</a> </td> <!-- Translated -->
-                                    </tr>
+                                    <tbody id="bookingsTableBody">
+                                        <!-- Dynamic content will be loaded here -->
                                     </tbody>
-                                    <!-- Table body END -->
                                 </table>
                             </div>
-                            <!-- Hotel room list END -->
+                            
+                            <!-- Pagination -->
+                            <div id="paginationContainer"></div>
                         </div>
-                        <!-- Card body END -->
-
-                        <!-- Card footer START -->
-
-                        <!-- Card footer END -->
                     </div>
                 </div>
             </div>
-            <!-- Booking table END -->
+            <!-- Recent Bookings END -->
+
         </div>
     </section>
-    <!-- =======================
-    Content END -->
 
 </main>
 <!-- **************** MAIN CONTENT END **************** -->
 
-
 <div th:replace="~{common/footer :: footer}"></div>
-
 
 <div class="back-top"></div>
 
@@ -388,7 +668,778 @@
 <!-- ThemeFunctions -->
 <script src="assets/js/functions.js"></script>
 
-</body>
+<!-- Chart Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Pagination first
+    initializePagination();
+    
+    // Wait for functions.js to run its chart initialization, then override it
+    setTimeout(() => {
+        if (typeof ApexCharts !== 'undefined') {
+            console.log('Initializing custom booking chart...');
+            initializeBookingChart('6months'); // Initialize with default period
+            
+            // Set default active state for "6 tháng qua"
+            setTimeout(() => {
+                const defaultItem = document.querySelector(`[onclick*="6months"]`);
+                if (defaultItem) {
+                    defaultItem.classList.add('active');
+                }
+                // Initialize zoom button states after chart is loaded
+                updateZoomButtonStates();
+            }, 100);
+        } else {
+            console.error('ApexCharts not loaded');
+            // Show fallback message
+            document.querySelector("#apexChartTrafficStats").innerHTML = 
+                '<div class="d-flex align-items-center justify-content-center h-100 text-muted" style="height: 350px;">' +
+                '<div class="text-center">' +
+                '<i class="bi bi-bar-chart fs-1 mb-3"></i>' +
+                '<p>Đang tải biểu đồ...</p>' +
+                '</div>' +
+                '</div>';
+        }
+    }, 1000); // Wait 1 second for functions.js to complete
+});
 
-<!-- Mirrored from stackbros.in/bookinga/landing/agent-dashboard.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:06:13 GMT -->
+// Chart Management
+let currentChart = null;
+let zoomLevel = 1;
+
+// Chart data sets for different time periods
+const chartDataSets = {
+    '6months': {
+        categories: ['Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'],
+        data: [45, 52, 38, 65, 42, 68],
+        title: '6 tháng qua'
+    },
+    '30days': {
+        categories: ['Tuần 1', 'Tuần 2', 'Tuần 3', 'Tuần 4'],
+        data: [28, 35, 42, 38],
+        title: '30 ngày qua'
+    },
+    'year2024': {
+        categories: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'],
+        data: [32, 41, 35, 48, 55, 62, 45, 52, 38, 65, 42, 68],
+        title: 'Năm 2024'
+    },
+    'year2023': {
+        categories: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'],
+        data: [25, 30, 28, 35, 42, 48, 38, 45, 35, 52, 38, 55],
+        title: 'Năm 2023'
+    },
+    'latest': {
+        categories: ['Hôm qua', 'Hôm nay'],
+        data: [12, 18],
+        title: 'Mới nhất'
+    }
+};
+
+let currentPeriod = '6months'; // Default period
+
+function initializeBookingChart(period = '6months') {
+    // Clear the chart container first
+    const chartContainer = document.querySelector("#apexChartTrafficStats");
+    if (chartContainer) {
+        chartContainer.innerHTML = '';
+    }
+    
+    // Destroy existing chart if any
+    if (currentChart) {
+        try {
+            currentChart.destroy();
+            console.log('Previous chart destroyed');
+        } catch (e) {
+            console.log('Error destroying previous chart:', e);
+        }
+    }
+    
+    // Get data for selected period
+    const selectedData = chartDataSets[period] || chartDataSets['6months'];
+    currentPeriod = period;
+    
+    // Store data globally for zoom functionality
+    window.originalChartData = selectedData.data;
+    window.originalCategories = selectedData.categories;
+    
+    // Reset zoom variables
+    zoomLevel = 1;
+    currentZoomStart = 0;
+    currentZoomEnd = window.originalCategories.length - 1;
+    
+    const options = {
+        series: [{
+            name: 'Số Đặt Phòng',
+            data: window.originalChartData
+        }],
+        chart: {
+            type: 'column', // Column chart for booking statistics
+            height: 350,
+            toolbar: { 
+                show: false
+            },
+            zoom: {
+                enabled: false // Disable built-in zoom to use our custom zoom
+            }
+        },
+        colors: ['#f5576c'],
+        dataLabels: { enabled: false },
+        xaxis: {
+            categories: window.originalCategories,
+            type: 'category'
+        },
+        yaxis: {
+            title: { text: 'Số Đặt Phòng' }
+        },
+        plotOptions: {
+            column: {
+                borderRadius: 4,
+                columnWidth: '60%',
+                dataLabels: {
+                    position: 'top'
+                }
+            }
+        },
+        grid: { 
+            borderColor: '#e7e7e7',
+            strokeDashArray: 5,
+            xaxis: {
+                lines: { show: true }
+            },
+            yaxis: {
+                lines: { show: true }
+            }
+        },
+        fill: {
+            type: 'gradient',
+            gradient: {
+                shadeIntensity: 1,
+                opacityFrom: 0.7,
+                opacityTo: 0.2,
+                stops: [0, 90, 100]
+            }
+        },
+        tooltip: {
+            theme: 'dark',
+            style: {
+                fontSize: '13px',
+                fontFamily: 'Segoe UI, sans-serif'
+            },
+            y: {
+                formatter: function (val) {
+                    return val + " đặt phòng"
+                },
+                title: {
+                    formatter: function () {
+                        return "Số lượng: "
+                    }
+                }
+            },
+            x: {
+                formatter: function(val, { dataPointIndex }) {
+                    const category = window.originalCategories[dataPointIndex];
+                    return category || val;
+                }
+            }
+        },
+        responsive: [{
+            breakpoint: 480,
+            options: {
+                chart: {
+                    height: 250
+                }
+            }
+        }]
+    };
+    
+    currentChart = new ApexCharts(document.querySelector("#apexChartTrafficStats"), options);
+    currentChart.render()
+        .then(() => {
+            console.log('Chart rendered successfully');
+            
+            // Update chart title with period info
+            const titleElement = document.querySelector('#chartTitle');
+            if (titleElement) {
+                const dataCount = selectedData.data.length;
+                const totalBookings = selectedData.data.reduce((sum, val) => sum + val, 0);
+                titleElement.innerHTML = `
+                    Thống Kê Đặt Phòng 
+                    <small class="text-light opacity-75 ms-2">
+                        (${selectedData.title} - ${totalBookings} đặt phòng)
+                    </small>
+                `;
+            }
+            
+            // Initialize button states after chart is fully rendered
+            setTimeout(updateZoomButtonStates, 100);
+        })
+        .catch(error => {
+            console.error('Error rendering chart:', error);
+        });
+}
+
+// Zoom Controls - Enhanced Implementation
+let currentZoomStart = 0;
+let currentZoomEnd = 5; // Show all 6 categories initially (0-5)
+
+function zoomIn() {
+    if (currentChart && zoomLevel < 3) {
+        zoomLevel += 0.5;
+        
+        // Calculate how many categories to show (minimum 2)
+        const totalCategories = window.originalCategories.length;
+        const categoriesToShow = Math.max(2, Math.floor(totalCategories / zoomLevel));
+        
+        // Adjust the zoom window (keep it at the end for recent data)
+        currentZoomEnd = totalCategories - 1;
+        currentZoomStart = Math.max(0, currentZoomEnd - categoriesToShow + 1);
+        
+        updateChartZoom();
+        console.log(`Zoomed IN to level ${zoomLevel}, showing ${categoriesToShow} categories (${currentZoomStart}-${currentZoomEnd})`);
+    }
+}
+
+function zoomOut() {
+    if (currentChart && zoomLevel > 1) {
+        console.log(`Current zoom level before zoom out: ${zoomLevel}`);
+        
+        if (zoomLevel <= 1.5) {
+            // If close to minimum, reset to show all data
+            resetZoom();
+            return;
+        }
+        
+        zoomLevel -= 0.5;
+        
+        // Calculate how many categories to show
+        const totalCategories = window.originalCategories.length;
+        const categoriesToShow = Math.max(2, Math.floor(totalCategories / zoomLevel));
+        
+        // Adjust the zoom window
+        currentZoomEnd = totalCategories - 1;
+        currentZoomStart = Math.max(0, currentZoomEnd - categoriesToShow + 1);
+        
+        updateChartZoom();
+        console.log(`Zoomed OUT to level ${zoomLevel}, showing ${categoriesToShow} categories (${currentZoomStart}-${currentZoomEnd})`);
+    } else {
+        console.log('Cannot zoom out further - already at minimum zoom');
+    }
+}
+
+function resetZoom() {
+    if (currentChart) {
+        zoomLevel = 1;
+        currentZoomStart = 0;
+        currentZoomEnd = window.originalCategories.length - 1;
+        
+        // Update chart to show all original data
+        currentChart.updateOptions({
+            xaxis: {
+                categories: window.originalCategories,
+                type: 'category'
+            }
+        });
+        
+        currentChart.updateSeries([{
+            name: 'Số Đặt Phòng',
+            data: window.originalChartData
+        }]);
+        
+        // Update button states
+        updateZoomButtonStates();
+        
+        console.log('Chart zoom RESET to show all data');
+    }
+}
+
+function updateChartZoom() {
+    if (currentChart) {
+        // Get the subset of data and categories for the zoom level
+        const zoomedCategories = window.originalCategories.slice(currentZoomStart, currentZoomEnd + 1);
+        const zoomedData = window.originalChartData.slice(currentZoomStart, currentZoomEnd + 1);
+        
+        // Update the chart with zoomed data
+        currentChart.updateOptions({
+            xaxis: {
+                categories: zoomedCategories,
+                type: 'category'
+            }
+        });
+        
+        currentChart.updateSeries([{
+            name: 'Số Đặt Phòng',
+            data: zoomedData
+        }]);
+        
+        // Update button states
+        updateZoomButtonStates();
+    }
+}
+
+function updateZoomButtonStates() {
+    const zoomInBtn = document.querySelector('[onclick="zoomIn()"]');
+    const zoomOutBtn = document.querySelector('[onclick="zoomOut()"]');
+    const resetBtn = document.querySelector('[onclick="resetZoom()"]');
+    
+    console.log(`Updating button states for zoom level: ${zoomLevel}`);
+    
+    if (zoomInBtn && zoomOutBtn && resetBtn) {
+        // Update zoom in button
+        if (zoomLevel >= 3) {
+            zoomInBtn.style.opacity = '0.5';
+            zoomInBtn.style.cursor = 'not-allowed';
+            zoomInBtn.title = 'Đã phóng to tối đa';
+        } else {
+            zoomInBtn.style.opacity = '1';
+            zoomInBtn.style.cursor = 'pointer';
+            zoomInBtn.title = `Phóng to (Hiện tại: ${zoomLevel}x)`;
+        }
+        
+        // Update zoom out button
+        if (zoomLevel <= 1) {
+            zoomOutBtn.style.opacity = '0.5';
+            zoomOutBtn.style.cursor = 'not-allowed';
+            zoomOutBtn.title = 'Đã thu nhỏ tối đa';
+        } else {
+            zoomOutBtn.style.opacity = '1';
+            zoomOutBtn.style.cursor = 'pointer';
+            zoomOutBtn.title = `Thu nhỏ (Hiện tại: ${zoomLevel}x)`;
+        }
+        
+        // Update reset button
+        if (zoomLevel === 1) {
+            resetBtn.style.opacity = '0.7';
+            resetBtn.title = 'Đã ở chế độ xem đầy đủ';
+        } else {
+            resetBtn.style.opacity = '1';
+            resetBtn.title = `Đặt lại zoom (Hiện tại: ${zoomLevel}x)`;
+        }
+    }
+}
+
+function changePeriod(periodKey, displayName) {
+    const button = document.querySelector('.enhanced-dropdown .dropdown-toggle');
+    const chartContainer = document.querySelector("#apexChartTrafficStats");
+    
+    // Show loading state
+    button.innerHTML = `<i class="bi bi-arrow-clockwise spin me-2"></i>Đang tải...`;
+    chartContainer.innerHTML = '<div class="d-flex align-items-center justify-content-center" style="height: 350px;"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Đang tải...</span></div></div>';
+    
+    // Update active states in dropdown
+    document.querySelectorAll('.enhanced-dropdown .dropdown-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    
+    // Set active state for clicked item
+    const clickedItem = document.querySelector(`[onclick*="${periodKey}"]`);
+    if (clickedItem) {
+        clickedItem.classList.add('active');
+    }
+    
+    // Simulate loading delay for better UX
+    setTimeout(() => {
+        // Update button text
+        button.innerHTML = `<i class="bi bi-calendar3 me-2"></i>${displayName}`;
+        
+        // Reload chart with new period data
+        console.log('Period changed to:', displayName);
+        initializeBookingChart(periodKey);
+    }, 500);
+}
+
+// Add CSS for spin animation
+const spinStyle = document.createElement('style');
+spinStyle.textContent = `
+    .spin {
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+`;
+document.head.appendChild(spinStyle);
+
+// Pagination System
+class BookingPagination {
+    constructor(data, itemsPerPage = 5) {
+        this.allData = data;
+        this.filteredData = [...data];
+        this.itemsPerPage = itemsPerPage;
+        this.currentPage = 1;
+        this.totalPages = Math.ceil(this.filteredData.length / this.itemsPerPage);
+        
+        this.tableBody = document.querySelector('#bookingsTableBody');
+        this.paginationContainer = document.querySelector('#paginationContainer');
+        this.searchInput = document.querySelector('#bookingSearch');
+        this.statusFilter = document.querySelector('#statusFilter');
+        this.hotelFilter = document.querySelector('#hotelFilter');
+        this.itemsPerPageSelect = document.querySelector('#itemsPerPageSelect');
+        
+        this.bindEvents();
+        this.render();
+    }
+    
+    bindEvents() {
+        // Search functionality
+        if (this.searchInput) {
+            this.searchInput.addEventListener('input', (e) => {
+                this.search(e.target.value);
+            });
+        }
+        
+        // Filter functionality
+        if (this.statusFilter) {
+            this.statusFilter.addEventListener('change', (e) => {
+                this.filterByStatus(e.target.value);
+            });
+        }
+        
+        if (this.hotelFilter) {
+            this.hotelFilter.addEventListener('change', (e) => {
+                this.filterByHotel(e.target.value);
+            });
+        }
+        
+        // Items per page functionality
+        if (this.itemsPerPageSelect) {
+            this.itemsPerPageSelect.addEventListener('change', (e) => {
+                this.changeItemsPerPage(parseInt(e.target.value));
+            });
+        }
+    }
+    
+    search(searchTerm) {
+        const term = searchTerm.toLowerCase();
+        this.filteredData = this.allData.filter(booking => 
+            booking.id.toLowerCase().includes(term) ||
+            booking.guestName.toLowerCase().includes(term) ||
+            booking.hotel.toLowerCase().includes(term) ||
+            booking.roomType.toLowerCase().includes(term)
+        );
+        this.updatePagination();
+    }
+    
+    filterByStatus(status) {
+        if (status === '' || status === 'Tất cả trạng thái') {
+            this.filteredData = [...this.allData];
+        } else {
+            this.filteredData = this.allData.filter(booking => booking.status === status);
+        }
+        this.updatePagination();
+    }
+    
+    filterByHotel(hotel) {
+        if (hotel === '' || hotel === 'Tất cả khách sạn') {
+            this.filteredData = [...this.allData];
+        } else {
+            this.filteredData = this.allData.filter(booking => booking.hotel === hotel);
+        }
+        this.updatePagination();
+    }
+    
+    updatePagination() {
+        this.currentPage = 1;
+        this.totalPages = Math.ceil(this.filteredData.length / this.itemsPerPage);
+        this.render();
+    }
+    
+    changeItemsPerPage(newItemsPerPage) {
+        this.itemsPerPage = newItemsPerPage;
+        this.updatePagination();
+    }
+    
+    getCurrentPageData() {
+        const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+        const endIndex = startIndex + this.itemsPerPage;
+        return this.filteredData.slice(startIndex, endIndex);
+    }
+    
+    goToPage(page) {
+        if (page >= 1 && page <= this.totalPages) {
+            this.currentPage = page;
+            this.render();
+        }
+    }
+    
+    previousPage() {
+        this.goToPage(this.currentPage - 1);
+    }
+    
+    nextPage() {
+        this.goToPage(this.currentPage + 1);
+    }
+    
+    renderTable() {
+        const currentData = this.getCurrentPageData();
+        
+        if (currentData.length === 0) {
+            this.tableBody.innerHTML = `
+                <tr>
+                    <td colspan="9" class="text-center py-4">
+                        <div class="d-flex flex-column align-items-center">
+                            <i class="bi bi-search fs-1 text-muted mb-2"></i>
+                            <h6 class="text-muted">Không tìm thấy kết quả</h6>
+                            <p class="text-muted mb-0">Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm</p>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+        
+        this.tableBody.innerHTML = currentData.map(booking => `
+            <tr>
+                <td><strong>${booking.id}</strong></td>
+                <td>
+                    <div class="d-flex align-items-center">
+                        <div class="avatar avatar-sm me-2">
+                            <img class="avatar-img rounded-circle" src="${booking.avatar}" alt="Guest">
+                        </div>
+                        <div>
+                            <h6 class="mb-0">${booking.guestName}</h6>
+                            <small class="text-muted">${booking.email}</small>
+                        </div>
+                    </div>
+                </td>
+                <td>${booking.hotel}</td>
+                <td>${booking.roomType}</td>
+                <td>${booking.checkIn}</td>
+                <td>${booking.checkOut}</td>
+                <td><span class="badge ${booking.statusClass}">${booking.status}</span></td>
+                <td><strong>${booking.amount}</strong></td>
+                <td>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-light dropdown-toggle" data-bs-toggle="dropdown">
+                            Hành động
+                        </button>
+                        <ul class="dropdown-menu">
+                            ${booking.actions.map(action => `
+                                <li><a class="dropdown-item" href="#"><i class="bi ${action.icon} me-2"></i>${action.text}</a></li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+    }
+    
+    renderPagination() {
+        if (this.totalPages <= 1) {
+            this.paginationContainer.innerHTML = '';
+            return;
+        }
+        
+        let paginationHTML = `
+            <nav aria-label="Phân trang đặt phòng">
+                <ul class="pagination pagination-custom pagination-sm justify-content-center mt-3">
+                    <li class="page-item ${this.currentPage === 1 ? 'disabled' : ''}">
+                        <button class="page-link" ${this.currentPage === 1 ? 'disabled' : ''} onclick="bookingPagination.previousPage()">
+                            Trước
+                        </button>
+                    </li>
+        `;
+        
+        // Page numbers
+        const startPage = Math.max(1, this.currentPage - 2);
+        const endPage = Math.min(this.totalPages, this.currentPage + 2);
+        
+        if (startPage > 1) {
+            paginationHTML += `
+                <li class="page-item">
+                    <button class="page-link" onclick="bookingPagination.goToPage(1)">1</button>
+                </li>
+            `;
+            if (startPage > 2) {
+                paginationHTML += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+            }
+        }
+        
+        for (let i = startPage; i <= endPage; i++) {
+            paginationHTML += `
+                <li class="page-item ${i === this.currentPage ? 'active' : ''}">
+                    <button class="page-link" onclick="bookingPagination.goToPage(${i})">${i}</button>
+                </li>
+            `;
+        }
+        
+        if (endPage < this.totalPages) {
+            if (endPage < this.totalPages - 1) {
+                paginationHTML += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+            }
+            paginationHTML += `
+                <li class="page-item">
+                    <button class="page-link" onclick="bookingPagination.goToPage(${this.totalPages})">${this.totalPages}</button>
+                </li>
+            `;
+        }
+        
+        paginationHTML += `
+                    <li class="page-item ${this.currentPage === this.totalPages ? 'disabled' : ''}">
+                        <button class="page-link" ${this.currentPage === this.totalPages ? 'disabled' : ''} onclick="bookingPagination.nextPage()">
+                            Tiếp theo
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+        `;
+        
+        this.paginationContainer.innerHTML = paginationHTML;
+    }
+    
+    render() {
+        this.renderTable();
+        this.renderPagination();
+        
+        // Update info text with beautiful badge
+        const infoElement = document.querySelector('#paginationInfo span');
+        if (infoElement) {
+            const startItem = (this.currentPage - 1) * this.itemsPerPage + 1;
+            const endItem = Math.min(this.currentPage * this.itemsPerPage, this.filteredData.length);
+            infoElement.textContent = `Hiển thị ${startItem}-${endItem} của ${this.filteredData.length} kết quả`;
+        }
+    }
+}
+
+// Sample booking data
+const sampleBookings = [
+    {
+        id: '#BK001',
+        guestName: 'Nguyễn Văn A',
+        email: 'nguyenvana@email.com',
+        avatar: 'https://ui-avatars.com/api/?name=Nguyen+Van+A&background=007bff&color=fff',
+        hotel: 'Khách Sạn Grand Plaza',
+        roomType: 'Phòng Suite Deluxe',
+        checkIn: '28 Tháng 12, 2024',
+        checkOut: '30 Tháng 12, 2024',
+        status: 'Đã xác nhận',
+        statusClass: 'bg-success bg-opacity-10 text-success',
+        amount: '$450.00',
+        actions: [
+            { icon: 'bi-eye', text: 'Xem Chi Tiết' },
+            { icon: 'bi-chat', text: 'Liên Hệ Khách' },
+            { icon: 'bi-printer', text: 'In Hóa Đơn' }
+        ]
+    },
+    {
+        id: '#BK002',
+        guestName: 'Trần Thị B',
+        email: 'tranthib@email.com',
+        avatar: 'https://ui-avatars.com/api/?name=Tran+Thi+B&background=28a745&color=fff',
+        hotel: 'Resort Sunset',
+        roomType: 'Phòng View Biển',
+        checkIn: '29 Tháng 12, 2024',
+        checkOut: '2 Tháng 1, 2025',
+        status: 'Đang chờ',
+        statusClass: 'bg-warning bg-opacity-10 text-warning',
+        amount: '$680.00',
+        actions: [
+            { icon: 'bi-check-circle', text: 'Phê Duyệt' },
+            { icon: 'bi-x-circle', text: 'Từ Chối' },
+            { icon: 'bi-eye', text: 'Xem Chi Tiết' }
+        ]
+    },
+    {
+        id: '#BK003',
+        guestName: 'Lê Văn C',
+        email: 'levanc@email.com',
+        avatar: 'https://ui-avatars.com/api/?name=Le+Van+C&background=dc3545&color=fff',
+        hotel: 'Nhà Nghỉ Trung Tâm Thành Phố',
+        roomType: 'Phòng Tiêu Chuẩn',
+        checkIn: '27 Tháng 12, 2024',
+        checkOut: '28 Tháng 12, 2024',
+        status: 'Nhận phòng',
+        statusClass: 'bg-info bg-opacity-10 text-info',
+        amount: '$120.00',
+        actions: [
+            { icon: 'bi-door-open', text: 'Trả Phòng' },
+            { icon: 'bi-chat', text: 'Liên Hệ Khách' },
+            { icon: 'bi-eye', text: 'Xem Chi Tiết' }
+        ]
+    },
+    {
+        id: '#BK004',
+        guestName: 'Phạm Thị D',
+        email: 'phamthid@email.com',
+        avatar: 'https://ui-avatars.com/api/?name=Pham+Thi+D&background=6f42c1&color=fff',
+        hotel: 'Khách Sạn Grand Plaza',
+        roomType: 'Phòng Standard',
+        checkIn: '30 Tháng 12, 2024',
+        checkOut: '1 Tháng 1, 2025',
+        status: 'Đã xác nhận',
+        statusClass: 'bg-success bg-opacity-10 text-success',
+        amount: '$320.00',
+        actions: [
+            { icon: 'bi-eye', text: 'Xem Chi Tiết' },
+            { icon: 'bi-chat', text: 'Liên Hệ Khách' },
+            { icon: 'bi-printer', text: 'In Hóa Đơn' }
+        ]
+    },
+    {
+        id: '#BK005',
+        guestName: 'Hoàng Văn E',
+        email: 'hoangvane@email.com',
+        avatar: 'https://ui-avatars.com/api/?name=Hoang+Van+E&background=fd7e14&color=fff',
+        hotel: 'Resort Sunset',
+        roomType: 'Phòng Family',
+        checkIn: '25 Tháng 12, 2024',
+        checkOut: '27 Tháng 12, 2024',
+        status: 'Hoàn thành',
+        statusClass: 'bg-secondary bg-opacity-10 text-secondary',
+        amount: '$890.00',
+        actions: [
+            { icon: 'bi-eye', text: 'Xem Chi Tiết' },
+            { icon: 'bi-star', text: 'Xem Đánh Giá' },
+            { icon: 'bi-printer', text: 'In Hóa Đơn' }
+        ]
+    },
+    {
+        id: '#BK006',
+        guestName: 'Vũ Thị F',
+        email: 'vuthif@email.com',
+        avatar: 'https://ui-avatars.com/api/?name=Vu+Thi+F&background=e83e8c&color=fff',
+        hotel: 'Nhà Nghỉ Trung Tâm Thành Phố',
+        roomType: 'Phòng Deluxe',
+        checkIn: '31 Tháng 12, 2024',
+        checkOut: '3 Tháng 1, 2025',
+        status: 'Đang chờ',
+        statusClass: 'bg-warning bg-opacity-10 text-warning',
+        amount: '$410.00',
+        actions: [
+            { icon: 'bi-check-circle', text: 'Phê Duyệt' },
+            { icon: 'bi-x-circle', text: 'Từ Chối' },
+            { icon: 'bi-eye', text: 'Xem Chi Tiết' }
+        ]
+    },
+    {
+        id: '#BK007',
+        guestName: 'Đỗ Văn G',
+        email: 'dovang@email.com',
+        avatar: 'https://ui-avatars.com/api/?name=Do+Van+G&background=20c997&color=fff',
+        hotel: 'Khách Sạn Grand Plaza',
+        roomType: 'Phòng Presidential Suite',
+        checkIn: '1 Tháng 1, 2025',
+        checkOut: '5 Tháng 1, 2025',
+        status: 'Đã xác nhận',
+        statusClass: 'bg-success bg-opacity-10 text-success',
+        amount: '$1200.00',
+        actions: [
+            { icon: 'bi-eye', text: 'Xem Chi Tiết' },
+            { icon: 'bi-chat', text: 'Liên Hệ Khách' },
+            { icon: 'bi-printer', text: 'In Hóa Đơn' }
+        ]
+    }
+];
+
+// Global pagination instance
+let bookingPagination;
+
+function initializePagination() {
+    // Initialize pagination with sample data
+    bookingPagination = new BookingPagination(sampleBookings, 3); // 3 items per page
+}
+</script>
+
+</body>
 </html>
