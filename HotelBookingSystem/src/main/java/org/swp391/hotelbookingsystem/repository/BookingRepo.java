@@ -351,4 +351,63 @@ public class BookingRepo {
         return jdbcTemplate.queryForObject(sql, Integer.class);
     }
 
+    public List<Booking> findBookingsByStatusAndKeywordPaginated(String status, String keyword, int page, int size) {
+        StringBuilder sql = new StringBuilder("""
+        SELECT b.*, 
+               h.hotel_name AS hotelName,
+               r.title AS roomName,
+               (SELECT TOP 1 image_url FROM RoomImages WHERE room_id = b.room_id) AS imageUrl
+        FROM Bookings b
+        JOIN Rooms r ON b.room_id = r.room_id
+        JOIN Hotels h ON b.hotel_id = h.hotel_id
+        WHERE 1=1
+    """);
+
+        List<Object> params = new ArrayList<>();
+
+        if (status != null && !status.isBlank()) {
+            sql.append(" AND b.status = ?");
+            params.add(status);
+        }
+
+        if (keyword != null && !keyword.isBlank()) {
+            sql.append(" AND (r.title LIKE ? OR h.hotel_name LIKE ?)");
+            String likeKeyword = "%" + keyword + "%";
+            params.add(likeKeyword);
+            params.add(likeKeyword);
+        }
+
+        sql.append(" ORDER BY b.created_at DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+        params.add(page * size);
+        params.add(size);
+
+        return jdbcTemplate.query(sql.toString(), new BeanPropertyRowMapper<>(Booking.class), params.toArray());
+    }
+
+    public int countBookingsByStatusAndKeyword(String status, String keyword) {
+        StringBuilder sql = new StringBuilder("""
+        SELECT COUNT(*)
+        FROM Bookings b
+        JOIN Rooms r ON b.room_id = r.room_id
+        JOIN Hotels h ON b.hotel_id = h.hotel_id
+        WHERE 1=1
+    """);
+
+        List<Object> params = new ArrayList<>();
+
+        if (status != null && !status.isBlank()) {
+            sql.append(" AND b.status = ?");
+            params.add(status);
+        }
+
+        if (keyword != null && !keyword.isBlank()) {
+            sql.append(" AND (r.title LIKE ? OR h.hotel_name LIKE ?)");
+            String likeKeyword = "%" + keyword + "%";
+            params.add(likeKeyword);
+            params.add(likeKeyword);
+        }
+
+        return jdbcTemplate.queryForObject(sql.toString(), Integer.class, params.toArray());
+    }
+
 }

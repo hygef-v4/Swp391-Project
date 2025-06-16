@@ -131,4 +131,14 @@ public class BookingService {
         return (int) Math.ceil((double) count / size);
     }
 
+    public List<Booking> getBookingsByStatusAndSearchPaginated(String status, String keyword, int page, int size) {
+        return bookingRepo.findBookingsByStatusAndKeywordPaginated(status, keyword, page, size);
+    }
+
+    public int getTotalPagesByStatusAndSearch(String status, String keyword, int size) {
+        int total = bookingRepo.countBookingsByStatusAndKeyword(status, keyword);
+        return (int) Math.ceil((double) total / size);
+    }
+
+
 }
