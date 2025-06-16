@@ -85,4 +85,50 @@ public class BookingService {
         return bookingRepo.getCheckOutStats();
     }
 
+    public int getTotalBooking(String status) {
+        return bookingRepo.getTotalBookingByStatus(status);
+    }
+
+    public int getTodayBooking(String status) {
+        return bookingRepo.getTodayBookingByStatus(status);
+    }
+
+    public int getTodayCheckIn() {
+        return bookingRepo.getTodayCheckIn();
+    }
+
+    public int getTodayCheckOut() {
+        return bookingRepo.getTodayCheckOut();
+    }
+
+    public int getFutureCheckIn() {
+        return bookingRepo.getFutureCheckIn();
+    }
+
+    public int getFutureCheckOut() {
+        return bookingRepo.getFutureCheckOut();
+    }
+
+    public List<Booking> getBookingsPaginated(int page, int size) {
+        return bookingRepo.findAllPaginated(page, size);
+    }
+
+    public int getTotalPages(int size) {
+        int total = bookingRepo.countAllBookings();
+        return (int) Math.ceil((double) total / size);
+    }
+
+    public int getTotalItems() {
+        return bookingRepo.countAllBookings();
+    }
+
+    public List<Booking> getBookingsByStatusPaginated(String status, int page, int size) {
+        return bookingRepo.findBookingsByStatusPaginated(status, page, size);
+    }
+
+    public int getTotalPagesByStatus(String status, int size) {
+        int count = bookingRepo.countBookingsByStatus(status);
+        return (int) Math.ceil((double) count / size);
+    }
+
 }

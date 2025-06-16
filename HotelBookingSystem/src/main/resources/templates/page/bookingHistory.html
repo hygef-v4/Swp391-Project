@@ -147,7 +147,17 @@
                                                     <h6 class="card-title mb-0"><span th:text="${booking.hotelName}"></span></h6>
                                                     <ul class="nav nav-divider small">
                                                         <li class="nav-item">Loại phòng: <span th:text="${booking.roomName}"></span></li>
-                                                        <li class="nav-item">Trạng thái: <span th:text="${booking.status}"></span></li>
+                                                        <li class="nav-item">
+                                                            Trạng thái:
+                                                            <span th:switch="${booking.status}">
+                                                                <span th:case="'approved'">Đã xác nhận</span>
+                                                                <span th:case="'pending'">Chờ xác nhận</span>
+                                                                <span th:case="'cancelled'">Đã hủy</span>
+                                                                <span th:case="'completed'">Đã hoàn thành</span>
+                                                                <span th:case="'rejected'">Đã từ chối</span>
+                                                                <span th:case="*">Không xác định</span>
+                                                            </span>
+                                                        </li>
                                                     </ul>
                                                 </div>
                                             </div>
@@ -189,7 +199,17 @@
                                                     <h6 class="card-title mb-0"><span th:text="${booking.hotelName}"></span></h6>
                                                     <ul class="nav nav-divider small">
                                                         <li class="nav-item">Loại phòng: <span th:text="${booking.roomName}"></span></li>
-                                                        <li class="nav-item">Trạng thái: <span th:text="${booking.status}"></span></li>
+                                                        <li class="nav-item">
+                                                            Trạng thái:
+                                                            <span th:switch="${booking.status}">
+                                                                <span th:case="'approved'">Đã xác nhận</span>
+                                                                <span th:case="'pending'">Chờ xác nhận</span>
+                                                                <span th:case="'cancelled'">Đã hủy</span>
+                                                                <span th:case="'completed'">Đã hoàn thành</span>
+                                                                <span th:case="'rejected'">Đã từ chối</span>
+                                                                <span th:case="*">Không xác định</span>
+                                                            </span>
+                                                        </li>
                                                     </ul>
                                                 </div>
                                             </div>
@@ -231,7 +251,17 @@
                                                     <h6 class="card-title mb-0"><span th:text="${booking.hotelName}"></span></h6>
                                                     <ul class="nav nav-divider small">
                                                         <li class="nav-item">Loại phòng: <span th:text="${booking.roomName}"></span></li>
-                                                        <li class="nav-item">Trạng thái: <span th:text="${booking.status}"></span></li>
+                                                        <li class="nav-item">
+                                                            Trạng thái:
+                                                            <span th:switch="${booking.status}">
+                                                                <span th:case="'approved'">Đã xác nhận</span>
+                                                                <span th:case="'pending'">Chờ xác nhận</span>
+                                                                <span th:case="'cancelled'">Đã hủy</span>
+                                                                <span th:case="'completed'">Đã hoàn thành</span>
+                                                                <span th:case="'rejected'">Đã từ chối</span>
+                                                                <span th:case="*">Không xác định</span>
+                                                            </span>
+                                                        </li>
                                                     </ul>
                                                 </div>
                                             </div>

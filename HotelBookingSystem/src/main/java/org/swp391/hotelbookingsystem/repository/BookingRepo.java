@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.swp391.hotelbookingsystem.model.Booking;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -18,7 +19,15 @@ public class BookingRepo {
 
     // 1. Lấy tất cả booking
     public List<Booking> findAll() {
-        String sql = "SELECT * FROM Bookings";
+        String sql = """
+        SELECT b.*, 
+               h.hotel_name AS hotelName,
+               r.title AS roomName,
+               (SELECT TOP 1 image_url FROM RoomImages WHERE room_id = b.room_id) AS imageUrl
+        FROM Bookings b
+        JOIN Rooms r ON b.room_id = r.room_id
+        JOIN Hotels h ON b.hotel_id = h.hotel_id
+    """;
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Booking.class));
     }
 
@@ -145,20 +154,49 @@ public class BookingRepo {
 
     // 12. Tìm kiếm theo keyword
     public List<Booking> searchByKeyword(String keyword) {
-        String sql = "SELECT * FROM Bookings WHERE check_in LIKE ? OR CAST(customer_id AS NVARCHAR) LIKE ? OR status LIKE ?";
         String q = "%" + keyword + "%";
+        String sql = """
+        SELECT b.*, 
+               h.hotel_name AS hotelName,
+               r.title AS roomName,
+               (SELECT TOP 1 image_url FROM RoomImages WHERE room_id = b.room_id) AS imageUrl
+        FROM Bookings b
+        JOIN Rooms r ON b.room_id = r.room_id
+        JOIN Hotels h ON b.hotel_id = h.hotel_id
+        WHERE CAST(b.check_in AS NVARCHAR) LIKE ?
+           OR CAST(b.customer_id AS NVARCHAR) LIKE ?
+           OR b.status LIKE ?
+    """;
         return jdbcTemplate.query(sql, new Object[]{q, q, q}, new BeanPropertyRowMapper<>(Booking.class));
     }
 
     // 13. Lấy booking theo trạng thái hoàn tiền
     public List<Booking> findByRefundStatus(String refundStatus) {
-        String sql = "SELECT * FROM Bookings WHERE refund_status = ?";
+        String sql = """
+        SELECT b.*, 
+               h.hotel_name AS hotelName,
+               r.title AS roomName,
+               (SELECT TOP 1 image_url FROM RoomImages WHERE room_id = b.room_id) AS imageUrl
+        FROM Bookings b
+        JOIN Rooms r ON b.room_id = r.room_id
+        JOIN Hotels h ON b.hotel_id = h.hotel_id
+        WHERE b.refund_status = ?
+    """;
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Booking.class), refundStatus);
     }
 
     // 14. Lấy booking theo khách sạn
     public List<Booking> findByHotelId(int hotelId) {
-        String sql = "SELECT * FROM Bookings WHERE hotel_id = ?";
+        String sql = """
+        SELECT b.*, 
+               h.hotel_name AS hotelName,
+               r.title AS roomName,
+               (SELECT TOP 1 image_url FROM RoomImages WHERE room_id = b.room_id) AS imageUrl
+        FROM Bookings b
+        JOIN Rooms r ON b.room_id = r.room_id
+        JOIN Hotels h ON b.hotel_id = h.hotel_id
+        WHERE b.hotel_id = ?
+    """;
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Booking.class), hotelId);
     }
 
@@ -201,6 +239,116 @@ public class BookingRepo {
         return jdbcTemplate.query(sql, (rs, rowNum)
                 -> new DailyStat(rs.getString("date"), rs.getInt("count"))
         );
+    }
+
+    public int getTotalBookingByStatus(String status) {
+        String sql = "SELECT COUNT(*) FROM Bookings WHERE status = ?";
+        return jdbcTemplate.queryForObject(sql, Integer.class, status);
+    }
+
+    public int getTodayCheckIn() {
+        String sql = """
+        SELECT COUNT(*) 
+        FROM Bookings 
+        WHERE status = 'approved'
+          AND CAST(check_in AS DATE) = CAST(GETDATE() AS DATE)
+        """;
+        return jdbcTemplate.queryForObject(sql, Integer.class);
+    }
+
+    public int getTodayBookingByStatus(String status) {
+        String sql = """
+        SELECT COUNT(*) 
+        FROM Bookings 
+        WHERE status = ? 
+          AND CAST(created_at AS DATE) = CAST(GETDATE() AS DATE)
+    """;
+        return jdbcTemplate.queryForObject(sql, Integer.class, status);
+    }
+
+    public int getTodayCheckOut() {
+        String sql = """
+        SELECT COUNT(*) 
+        FROM Bookings 
+        WHERE status = 'approved'
+          AND CAST(check_out AS DATE) = CAST(GETDATE() AS DATE)
+        """;
+        return jdbcTemplate.queryForObject(sql, Integer.class);
+    }
+
+    public int getFutureCheckOut() {
+        String sql = """
+        SELECT COUNT(*) 
+        FROM Bookings 
+        WHERE status = 'approved'
+          AND CAST(check_out AS DATE) > CAST(GETDATE() AS DATE)
+        """;
+        return jdbcTemplate.queryForObject(sql, Integer.class);
+    }
+
+    public int getFutureCheckIn() {
+        String sql = """
+        SELECT COUNT(*) 
+        FROM Bookings 
+        WHERE status = 'approved'
+          AND CAST(check_in AS DATE) > CAST(GETDATE() AS DATE)
+        """;
+        return jdbcTemplate.queryForObject(sql, Integer.class);
+    }
+
+    public List<Booking> findAllPaginated(int page, int size) {
+        int offset = page * size;
+        String sql = """
+        SELECT b.*, 
+               h.hotel_name AS hotelName,
+               r.title AS roomName,
+               (SELECT TOP 1 image_url FROM RoomImages WHERE room_id = b.room_id) AS imageUrl
+        FROM Bookings b
+        JOIN Rooms r ON b.room_id = r.room_id
+        JOIN Hotels h ON b.hotel_id = h.hotel_id
+        ORDER BY b.created_at DESC
+        OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
+    """;
+        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Booking.class), offset, size);
+    }
+
+    public int countAllBookings() {
+        return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM Bookings", Integer.class);
+    }
+
+    public List<Booking> findBookingsByStatusPaginated(String status, int page, int size) {
+        StringBuilder sql = new StringBuilder("""
+        SELECT b.*, 
+               h.hotel_name AS hotelName,
+               r.title AS roomName,
+               (SELECT TOP 1 image_url FROM RoomImages WHERE room_id = b.room_id) AS imageUrl
+        FROM Bookings b
+        JOIN Rooms r ON b.room_id = r.room_id
+        JOIN Hotels h ON b.hotel_id = h.hotel_id
+    """);
+
+        List<Object> params = new ArrayList<>();
+
+        if (status != null && !status.isBlank()) {
+            sql.append(" WHERE b.status = ?");
+            params.add(status);
+        }
+
+        sql.append(" ORDER BY b.created_at DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+        params.add(page * size);
+        params.add(size);
+
+        return jdbcTemplate.query(sql.toString(), new BeanPropertyRowMapper<>(Booking.class), params.toArray());
+    }
+
+
+    public int countBookingsByStatus(String status) {
+        String sql = "SELECT COUNT(*) FROM Bookings";
+        if (status != null && !status.isBlank()) {
+            sql += " WHERE status = ?";
+            return jdbcTemplate.queryForObject(sql, Integer.class, status);
+        }
+        return jdbcTemplate.queryForObject(sql, Integer.class);
     }
 
 }
