@@ -4,12 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.swp391.hotelbookingsystem.model.Booking;
 import org.swp391.hotelbookingsystem.service.BookingService;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Controller
 public class AdminBookingController {
@@ -18,41 +18,45 @@ public class AdminBookingController {
     private BookingService bookingService;
 
     @GetMapping("/admin-booking-list")
-    public String showBookingList(@RequestParam(value = "keyword", required = false) String keyword,
+    public String showBookingList(@RequestParam(defaultValue = "1") int page,
+                                  @RequestParam(defaultValue = "10") int size,
+                                  @RequestParam(required = false) String status,
+                                  @RequestParam(defaultValue = "grid") String view,
+                                  @RequestParam(required = false) String search,
                                   Model model) {
-        List<Booking> bookings = (keyword != null && !keyword.isEmpty())
-                ? bookingService.searchBookings(keyword)
-                : bookingService.getAllBookings();
+
+        List<Booking> bookings = bookingService.getBookingsByStatusAndSearchPaginated(status, search, page - 1, size);
+        int totalPages = bookingService.getTotalPagesByStatusAndSearch(status, search, size);
 
         model.addAttribute("bookings", bookings);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("statusFilter", status);
+        model.addAttribute("viewMode", view);
+        model.addAttribute("search", search);
 
-        // Example: list of tab filters
-        model.addAttribute("tabs", List.of(
-                Map.of("label", "All Status", "href", "#tab-1", "active", true),
-                Map.of("label", "Available", "href", "#tab-2", "active", false),
-                Map.of("label", "Sold Out", "href", "#tab-3", "active", false)
-        ));
+        // Statistics
+        model.addAttribute("totalBooked", bookingService.getTotalBooking("approved"));
+        model.addAttribute("todayBooked", bookingService.getTodayBooking("approved"));
+        model.addAttribute("totalCancelled", bookingService.getTotalBooking("cancelled"));
+        model.addAttribute("todayCancelled", bookingService.getTodayBooking("cancelled"));
+        model.addAttribute("checkInToday", bookingService.getTodayCheckIn());
+        model.addAttribute("checkInFuture", bookingService.getFutureCheckIn());
+        model.addAttribute("checkOutToday", bookingService.getTodayCheckOut());
+        model.addAttribute("checkOutFuture", bookingService.getFutureCheckOut());
 
-        // Example: quick stats
-        model.addAttribute("bookingStats", List.of(
-                statCard("New Booked Rooms", 54, "primary", "bi bi-door-open", 60, "16 new rooms booked"),
-                statCard("Cancelled Rooms", 12, "danger", "bi bi-x-circle", 40, "2 canceled rooms"),
-                statCard("Check-in", 20, "success", "bi bi-box-arrow-in-right", 45, "45 reservation"),
-                statCard("Check-out", 28, "orange", "bi bi-box-arrow-right", 30, "30 reservation")
-        ));
-
-        return "page/admin-booking-list";
+        return "admin/admin-booking-list";
     }
 
-    // Helper method to build stat card map
-    private Map<String, Object> statCard(String label, int value, String color, String icon, int percent, String footer) {
-        Map<String, Object> card = new HashMap<>();
-        card.put("label", label);
-        card.put("value", value);
-        card.put("color", color);
-        card.put("icon", icon);
-        card.put("percent", percent);
-        card.put("footerText", footer);
-        return card;
+    @GetMapping("/admin/bookings/detail/{id}")
+    public String showBookingDetail(@PathVariable("id") int id, Model model) {
+        Booking booking = bookingService.findById(id);
+        if (booking == null) {
+            return "redirect:/admin-booking-list?error=notfound";
+        }
+
+        model.addAttribute("booking", booking);
+        return "admin/admin-booking-detail";
     }
+
 }
