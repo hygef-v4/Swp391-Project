@@ -4,6 +4,7 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.swp391.hotelbookingsystem.model.Booking;
+import org.swp391.hotelbookingsystem.model.BookingUnit;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,198 +18,428 @@ public class BookingRepo {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    public List<BookingUnit> findBookingUnitsByBookingId(int bookingId) {
+        String sql = """
+            SELECT 
+                bu.booking_unit_id,
+                bu.room_id,
+                bu.price,
+                bu.status,
+                bu.refund_amount,
+                bu.refund_status,
+                r.title AS roomName,
+                (SELECT TOP 1 image_url FROM RoomImages WHERE room_id = bu.room_id) AS imageUrl
+            FROM BookingUnits bu
+            JOIN Rooms r ON bu.room_id = r.room_id
+            WHERE bu.booking_id = ?
+        """;
+
+        return jdbcTemplate.query(sql, ps -> ps.setInt(1, bookingId), (rs, rowNum) -> 
+            BookingUnit.builder()
+                .bookingUnitId(rs.getInt("booking_unit_id"))
+                .roomId(rs.getInt("room_id"))
+                .price(rs.getDouble("price"))
+                .status(rs.getString("status"))
+                .refundAmount(rs.getDouble("refund_amount"))
+                .refundStatus(rs.getString("refund_status"))
+                .roomName(rs.getString("roomName"))
+                .imageUrl(rs.getString("imageUrl"))
+                .build()
+        );
+    }
+
     // 1. Lấy tất cả booking
     public List<Booking> findAll() {
         String sql = """
-        SELECT b.*, 
-               h.hotel_name AS hotelName,
-               r.title AS roomName,
-               (SELECT TOP 1 image_url FROM RoomImages WHERE room_id = b.room_id) AS imageUrl
-        FROM Bookings b
-        JOIN Rooms r ON b.room_id = r.room_id
-        JOIN Hotels h ON b.hotel_id = h.hotel_id
-    """;
-        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Booking.class));
+            SELECT 
+                b.booking_id,
+                b.hotel_id,
+                b.customer_id,
+                b.coupon_id,
+                b.check_in,
+                b.check_out,
+                b.total_price,
+                b.created_at,
+                h.hotel_name AS hotelName
+            FROM Bookings b
+            JOIN Hotels h ON b.hotel_id = h.hotel_id
+        """;
+
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            int bookingId = rs.getInt("booking_id");
+
+            Booking booking = Booking.builder()
+                    .bookingId(bookingId)
+                    .hotelId(rs.getInt("hotel_id"))
+                    .customerId(rs.getInt("customer_id"))
+                    .couponId((Integer) rs.getObject("coupon_id"))
+                    .checkIn(rs.getTimestamp("check_in").toLocalDateTime())
+                    .checkOut(rs.getTimestamp("check_out").toLocalDateTime())
+                    .totalPrice(rs.getDouble("total_price"))
+                    .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
+                    .hotelName(rs.getString("hotelName"))
+                    .build();
+
+            // Gán BookingUnit cho từng Booking
+            booking.setBookingUnits(findBookingUnitsByBookingId(bookingId));
+
+            return booking;
+        });
     }
 
     // 2. Tìm theo ID
     public Booking findById(int id) {
-        String sql = "SELECT * FROM Bookings WHERE booking_id = ?";
-        return jdbcTemplate.queryForObject(sql, new BeanPropertyRowMapper<>(Booking.class), id);
+        String sql = """            
+            SELECT 
+                b.booking_id,
+                b.hotel_id,
+                b.customer_id,
+                b.coupon_id,
+                b.check_in,
+                b.check_out,
+                b.total_price,
+                b.created_at,
+                h.hotel_name AS hotelName
+            FROM Bookings b 
+            WHERE booking_id = ?
+        """;
+
+        return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> {
+            int bookingId = rs.getInt("booking_id");
+
+            Booking booking = Booking.builder()
+                    .bookingId(bookingId)
+                    .hotelId(rs.getInt("hotel_id"))
+                    .customerId(rs.getInt("customer_id"))
+                    .couponId((Integer) rs.getObject("coupon_id"))
+                    .checkIn(rs.getTimestamp("check_in").toLocalDateTime())
+                    .checkOut(rs.getTimestamp("check_out").toLocalDateTime())
+                    .totalPrice(rs.getDouble("total_price"))
+                    .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
+                    .hotelName(rs.getString("hotelName"))
+                    .build();
+
+            // Gán BookingUnit cho từng Booking
+            booking.setBookingUnits(findBookingUnitsByBookingId(bookingId));
+
+            return booking;
+        }, id);
     }
 
     // 3. Tạo booking mới
-    public int save(Booking booking) {
-        String sql = """
-                INSERT INTO Bookings (hotel_id, room_id, customer_id, coupon_id, check_in, check_out, total_price, status, refund_amount, refund_status, created_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """;
-        return jdbcTemplate.update(sql,
-                booking.getHotelId(),
-                booking.getRoomId(),
-                booking.getCustomerId(),
-                booking.getCouponId(),
-                booking.getCheckIn(),
-                booking.getCheckOut(),
-                booking.getTotalPrice(),
-                booking.getStatus(),
-                booking.getRefundAmount(),
-                booking.getRefundStatus(),
-                booking.getCreatedAt()
-        );
-    }
+    // public int save(Booking booking) {
+    //     String sql = """
+    //             INSERT INTO Bookings (hotel_id, customer_id, coupon_id, check_in, check_out, total_price)
+    //             VALUES (?, ?, ?, ?, ?, ?)
+    //             """;
+
+    //     return jdbcTemplate.update(sql,
+    //             booking.getHotelId(),
+    //             booking.getRoomId(),
+    //             booking.getCustomerId(),
+    //             booking.getCouponId(),
+    //             booking.getCheckIn(),
+    //             booking.getCheckOut(),
+    //             booking.getTotalPrice(),
+    //             booking.getStatus(),
+    //             booking.getRefundAmount(),
+    //             booking.getRefundStatus(),
+    //     );
+    // }
 
     // 4. Cập nhật trạng thái đặt phòng
-    public int updateStatus(int bookingId, String status) {
-        String sql = "UPDATE Bookings SET status = ? WHERE booking_id = ?";
-        return jdbcTemplate.update(sql, status, bookingId);
+    public int updateStatus(int bookingUnitId, String status) {
+        String sql = "UPDATE BookingUnits SET status = ? WHERE booking_unit_id = ?";
+        return jdbcTemplate.update(sql, status, bookingUnitId);
     }
 
     // 5. Cập nhật hoàn tiền
-    public int updateRefund(int bookingId, double refundAmount, String refundStatus) {
-        String sql = "UPDATE Bookings SET refund_amount = ?, refund_status = ? WHERE booking_id = ?";
-        return jdbcTemplate.update(sql, refundAmount, refundStatus, bookingId);
+    public int updateRefund(int bookingUnitId, double refundAmount, String refundStatus) {
+        String sql = "UPDATE BookingUnits SET refund_amount = ?, refund_status = ? WHERE booking_unit_id = ?";
+        return jdbcTemplate.update(sql, refundAmount, refundStatus, bookingUnitId);
     }
 
     // 6. Xóa theo ID
     public int deleteById(int id) {
-        String sql = "DELETE FROM Bookings WHERE booking_id = ?";
+        String sql = "DELETE FROM BookingUnits WHERE booking_unit_id = ?";
         return jdbcTemplate.update(sql, id);
     }
 
     // 7. Lấy danh sách upcoming booking
     public List<Booking> findUpcomingBookings(int customerId) {
         String sql = """
-        SELECT b.*, 
-               h.hotel_name AS hotelName,
-               r.title AS roomName,
-               (SELECT TOP 1 image_url FROM RoomImages WHERE room_id = b.room_id) AS imageUrl
-        FROM Bookings b
-        JOIN Rooms r ON b.room_id = r.room_id
-        JOIN Hotels h ON b.hotel_id = h.hotel_id
-        WHERE b.customer_id = ?
-          AND b.check_in > GETDATE()
-          AND b.status = 'approved'
-        ORDER BY b.check_in ASC
-    """;
-        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Booking.class), customerId);
+            SELECT 
+                b.booking_id,
+                b.hotel_id,
+                b.customer_id,
+                b.coupon_id,
+                b.check_in,
+                b.check_out,
+                b.total_price,
+                b.created_at,
+                h.hotel_name AS hotelName
+            FROM Bookings b
+            JOIN Hotels h ON b.hotel_id = h.hotel_id
+            WHERE b.customer_id = ?
+            AND b.check_in > GETDATE()
+            AND EXISTS (
+                SELECT 1
+                FROM BookingUnits bu
+                WHERE bu.booking_id = b.booking_id
+                    AND bu.status = 'approved'
+            )
+            ORDER BY b.check_in ASC;
+        """;
+
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            int bookingId = rs.getInt("booking_id");
+
+            Booking booking = Booking.builder()
+                    .bookingId(bookingId)
+                    .hotelId(rs.getInt("hotel_id"))
+                    .customerId(rs.getInt("customer_id"))
+                    .couponId((Integer) rs.getObject("coupon_id"))
+                    .checkIn(rs.getTimestamp("check_in").toLocalDateTime())
+                    .checkOut(rs.getTimestamp("check_out").toLocalDateTime())
+                    .totalPrice(rs.getDouble("total_price"))
+                    .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
+                    .hotelName(rs.getString("hotelName"))
+                    .build();
+
+            // Gán BookingUnit cho từng Booking
+            booking.setBookingUnits(findBookingUnitsByBookingId(bookingId));
+
+            return booking;
+        }, customerId);
     }
 
     // 8. Lấy danh sách completed booking
     public List<Booking> findCompletedBookings(int customerId) {
         String sql = """
-            SELECT b.*, 
-               h.hotel_name AS hotelName,
-               r.title AS roomName,
-               (SELECT TOP 1 image_url FROM RoomImages WHERE room_id = b.room_id) AS imageUrl
-        FROM Bookings b
-        JOIN Rooms r ON b.room_id = r.room_id
-        JOIN Hotels h ON b.hotel_id = h.hotel_id
+            SELECT 
+                b.booking_id,
+                b.hotel_id,
+                b.customer_id,
+                b.coupon_id,
+                b.check_in,
+                b.check_out,
+                b.total_price,
+                b.created_at,
+                h.hotel_name AS hotelName
+            FROM Bookings b
+            JOIN Hotels h ON b.hotel_id = h.hotel_id
             WHERE b.customer_id = ?
-              AND b.check_out < GETDATE()
-              AND (b.status = 'completed' OR b.status = 'approved')
-            ORDER BY b.check_out DESC
+            AND b.check_in < GETDATE()
+            AND EXISTS (
+                SELECT 1
+                FROM BookingUnits bu
+                WHERE bu.booking_id = b.booking_id
+                    AND (bu.status = 'completed' OR bu.status = 'approved')
+            )
+            ORDER BY b.check_in ASC;
         """;
-        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Booking.class), customerId);
+
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            int bookingId = rs.getInt("booking_id");
+
+            Booking booking = Booking.builder()
+                    .bookingId(bookingId)
+                    .hotelId(rs.getInt("hotel_id"))
+                    .customerId(rs.getInt("customer_id"))
+                    .couponId((Integer) rs.getObject("coupon_id"))
+                    .checkIn(rs.getTimestamp("check_in").toLocalDateTime())
+                    .checkOut(rs.getTimestamp("check_out").toLocalDateTime())
+                    .totalPrice(rs.getDouble("total_price"))
+                    .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
+                    .hotelName(rs.getString("hotelName"))
+                    .build();
+
+            // Gán BookingUnit cho từng Booking
+            booking.setBookingUnits(findBookingUnitsByBookingId(bookingId));
+
+            return booking;
+        }, customerId);
     }
 
     // 9. Lấy danh sách cancelled hoặc rejected
     public List<Booking> findCancelledBookings(int customerId) {
         String sql = """
-            SELECT b.*, 
-               h.hotel_name AS hotelName,
-               r.title AS roomName,
-               (SELECT TOP 1 image_url FROM RoomImages WHERE room_id = b.room_id) AS imageUrl
-        FROM Bookings b
-        JOIN Rooms r ON b.room_id = r.room_id
-        JOIN Hotels h ON b.hotel_id = h.hotel_id
-            WHERE b.customer_id = ?
-              AND (b.status = 'cancelled' OR b.status = 'rejected')
-            ORDER BY b.created_at DESC
-        """;
-        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Booking.class), customerId);
-    }
-
-    // 10. Lấy ảnh phòng đầu tiên từ booking
-    public String getImagesByBookingId(int bookingId) {
-        String sql = """
-            SELECT TOP 1 image_url
-            FROM RoomImages ri
-            JOIN Bookings b ON ri.room_id = b.room_id
-            WHERE b.booking_id = ?
-        """;
-        return jdbcTemplate.queryForObject(sql, String.class, bookingId);
-    }
-
-    // 11. Lấy tên khách sạn từ booking
-    public String getHotelNameByBookingId(int bookingId) {
-        String sql = """
-            SELECT h.hotel_name
+            SELECT 
+                b.booking_id,
+                b.hotel_id,
+                b.customer_id,
+                b.coupon_id,
+                b.check_in,
+                b.check_out,
+                b.total_price,
+                b.created_at,
+                h.hotel_name AS hotelName
             FROM Bookings b
-            JOIN Rooms r ON b.room_id = r.room_id
-            JOIN Hotels h ON r.hotel_id = h.hotel_id
-            WHERE b.booking_id = ?
+            JOIN Hotels h ON b.hotel_id = h.hotel_id
+            WHERE b.customer_id = ?
+            AND EXISTS (
+                SELECT 1
+                FROM BookingUnits bu
+                WHERE bu.booking_id = b.booking_id
+                    AND (bu.status = 'cancelled' OR bu.status = 'rejected')
+            )
+            ORDER BY b.check_in ASC;
         """;
-        return jdbcTemplate.queryForObject(sql, String.class, bookingId);
+
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            int bookingId = rs.getInt("booking_id");
+
+            Booking booking = Booking.builder()
+                    .bookingId(bookingId)
+                    .hotelId(rs.getInt("hotel_id"))
+                    .customerId(rs.getInt("customer_id"))
+                    .couponId((Integer) rs.getObject("coupon_id"))
+                    .checkIn(rs.getTimestamp("check_in").toLocalDateTime())
+                    .checkOut(rs.getTimestamp("check_out").toLocalDateTime())
+                    .totalPrice(rs.getDouble("total_price"))
+                    .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
+                    .hotelName(rs.getString("hotelName"))
+                    .build();
+
+            // Gán BookingUnit cho từng Booking
+            booking.setBookingUnits(findBookingUnitsByBookingId(bookingId));
+
+            return booking;
+        }, customerId);
     }
 
-    // 12. Tìm kiếm theo keyword
+    // 10. Tìm kiếm theo keyword
     public List<Booking> searchByKeyword(String keyword) {
         String q = "%" + keyword + "%";
+
         String sql = """
-        SELECT b.*, 
-               h.hotel_name AS hotelName,
-               r.title AS roomName,
-               (SELECT TOP 1 image_url FROM RoomImages WHERE room_id = b.room_id) AS imageUrl
-        FROM Bookings b
-        JOIN Rooms r ON b.room_id = r.room_id
-        JOIN Hotels h ON b.hotel_id = h.hotel_id
-        WHERE CAST(b.check_in AS NVARCHAR) LIKE ?
-           OR CAST(b.customer_id AS NVARCHAR) LIKE ?
-           OR b.status LIKE ?
-    """;
-        return jdbcTemplate.query(sql, new Object[]{q, q, q}, new BeanPropertyRowMapper<>(Booking.class));
+            SELECT 
+                b.booking_id,
+                b.hotel_id,
+                b.customer_id,
+                b.coupon_id,
+                b.check_in,
+                b.check_out,
+                b.total_price,
+                b.created_at,
+                h.hotel_name AS hotelName
+            FROM Bookings b
+            JOIN Hotels h ON b.hotel_id = h.hotel_id
+            WHERE CAST(b.check_in AS NVARCHAR) LIKE ?
+                OR CAST(b.customer_id AS NVARCHAR) LIKE ?
+                OR EXISTS (
+                    SELECT 1
+                    FROM BookingUnits bu
+                    WHERE bu.booking_id = b.booking_id
+                        AND bu.status = ?
+                )
+        """;
+
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            int bookingId = rs.getInt("booking_id");
+
+            Booking booking = Booking.builder()
+                    .bookingId(bookingId)
+                    .hotelId(rs.getInt("hotel_id"))
+                    .customerId(rs.getInt("customer_id"))
+                    .couponId((Integer) rs.getObject("coupon_id"))
+                    .checkIn(rs.getTimestamp("check_in").toLocalDateTime())
+                    .checkOut(rs.getTimestamp("check_out").toLocalDateTime())
+                    .totalPrice(rs.getDouble("total_price"))
+                    .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
+                    .hotelName(rs.getString("hotelName"))
+                    .build();
+
+            // Gán BookingUnit cho từng Booking
+            booking.setBookingUnits(findBookingUnitsByBookingId(bookingId));
+
+            return booking;
+        }, q, q, q);
     }
 
-    // 13. Lấy booking theo trạng thái hoàn tiền
+    // 11. Lấy booking theo trạng thái hoàn tiền
     public List<Booking> findByRefundStatus(String refundStatus) {
         String sql = """
-        SELECT b.*, 
-               h.hotel_name AS hotelName,
-               r.title AS roomName,
-               (SELECT TOP 1 image_url FROM RoomImages WHERE room_id = b.room_id) AS imageUrl
-        FROM Bookings b
-        JOIN Rooms r ON b.room_id = r.room_id
-        JOIN Hotels h ON b.hotel_id = h.hotel_id
-        WHERE b.refund_status = ?
-    """;
-        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Booking.class), refundStatus);
+            SELECT 
+                b.booking_id,
+                b.hotel_id,
+                b.customer_id,
+                b.coupon_id,
+                b.check_in,
+                b.check_out,
+                b.total_price,
+                b.created_at,
+                h.hotel_name AS hotelName
+            FROM Bookings b
+            JOIN Hotels h ON b.hotel_id = h.hotel_id
+            WHERE EXISTS (
+                SELECT 1
+                FROM BookingUnits bu
+                WHERE bu.booking_id = b.booking_id
+                    AND bu.refund_status = ?
+            )
+        """;
+
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            int bookingId = rs.getInt("booking_id");
+
+            Booking booking = Booking.builder()
+                    .bookingId(bookingId)
+                    .hotelId(rs.getInt("hotel_id"))
+                    .customerId(rs.getInt("customer_id"))
+                    .couponId((Integer) rs.getObject("coupon_id"))
+                    .checkIn(rs.getTimestamp("check_in").toLocalDateTime())
+                    .checkOut(rs.getTimestamp("check_out").toLocalDateTime())
+                    .totalPrice(rs.getDouble("total_price"))
+                    .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
+                    .hotelName(rs.getString("hotelName"))
+                    .build();
+
+            // Gán BookingUnit cho từng Booking
+            booking.setBookingUnits(findBookingUnitsByBookingId(bookingId));
+
+            return booking;
+        }, refundStatus);
     }
 
-    // 14. Lấy booking theo khách sạn
+    // 12. Lấy booking theo khách sạn
     public List<Booking> findByHotelId(int hotelId) {
         String sql = """
-        SELECT b.*, 
-               h.hotel_name AS hotelName,
-               r.title AS roomName,
-               (SELECT TOP 1 image_url FROM RoomImages WHERE room_id = b.room_id) AS imageUrl
-        FROM Bookings b
-        JOIN Rooms r ON b.room_id = r.room_id
-        JOIN Hotels h ON b.hotel_id = h.hotel_id
-        WHERE b.hotel_id = ?
-    """;
-        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Booking.class), hotelId);
-    }
-
-    // 15. Lấy tên loại phòng từ booking
-    public String getRoomNameByBookingId(int bookingId) {
-        String sql = """
-            SELECT r.title
+            SELECT 
+                b.booking_id,
+                b.hotel_id,
+                b.customer_id,
+                b.coupon_id,
+                b.check_in,
+                b.check_out,
+                b.total_price,
+                b.created_at,
+                h.hotel_name AS hotelName
             FROM Bookings b
-            JOIN Rooms r ON b.room_id = r.room_id
-            WHERE b.booking_id = ?
+            JOIN Hotels h ON b.hotel_id = h.hotel_id
+            WHERE b.hotel_id = ?
         """;
-        return jdbcTemplate.queryForObject(sql, String.class, bookingId);
+
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            int bookingId = rs.getInt("booking_id");
+
+            Booking booking = Booking.builder()
+                    .bookingId(bookingId)
+                    .hotelId(rs.getInt("hotel_id"))
+                    .customerId(rs.getInt("customer_id"))
+                    .couponId((Integer) rs.getObject("coupon_id"))
+                    .checkIn(rs.getTimestamp("check_in").toLocalDateTime())
+                    .checkOut(rs.getTimestamp("check_out").toLocalDateTime())
+                    .totalPrice(rs.getDouble("total_price"))
+                    .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
+                    .hotelName(rs.getString("hotelName"))
+                    .build();
+
+            // Gán BookingUnit cho từng Booking
+            booking.setBookingUnits(findBookingUnitsByBookingId(bookingId));
+
+            return booking;
+        }, hotelId);
     }
 
     public record DailyStat(String date, int count) {
@@ -218,8 +449,13 @@ public class BookingRepo {
     public List<DailyStat> getCheckInStats() {
         String sql = """
                     SELECT CONVERT(VARCHAR, CAST(check_in AS DATE), 23) AS date, COUNT(*) AS count
-                    FROM Bookings
-                    WHERE status = 'approved'
+                    FROM Bookings b
+                    WHERE EXISTS (
+                        SELECT 1
+                        FROM BookingUnits bu
+                        WHERE bu.booking_id = b.booking_id
+                            AND bu.status = 'approved'
+                    )
                     GROUP BY CAST(check_in AS DATE)
                     ORDER BY CAST(check_in AS DATE)
                 """;
@@ -231,8 +467,13 @@ public class BookingRepo {
     public List<DailyStat> getCheckOutStats() {
         String sql = """
                     SELECT CONVERT(VARCHAR, CAST(check_out AS DATE), 23) AS date, COUNT(*) AS count
-                    FROM Bookings
-                    WHERE status = 'approved'
+                    FROM Bookings b
+                    WHERE EXISTS (
+                        SELECT 1
+                        FROM BookingUnits bu
+                        WHERE bu.booking_id = b.booking_id
+                            AND bu.status = 'approved'
+                    )
                     GROUP BY CAST(check_out AS DATE)
                     ORDER BY CAST(check_out AS DATE)
                 """;
@@ -242,46 +483,45 @@ public class BookingRepo {
     }
 
     public int getTotalBookingByStatus(String status) {
-        String sql = "SELECT COUNT(*) FROM Bookings WHERE status = ?";
+        String sql = """
+            SELECT COUNT(*) 
+            FROM Bookings b
+            WHERE EXISTS (
+                SELECT 1
+                FROM BookingUnits bu
+                WHERE bu.booking_id = b.booking_id
+                    AND bu.status = ?
+            )
+        """;
+        return jdbcTemplate.queryForObject(sql, Integer.class, status);
+    }
+
+    public int getTodayBookingByStatus(String status) {
+        String sql = """
+            SELECT COUNT(*) 
+            FROM Bookings b
+            WHERE CAST(created_at AS DATE) = CAST(GETDATE() AS DATE)
+            AND EXISTS (
+                SELECT 1
+                FROM BookingUnits bu
+                WHERE bu.booking_id = b.booking_id
+                    AND bu.status = ?
+            )
+        """;
         return jdbcTemplate.queryForObject(sql, Integer.class, status);
     }
 
     public int getTodayCheckIn() {
         String sql = """
         SELECT COUNT(*) 
-        FROM Bookings 
-        WHERE status = 'approved'
-          AND CAST(check_in AS DATE) = CAST(GETDATE() AS DATE)
-        """;
-        return jdbcTemplate.queryForObject(sql, Integer.class);
-    }
-
-    public int getTodayBookingByStatus(String status) {
-        String sql = """
-        SELECT COUNT(*) 
-        FROM Bookings 
-        WHERE status = ? 
-          AND CAST(created_at AS DATE) = CAST(GETDATE() AS DATE)
-    """;
-        return jdbcTemplate.queryForObject(sql, Integer.class, status);
-    }
-
-    public int getTodayCheckOut() {
-        String sql = """
-        SELECT COUNT(*) 
-        FROM Bookings 
-        WHERE status = 'approved'
-          AND CAST(check_out AS DATE) = CAST(GETDATE() AS DATE)
-        """;
-        return jdbcTemplate.queryForObject(sql, Integer.class);
-    }
-
-    public int getFutureCheckOut() {
-        String sql = """
-        SELECT COUNT(*) 
-        FROM Bookings 
-        WHERE status = 'approved'
-          AND CAST(check_out AS DATE) > CAST(GETDATE() AS DATE)
+        FROM Bookings b
+        WHERE CAST(check_in AS DATE) = CAST(GETDATE() AS DATE)
+        AND EXISTS (
+            SELECT 1
+            FROM BookingUnits bu
+            WHERE bu.booking_id = b.booking_id
+                AND bu.status = 'approved'
+        )
         """;
         return jdbcTemplate.queryForObject(sql, Integer.class);
     }
@@ -289,9 +529,44 @@ public class BookingRepo {
     public int getFutureCheckIn() {
         String sql = """
         SELECT COUNT(*) 
-        FROM Bookings 
-        WHERE status = 'approved'
-          AND CAST(check_in AS DATE) > CAST(GETDATE() AS DATE)
+        FROM Bookings b
+        WHERE CAST(check_in AS DATE) > CAST(GETDATE() AS DATE)
+        AND EXISTS (
+            SELECT 1
+            FROM BookingUnits bu
+            WHERE bu.booking_id = b.booking_id
+                AND bu.status = 'approved'
+        )
+        """;
+        return jdbcTemplate.queryForObject(sql, Integer.class);
+    }
+
+    public int getTodayCheckOut() {
+        String sql = """
+        SELECT COUNT(*) 
+        FROM Bookings b
+        WHERE CAST(check_out AS DATE) = CAST(GETDATE() AS DATE)
+        AND EXISTS (
+            SELECT 1
+            FROM BookingUnits bu
+            WHERE bu.booking_id = b.booking_id
+                AND bu.status = 'approved'
+        )
+        """;
+        return jdbcTemplate.queryForObject(sql, Integer.class);
+    }
+
+    public int getFutureCheckOut() {
+        String sql = """
+        SELECT COUNT(*) 
+        FROM Bookings b
+        WHERE CAST(check_out AS DATE) > CAST(GETDATE() AS DATE)
+        AND EXISTS (
+            SELECT 1
+            FROM BookingUnits bu
+            WHERE bu.booking_id = b.booking_id
+                AND bu.status = 'approved'
+        )
         """;
         return jdbcTemplate.queryForObject(sql, Integer.class);
     }
@@ -299,17 +574,42 @@ public class BookingRepo {
     public List<Booking> findAllPaginated(int page, int size) {
         int offset = page * size;
         String sql = """
-        SELECT b.*, 
-               h.hotel_name AS hotelName,
-               r.title AS roomName,
-               (SELECT TOP 1 image_url FROM RoomImages WHERE room_id = b.room_id) AS imageUrl
-        FROM Bookings b
-        JOIN Rooms r ON b.room_id = r.room_id
-        JOIN Hotels h ON b.hotel_id = h.hotel_id
-        ORDER BY b.created_at DESC
-        OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
-    """;
-        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Booking.class), offset, size);
+            SELECT 
+                b.booking_id,
+                b.hotel_id,
+                b.customer_id,
+                b.coupon_id,
+                b.check_in,
+                b.check_out,
+                b.total_price,
+                b.created_at,
+                h.hotel_name AS hotelName
+            FROM Bookings b
+            JOIN Hotels h ON b.hotel_id = h.hotel_id
+            ORDER BY b.created_at DESC
+            OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
+        """;
+
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            int bookingId = rs.getInt("booking_id");
+
+            Booking booking = Booking.builder()
+                    .bookingId(bookingId)
+                    .hotelId(rs.getInt("hotel_id"))
+                    .customerId(rs.getInt("customer_id"))
+                    .couponId((Integer) rs.getObject("coupon_id"))
+                    .checkIn(rs.getTimestamp("check_in").toLocalDateTime())
+                    .checkOut(rs.getTimestamp("check_out").toLocalDateTime())
+                    .totalPrice(rs.getDouble("total_price"))
+                    .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
+                    .hotelName(rs.getString("hotelName"))
+                    .build();
+
+            // Gán BookingUnit cho từng Booking
+            booking.setBookingUnits(findBookingUnitsByBookingId(bookingId));
+
+            return booking;
+        }, offset, size);
     }
 
     public int countAllBookings() {
@@ -318,19 +618,24 @@ public class BookingRepo {
 
     public List<Booking> findBookingsByStatusPaginated(String status, int page, int size) {
         StringBuilder sql = new StringBuilder("""
-        SELECT b.*, 
-               h.hotel_name AS hotelName,
-               r.title AS roomName,
-               (SELECT TOP 1 image_url FROM RoomImages WHERE room_id = b.room_id) AS imageUrl
-        FROM Bookings b
-        JOIN Rooms r ON b.room_id = r.room_id
-        JOIN Hotels h ON b.hotel_id = h.hotel_id
-    """);
+            SELECT 
+                b.booking_id,
+                b.hotel_id,
+                b.customer_id,
+                b.coupon_id,
+                b.check_in,
+                b.check_out,
+                b.total_price,
+                b.created_at,
+                h.hotel_name AS hotelName
+            FROM Bookings b
+            JOIN Hotels h ON b.hotel_id = h.hotel_id
+        """);
 
         List<Object> params = new ArrayList<>();
 
         if (status != null && !status.isBlank()) {
-            sql.append(" WHERE b.status = ?");
+            sql.append(" WHERE EXISTS (SELECT 1 FROM BookingUnits bu WHERE bu.booking_id = b.booking_id AND bu.status = ?)");
             params.add(status);
         }
 
@@ -338,40 +643,62 @@ public class BookingRepo {
         params.add(page * size);
         params.add(size);
 
-        return jdbcTemplate.query(sql.toString(), new BeanPropertyRowMapper<>(Booking.class), params.toArray());
+        return jdbcTemplate.query(sql.toString(), (rs, rowNum) -> {
+            int bookingId = rs.getInt("booking_id");
+
+            Booking booking = Booking.builder()
+                    .bookingId(bookingId)
+                    .hotelId(rs.getInt("hotel_id"))
+                    .customerId(rs.getInt("customer_id"))
+                    .couponId((Integer) rs.getObject("coupon_id"))
+                    .checkIn(rs.getTimestamp("check_in").toLocalDateTime())
+                    .checkOut(rs.getTimestamp("check_out").toLocalDateTime())
+                    .totalPrice(rs.getDouble("total_price"))
+                    .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
+                    .hotelName(rs.getString("hotelName"))
+                    .build();
+
+            // Gán BookingUnit cho từng Booking
+            booking.setBookingUnits(findBookingUnitsByBookingId(bookingId));
+
+            return booking;
+        }, params.toArray());
     }
 
-
     public int countBookingsByStatus(String status) {
-        String sql = "SELECT COUNT(*) FROM Bookings";
+        String sql = "SELECT COUNT(*) FROM Bookings b";
         if (status != null && !status.isBlank()) {
-            sql += " WHERE status = ?";
+            sql += " WHERE EXISTS (SELECT 1 FROM BookingUnits bu WHERE bu.booking_id = b.booking_id AND bu.status = ?)";
             return jdbcTemplate.queryForObject(sql, Integer.class, status);
-        }
-        return jdbcTemplate.queryForObject(sql, Integer.class);
+        }return jdbcTemplate.queryForObject(sql, Integer.class);
     }
 
     public List<Booking> findBookingsByStatusAndKeywordPaginated(String status, String keyword, int page, int size) {
         StringBuilder sql = new StringBuilder("""
-        SELECT b.*, 
-               h.hotel_name AS hotelName,
-               r.title AS roomName,
-               (SELECT TOP 1 image_url FROM RoomImages WHERE room_id = b.room_id) AS imageUrl
-        FROM Bookings b
-        JOIN Rooms r ON b.room_id = r.room_id
-        JOIN Hotels h ON b.hotel_id = h.hotel_id
-        WHERE 1=1
-    """);
+            SELECT 
+                b.booking_id,
+                b.hotel_id,
+                b.customer_id,
+                b.coupon_id,
+                b.check_in,
+                b.check_out,
+                b.total_price,
+                b.created_at,
+                h.hotel_name AS hotelName
+            FROM Bookings b
+            JOIN Hotels h ON b.hotel_id = h.hotel_id
+            WHERE 1=1
+        """);
 
         List<Object> params = new ArrayList<>();
 
         if (status != null && !status.isBlank()) {
-            sql.append(" AND b.status = ?");
+            sql.append(" AND EXISTS (SELECT 1 FROM BookingUnits bu WHERE bu.booking_id = b.booking_id AND bu.status = ?)");
             params.add(status);
         }
 
         if (keyword != null && !keyword.isBlank()) {
-            sql.append(" AND (r.title LIKE ? OR h.hotel_name LIKE ?)");
+            sql.append(" AND EXISTS (SELECT 1 FROM BookingUnits bu JOIN Rooms r ON bu.room_id = r.room_id WHERE bu.booking_id = b.booking_id AND (r.title LIKE ? OR h.hotel_name LIKE ?))");
             String likeKeyword = "%" + keyword + "%";
             params.add(likeKeyword);
             params.add(likeKeyword);
@@ -381,27 +708,45 @@ public class BookingRepo {
         params.add(page * size);
         params.add(size);
 
-        return jdbcTemplate.query(sql.toString(), new BeanPropertyRowMapper<>(Booking.class), params.toArray());
+        return jdbcTemplate.query(sql.toString(), (rs, rowNum) -> {
+            int bookingId = rs.getInt("booking_id");
+
+            Booking booking = Booking.builder()
+                    .bookingId(bookingId)
+                    .hotelId(rs.getInt("hotel_id"))
+                    .customerId(rs.getInt("customer_id"))
+                    .couponId((Integer) rs.getObject("coupon_id"))
+                    .checkIn(rs.getTimestamp("check_in").toLocalDateTime())
+                    .checkOut(rs.getTimestamp("check_out").toLocalDateTime())
+                    .totalPrice(rs.getDouble("total_price"))
+                    .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
+                    .hotelName(rs.getString("hotelName"))
+                    .build();
+
+            // Gán BookingUnit cho từng Booking
+            booking.setBookingUnits(findBookingUnitsByBookingId(bookingId));
+
+            return booking;
+        }, params.toArray());
     }
 
     public int countBookingsByStatusAndKeyword(String status, String keyword) {
         StringBuilder sql = new StringBuilder("""
-        SELECT COUNT(*)
-        FROM Bookings b
-        JOIN Rooms r ON b.room_id = r.room_id
-        JOIN Hotels h ON b.hotel_id = h.hotel_id
-        WHERE 1=1
-    """);
+            SELECT COUNT(*)
+            FROM Bookings b
+            JOIN Hotels h ON b.hotel_id = h.hotel_id
+            WHERE 1=1
+        """);
 
         List<Object> params = new ArrayList<>();
 
         if (status != null && !status.isBlank()) {
-            sql.append(" AND b.status = ?");
+            sql.append(" AND EXISTS (SELECT 1 FROM BookingUnits bu WHERE bu.booking_id = b.booking_id AND bu.status = ?)");
             params.add(status);
         }
 
         if (keyword != null && !keyword.isBlank()) {
-            sql.append(" AND (r.title LIKE ? OR h.hotel_name LIKE ?)");
+            sql.append(" AND EXISTS (SELECT 1 FROM BookingUnits bu JOIN Rooms r ON bu.room_id = r.room_id WHERE bu.booking_id = b.booking_id AND (r.title LIKE ? OR h.hotel_name LIKE ?))");
             String likeKeyword = "%" + keyword + "%";
             params.add(likeKeyword);
             params.add(likeKeyword);

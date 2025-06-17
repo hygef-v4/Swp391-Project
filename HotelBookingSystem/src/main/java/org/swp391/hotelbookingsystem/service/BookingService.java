@@ -46,15 +46,6 @@ public class BookingService {
         bookingRepo.updateRefund(bookingId, amount, status);
     }
 
-    // Lấy ảnh và tên khách sạn
-    public String getImageByBookingId(int bookingId) {
-        return bookingRepo.getImagesByBookingId(bookingId);
-    }
-
-    public String getHotelNameByBookingId(int bookingId) {
-        return bookingRepo.getHotelNameByBookingId(bookingId);
-    }
-
     public List<Booking> getAllBookings() {
         return bookingRepo.findAll();
     }
@@ -71,10 +62,6 @@ public class BookingService {
     // Lấy theo khách sạn (ví dụ dùng trong admin hoặc host dashboard)
     public List<Booking> getBookingsByHotel(int hotelId) {
         return bookingRepo.findByHotelId(hotelId);
-    }
-
-    public String getRoomNameByBookingId(int bookingId) {
-        return bookingRepo.getRoomNameByBookingId(bookingId);
     }
 
     public List<BookingRepo.DailyStat> getCheckInStats() {

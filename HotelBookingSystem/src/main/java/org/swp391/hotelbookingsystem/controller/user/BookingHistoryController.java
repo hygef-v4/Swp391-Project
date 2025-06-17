@@ -48,13 +48,7 @@ public class BookingHistoryController {
             return "redirect:/login";
         }
         Booking booking = bookingService.findById(id);
-        String image = bookingService.getImageByBookingId(booking.getBookingId());
-        booking.setImageUrl(image);
         model.addAttribute("booking", booking);
-        String hotelName = bookingService.getHotelNameByBookingId(booking.getBookingId());
-        booking.setHotelName(hotelName);
-        String roomName = bookingService.getRoomNameByBookingId(booking.getBookingId());
-        booking.setRoomName(roomName);
         boolean isCancelable = false;
         if ("approved".equalsIgnoreCase(booking.getStatus()) && booking.getCheckIn().isAfter(LocalDate.now().atStartOfDay())) {
             isCancelable = true;
