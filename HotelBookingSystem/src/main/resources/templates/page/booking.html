@@ -80,11 +80,208 @@
 
 			}
 		})
-		
 	</script>
 
+	<script>
+        document.addEventListener("DOMContentLoaded", function(){
+            const items = document.querySelectorAll(".room-description li");
+            items.forEach(li => {
+                li.classList.add("list-group-item", "h6", "fw-light", "d-flex", "mb-0");
+
+                const icon = document.createElement("i");
+                icon.className = "fa-solid fa-check-circle text-success me-2";
+                li.insertBefore(icon, li.firstChild);
+            })
+        });
+	</script>
+
+    <script>
+        // Khai báo trước ở phạm vi global
+        let total, discount, paid;
+        let totalPrice, totalDiscount, paidPrice;
+        let pay;;
+
+        // Khi DOM load xong thì gán giá trị
+        window.addEventListener("DOMContentLoaded", function () {
+            totalPrice = document.getElementById('totalPrice');
+            totalDiscount = document.getElementById('totalDiscount');
+            paidPrice = document.getElementById('paidPrice');
+
+            total = parseInt(totalPrice.textContent.replace(/[^\d]/g, "")) || 0;
+            discount = parseInt(totalDiscount.textContent.replace(/[^\d]/g, "")) || 0;
+            paid = parseInt(paidPrice.value.replace(/[^\d]/g, "")) || 0;
+
+            pay = document.getElementById('payButton');
+
+            const params = new URLSearchParams(window.location.search);
+            const roomId = params.get("roomId");
+            if(roomId) booking(roomId);
+            
+        });
+
+        function updatePaid(t, d){
+            total = t;
+            discount = d;
+            paid = total - discount;
+
+            // Cập nhật giá trị hiển thị
+            totalPrice.textContent = total.toLocaleString();
+            totalDiscount.textContent = discount.toLocaleString();
+            paidPrice.value = "$" + paid.toLocaleString();
+
+            if(paid){
+                pay.disabled = false;
+            }else{
+                pay.disabled = true;
+            }
+        }
+
+        function addTotalPrice(id){
+            const bookedRoom = document.getElementById('booked' + id);
+            
+            // Get title
+            const title = bookedRoom.querySelector(".bookedTitle").textContent.trim();
+
+            // Get price
+            const priceText = bookedRoom.querySelector(".bookedPrice").textContent.trim();
+            const price = parseInt(priceText.replace(/[^\d]/g, ""));
+
+            // Get quantity
+            const quantityText = bookedRoom.querySelector(".bookedQuantity").value;
+            const quantity = parseInt(quantityText, 10);
+
+            // Cập nhật tổng giá
+            let i = total + (price * quantity);
+            updatePaid(i, discount);
+
+            // Thêm vào list-group hiển thị
+            const ul = document.getElementById("booking-info");
+            if (ul) {
+                ul.innerHTML += `
+                <div id=${'price' + id}>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <h6 class="ellipsis">${title}</h6>
+                        <a class="mb-0" onclick="less(${id})" title="Xóa"><i class="bi bi-x-circle"></i></a>  
+                        <input type="hidden" name="roomId" value="${id}">
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span class="h6 fw-light mb-0">Room Charges</span>
+                        <span class="fs-5 priceText">$${price.toLocaleString()}</span>
+                        <input type="hidden" name="price" value="${price}">
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span class="h6 fw-light mb-0">Amount</span>
+                        <span class="fs-5 quantityText">${quantity}</span>
+                        <input class="quantityInput" type="hidden" name="quantity" value="${quantity}">
+                    </li>
+                    <hr>
+                </div>
+                `;
+            }
+        }
+
+        function removeTotalPrice(id){
+            const bookedRoom = document.getElementById('booked' + id);
+
+            // Get price
+            const priceText = bookedRoom.querySelector(".bookedPrice").textContent.trim();
+            const price = parseInt(priceText.replace(/[^\d]/g, ""));
+
+            // Get quantity
+            const quantityText = bookedRoom.querySelector(".bookedQuantity").value;
+            const quantity = parseInt(quantityText, 10);
+
+            // Cập nhật tổng giá
+            let i = total - (price * quantity);
+            updatePaid(i, discount);
+
+            // Xoá phần tử div theo id
+            const ul = document.getElementById("booking-info");
+            if (ul) {
+                const div = ul.querySelector("#price" + id);
+                if (div) {
+                    ul.removeChild(div);
+                }
+            }
+        }
+
+        function setQuantity(id){
+            const priceRoom = document.getElementById('price' + id);
+
+            const priceText = priceRoom.querySelector(".priceText").textContent.trim();
+            const price = parseInt(priceText.replace(/[^\d]/g, ""));
+
+            const quantityText = priceRoom.querySelector(".quantityText").textContent.trim();
+            const quantity = parseInt(quantityText, 10);
+
+            const bookedRoom = document.getElementById('booked' + id);
+
+            const bookedPriceText = bookedRoom.querySelector(".bookedPrice").textContent.trim();
+            const bookedPrice = parseInt(bookedPriceText.replace(/[^\d]/g, ""));
+
+            const bookedQuantityText = bookedRoom.querySelector(".bookedQuantity").value;
+            const bookedQuantity = parseInt(bookedQuantityText, 10);
+
+            if(!bookedQuantity|| bookedQuantity < bookedRoom.querySelector(".bookedQuantity").min || bookedQuantity > bookedRoom.querySelector(".bookedQuantity").max){
+                bookedRoom.querySelector(".bookedQuantity").value = quantity;
+            }else{
+                priceRoom.querySelector(".quantityText").textContent = bookedQuantity;
+                priceRoom.querySelector(".quantityInput").value = bookedQuantity;
+
+                oldPrice = total - (price * quantity);
+                newPrice = oldPrice + (bookedPrice * bookedQuantity);
+                updatePaid(newPrice, discount);
+            }
+        }
+    </script>
+
+    <script>
+        function scroll(id){
+            const e = document.getElementById(id);
+            if(e) e.scrollIntoView({behavior: 'smooth'});
+        }
+    </script>
+
+    <script>
+        function booking(id){
+            const bookedContent = document.getElementById('bookedContent').firstElementChild;
+            const bookedRoom = document.getElementById('booked' + id);
+            const moreRoom = document.getElementById('more' + id);
+
+            if(!bookedRoom || !moreRoom){
+                alert("Đã hết phòng, vui lòng chọn phòng khác");
+                return;
+            }
+
+            bookedContent.removeChild(bookedRoom);
+            bookedContent.appendChild(bookedRoom);
+
+            bookedRoom.classList.remove('hidden');
+            moreRoom.classList.add('hidden');
+
+            addTotalPrice(id);
+            scroll('booked' + id);
+        }
+
+        function less(id){
+            const bookedRoom = document.getElementById('booked' + id);
+            const moreRoom = document.getElementById('more' + id);
+
+            bookedRoom.classList.add('hidden');
+            moreRoom.classList.remove('hidden');
+
+            removeTotalPrice(id);
+        }
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+
+        })
+    </script>
+
 	<!-- Favicon -->
-	<link rel="shortcut icon" href="assets/images/favicon.ico">
+	<link rel="shortcut icon" href="/assets/images/favicon.ico">
 
 	<!-- Google Font -->
 	<link rel="preconnect" href="https://fonts.googleapis.com/">
@@ -92,13 +289,13 @@
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Poppins:wght@400;500;700&amp;display=swap">
 
 	<!-- Plugins CSS -->
-	<link rel="stylesheet" type="text/css" href="assets/vendor/font-awesome/css/all.min.css">
-	<link rel="stylesheet" type="text/css" href="assets/vendor/bootstrap-icons/bootstrap-icons.css">
-    <link rel="stylesheet" type="text/css" href="assets/vendor/tiny-slider/tiny-slider.css">
-	<link rel="stylesheet" type="text/css" href="assets/vendor/choices/css/choices.min.css">
+	<link rel="stylesheet" type="text/css" href="/assets/vendor/font-awesome/css/all.min.css">
+	<link rel="stylesheet" type="text/css" href="/assets/vendor/bootstrap-icons/bootstrap-icons.css">
+    <link rel="stylesheet" type="text/css" href="/assets/vendor/tiny-slider/tiny-slider.css">
+	<link rel="stylesheet" type="text/css" href="/assets/vendor/choices/css/choices.min.css">
 
 	<!-- Theme CSS -->
-	<link rel="stylesheet" type="text/css" href="assets/css/style.css">
+	<link rel="stylesheet" type="text/css" href="/assets/css/style.css">
 
 </head>
 
@@ -123,13 +320,13 @@ Page banner START -->
 				<div class="col-sm-9">
 					<div class="card-body">
 						<!-- Title -->
-						<h1 class="m-0 h2 card-title">Review your Booking</h1>
+						<h1 class="m-0 h2 card-title">Hotel Booking</h1>
 					</div>
 				</div>
 
 				<!-- Image -->
 				<div class="col-sm-3 text-end d-none d-sm-block">
-					<img src="assets/images/element/17.svg" class="mb-n4" alt="">
+					<img src="/assets/images/element/17.svg" class="mb-n4" alt="">
 				</div>
 			</div>
 		</div>
@@ -148,52 +345,57 @@ Page content START -->
 			<!-- Left side content START -->
 			<div class="col-xl-8">
 				<div class="vstack gap-5">
-					<!-- Guest detail START -->
-					<div class="card shadow">
-						<!-- Card header -->
-						<div class="card-header border-bottom p-4">
-							<h4 class="card-title mb-0"><i class="bi bi-people-fill me-2"></i>Guest Details</h4>
-						</div>
-							
-						<!-- Card body START -->
-						<div class="card-body p-4">
-							<!-- Form START -->
-							<form class="row g-4">
-								<!-- Input -->
-								<div class="col-md-8">
-									<label class="form-label">Name</label>
-									<input type="text" class="form-control form-control-lg" placeholder="Enter your name">
-								</div>
+<!--					&lt;!&ndash; Guest detail START &ndash;&gt;-->
+<!--					<div class="card shadow">-->
+<!--						&lt;!&ndash; Card header &ndash;&gt;-->
+<!--						<div class="card-header border-bottom p-4">-->
+<!--							<h4 class="card-title mb-0"><i class="bi bi-people-fill me-2"></i>Guest Details</h4>-->
+<!--						</div>-->
+<!--							-->
+<!--						&lt;!&ndash; Card body START &ndash;&gt;-->
+<!--						<div class="card-body p-4">-->
+<!--							&lt;!&ndash; Form START &ndash;&gt;-->
+<!--							<form class="row g-4">-->
+<!--								&lt;!&ndash; Input &ndash;&gt;-->
+<!--								<div class="col-md-4">-->
+<!--									<label class="form-label">Name</label>-->
+<!--									<input type="text" class="form-control form-control-lg" placeholder="Enter your name" th:value="${user.fullName}" required>-->
+<!--								</div>-->
 
-                                <!-- Select -->
-								<div class="col-md-4">
-									<div class="form-size-lg">
-										<label class="form-label">Gender</label>
-										<select class="form-select js-choice">
-											<option>Male</option>
-											<option>Female</option>
-                                            <option>Other</option>
-										</select>
-									</div>	
-								</div>
+<!--								<div class="col-md-4">-->
+<!--									<label class="form-label">Date of Birth</label>-->
+<!--									<input type="date" class="form-control form-control-lg" placeholder="Enter your date of birth" th:value="${user.dob != null ? user.dob.toLocalDate() : ''}" required>-->
+<!--								</div>                                -->
 
-								<!-- Input -->
-								<div class="col-md-6">
-									<label class="form-label">Email id</label>
-									<input type="email" class="form-control form-control-lg" placeholder="Enter your email">
-								</div>
+<!--                                &lt;!&ndash; Select &ndash;&gt;-->
+<!--								<div class="col-md-4">-->
+<!--									<div class="form-size-lg">-->
+<!--										<label class="form-label">Gender</label>-->
+<!--										<select class="form-select js-choice">-->
+<!--											<option th:selected="${user.gender != null && user.gender.toLowerCase() == 'male'}">Male</option>-->
+<!--											<option th:selected="${user.gender != null && user.gender.toLowerCase() == 'female'}">Female</option>-->
+<!--                                            <option th:selected="${user.gender != null && user.gender.toLowerCase() == 'other'}">Other</option>-->
+<!--										</select>-->
+<!--									</div>	-->
+<!--								</div>-->
 
-								<!-- Input -->
-								<div class="col-md-6">
-									<label class="form-label">Mobile number</label>
-									<input type="text" class="form-control form-control-lg" placeholder="Enter your mobile number">
-								</div>
-							</form>
-							<!-- Form END -->
-						</div>
-						<!-- Card body END -->
-					</div>
-					<!-- Guest detail END -->
+<!--								&lt;!&ndash; Input &ndash;&gt;-->
+<!--								<div class="col-md-6">-->
+<!--									<label class="form-label">Email id</label>-->
+<!--									<input type="email" class="form-control form-control-lg" placeholder="Enter your email" th:value="${user.email}" required>-->
+<!--								</div>-->
+
+<!--								&lt;!&ndash; Input &ndash;&gt;-->
+<!--								<div class="col-md-6">-->
+<!--									<label class="form-label">Mobile number</label>-->
+<!--									<input type="text" class="form-control form-control-lg" placeholder="Enter your mobile number" th:value="${user.phone}">-->
+<!--								</div>-->
+<!--							</form>-->
+<!--							&lt;!&ndash; Form END &ndash;&gt;-->
+<!--						</div>-->
+<!--						&lt;!&ndash; Card body END &ndash;&gt;-->
+<!--					</div>-->
+<!--					&lt;!&ndash; Guest detail END &ndash;&gt;-->
 
 					<!-- Hotel information START -->
 					<div class="card shadow">
@@ -210,28 +412,30 @@ Page content START -->
 								<div class="row align-items-center">
 									<!-- Image -->
 									<div class="col-sm-6 col-md-3">
-										<img src="assets/images/category/hotel/4by3/02.jpg" class="card-img" alt="">
+										<img th:src="${hotel.hotelImageUrl}" class="card-img" th:alt="${hotel.hotelName}">
 									</div>
 
 									<!-- Card Body -->
 									<div class="col-sm-6 col-md-9">
 										<div class="card-body pt-3 pt-sm-0 p-0">
 											<!-- Title -->
-											<h5 class="card-title"><a href="#">Pride moon Village Resort & Spa</a></h5>
-											<p class="small mb-2"><i class="bi bi-geo-alt me-2"></i>5855 W Century Blvd, Los Angeles - 90045</p>
+											<h5 class="card-title"><a th:text="${hotel.hotelName}"></a></h5>
+
+                                            <a onclick="initMap()" class="small ms-2 mb-2 text-decoration-underline" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#mapmodal">
+                                                <i class="bi bi-geo-alt me-2"></i><span th:text="${hotel.address + ', ' + hotel.cityName}"></span>
+                                            </a>
 
 											<!-- Rating star -->
 											<ul class="list-inline mb-0">
-												<li class="list-inline-item ms-2 h6 small fw-bold mb-0">4.5</li>
-												<li class="list-inline-item me-0 small"><i class="fa-solid fa-star text-warning"></i></li>
-												<li class="list-inline-item me-0 small"><i class="fa-solid fa-star text-warning"></i></li>
-												<li class="list-inline-item me-0 small"><i class="fa-solid fa-star text-warning"></i></li>
-												<li class="list-inline-item me-0 small"><i class="fa-solid fa-star text-warning"></i></li>
-												<li class="list-inline-item me-0 small"><i class="fa-solid fa-star-half-alt text-warning"></i></li>
+												<li class="list-inline-item ms-2 h6 small fw-bold mb-0" th:text="${hotel.rating}"></li>
+                                                <li class="list-inline-item me-0"><i th:class="(${hotel.rating <= 0.2} ? 'fa-regular fa-star' : (${hotel.rating >= 0.8} ? 'fa-solid fa-star' : 'fa-solid fa-star-half-alt')) + ' text-warning'"></i></li>
+                                                <li class="list-inline-item me-0"><i th:class="(${hotel.rating <= 1.2} ? 'fa-regular fa-star' : (${hotel.rating >= 1.8} ? 'fa-solid fa-star' : 'fa-solid fa-star-half-alt')) + ' text-warning'"></i></li>
+                                                <li class="list-inline-item me-0"><i th:class="(${hotel.rating <= 2.2} ? 'fa-regular fa-star' : (${hotel.rating >= 2.8} ? 'fa-solid fa-star' : 'fa-solid fa-star-half-alt')) + ' text-warning'"></i></li>
+                                                <li class="list-inline-item me-0"><i th:class="(${hotel.rating <= 3.2} ? 'fa-regular fa-star' : (${hotel.rating >= 3.8} ? 'fa-solid fa-star' : 'fa-solid fa-star-half-alt')) + ' text-warning'"></i></li>
+                                                <li class="list-inline-item me-0"><i th:class="(${hotel.rating <= 4.2} ? 'fa-regular fa-star' : (${hotel.rating >= 4.8} ? 'fa-solid fa-star' : 'fa-solid fa-star-half-alt')) + ' text-warning'"></i></li>
 											</ul>
                                             
-                                            <a class="btn btn-link p-0 mb-0">View Cancellation Policy</a>
-
+                                            <a class="btn btn-link p-0 mb-0" data-bs-toggle="modal" data-bs-target="#policyModal">View Cancellation Policy</a>
 										</div>
 									</div>
 
@@ -244,8 +448,8 @@ Page content START -->
 								<!-- Item -->
 								<div class="col-lg-6">
 									<div class="bg-light py-3 px-4 rounded-3">
-										<h6 class="fw-light small mb-1">Check-in</h6>
-										<h5 class="mb-1">4 March 2022</h5>
+										<h6 class="fw-light small mb-1">Check in</h6>
+										<input type="date" th:value="${checkIn}" class="form-control border-0 bg-transparent p-0 fw-semibold fs-5 mb-1" style="box-shadow: none;" id="checkin" readonly>
 									</div>
 								</div>
                                 
@@ -253,7 +457,7 @@ Page content START -->
 								<div class="col-lg-6">
 									<div class="bg-light py-3 px-4 rounded-3">
 										<h6 class="fw-light small mb-1">Check out</h6>
-										<h5 class="mb-1">8 March 2022</h5>
+										<input type="date" th:value="${checkOut}" class="form-control border-0 bg-transparent p-0 fw-semibold fs-5 mb-1" style="box-shadow: none;" id="checkout" readonly>
 									</div>
 								</div>
 							</div>
@@ -281,7 +485,11 @@ Page content START -->
                                                     <div class="tiny-slider arrow-round arrow-xs arrow-dark overflow-hidden rounded-2">
                                                         <div class="tiny-slider-inner" data-autoplay="true" data-arrow="true" data-dots="false" data-items="1">
                                                             <!-- Image item -->
-                                                            <div class="text-center" th:each="image: ${room.images}"><img style="max-height: 170px;" th:src="${image}" th:alt="${room.title}"></div>
+                                                            <div class="text-center" th:each="image: ${room.images}">
+                                                                <a href="#" data-bs-toggle="modal" th:data-bs-target="'#roomDetail' + ${room.roomId}">
+                                                                    <img style="max-height: 170px;" th:src="${image}" th:alt="${room.title}">
+                                                                </a>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                     <!-- Slider END -->
@@ -292,14 +500,14 @@ Page content START -->
                                                     <div class="card-body d-flex flex-column h-100 p-0">
                             
                                                         <!-- Title -->
-                                                        <h5 class="card-title"><a href="#" th:text="${room.title}" data-bs-toggle="modal" th:data-bs-target="'#roomDetail' + ${room.roomId}"></a></h5>
+                                                        <h5 class="card-title"><a href="#" class="bookedTitle" th:text="${room.title}" data-bs-toggle="modal" th:data-bs-target="'#roomDetail' + ${room.roomId}"></a></h5>
 
                                                         <ul class="list-group list-group-borderless mb-2 room-description" th:utext="${room.description}"></ul>
 
                                                         <div class="d-flex justify-content-between align-items-center">
                                                             <div>
                                                                 <span><b>Số phòng đặt: </b></span>
-                                                                <input type="number" name="amount" min = "1" th:max="${room.quantity}" value="1">
+                                                                <input class="bookedQuantity" type="number" name="amount" min = "1" th:max="${room.quantity}" value="1" th:onchange="'setQuantity(' + ${room.roomId} + ')'" required>
                                                             </div>                                                            
                                                             <div>
                                                                 <span>Còn: </span>
@@ -311,12 +519,12 @@ Page content START -->
                                                         <div class="d-sm-flex justify-content-sm-between align-items-center mt-2">
                                                             <!-- Button -->
                                                             <div class="d-flex align-items-center">
-                                                                <h5 class="fw-bold mb-0 me-1" th:text="${#numbers.formatDecimal(room.price, 0, 'COMMA', 0, 'POINT')} + '₫'"></h5>
+                                                                <h5 class="fw-bold mb-0 me-1 bookedPrice" th:text="${#numbers.formatDecimal(room.price, 0, 'COMMA', 0, 'POINT')} + '₫'"></h5>
                                                                 <span class="mb-0 me-2">/Ngày</span>
                                                             </div>
                                                             <!-- Price -->
                                                             <div class="mt-3 mt-sm-0">
-                                                                <a th:class="'btn btn-sm btn-danger mb-0' + ${room.quantity == 0 ? ' disabled' : ''}">Xóa</a>    
+                                                                <a class="btn btn-sm btn-danger mb-0" th:onclick="'less(' + ${room.roomId} + ')'">Xóa</a>    
                                                             </div>                  
                                                         </div>
                                                     </div>
@@ -352,7 +560,11 @@ Page content START -->
                                                     <div class="tiny-slider arrow-round arrow-xs arrow-dark overflow-hidden rounded-2">
                                                         <div class="tiny-slider-inner" data-autoplay="true" data-arrow="true" data-dots="false" data-items="1">
                                                             <!-- Image item -->
-                                                            <div class="text-center" th:each="image: ${room.images}"><img style="max-height: 170px;" th:src="${image}" th:alt="${room.title}"></div>
+                                                            <div class="text-center" th:each="image: ${room.images}">
+                                                                <a href="#" data-bs-toggle="modal" th:data-bs-target="'#roomDetail' + ${room.roomId}">
+                                                                    <img style="max-height: 170px;" th:src="${image}" th:alt="${room.title}">
+                                                                </a>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                     <!-- Slider END -->
@@ -384,7 +596,7 @@ Page content START -->
                                                             </div>
                                                             <!-- Price -->
                                                             <div class="mt-3 mt-sm-0">
-                                                                <a th:class="'btn btn-sm btn-primary mb-0' + ${room.quantity == 0 ? ' disabled' : ''}">Chọn Phòng</a>    
+                                                                <a class="btn btn-sm btn-primary mb-0" th:onclick="'booking(' + ${room.roomId} + ')'">Chọn Phòng</a>    
                                                             </div>                  
                                                         </div>
                                                     </div>
@@ -418,35 +630,30 @@ Page content START -->
 
 							<!-- Card body -->
 							<div class="card-body">
-								<ul class="list-group list-group-borderless">
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-										<h5 class="ellipsis">Pride moon Village Resort & Spa</h5>
-									</li>
-									<li class="list-group-item d-flex justify-content-between align-items-center">
-										<span class="h6 fw-light mb-0">Room Charges</span>
-										<span class="fs-5">$28,660</span>
-									</li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-										<span class="h6 fw-light mb-0">Amount</span>
-										<span class="fs-5">3</span>
-									</li>
-                                    <hr>
+								<ul class="list-group list-group-borderless" id="booking-info"></ul>
+                                <ul class="list-group list-group-borderless">
 									<li class="list-group-item d-flex justify-content-between align-items-center">
 										<span class="h6 fw-light mb-0">Total Price</span>
-										<span class="fs-5">$1852</span>
+										<span class="fs-5">$<span id="totalPrice">0</span></span>
 									</li>                                    
 									<li class="list-group-item d-flex justify-content-between align-items-center">
 										<span class="h6 fw-light mb-0">Total Discount</span>
-										<span class="fs-5 text-success">-$2,560</span>	
+										<span class="fs-5 text-success">-$<span id="totalDiscount">0</span></span>	
 									</li>
-								</ul>
+                                </ul>
 							</div>
 
 							<!-- Card footer -->
 							<div class="card-footer border-top">
 								<div class="d-flex justify-content-between align-items-center">
-									<span class="h5 mb-0">Payable Now</span>
-									<span class="h5 mb-0">$22,500</span>
+									<span class="h5 mb-0">Payable</span>
+									<input class="h5 mb-0" id="paidPrice" type="text" value="0" readonly style="border: none; background: transparent; width: 50%; text-align: right;"/>
+								</div>
+							</div>
+
+                            <div class="card-footer border-top">
+								<div class="d-flex justify-content-end align-items-center">
+									<button type="button" class="btn btn-sm btn-primary mb-0" id="payButton" disabled>Pay Now</button>
 								</div>
 							</div>
 						</div>
@@ -502,6 +709,47 @@ Footer START -->
 <div th:replace="~{common/footer :: footer}"></div>
 <!-- =======================
 Footer END -->
+
+<!-- Map modal START -->
+<div class="modal fade" id="mapmodal" tabindex="-1" aria-labelledby="mapmodalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-lg">
+		<div class="modal-content">
+			<!-- Title -->
+			<div class="modal-header">
+				<h5 class="modal-title" id="mapmodalLabel">Xem vị trí khách sạn</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<!-- Map -->
+			<div class="modal-body p-0" id="map" style="height: 400px;border:0;"></div>
+			<!-- Button -->
+			<div class="modal-footer">
+				<a th:href="${map}" target="_blank">
+					<button type="button" class="btn btn-sm btn-primary mb-0"><i class="bi fa-fw bi-pin-map-fill me-2"></i>Mở Google Map</button>
+				</a>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- Map modal END -->
+
+<!-- Policy modal START -->
+<div class="modal fade" id="policyModal" tabindex="-1" aria-labelledby="policyModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-lg">
+		<div class="modal-content">
+			<!-- Title -->
+			<div class="modal-header">
+				<h5 class="mb-0">Chính sách khách sạn</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<!-- Map -->
+			<div class="modal-body p-0">
+                <!-- List -->
+				<ul class="list-group list-group-borderless mb-2" th:utext="${hotel.policy}"></ul>
+            </div>
+		</div>
+	</div>
+</div>
+<!-- Policy modal END -->
 
 <!-- Room modal START -->
 <div class="modal fade" th:each="room: ${rooms}" th:id="'roomDetail' + ${room.roomId}" tabindex="-1" aria-labelledby="roomDetailLabel" aria-hidden="true">
@@ -587,14 +835,38 @@ Footer END -->
 <div class="back-top"></div>
 
 <!-- Bootstrap JS -->
-<script src="assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
 <!-- Vendors -->
-<script src="assets/vendor/tiny-slider/tiny-slider.js"></script>
-<script src="assets/vendor/choices/js/choices.min.js"></script>
+<script src="/assets/vendor/tiny-slider/tiny-slider.js"></script>
+<script src="/assets/vendor/choices/js/choices.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/somanchiu/Keyless-Google-Maps-API@v7.0/mapsJavaScriptAPI.js" async defer></script>
+
+<script th:inline="javascript">
+	var map;
+
+	var lat = /*[[${hotel.latitude}]]*/ 0;
+	var lng = /*[[${hotel.longitude}]]*/ 0;
+
+	function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+            center: {lat: lat, lng: lng},
+            zoom: 19
+        });
+
+        new google.maps.Marker({
+			position: {lat: lat, lng: lng},
+			map: map,
+			icon: {
+                url: 'https://maps.gstatic.com/mapfiles/api-3/images/spotlight-poi2_hdpi.png',
+                scaledSize: new google.maps.Size(14, 22)
+            }
+		});
+	}
+</script>
 
 <!-- ThemeFunctions -->
-<script src="assets/js/functions.js"></script>
+<script src="/assets/js/functions.js"></script>
 
 </body>
 

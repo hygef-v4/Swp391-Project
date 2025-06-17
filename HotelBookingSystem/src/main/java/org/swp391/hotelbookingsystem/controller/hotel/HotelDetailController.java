@@ -38,6 +38,7 @@ public class HotelDetailController {
     public String hotelDetail(
         @RequestParam(value = "hotelId") int hotelId,
     
+        @RequestParam(value = "dateRange", defaultValue = "") String dateRange,
         @RequestParam(value = "adults", defaultValue = "1") int adults,
         @RequestParam(value = "children", defaultValue = "0") int children,
         @RequestParam(value = "rooms", defaultValue = "1") int roomQuantity,
@@ -46,6 +47,8 @@ public class HotelDetailController {
     ){
         List<Location> locations = locationService.getAllLocations();
         model.addAttribute("locations", locations);
+
+        model.addAttribute("dateRange", dateRange);
 
         model.addAttribute("adults", adults);
         model.addAttribute("children", children);
@@ -62,6 +65,7 @@ public class HotelDetailController {
         }model.addAttribute("favorite", favorite);
 
         String redirect = "";
+        if(!"".equals(dateRange)) redirect += "&dateRange=" + dateRange;
         if(adults != 1) redirect += "&adults=" + adults;
         if(children != 0) redirect += "&children=" + children;
         if(roomQuantity != 1) redirect += "&rooms=" + roomQuantity;
@@ -84,8 +88,6 @@ public class HotelDetailController {
             }
         }
         
-        model.addAttribute("hotel", hotel);
-
         List<Room> rooms = roomService.getRoomByHotelId(hotelId);
         for(Room room : rooms){
             room.setDescription("<li>Sức chứa: " + room.getMaxGuests() + " Người</li>" + room.getDescription());

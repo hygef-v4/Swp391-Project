@@ -72,16 +72,16 @@
 	</script>
 
 	<script>
-	document.addEventListener("DOMContentLoaded", function(){
-		const items = document.querySelectorAll(".room-description li");
-		items.forEach(li => {
-			li.classList.add("list-group-item", "h6", "fw-light", "d-flex", "mb-0");
+		document.addEventListener("DOMContentLoaded", function(){
+			const items = document.querySelectorAll(".room-description li");
+			items.forEach(li => {
+				li.classList.add("list-group-item", "h6", "fw-light", "d-flex", "mb-0");
 
-			const icon = document.createElement("i");
-			icon.className = "fa-solid fa-check-circle text-success me-2";
-			li.insertBefore(icon, li.firstChild);
-		})
-	});
+				const icon = document.createElement("i");
+				icon.className = "fa-solid fa-check-circle text-success me-2";
+				li.insertBefore(icon, li.firstChild);
+			})
+		});
 	</script>
 
 	<!-- Favicon -->
@@ -157,7 +157,7 @@ Search START -->
                         <!-- Date input -->
                         <div class="form-control-border form-control-transparent form-fs-md">
                             <label class="form-label">Nhận phòng – Trả phòng</label>
-                            <input type="text" class="form-control flatpickr" data-mode="range" name="dateRange" placeholder="Chọn ngày">
+                            <input type="text" th:value="${dateRange}" class="form-control flatpickr" data-mode="range" name="dateRange" placeholder="Chọn ngày">
                         </div>
                     </div>
                 </div>
@@ -288,7 +288,7 @@ Main Title START -->
 						<!-- Location -->
 						<p class="fw-bold mb-0"><i class="bi bi-geo-alt me-2"></i>
 							<span th:text="${hotel.address + ', ' + hotel.cityName}"></span>
-							<a onclick="initMap()" class="ms-2 text-decoration-underline" data-bs-toggle="modal" data-bs-target="#mapmodal">
+							<a onclick="initMap()" class="ms-2 text-decoration-underline" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#mapmodal">
 								<i class="bi bi-eye-fill me-1"></i>Xem Bản Đồ
 							</a>
 						</p>
@@ -456,6 +456,7 @@ About hotel START -->
 						<div class="card-header border-bottom bg-transparent px-0 pt-0">
 							<div class="d-sm-flex justify-content-sm-between align-items-center">
 								<h3 class="mb-2 mb-sm-0">Lựa Chọn Phòng</h3>
+								<a th:class="'btn btn-sm btn-primary mb-0' + ${rooms == null || rooms.size() == 0 ? ' disabled' : ''}" data-bs-toggle="modal" data-bs-target="#bookingModal">Chọn Phòng</a>  
 							</div>
 						</div>
 
@@ -473,7 +474,11 @@ About hotel START -->
 											<div class="tiny-slider arrow-round arrow-xs arrow-dark overflow-hidden rounded-2">
 												<div class="tiny-slider-inner" data-autoplay="true" data-arrow="true" data-dots="false" data-items="1">
 													<!-- Image item -->
-													<div class="text-center" th:each="image: ${room.images}"><img style="max-height: 170px;" th:src="${image}" th:alt="${room.title}"></div>
+													<div class="text-center" th:each="image: ${room.images}">
+														<a href="#" data-bs-toggle="modal" th:data-bs-target="'#roomDetail' + ${room.roomId}">
+															<img style="max-height: 170px;" th:src="${image}" th:alt="${room.title}">
+														</a>
+													</div>
 												</div>
 											</div>
 											<!-- Slider END -->
@@ -502,7 +507,7 @@ About hotel START -->
 													</div>
 													<!-- Price -->
 													<div class="mt-3 mt-sm-0">
-														<a th:class="'btn btn-sm btn-primary mb-0' + ${room.quantity == 0 ? ' disabled' : ''}">Chọn Phòng</a>    
+														<a th:class="'btn btn-sm btn-primary mb-0' + ${room.quantity == 0 ? ' disabled' : ''}" data-bs-toggle="modal" th:data-bs-target="'#bookingModal' + ${room.roomId}">Đặt Phòng</a>    
 													</div>                  
 												</div>
 											</div>
@@ -826,6 +831,75 @@ Footer END -->
 </div>
 <!-- Room modal END -->
 
+<!-- Booking modal START -->
+<div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-md">
+		<div class="modal-content">
+			<form th:action="@{/booking/{id}(id=${hotel.hotelId})}" onsubmit="return dateRange.value.trim() !== ''">
+				<!-- Title -->
+				<div class="modal-header">
+					<h5 class="modal-title" id="bookingModalLabel">Chọn ngày đặt phòng</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<!-- Date Range -->
+				<div class="modal-body p-0">                
+					<!-- Check in -->
+					<div class="col-lg-10 mx-auto my-2">
+						<div class="d-flex">
+							<!-- Icon -->
+							<i class="bi bi-calendar fs-3 me-2 mt-2"></i>
+							<!-- Date input -->
+							<div class="form-control-border form-control-transparent form-fs-md">
+								<label class="form-label">Nhận phòng – Trả phòng</label>
+								<input type="text" th:value="${dateRange}" class="form-control flatpickr" data-mode="range" name="dateRange" placeholder="Chọn ngày" required="true">
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- Button -->
+				<div class="modal-footer">
+					<input type="submit" class="btn btn-sm btn-primary mb-0" value="Đặt Phòng">
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" th:each="room: ${rooms}" th:id="'bookingModal' + ${room.roomId}" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-md">
+		<div class="modal-content">
+			<form th:action="@{/booking/{id}(id=${hotel.hotelId})}" onsubmit="return dateRange.value.trim() !== ''">
+				<!-- Title -->
+				<div class="modal-header">
+					<h5 class="modal-title" id="bookingModalLabel">Chọn ngày đặt phòng</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<!-- Date Range -->
+				<div class="modal-body p-0">                
+					<!-- Check in -->
+					<div class="col-lg-10 mx-auto my-2">
+						<div class="d-flex">
+							<!-- Icon -->
+							<i class="bi bi-calendar fs-3 me-2 mt-2"></i>
+							<!-- Date input -->
+							<div class="form-control-border form-control-transparent form-fs-md">
+								<label class="form-label">Nhận phòng – Trả phòng</label>
+								<input type="hidden" name="roomId" th:value="${room.roomId}">
+								<input type="text" th:value="${dateRange}" class="form-control flatpickr" data-mode="range" name="dateRange" placeholder="Chọn ngày" required>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- Button -->
+				<div class="modal-footer">
+					<input type="submit" class="btn btn-sm btn-primary mb-0" value="Đặt Phòng">
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+<!-- Bookinng modal END -->
+
 <!-- Back to top -->
 <div class="back-top"></div>
 
@@ -835,7 +909,6 @@ Footer END -->
 <!-- Vendors -->
 <script src="assets/vendor/glightbox/js/glightbox.js"></script>
 <script src="assets/vendor/flatpickr/js/flatpickr.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
 <script src="assets/vendor/choices/js/choices.min.js"></script>
 <script src="assets/vendor/tiny-slider/tiny-slider.js"></script>
 <script src="assets/vendor/sticky-js/sticky.min.js"></script>
@@ -848,10 +921,19 @@ Footer END -->
 	var lng = /*[[${hotel.longitude}]]*/ 0;
 
 	function initMap() {
-	map = new google.maps.Map(document.getElementById('map'), {
-		center: {lat: lat, lng: lng},
-		zoom: 19
-	});
+        map = new google.maps.Map(document.getElementById('map'), {
+            center: {lat: lat, lng: lng},
+            zoom: 19
+        });
+
+        new google.maps.Marker({
+			position: {lat: lat, lng: lng},
+			map: map,
+			icon: {
+                url: 'https://maps.gstatic.com/mapfiles/api-3/images/spotlight-poi2_hdpi.png',
+                scaledSize: new google.maps.Size(14, 22)
+            }
+		});
 	}
 </script>
 

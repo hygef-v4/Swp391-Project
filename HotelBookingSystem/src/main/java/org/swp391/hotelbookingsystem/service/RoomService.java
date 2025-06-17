@@ -26,6 +26,16 @@ public class RoomService {
         return rooms;
     }
 
+    public List<Room> getAvailableRoomsByHotelId(int hotelId) {
+        List<Room> rooms = roomRepository.getAvailableRoomsByHotelId(hotelId);
+
+        for (Room room : rooms) {
+            room.setImages(roomRepository.getRoomImages(room.getRoomId()));
+        }
+
+        return rooms;
+    }
+
     public void saveRoom(Room room, List<Integer> amenityIds, List<String> imageUrls) {
         // Step 1: Save the room and get its generated room_id
         int roomId = roomRepository.insertRoom(room);
@@ -55,7 +65,6 @@ public class RoomService {
     public List<Room> getRoomsByHotelId(int hotelId) {
         return roomRepository.getRoomsByHotelId(hotelId);
     }
-
 
     public int getTotalRoomsByHostId(int hostId) {
         return roomRepository.getTotalRoomsByHostId(hostId);

@@ -19,7 +19,7 @@ public class ReviewRepository {
     private static final String SELECT_TOP_PUBLIC_POSITIVE_REVIEWS_WITH_USER = """
                 SELECT 
                     r.review_id AS reviewId,
-                    r.booking_id AS bookingId,
+                    r.hotel_id AS hotelId,
                     r.reviewer_id AS reviewerId,
                     r.rating,
                     r.comment,
@@ -41,7 +41,7 @@ public class ReviewRepository {
     private static final String SELECT_RECENT_REVIEWS = """
         SELECT TOP 4
             r.review_id AS reviewId,
-            r.booking_id AS bookingId,
+            r.hotel_id AS hotelId,
             r.reviewer_id AS reviewerId,
             r.rating,
             r.comment,
