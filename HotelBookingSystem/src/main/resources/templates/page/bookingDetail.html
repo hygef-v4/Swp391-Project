@@ -139,7 +139,6 @@
 
                             <div class="text-center mt-4">
                                 <a th:if="${bookingUnit.cancelable}"
-                                   href="#"
                                    th:attr="data-cancel-url=@{'/cancel-booking/' + ${bookingUnit.bookingUnitId}}"
                                    class="btn btn-danger"
                                    onclick="confirmCancel(this)">Huỷ đặt phòng</a>

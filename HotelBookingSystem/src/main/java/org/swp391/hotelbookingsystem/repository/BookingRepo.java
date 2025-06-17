@@ -1,6 +1,5 @@
 package org.swp391.hotelbookingsystem.repository;
 
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.swp391.hotelbookingsystem.model.Booking;
@@ -89,7 +88,8 @@ public class BookingRepo {
                 b.check_out,
                 b.total_price,
                 b.created_at,
-                h.hotel_name AS hotelName
+                h.hotel_name,
+                h.hotel_image_url
             FROM Bookings b
             JOIN Hotels h ON b.hotel_id = h.hotel_id
             WHERE booking_id = (SELECT booking_id FROM BookingUnits WHERE booking_unit_id = ?)
@@ -105,7 +105,8 @@ public class BookingRepo {
             booking.setCheckOut(rs.getTimestamp("check_out").toLocalDateTime());
             booking.setTotalPrice(rs.getDouble("total_price"));
             booking.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
-            booking.setHotelName(rs.getString("hotelName"));
+            booking.setHotelName(rs.getString("hotel_name"));
+            booking.setImageUrl(rs.getString("hotel_image_url"));
             return booking;
         }, bookingUnitId);
     }
@@ -122,7 +123,8 @@ public class BookingRepo {
                 b.check_out,
                 b.total_price,
                 b.created_at,
-                h.hotel_name AS hotelName
+                h.hotel_name,
+                h.hotel_image_url
             FROM Bookings b
             JOIN Hotels h ON b.hotel_id = h.hotel_id
         """;
@@ -139,7 +141,8 @@ public class BookingRepo {
                     .checkOut(rs.getTimestamp("check_out").toLocalDateTime())
                     .totalPrice(rs.getDouble("total_price"))
                     .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
-                    .hotelName(rs.getString("hotelName"))
+                    .hotelName(rs.getString("hotel_name"))
+                    .imageUrl(rs.getString("hotel_image_url"))
                     .build();
 
             // Gán BookingUnit cho từng Booking
@@ -161,7 +164,8 @@ public class BookingRepo {
                 b.check_out,
                 b.total_price,
                 b.created_at,
-                h.hotel_name AS hotelName
+                h.hotel_name,
+                h.hotel_image_url
             FROM Bookings b
             JOIN Hotels h ON b.hotel_id = h.hotel_id
             WHERE booking_id = ?
@@ -179,7 +183,8 @@ public class BookingRepo {
                     .checkOut(rs.getTimestamp("check_out").toLocalDateTime())
                     .totalPrice(rs.getDouble("total_price"))
                     .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
-                    .hotelName(rs.getString("hotelName"))
+                    .hotelName(rs.getString("hotel_name"))
+                    .imageUrl(rs.getString("hotel_image_url"))
                     .build();
 
             // Gán BookingUnit cho từng Booking
@@ -240,7 +245,8 @@ public class BookingRepo {
                 b.check_out,
                 b.total_price,
                 b.created_at,
-                h.hotel_name AS hotelName
+                h.hotel_name,
+                h.hotel_image_url
             FROM Bookings b
             JOIN Hotels h ON b.hotel_id = h.hotel_id
             WHERE b.customer_id = ?
@@ -266,7 +272,8 @@ public class BookingRepo {
                     .checkOut(rs.getTimestamp("check_out").toLocalDateTime())
                     .totalPrice(rs.getDouble("total_price"))
                     .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
-                    .hotelName(rs.getString("hotelName"))
+                    .hotelName(rs.getString("hotel_name"))
+                    .imageUrl(rs.getString("hotel_image_url"))
                     .build();
 
             // Gán BookingUnit cho từng Booking
@@ -288,7 +295,8 @@ public class BookingRepo {
                 b.check_out,
                 b.total_price,
                 b.created_at,
-                h.hotel_name AS hotelName
+                h.hotel_name,
+                h.hotel_image_url
             FROM Bookings b
             JOIN Hotels h ON b.hotel_id = h.hotel_id
             WHERE b.customer_id = ?
@@ -314,7 +322,8 @@ public class BookingRepo {
                     .checkOut(rs.getTimestamp("check_out").toLocalDateTime())
                     .totalPrice(rs.getDouble("total_price"))
                     .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
-                    .hotelName(rs.getString("hotelName"))
+                    .hotelName(rs.getString("hotel_name"))
+                    .imageUrl(rs.getString("hotel_image_url"))
                     .build();
 
             // Gán BookingUnit cho từng Booking
@@ -336,7 +345,8 @@ public class BookingRepo {
                 b.check_out,
                 b.total_price,
                 b.created_at,
-                h.hotel_name AS hotelName
+                h.hotel_name,
+                h.hotel_image_url
             FROM Bookings b
             JOIN Hotels h ON b.hotel_id = h.hotel_id
             WHERE b.customer_id = ?
@@ -361,7 +371,8 @@ public class BookingRepo {
                     .checkOut(rs.getTimestamp("check_out").toLocalDateTime())
                     .totalPrice(rs.getDouble("total_price"))
                     .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
-                    .hotelName(rs.getString("hotelName"))
+                    .hotelName(rs.getString("hotel_name"))
+                    .imageUrl(rs.getString("hotel_image_url"))
                     .build();
 
             // Gán BookingUnit cho từng Booking
@@ -385,7 +396,8 @@ public class BookingRepo {
                 b.check_out,
                 b.total_price,
                 b.created_at,
-                h.hotel_name AS hotelName
+                h.hotel_name,
+                h.hotel_image_url
             FROM Bookings b
             JOIN Hotels h ON b.hotel_id = h.hotel_id
             WHERE CAST(b.check_in AS NVARCHAR) LIKE ?
@@ -410,7 +422,8 @@ public class BookingRepo {
                     .checkOut(rs.getTimestamp("check_out").toLocalDateTime())
                     .totalPrice(rs.getDouble("total_price"))
                     .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
-                    .hotelName(rs.getString("hotelName"))
+                    .hotelName(rs.getString("hotel_name"))
+                    .imageUrl(rs.getString("hotel_image_url"))
                     .build();
 
             // Gán BookingUnit cho từng Booking
@@ -432,7 +445,8 @@ public class BookingRepo {
                 b.check_out,
                 b.total_price,
                 b.created_at,
-                h.hotel_name AS hotelName
+                h.hotel_name,
+                h.hotel_image_url
             FROM Bookings b
             JOIN Hotels h ON b.hotel_id = h.hotel_id
             WHERE EXISTS (
@@ -455,7 +469,8 @@ public class BookingRepo {
                     .checkOut(rs.getTimestamp("check_out").toLocalDateTime())
                     .totalPrice(rs.getDouble("total_price"))
                     .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
-                    .hotelName(rs.getString("hotelName"))
+                    .hotelName(rs.getString("hotel_name"))
+                    .imageUrl(rs.getString("hotel_image_url"))
                     .build();
 
             // Gán BookingUnit cho từng Booking
@@ -477,7 +492,8 @@ public class BookingRepo {
                 b.check_out,
                 b.total_price,
                 b.created_at,
-                h.hotel_name AS hotelName
+                h.hotel_name,
+                h.hotel_image_url
             FROM Bookings b
             JOIN Hotels h ON b.hotel_id = h.hotel_id
             WHERE b.hotel_id = ?
@@ -495,7 +511,8 @@ public class BookingRepo {
                     .checkOut(rs.getTimestamp("check_out").toLocalDateTime())
                     .totalPrice(rs.getDouble("total_price"))
                     .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
-                    .hotelName(rs.getString("hotelName"))
+                    .hotelName(rs.getString("hotel_name"))
+                    .imageUrl(rs.getString("hotel_image_url"))
                     .build();
 
             // Gán BookingUnit cho từng Booking
@@ -646,7 +663,8 @@ public class BookingRepo {
                 b.check_out,
                 b.total_price,
                 b.created_at,
-                h.hotel_name AS hotelName
+                h.hotel_name,
+                h.hotel_image_url
             FROM Bookings b
             JOIN Hotels h ON b.hotel_id = h.hotel_id
             ORDER BY b.created_at DESC
@@ -665,7 +683,8 @@ public class BookingRepo {
                     .checkOut(rs.getTimestamp("check_out").toLocalDateTime())
                     .totalPrice(rs.getDouble("total_price"))
                     .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
-                    .hotelName(rs.getString("hotelName"))
+                    .hotelName(rs.getString("hotel_name"))
+                    .imageUrl(rs.getString("hotel_image_url"))
                     .build();
 
             // Gán BookingUnit cho từng Booking
@@ -690,7 +709,8 @@ public class BookingRepo {
                 b.check_out,
                 b.total_price,
                 b.created_at,
-                h.hotel_name AS hotelName
+                h.hotel_name,
+                h.hotel_image_url
             FROM Bookings b
             JOIN Hotels h ON b.hotel_id = h.hotel_id
         """);
@@ -718,7 +738,8 @@ public class BookingRepo {
                     .checkOut(rs.getTimestamp("check_out").toLocalDateTime())
                     .totalPrice(rs.getDouble("total_price"))
                     .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
-                    .hotelName(rs.getString("hotelName"))
+                    .hotelName(rs.getString("hotel_name"))
+                    .imageUrl(rs.getString("hotel_image_url"))
                     .build();
 
             // Gán BookingUnit cho từng Booking
@@ -747,7 +768,8 @@ public class BookingRepo {
                 b.check_out,
                 b.total_price,
                 b.created_at,
-                h.hotel_name AS hotelName
+                h.hotel_name,
+                h.hotel_image_url
             FROM Bookings b
             JOIN Hotels h ON b.hotel_id = h.hotel_id
             WHERE 1=1
@@ -783,7 +805,8 @@ public class BookingRepo {
                     .checkOut(rs.getTimestamp("check_out").toLocalDateTime())
                     .totalPrice(rs.getDouble("total_price"))
                     .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
-                    .hotelName(rs.getString("hotelName"))
+                    .hotelName(rs.getString("hotel_name"))
+                    .imageUrl(rs.getString("hotel_image_url"))
                     .build();
 
             // Gán BookingUnit cho từng Booking

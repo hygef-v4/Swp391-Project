@@ -19,7 +19,7 @@ public class BookingStatusScheduler {
             UPDATE BookingUnits
             SET status = 'completed'
             WHERE status = 'approved'
-                AND booking_unit_id in 
+                AND booking_id in 
                     (SELECT booking_id 
                     FROM Bookings 
                     WHERE check_out < GETDATE())

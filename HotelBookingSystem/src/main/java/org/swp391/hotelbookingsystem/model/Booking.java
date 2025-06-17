@@ -20,5 +20,6 @@ public class Booking {
     private LocalDateTime createdAt;
     
     private String hotelName;
+    private String imageUrl;
     private List<BookingUnit> bookingUnits;
 }

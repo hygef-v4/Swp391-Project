@@ -317,13 +317,13 @@
                                 <!-- 2. Thông tin phòng -->
                                 <div class="card-body px-3">
                                     <h5 class="card-title mb-1">
-                                        <a th:href="@{'/admin/bookings/detail/' + ${booking.bookingId}}" th:text="${booking.roomName}">Loại phòng</a>
+                                        <a th:href="@{'/admin/bookings/detail/' + ${booking.bookingId}}" th:text="${booking.hotelName}">Loại phòng</a>
                                     </h5>
                                     <ul class="list-group list-group-borderless small mt-2 mb-0">
-                                        <li class="list-group-item pb-0">
+                                        <!-- <li class="list-group-item pb-0">
                                             <i class="fa-solid fa-building fa-fw me-2"></i>
                                             <span th:text="${booking.hotelName}">Tên khách sạn</span>
-                                        </li>
+                                        </li> -->
                                         <li class="list-group-item pb-0">
                                             <i class="bi bi-calendar-check me-2"></i>
                                             <span th:text="${#temporals.format(booking.checkIn, 'yyyy-MM-dd')}">Ngày nhận</span> →
@@ -333,10 +333,10 @@
                                             <i class="bi bi-currency-dollar me-2"></i>
                                             <span th:text="${booking.totalPrice}">Giá</span>
                                         </li>
-                                        <li class="list-group-item pb-0">
+                                        <!-- <li class="list-group-item pb-0">
                                             <i class="bi bi-check-circle me-2"></i>
                                             <span th:text="${booking.status}">Trạng thái</span>
-                                        </li>
+                                        </li> -->
                                     </ul>
                                 </div>
 
@@ -460,19 +460,19 @@
                             </div>
 
                             <!-- Room name -->
-                            <div class="col two-line-ellipsis" th:title="${booking.roomName}">
-                                <h6 class="mb-0" th:text="${booking.roomName}"
+                            <div class="col two-line-ellipsis" th:title="${booking.hotelName}">
+                                <h6 class="mb-0" th:text="${booking.hotelName}"
                                     style="white-space: normal; word-break: break-word;">
                                     Loại phòng
                                 </h6>
                             </div>
 
                             <!-- Hotel name -->
-                            <div class="col two-line-ellipsis" th:title="${booking.hotelName}">
+                            <!-- <div class="col two-line-ellipsis" th:title="${booking.hotelName}">
                                 <span th:text="${booking.hotelName}" style="white-space: normal; word-break: break-word;">
                                     Tên khách sạn
                                 </span>
-                            </div>
+                            </div> -->
 
                             <!-- Check-in/out -->
                             <div class="col">
@@ -486,16 +486,16 @@
                             </div>
 
                             <!-- Status -->
-                            <div class="col">
-                    <span class="badge"
-                          th:classappend="
-                            ${booking.status} == 'approved' ? ' bg-success' :
-                            (${booking.status} == 'cancelled' ? ' bg-danger' :
-                            (${booking.status} == 'pending' ? ' bg-warning text-dark' : ' bg-secondary'))"
-                          th:text="${booking.status}">
-                        Status
-                    </span>
-                        </div>
+                            <!-- <div class="col">
+                                <span class="badge"
+                                    th:classappend="
+                                        ${booking.status} == 'approved' ? ' bg-success' :
+                                        (${booking.status} == 'cancelled' ? ' bg-danger' :
+                                        (${booking.status} == 'pending' ? ' bg-warning text-dark' : ' bg-secondary'))"
+                                    th:text="${booking.status}">
+                                    Status
+                                </span>
+                            </div> -->
                             <!-- Action -->
                             <div class="col">
                                 <a th:href="@{'/admin/bookings/detail/' + ${booking.bookingId}}"
