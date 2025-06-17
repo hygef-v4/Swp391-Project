@@ -2,6 +2,7 @@ package org.swp391.hotelbookingsystem.service;
 
 import org.springframework.stereotype.Service;
 import org.swp391.hotelbookingsystem.model.Booking;
+import org.swp391.hotelbookingsystem.model.BookingUnit;
 import org.swp391.hotelbookingsystem.repository.BookingRepo;
 
 import java.util.List;
@@ -21,8 +22,8 @@ public class BookingService {
     }
 
     // Đặt lại trạng thái
-    public void updateStatus(Booking booking, String status) {
-        bookingRepo.updateStatus(booking.getBookingId(), status);
+    public void updateStatus(BookingUnit bookingUnit, String status) {
+        bookingRepo.updateStatus(bookingUnit.getBookingUnitId(), status);
     }
 
     public List<Booking> getUpcomingBookings(int customerId) {
@@ -39,6 +40,14 @@ public class BookingService {
 
     public Booking findById(int id) {
         return bookingRepo.findById(id);
+    }
+
+    public Booking findBooking(int id) {
+        return bookingRepo.findBookingByBookingUnitId(id);
+    }
+
+    public BookingUnit findBookingUnitById(int id) {
+        return bookingRepo.findBookingUnitById(id);
     }
 
     // Cập nhật hoàn tiền

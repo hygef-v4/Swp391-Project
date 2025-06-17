@@ -48,6 +48,68 @@ public class BookingRepo {
         );
     }
 
+    public BookingUnit findBookingUnitById(int id) {
+        String sql = """            
+            SELECT 
+                bu.booking_unit_id,
+                bu.room_id,
+                bu.price,
+                bu.status,
+                bu.refund_amount,
+                bu.refund_status,
+                r.title AS roomName,
+                (SELECT TOP 1 image_url FROM RoomImages WHERE room_id = bu.room_id) AS imageUrl
+            FROM BookingUnits bu
+            JOIN Rooms r ON bu.room_id = r.room_id
+            WHERE booking_unit_id = ?
+        """;
+
+        return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> {
+            BookingUnit unit = new BookingUnit();
+            unit.setBookingUnitId(rs.getInt("booking_unit_id"));
+            unit.setRoomId(rs.getInt("room_id"));
+            unit.setPrice(rs.getDouble("price"));
+            unit.setStatus(rs.getString("status"));
+            unit.setRefundAmount(rs.getDouble("refund_amount"));
+            unit.setRefundStatus(rs.getString("refund_status"));
+            unit.setRoomName(rs.getString("roomName"));
+            unit.setImageUrl(rs.getString("imageUrl"));
+            return unit;
+        }, id);
+    }
+
+    public Booking findBookingByBookingUnitId(int bookingUnitId) {
+        String sql = """
+            SELECT 
+                b.booking_id,
+                b.hotel_id,
+                b.customer_id,
+                b.coupon_id,
+                b.check_in,
+                b.check_out,
+                b.total_price,
+                b.created_at,
+                h.hotel_name AS hotelName
+            FROM Bookings b
+            JOIN Hotels h ON b.hotel_id = h.hotel_id
+            WHERE booking_id = (SELECT booking_id FROM BookingUnits WHERE booking_unit_id = ?)
+        """;
+
+        return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> {
+            Booking booking = new Booking();
+            booking.setBookingId(rs.getInt("booking_id"));
+            booking.setHotelId(rs.getInt("hotel_id"));
+            booking.setCustomerId(rs.getInt("customer_id"));
+            booking.setCouponId((Integer) rs.getObject("coupon_id"));
+            booking.setCheckIn(rs.getTimestamp("check_in").toLocalDateTime());
+            booking.setCheckOut(rs.getTimestamp("check_out").toLocalDateTime());
+            booking.setTotalPrice(rs.getDouble("total_price"));
+            booking.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+            booking.setHotelName(rs.getString("hotelName"));
+            return booking;
+        }, bookingUnitId);
+    }
+
     // 1. Lấy tất cả booking
     public List<Booking> findAll() {
         String sql = """
@@ -100,7 +162,8 @@ public class BookingRepo {
                 b.total_price,
                 b.created_at,
                 h.hotel_name AS hotelName
-            FROM Bookings b 
+            FROM Bookings b
+            JOIN Hotels h ON b.hotel_id = h.hotel_id
             WHERE booking_id = ?
         """;
 

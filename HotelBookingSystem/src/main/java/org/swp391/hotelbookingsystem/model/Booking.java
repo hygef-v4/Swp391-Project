@@ -21,14 +21,4 @@ public class Booking {
     
     private String hotelName;
     private List<BookingUnit> bookingUnits;
-
-    public boolean getStatus() {
-        if (bookingUnits != null && !bookingUnits.isEmpty()) {
-            for (BookingUnit bookingUnit : bookingUnits) {
-                if ("approved".equalsIgnoreCase(bookingUnit.getStatus())) {
-                    return true; // At least one booking unit is approved
-                }
-            }
-        } return false; // No booking units are approved
-    }
 }

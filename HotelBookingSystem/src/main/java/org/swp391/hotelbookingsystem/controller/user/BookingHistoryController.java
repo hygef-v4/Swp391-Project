@@ -6,6 +6,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.swp391.hotelbookingsystem.model.Booking;
+import org.swp391.hotelbookingsystem.model.BookingUnit;
 import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.service.BookingService;
 
@@ -49,11 +50,11 @@ public class BookingHistoryController {
         }
         Booking booking = bookingService.findById(id);
         model.addAttribute("booking", booking);
-        boolean isCancelable = false;
-        if (booking.getStatus() && booking.getCheckIn().isAfter(LocalDate.now().atStartOfDay())) {
-            isCancelable = true;
+
+        for (BookingUnit bookingUnit : booking.getBookingUnits()) {
+            bookingUnit.setCancelable("approved".equalsIgnoreCase(bookingUnit.getStatus()));
         }
-        model.addAttribute("isCancelable", isCancelable);
+        
         return "page/bookingDetail";
     }
 
@@ -64,10 +65,11 @@ public class BookingHistoryController {
             return "redirect:/login";
         }
 
-        Booking booking = bookingService.findById(bookingId);
-        if (booking != null && booking.getCustomerId() == user.getId()) {
-            if (booking.getStatus() && booking.getCheckIn().isAfter(LocalDate.now().atStartOfDay())) {
-                bookingService.updateStatus(booking, "cancelled");
+        BookingUnit bookingUnit = bookingService.findBookingUnitById(bookingId);
+        Booking booking = bookingService.findBooking(bookingId);
+        if (bookingUnit != null && booking.getCustomerId() == user.getId()) {
+            if ("approved".equalsIgnoreCase(bookingUnit.getStatus()) && booking.getCheckIn().isAfter(LocalDate.now().atStartOfDay())) {
+                bookingService.updateStatus(bookingUnit, "cancelled");
             }
         }
 

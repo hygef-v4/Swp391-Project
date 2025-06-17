@@ -16,10 +16,13 @@ public class BookingStatusScheduler {
     @Scheduled(cron = "0 * * * * *")
     public void autoCompleteBookings() {
         String sql = """
-            UPDATE Bookings
+            UPDATE BookingUnits
             SET status = 'completed'
-            WHERE check_out < GETDATE()
-              AND status = 'approved'
+            WHERE status = 'approved'
+                AND booking_unit_id in 
+                    (SELECT booking_id 
+                    FROM Bookings 
+                    WHERE check_out < GETDATE())
         """;
 
         int updated = jdbcTemplate.update(sql);

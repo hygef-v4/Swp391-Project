@@ -16,4 +16,5 @@ public class BookingUnit {
     
     private String imageUrl;
     private String roomName;
+    private boolean cancelable;
 }
