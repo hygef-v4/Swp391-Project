@@ -47,7 +47,17 @@ public class HostDashboardController {
 
     @GetMapping("/host-dashboard")
     public String showHostDashboard(HttpSession session, Model model) {
+        User host = (User) session.getAttribute("user");
 
+        if (host == null || !host.getRole().equalsIgnoreCase("HOTEL_OWNER")) {
+            return "redirect:/login"; // not logged in
+        }
+
+        int totalRooms = roomService.getTotalRoomsByHostId(host.getId());
+        model.addAttribute("totalRooms", totalRooms);
+
+        List<Hotel> hotels = hotelService.getHotelsByHostId(host.getId());
+        model.addAttribute("hotels", hotels);
 
         return "host/host-dashboard";
     }
