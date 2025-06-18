@@ -117,6 +117,7 @@ public class HostRegisterController {
                 user.setRole("HOTEL_OWNER");
                 userService.updateUserRoleToHost(userId);
                 session.setAttribute("user", user);
+                System.out.println("User Id : " + userId + " has been updated to HOTEL_OWNER role");
 
                 //  Prepare a new list of authorities for Spring Security (required format: "ROLE_<role_name>")
                 List<SimpleGrantedAuthority> updatedAuthorities = new ArrayList<>();

@@ -17,22 +17,40 @@ public class ReviewRepository {
 
 
     private static final String SELECT_TOP_PUBLIC_POSITIVE_REVIEWS_WITH_USER = """
-                SELECT 
-                    r.review_id AS reviewId,
-                    r.hotel_id AS hotelId,
-                    r.reviewer_id AS reviewerId,
-                    r.rating,
-                    r.comment,
-                    r.is_public AS isPublic,
-                    r.created_at AS createdAt,
-                    u.full_name AS fullName,
-                    u.avatar_url AS avatarUrl,
-                    u.bio,
-                    u.date_of_birth AS dob
-                FROM Reviews r
-                JOIN Users u ON r.reviewer_id = u.user_id
-                WHERE r.is_public = 1 AND r.rating >= 4 AND u.role = 'CUSTOMER'
-                ORDER BY r.rating DESC, r.created_at DESC
+               WITH RankedReviews AS (
+                                                             SELECT\s
+                                                                 r.review_id AS reviewId,
+                                                                 r.hotel_id AS hotelId,
+                                                                 r.reviewer_id AS reviewerId,
+                                                                 r.rating,
+                                                                 r.comment,
+                                                                 r.is_public AS isPublic,
+                                                                 r.created_at AS createdAt,
+                                                                 u.full_name AS fullName,
+                                                                 u.avatar_url AS avatarUrl,
+                                                                 u.bio,
+                                                                 u.date_of_birth AS dob,
+                                                                 ROW_NUMBER() OVER (PARTITION BY r.reviewer_id ORDER BY r.rating DESC, r.created_at DESC) AS rn
+                                                             FROM Reviews r
+                                                             JOIN Users u ON r.reviewer_id = u.user_id
+                                                             WHERE r.is_public = 1 AND r.rating >= 4 AND u.role = 'CUSTOMER'
+                                                         )
+                                                         SELECT\s
+                                                             reviewId,
+                                                             hotelId,
+                                                             reviewerId,
+                                                             rating,
+                                                             comment,
+                                                             isPublic,
+                                                             createdAt,
+                                                             fullName,
+                                                             avatarUrl,
+                                                             bio,
+                                                             dob
+                                                         FROM RankedReviews
+                                                         WHERE rn = 1
+                                                         ORDER BY rating DESC, createdAt DESC;
+            
             """;
 
     private static final String SELECT_TOP_5_PUBLIC_POSITIVE_REVIEWS_WITH_USER =
