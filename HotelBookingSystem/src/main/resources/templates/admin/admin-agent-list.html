@@ -144,41 +144,39 @@
             <!-- agent list START -->
             <div class="row g-4">
                 <!-- Card item -->
-                <div class="col-md-6 col-lg-4 col-xxl-3">
+                <div class="col-md-6 col-lg-4 col-xxl-3" th:each="agent : ${agentList}">
                     <div class="card border h-100">
-                        <!-- Dropdown button -->
+                        <!-- Dropdown -->
                         <div class="dropdown position-absolute top-0 end-0 m-3">
-                            <a href="#" class="btn btn-sm btn-light btn-round small mb-0" role="button" id="dropdownShare1" data-bs-toggle="dropdown" aria-expanded="false">
+                            <a href="#" class="btn btn-sm btn-light btn-round small mb-0" role="button" data-bs-toggle="dropdown">
                                 <i class="bi bi-three-dots fa-fw"></i>
                             </a>
-                            <!-- dropdown button -->
-                            <ul class="dropdown-menu dropdown-w-sm dropdown-menu-end min-w-auto shadow rounded" aria-labelledby="dropdownShare1">
+                            <ul class="dropdown-menu dropdown-w-sm dropdown-menu-end min-w-auto shadow rounded">
                                 <li><a class="dropdown-item" href="#"><i class="bi bi-pencil-square fa-fw me-2"></i>Edit</a></li>
                                 <li><a class="dropdown-item" href="#"><i class="bi bi-trash fa-fw me-2"></i>Remove</a></li>
                             </ul>
                         </div>
-                        <!-- Card body -->
+
+                        <!-- Avatar -->
                         <div class="card-body text-center pb-0">
-                            <!-- Avatar Image -->
                             <div class="avatar avatar-xl flex-shrink-0 mb-3">
-                                <img class="avatar-img rounded-circle" src="assets/images/avatar/09.jpg" alt="avatar">
+                                <img th:src="@{${agent.avatarUrl}}" class="avatar-img rounded-circle" alt="avatar">
                             </div>
-                            <!-- Title -->
-                            <h5 class="mb-1">Lori Stevens</h5>
-                            <small><i class="bi bi-geo-alt me-1"></i>Los Angeles, USA</small>
-                            <!-- Info and rating -->
+                            <h5 class="mb-1" th:text="${agent.fullName}">Agent Name</h5>
                             <div class="d-flex justify-content-between mt-3">
-                                <h6 class="mb-0 small"><span class="fw-light">Total listings:</span> 04</h6>
-                                <h6 class="mb-0 small">4.5<i class="fa-solid fa-star text-warning ms-1"></i></h6>
+                                <h6 class="mb-0 small"><span class="fw-light">Total listings:</span> 0</h6> <!-- TODO: dynamic listing count -->
+                                <h6 class="mb-0 small">4.5<i class="fa-solid fa-star text-warning ms-1"></i></h6> <!-- TODO: dynamic rating -->
                             </div>
                         </div>
-                        <!-- card footer -->
+
+                        <!-- Footer -->
                         <div class="card-footer d-flex gap-3 align-items-center">
-                            <a href="admin-agent-detail.html" class="btn btn-sm btn-primary-soft mb-0 w-100">View detail</a>
+                            <a th:href="@{/admin-agent-detail(id=${agent.id})}" class="btn btn-sm btn-primary-soft mb-0 w-100">View detail</a>
                             <a href="#" class="btn btn-sm btn-light flex-shrink-0 mb-0"><i class="bi bi-envelope"></i></a>
                         </div>
                     </div>
                 </div>
+
 
                 <!-- Card item -->
                 <div class="col-md-6 col-lg-4 col-xxl-3">

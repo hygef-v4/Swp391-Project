@@ -266,32 +266,7 @@
                 <!-- Widget START -->
                 <div class="row g-4">
                     <!-- Booking Chart START -->
-                    <div class="col-xxl-12">
-                        <div class="card shadow h-100">
-                            <div class="card-header border-bottom">
-                                <h5 class="card-header-title">Hoạt động của khách hàng</h5>
-                            </div>
 
-                            <div class="card-body">
-                                <div class="d-flex gap-4 mb-3">
-                                    <h6><span class="fw-light"><i class="bi bi-square-fill text-primary"></i> Check-in:</span>
-                                        <span th:text="${checkInCount}">0</span> Khách
-                                    </h6>
-                                    <h6><span class="fw-light"><i
-                                            class="bi bi-square-fill text-info"></i> Check-out:</span>
-                                        <span th:text="${checkOutCount}">0</span> Khách</h6>
-                                </div>
-
-                                <div id="LineChartGuest"
-                                     th:attr="data-labels=${dateLabels},
-                                                data-checkin=${checkInData},
-                                                data-checkout=${checkOutData}"
-                                     class="mt-2">
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
                     <!-- Booking Chart END -->
 
 

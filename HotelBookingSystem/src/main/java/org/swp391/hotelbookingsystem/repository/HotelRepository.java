@@ -71,28 +71,29 @@ public class HotelRepository {
 
     private static final String SELECT_TOP_4_POPULAR_HOTELS = """
                 SELECT TOP 4
-                       h.hotel_id AS hotelId,
-                       h.host_id AS hostId,
-                       h.hotel_name AS hotelName,
-                       h.address,
-                       h.description,
-                       h.location_id AS locationId,
-                       h.hotel_image_url AS hotelImageUrl,
-                       h.rating,
-                       h.latitude,
-                       h.longitude,
-                       COUNT(b.booking_id) AS total_bookings,
-                       MIN(r.price) AS min_price,
-                       h.status,
-                       l.city_name AS cityName
-                FROM Hotels h
-                JOIN Rooms r ON h.hotel_id = r.hotel_id
-                JOIN Locations l ON h.location_id = l.location_id
-                JOIN Bookings b ON r.room_id = b.room_id
-                WHERE b.status = 'approved'
-                GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
-                         h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude, h.status, l.city_name
-                ORDER BY COUNT(b.booking_id) DESC
+                                       h.hotel_id AS hotelId,
+                                       h.host_id AS hostId,
+                                       h.hotel_name AS hotelName,
+                                       h.address,
+                                       h.description,
+                                       h.location_id AS locationId,
+                                       h.hotel_image_url AS hotelImageUrl,
+                                       h.rating,
+                                       h.latitude,
+                                       h.longitude,
+                                       COUNT(b.booking_id) AS total_bookings,
+                                       MIN(r.price) AS min_price,
+                                       h.status,
+                                       l.city_name AS cityName
+                                FROM Hotels h
+                                JOIN Rooms r ON h.hotel_id = r.hotel_id
+                                JOIN Locations l ON h.location_id = l.location_id
+                				JOIN BookingUnits bu ON r.room_id = bu.room_id
+                                JOIN Bookings b ON bu.booking_id = b.booking_id
+                                WHERE bu.status = 'approved'
+                                GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
+                                         h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude, h.status, l.city_name
+                                ORDER BY COUNT(b.booking_id) DESC
             """;
 
     public HotelRepository(JdbcTemplate jdbcTemplate) {
