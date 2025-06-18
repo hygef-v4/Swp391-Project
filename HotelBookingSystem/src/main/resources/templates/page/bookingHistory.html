@@ -162,7 +162,7 @@
                                                 </div>
                                             </div>
                                             <div class="mt-2 mt-md-0">
-                                                <a th:href="@{'/booking-detail/' + ${booking.bookingId}}" class="btn btn-primary-soft mb-0">Xem chi tiết</a>
+                                                <a th:href="@{'/booking-detail/' + ${booking.bookingId} + '?upcoming=true'}" class="btn btn-primary-soft mb-0">Xem chi tiết</a>
                                             </div>
                                         </div>
                                         <div class="card-body">
@@ -214,7 +214,7 @@
                                                 </div>
                                             </div>
                                             <div class="mt-2 mt-md-0">
-                                                <a th:href="@{'/booking-detail/' + ${booking.bookingId}}" class="btn btn-primary-soft mb-0">Xem chi tiết</a>
+                                                <a th:href="@{'/booking-detail/' + ${booking.bookingId} + '?cancelled=true'}" class="btn btn-primary-soft mb-0">Xem chi tiết</a>
                                             </div>
                                         </div>
                                         <div class="card-body">
@@ -266,7 +266,7 @@
                                                 </div>
                                             </div>
                                             <div class="mt-2 mt-md-0">
-                                                <a th:href="@{'/booking-detail/' + ${booking.bookingId}}" class="btn btn-primary-soft mb-0">Xem chi tiết</a>
+                                                <a th:href="@{'/booking-detail/' + ${booking.bookingId} + '?completed=true'}" class="btn btn-primary-soft mb-0">Xem chi tiết</a>
                                             </div>
                                         </div>
                                         <div class="card-body">

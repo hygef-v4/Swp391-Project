@@ -102,7 +102,7 @@
                             <a th:href="@{/bookingHistory}" class="btn btn-sm btn-light"><i class="fa fa-arrow-left me-1"></i>Quay lại trang lịch sử đặt phòng</a>
                         </div>
 
-                        <div class="card-body" th:each="bookingUnit : ${booking.bookingUnits}">
+                        <div class="card-body" th:each="bookingUnit : ${booking.bookingUnits}" th:if="${(upcoming && bookingUnit.status == 'approved') || (cancelled && bookingUnit.status == 'cancelled' || bookingUnit.status == 'rejected') || (completed && bookingUnit.status == 'completed')}">
                             <div class="text-center mb-4">
                                 <img th:src="${bookingUnit.imageUrl != null ? bookingUnit.imageUrl : '/assets/images/default-room.jpg'}"
                                      alt="Room Image"
