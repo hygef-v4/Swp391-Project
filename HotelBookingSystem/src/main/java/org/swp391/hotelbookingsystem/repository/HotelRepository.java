@@ -1,13 +1,13 @@
 package org.swp391.hotelbookingsystem.repository;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.List;
+
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.swp391.hotelbookingsystem.model.Hotel;
-
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Repository
 public class HotelRepository {
@@ -240,6 +240,33 @@ public class HotelRepository {
 
         hotel.setHotelId(hotelId);
         return hotel;
+    }
+
+    public void updateHotel(Hotel hotel) {
+        String sql = """
+                    UPDATE Hotels 
+                    SET hotel_name = ?, 
+                        address = ?, 
+                        location_id = ?, 
+                        latitude = ?, 
+                        longitude = ?, 
+                        hotel_image_url = ?, 
+                        description = ?, 
+                        policy = ?
+                    WHERE hotel_id = ?
+                """;
+
+        jdbcTemplate.update(sql,
+                hotel.getHotelName(),
+                hotel.getAddress(),
+                hotel.getLocationId(),
+                hotel.getLatitude(),
+                hotel.getLongitude(),
+                hotel.getHotelImageUrl(),
+                hotel.getDescription(),
+                hotel.getPolicy(),
+                hotel.getHotelId()
+        );
     }
 
     public List<Hotel> findByHostId(int hostId) {
