@@ -3,13 +3,13 @@
 
 <!-- Mirrored from stackbros.in/bookinga/landing/hotel-booking.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:06:47 GMT -->
 <head>
-	<title>Booking - Multipurpose Online Booking Theme</title>
+	<title>Booking</title>
 
 	<!-- Meta Tags -->
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<meta name="author" content="StackBros">
-	<meta name="description" content="Booking - Multipurpose Online Booking Theme">
+	<meta name="description" content="Booking">
 
     <style>
         /* Xoay mũi tên khi collapse đóng */
@@ -99,7 +99,7 @@
         // Khai báo trước ở phạm vi global
         let total, discount, paid;
         let totalPrice, totalDiscount, paidPrice;
-        let pay;;
+        let paidInput, payButton;
 
         // Khi DOM load xong thì gán giá trị
         window.addEventListener("DOMContentLoaded", function () {
@@ -109,14 +109,14 @@
 
             total = parseInt(totalPrice.textContent.replace(/[^\d]/g, "")) || 0;
             discount = parseInt(totalDiscount.textContent.replace(/[^\d]/g, "")) || 0;
-            paid = parseInt(paidPrice.value.replace(/[^\d]/g, "")) || 0;
+            paid = parseInt(paidPrice.textContent.replace(/[^\d]/g, "")) || 0;
 
-            pay = document.getElementById('payButton');
+            paidInput = document.getElementById('paidInput');
+            payButton = document.getElementById('payButton');
 
             const params = new URLSearchParams(window.location.search);
             const roomId = params.get("roomId");
             if(roomId) booking(roomId);
-            
         });
 
         function updatePaid(t, d){
@@ -127,12 +127,14 @@
             // Cập nhật giá trị hiển thị
             totalPrice.textContent = total.toLocaleString();
             totalDiscount.textContent = discount.toLocaleString();
-            paidPrice.value = "$" + paid.toLocaleString();
+
+            paidPrice.textContent = paid.toLocaleString();
+            paidInput.value = paid;
 
             if(paid){
-                pay.disabled = false;
+                payButton.disabled = false;
             }else{
-                pay.disabled = true;
+                payButton.disabled = true;
             }
         }
 
@@ -568,9 +570,6 @@ Page content START -->
                                                         </div>
                                                     </div>
                                                     <!-- Slider END -->
-
-                                                    <!-- Button -->
-                                                    <a th:if="${room.images != null && !room.images.isEmpty()}" href="#" class="btn btn-link text-decoration-underline p-0 mb-0 mt-1" data-bs-toggle="modal" th:data-bs-target="'#roomDetail' + ${room.roomId}"><i class="bi bi-eye-fill me-1"></i>Xem Chi Tiết</a>
                                                 </div>
 
                                                 <!-- Card body -->
@@ -619,79 +618,83 @@ Page content START -->
 			<!-- Right side content START -->
 			<aside class="col-xl-4">
 				<div class="row g-4">
+                    <form action="/booking" method="post">
+                        <!-- Price summary START -->
+                        <div class="col-md-6 col-xl-12">
+                            <div class="card shadow rounded-2">
+                                <!-- card header -->
+                                <div class="card-header border-bottom">
+                                    <h5 class="card-title mb-0">Price Summary</h5>
+                                    <input type="hidden" name="hotelId" th:value="${hotel.hotelId}">
+                                    <input type="hidden" name="checkIn" th:value="${checkIn}">
+                                    <input type="hidden" name="checkOut" th:value="${checkOut}">
+                                </div>
 
-					<!-- Price summary START -->
-					<div class="col-md-6 col-xl-12">
-						<div class="card shadow rounded-2">
-							<!-- card header -->
-							<div class="card-header border-bottom">
-								<h5 class="card-title mb-0">Price Summary</h5>
-							</div>
+                                <!-- Card body -->
+                                <div class="card-body">
+                                    <ul class="list-group list-group-borderless" id="booking-info"></ul>
+                                    <ul class="list-group list-group-borderless">
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span class="h6 fw-light mb-0">Total Price</span>
+                                            <span class="fs-5">$<span id="totalPrice">0</span></span>
+                                        </li>                                    
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span class="h6 fw-light mb-0">Total Discount</span>
+                                            <span class="fs-5 text-success">-$<span id="totalDiscount">0</span></span>
+                                        </li>
+                                    </ul>
+                                </div>
 
-							<!-- Card body -->
-							<div class="card-body">
-								<ul class="list-group list-group-borderless" id="booking-info"></ul>
-                                <ul class="list-group list-group-borderless">
-									<li class="list-group-item d-flex justify-content-between align-items-center">
-										<span class="h6 fw-light mb-0">Total Price</span>
-										<span class="fs-5">$<span id="totalPrice">0</span></span>
-									</li>                                    
-									<li class="list-group-item d-flex justify-content-between align-items-center">
-										<span class="h6 fw-light mb-0">Total Discount</span>
-										<span class="fs-5 text-success">-$<span id="totalDiscount">0</span></span>	
-									</li>
-                                </ul>
-							</div>
+                                <!-- Card footer -->
+                                <div class="card-footer border-top">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="h5 mb-0">Payable</span>
+                                        <span class="h5 mb-0">$<span id="paidPrice">0</span></span>
+                                        <input class="h5 mb-0" type="hidden" name="totalPrice" value="0" id="paidInput"/>
+                                    </div>
+                                </div>
 
-							<!-- Card footer -->
-							<div class="card-footer border-top">
-								<div class="d-flex justify-content-between align-items-center">
-									<span class="h5 mb-0">Payable</span>
-									<input class="h5 mb-0" id="paidPrice" type="text" value="0" readonly style="border: none; background: transparent; width: 50%; text-align: right;"/>
-								</div>
-							</div>
+                                <div class="card-footer border-top">
+                                    <div class="d-flex justify-content-end align-items-center">
+                                        <input type="submit" class="btn btn-sm btn-primary mb-0" id="payButton" value="Pay Now" disabled>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Price summary END -->
 
-                            <div class="card-footer border-top">
-								<div class="d-flex justify-content-end align-items-center">
-									<button type="button" class="btn btn-sm btn-primary mb-0" id="payButton" disabled>Pay Now</button>
-								</div>
-							</div>
-						</div>
-					</div>
-					<!-- Price summary END -->
+                        <!-- Offer and discount START -->
+                        <div class="col-md-6 col-xl-12">
+                            <div class="card shadow">
+                                <!-- Card header -->
+                                <div class="card-header border-bottom">
+                                    <div class="cardt-title">
+                                        <h5 class="mb-0">Offer &amp; Discount</h5>
+                                    </div>
+                                </div>
+                                <!-- Card body -->
+                                <div class="card-body">
 
-					<!-- Offer and discount START -->
-					<div class="col-md-6 col-xl-12">
-						<div class="card shadow">
-							<!-- Card header -->
-							<div class="card-header border-bottom">
-								<div class="cardt-title">
-									<h5 class="mb-0">Offer &amp; Discount</h5>
-								</div>
-							</div>
-							<!-- Card body -->
-							<div class="card-body">
+                                    <!-- Radio -->
+                                    <!-- <div class="bg-light rounded-2 p-3">
+                                        <div class="form-check form-check-inline mb-0">
+                                            <input class="form-check-input" type="radio" name="discountOptions" id="discount1" value="option1" checked>
+                                            <label class="form-check-label h5 mb-0" for="discount1">GSTBOOK</label>
+                                            <p class="mb-1 small">Congratulations! You have saved $230 with GSTBOOK.</p>
+                                            <h6 class="mb-0 text-success">-$230</h6>
+                                        </div>
+                                    </div> -->
 
-								<!-- Radio -->
-								<div class="bg-light rounded-2 p-3">
-									<div class="form-check form-check-inline mb-0">
-										<input class="form-check-input" type="radio" name="discountOptions" id="discount1" value="option1" checked>
-										<label class="form-check-label h5 mb-0" for="discount1">GSTBOOK</label>
-										<p class="mb-1 small">Congratulations! You have saved $230 with GSTBOOK.</p>
-										<h6 class="mb-0 text-success">-$230</h6>
-									</div>
-								</div>
-
-								<!-- Input group -->
-								<div class="input-group mt-3">
-									<input class="form-control form-control" placeholder="Coupon code">
-									<button type="button" class="btn btn-primary">Apply</button>
-								</div>
-							</div>	
-						</div>
-					</div>
-					<!-- Offer and discount END -->
-
+                                    <!-- Input group -->
+                                    <div class="input-group mt-3">
+                                        <input class="form-control form-control" placeholder="Coupon code">
+                                        <button type="button" class="btn btn-primary">Apply</button>
+                                    </div>
+                                </div>	
+                            </div>
+                        </div>
+                        <!-- Offer and discount END -->
+                    </form>
 				</div>
 			</aside>
 			<!-- Right side content END -->

@@ -10,6 +10,7 @@ public class BookingUnit {
     private int bookingUnitId;
     private int roomId;
     private Double price;
+    private int quantity;
     private String status;
     private Double refundAmount;
     private String refundStatus;

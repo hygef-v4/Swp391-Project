@@ -1,5 +1,6 @@
 package org.swp391.hotelbookingsystem.service;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.swp391.hotelbookingsystem.model.Location;
 import org.swp391.hotelbookingsystem.repository.LocationRepository;
@@ -15,6 +16,7 @@ public class LocationService {
         this.locationRepository = locationRepository;
     }
 
+    @Cacheable(value = "locations", key = "'allLocations'")
     public List<Location> getAllLocations() {
         return locationRepository.getAllLocations();
     }

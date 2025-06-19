@@ -23,6 +23,7 @@ public class BookingRepo {
                 bu.booking_unit_id,
                 bu.room_id,
                 bu.price,
+                bu.quantity,
                 bu.status,
                 bu.refund_amount,
                 bu.refund_status,
@@ -38,6 +39,7 @@ public class BookingRepo {
                 .bookingUnitId(rs.getInt("booking_unit_id"))
                 .roomId(rs.getInt("room_id"))
                 .price(rs.getDouble("price"))
+                .quantity(rs.getInt("quantity"))
                 .status(rs.getString("status"))
                 .refundAmount(rs.getDouble("refund_amount"))
                 .refundStatus(rs.getString("refund_status"))
@@ -53,6 +55,7 @@ public class BookingRepo {
                 bu.booking_unit_id,
                 bu.room_id,
                 bu.price,
+                bu.quantity,
                 bu.status,
                 bu.refund_amount,
                 bu.refund_status,
@@ -68,6 +71,7 @@ public class BookingRepo {
             unit.setBookingUnitId(rs.getInt("booking_unit_id"));
             unit.setRoomId(rs.getInt("room_id"));
             unit.setPrice(rs.getDouble("price"));
+            unit.setQuantity(rs.getInt("quantity"));
             unit.setStatus(rs.getString("status"));
             unit.setRefundAmount(rs.getDouble("refund_amount"));
             unit.setRefundStatus(rs.getString("refund_status"));

@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Mirrored from stackbros.in/bookinga/landing/hotel-booking.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:06:47 GMT -->
+<head>
+	<title>Payment</title>
+
+	<!-- Meta Tags -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="author" content="StackBros">
+	<meta name="description" content="Pyment">
+
+	<!-- Dark mode -->
+	<script>
+		const storedTheme = localStorage.getItem('theme')
+
+		const getPreferredTheme = () => {
+			if (storedTheme) {
+				return storedTheme
+			}
+			return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+		}
+
+		const setTheme = function (theme) {
+			if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+				document.documentElement.setAttribute('data-bs-theme', 'dark')
+			} else {
+				document.documentElement.setAttribute('data-bs-theme', theme)
+			}
+		}
+
+		setTheme(getPreferredTheme())
+
+		window.addEventListener('DOMContentLoaded', () => {
+		    var el = document.querySelector('.theme-icon-active');
+			if(el != 'undefined' && el != null) {
+				const showActiveTheme = theme => {
+				const activeThemeIcon = document.querySelector('.theme-icon-active use')
+				const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+				const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
+
+				document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+					element.classList.remove('active')
+				})
+
+				btnToActive.classList.add('active')
+				activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+			}
+
+			window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+				if (storedTheme !== 'light' || storedTheme !== 'dark') {
+					setTheme(getPreferredTheme())
+				}
+			})
+
+			showActiveTheme(getPreferredTheme())
+
+			document.querySelectorAll('[data-bs-theme-value]')
+				.forEach(toggle => {
+					toggle.addEventListener('click', () => {
+						const theme = toggle.getAttribute('data-bs-theme-value')
+						localStorage.setItem('theme', theme)
+						setTheme(theme)
+						showActiveTheme(theme)
+					})
+				})
+
+			}
+		})
+		
+	</script>
+
+	<!-- Favicon -->
+	<link rel="shortcut icon" href="assets/images/favicon.ico">
+
+	<!-- Google Font -->
+	<link rel="preconnect" href="https://fonts.googleapis.com/">
+	<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Poppins:wght@400;500;700&amp;display=swap">
+
+	<!-- Plugins CSS -->
+	<link rel="stylesheet" type="text/css" href="assets/vendor/font-awesome/css/all.min.css">
+	<link rel="stylesheet" type="text/css" href="assets/vendor/bootstrap-icons/bootstrap-icons.css">
+	<link rel="stylesheet" type="text/css" href="assets/vendor/choices/css/choices.min.css">
+
+	<!-- Theme CSS -->
+	<link rel="stylesheet" type="text/css" href="assets/css/style.css">
+
+</head>
+
+<body>
+
+<!-- Header START -->
+<div th:replace="~{common/header :: header}"></div>
+<!-- Header END -->
+
+<!-- **************** MAIN CONTENT START **************** -->
+<main>
+
+<!-- =======================
+Page banner START -->
+<section class="py-0">
+	<div class="container">
+		<!-- Card START -->
+		<div class="card bg-light overflow-hidden px-sm-5">
+			<div class="row align-items-center g-4">
+
+				<!-- Content -->
+				<div class="col-sm-9">
+					<div class="card-body">
+						<!-- Title -->
+						<h1 class="m-0 h2 card-title">Payment</h1>
+					</div>
+				</div>	
+
+				<!-- Image -->
+				<div class="col-sm-3 text-end d-none d-sm-block">
+					<img src="assets/images/element/17.svg" class="mb-n4" alt="">
+				</div>
+			</div>
+		</div>
+		<!-- Card END -->
+	</div>
+</section>
+<!-- =======================
+Page banner END -->
+
+<!-- =======================
+Page content START -->
+<section>
+	<div class="container">
+		<div class="row g-4 g-lg-5">	
+
+			<!-- Left side content START -->
+			<div class="col-xl-8">
+				<div class="vstack gap-5">
+					<!-- Payment Options START -->
+					<div class="card shadow">
+						<!-- Card header -->
+						<div class="card-header border-bottom p-4">
+							<!-- Title -->
+							<h4 class="card-title mb-0"><i class="bi bi-wallet-fill me-2"></i>Payment Options</h4>
+						</div>
+						
+						<!-- Card body START -->
+						<div class="card-body p-4 pb-0">
+							<!-- Accordion START -->
+							<div class="accordion accordion-icon accordion-bg-light" id="accordioncircle">
+								<!-- Credit or debit card START -->
+								<div class="accordion-item mb-3">
+									<h6 class="accordion-header" id="heading-1">
+										<button class="accordion-button rounded collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-1" aria-expanded="true" aria-controls="collapse-1">
+											<i class="bi bi-credit-card text-primary me-2"></i>	<span class="me-5">Credit or Debit Card</span>
+										</button>
+									</h6>
+									<div id="collapse-1" class="accordion-collapse collapse show" aria-labelledby="heading-1" data-bs-parent="#accordioncircle">
+										<!-- Accordion body -->
+										<div class="accordion-body">
+
+											<!-- Card list -->     
+											<div class="d-sm-flex justify-content-sm-between my-3">
+												<h6 class="mb-2 mb-sm-0">We Accept:</h6>
+												<ul class="list-inline my-0">
+													<li class="list-inline-item"> <a href="#"><img src="assets/images/element/visa.svg" class="h-30px" alt=""></a></li>
+													<li class="list-inline-item"> <a href="#"><img src="assets/images/element/mastercard.svg" class="h-30px" alt=""></a></li>
+													<li class="list-inline-item"> <a href="#"><img src="assets/images/element/expresscard.svg" class="h-30px" alt=""></a></li>
+												</ul>
+											</div>
+
+											<!-- Form START -->
+											<form class="row g-3">
+												<!-- Card number -->
+												<div class="col-12">
+													<label class="form-label"><span class="h6 fw-normal">Card Number *</span></label>
+													<div class="position-relative">
+														<input type="text" class="form-control" maxlength="14" placeholder="XXXX XXXX XXXX XXXX">
+														<img src="assets/images/element/visa.svg" class="w-30px position-absolute top-50 end-0 translate-middle-y me-2 d-none d-sm-block" alt="">
+													</div>	
+												</div>
+												<!-- Expiration Date -->
+												<div class="col-md-6">
+													<label class="form-label"><span class="h6 fw-normal">Expiration date *</span></label>
+													<div class="input-group">
+														<input type="text" class="form-control" maxlength="2" placeholder="Month">
+														<input type="text" class="form-control" maxlength="4" placeholder="Year">
+													</div>
+												</div>	
+												<!--Cvv code  -->
+												<div class="col-md-6">
+													<label class="form-label"><span class="h6 fw-normal">CVV / CVC *</span></label>
+													<input type="text" class="form-control" maxlength="3" placeholder="xxx">
+												</div>
+												<!-- Card name -->
+												<div class="col-12">
+													<label class="form-label"><span class="h6 fw-normal">Name on Card *</span></label>
+													<input type="text" class="form-control" aria-label="name of card holder" placeholder="Enter card holder name">
+												</div>
+
+												<!-- Buttons -->
+												<div class="col-12">
+													<div class="d-sm-flex justify-content-sm-between align-items-center">
+														<h4>$1800 <span class="small fs-6">Due now</span></h4>
+														<button class="btn btn-primary mb-0">Pay Now</button>
+													</div>
+												</div>
+
+											</form>
+											<!-- Form END -->
+										</div>
+									</div>
+								</div>
+								<!-- Credit or debit card END -->
+
+								<!-- Net banking START -->
+								<div class="accordion-item mb-3">
+									<h6 class="accordion-header" id="heading-2">
+										<button class="accordion-button collapsed rounded" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-2" aria-expanded="false" aria-controls="collapse-2">
+											<i class="bi bi-globe2 text-primary me-2"></i> <span class="me-5">Pay with Net Banking</span>
+										</button>
+									</h6>
+									<div id="collapse-2" class="accordion-collapse collapse" aria-labelledby="heading-2" data-bs-parent="#accordioncircle">
+										<!-- Accordion body -->
+										<div class="accordion-body">
+
+											<!-- Form START -->
+											<form class="row g-3 mt-1">
+
+												<!-- Popular bank -->
+												<ul class="list-inline mb-0">
+
+													<li class="list-inline-item"> <h6 class="mb-0">Popular Bank:</h6> </li>
+													<!-- Rent -->
+													<li class="list-inline-item">
+														<input type="radio" class="btn-check" name="options" id="option1">
+														<label class="btn btn-light btn-primary-soft-check" for="option1">
+															<img src="assets/images/element/13.svg" class="h-20px me-2" alt="">Bank of America
+														</label>
+													</li>
+													<!-- Sale -->
+													<li class="list-inline-item">
+														<input type="radio" class="btn-check" name="options" id="option2">
+														<label class="btn btn-light btn-primary-soft-check" for="option2">
+															<img src="assets/images/element/15.svg" class="h-20px me-2" alt="">Bank of Japan
+														</label>
+													</li>
+													<!-- Buy -->
+													<li class="list-inline-item">
+														<input type="radio" class="btn-check" name="options" id="option3">
+														<label class="btn btn-light btn-primary-soft-check" for="option3">
+															<img src="assets/images/element/14.svg" class="h-20px me-2" alt="">VIVIV Bank
+														</label>
+													</li>
+												</ul>
+
+												<p class="mb-1">In order to complete your transaction, we will transfer you over to Booking secure servers.</p>
+												<p class="my-0">Select your bank from the drop-down list and click proceed to continue with your payment.</p>
+												<!-- Select bank -->
+												<div class="col-md-6">
+													<select class="form-select form-select-sm js-choice border-0">
+														<option value="">Please choose one</option>
+														<option>Bank of America</option>
+														<option>Bank of India</option>
+														<option>Bank of London</option>
+													</select>
+												</div>
+
+												<!-- Button -->
+												<div class="d-grid">
+													<button class="btn btn-success mb-0">Pay $1800</button>
+												</div>
+
+											</form>
+											<!-- Form END -->
+										</div>
+									</div>
+								</div>
+								<!-- Net banking END -->
+
+								<!-- Paypal START -->
+								<div class="accordion-item mb-3">
+									<h6 class="accordion-header" id="heading-3">
+										<button class="accordion-button collapsed rounded" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-3" aria-expanded="false" aria-controls="collapse-3">
+											<i class="bi bi-paypal text-primary me-2"></i><span class="me-5">Pay with Paypal</span>
+										</button>
+									</h6>
+									<div id="collapse-3" class="accordion-collapse collapse" aria-labelledby="heading-3" data-bs-parent="#accordioncircle">
+										<!-- Accordion body -->
+										<div class="accordion-body">
+											<div class="card card-body border align-items-center text-center mt-4">
+												<!-- Image -->
+												<img src="assets/images/element/paypal.svg" class="h-70px mb-3" alt="">
+												<p class="mb-3"><strong>Tips:</strong> Simply click on the payment button below to proceed to the PayPal payment page.</p>
+												<a href="#" class="btn btn-sm btn-outline-primary mb-0">Pay with paypal</a>
+											</div>
+										</div>
+									</div>
+								</div>
+								<!-- Paypal END -->
+							</div>
+							<!-- Accordion END -->
+						</div>	
+						<!-- Card body END -->
+
+						<div class="card-footer p-4 pt-0">
+							<!-- Condition link -->
+							<p class="mb-0">By processing, You accept Booking <a href="#">Terms of Services</a> and <a href="#">Policy</a></p>
+						</div>
+					</div>
+					<!-- Payment Options END -->
+				</div>	
+			</div>
+			<!-- Left side content END -->
+
+			<!-- Right side content START -->
+			<aside class="col-xl-4">
+				<div class="row g-4">
+
+					<!-- Price summary START -->
+					<div class="col-md-6 col-xl-12">
+						<div class="card shadow rounded-2">
+							<!-- card header -->
+							<div class="card-header border-bottom">
+								<h5 class="card-title mb-0">Price Summary</h5>
+							</div>
+	
+							<!-- Card body -->
+							<div class="card-body">
+								<ul class="list-group list-group-borderless">
+									<li class="list-group-item d-flex justify-content-between align-items-center">
+										<span class="h6 fw-light mb-0">Room Charges</span>
+										<span class="fs-5">$28,660</span>
+									</li>
+									<li class="list-group-item d-flex justify-content-between align-items-center">
+										<span class="h6 fw-light mb-0">Total Discount<span class="badge text-bg-danger smaller mb-0 ms-2">10% off</span></span>
+										<span class="fs-5 text-success">-$2,560</span>	
+									</li>
+									<li class="list-group-item d-flex justify-content-between align-items-center">
+										<span class="h6 fw-light mb-0">Price after discount</span>
+										<span class="fs-5">$1852</span>
+									</li>
+									<li class="list-group-item d-flex justify-content-between align-items-center">
+										<span class="h6 fw-light mb-0">Taxes % Fees</span>
+										<span class="fs-5">$350</span>
+									</li>
+								</ul>
+							</div>
+	
+							<!-- Card footer -->
+							<div class="card-footer border-top">
+								<div class="d-flex justify-content-between align-items-center">
+									<span class="h5 mb-0">Payable Now</span>
+									<span class="h5 mb-0">$22,500</span>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- Price summary END -->
+
+					<!-- Offer and discount START -->
+					<div class="col-md-6 col-xl-12">
+						<div class="card shadow">
+							<!-- Card header -->
+							<div class="card-header border-bottom">
+								<div class="cardt-title">
+									<h5 class="mb-0">Offer &amp; Discount</h5>
+								</div>
+							</div>
+							<!-- Card body -->
+							<div class="card-body">
+
+								<!-- Radio -->
+								<div class="bg-light rounded-2 p-3">
+									<div class="form-check form-check-inline mb-0">
+										<input class="form-check-input" type="radio" name="discountOptions" id="discount1" value="option1" checked>
+										<label class="form-check-label h5 mb-0" for="discount1">GSTBOOK</label>
+										<p class="mb-1 small">Congratulations! You have saved $230 with GSTBOOK.</p>
+										<h6 class="mb-0 text-success">-$230</h6>
+									</div>
+								</div>
+
+								<!-- Input group -->
+								<div class="input-group mt-3">
+									<input class="form-control form-control" placeholder="Coupon code">
+									<button type="button" class="btn btn-primary">Apply</button>
+								</div>
+							</div>	
+						</div>
+					</div>
+					<!-- Offer and discount END -->
+
+					<!-- Information START -->
+					<div class="col-md-6 col-xl-12">
+						<div class="card shadow">
+							<!-- Card header -->
+							<div class="card-header border-bottom">
+								<h5 class="card-title mb-0">Why Sign up or Log in</h5>
+							</div>
+
+							<!-- Card body -->
+							<div class="card-body">
+								<!-- List -->
+								<ul class="list-group list-group-borderless">
+									<li class="list-group-item d-flex mb-0"><i class="fa-solid fa-check text-success me-2"></i>
+										<span class="h6 fw-normal">Get Access to Secret Deal</span>
+									</li>
+
+									<li class="list-group-item d-flex mb-0"><i class="fa-solid fa-check text-success me-2"></i>
+										<span class="h6 fw-normal">Book Faster</span>
+									</li>
+
+									<li class="list-group-item d-flex mb-0"><i class="fa-solid fa-check text-success me-2"></i>
+										<span class="h6 fw-normal">Manage Your Booking</span>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+					<!-- Information END -->
+
+				</div>
+			</aside>
+			<!-- Right side content END -->
+		</div> <!-- Row END -->
+	</div>
+</section>
+<!-- =======================
+Page content START -->
+
+</main>
+<!-- **************** MAIN CONTENT END **************** -->
+
+<!-- =======================
+Footer START -->
+<div th:replace="~{common/footer :: footer}"></div>
+<!-- =======================
+Footer END -->
+
+<!-- Back to top -->
+<div class="back-top"></div>
+
+<!-- Bootstrap JS -->
+<script src="assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Vendors -->
+<script src="assets/vendor/choices/js/choices.min.js"></script>
+
+<!-- ThemeFunctions -->
+<script src="assets/js/functions.js"></script>
+
+</body>
+
+<!-- Mirrored from stackbros.in/bookinga/landing/hotel-booking.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:06:49 GMT -->
+</html>
