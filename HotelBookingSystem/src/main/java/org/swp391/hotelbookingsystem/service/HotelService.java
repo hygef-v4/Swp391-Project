@@ -78,4 +78,7 @@ public class HotelService {
         hotelRepository.cancelHotelDeleteToken(userId, hotelId);
     }
 
+    public int countHotelsByHostId(int id) {
+        return hotelRepository.countHotelByHostId(id);
+    }
 }

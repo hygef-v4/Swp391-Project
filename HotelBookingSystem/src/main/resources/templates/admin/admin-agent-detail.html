@@ -173,10 +173,10 @@
                         <div class="card-body text-center">
                             <!-- Avatar Image -->
                             <div class="avatar avatar-xl flex-shrink-0 mb-3">
-                                <img class="avatar-img rounded-circle" src="assets/images/avatar/05.jpg" alt="avatar">
+                                <img class="avatar-img rounded-circle" th:src="@{${agent.avatarUrl}}" alt="avatar">
                             </div>
                             <!-- Title -->
-                            <h5 class="mb-2">Jacqueline Miller</h5>
+                            <h5 class="mb-2" th:text="${agent.fullName}">Tên mặc định</h5>
                             <ul class="list-inline small mb-0">
                                 <li class="list-inline-item me-0"><i class="fa-solid fa-star text-warning"></i></li>
                                 <li class="list-inline-item me-0"><i class="fa-solid fa-star text-warning"></i></li>
@@ -192,8 +192,8 @@
                             <div class="d-flex align-items-center mb-3">
                                 <div class="icon-md bg-mode h6 mb-0 rounded-circle flex-shrink-0"><i class="bi bi-envelope-fill"></i></div>
                                 <div class="ms-2">
-                                    <small>Email id</small>
-                                    <h6 class="fw-normal small mb-0"><a href="#">hello@gmail.com</a></h6>
+                                    <small>Email:</small>
+                                    <h6 class="fw-normal small mb-0"><a href="#" th:text="${agent.email}">Email</a></h6>
                                 </div>
                             </div>
 
@@ -202,7 +202,7 @@
                                 <div class="icon-md bg-mode h6 mb-0 rounded-circle flex-shrink-0"><i class="bi bi-telephone-fill"></i></div>
                                 <div class="ms-2">
                                     <small>Phone</small>
-                                    <h6 class="fw-normal small mb-0"><a href="#">+1(404) 586-854</a></h6>
+                                    <h6 class="fw-normal small mb-0"><a href="#" th:text="${agent.phone}">Số điện thoại</a></h6>
                                 </div>
                             </div>
 
@@ -234,7 +234,7 @@
                     <div class="card shadow">
                         <!-- Card header -->
                         <div class="card-header border-bottom">
-                            <h5 class="mb-0">Personal Information</h5>
+                            <h5 class="mb-0">Thông tin cá nhân</h5>
                         </div>
                         <!-- Card body -->
                         <div class="card-body">
@@ -243,28 +243,28 @@
                                 <div class="col-md-6">
                                     <ul class="list-group list-group-borderless">
                                         <li class="list-group-item mb-3">
-                                            <span>Full Name:</span>
-                                            <span class="h6 fw-normal ms-1 mb-0">Jacqueline Miller</span>
+                                            <span>Tên:</span>
+                                            <span class="h6 fw-normal ms-1 mb-0" th:text="${agent.fullName}">Tên</span>
                                         </li>
 
                                         <li class="list-group-item mb-3">
-                                            <span>User Name:</span>
-                                            <span class="h6 fw-normal ms-1 mb-0">Lucifer</span>
+                                            <span>Email:</span>
+                                            <span class="h6 fw-normal ms-1 mb-0" th:text="${agent.email}">Email</span>
                                         </li>
 
                                         <li class="list-group-item mb-3">
-                                            <span>Mobile Number:</span>
-                                            <span class="h6 fw-normal ms-1 mb-0">+1(404) 586-854</span>
+                                            <span>Số điện thoại:</span>
+                                            <span class="h6 fw-normal ms-1 mb-0" th:text="${agent.phone}">Số điện thoại</span>
                                         </li>
 
                                         <li class="list-group-item mb-3">
-                                            <span>Agent License:</span>
-                                            <span class="h6 fw-normal ms-1 mb-0">258ED458962</span>
+                                            <span>Giới tính:</span>
+                                            <span class="h6 fw-normal ms-1 mb-0" th:text="${agent.gender}">Giới tính</span>
                                         </li>
 
                                         <li class="list-group-item mb-3">
-                                            <span>Tax Number:</span>
-                                            <span class="h6 fw-normal ms-1 mb-0">ACG1548GG78952</span>
+                                            <span>Ngày sinh:</span>
+                                            <span class="h6 fw-normal ms-1 mb-0" th:text="${#dates.format(agent.dob, 'dd MMM yyyy')}">Ngày sinh</span>
                                         </li>
                                     </ul>
                                 </div>
@@ -298,8 +298,8 @@
                                 <div class="col-12">
                                     <ul class="list-group list-group-borderless">
                                         <li class="list-group-item">
-                                            <span>Description: </span>
-                                            <p class="h6 fw-normal mb-0">As it so contrasted oh estimating instrument. Size-like body someone had. Are conduct viewing boy minutes warrant the expense Tolerably behavior may admit daughters offending her ask own? Praise effect wishes to change way and any wanted. Lively use looked latter regard had. Does he it part last in</p>
+                                            <span>Giới thiệu: </span>
+                                            <p class="h6 fw-normal mb-0" th:text="${agent.bio}"></p>
                                         </li>
                                     </ul>
                                 </div>
@@ -314,194 +314,64 @@
             <div class="row g-4">
                 <!-- Title -->
                 <div class="col-12">
-                    <h4 class="mb-0">Hotel list</h4>
+                    <h4 class="mb-0">Danh sách khách sạn</h4>
                 </div>
 
-                <!-- Hotel item -->
-                <div class="col-lg-6">
-                    <div class="card shadow p-3">
-                        <div class="row g-4">
-                            <!-- Card img -->
-                            <div class="col-sm-3">
-                                <img src="assets/images/category/hotel/4by3/10.jpg" class="rounded-2" alt="Card image">
-                            </div>
+                <!-- Hotel list -->
+                <div class="row g-4" th:if="${hotelList != null}">
+                    <div class="col-lg-6" th:each="hotel, stat : ${hotelList}">
+                        <div class="card shadow p-3 h-100" style="min-height: 180px; border-radius: 12px;">
+                            <div class="row g-4 align-items-stretch h-100">
+                                <!-- Card img -->
+                                <div class="col-sm-3 d-flex align-items-center">
+                                    <img th:src="@{${hotel.hotelImageUrl}}" alt="Hotel image"
+                                         class="rounded-2 w-100"
+                                         style="height: 110px; object-fit: cover;">
+                                </div>
 
-                            <!-- Card body -->
-                            <div class="col-sm-9">
-                                <div class="card-body position-relative d-flex flex-column p-0 h-100">
+                                <!-- Card body -->
+                                <div class="col-sm-9 d-flex flex-column justify-content-between">
+                                    <div class="card-body position-relative d-flex flex-column p-0 h-100">
 
-                                    <!-- Buttons -->
-                                    <div class="list-inline-item dropdown position-absolute top-0 end-0">
-                                        <!-- Share button -->
-                                        <a href="#" class="btn btn-sm btn-round btn-light" role="button" id="dropdownAction1" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="bi bi-three-dots-vertical"></i>
-                                        </a>
-                                        <!-- dropdown button -->
-                                        <ul class="dropdown-menu dropdown-menu-end min-w-auto shadow rounded" aria-labelledby="dropdownAction1">
-                                            <li><a class="dropdown-item" href="#"><i class="bi bi-info-circle me-1"></i>Report</a></li>
-                                            <li><a class="dropdown-item" href="#"><i class="bi bi-slash-circle me-1"></i>Disable</a></li>
-                                        </ul>
-                                    </div>
-
-                                    <!-- Title -->
-                                    <h5 class="card-title mb-0 me-5"><a href="hotel-detail.html">Pride moon Village Resort & Spa</a></h5>
-                                    <small><i class="bi bi-geo-alt me-2"></i>31J W Spark Street, California - 24578</small>
-
-                                    <!-- Price and Button -->
-                                    <div class="d-flex justify-content-between align-items-center mt-3 mt-md-auto">
-                                        <!-- Price -->
-                                        <div class="d-flex align-items-center">
-                                            <h5 class="fw-bold mb-0 me-1">$1586</h5>
-                                            <span class="mb-0 me-2">/day</span>
+                                        <!-- Dropdown buttons -->
+                                        <div class="dropdown position-absolute top-0 end-0">
+                                            <a href="#" class="btn btn-sm btn-round btn-light" role="button"
+                                               th:id="'dropdownAction' + ${stat.index}" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="bi bi-three-dots-vertical"></i>
+                                            </a>
+                                            <ul class="dropdown-menu dropdown-menu-end shadow rounded"
+                                                th:aria-labelledby="'dropdownAction' + ${stat.index}">
+                                                <li><a class="dropdown-item" href="#"><i class="bi bi-info-circle me-1"></i>Report</a></li>
+                                                <li><a class="dropdown-item" href="#"><i class="bi bi-slash-circle me-1"></i>Disable</a></li>
+                                            </ul>
                                         </div>
-                                        <!-- Button -->
-                                        <a href="#" class="btn btn-sm btn-primary px-2 mb-0"><i class="bi bi-eye fa-fw me-1"></i>View</a>
+
+                                        <!-- Title & Address -->
+                                        <h5 class="card-title mb-1" th:text="${hotel.hotelName}">Hotel Name</h5>
+                                        <small class="text-light">
+                                            <i class="bi bi-geo-alt me-2"></i>
+                                            <span th:text="${hotel.address}">Hotel address</span>
+                                        </small>
+
+                                        <!-- Price & View -->
+                                        <div class="d-flex justify-content-between align-items-center mt-2">
+                                            <div class="d-flex align-items-center text-white">
+                                                <h5 class="fw-bold mb-0 me-1" th:text="'$' + ${#numbers.formatDecimal(hotel.minPrice, 1, 'COMMA', 2, 'POINT')}">Price</h5>
+                                                <span class="mb-0">/day</span>
+                                            </div>
+                                            <a th:href="@{/hotel-detail(hotelId=${hotel.hotelId})}"
+                                               class="btn btn-sm btn-primary">
+                                                <i class="bi bi-eye me-1"></i>View
+                                            </a>
+                                        </div>
+
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <!-- Hotel item -->
-                <div class="col-lg-6">
-                    <div class="card shadow p-3">
-                        <div class="row g-4">
-                            <!-- Card img -->
-                            <div class="col-sm-3">
-                                <img src="assets/images/category/hotel/4by3/08.jpg" class="rounded-2" alt="Card image">
-                            </div>
-
-                            <!-- Card body -->
-                            <div class="col-sm-9">
-                                <div class="card-body position-relative d-flex flex-column p-0 h-100">
-
-                                    <!-- Buttons -->
-                                    <div class="list-inline-item dropdown position-absolute top-0 end-0">
-                                        <!-- Share button -->
-                                        <a href="#" class="btn btn-sm btn-round btn-light" role="button" id="dropdownAction2" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="bi bi-three-dots-vertical"></i>
-                                        </a>
-                                        <!-- dropdown button -->
-                                        <ul class="dropdown-menu dropdown-menu-end min-w-auto shadow rounded" aria-labelledby="dropdownAction2">
-                                            <li><a class="dropdown-item" href="#"><i class="bi bi-info-circle me-1"></i>Report</a></li>
-                                            <li><a class="dropdown-item" href="#"><i class="bi bi-slash-circle me-1"></i>Disable</a></li>
-                                        </ul>
-                                    </div>
-
-                                    <!-- Title -->
-                                    <h5 class="card-title mb-0 me-5"><a href="hotel-detail.html">Courtyard by Marriott New York</a></h5>
-                                    <small><i class="bi bi-geo-alt me-2"></i>258 W jimmy Street, New york - 24578</small>
-
-                                    <!-- Price and Button -->
-                                    <div class="d-flex justify-content-between align-items-center mt-3 mt-md-auto">
-                                        <!-- Price -->
-                                        <div class="d-flex align-items-center">
-                                            <h5 class="fw-bold mb-0 me-1">$1025</h5>
-                                            <span class="mb-0 me-2">/day</span>
-                                        </div>
-                                        <!-- Button -->
-                                        <a href="#" class="btn btn-sm btn-primary px-2 mb-0"><i class="bi bi-eye fa-fw me-1"></i>View</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Hotel item -->
-                <div class="col-lg-6">
-                    <div class="card shadow p-3">
-                        <div class="row g-4">
-                            <!-- Card img -->
-                            <div class="col-sm-3">
-                                <img src="assets/images/category/hotel/4by3/09.jpg" class="rounded-2" alt="Card image">
-                            </div>
-
-                            <!-- Card body -->
-                            <div class="col-sm-9">
-                                <div class="card-body position-relative d-flex flex-column p-0 h-100">
-
-                                    <!-- Buttons -->
-                                    <div class="list-inline-item dropdown position-absolute top-0 end-0">
-                                        <!-- Share button -->
-                                        <a href="#" class="btn btn-sm btn-round btn-light" role="button" id="dropdownAction3" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="bi bi-three-dots-vertical"></i>
-                                        </a>
-                                        <!-- dropdown button -->
-                                        <ul class="dropdown-menu dropdown-menu-end min-w-auto shadow rounded" aria-labelledby="dropdownAction3">
-                                            <li><a class="dropdown-item" href="#"><i class="bi bi-info-circle me-1"></i>Report</a></li>
-                                            <li><a class="dropdown-item" href="#"><i class="bi bi-slash-circle me-1"></i>Disable</a></li>
-                                        </ul>
-                                    </div>
-
-                                    <!-- Title -->
-                                    <h5 class="card-title mb-0 me-5"><a href="hotel-detail.html">Park Plaza Lodge Hotel</a></h5>
-                                    <small><i class="bi bi-geo-alt me-2"></i>31J W Spark Street, California - 24578</small>
-
-                                    <!-- Price and Button -->
-                                    <div class="d-flex justify-content-between align-items-center mt-3 mt-md-auto">
-                                        <!-- Price -->
-                                        <div class="d-flex align-items-center">
-                                            <h5 class="fw-bold mb-0 me-1">$958</h5>
-                                            <span class="mb-0 me-2">/day</span>
-                                        </div>
-                                        <!-- Button -->
-                                        <a href="#" class="btn btn-sm btn-primary px-2 mb-0"><i class="bi bi-eye fa-fw me-1"></i>View</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Hotel item -->
-                <div class="col-lg-6">
-                    <div class="card shadow p-3">
-                        <div class="row g-4">
-                            <!-- Card img -->
-                            <div class="col-sm-3">
-                                <img src="assets/images/category/hotel/4by3/07.jpg" class="rounded-2" alt="Card image">
-                            </div>
-
-                            <!-- Card body -->
-                            <div class="col-sm-9">
-                                <div class="card-body position-relative d-flex flex-column p-0 h-100">
-
-                                    <!-- Buttons -->
-                                    <div class="list-inline-item dropdown position-absolute top-0 end-0">
-                                        <!-- Share button -->
-                                        <a href="#" class="btn btn-sm btn-round btn-light" role="button" id="dropdownAction4" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="bi bi-three-dots-vertical"></i>
-                                        </a>
-                                        <!-- dropdown button -->
-                                        <ul class="dropdown-menu dropdown-menu-end min-w-auto shadow rounded" aria-labelledby="dropdownAction4">
-                                            <li><a class="dropdown-item" href="#"><i class="bi bi-info-circle me-1"></i>Report</a></li>
-                                            <li><a class="dropdown-item" href="#"><i class="bi bi-slash-circle me-1"></i>Disable</a></li>
-                                        </ul>
-                                    </div>
-
-                                    <!-- Title -->
-                                    <h5 class="card-title mb-0 me-5"><a href="hotel-detail.html">Royal Beach Resort</a></h5>
-                                    <small><i class="bi bi-geo-alt me-2"></i>589 J Wall Street, London - 24578</small>
-
-                                    <!-- Price and Button -->
-                                    <div class="d-flex justify-content-between align-items-center mt-3 mt-md-auto">
-                                        <!-- Price -->
-                                        <div class="d-flex align-items-center">
-                                            <h5 class="fw-bold mb-0 me-1">$1005</h5>
-                                            <span class="mb-0 me-2">/day</span>
-                                        </div>
-                                        <!-- Button -->
-                                        <a href="#" class="btn btn-sm btn-primary px-2 mb-0"><i class="bi bi-eye fa-fw me-1"></i>View</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- Hotel list END -->
+                <!-- Hotel list END -->
         </div>
         <!-- Page main content END -->
     </div>

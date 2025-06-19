@@ -30,6 +30,18 @@ public class UserService {
         return userRepo.findByEmail(email);
     }
 
+    public User findUserById(int userId) {
+        return userRepo.findUserById(userId);
+    }
+
+    public List<User> getAgentsBySearchPaginated(String keyword, int offset, int size) {
+        return userRepo.findUsersByRoleAndSearchPaginated("HOTEL_OWNER", keyword, offset, size);
+    }
+
+    public int countAgentsBySearch(String keyword) {
+        return userRepo.countUsersByRoleAndSearch("HOTEL_OWNER", keyword);
+    }
+
     public List<User> getAllUsers() {
         return userRepo.getAllUser();
     }
