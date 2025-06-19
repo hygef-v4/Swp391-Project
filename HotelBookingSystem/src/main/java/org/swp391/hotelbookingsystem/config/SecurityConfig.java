@@ -1,8 +1,5 @@
 package org.swp391.hotelbookingsystem.config;
 
-import org.swp391.hotelbookingsystem.handler.CustomUserDetailsService;
-import org.swp391.hotelbookingsystem.handler.FormLoginSuccessHandler;
-import org.swp391.hotelbookingsystem.handler.OAuth2LoginSuccessHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +12,9 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
+import org.swp391.hotelbookingsystem.handler.CustomUserDetailsService;
+import org.swp391.hotelbookingsystem.handler.FormLoginSuccessHandler;
+import org.swp391.hotelbookingsystem.handler.OAuth2LoginSuccessHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -33,7 +33,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/api/files/**", "/webhook", "/booking")
+                        .ignoringRequestMatchers("/api/files/**", "/webhook", "/booking", 
+                                "/update-hotel", "/update-room", "/delete-room")
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
@@ -51,7 +52,8 @@ public class SecurityConfig {
                                 new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
                                 new WebExpressionAuthorizationManager("hasAnyRole('MODERATOR', 'ADMIN')")
                         ))
-                        .requestMatchers("/host-dashboard","/add-hotel","/add-room","/request-delete-hotel").access(AuthorizationManagers.allOf(
+                        .requestMatchers("/host-dashboard","/add-hotel","/add-room","/request-delete-hotel",
+                                "/manage-hotel","/update-hotel","/update-room","/delete-room").access(AuthorizationManagers.allOf(
                                 new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
                                 new WebExpressionAuthorizationManager("hasAnyRole('HOTEL_OWNER', 'ADMIN')")
                         ))

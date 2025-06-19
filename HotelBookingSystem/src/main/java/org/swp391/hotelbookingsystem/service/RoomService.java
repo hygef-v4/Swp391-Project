@@ -69,4 +69,32 @@ public class RoomService {
     public int getTotalRoomsByHostId(int hostId) {
         return roomRepository.getTotalRoomsByHostId(hostId);
     }
+
+    public void updateRoom(Room room, List<Integer> amenityIds, List<String> imageUrls) {
+        roomRepository.updateRoom(room);
+        
+        // Update amenities if provided
+        if (amenityIds != null) {
+            // Clear existing amenities first
+            roomRepository.clearRoomAmenities(room.getRoomId());
+            // Add new amenities
+            for (Integer amenityId : amenityIds) {
+                roomRepository.linkRoomAmenity(room.getRoomId(), amenityId);
+            }
+        }
+        
+        // Update images if provided
+        if (imageUrls != null && !imageUrls.isEmpty()) {
+            // Clear existing images first
+            roomRepository.clearRoomImages(room.getRoomId());
+            // Add new images
+            for (String url : imageUrls) {
+                roomRepository.insertRoomImage(room.getRoomId(), url);
+            }
+        }
+    }
+
+    public void deleteRoom(int roomId) {
+        roomRepository.deleteRoom(roomId);
+    }
 }
