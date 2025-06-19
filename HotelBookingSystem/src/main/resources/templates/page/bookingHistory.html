@@ -145,7 +145,7 @@
                                                 </div>
                                                 <div class="ms-2">
                                                     <h6 class="card-title mb-0"><span th:text="${booking.hotelName}"></span></h6>
-                                                    <ul class="nav nav-divider small">
+                                                    <!-- <ul class="nav nav-divider small">
                                                         <li class="nav-item">Loại phòng: <span th:text="${booking.roomName}"></span></li>
                                                         <li class="nav-item">
                                                             Trạng thái:
@@ -158,11 +158,11 @@
                                                                 <span th:case="*">Không xác định</span>
                                                             </span>
                                                         </li>
-                                                    </ul>
+                                                    </ul> -->
                                                 </div>
                                             </div>
                                             <div class="mt-2 mt-md-0">
-                                                <a th:href="@{'/booking-detail/' + ${booking.bookingId}}" class="btn btn-primary-soft mb-0">Xem chi tiết</a>
+                                                <a th:href="@{'/booking-detail/' + ${booking.bookingId} + '?upcoming=true'}" class="btn btn-primary-soft mb-0">Xem chi tiết</a>
                                             </div>
                                         </div>
                                         <div class="card-body">
@@ -197,7 +197,7 @@
                                                 </div>
                                                 <div class="ms-2">
                                                     <h6 class="card-title mb-0"><span th:text="${booking.hotelName}"></span></h6>
-                                                    <ul class="nav nav-divider small">
+                                                    <!-- <ul class="nav nav-divider small">
                                                         <li class="nav-item">Loại phòng: <span th:text="${booking.roomName}"></span></li>
                                                         <li class="nav-item">
                                                             Trạng thái:
@@ -210,11 +210,11 @@
                                                                 <span th:case="*">Không xác định</span>
                                                             </span>
                                                         </li>
-                                                    </ul>
+                                                    </ul> -->
                                                 </div>
                                             </div>
                                             <div class="mt-2 mt-md-0">
-                                                <a th:href="@{'/booking-detail/' + ${booking.bookingId}}" class="btn btn-primary-soft mb-0">Xem chi tiết</a>
+                                                <a th:href="@{'/booking-detail/' + ${booking.bookingId} + '?cancelled=true'}" class="btn btn-primary-soft mb-0">Xem chi tiết</a>
                                             </div>
                                         </div>
                                         <div class="card-body">
@@ -249,7 +249,7 @@
                                                 </div>
                                                 <div class="ms-2">
                                                     <h6 class="card-title mb-0"><span th:text="${booking.hotelName}"></span></h6>
-                                                    <ul class="nav nav-divider small">
+                                                    <!-- <ul class="nav nav-divider small">
                                                         <li class="nav-item">Loại phòng: <span th:text="${booking.roomName}"></span></li>
                                                         <li class="nav-item">
                                                             Trạng thái:
@@ -262,11 +262,11 @@
                                                                 <span th:case="*">Không xác định</span>
                                                             </span>
                                                         </li>
-                                                    </ul>
+                                                    </ul> -->
                                                 </div>
                                             </div>
                                             <div class="mt-2 mt-md-0">
-                                                <a th:href="@{'/booking-detail/' + ${booking.bookingId}}" class="btn btn-primary-soft mb-0">Xem chi tiết</a>
+                                                <a th:href="@{'/booking-detail/' + ${booking.bookingId} + '?completed=true'}" class="btn btn-primary-soft mb-0">Xem chi tiết</a>
                                             </div>
                                         </div>
                                         <div class="card-body">

@@ -69,6 +69,24 @@ public class RoomRepository {
         return jdbcTemplate.query(sql, ROOM_MAPPER, hotelId);
     }
 
+    public List<Room> getAvailableRoomsByHotelId(int hotelId) {
+        String sql = """
+                    SELECT 
+                        room_id AS roomId,
+                        hotel_id AS hotelId,
+                        title,
+                        description,
+                        price,
+                        max_guests AS maxGuests,
+                        room_type_id AS roomTypeId,
+                        status,
+                        quantity
+                    FROM Rooms
+                    WHERE hotel_id = ? AND quantity > 0
+                """;
+        return jdbcTemplate.query(sql, ROOM_MAPPER, hotelId);
+    }
+
     private static final String COUNT_ROOMS = "SELECT SUM(quantity) FROM Rooms";
 
     public int countRooms() {

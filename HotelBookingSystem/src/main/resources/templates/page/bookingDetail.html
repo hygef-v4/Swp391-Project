@@ -102,9 +102,9 @@
                             <a th:href="@{/bookingHistory}" class="btn btn-sm btn-light"><i class="fa fa-arrow-left me-1"></i>Quay lại trang lịch sử đặt phòng</a>
                         </div>
 
-                        <div class="card-body">
+                        <div class="card-body" th:each="bookingUnit : ${booking.bookingUnits}" th:if="${(upcoming && bookingUnit.status == 'approved') || (cancelled && bookingUnit.status == 'cancelled' || bookingUnit.status == 'rejected') || (completed && bookingUnit.status == 'completed')}">
                             <div class="text-center mb-4">
-                                <img th:src="${booking.imageUrl != null ? booking.imageUrl : '/assets/images/default-room.jpg'}"
+                                <img th:src="${bookingUnit.imageUrl != null ? bookingUnit.imageUrl : '/assets/images/default-room.jpg'}"
                                      alt="Room Image"
                                      class="rounded img-fluid"
                                      style="max-height: 300px; object-fit: cover;">
@@ -117,11 +117,11 @@
                                 </div>
                                 <div class="col-sm-6 col-md-4">
                                     <p class="mb-1 fw-semibold text-muted">Trạng thái</p>
-                                    <h6 th:text="${booking.status}">approved</h6>
+                                    <h6 th:text="${bookingUnit.status}">approved</h6>
                                 </div>
                                 <div class="col-sm-6 col-md-4">
                                     <p class="mb-1 fw-semibold text-muted">Loại phòng</p>
-                                    <h6 th:text="${booking.roomName}">2</h6>
+                                    <h6 th:text="${bookingUnit.roomName}">2</h6>
                                 </div>
                                 <div class="col-sm-6 col-md-4">
                                     <p class="mb-1 fw-semibold text-muted">Ngày nhận phòng</p>
@@ -133,14 +133,13 @@
                                 </div>
                                 <div class="col-sm-6 col-md-4">
                                     <p class="mb-1 fw-semibold text-muted">Tổng tiền</p>
-                                    <h6 th:text="${#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 2, 'POINT')} + ' VND'"></h6>
+                                    <h6 th:text="${#numbers.formatDecimal(bookingUnit.price, 0, 'COMMA', 2, 'POINT')} + ' VND'"></h6>
                                 </div>
                             </div>
 
                             <div class="text-center mt-4">
-                                <a th:if="${isCancelable}"
-                                   href="#"
-                                   th:attr="data-cancel-url=@{'/cancel-booking/' + ${booking.bookingId}}"
+                                <a th:if="${bookingUnit.cancelable}"
+                                   th:attr="data-cancel-url=@{'/cancel-booking/' + ${bookingUnit.bookingUnitId}}"
                                    class="btn btn-danger"
                                    onclick="confirmCancel(this)">Huỷ đặt phòng</a>
                             </div>

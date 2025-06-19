@@ -29,6 +29,7 @@ public class HotelListController {
     @GetMapping("/hotel-list")
     public String hotelList(
         @RequestParam(value = "locationId", defaultValue = "-1") int locationId,
+        @RequestParam(value = "dateRange", defaultValue = "") String dateRange,
         @RequestParam(value = "adults", defaultValue = "1") int adults,
         @RequestParam(value = "children", defaultValue = "0") int children,
         @RequestParam(value = "rooms", defaultValue = "1") int rooms,
@@ -45,6 +46,8 @@ public class HotelListController {
         model.addAttribute("hamora", locationId == -1 ? new Location(locationId, "Hamora", "assets/images/bg/05.jpg") : location.get(0));
         List<Location> locations = locationService.getAllLocations();
         model.addAttribute("locations", locations);
+
+        model.addAttribute("dateRange", dateRange);
 
         model.addAttribute("adults", adults);
         model.addAttribute("children", children);
@@ -85,13 +88,14 @@ public class HotelListController {
         model.addAttribute("pagination", (int)Math.ceil((double)hotel.size() / 12));
 
         String redirect = "";
+        if(locationId != -1) redirect += "&locationId=" + locationId;
+        if(!"".equals(dateRange)) redirect += "&dateRange=" + dateRange;
         if(adults != 1) redirect += "&adults=" + adults;
         if(children != 0) redirect += "&children=" + children;
         if(rooms != 1) redirect += "&rooms=" + rooms;
         model.addAttribute("redirect", redirect);
 
         String request = "";
-        if(locationId != -1) request += "&locationId=" + locationId;
         request += redirect;
         if(!"".equals(name)) request += "&name=" + name;
         if(!"200,000".equals(min)) request += "&min=" + min;

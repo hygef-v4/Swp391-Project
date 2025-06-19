@@ -2,6 +2,7 @@ package org.swp391.hotelbookingsystem.service;
 
 import org.springframework.stereotype.Service;
 import org.swp391.hotelbookingsystem.model.Booking;
+import org.swp391.hotelbookingsystem.model.BookingUnit;
 import org.swp391.hotelbookingsystem.repository.BookingRepo;
 
 import java.util.List;
@@ -21,8 +22,8 @@ public class BookingService {
     }
 
     // Đặt lại trạng thái
-    public void updateStatus(Booking booking, String status) {
-        bookingRepo.updateStatus(booking.getBookingId(), status);
+    public void updateStatus(BookingUnit bookingUnit, String status) {
+        bookingRepo.updateStatus(bookingUnit.getBookingUnitId(), status);
     }
 
     public List<Booking> getUpcomingBookings(int customerId) {
@@ -41,18 +42,17 @@ public class BookingService {
         return bookingRepo.findById(id);
     }
 
+    public Booking findBooking(int id) {
+        return bookingRepo.findBookingByBookingUnitId(id);
+    }
+
+    public BookingUnit findBookingUnitById(int id) {
+        return bookingRepo.findBookingUnitById(id);
+    }
+
     // Cập nhật hoàn tiền
     public void updateRefund(int bookingId, Double amount, String status) {
         bookingRepo.updateRefund(bookingId, amount, status);
-    }
-
-    // Lấy ảnh và tên khách sạn
-    public String getImageByBookingId(int bookingId) {
-        return bookingRepo.getImagesByBookingId(bookingId);
-    }
-
-    public String getHotelNameByBookingId(int bookingId) {
-        return bookingRepo.getHotelNameByBookingId(bookingId);
     }
 
     public List<Booking> getAllBookings() {
@@ -71,10 +71,6 @@ public class BookingService {
     // Lấy theo khách sạn (ví dụ dùng trong admin hoặc host dashboard)
     public List<Booking> getBookingsByHotel(int hotelId) {
         return bookingRepo.findByHotelId(hotelId);
-    }
-
-    public String getRoomNameByBookingId(int bookingId) {
-        return bookingRepo.getRoomNameByBookingId(bookingId);
     }
 
     public List<BookingRepo.DailyStat> getCheckInStats() {
@@ -130,5 +126,15 @@ public class BookingService {
         int count = bookingRepo.countBookingsByStatus(status);
         return (int) Math.ceil((double) count / size);
     }
+
+    public List<Booking> getBookingsByStatusAndSearchPaginated(String status, String keyword, int page, int size) {
+        return bookingRepo.findBookingsByStatusAndKeywordPaginated(status, keyword, page, size);
+    }
+
+    public int getTotalPagesByStatusAndSearch(String status, String keyword, int size) {
+        int total = bookingRepo.countBookingsByStatusAndKeyword(status, keyword);
+        return (int) Math.ceil((double) total / size);
+    }
+
 
 }
