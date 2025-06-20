@@ -378,11 +378,8 @@
                                     <i class="bi bi-buildings fs-4"></i>
                                 </div>
                                 <div class="ms-3 flex-grow-1">
-                                    <h3 th:text="${hotels.size()}" class="mb-1 fw-bold">number hotel</h3>
+                                    <h3 th:text="${totalHotels}" class="mb-1 fw-bold">0</h3>
                                     <h6 class="mb-1">Tổng Số Khách Sạn</h6>
-<!--                                    <small class="text-success">-->
-<!--                                        <i class="bi bi-arrow-up me-1"></i>+2 tháng này-->
-<!--                                    </small>-->
                                 </div>
                             </div>
                         </div>
@@ -398,11 +395,8 @@
                                     <i class="bi bi-cash-stack fs-4"></i>
                                 </div>
                                 <div class="ms-3 flex-grow-1">
-                                    <h3 class="mb-1 fw-bold">$24,580</h3>
+                                    <h3 class="mb-1 fw-bold" th:text="${monthlyRevenue} + ' ₫'">0 ₫</h3>
                                     <h6 class="mb-1">Doanh Thu Tháng</h6>
-                                    <small class="text-success">
-                                        <i class="bi bi-arrow-up me-1"></i>+18.5% so với tháng trước
-                                    </small>
                                 </div>
                             </div>
                         </div>
@@ -418,10 +412,11 @@
                                     <i class="bi bi-calendar-check fs-4"></i>
                                 </div>
                                 <div class="ms-3 flex-grow-1">
-                                    <h3 class="mb-1 fw-bold">156</h3>
+                                    <h3 class="mb-1 fw-bold" th:text="${totalBookings}">0</h3>
                                     <h6 class="mb-1">Tổng Số Đặt Phòng</h6>
-                                    <small class="text-info">
-                                        <i class="bi bi-clock me-1"></i>12 chờ phê duyệt
+                                    <small class="text-info" th:if="${pendingBookings > 0}">
+                                        <i class="bi bi-clock me-1"></i>
+                                        <span th:text="${pendingBookings}">0</span> chờ phê duyệt
                                     </small>
                                 </div>
                             </div>
@@ -438,10 +433,11 @@
                                     <i class="bi bi-star-fill fs-4"></i>
                                 </div>
                                 <div class="ms-3 flex-grow-1">
-                                    <h3 class="mb-1 fw-bold">4.8</h3>
+                                    <h3 class="mb-1 fw-bold" th:text="${averageRating}">0.0</h3>
                                     <h6 class="mb-1">Đánh Giá Trung Bình</h6>
-                                    <small class="text-muted">
-                                        <i class="bi bi-chat-dots me-1"></i>Dựa trên 340 đánh giá
+                                    <small class="text-muted" th:if="${totalReviews > 0}">
+                                        <i class="bi bi-chat-dots me-1"></i>Dựa trên
+                                        <span th:text="${totalReviews}">0</span> đánh giá
                                     </small>
                                 </div>
                             </div>
@@ -669,6 +665,75 @@
 <script src="assets/js/functions.js"></script>
 
 <!-- Chart Script -->
+<script th:inline="javascript">
+    /* <![CDATA[ */
+    const bookingsData = [];
+    const bookings = /*[[${bookings}]]*/ [];
+
+    const getStatusClass = (status) => {
+        if (!status) return 'bg-secondary bg-opacity-10 text-secondary';
+        switch (status.toLowerCase()) {
+            case 'completed': return 'bg-success bg-opacity-10 text-success';
+            case 'confirmed': return 'bg-success bg-opacity-10 text-success';
+            case 'checked_in': return 'bg-info bg-opacity-10 text-info';
+            case 'pending': return 'bg-warning bg-opacity-10 text-warning';
+            case 'cancelled': return 'bg-danger bg-opacity-10 text-danger';
+            default: return 'bg-secondary bg-opacity-10 text-secondary';
+        }
+    };
+
+    const getStatusText = (status) => {
+        if (!status) return 'Không xác định';
+        switch (status.toLowerCase()) {
+            case 'completed': return 'Hoàn thành';
+            case 'confirmed': return 'Đã xác nhận';
+            case 'checked_in': return 'Đã nhận phòng';
+            case 'pending': return 'Đang chờ';
+            case 'cancelled': return 'Đã hủy';
+            default: return status;
+        }
+    };
+
+    const formatDate = (dateString) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    };
+
+    const formatCurrency = (amount) => {
+        if (amount == null) return 'N/A';
+        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+    };
+
+
+    bookings.forEach(booking => {
+        if (booking.bookingUnits && booking.bookingUnits.length > 0) {
+            booking.bookingUnits.forEach(unit => {
+                const bookingItem = {
+                    id: `#BK${booking.bookingId}-U${unit.bookingUnitId}`,
+                    guestName: booking.customerName || 'Khách ẩn danh',
+                    email: booking.customerEmail || '',
+                    avatar: booking.customerAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(booking.customerName || 'A')}&background=random`,
+                    hotel: booking.hotelName || 'Không có tên',
+                    roomType: unit.roomName || 'Không có tên',
+                    checkIn: formatDate(booking.checkIn),
+                    checkOut: formatDate(booking.checkOut),
+                    status: getStatusText(unit.status),
+                    statusClass: getStatusClass(unit.status),
+                    amount: formatCurrency(booking.totalPrice), // Or unit.price if that makes more sense
+                    actions: [ // These can be dynamic based on status
+                        { icon: 'bi-eye', text: 'Xem Chi Tiết' },
+                        { icon: 'bi-chat', text: 'Liên Hệ Khách' }
+                    ]
+                };
+                bookingsData.push(bookingItem);
+            });
+        }
+    });
+
+    /*]]>*/
+</script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize Pagination first
@@ -678,17 +743,7 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => {
         if (typeof ApexCharts !== 'undefined') {
             console.log('Initializing custom booking chart...');
-            initializeBookingChart('6months'); // Initialize with default period
-            
-            // Set default active state for "6 tháng qua"
-            setTimeout(() => {
-                const defaultItem = document.querySelector(`[onclick*="6months"]`);
-                if (defaultItem) {
-                    defaultItem.classList.add('active');
-                }
-                // Initialize zoom button states after chart is loaded
-                updateZoomButtonStates();
-            }, 100);
+            changePeriod('6months', '6 tháng qua'); // Initialize with default period
         } else {
             console.error('ApexCharts not loaded');
             // Show fallback message
@@ -707,39 +762,58 @@ document.addEventListener('DOMContentLoaded', function() {
 let currentChart = null;
 let zoomLevel = 1;
 
-// Chart data sets for different time periods
-const chartDataSets = {
-    '6months': {
-        categories: ['Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'],
-        data: [45, 52, 38, 65, 42, 68],
-        title: '6 tháng qua'
-    },
-    '30days': {
-        categories: ['Tuần 1', 'Tuần 2', 'Tuần 3', 'Tuần 4'],
-        data: [28, 35, 42, 38],
-        title: '30 ngày qua'
-    },
-    'year2024': {
-        categories: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'],
-        data: [32, 41, 35, 48, 55, 62, 45, 52, 38, 65, 42, 68],
-        title: 'Năm 2024'
-    },
-    'year2023': {
-        categories: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'],
-        data: [25, 30, 28, 35, 42, 48, 38, 45, 35, 52, 38, 55],
-        title: 'Năm 2023'
-    },
-    'latest': {
-        categories: ['Hôm qua', 'Hôm nay'],
-        data: [12, 18],
-        title: 'Mới nhất'
-    }
-};
-
 let currentPeriod = '6months'; // Default period
 
-function initializeBookingChart(period = '6months') {
-    // Clear the chart container first
+function changePeriod(periodKey, displayName) {
+    const button = document.querySelector('.enhanced-dropdown .dropdown-toggle');
+    const chartContainer = document.querySelector("#apexChartTrafficStats");
+    
+    // Show loading state
+    button.innerHTML = `<i class="bi bi-arrow-clockwise spin me-2"></i>Đang tải...`;
+    chartContainer.innerHTML = '<div class="d-flex align-items-center justify-content-center" style="height: 350px;"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Đang tải...</span></div></div>';
+    
+    // Update active states in dropdown
+    document.querySelectorAll('.enhanced-dropdown .dropdown-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    
+    // Set active state for clicked item
+    const clickedItem = document.querySelector(`[onclick*="${periodKey}"]`);
+    if (clickedItem) {
+        clickedItem.classList.add('active');
+    }
+
+    fetch(`/api/host/booking-stats?period=${periodKey}`)
+        .then(response => response.json())
+        .then(data => {
+            const categories = data.map(item => item.category);
+            const seriesData = data.map(item => item.count);
+
+            const newChartData = {
+                categories: categories,
+                data: seriesData,
+                title: displayName
+            };
+
+            // Simulate loading delay for better UX
+            setTimeout(() => {
+                // Update button text
+                button.innerHTML = `<i class="bi bi-calendar3 me-2"></i>${displayName}`;
+                
+                // Reload chart with new period data
+                console.log('Period changed to:', displayName);
+                initializeBookingChartWithData(newChartData);
+            }, 500);
+        })
+        .catch(error => {
+            console.error('Error fetching chart data:', error);
+            button.innerHTML = `<i class="bi bi-x-circle me-2"></i>Lỗi`;
+            chartContainer.innerHTML = '<div class="text-center text-danger">Không thể tải dữ liệu biểu đồ.</div>';
+        });
+}
+
+function initializeBookingChartWithData(chartData) {
+     // Clear the chart container first
     const chartContainer = document.querySelector("#apexChartTrafficStats");
     if (chartContainer) {
         chartContainer.innerHTML = '';
@@ -749,19 +823,29 @@ function initializeBookingChart(period = '6months') {
     if (currentChart) {
         try {
             currentChart.destroy();
-            console.log('Previous chart destroyed');
         } catch (e) {
             console.log('Error destroying previous chart:', e);
         }
     }
-    
-    // Get data for selected period
-    const selectedData = chartDataSets[period] || chartDataSets['6months'];
-    currentPeriod = period;
-    
+
+    if (!chartData || !chartData.data || chartData.data.length === 0) {
+        chartContainer.innerHTML = `
+            <div class="d-flex align-items-center justify-content-center h-100 text-muted" style="min-height: 350px;">
+                <div class="text-center">
+                    <i class="bi bi-bar-chart fs-1 mb-3"></i>
+                    <p>Không có dữ liệu cho khoảng thời gian này.</p>
+                </div>
+            </div>`;
+        const titleElement = document.querySelector('#chartTitle');
+        if (titleElement) {
+            titleElement.innerHTML = `Thống Kê Đặt Phòng <small class="text-light opacity-75 ms-2">(${chartData.title})</small>`;
+        }
+        return;
+    }
+
     // Store data globally for zoom functionality
-    window.originalChartData = selectedData.data;
-    window.originalCategories = selectedData.categories;
+    window.originalChartData = chartData.data;
+    window.originalCategories = chartData.categories;
     
     // Reset zoom variables
     zoomLevel = 1;
@@ -856,22 +940,16 @@ function initializeBookingChart(period = '6months') {
     currentChart = new ApexCharts(document.querySelector("#apexChartTrafficStats"), options);
     currentChart.render()
         .then(() => {
-            console.log('Chart rendered successfully');
-            
-            // Update chart title with period info
             const titleElement = document.querySelector('#chartTitle');
             if (titleElement) {
-                const dataCount = selectedData.data.length;
-                const totalBookings = selectedData.data.reduce((sum, val) => sum + val, 0);
+                const totalBookings = chartData.data.reduce((sum, val) => sum + val, 0);
                 titleElement.innerHTML = `
                     Thống Kê Đặt Phòng 
                     <small class="text-light opacity-75 ms-2">
-                        (${selectedData.title} - ${totalBookings} đặt phòng)
+                        (${chartData.title} - ${totalBookings} đặt phòng)
                     </small>
                 `;
             }
-            
-            // Initialize button states after chart is fully rendered
             setTimeout(updateZoomButtonStates, 100);
         })
         .catch(error => {
@@ -1017,49 +1095,6 @@ function updateZoomButtonStates() {
         }
     }
 }
-
-function changePeriod(periodKey, displayName) {
-    const button = document.querySelector('.enhanced-dropdown .dropdown-toggle');
-    const chartContainer = document.querySelector("#apexChartTrafficStats");
-    
-    // Show loading state
-    button.innerHTML = `<i class="bi bi-arrow-clockwise spin me-2"></i>Đang tải...`;
-    chartContainer.innerHTML = '<div class="d-flex align-items-center justify-content-center" style="height: 350px;"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Đang tải...</span></div></div>';
-    
-    // Update active states in dropdown
-    document.querySelectorAll('.enhanced-dropdown .dropdown-item').forEach(item => {
-        item.classList.remove('active');
-    });
-    
-    // Set active state for clicked item
-    const clickedItem = document.querySelector(`[onclick*="${periodKey}"]`);
-    if (clickedItem) {
-        clickedItem.classList.add('active');
-    }
-    
-    // Simulate loading delay for better UX
-    setTimeout(() => {
-        // Update button text
-        button.innerHTML = `<i class="bi bi-calendar3 me-2"></i>${displayName}`;
-        
-        // Reload chart with new period data
-        console.log('Period changed to:', displayName);
-        initializeBookingChart(periodKey);
-    }, 500);
-}
-
-// Add CSS for spin animation
-const spinStyle = document.createElement('style');
-spinStyle.textContent = `
-    .spin {
-        animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-    }
-`;
-document.head.appendChild(spinStyle);
 
 // Pagination System
 class BookingPagination {
@@ -1302,142 +1337,12 @@ class BookingPagination {
     }
 }
 
-// Sample booking data
-const sampleBookings = [
-    {
-        id: '#BK001',
-        guestName: 'Nguyễn Văn A',
-        email: 'nguyenvana@email.com',
-        avatar: 'https://ui-avatars.com/api/?name=Nguyen+Van+A&background=007bff&color=fff',
-        hotel: 'Khách Sạn Grand Plaza',
-        roomType: 'Phòng Suite Deluxe',
-        checkIn: '28 Tháng 12, 2024',
-        checkOut: '30 Tháng 12, 2024',
-        status: 'Đã xác nhận',
-        statusClass: 'bg-success bg-opacity-10 text-success',
-        amount: '$450.00',
-        actions: [
-            { icon: 'bi-eye', text: 'Xem Chi Tiết' },
-            { icon: 'bi-chat', text: 'Liên Hệ Khách' },
-            { icon: 'bi-printer', text: 'In Hóa Đơn' }
-        ]
-    },
-    {
-        id: '#BK002',
-        guestName: 'Trần Thị B',
-        email: 'tranthib@email.com',
-        avatar: 'https://ui-avatars.com/api/?name=Tran+Thi+B&background=28a745&color=fff',
-        hotel: 'Resort Sunset',
-        roomType: 'Phòng View Biển',
-        checkIn: '29 Tháng 12, 2024',
-        checkOut: '2 Tháng 1, 2025',
-        status: 'Đang chờ',
-        statusClass: 'bg-warning bg-opacity-10 text-warning',
-        amount: '$680.00',
-        actions: [
-            { icon: 'bi-check-circle', text: 'Phê Duyệt' },
-            { icon: 'bi-x-circle', text: 'Từ Chối' },
-            { icon: 'bi-eye', text: 'Xem Chi Tiết' }
-        ]
-    },
-    {
-        id: '#BK003',
-        guestName: 'Lê Văn C',
-        email: 'levanc@email.com',
-        avatar: 'https://ui-avatars.com/api/?name=Le+Van+C&background=dc3545&color=fff',
-        hotel: 'Nhà Nghỉ Trung Tâm Thành Phố',
-        roomType: 'Phòng Tiêu Chuẩn',
-        checkIn: '27 Tháng 12, 2024',
-        checkOut: '28 Tháng 12, 2024',
-        status: 'Nhận phòng',
-        statusClass: 'bg-info bg-opacity-10 text-info',
-        amount: '$120.00',
-        actions: [
-            { icon: 'bi-door-open', text: 'Trả Phòng' },
-            { icon: 'bi-chat', text: 'Liên Hệ Khách' },
-            { icon: 'bi-eye', text: 'Xem Chi Tiết' }
-        ]
-    },
-    {
-        id: '#BK004',
-        guestName: 'Phạm Thị D',
-        email: 'phamthid@email.com',
-        avatar: 'https://ui-avatars.com/api/?name=Pham+Thi+D&background=6f42c1&color=fff',
-        hotel: 'Khách Sạn Grand Plaza',
-        roomType: 'Phòng Standard',
-        checkIn: '30 Tháng 12, 2024',
-        checkOut: '1 Tháng 1, 2025',
-        status: 'Đã xác nhận',
-        statusClass: 'bg-success bg-opacity-10 text-success',
-        amount: '$320.00',
-        actions: [
-            { icon: 'bi-eye', text: 'Xem Chi Tiết' },
-            { icon: 'bi-chat', text: 'Liên Hệ Khách' },
-            { icon: 'bi-printer', text: 'In Hóa Đơn' }
-        ]
-    },
-    {
-        id: '#BK005',
-        guestName: 'Hoàng Văn E',
-        email: 'hoangvane@email.com',
-        avatar: 'https://ui-avatars.com/api/?name=Hoang+Van+E&background=fd7e14&color=fff',
-        hotel: 'Resort Sunset',
-        roomType: 'Phòng Family',
-        checkIn: '25 Tháng 12, 2024',
-        checkOut: '27 Tháng 12, 2024',
-        status: 'Hoàn thành',
-        statusClass: 'bg-secondary bg-opacity-10 text-secondary',
-        amount: '$890.00',
-        actions: [
-            { icon: 'bi-eye', text: 'Xem Chi Tiết' },
-            { icon: 'bi-star', text: 'Xem Đánh Giá' },
-            { icon: 'bi-printer', text: 'In Hóa Đơn' }
-        ]
-    },
-    {
-        id: '#BK006',
-        guestName: 'Vũ Thị F',
-        email: 'vuthif@email.com',
-        avatar: 'https://ui-avatars.com/api/?name=Vu+Thi+F&background=e83e8c&color=fff',
-        hotel: 'Nhà Nghỉ Trung Tâm Thành Phố',
-        roomType: 'Phòng Deluxe',
-        checkIn: '31 Tháng 12, 2024',
-        checkOut: '3 Tháng 1, 2025',
-        status: 'Đang chờ',
-        statusClass: 'bg-warning bg-opacity-10 text-warning',
-        amount: '$410.00',
-        actions: [
-            { icon: 'bi-check-circle', text: 'Phê Duyệt' },
-            { icon: 'bi-x-circle', text: 'Từ Chối' },
-            { icon: 'bi-eye', text: 'Xem Chi Tiết' }
-        ]
-    },
-    {
-        id: '#BK007',
-        guestName: 'Đỗ Văn G',
-        email: 'dovang@email.com',
-        avatar: 'https://ui-avatars.com/api/?name=Do+Van+G&background=20c997&color=fff',
-        hotel: 'Khách Sạn Grand Plaza',
-        roomType: 'Phòng Presidential Suite',
-        checkIn: '1 Tháng 1, 2025',
-        checkOut: '5 Tháng 1, 2025',
-        status: 'Đã xác nhận',
-        statusClass: 'bg-success bg-opacity-10 text-success',
-        amount: '$1200.00',
-        actions: [
-            { icon: 'bi-eye', text: 'Xem Chi Tiết' },
-            { icon: 'bi-chat', text: 'Liên Hệ Khách' },
-            { icon: 'bi-printer', text: 'In Hóa Đơn' }
-        ]
-    }
-];
-
 // Global pagination instance
 let bookingPagination;
 
 function initializePagination() {
-    // Initialize pagination with sample data
-    bookingPagination = new BookingPagination(sampleBookings, 3); // 3 items per page
+    // Initialize pagination with dynamic data
+    bookingPagination = new BookingPagination(bookingsData, 3); // 3 items per page
 }
 
 // Export Report Function

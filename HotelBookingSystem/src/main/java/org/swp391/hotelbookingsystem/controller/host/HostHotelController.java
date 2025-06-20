@@ -71,9 +71,6 @@ public class HostHotelController {
             return "redirect:/login"; // not logged in
         }
 
-        int totalRooms = roomService.getTotalRoomsByHostId(host.getId());
-        model.addAttribute("totalRooms", totalRooms);
-
         List<Hotel> hotels = hotelService.getHotelsByHostId(host.getId());
         model.addAttribute("hotels", hotels);
 

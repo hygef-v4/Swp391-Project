@@ -97,4 +97,8 @@ public class RoomService {
     public void deleteRoom(int roomId) {
         roomRepository.deleteRoom(roomId);
     }
+
+    public int countBookedRoomsByHostId(int hostId) {
+        return roomRepository.countBookedRoomsByHostId(hostId);
+    }
 }

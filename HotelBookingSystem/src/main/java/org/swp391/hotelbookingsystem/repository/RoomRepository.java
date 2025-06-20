@@ -106,6 +106,22 @@ public class RoomRepository {
         return total != null ? total : 0; // Handle null in case no rooms exist
     }
 
+    public int countBookedRoomsByHostId(int hostId) {
+        String sql = """
+            SELECT COUNT(bu.booking_unit_id)
+            FROM BookingUnits bu
+            JOIN Bookings b ON bu.booking_id = b.booking_id
+            JOIN Hotels h ON b.hotel_id = h.hotel_id
+            WHERE h.host_id = ? AND bu.status = 'approved'
+        """;
+        try {
+            Integer total = jdbcTemplate.queryForObject(sql, Integer.class, hostId);
+            return total != null ? total : 0;
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
     public void updateRoom(Room room) {
         String sql = """
                 UPDATE Rooms 

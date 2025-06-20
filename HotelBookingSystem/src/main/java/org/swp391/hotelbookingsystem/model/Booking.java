@@ -1,9 +1,12 @@
 package org.swp391.hotelbookingsystem.model;
 
-import lombok.*;
-
 import java.time.LocalDateTime;
 import java.util.List;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Builder
 @Data
@@ -22,4 +25,7 @@ public class Booking {
     private String hotelName;
     private String imageUrl;
     private List<BookingUnit> bookingUnits;
+    private String customerName;
+    private String customerEmail;
+    private String customerAvatar;
 }

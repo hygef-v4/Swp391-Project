@@ -1,20 +1,25 @@
 package org.swp391.hotelbookingsystem.controller.admin;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpSession;
+import java.util.List;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.swp391.hotelbookingsystem.constant.ConstantVariables;
-import org.swp391.hotelbookingsystem.model.*;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.swp391.hotelbookingsystem.repository.BookingRepo;
-import org.swp391.hotelbookingsystem.service.*;
+import org.swp391.hotelbookingsystem.constant.ConstantVariables;
+import org.swp391.hotelbookingsystem.model.Hotel;
+import org.swp391.hotelbookingsystem.model.Location;
+import org.swp391.hotelbookingsystem.model.Review;
+import org.swp391.hotelbookingsystem.model.User;
+import org.swp391.hotelbookingsystem.service.BookingService;
+import org.swp391.hotelbookingsystem.service.HotelService;
+import org.swp391.hotelbookingsystem.service.LocationService;
+import org.swp391.hotelbookingsystem.service.ReviewService;
+import org.swp391.hotelbookingsystem.service.RoomService;
+import org.swp391.hotelbookingsystem.service.UserService;
 
-import java.util.*;
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class AdminDashboardController {

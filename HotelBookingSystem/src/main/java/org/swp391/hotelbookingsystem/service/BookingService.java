@@ -1,11 +1,12 @@
 package org.swp391.hotelbookingsystem.service;
 
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.stereotype.Service;
 import org.swp391.hotelbookingsystem.model.Booking;
 import org.swp391.hotelbookingsystem.model.BookingUnit;
 import org.swp391.hotelbookingsystem.repository.BookingRepo;
-
-import java.util.List;
 
 @Service
 public class BookingService {
@@ -140,5 +141,28 @@ public class BookingService {
         return (int) Math.ceil((double) total / size);
     }
 
+    public List<Booking> getBookingsByHostId(int hostId) {
+        return bookingRepo.findBookingsByHostId(hostId);
+    }
+
+    public int countTotalBookingsByHostId(int hostId) {
+        return bookingRepo.countBookingsByHostId(hostId);
+    }
+
+    public int countPendingBookingsByHostId(int hostId) {
+        return bookingRepo.countBookingsByHostIdAndStatus(hostId, "approved");
+    }
+
+    public double getMonthlyRevenueByHostId(int hostId) {
+        return bookingRepo.getMonthlyRevenueByHostId(hostId);
+    }
+
+    public Double getTotalRevenueByHostId(int hostId) {
+        return bookingRepo.getTotalRevenueByHostId(hostId);
+    }
+
+    public List<Map<String, Object>> getBookingStatsByHostId(int hostId, String period) {
+        return bookingRepo.getBookingStatsByHostId(hostId, period);
+    }
 
 }
