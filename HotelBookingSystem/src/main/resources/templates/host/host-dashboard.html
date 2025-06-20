@@ -355,12 +355,12 @@
                             <p class="text-muted mb-0">Chào mừng trở lại! Đây là những gì đang diễn ra với khách sạn của bạn hôm nay.</p>
                         </div>
                         <div class="d-flex gap-2">
-                            <button class="btn btn-outline-primary btn-sm">
+                            <button class="btn btn-outline-primary btn-sm" onclick="exportReport()">
                                 <i class="bi bi-download me-1"></i>Xuất Báo Cáo
                             </button>
-                            <button class="btn btn-primary btn-sm">
+                            <a href="/add-hotel" class="btn btn-primary btn-sm">
                                 <i class="bi bi-plus-circle me-1"></i>Thêm Khách Sạn Mới
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -520,7 +520,7 @@
                         </div>
                         <div class="card-body">
                             <div class="d-grid gap-3">
-                                <a href="#" class="btn btn-outline-primary quick-action-btn text-start">
+                                <a href="/add-hotel" class="btn btn-outline-primary quick-action-btn text-start">
                                     <i class="bi bi-plus-circle me-3"></i>
                                     <span>
                                         <strong>Thêm Khách Sạn Mới</strong><br>
@@ -528,27 +528,27 @@
                                     </span>
                                 </a>
                                 
-                                <a href="#" class="btn btn-outline-success quick-action-btn text-start">
+                                <a href="/host-listing" class="btn btn-outline-success quick-action-btn text-start">
+                                    <i class="bi bi-buildings me-3"></i>
+                                    <span>
+                                        <strong>Quản Lý Khách Sạn</strong><br>
+                                        <small class="text-muted">Xem và quản lý khách sạn của bạn</small>
+                                    </span>
+                                </a>
+                                
+                                <a href="/add-room" class="btn btn-outline-info quick-action-btn text-start">
                                     <i class="bi bi-door-open me-3"></i>
                                     <span>
-                                        <strong>Quản Lý Phòng</strong><br>
-                                        <small class="text-muted">Thêm hoặc chỉnh sửa loại phòng</small>
+                                        <strong>Thêm Phòng Mới</strong><br>
+                                        <small class="text-muted">Thêm phòng cho khách sạn</small>
                                     </span>
                                 </a>
                                 
-                                <a href="#" class="btn btn-outline-info quick-action-btn text-start">
-                                    <i class="bi bi-calendar-event me-3"></i>
+                                <a href="/bookingHistory" class="btn btn-outline-warning quick-action-btn text-start">
+                                    <i class="bi bi-calendar-check me-3"></i>
                                     <span>
-                                        <strong>Xem Lịch</strong><br>
-                                        <small class="text-muted">Kiểm tra tình trạng phòng</small>
-                                    </span>
-                                </a>
-                                
-                                <a href="#" class="btn btn-outline-warning quick-action-btn text-start">
-                                    <i class="bi bi-star me-3"></i>
-                                    <span>
-                                        <strong>Quản Lý Đánh Giá</strong><br>
-                                        <small class="text-muted">Phản hồi ý kiến khách hàng</small>
+                                        <strong>Lịch Sử Đặt Phòng</strong><br>
+                                        <small class="text-muted">Xem tất cả đặt phòng</small>
                                     </span>
                                 </a>
                             </div>
@@ -565,7 +565,7 @@
                         <div class="card-header bg-transparent border-bottom-0">
                             <div class="d-sm-flex justify-content-between align-items-center">
                                 <h5 class="card-title mb-2 mb-sm-0">Đặt Phòng Gần Đây</h5>
-                                <a href="#" class="btn btn-sm btn-primary">Xem Tất Cả Đặt Phòng</a>
+                                <a href="/bookingHistory" class="btn btn-sm btn-primary">Xem Tất Cả Đặt Phòng</a>
                             </div>
                         </div>
                         
@@ -1438,6 +1438,19 @@ let bookingPagination;
 function initializePagination() {
     // Initialize pagination with sample data
     bookingPagination = new BookingPagination(sampleBookings, 3); // 3 items per page
+}
+
+// Export Report Function
+function exportReport() {
+    // Show a simple notification for now
+    alert('Tính năng xuất báo cáo đang được phát triển. Vui lòng thử lại sau!');
+    
+    // TODO: Implement actual report export functionality
+    // This could include:
+    // - Generating PDF reports
+    // - Excel export
+    // - CSV downloads
+    // - Sending reports via email
 }
 </script>
 
