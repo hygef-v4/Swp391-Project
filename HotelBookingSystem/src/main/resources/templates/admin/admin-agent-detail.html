@@ -113,8 +113,8 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <!-- Digit -->
                             <div>
-                                <h3 class="mb-0 fw-bold">04</h3>
-                                <span class="mb-0 h6 fw-light">Total Hotels</span>
+                                <h3 class="mb-0 fw-bold" th:text="${countHotel}">0</h3>
+                                <span class="mb-0 h6 fw-light">Tổng số khách sạn</span>
                             </div>
                             <!-- Icon -->
                             <div class="icon-lg rounded-circle flex-shrink-0 bg-primary text-white mb-0"><i class="fa-solid fa-hotel fa-fw"></i></div>
@@ -128,8 +128,8 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <!-- Digit -->
                             <div>
-                                <h3 class="mb-0 fw-bold">56</h3>
-                                <span class="mb-0 h6 fw-light">Booking this month</span>
+                                <h3 class="mb-0 fw-bold" th:text="${totalBooking}"></h3>
+                                <span class="mb-0 h6 fw-light">Tổng số lượt đặt khách sạn</span>
                             </div>
                             <!-- Icon -->
                             <div class="icon-lg rounded-circle flex-shrink-0 bg-warning text-white mb-0"><i class="fa-regular fa-calendar-days fa-fw"></i></div>
@@ -158,17 +158,17 @@
                 <!-- Agent info START -->
                 <div class="col-md-4 col-xxl-3">
                     <div class="card bg-light">
-                        <!-- Dropdown button -->
-                        <div class="dropdown position-absolute top-0 end-0 m-3">
-                            <a href="#" class="btn btn-sm btn-white btn-round lh-lg mb-0" role="button" id="dropdownShare1" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="bi bi-three-dots fa-fw"></i>
-                            </a>
-                            <!-- dropdown button -->
-                            <ul class="dropdown-menu dropdown-w-sm dropdown-menu-end min-w-auto shadow rounded" aria-labelledby="dropdownShare1">
-                                <li><a class="dropdown-item" href="#"><i class="bi bi-pencil-square fa-fw me-2"></i>Edit</a></li>
-                                <li><a class="dropdown-item" href="#"><i class="bi bi-trash fa-fw me-2"></i>Remove</a></li>
-                            </ul>
-                        </div>
+<!--                        &lt;!&ndash; Dropdown button &ndash;&gt;-->
+<!--                        <div class="dropdown position-absolute top-0 end-0 m-3">-->
+<!--                            <a href="#" class="btn btn-sm btn-white btn-round lh-lg mb-0" role="button" id="dropdownShare1" data-bs-toggle="dropdown" aria-expanded="false">-->
+<!--                                <i class="bi bi-three-dots fa-fw"></i>-->
+<!--                            </a>-->
+<!--                            &lt;!&ndash; dropdown button &ndash;&gt;-->
+<!--                            <ul class="dropdown-menu dropdown-w-sm dropdown-menu-end min-w-auto shadow rounded" aria-labelledby="dropdownShare1">-->
+<!--                                <li><a class="dropdown-item" href="#"><i class="bi bi-pencil-square fa-fw me-2"></i>Edit</a></li>-->
+<!--                                <li><a class="dropdown-item" href="#"><i class="bi bi-trash fa-fw me-2"></i>Remove</a></li>-->
+<!--                            </ul>-->
+<!--                        </div>-->
                         <!-- Card body -->
                         <div class="card-body text-center">
                             <!-- Avatar Image -->
@@ -187,7 +187,7 @@
                         </div>
                         <!-- Card footer -->
                         <div class="card-footer bg-light border-top">
-                            <h6 class="mb-3">Contact Details</h6>
+                            <h6 class="mb-3">Thông tin liên lạc</h6>
                             <!-- Email id -->
                             <div class="d-flex align-items-center mb-3">
                                 <div class="icon-md bg-mode h6 mb-0 rounded-circle flex-shrink-0"><i class="bi bi-envelope-fill"></i></div>
@@ -205,25 +205,6 @@
                                     <h6 class="fw-normal small mb-0"><a href="#" th:text="${agent.phone}">Số điện thoại</a></h6>
                                 </div>
                             </div>
-
-                            <!-- Phone -->
-                            <div class="d-flex align-items-center mb-3">
-                                <div class="icon-md bg-mode h6 mb-0 rounded-circle flex-shrink-0"><i class="bi bi-geo-alt-fill"></i></div>
-                                <div class="ms-2">
-                                    <small>Address</small>
-                                    <h6 class="fw-normal small mb-0">225 Cherry Street #56, New York</h6>
-                                </div>
-                            </div>
-
-                            <!-- Skype -->
-                            <div class="d-flex align-items-center">
-                                <div class="icon-md bg-mode h6 mb-0 rounded-circle flex-shrink-0"><i class="bi bi-skype"></i></div>
-                                <div class="ms-2">
-                                    <small>Skype</small>
-                                    <h6 class="fw-normal small mb-0">@Jacqueline56</h6>
-                                </div>
-                            </div>
-
                         </div>
                     </div>
                 </div>
@@ -256,16 +237,6 @@
                                             <span>Số điện thoại:</span>
                                             <span class="h6 fw-normal ms-1 mb-0" th:text="${agent.phone}">Số điện thoại</span>
                                         </li>
-
-                                        <li class="list-group-item mb-3">
-                                            <span>Giới tính:</span>
-                                            <span class="h6 fw-normal ms-1 mb-0" th:text="${agent.gender}">Giới tính</span>
-                                        </li>
-
-                                        <li class="list-group-item mb-3">
-                                            <span>Ngày sinh:</span>
-                                            <span class="h6 fw-normal ms-1 mb-0" th:text="${#dates.format(agent.dob, 'dd MMM yyyy')}">Ngày sinh</span>
-                                        </li>
                                     </ul>
                                 </div>
 
@@ -273,23 +244,13 @@
                                 <div class="col-md-6">
                                     <ul class="list-group list-group-borderless">
                                         <li class="list-group-item mb-3">
-                                            <span>Email ID:</span>
-                                            <span class="h6 fw-normal ms-1 mb-0">hello@gmail.com</span>
+                                            <span>Ngày sinh:</span>
+                                            <span class="h6 fw-normal ms-1 mb-0" th:text="${#dates.format(agent.dob, 'dd MMM yyyy')}">Ngày sinh</span>
                                         </li>
 
                                         <li class="list-group-item mb-3">
-                                            <span>Gender:</span>
-                                            <span class="h6 fw-normal ms-1 mb-0">Female</span>
-                                        </li>
-
-                                        <li class="list-group-item mb-3">
-                                            <span>Location:</span>
-                                            <span class="h6 fw-normal ms-1 mb-0">225 Cherry Street #56, New York</span>
-                                        </li>
-
-                                        <li class="list-group-item mb-3">
-                                            <span>Joining Date:</span>
-                                            <span class="h6 fw-normal ms-1 mb-0">29 Aug 2019</span>
+                                            <span>Giới tính:</span>
+                                            <span class="h6 fw-normal ms-1 mb-0" th:text="${agent.gender}">Giới tính</span>
                                         </li>
                                     </ul>
                                 </div>
@@ -318,8 +279,8 @@
                 </div>
 
                 <!-- Hotel list -->
-                <div class="row g-4" th:if="${hotelList != null}">
-                    <div class="col-lg-6" th:each="hotel, stat : ${hotelList}">
+                <div class="row g-4">
+                        <div class="col-lg-6" th:each="hotel, stat : ${hotelList}" th:if="${hotelList != null and !hotelList.isEmpty()}">
                         <div class="card shadow p-3 h-100" style="min-height: 180px; border-radius: 12px;">
                             <div class="row g-4 align-items-stretch h-100">
                                 <!-- Card img -->
@@ -369,6 +330,12 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+                <!-- Nếu danh sách rỗng -->
+                <div th:if="${hotelList == null or hotelList.isEmpty()}" class="mt-3">
+                    <div class="alert alert-warning text-center" role="alert">
+                        Chưa đăng khách sạn nào.
                     </div>
                 </div>
                 <!-- Hotel list END -->

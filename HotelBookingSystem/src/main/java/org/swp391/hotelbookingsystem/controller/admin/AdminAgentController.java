@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.swp391.hotelbookingsystem.model.Hotel;
 import org.swp391.hotelbookingsystem.model.User;
+import org.swp391.hotelbookingsystem.service.BookingService;
 import org.swp391.hotelbookingsystem.service.HotelService;
 import org.swp391.hotelbookingsystem.service.UserService;
 
@@ -18,10 +19,12 @@ public class AdminAgentController {
 
     private final UserService userService;
     private final HotelService hotelService;
+    private final BookingService bookingService;
 
-    public AdminAgentController(UserService userService, HotelService hotelService) {
+    public AdminAgentController(UserService userService, HotelService hotelService, BookingService bookingService) {
         this.userService = userService;
         this.hotelService = hotelService;
+        this.bookingService = bookingService;
     }
 
 
@@ -61,7 +64,12 @@ public class AdminAgentController {
         User agent = userService.findUserById(agentId);
 
         List<Hotel> hotelList = hotelService.getHotelsByHostId(agent.getId());
+        int countHotel = hotelList.size();
+        int totalBooking = bookingService.countBookingsByHostId(agent.getId());
 
+
+        model.addAttribute("totalBooking", totalBooking);
+        model.addAttribute("countHotel", countHotel);
         model.addAttribute("hotelList", hotelList);
         model.addAttribute("agent", agent);
         return "admin/admin-agent-detail";

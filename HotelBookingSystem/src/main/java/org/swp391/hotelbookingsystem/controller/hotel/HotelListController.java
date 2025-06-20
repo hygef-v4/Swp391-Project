@@ -43,7 +43,11 @@ public class HotelListController {
         Model model
     ){
         List<Location> location = locationService.getLocationById(locationId);
-        model.addAttribute("hamora", locationId == -1 ? new Location(locationId, "Hamora", "assets/images/bg/05.jpg") : location.get(0));
+        if (locationId == -1 || location.isEmpty()) {
+            model.addAttribute("hamora", new Location(locationId, "Hamora", "assets/images/bg/05.jpg"));
+        } else {
+            model.addAttribute("hamora", location.get(0));
+        }
         List<Location> locations = locationService.getAllLocations();
         model.addAttribute("locations", locations);
 
