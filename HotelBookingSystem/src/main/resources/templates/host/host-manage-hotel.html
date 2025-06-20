@@ -104,6 +104,137 @@
             color: white;
             border: none;
         }
+        
+        /* Equal image sizes for hotel and room images */
+        .card-grid .card-grid-lg,
+        .card-grid .card-grid-sm {
+            height: 300px !important;
+        }
+        
+        @media (max-width: 767.98px) {
+            .card-grid .card-grid-lg,
+            .card-grid .card-grid-sm {
+                height: 250px !important;
+            }
+        }
+
+        /* Dropzone styling - copied from host-add-room.html */
+        .dropzone {
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            background: #f8f9fa;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .dropzone:hover,
+        .dropzone.bg-light {
+            border-color: #0d6efd;
+            background: #e7f3ff;
+        }
+
+        .dropzone .dz-message {
+            margin: 0;
+            color: #6c757d;
+        }
+
+        .dropzone .dz-message i {
+            color: #0d6efd;
+            margin-bottom: 10px;
+        }
+
+        /* Validation styling - copied from host-add-room.html */
+        .form-control.is-invalid,
+        .form-select.is-invalid {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+        }
+
+        .form-control.is-valid,
+        .form-select.is-valid {
+            border-color: #198754;
+            box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
+        }
+
+        .invalid-feedback {
+            display: block;
+            width: 100%;
+            margin-top: 0.25rem;
+            font-size: 0.875em;
+            color: #dc3545;
+            font-weight: 500;
+        }
+
+        .valid-feedback {
+            display: block;
+            width: 100%;
+            margin-top: 0.25rem;
+            font-size: 0.875em;
+            color: #198754;
+        }
+
+        /* Shake animation - copied from host-add-room.html */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        .shake {
+            animation: shake 0.6s ease-in-out;
+        }
+
+        /* Notification system styles - copied from host-add-room.html */
+        .notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            max-width: 420px;
+            pointer-events: none;
+        }
+
+        .notification {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 18px 24px;
+            margin-bottom: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.08);
+            transform: translateX(120%) scale(0.8);
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            pointer-events: auto;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .notification.show {
+            transform: translateX(0) scale(1);
+        }
+
+        .notification.error {
+            border-left: 5px solid #dc3545;
+            background: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%);
+            color: #dc3545;
+        }
+
+        .notification.success {
+            border-left: 5px solid #198754;
+            background: linear-gradient(135deg, #f0fff4 0%, #ffffff 100%);
+            color: #198754;
+        }
+
+        .notification.warning {
+            border-left: 5px solid #ffc107;
+            background: linear-gradient(135deg, #fffbf0 0%, #ffffff 100%);
+            color: #ffc107;
+        }
     </style>
 </head>
 
@@ -400,7 +531,7 @@ About hotel START -->
                                                         th:text="${location.cityName}"
                                                         th:selected="${location.id == hotel.locationId}"></option>
                                             </select>
-                                            <label for="locationLocationEdit">Khu vực/Địa điểm</label>
+                                            <label for="locationLocationEdit"></label>
                                         </div>
                                     </div>
                                     <div class="col-12">
@@ -585,13 +716,26 @@ About hotel START -->
                                                             </div>
                                                             <div class="col-12">
                                                                 <label class="form-label fw-bold">Cập nhật hình ảnh phòng</label>
-                                                                <input type="file" class="form-control" th:id="'roomImages-' + ${room.roomId}" multiple accept="image/*,.webp">
-                                                                <small class="text-muted">
-                                                                    <strong>Yêu cầu: 3-5 hình ảnh.</strong> Chọn nhiều hình ảnh (JPG, PNG, GIF, WEBP, tối đa 5MB/ảnh). 
-                                                                    <strong class="text-warning">Lưu ý: Ảnh mới sẽ thay thế toàn bộ ảnh hiện tại.</strong>
-                                                                    <br><span class="text-info">Hiện tại: <span th:text="${room.images != null ? #lists.size(room.images) : 0}"></span> ảnh</span>
-                                                                </small>
-                                                                <div th:id="'roomImagePreview-' + ${room.roomId}" class="mt-3 d-flex flex-wrap gap-2"></div>
+                                                                <div class="dropzone dropzone-custom mb-3"
+                                                                     th:id="'roomImagesDropzone-' + ${room.roomId}"
+                                                                     th:data-room-id="${room.roomId}">
+                                                                    <div class="dz-message needsclick">
+                                                                        <i class="bi bi-images display-4"></i>
+                                                                        <p>Kéo thả tệp vào đây hoặc nhấp để tải lên.</p>
+                                                                        <p><small class="text-muted">Tối thiểu 3 ảnh, tối đa 5 ảnh</small></p>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="mt-3">
+                                                                    <label th:for="'roomImages-' + ${room.roomId}" class="form-label">Hoặc chọn ảnh từ máy tính:</label>
+                                                                    <input type="file" class="form-control" th:id="'roomImages-' + ${room.roomId}" 
+                                                                           multiple accept=".jpg,.jpeg,.png,.gif,.webp,.bmp,.tiff" th:data-room-id="${room.roomId}">
+                                                                    <small class="text-muted">
+                                                                        <strong>Yêu cầu: 3-5 hình ảnh.</strong> Chọn nhiều hình ảnh (JPG, PNG, GIF, WEBP, BMP, TIFF, tối đa 5MB/ảnh). 
+                                                                        <strong class="text-warning">Lưu ý: Ảnh mới sẽ thay thế toàn bộ ảnh hiện tại.</strong>
+                                                                        <br><span class="text-info">Hiện tại: <span th:text="${room.images != null ? #lists.size(room.images) : 0}"></span> ảnh</span>
+                                                                    </small>
+                                                                    <div th:id="'roomImagePreview-' + ${room.roomId}" class="mt-3 d-flex flex-wrap gap-2"></div>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </form>
@@ -2228,6 +2372,294 @@ About hotel END -->
         addRoomFieldValidation();
     }
 
+    // GLOBAL ROOM VALIDATION VARIABLES - copied from host-add-room.html
+    window.roomValidation = {
+        rooms: {} // Store validation data for each room by roomId
+    };
+
+    // Initialize room validation data
+    function initRoomValidation(roomId) {
+        if (!window.roomValidation.rooms[roomId]) {
+            window.roomValidation.rooms[roomId] = {
+                imagesCount: 0,
+                currentFiles: [],
+                isValidationActive: true
+            };
+        }
+    }
+
+    // IMAGE UPLOAD FUNCTIONS - copied exactly from host-add-room.html
+    function handleRoomFiles(files, roomId) {
+        initRoomValidation(roomId);
+        const maxImages = 5;
+        let validFilesToAdd = [];
+        
+        files.forEach(file => {
+            if (!isValidImageFile(file)) {
+                showErrorNotification(
+                    'Định dạng file không hỗ trợ',
+                    `File "${file.name}" không phải là ảnh hợp lệ. Chỉ chấp nhận: JPG, JPEG, PNG, GIF, WEBP, BMP, TIFF.`
+                );
+                return;
+            }
+            
+            // Check for duplicates
+            if (window.roomValidation.rooms[roomId].currentFiles.some(f => f.name === file.name && f.size === file.size)) {
+                return; // Skip duplicate files
+            }
+            
+            // Check if we can add more files
+            if (window.roomValidation.rooms[roomId].currentFiles.length + validFilesToAdd.length < maxImages) {
+                validFilesToAdd.push(file);
+            }
+        });
+        
+        // Check if we're trying to add too many files
+        if (window.roomValidation.rooms[roomId].currentFiles.length + validFilesToAdd.length > maxImages) {
+            const remainingSlots = maxImages - window.roomValidation.rooms[roomId].currentFiles.length;
+            if (remainingSlots > 0) {
+                validFilesToAdd = validFilesToAdd.slice(0, remainingSlots);
+                showErrorNotification(
+                    'Giới hạn số lượng ảnh',
+                    `Chỉ có thể tải lên tối đa ${maxImages} ảnh. Đã thêm ${remainingSlots} ảnh đầu tiên.`
+                );
+            } else {
+                showErrorNotification(
+                    'Đã đạt giới hạn tối đa',
+                    `Đã đạt giới hạn tối đa ${maxImages} ảnh. Vui lòng xóa bớt ảnh hiện tại trước khi thêm ảnh mới.`
+                );
+                return;
+            }
+        }
+        
+        // Add valid files to the list
+        window.roomValidation.rooms[roomId].currentFiles.push(...validFilesToAdd);
+
+        // Update counters
+        window.roomValidation.rooms[roomId].imagesCount = window.roomValidation.rooms[roomId].currentFiles.length;
+
+        updateRoomFileInput(roomId);
+        renderRoomPreviews(roomId);
+
+        // Show success message if files were added
+        if (validFilesToAdd.length > 0) {
+            const successMsg = validFilesToAdd.length === 1 ? 
+                `Đã thêm 1 ảnh. Tổng cộng: ${window.roomValidation.rooms[roomId].currentFiles.length}/${maxImages} ảnh.` :
+                `Đã thêm ${validFilesToAdd.length} ảnh. Tổng cộng: ${window.roomValidation.rooms[roomId].currentFiles.length}/${maxImages} ảnh.`;
+            
+            showSuccessNotification('Thêm ảnh thành công!', successMsg);
+        }
+
+        // Validate after upload
+        validateRoomImages(roomId);
+    }
+
+    function isValidImageFile(file) {
+        const validTypes = [
+            "image/jpeg",
+            "image/jpg", 
+            "image/png",
+            "image/gif",
+            "image/webp",
+            "image/bmp",
+            "image/tiff"
+        ];
+
+        const validExtensions = [
+            '.jpg',
+            '.jpeg',
+            '.png',
+            '.gif',
+            '.webp',
+            '.bmp',
+            '.tiff'
+        ];
+
+        // Check MIME type
+        const isValidMimeType = validTypes.includes(file.type.toLowerCase());
+
+        // Check file extension as backup
+        const fileName = file.name.toLowerCase();
+        const isValidExtension = validExtensions.some(ext => fileName.endsWith(ext));
+
+        return isValidMimeType || isValidExtension;
+    }
+
+    function renderRoomPreviews(roomId) {
+        const previewContainer = document.getElementById(`roomImagePreview-${roomId}`);
+        if (!previewContainer) return;
+
+        previewContainer.innerHTML = "";
+
+        window.roomValidation.rooms[roomId].currentFiles.forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const wrapper = document.createElement("div");
+                wrapper.classList.add("position-relative", "m-1", "border", "rounded", "overflow-hidden");
+                wrapper.style.width = "100px";
+                wrapper.style.height = "100px";
+
+                const img = document.createElement("img");
+                img.src = e.target.result;
+                img.style.width = "100%";
+                img.style.height = "100%";
+                img.style.objectFit = "cover";
+
+                const deleteBtn = document.createElement("button");
+                deleteBtn.type = "button";
+                deleteBtn.innerHTML = "×";
+                deleteBtn.classList.add("btn", "btn-danger", "btn-sm", "position-absolute");
+                deleteBtn.style.top = "2px";
+                deleteBtn.style.right = "2px";
+                deleteBtn.title = "Xóa ảnh";
+                deleteBtn.onclick = () => {
+                    window.roomValidation.rooms[roomId].currentFiles.splice(index, 1);
+                    window.roomValidation.rooms[roomId].imagesCount = window.roomValidation.rooms[roomId].currentFiles.length;
+                    updateRoomFileInput(roomId);
+                    renderRoomPreviews(roomId);
+                    validateRoomImages(roomId);
+                };
+
+                // Add order indicator for first image
+                if (index === 0) {
+                    const orderBadge = document.createElement("span");
+                    orderBadge.textContent = "Ảnh đại diện";
+                    orderBadge.classList.add("badge", "bg-primary", "position-absolute");
+                    orderBadge.style.bottom = "2px";
+                    orderBadge.style.left = "2px";
+                    orderBadge.style.fontSize = "10px";
+                    wrapper.appendChild(orderBadge);
+                }
+
+                wrapper.appendChild(img);
+                wrapper.appendChild(deleteBtn);
+                previewContainer.appendChild(wrapper);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function updateRoomFileInput(roomId) {
+        const fileInput = document.getElementById(`roomImages-${roomId}`);
+        if (!fileInput) return;
+
+        const dataTransfer = new DataTransfer();
+        window.roomValidation.rooms[roomId].currentFiles.forEach(file => dataTransfer.items.add(file));
+        fileInput.files = dataTransfer.files;
+    }
+
+    function validateRoomImages(roomId) {
+        const fileInput = document.getElementById(`roomImages-${roomId}`);
+        const previewContainer = document.getElementById(`roomImagePreview-${roomId}`);
+        const minImages = 3;
+        const maxImages = 5;
+
+        let imageCount = 0;
+
+        // Check file input
+        if (fileInput && fileInput.files.length > 0) {
+            imageCount = fileInput.files.length;
+        }
+
+        // Check preview container
+        if (previewContainer) {
+            const previews = previewContainer.querySelectorAll('img');
+            imageCount = Math.max(imageCount, previews.length);
+        }
+
+        // Check global counter
+        if (window.roomValidation.rooms[roomId]) {
+            imageCount = Math.max(imageCount, window.roomValidation.rooms[roomId].imagesCount);
+            imageCount = Math.max(imageCount, window.roomValidation.rooms[roomId].currentFiles.length);
+        }
+
+        console.log(`Room ${roomId} image validation - count:`, imageCount, 'min:', minImages, 'max:', maxImages);
+
+        // Validate minimum images
+        if (imageCount < minImages) {
+            if (fileInput) {
+                showFieldError(fileInput, `Vui lòng tải lên ít nhất ${minImages} ảnh phòng (hiện tại: ${imageCount}/${maxImages})`);
+            }
+            return false;
+        }
+
+        // Validate maximum images
+        if (imageCount > maxImages) {
+            if (fileInput) {
+                showFieldError(fileInput, `Số lượng ảnh vượt quá giới hạn. Tối đa ${maxImages} ảnh (hiện tại: ${imageCount}/${maxImages})`);
+            }
+            return false;
+        }
+
+        if (fileInput) {
+            showFieldSuccess(fileInput);
+        }
+        return true;
+    }
+
+    // NOTIFICATION SYSTEM - copied from host-add-room.html
+    function showErrorNotification(title, message) {
+        showNotification('error', title, message, 8000);
+    }
+
+    function showSuccessNotification(title, message) {
+        showNotification('success', title, message, 4000);
+    }
+
+    // VALIDATION FUNCTIONS - copied from host-add-room.html
+    function showFieldError(element, message) {
+        if (!element) return;
+
+        // Remove existing error
+        removeFieldError(element);
+
+        // Add error class
+        element.classList.add('is-invalid');
+        element.classList.remove('is-valid');
+
+        // Add shake animation
+        element.classList.add('shake');
+        setTimeout(() => {
+            element.classList.remove('shake');
+        }, 600);
+
+        // Create error message element
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'invalid-feedback';
+        errorDiv.textContent = message;
+        errorDiv.id = element.id + '_error';
+        errorDiv.style.cssText = `
+            display: block;
+            width: 100%;
+            margin-top: 0.25rem;
+            font-size: 0.875em;
+            color: #dc3545;
+            font-weight: 500;
+        `;
+
+        // Insert error message after the element
+        element.parentNode.insertBefore(errorDiv, element.nextSibling);
+    }
+
+    function removeFieldError(element) {
+        if (!element) return;
+
+        element.classList.remove('is-invalid');
+
+        const existingError = document.getElementById(element.id + '_error');
+        if (existingError) {
+            existingError.remove();
+        }
+    }
+
+    function showFieldSuccess(element) {
+        if (!element) return;
+
+        removeFieldError(element);
+        element.classList.add('is-valid');
+        element.classList.remove('is-invalid');
+    }
+
     // Initialize components when page loads
     document.addEventListener('DOMContentLoaded', function() {
         // Initialize Choices.js for select elements
@@ -2254,21 +2686,63 @@ About hotel END -->
         // Setup image preview for hotel image
         setupImagePreview('hotelImageEdit', 'hotelImagePreview');
 
-        // Setup image preview for all room images
-        document.querySelectorAll('[id*="roomImages-"]').forEach(input => {
-            const roomId = input.id.replace('roomImages-', '');
-            const previewContainerId = 'roomImagePreview-' + roomId;
-            setupImagePreview(input.id, previewContainerId);
+        // Setup room image upload handlers - NEW ENHANCED VERSION
+        document.querySelectorAll('[id*="roomImages-"]').forEach(fileInput => {
+            const roomId = fileInput.dataset.roomId || fileInput.id.replace('roomImages-', '');
             
-            // Add specific event listener for room image validation (3-5 images)
-            input.addEventListener('change', function() {
-                // Trigger room image validation
-                validateRoomImages(roomId, this);
+            initRoomValidation(roomId);
+            
+            // Setup file input change handler
+            fileInput.addEventListener('change', function() {
+                handleRoomFiles(Array.from(fileInput.files), roomId);
             });
         });
+
+        // Setup drag and drop zones for room images - NEW
+        document.querySelectorAll('[id*="roomImagesDropzone-"]').forEach(dropArea => {
+            const roomId = dropArea.dataset.roomId;
+            
+            if (!roomId) return;
+            
+            initRoomValidation(roomId);
+
+            // Setup drag and drop events
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                });
+            });
+
+            dropArea.addEventListener("dragover", (e) => {
+                e.preventDefault();
+                dropArea.classList.add("bg-light");
+            });
+
+            dropArea.addEventListener("dragleave", (e) => {
+                e.preventDefault();
+                dropArea.classList.remove("bg-light");
+            });
+
+            dropArea.addEventListener("drop", (e) => {
+                e.preventDefault();
+                dropArea.classList.remove("bg-light");
+                handleRoomFiles(Array.from(e.dataTransfer.files), roomId);
+            });
+
+            dropArea.addEventListener("click", (e) => {
+                const fileInput = document.getElementById(`roomImages-${roomId}`);
+                if (fileInput) {
+                    fileInput.click();
+                }
+            });
+        });
+
+        // Setup hotel image preview - use existing simple method
+        setupImagePreview('hotelImageEdit', 'hotelImagePreview');
     });
 
-    // Image preview functions
+    // Simple image preview function for hotel image only
     function setupImagePreview(inputId, previewContainerId) {
         const input = document.getElementById(inputId);
         const previewContainer = document.getElementById(previewContainerId);
@@ -2276,7 +2750,7 @@ About hotel END -->
         if (!input || !previewContainer) return;
         
         input.addEventListener('change', function() {
-            handleImagePreview(this.files, previewContainer, inputId.includes('hotel'));
+            handleImagePreview(this.files, previewContainer, true);
         });
     }
 
@@ -2308,16 +2782,46 @@ About hotel END -->
             reader.onload = function(e) {
                 const previewDiv = document.createElement('div');
                 previewDiv.className = 'image-preview-container';
+                previewDiv.style.cssText = `
+                    position: relative;
+                    display: inline-block;
+                    margin: 5px;
+                    border: 1px solid #ddd;
+                    border-radius: 4px;
+                    overflow: hidden;
+                    width: 100px;
+                    height: 100px;
+                `;
                 
                 const img = document.createElement('img');
                 img.src = e.target.result;
                 img.alt = file.name;
+                img.style.cssText = `
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                `;
                 
                 const deleteBtn = document.createElement('button');
                 deleteBtn.type = 'button';
-                deleteBtn.className = 'image-preview-delete';
                 deleteBtn.innerHTML = '×';
                 deleteBtn.title = 'Xóa ảnh';
+                deleteBtn.style.cssText = `
+                    position: absolute;
+                    top: 2px;
+                    right: 2px;
+                    background: #dc3545;
+                    color: white;
+                    border: none;
+                    border-radius: 50%;
+                    width: 20px;
+                    height: 20px;
+                    font-size: 12px;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                `;
                 deleteBtn.onclick = function() {
                     previewDiv.remove();
                     // For single image (hotel), clear the input
@@ -2326,14 +2830,6 @@ About hotel END -->
                         if (input) input.value = '';
                     }
                 };
-                
-                // Add badge for first image in multi-image upload
-                if (!isHotelImage && i === 0) {
-                    const badge = document.createElement('div');
-                    badge.className = 'image-preview-badge';
-                    badge.textContent = 'Ảnh đại diện';
-                    previewDiv.appendChild(badge);
-                }
                 
                 previewDiv.appendChild(img);
                 previewDiv.appendChild(deleteBtn);
@@ -2350,12 +2846,6 @@ About hotel END -->
                 : `Chỉ hiển thị ${maxFiles} ảnh đầu tiên. Tối đa ${maxFiles} ảnh.`;
             showNotification(message, 'warning');
         }
-    }
-
-    // Image validation function
-    function isValidImageFile(file) {
-        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
-        return validTypes.includes(file.type.toLowerCase());
     }
 </script>
 
