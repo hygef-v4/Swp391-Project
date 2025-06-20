@@ -327,4 +327,9 @@ public class HotelRepository {
         jdbcTemplate.update(sql, userId, "%:" + hotelId);
     }
 
+    public int countHotelByHostId(int hostId) {
+        String sql = "SELECT COUNT(*) FROM Hotels WHERE host_id = ?";
+        return jdbcTemplate.queryForObject(sql, Integer.class, hostId);
+    }
+
 }

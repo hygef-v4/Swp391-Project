@@ -50,6 +50,10 @@ public class BookingService {
         return bookingRepo.findBookingUnitById(id);
     }
 
+    public int countBookingsByHostId(int hostId) {
+        return bookingRepo.countBookingsByHostId(hostId);
+    }
+
     // Cập nhật hoàn tiền
     public void updateRefund(int bookingId, Double amount, String status) {
         bookingRepo.updateRefund(bookingId, amount, status);

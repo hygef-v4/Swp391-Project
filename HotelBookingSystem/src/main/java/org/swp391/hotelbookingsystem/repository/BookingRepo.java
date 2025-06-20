@@ -26,6 +26,7 @@ public class BookingRepo {
                 bu.status,
                 bu.refund_amount,
                 bu.refund_status,
+                bu.quantity,
                 r.title AS roomName,
                 (SELECT TOP 1 image_url FROM RoomImages WHERE room_id = bu.room_id) AS imageUrl
             FROM BookingUnits bu
@@ -41,6 +42,7 @@ public class BookingRepo {
                 .status(rs.getString("status"))
                 .refundAmount(rs.getDouble("refund_amount"))
                 .refundStatus(rs.getString("refund_status"))
+                .quantity(rs.getInt("quantity"))
                 .roomName(rs.getString("roomName"))
                 .imageUrl(rs.getString("imageUrl"))
                 .build()
@@ -56,6 +58,7 @@ public class BookingRepo {
                 bu.status,
                 bu.refund_amount,
                 bu.refund_status,
+                bu.quantity,
                 r.title AS roomName,
                 (SELECT TOP 1 image_url FROM RoomImages WHERE room_id = bu.room_id) AS imageUrl
             FROM BookingUnits bu
@@ -71,6 +74,7 @@ public class BookingRepo {
             unit.setStatus(rs.getString("status"));
             unit.setRefundAmount(rs.getDouble("refund_amount"));
             unit.setRefundStatus(rs.getString("refund_status"));
+            unit.setQuantity(rs.getInt("quantity"));
             unit.setRoomName(rs.getString("roomName"));
             unit.setImageUrl(rs.getString("imageUrl"));
             return unit;
@@ -242,6 +246,7 @@ public class BookingRepo {
                 bu.status,
                 bu.refund_amount,
                 bu.refund_status,
+                bu.quantity,
                 r.title AS roomName,
                 (SELECT TOP 1 image_url FROM RoomImages WHERE room_id = bu.room_id) AS imageUrl
             FROM BookingUnits bu
@@ -258,6 +263,7 @@ public class BookingRepo {
                 .status(rs.getString("status"))
                 .refundAmount(rs.getDouble("refund_amount"))
                 .refundStatus(rs.getString("refund_status"))
+                .quantity(rs.getInt("quantity"))
                 .roomName(rs.getString("roomName"))
                 .imageUrl(rs.getString("imageUrl"))
                 .build()
@@ -323,6 +329,7 @@ public class BookingRepo {
                 bu.status,
                 bu.refund_amount,
                 bu.refund_status,
+                bu.quantity,
                 r.title AS roomName,
                 (SELECT TOP 1 image_url FROM RoomImages WHERE room_id = bu.room_id) AS imageUrl
             FROM BookingUnits bu
@@ -339,6 +346,7 @@ public class BookingRepo {
                 .status(rs.getString("status"))
                 .refundAmount(rs.getDouble("refund_amount"))
                 .refundStatus(rs.getString("refund_status"))
+                .quantity(rs.getInt("quantity"))
                 .roomName(rs.getString("roomName"))
                 .imageUrl(rs.getString("imageUrl"))
                 .build()
@@ -403,6 +411,7 @@ public class BookingRepo {
                 bu.status,
                 bu.refund_amount,
                 bu.refund_status,
+                bu.quantity,
                 r.title AS roomName,
                 (SELECT TOP 1 image_url FROM RoomImages WHERE room_id = bu.room_id) AS imageUrl
             FROM BookingUnits bu
@@ -419,6 +428,7 @@ public class BookingRepo {
                 .status(rs.getString("status"))
                 .refundAmount(rs.getDouble("refund_amount"))
                 .refundStatus(rs.getString("refund_status"))
+                .quantity(rs.getInt("quantity"))
                 .roomName(rs.getString("roomName"))
                 .imageUrl(rs.getString("imageUrl"))
                 .build()
@@ -933,5 +943,16 @@ public class BookingRepo {
 
         return jdbcTemplate.queryForObject(sql.toString(), Integer.class, params.toArray());
     }
+
+    public int countBookingsByHostId(int hostId) {
+        String sql = """
+        SELECT COUNT(*)
+        FROM Bookings b
+        JOIN Hotels h ON b.hotel_id = h.hotel_id
+        WHERE h.host_id = ?
+    """;
+        return jdbcTemplate.queryForObject(sql, Integer.class, hostId);
+    }
+
 
 }
