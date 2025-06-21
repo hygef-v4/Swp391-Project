@@ -46,15 +46,30 @@ public class HostCustomerController {
             List<Booking> allBookings = bookingService.getBookingsByHostId(host.getId());
             log.debug("Found {} bookings for host {}", allBookings.size(), host.getId());
 
-            // Calculate overall status for each booking
+            // Calculate total price and status for each booking
             for (Booking booking : allBookings) {
-                String overallStatus = bookingService.calculateBookingStatus(booking.getBookingUnits());
-                booking.setStatus(overallStatus);
-                double sum = booking.getBookingUnits().stream()
-                        .filter(u -> u.getPrice() != null)
-                        .mapToDouble(u -> u.getPrice() * (u.getQuantity() == 0 ? 1 : u.getQuantity()))
-                        .sum();
-                booking.setTotalPrice(sum);
+                if (booking.getBookingUnits() != null && !booking.getBookingUnits().isEmpty()) {
+                    // Calculate total price
+                    double sum = booking.getBookingUnits().stream()
+                            .filter(u -> u.getPrice() != null && u.getPrice() > 0)
+                            .mapToDouble(u -> {
+                                int qty = u.getQuantity() <= 0 ? 1 : u.getQuantity();
+                                return u.getPrice() * qty;
+                            })
+                            .sum();
+                    booking.setTotalPrice(sum);
+                    
+                    // Calculate booking status based on booking units
+                    String status = bookingService.calculateBookingStatus(booking.getBookingUnits());
+                    booking.setStatus(status);
+                    
+                    log.debug("Booking {} - price: {}, status: {}, units: {}", 
+                        booking.getBookingId(), sum, status, booking.getBookingUnits().size());
+                } else {
+                    booking.setTotalPrice(0.0);
+                    booking.setStatus("unknown");
+                    log.warn("Booking {} has no booking units", booking.getBookingId());
+                }
             }
 
             // Group bookings by customer
@@ -78,16 +93,28 @@ public class HostCustomerController {
                             // Calculate stats
                             long totalBookings = bookings.size();
                             long activeBookings = bookings.stream()
-                                    .filter(b -> "approved".equals(b.getStatus()) || "mixed".equals(b.getStatus()))
+                                    .filter(b -> "approved".equals(b.getStatus()))
                                     .count();
                             long completedBookings = bookings.stream()
                                     .filter(b -> "completed".equals(b.getStatus()))
                                     .count();
                             
+                            // Calculate total revenue from all approved/completed bookings
                             double totalSpent = bookings.stream()
-                                    .filter(b -> "completed".equals(b.getStatus()))
-                                    .mapToDouble(b -> b.getTotalPrice() != null ? b.getTotalPrice() : 0.0)
+                                    .filter(b -> "completed".equals(b.getStatus()) || 
+                                               "approved".equals(b.getStatus()))
+                                    .mapToDouble(b -> {
+                                        double price = b.getTotalPrice() != null ? b.getTotalPrice() : 0.0;
+                                        if (price > 0) {
+                                            log.debug("Customer {} booking {} contributes {} to revenue", 
+                                                customerId, b.getBookingId(), price);
+                                        }
+                                        return price;
+                                    })
                                     .sum();
+                            
+                            log.info("Customer {} stats - Total bookings: {}, Active: {}, Completed: {}, Revenue: {}", 
+                                customerId, totalBookings, activeBookings, completedBookings, totalSpent);
 
                             return new Customer(
                                     customerUser,
@@ -151,15 +178,30 @@ public class HostCustomerController {
             log.debug("Found {} bookings for customer {} and host {}", 
                 customerBookings.size(), customerId, host.getId());
 
-            // Calculate overall status for each booking
+            // Calculate total price and status for each booking
             for (Booking booking : customerBookings) {
-                String overallStatus = bookingService.calculateBookingStatus(booking.getBookingUnits());
-                booking.setStatus(overallStatus);
-                double sum = booking.getBookingUnits().stream()
-                        .filter(u -> u.getPrice() != null)
-                        .mapToDouble(u -> u.getPrice() * (u.getQuantity() == 0 ? 1 : u.getQuantity()))
-                        .sum();
-                booking.setTotalPrice(sum);
+                if (booking.getBookingUnits() != null && !booking.getBookingUnits().isEmpty()) {
+                    // Calculate total price
+                    double sum = booking.getBookingUnits().stream()
+                            .filter(u -> u.getPrice() != null && u.getPrice() > 0)
+                            .mapToDouble(u -> {
+                                int qty = u.getQuantity() <= 0 ? 1 : u.getQuantity();
+                                return u.getPrice() * qty;
+                            })
+                            .sum();
+                    booking.setTotalPrice(sum);
+                    
+                    // Calculate booking status
+                    String status = bookingService.calculateBookingStatus(booking.getBookingUnits());
+                    booking.setStatus(status);
+                    
+                    log.debug("Customer detail - Booking {} - price: {}, status: {}", 
+                        booking.getBookingId(), sum, status);
+                } else {
+                    booking.setTotalPrice(0.0);
+                    booking.setStatus("unknown");
+                    log.warn("Customer detail - Booking {} has no booking units", booking.getBookingId());
+                }
             }
 
             model.addAttribute("customer", customer);
