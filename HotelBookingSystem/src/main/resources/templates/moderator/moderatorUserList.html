@@ -1,91 +1,90 @@
-<!-- moderatorUserList.html (mock version for layout testing) -->
+<!-- moderatorUserList.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Moderator User List</title>
-    <link rel="stylesheet" href="/assets/css/style.css">
-    <link rel="stylesheet" href="/assets/vendor/bootstrap-icons/bootstrap-icons.css">
-    <link rel="stylesheet" href="/assets/vendor/font-awesome/css/all.min.css">
-    <link rel="stylesheet" href="/assets/vendor/bootstrap/dist/css/bootstrap.min.css">
-    <script src="/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-</head>
+    <title>Hamora - Quản Lý Người Dùng</title>
 
-<!-- Dark mode -->
-<script>
-    const storedTheme = localStorage.getItem('theme')
+    <!-- Meta Tags -->
+    <meta name="author" content="Đội Ngũ Hamora">
+    <meta name="description" content="Hamora - Trang Quản Lý Người Dùng">
 
-    const getPreferredTheme = () => {
-        if (storedTheme) {
-            return storedTheme
-        }
-        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-    }
+    <!-- Dark mode -->
+    <script>
+        const storedTheme = localStorage.getItem('theme')
 
-    const setTheme = function (theme) {
-        if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            document.documentElement.setAttribute('data-bs-theme', 'dark')
-        } else {
-            document.documentElement.setAttribute('data-bs-theme', theme)
-        }
-    }
-
-    setTheme(getPreferredTheme())
-
-    window.addEventListener('DOMContentLoaded', () => {
-        var el = document.querySelector('.theme-icon-active');
-        if(el != 'undefined' && el != null) {
-            const showActiveTheme = theme => {
-                const activeThemeIcon = document.querySelector('.theme-icon-active use')
-                const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
-                const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
-
-                document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
-                    element.classList.remove('active')
-                })
-
-                btnToActive.classList.add('active')
-                activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+        const getPreferredTheme = () => {
+            if (storedTheme) {
+                return storedTheme
             }
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        }
 
-            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-                if (storedTheme !== 'light' || storedTheme !== 'dark') {
-                    setTheme(getPreferredTheme())
-                }
-            })
+        const setTheme = function (theme) {
+            if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.setAttribute('data-bs-theme', 'dark')
+            } else {
+                document.documentElement.setAttribute('data-bs-theme', theme)
+            }
+        }
 
-            showActiveTheme(getPreferredTheme())
+        setTheme(getPreferredTheme())
 
-            document.querySelectorAll('[data-bs-theme-value]')
-                .forEach(toggle => {
-                    toggle.addEventListener('click', () => {
-                        const theme = toggle.getAttribute('data-bs-theme-value')
-                        localStorage.setItem('theme', theme)
-                        setTheme(theme)
-                        showActiveTheme(theme)
+        window.addEventListener('DOMContentLoaded', () => {
+            var el = document.querySelector('.theme-icon-active');
+            if(el != 'undefined' && el != null) {
+                const showActiveTheme = theme => {
+                    const activeThemeIcon = document.querySelector('.theme-icon-active use')
+                    const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+                    const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
+
+                    document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+                        element.classList.remove('active')
                     })
+
+                    btnToActive.classList.add('active')
+                    activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+                }
+
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                    if (storedTheme !== 'light' || storedTheme !== 'dark') {
+                        setTheme(getPreferredTheme())
+                    }
                 })
 
-        }
-    })
+                showActiveTheme(getPreferredTheme())
 
-</script>
+                document.querySelectorAll('[data-bs-theme-value]')
+                    .forEach(toggle => {
+                        toggle.addEventListener('click', () => {
+                            const theme = toggle.getAttribute('data-bs-theme-value')
+                            localStorage.setItem('theme', theme)
+                            setTheme(theme)
+                            showActiveTheme(theme)
+                        })
+                    })
 
-<!-- Favicon -->
-<link rel="shortcut icon" href="@{/assets/images/favicon.ico}">
+            }
+        })
 
-<!-- Google Font -->
-<link rel="preconnect" href="https://fonts.googleapis.com/">
-<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Poppins:wght@400;500;700&amp;display=swap">
+    </script>
 
-<!-- Plugins CSS -->
-<link rel="stylesheet" th:href="@{/assets/vendor/font-awesome/css/all.min.css}">
-<link rel="stylesheet" th:href="@{/assets/vendor/bootstrap-icons/bootstrap-icons.css}">
+    <!-- Favicon -->
+    <link rel="shortcut icon" th:href="@{/assets/images/favicon.ico}">
 
-<!-- Theme CSS -->
-<link rel="stylesheet" th:href="@{/assets/css/style.css}">
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Poppins:wght@400;500;700&amp;display=swap">
+
+    <!-- Plugins CSS -->
+    <link rel="stylesheet" th:href="@{/assets/vendor/font-awesome/css/all.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/vendor/bootstrap-icons/bootstrap-icons.css}">
+
+    <!-- Theme CSS -->
+    <link rel="stylesheet" th:href="@{/assets/css/style.css}">
+
 </head>
 <body>
 <main>
@@ -101,69 +100,341 @@
         <!-- Top bar END -->
 
         <div class="page-content-wrapper p-xxl-4">
-            <h1 class="h3 mb-4">Danh sách người dùng</h1>
-
-            <!-- Guest card grid START -->
-            <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4 mt-4">
-
-                <!-- Mock User Card 1 -->
-                <div class="col">
-                    <div class="card shadow h-100">
-                        <div class="card-body d-flex flex-column align-items-center text-center">
-                            <img src="https://via.placeholder.com/80" class="rounded-circle mb-3" style="width: 80px; height: 80px; object-fit: cover;" alt="Avatar">
-                            <h5 class="card-title">Nguyễn Văn A</h5>
-                            <p class="card-text small text-muted">a.nguyen@example.com</p>
-                            <p class="card-text">0909123456</p>
-
-                            <div class="dropdown mb-2">
-                                <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">QUẢN LÝ WEB</button>
-                                <ul class="dropdown-menu">
-                                    <li><button class="dropdown-item">KHÁCH HÀNG</button></li>
-                                    <li><button class="dropdown-item">CHỦ KHÁCH SẠN</button></li>
-                                    <li><button class="dropdown-item">QUẢN LÝ WEB</button></li>
-                                    <li><button class="dropdown-item">QUẢN TRỊ VIÊN</button></li>
-                                </ul>
-                            </div>
-
-                            <button class="btn btn-sm btn-success">
-                                <i class="bi bi-check-circle"></i> Active
-                            </button>
+            <!-- Title and stats START -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="d-sm-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="h3 mb-2 mb-sm-0">Quản Lý Người Dùng</h1>
+                            <p class="text-muted mb-0">Xem, quản lý và báo cáo người dùng trong hệ thống.</p>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <span class="badge bg-success me-2">1,200 Hoạt động</span>
+                            <span class="badge bg-warning me-2">45 Bị khóa</span>
+                            <span class="badge bg-danger">8 Bị báo cáo</span>
                         </div>
                     </div>
                 </div>
-
-                <!-- Mock User Card 2 -->
-                <div class="col">
-                    <div class="card shadow h-100">
-                        <div class="card-body d-flex flex-column align-items-center text-center">
-                            <img src="https://via.placeholder.com/80" class="rounded-circle mb-3" style="width: 80px; height: 80px; object-fit: cover;" alt="Avatar">
-                            <h5 class="card-title">Trần Thị B</h5>
-                            <p class="card-text small text-muted">b.tran@example.com</p>
-                            <p class="card-text">0912345678</p>
-
-                            <div class="dropdown mb-2">
-                                <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">KHÁCH HÀNG</button>
-                                <ul class="dropdown-menu">
-                                    <li><button class="dropdown-item">KHÁCH HÀNG</button></li>
-                                    <li><button class="dropdown-item">CHỦ KHÁCH SẠN</button></li>
-                                    <li><button class="dropdown-item">QUẢN LÝ WEB</button></li>
-                                    <li><button class="dropdown-item">QUẢN TRỊ VIÊN</button></li>
-                                </ul>
-                            </div>
-
-                            <button class="btn btn-sm btn-danger">
-                                <i class="bi bi-slash-circle"></i> Inactive
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Add more mock cards as needed -->
-
             </div>
-            <!-- Guest card grid END -->
+            <!-- Title and stats END -->
+
+            <!-- Filters and search START -->
+            <div class="row g-4 mb-4">
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                        <input type="text" class="form-control" id="searchInput" placeholder="Tìm theo tên hoặc email...">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <select class="form-select" id="roleFilter">
+                                        <option value="">Tất cả vai trò</option>
+                                        <option value="customer">Khách hàng</option>
+                                        <option value="host">Chủ khách sạn</option>
+                                        <option value="moderator">Quản lý viên</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <select class="form-select" id="statusFilter">
+                                        <option value="">Tất cả trạng thái</option>
+                                        <option value="active">Hoạt động</option>
+                                        <option value="inactive">Bị khóa</option>
+                                        <option value="flagged">Bị báo cáo</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <button class="btn btn-primary w-100" onclick="applyFilters()">
+                                        <i class="bi bi-funnel me-1"></i>Lọc
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Filters and search END -->
+
+            <!-- User list START -->
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4" id="userGrid">
+
+                <!-- User Card 1: Active Customer -->
+                <div class="col user-card" data-role="customer" data-status="active" data-name="nguyễn văn a" data-email="nguyenvana@example.com">
+                    <div class="card shadow h-100">
+                        <div class="card-body text-center">
+                            <div class="avatar avatar-xl mx-auto mb-3">
+                                <img class="avatar-img rounded-circle" src="/assets/images/avatar/01.jpg" alt="avatar">
+                            </div>
+                            <h5 class="card-title mb-1">Nguyễn Văn A</h5>
+                            <p class="card-text text-muted small">nguyenvana@example.com</p>
+                            <span class="badge bg-success bg-opacity-10 text-success mb-3">Khách hàng</span>
+                        </div>
+                        <div class="card-footer text-center">
+                            <button class="btn btn-sm btn-outline-danger" onclick="openFlagModal('user-1', 'Nguyễn Văn A')"><i class="bi bi-flag me-1"></i>Báo cáo</button>
+                            <button class="btn btn-sm btn-outline-warning" onclick="toggleUserStatus('user-1', false)"><i class="bi bi-slash-circle me-1"></i>Khóa</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Card 2: Active Host -->
+                <div class="col user-card" data-role="host" data-status="active" data-name="trần thị b" data-email="tranthib@example.com">
+                    <div class="card shadow h-100">
+                        <div class="card-body text-center">
+                            <div class="avatar avatar-xl mx-auto mb-3">
+                                <img class="avatar-img rounded-circle" src="/assets/images/avatar/02.jpg" alt="avatar">
+                            </div>
+                            <h5 class="card-title mb-1">Trần Thị B</h5>
+                            <p class="card-text text-muted small">tranthib@example.com</p>
+                            <span class="badge bg-info bg-opacity-10 text-info mb-3">Chủ khách sạn</span>
+                        </div>
+                        <div class="card-footer text-center">
+                            <button class="btn btn-sm btn-outline-danger" onclick="openFlagModal('user-2', 'Trần Thị B')"><i class="bi bi-flag me-1"></i>Báo cáo</button>
+                            <button class="btn btn-sm btn-outline-warning" onclick="toggleUserStatus('user-2', false)"><i class="bi bi-slash-circle me-1"></i>Khóa</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Card 3: Inactive User -->
+                <div class="col user-card" data-role="customer" data-status="inactive" data-name="lê văn c" data-email="levanc@example.com">
+                    <div class="card shadow h-100">
+                        <div class="card-body text-center">
+                            <div class="avatar avatar-xl mx-auto mb-3">
+                                <img class="avatar-img rounded-circle" style="filter: grayscale(100%);" src="/assets/images/avatar/03.jpg" alt="avatar">
+                            </div>
+                            <h5 class="card-title mb-1">Lê Văn C</h5>
+                            <p class="card-text text-muted small">levanc@example.com</p>
+                            <span class="badge bg-warning bg-opacity-10 text-warning mb-3">Đã bị khóa</span>
+                        </div>
+                        <div class="card-footer text-center">
+                            <button class="btn btn-sm btn-outline-success" onclick="toggleUserStatus('user-3', true)"><i class="bi bi-check-circle me-1"></i>Mở khóa</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Card 4: Flagged User -->
+                <div class="col user-card" data-role="host" data-status="flagged" data-name="phạm thị d" data-email="phamthid@example.com">
+                    <div class="card shadow h-100 border border-danger">
+                        <div class="card-body text-center">
+                            <div class="avatar avatar-xl mx-auto mb-3 position-relative">
+                                <img class="avatar-img rounded-circle" src="/assets/images/avatar/04.jpg" alt="avatar">
+                                <span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle">
+                                    <span class="visually-hidden">Báo cáo</span>
+                                </span>
+                            </div>
+                            <h5 class="card-title mb-1">Phạm Thị D</h5>
+                            <p class="card-text text-muted small">phamthid@example.com</p>
+                            <span class="badge bg-danger bg-opacity-10 text-danger mb-3">Bị báo cáo</span>
+                        </div>
+                        <div class="card-footer text-center">
+                            <button class="btn btn-sm btn-outline-secondary" onclick="viewFlagReason('user-4')"><i class="bi bi-info-circle me-1"></i>Xem lý do</button>
+                            <button class="btn btn-sm btn-outline-warning" onclick="toggleUserStatus('user-4', false)"><i class="bi bi-slash-circle me-1"></i>Khóa</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- More users... -->
+            </div>
+            <!-- User list END -->
+
+            <!-- Pagination START -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <nav aria-label="User pagination">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item disabled"><a class="page-link" href="#" tabindex="-1"><i class="bi bi-chevron-left"></i></a></li>
+                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            <li class="page-item"><a class="page-link" href="#"><i class="bi bi-chevron-right"></i></a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+            <!-- Pagination END -->
         </div>
     </div>
 </main>
+
+<!-- Flag User Modal -->
+<div class="modal fade" id="flag-user-modal" tabindex="-1" aria-labelledby="flagUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="flagUserModalLabel">Báo cáo người dùng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Vui lòng cung cấp lý do báo cáo người dùng <strong id="flag-user-name"></strong>:</p>
+                <textarea id="flag-reason" class="form-control" rows="3" placeholder="Ví dụ: Lạm dụng hệ thống, bình luận không phù hợp..."></textarea>
+                <div class="text-danger mt-2 d-none" id="reason-error">Vui lòng nhập lý do.</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirm-flag-btn">Báo cáo</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 1055">
+    <div id="notificationToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto" id="toast-title">Thông báo</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body" id="toast-body"></div>
+    </div>
+</div>
+
+
+<script th:src="@{/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const flagUserModal = new bootstrap.Modal(document.getElementById('flag-user-modal'));
+        const notificationToast = new bootstrap.Toast(document.getElementById('notificationToast'));
+        let currentUserId = null;
+
+        // --- Toast Notification Handler ---
+        function showToast(title, body, isSuccess) {
+            const toastTitle = document.getElementById('toast-title');
+            const toastBody = document.getElementById('toast-body');
+            const toastHeader = document.querySelector('#notificationToast .toast-header');
+
+            toastTitle.textContent = title;
+            toastBody.textContent = body;
+
+            toastHeader.classList.remove('bg-success', 'bg-danger', 'text-white');
+            if (isSuccess) {
+                toastHeader.classList.add('bg-success', 'text-white');
+            } else {
+                toastHeader.classList.add('bg-danger', 'text-white');
+            }
+            notificationToast.show();
+        }
+
+        // --- Filter and Search Functions ---
+        window.applyFilters = function() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const roleFilter = document.getElementById('roleFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            document.querySelectorAll('.user-card').forEach(card => {
+                const name = card.dataset.name.toLowerCase();
+                const email = card.dataset.email.toLowerCase();
+                const role = card.dataset.role;
+                const status = card.dataset.status;
+
+                const matchesSearch = name.includes(searchTerm) || email.includes(searchTerm);
+                const matchesRole = !roleFilter || role === roleFilter;
+                const matchesStatus = !statusFilter || status === statusFilter;
+
+                if (matchesSearch && matchesRole && matchesStatus) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        };
+
+        // --- Modal Opening ---
+        window.openFlagModal = function (userId, userName) {
+            currentUserId = userId;
+            document.getElementById('flag-user-name').textContent = userName;
+            document.getElementById('flag-reason').value = '';
+            document.getElementById('reason-error').classList.add('d-none');
+            flagUserModal.show();
+        };
+
+        // --- Action Handlers ---
+        document.getElementById('confirm-flag-btn').addEventListener('click', function () {
+            const reason = document.getElementById('flag-reason').value.trim();
+            if (!reason) {
+                document.getElementById('reason-error').classList.remove('d-none');
+                return;
+            }
+
+            // Mock API Call
+            console.log(`Flagging user ${currentUserId} for reason: ${reason}`);
+            showToast('Thành công', `Người dùng đã bị báo cáo.`, true);
+            updateUserStatusUI(currentUserId, 'flagged');
+            flagUserModal.hide();
+            currentUserId = null;
+        });
+
+        window.toggleUserStatus = function (userId, activate) {
+            const action = activate ? 'mở khóa' : 'khóa';
+            if (confirm(`Bạn có chắc muốn ${action} người dùng này?`)) {
+                // Mock API Call
+                console.log(`Toggling status for user ${userId} to ${activate}`);
+                const newStatus = activate ? 'active' : 'inactive';
+                showToast('Thành công', `Người dùng đã được ${action}.`, true);
+                updateUserStatusUI(userId, newStatus);
+            }
+        };
+
+        window.viewFlagReason = (userId) => {
+            // In a real app, you'd fetch this from the server
+            const mockReason = "Lạm dụng hệ thống bình luận, đăng tải nội dung không phù hợp.";
+            alert(`Lý do báo cáo: ${mockReason}`);
+        };
+
+        // --- UI Update ---
+        function updateUserStatusUI(userId, newStatus) {
+            const card = document.querySelector(`[onclick*="'${userId}'"]`).closest('.user-card');
+            if (!card) return;
+
+            const avatarImg = card.querySelector('.avatar-img');
+            const statusBadge = card.querySelector('.card-body .badge');
+            const footer = card.querySelector('.card-footer');
+
+            card.dataset.status = newStatus;
+
+            // Reset styles
+            card.classList.remove('border', 'border-danger');
+            avatarImg.style.filter = 'none';
+
+            if (newStatus === 'inactive') {
+                avatarImg.style.filter = 'grayscale(100%)';
+                statusBadge.className = 'badge bg-warning bg-opacity-10 text-warning mb-3';
+                statusBadge.textContent = 'Đã bị khóa';
+                footer.innerHTML = `<button class="btn btn-sm btn-outline-success" onclick="toggleUserStatus('${userId}', true)"><i class="bi bi-check-circle me-1"></i>Mở khóa</button>`;
+            } else if (newStatus === 'flagged') {
+                card.classList.add('border', 'border-danger');
+                statusBadge.className = 'badge bg-danger bg-opacity-10 text-danger mb-3';
+                statusBadge.textContent = 'Bị báo cáo';
+                footer.innerHTML = `
+                <button class="btn btn-sm btn-outline-secondary" onclick="viewFlagReason('${userId}')"><i class="bi bi-info-circle me-1"></i>Xem lý do</button>
+                <button class="btn btn-sm btn-outline-warning" onclick="toggleUserStatus('${userId}', false)"><i class="bi bi-slash-circle me-1"></i>Khóa</button>
+            `;
+            } else { // active
+                const role = card.dataset.role;
+                let badgeClass = 'bg-success bg-opacity-10 text-success';
+                let roleText = 'Khách hàng';
+                if(role === 'host') {
+                    badgeClass = 'bg-info bg-opacity-10 text-info';
+                    roleText = 'Chủ khách sạn';
+                } else if (role === 'moderator') {
+                    badgeClass = 'bg-primary bg-opacity-10 text-primary';
+                    roleText = 'Quản lý viên';
+                }
+
+                statusBadge.className = `badge ${badgeClass} mb-3`;
+                statusBadge.textContent = roleText;
+                footer.innerHTML = `
+                <button class="btn btn-sm btn-outline-danger" onclick="openFlagModal('${userId}', '${card.querySelector('.card-title').textContent}')"><i class="bi bi-flag me-1"></i>Báo cáo</button>
+                <button class="btn btn-sm btn-outline-warning" onclick="toggleUserStatus('${userId}', false)"><i class="bi bi-slash-circle me-1"></i>Khóa</button>
+            `;
+            }
+        }
+
+        // --- Search input event listener ---
+        document.getElementById('searchInput').addEventListener('input', applyFilters);
+    });
+</script>
+
 </body>
 </html>
