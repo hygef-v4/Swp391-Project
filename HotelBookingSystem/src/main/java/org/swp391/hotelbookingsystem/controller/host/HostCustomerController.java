@@ -46,10 +46,8 @@ public class HostCustomerController {
             List<Booking> allBookings = bookingService.getBookingsByHostId(host.getId());
             log.debug("Found {} bookings for host {}", allBookings.size(), host.getId());
 
-            // Calculate overall status for each booking
+            // Calculate total price for each booking
             for (Booking booking : allBookings) {
-                String overallStatus = bookingService.calculateBookingStatus(booking.getBookingUnits());
-                booking.setStatus(overallStatus);
                 double sum = booking.getBookingUnits().stream()
                         .filter(u -> u.getPrice() != null)
                         .mapToDouble(u -> u.getPrice() * (u.getQuantity() == 0 ? 1 : u.getQuantity()))
@@ -151,10 +149,8 @@ public class HostCustomerController {
             log.debug("Found {} bookings for customer {} and host {}", 
                 customerBookings.size(), customerId, host.getId());
 
-            // Calculate overall status for each booking
+            // Calculate total price for each booking
             for (Booking booking : customerBookings) {
-                String overallStatus = bookingService.calculateBookingStatus(booking.getBookingUnits());
-                booking.setStatus(overallStatus);
                 double sum = booking.getBookingUnits().stream()
                         .filter(u -> u.getPrice() != null)
                         .mapToDouble(u -> u.getPrice() * (u.getQuantity() == 0 ? 1 : u.getQuantity()))
