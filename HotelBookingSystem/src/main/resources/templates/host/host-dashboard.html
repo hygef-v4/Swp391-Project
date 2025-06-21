@@ -349,12 +349,13 @@
         }
 
         .booking-details-row .card {
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            transition: box-shadow 0.2s ease; /* Only transition box-shadow */
         }
 
+        /* THE FIX - Part 1: Remove transform, use a more prominent shadow for hover effect */
         .booking-details-row .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            /* transform: translateY(-2px);  <-- REMOVED to prevent stacking context and jump issues */
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12); /* Enhanced shadow for feedback */
         }
 
         .table tbody tr.booking-details-row td {
@@ -369,7 +370,7 @@
         .bg-purple {
             background-color: #6f42c1 !important;
         }
-        
+
         .text-purple {
             color: #6f42c1 !important;
         }
@@ -397,6 +398,11 @@
             overflow: hidden;
             text-overflow: ellipsis;
             display: inline-block;
+        }
+
+        /* THE FIX - Part 2: Ensure the table wrapper does not clip the dropdown */
+        .table-responsive {
+            overflow: visible !important;
         }
     </style>
 </head>
@@ -636,13 +642,11 @@
                                     </div>
                                 </div>
                                 <div class="col-md-3">
-                                    <select id="statusFilter" class="form-select">
-                                        <option value="">Tất cả trạng thái</option>
-                                        <option value="approved">Đã phê duyệt</option>
-                                        <option value="completed">Hoàn thành</option>
-                                        <option value="cancelled">Đã hủy</option>
-                                        <option value="rejected">Đã từ chối</option>
-                                        <option value="mixed">Hỗn hợp</option>
+                                    <select id="sortFilter" class="form-select">
+                                        <option value="dateDesc" selected>Mới nhất</option>
+                                        <option value="dateAsc">Cũ nhất</option>
+                                        <option value="priceAsc">Giá thấp đến cao</option>
+                                        <option value="priceDesc">Giá cao đến thấp</option>
                                     </select>
                                 </div>
                                 <div class="col-md-3">
@@ -686,7 +690,6 @@
                                         <th scope="col" class="border-0">Số Phòng</th>
                                         <th scope="col" class="border-0">Nhận Phòng</th>
                                         <th scope="col" class="border-0">Trả Phòng</th>
-                                        <th scope="col" class="border-0">Trạng Thái</th>
                                         <th scope="col" class="border-0">Tổng Tiền</th>
                                         <th scope="col" class="border-0">Hành Động</th>
                                     </tr>
@@ -786,36 +789,40 @@
 
     // Group bookings and create hierarchical structure
     bookings.forEach(booking => {
-                const bookingItem = {
+        const units = booking.bookingUnits || [];
+        const totalPriceRaw = units.reduce((sum, u) => sum + (u.price || 0), 0);
+        const bookingItem = {
             id: `#BK${booking.bookingId}`,
             bookingId: booking.bookingId,
-                    guestName: booking.customerName || 'Khách ẩn danh',
-                    email: booking.customerEmail || '',
-                    avatar: booking.customerAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(booking.customerName || 'A')}&background=random`,
-                    hotel: booking.hotelName || 'Không có tên',
+            guestName: booking.customerName || 'Khách ẩn danh',
+            email: booking.customerEmail || '',
+            avatar: booking.customerAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(booking.customerName || 'A')}&background=random`,
+            hotel: booking.hotelName || 'Không có tên',
             hotelId: booking.hotelId,
             hotelImage: booking.imageUrl || '/assets/images/category/hotel/01.jpg', // Use actual hotel image
-                    checkIn: formatDate(booking.checkIn),
-                    checkOut: formatDate(booking.checkOut),
-            totalAmount: formatCurrency(booking.totalPrice),
-            totalUnits: booking.bookingUnits ? booking.bookingUnits.length : 0,
+            checkIn: formatDate(booking.checkIn),
+            checkOut: formatDate(booking.checkOut),
+            checkInTime: new Date(booking.checkIn).getTime(), // numeric timestamp for sorting
+            totalAmount: formatCurrency(totalPriceRaw),
+            totalPrice: totalPriceRaw, // numeric for sorting
+            totalUnits: units.length,
             bookingStatus: booking.status || 'unknown',
-            bookingUnits: booking.bookingUnits ? booking.bookingUnits.map(unit => ({
+            bookingUnits: units.map(unit => ({
                 unitId: unit.bookingUnitId,
                 roomName: unit.roomName || 'Không có tên',
                 roomImage: unit.imageUrl || '/assets/images/category/hotel/4by3/01.jpg', // Use actual room image
-                    status: getStatusText(unit.status),
-                    statusClass: getStatusClass(unit.status),
+                status: getStatusText(unit.status),
+                statusClass: getStatusClass(unit.status),
                 unitPrice: formatCurrency(unit.price || 0),
                 roomCapacity: unit.roomCapacity || 'N/A',
                 roomAmenities: unit.roomAmenities || []
-            })) : [],
+            })),
             actions: [
-                        {icon: 'bi-eye', text: 'Xem Chi Tiết'},
-                        {icon: 'bi-chat', text: 'Liên Hệ Khách'}
-                    ]
-                };
-                bookingsData.push(bookingItem);
+                {icon: 'bi-eye', text: 'Xem Chi Tiết'},
+                {icon: 'bi-chat', text: 'Liên Hệ Khách'}
+            ]
+        };
+        bookingsData.push(bookingItem);
     });
 
     /*]]>*/
@@ -1134,19 +1141,20 @@
             this.tableBody = document.querySelector('#bookingsTableBody');
             this.paginationContainer = document.querySelector('#paginationContainer');
             this.searchInput = document.querySelector('#bookingSearch');
-            this.statusFilter = document.querySelector('#statusFilter');
+            this.sortFilter = document.querySelector('#sortFilter');
             this.hotelFilter = document.querySelector('#hotelFilter');
             this.itemsPerPageSelect = document.querySelector('#itemsPerPageSelect');
             this.bindEvents();
-            this.render();
+            // Apply initial sort (newest by default)
+            this.sortData(this.sortFilter ? this.sortFilter.value : 'dateDesc');
         }
 
         bindEvents() {
             if (this.searchInput) {
                 this.searchInput.addEventListener('input', (e) => this.search(e.target.value));
             }
-            if (this.statusFilter) {
-                this.statusFilter.addEventListener('change', (e) => this.filterByStatus(e.target.value));
+            if (this.sortFilter) {
+                this.sortFilter.addEventListener('change', (e) => this.sortData(e.target.value));
             }
             if (this.hotelFilter) {
                 this.hotelFilter.addEventListener('change', (e) => this.filterByHotel(e.target.value));
@@ -1158,19 +1166,32 @@
 
         search(term) {
             this.filteredData = this.allData.filter(b => Object.values(b).some(val => String(val).toLowerCase().includes(term.toLowerCase())));
-            this.updatePagination();
-        }
-
-        filterByStatus(status) {
-            this.filteredData = (status === '' || status === 'Tất cả trạng thái') ? [...this.allData] : this.allData.filter(b => {
-                // Filter by overall booking status
-                return b.bookingStatus && b.bookingStatus.toLowerCase() === status.toLowerCase();
-            });
-            this.updatePagination();
+            this.sortData(this.sortFilter ? this.sortFilter.value : 'dateDesc');
         }
 
         filterByHotel(hotel) {
             this.filteredData = (hotel === '' || hotel === 'Tất cả khách sạn') ? [...this.allData] : this.allData.filter(b => b.hotel === hotel);
+            this.sortData(this.sortFilter ? this.sortFilter.value : 'dateDesc');
+        }
+
+        sortData(criteria) {
+            switch (criteria) {
+                case 'dateAsc':
+                    this.filteredData.sort((a, b) => a.checkInTime - b.checkInTime);
+                    break;
+                case 'dateDesc':
+                    this.filteredData.sort((a, b) => b.checkInTime - a.checkInTime);
+                    break;
+                case 'priceAsc':
+                    this.filteredData.sort((a, b) => a.totalPrice - b.totalPrice);
+                    break;
+                case 'priceDesc':
+                    this.filteredData.sort((a, b) => b.totalPrice - a.totalPrice);
+                    break;
+                default:
+                    // default newest date
+                    this.filteredData.sort((a, b) => b.checkInTime - a.checkInTime);
+            }
             this.updatePagination();
         }
 
@@ -1206,15 +1227,15 @@
         renderTable() {
             const data = this.filteredData.slice((this.currentPage - 1) * this.itemsPerPage, this.currentPage * this.itemsPerPage);
             if (data.length === 0) {
-                this.tableBody.innerHTML = `<tr><td colspan="9" class="text-center py-4"><h6 class="text-muted">Không tìm thấy kết quả</h6></td></tr>`;
+                this.tableBody.innerHTML = `<tr><td colspan="8" class="text-center py-4"><h6 class="text-muted">Không tìm thấy kết quả</h6></td></tr>`;
                 return;
             }
-            
+
             let html = '';
             data.forEach((booking, index) => {
                 const rowId = `booking-${booking.bookingId}`;
                 const expandId = `expand-${booking.bookingId}`;
-                
+
                 // Main booking row
                 html += `
                     <tr class="booking-main-row" data-booking-id="${booking.bookingId}">
@@ -1243,7 +1264,6 @@
                         </td>
                         <td>${booking.checkIn}</td>
                         <td>${booking.checkOut}</td>
-                        <td><span class="badge ${this.getBookingStatusClass(booking.bookingStatus)}">${this.getBookingStatusText(booking.bookingStatus)}</span></td>
                         <td><strong>${booking.totalAmount}</strong></td>
                         <td>
                             <div class="d-flex gap-1">
@@ -1257,18 +1277,18 @@
                         </td>
                     </tr>
                 `;
-                
+
                 // Expandable booking units row (initially hidden)
                 html += `
                     <tr id="${expandId}" class="booking-details-row d-none">
-                        <td colspan="9" class="p-0">
+                        <td colspan="8" class="p-0">
                             <div class="bg-light p-3 border-start border-primary border-3">
                                 <h6 class="mb-3 text-primary">
                                     <i class="bi bi-door-open me-2"></i>Chi Tiết Phòng Đặt
                                 </h6>
                                 <div class="row g-3">
                 `;
-                
+
                 // Add booking units
                 booking.bookingUnits.forEach(unit => {
                     html += `
@@ -1289,7 +1309,7 @@
                                                         <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" title="Thay đổi trạng thái">
                                                             <i class="bi bi-gear"></i>
                                                         </button>
-                                                        <ul class="dropdown-menu">
+                                                        <ul class="dropdown-menu dropdown-menu-end">
                                                             <li><a class="dropdown-item" href="#" onclick="updateBookingUnitStatus(${unit.unitId}, 'approved')">Phê duyệt</a></li>
                                                             <li><a class="dropdown-item" href="#" onclick="updateBookingUnitStatus(${unit.unitId}, 'completed')">Hoàn thành</a></li>
                                                             <li><a class="dropdown-item" href="#" onclick="updateBookingUnitStatus(${unit.unitId}, 'cancelled')">Hủy</a></li>
@@ -1306,7 +1326,7 @@
                         </div>
                     `;
                 });
-                
+
                 html += `
                                 </div>
                             </div>
@@ -1314,10 +1334,28 @@
                     </tr>
                 `;
             });
-            
+
             this.tableBody.innerHTML = html;
+
+            // THE FIX - Part 3: Initialize dropdowns *after* the new HTML is added to the DOM
+            this.initializeDropdowns();
         }
-        
+
+        // --- THIS FUNCTION IS THE ULTIMATE FIX ---
+        initializeDropdowns() {
+            // Ensure all newly-added dropdown toggles are wired up with the
+            // default Bootstrap behaviour (Popper handles the positioning).
+            // We do NOT override the Popper strategy here so that the menu
+            // is positioned relative to its toggle button instead of the viewport.
+            const dropdownElements = this.tableBody.querySelectorAll('.booking-details-row .dropdown-toggle');
+            dropdownElements.forEach(element => {
+                // Re-initialise only if it has not been initialised yet
+                if (!bootstrap.Dropdown.getInstance(element)) {
+                    new bootstrap.Dropdown(element);
+                }
+            });
+        }
+
         getBookingStatusClass(status) {
             switch (status ? status.toLowerCase() : '') {
                 case 'completed': return 'bg-success bg-opacity-10 text-success';
@@ -1328,7 +1366,7 @@
                 default: return 'bg-secondary bg-opacity-10 text-secondary';
             }
         }
-        
+
         getBookingStatusText(status) {
             switch (status ? status.toLowerCase() : '') {
                 case 'completed': return 'Hoàn thành';
@@ -1339,11 +1377,11 @@
                 default: return 'Không xác định';
             }
         }
-        
+
         toggleBookingDetails(bookingId) {
             const detailsRow = document.getElementById(`expand-${bookingId}`);
             const toggleIcon = document.getElementById(`toggle-icon-${bookingId}`);
-            
+
             if (detailsRow.classList.contains('d-none')) {
                 detailsRow.classList.remove('d-none');
                 toggleIcon.className = 'bi bi-eye-slash';
@@ -1381,22 +1419,22 @@
     // Function to update booking unit status
     async function updateBookingUnitStatus(bookingUnitId, newStatus) {
         console.log('Updating booking unit status:', bookingUnitId, newStatus);
-        
+
         try {
             // Get CSRF token
             const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
             const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
             console.log('CSRF token available:', !!csrfToken, 'Header:', csrfHeader);
-            
+
             const headers = {
                 'Content-Type': 'application/x-www-form-urlencoded',
             };
-            
+
             // Add CSRF token if available
             if (csrfToken && csrfHeader) {
                 headers[csrfHeader] = csrfToken;
             }
-            
+
             const response = await fetch('/api/host/update-booking-unit-status', {
                 method: 'POST',
                 headers: headers,
