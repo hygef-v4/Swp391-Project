@@ -1,14 +1,18 @@
 package org.swp391.hotelbookingsystem.controller.host;
 
 import java.text.DecimalFormat;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.swp391.hotelbookingsystem.model.Booking;
+import org.swp391.hotelbookingsystem.model.BookingUnit;
 import org.swp391.hotelbookingsystem.model.Hotel;
 import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.repository.ReviewRepository;
@@ -82,17 +86,25 @@ public class HostDashboardController {
 
         // Key Metrics
         model.addAttribute("totalHotels", hotelService.getHotelsByHostId(host.getId()).size());
-        double monthlyRevenue = bookingService.getMonthlyRevenueByHostId(host.getId());
-        model.addAttribute("monthlyRevenue", formatRevenue(monthlyRevenue));
+        double totalRevenue = bookingService.getTotalRevenueByHostId(host.getId());
+        model.addAttribute("totalRevenue", formatRevenue(totalRevenue));
         model.addAttribute("totalBookings", bookingService.countTotalBookingsByHostId(host.getId()));
-        model.addAttribute("pendingBookings", bookingService.countPendingBookingsByHostId(host.getId()));
+        model.addAttribute("completedBookings", bookingService.countCompletedBookingsByHostId(host.getId()));
 
-        ReviewRepository.RatingStats ratingStats = reviewService.getRatingStatsByHostId(host.getId()).orElse(new ReviewRepository.RatingStats(0.0, 0));
-        model.addAttribute("averageRating", String.format("%.1f", ratingStats.getAverage()));
-        model.addAttribute("totalReviews", ratingStats.getCount());
+        double averageRating = reviewService.getAverageHotelRatingForHost(host.getId());
+        model.addAttribute("averageRating", String.format("%.1f", averageRating));
 
-        // For recent bookings table
-        model.addAttribute("bookings", bookingService.getBookingsByHostId(host.getId()));
+
+        // For recent bookings table with calculated statuses
+        List<Booking> bookings = bookingService.getBookingsByHostId(host.getId());
+        
+        // Calculate overall status for each booking
+        for (Booking booking : bookings) {
+            String overallStatus = bookingService.calculateBookingStatus(booking.getBookingUnits());
+            booking.setStatus(overallStatus);
+        }
+        
+        model.addAttribute("bookings", bookings);
 
         return "host/host-dashboard";
     }
@@ -105,6 +117,69 @@ public class HostDashboardController {
             return List.of(); // or throw exception
         }
         return bookingService.getBookingStatsByHostId(host.getId(), period);
+    }
+
+    @PostMapping("/api/host/update-booking-unit-status")
+    @ResponseBody
+    public Map<String, Object> updateBookingUnitStatus(
+            @RequestParam int bookingUnitId, 
+            @RequestParam String status,
+            HttpSession session) {
+        
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            User host = (User) session.getAttribute("user");
+            if (host == null || !host.getRole().equalsIgnoreCase("HOTEL_OWNER")) {
+                response.put("success", false);
+                response.put("message", "Không có quyền truy cập");
+                return response;
+            }
+
+            // Validate status
+            if (!List.of("approved", "completed", "cancelled", "rejected").contains(status.toLowerCase())) {
+                response.put("success", false);
+                response.put("message", "Trạng thái không hợp lệ");
+                return response;
+            }
+
+            // Check if booking unit belongs to host's hotel
+            BookingUnit bookingUnit = bookingService.findBookingUnitById(bookingUnitId);
+            if (bookingUnit == null) {
+                response.put("success", false);
+                response.put("message", "Không tìm thấy booking unit");
+                return response;
+            }
+
+            Booking booking = bookingService.findBooking(bookingUnitId);
+            if (booking == null) {
+                response.put("success", false);
+                response.put("message", "Không tìm thấy booking");
+                return response;
+            }
+
+            // Verify the hotel belongs to this host
+            List<Hotel> hostHotels = hotelService.getHotelsByHostId(host.getId());
+            boolean isHostHotel = hostHotels.stream().anyMatch(h -> h.getHotelId() == booking.getHotelId());
+            
+            if (!isHostHotel) {
+                response.put("success", false);
+                response.put("message", "Không có quyền chỉnh sửa booking này");
+                return response;
+            }
+
+            // Update the booking unit status
+            bookingService.updateBookingUnitStatus(bookingUnitId, status);
+            
+            response.put("success", true);
+            response.put("message", "Cập nhật trạng thái thành công");
+            
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Lỗi khi cập nhật trạng thái: " + e.getMessage());
+        }
+        
+        return response;
     }
 
     private String formatRevenue(double revenue) {

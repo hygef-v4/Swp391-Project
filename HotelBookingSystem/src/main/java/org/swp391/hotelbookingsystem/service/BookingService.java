@@ -153,6 +153,10 @@ public class BookingService {
         return bookingRepo.countBookingsByHostIdAndStatus(hostId, "approved");
     }
 
+    public int countCompletedBookingsByHostId(int hostId) {
+        return bookingRepo.countBookingsByHostIdAndStatus(hostId, "completed");
+    }
+
     public double getMonthlyRevenueByHostId(int hostId) {
         return bookingRepo.getMonthlyRevenueByHostId(hostId);
     }
@@ -163,6 +167,32 @@ public class BookingService {
 
     public List<Map<String, Object>> getBookingStatsByHostId(int hostId, String period) {
         return bookingRepo.getBookingStatsByHostId(hostId, period);
+    }
+
+    // Calculate overall booking status based on booking units
+    public String calculateBookingStatus(List<BookingUnit> bookingUnits) {
+        if (bookingUnits == null || bookingUnits.isEmpty()) {
+            return "unknown";
+        }
+
+        // Get all unique statuses
+        List<String> statuses = bookingUnits.stream()
+                .map(BookingUnit::getStatus)
+                .distinct()
+                .toList();
+
+        // If all units have the same status
+        if (statuses.size() == 1) {
+            return statuses.get(0);
+        }
+
+        // If mixed statuses
+        return "mixed";
+    }
+
+    // Update booking unit status
+    public void updateBookingUnitStatus(int bookingUnitId, String status) {
+        bookingRepo.updateStatus(bookingUnitId, status);
     }
 
 }

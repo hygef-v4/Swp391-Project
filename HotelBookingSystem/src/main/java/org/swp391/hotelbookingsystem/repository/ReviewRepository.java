@@ -16,41 +16,15 @@ public class ReviewRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public static class RatingStats {
-        private final double average;
-        private final int count;
-
-        public RatingStats(double average, int count) {
-            this.average = average;
-            this.count = count;
-        }
-
-        public double getAverage() {
-            return average;
-        }
-
-        public int getCount() {
-            return count;
-        }
-    }
-
-    public Optional<RatingStats> getAverageRatingByHostId(int hostId) {
+    public Double getAverageHotelRatingByHostId(int hostId) {
         String sql = """
-            SELECT AVG(CAST(r.rating AS FLOAT)) as average_rating, COUNT(r.review_id) as review_count
-            FROM Reviews r
-            JOIN Hotels h ON r.hotel_id = h.hotel_id
-            WHERE h.host_id = ?
-        """;
-
-        return Optional.ofNullable(jdbcTemplate.queryForObject(sql, (rs, rowNum) -> {
-            double average = rs.getDouble("average_rating");
-            int count = rs.getInt("review_count");
-            if (rs.wasNull()) {
-                return new RatingStats(0.0, 0);
-            }
-            return new RatingStats(average, count);
-        }, hostId));
+        SELECT AVG(CAST(rating AS FLOAT)) 
+        FROM Hotels 
+        WHERE host_id = ?
+    """;
+        return jdbcTemplate.queryForObject(sql, Double.class, hostId);
     }
+
 
     public List<Review> getRecentPublicReviews() {
         String sql = """

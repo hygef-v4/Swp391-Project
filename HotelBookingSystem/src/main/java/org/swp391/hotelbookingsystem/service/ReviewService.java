@@ -16,9 +16,11 @@ public class ReviewService {
         this.reviewRepository = reviewRepository;
     }
 
-    public Optional<ReviewRepository.RatingStats> getRatingStatsByHostId(int hostId) {
-        return reviewRepository.getAverageRatingByHostId(hostId);
+    public double getAverageHotelRatingForHost(int hostId) {
+        Double rating = reviewRepository.getAverageHotelRatingByHostId(hostId);
+        return rating != null ? rating : 0.0;
     }
+
 
     public List<Review> getRecentPublicReviews() {
         return reviewRepository.getRecentPublicReviews();
