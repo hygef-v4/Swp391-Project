@@ -8,6 +8,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="Chi tiết khách hàng và lịch sử đặt phòng">
+    <meta name="_csrf" th:content="${_csrf?.token}" />
+    <meta name="_csrf_header" th:content="${_csrf?.headerName}" />
 
     <!-- Dark mode script (for theme toggling) -->
     <script>
@@ -189,12 +191,26 @@
         .message.received .message-bubble { background-color: var(--card-bg); border: 1px solid var(--border-color); border-bottom-left-radius: 4px; color: var(--text-primary); }
         .message.sent { align-items: flex-end; margin-left: auto; }
         .message.sent .message-bubble { background: var(--primary-gradient); color: #ffffff; border-bottom-right-radius: 4px; }
-        .chat-input-area { background-color: var(--card-bg); padding: 1rem 1.25rem; border-top: 1px solid var(--border-color); }
-        .chat-input-area .input-group { background-color: var(--card-secondary-bg); border-radius: 50px; padding: 4px; border: 1px solid var(--border-color); }
+        .message.sent .message-bubble img { border: 2px solid rgba(255,255,255,0.3); }
+        .message.received .message-bubble img { border: 2px solid var(--border-color); }
+        .message-bubble img { display: block; }
+        /* Loading state */
+        .chat-loading { display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-secondary); }
+        .chat-loading i { font-size: 2rem; animation: spin 1s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .chat-input-area {
+             background-color: var(--card-bg); padding: 1rem 1.25rem; border-top: 1px solid var(--border-color); }
+        /* Preview image container */
+        #previewContainer { display:flex; align-items:center; gap:8px; margin-bottom:6px; flex-wrap:wrap; }
+        .preview-img-wrapper { position:relative; display:inline-block; }
+        .preview-img-wrapper img { max-width:80px; max-height:80px; border-radius:12px; }
+        .preview-img-wrapper button { position:absolute; top:-6px; right:-6px; background:#ef4444; border:none; color:#fff; width:20px; height:20px; border-radius:50%; font-size:12px; cursor:pointer; }
+        .chat-input-area .input-group { background-color: var(--card-secondary-bg); border-radius: 50px; padding: 4px; border: 1px solid var(--border-color); display: flex; align-items: center; gap: 4px; }
         .chat-input-area .form-control { background-color: transparent; border: none; color: var(--text-primary); height: 44px; padding-left: 1rem; }
         .chat-input-area .form-control:focus { box-shadow: none; }
         .chat-input-area .form-control::placeholder { color: var(--text-secondary); }
-        .btn-send { background: var(--primary-gradient); border: none; color: white; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; }
+        .btn-send { background: var(--primary-gradient); border: none; color: white; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; flex-shrink: 0; transition: all 0.2s ease; }
+        .btn-send:hover { transform: scale(1.05); }
 
         /* Booking History */
         .section-header { margin-bottom: 1.5rem; }
@@ -259,20 +275,18 @@
                                 <span class="status-badge">Online</span>
                             </div>
                             <div class="chat-messages" id="chatMessages">
-                                <div class="message received">
-                                    <div class="message-bubble">Xin chào! Tôi muốn hỏi về phòng đã đặt.</div>
-                                    <div class="message-time">10:30 AM</div>
-                                </div>
-                                <div class="message sent">
-                                    <div class="message-bubble">Chào bạn! Tôi sẵn sàng hỗ trợ. Bạn cần hỗ trợ gì?</div>
-                                    <div class="message-time">10:32 AM</div>
-                                </div>
+                                <!-- Messages will be loaded here dynamically -->
                             </div>
                             <div class="chat-input-area">
+                                <div id="previewContainer"></div>
                                 <div class="input-group">
                                     <input type="text" class="form-control" placeholder="Nhập tin nhắn..." id="messageInput">
+                                    <button class="btn-send" type="button" onclick="document.getElementById('imageInput').click()" title="Gửi ảnh">
+                                        <i class="bi bi-image"></i>
+                                    </button>
                                     <button class="btn-send" type="button" onclick="sendMessage()"><i class="bi bi-send-fill"></i></button>
                                 </div>
+                                <input type="file" id="imageInput" accept="image/*" style="display: none;">
                             </div>
                         </div>
                     </div>
@@ -339,17 +353,321 @@
 
 <!-- Core Bootstrap JS -->
 <script src="assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<!-- SockJS & STOMP -->
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<!-- Use stomp.js 2.3.3 from cdnjs which exposes global Stomp object -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js" crossorigin="anonymous"></script>
+
 <!-- Theme Functions -->
 <script src="assets/js/functions.js"></script>
 <!-- Page-specific script -->
 <script>
-    function sendMessage() {
-        const input = document.getElementById('messageInput');
-        if (input.value.trim() === '') return;
-        console.log('Sending:', input.value);
-        input.value = '';
+    // Safely extract user IDs from Thymeleaf
+    let currentUserId, otherUserId, roomId;
+    
+    try {
+        currentUserId = parseInt('[[${currentUserId}]]') || 0;
+        otherUserId = parseInt('[[${customer.id}]]') || 0;
+        roomId = [currentUserId, otherUserId].sort().join('-');
+        
+        console.log('User IDs - currentUserId:', currentUserId, 'otherUserId:', otherUserId, 'roomId:', roomId);
+    } catch (error) {
+        console.error('Error parsing user IDs:', error);
+        currentUserId = 0;
+        otherUserId = 0;
+        roomId = '0-0';
     }
-    document.getElementById('messageInput').addEventListener('keypress', (e) => e.key === 'Enter' && (e.preventDefault(), sendMessage()));
+
+    let stompClient = null;
+    let isConnected = false;
+    let retryCount = 0;
+    const MAX_RETRY_COUNT = 10;
+
+    function updateConnectionStatus(connected) {
+        isConnected = connected;
+        const statusBadge = document.querySelector('.status-badge');
+        if (statusBadge) {
+            if (connected) {
+                statusBadge.textContent = 'Online';
+                statusBadge.style.backgroundColor = 'rgba(34, 197, 94, 0.2)';
+                statusBadge.style.color = '#22c55e';
+                retryCount = 0; // Reset retry count on successful connection
+            } else {
+                statusBadge.textContent = 'Offline';
+                statusBadge.style.backgroundColor = 'rgba(239, 68, 68, 0.2)';
+                statusBadge.style.color = '#ef4444';
+            }
+        }
+    }
+
+    function connectChat() {
+        // Show loading state
+        const chatMessages = document.getElementById('chatMessages');
+        chatMessages.innerHTML = '<div class="chat-loading"><i class="bi bi-arrow-repeat"></i></div>';
+        
+        console.log('Attempting to connect with currentUserId:', currentUserId, 'otherUserId:', otherUserId);
+        
+        // Validate user IDs
+        if (!currentUserId || !otherUserId || currentUserId === 0 || otherUserId === 0) {
+            console.error('Invalid user IDs:', { currentUserId, otherUserId });
+            chatMessages.innerHTML = '<div class="text-center text-danger py-5">Lỗi: Không thể xác định người dùng. Vui lòng tải lại trang.</div>';
+            return;
+        }
+        
+        const socket = new SockJS('/ws');
+        // Fallback if global Stomp variable is not present
+        const StompImpl = window.Stomp || window.StompJs || undefined;
+        if (!StompImpl) {
+            console.error('STOMP library not loaded');
+            chatMessages.innerHTML = '<div class="text-center text-danger py-5">Lỗi: Không thể tải thư viện STOMP.</div>';
+            return;
+        }
+        stompClient = StompImpl.over(socket);
+        stompClient.debug = function(str) { console.log('STOMP: ' + str); }; // Enable debug for troubleshooting
+        
+        // Handle disconnection
+        socket.onclose = function() {
+            console.log('WebSocket disconnected');
+            updateConnectionStatus(false);
+            if (!document.hidden) { // Only reconnect if page is visible
+                setTimeout(connectChat, 3000);
+            }
+        };
+        
+        // Get CSRF token if it exists
+        const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+        
+        const headers = {};
+        if (csrfToken && csrfHeader) {
+            headers[csrfHeader] = csrfToken;
+            console.log('Adding CSRF token to connection');
+        }
+        
+        stompClient.connect(headers, () => {
+            console.log('Connected to WebSocket successfully');
+            updateConnectionStatus(true);
+            
+            // subscribe to room topic
+            console.log('Subscribing to topic:', `/topic/chat.${roomId}`);
+            stompClient.subscribe(`/topic/chat.${roomId}`, (message) => {
+                console.log('Received message:', message);
+                if (message && message.body) {
+                    try {
+                        const msgObj = JSON.parse(message.body);
+                        console.log('Parsed message:', msgObj);
+                        appendMessage(msgObj);
+                    } catch (e) {
+                        console.error('Error parsing message:', e, message.body);
+                    }
+                }
+            });
+            
+            // load history via REST
+            console.log('Loading chat history...');
+            const fetchHeaders = {
+                'Content-Type': 'application/json'
+            };
+            if (csrfToken && csrfHeader) {
+                fetchHeaders[csrfHeader] = csrfToken;
+            }
+            
+            fetch(`/api/chat/history?user1=${currentUserId}&user2=${otherUserId}`, {
+                method: 'GET',
+                headers: fetchHeaders
+            })
+                .then(r => {
+                    console.log('Chat history response status:', r.status);
+                    if (!r.ok) {
+                        throw new Error(`HTTP ${r.status}: ${r.statusText}`);
+                    }
+                    return r.json();
+                })
+                .then(list => {
+                    console.log('Chat history loaded:', list);
+                    chatMessages.innerHTML = ''; // Clear loading state
+                    if (list.length === 0) {
+                        chatMessages.innerHTML = '<div class="text-center text-muted py-5">Chưa có tin nhắn nào. Hãy bắt đầu cuộc trò chuyện!</div>';
+                    } else {
+                        list.forEach(m => appendMessage(m));
+                    }
+                })
+                .catch(err => {
+                    console.error('Error loading chat history:', err);
+                    chatMessages.innerHTML = '<div class="text-center text-danger py-5">Không thể tải lịch sử tin nhắn: ' + err.message + '</div>';
+                });
+        }, (error) => {
+            console.error('WebSocket connection error:', error);
+            updateConnectionStatus(false);
+            retryCount++;
+            
+            if (retryCount < MAX_RETRY_COUNT) {
+                chatMessages.innerHTML = `<div class="text-center text-danger py-5">Không thể kết nối. Đang thử lại... (${retryCount}/${MAX_RETRY_COUNT})</div>`;
+                setTimeout(connectChat, 5000); // Retry connection after 5 seconds
+            } else {
+                chatMessages.innerHTML = '<div class="text-center text-danger py-5">Không thể kết nối. Vui lòng tải lại trang.</div>';
+            }
+        });
+    }
+
+    function appendMessage(msg) {
+        const container = document.getElementById('chatMessages');
+        // Clear empty state if present
+        if (container.querySelector('.text-center')) {
+            container.innerHTML = '';
+        }
+        
+        const isSent = msg.senderId === currentUserId;
+        const wrapper = document.createElement('div');
+        wrapper.className = 'message ' + (isSent ? 'sent' : 'received');
+        
+        let content = '';
+        if (msg.messageType === 'IMAGE' && msg.imageUrl) {
+            content = `<img src="${msg.imageUrl}" style="max-width: 200px; max-height: 200px; border-radius: 12px; cursor: pointer;" onclick="window.open('${msg.imageUrl}', '_blank')">`;
+        } else if (msg.content) {
+            content = escapeHtml(msg.content);
+        }
+        
+        wrapper.innerHTML = `
+            <div class="message-bubble">${content}</div>
+            <div class="message-time">${formatTime(msg.sentAt)}</div>
+        `;
+        
+        container.appendChild(wrapper);
+        container.scrollTop = container.scrollHeight;
+    }
+
+    function formatTime(dateString) {
+        if (!dateString) return new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+        const date = new Date(dateString);
+        return date.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // === Image selection & preview ===
+    let pendingImageFile = null;
+    const previewContainer = document.getElementById('previewContainer');
+
+    function clearPreview() {
+        pendingImageFile = null;
+        previewContainer.innerHTML = '';
+    }
+
+    document.getElementById('imageInput').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        pendingImageFile = file;
+        previewContainer.innerHTML = '';
+        const wrapper = document.createElement('div');
+        wrapper.className = 'preview-img-wrapper';
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(file);
+        const btn = document.createElement('button');
+        btn.innerHTML = '×';
+        btn.title = 'Xóa';
+        btn.onclick = clearPreview;
+        wrapper.appendChild(img);
+        wrapper.appendChild(btn);
+        previewContainer.appendChild(wrapper);
+        // Reset input to allow re-select same file later
+        e.target.value = '';
+    });
+
+    // Make sendMessage function global
+    window.sendMessage = async function() {
+        console.log('sendMessage function called');
+        const input = document.getElementById('messageInput');
+        const message = input.value.trim();
+        
+        if (!message) {
+            console.log('Empty message, not sending');
+            return; // Don't send empty messages
+        }
+        
+        console.log('Attempting to send message:', message);
+        console.log('Connection status:', { 
+            stompClient: !!stompClient, 
+            connected: stompClient?.connected,
+            isConnected: isConnected 
+        });
+        
+        if (!stompClient || !stompClient.connected) {
+            console.error('WebSocket not connected');
+            alert('Không thể gửi tin nhắn. Đang kết nối lại...');
+            connectChat();
+            return;
+        }
+        
+        async function uploadImageAndSend() {
+            // Upload image
+            const formData = new FormData();
+            formData.append('file', pendingImageFile);
+            const uploadHeaders = {};
+            const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+            if (csrfToken && csrfHeader) uploadHeaders[csrfHeader] = csrfToken;
+            try {
+                const res = await fetch('/api/chat/upload-image', { method:'POST', headers: uploadHeaders, body: formData });
+                const data = await res.json();
+                if (data.url) {
+                    const imgMsg = { senderId: currentUserId, receiverId: otherUserId, content:'', messageType:'IMAGE', imageUrl: data.url };
+                    stompClient.send(`/app/chat/${roomId}`, {}, JSON.stringify(imgMsg));
+                }
+            } catch(err){ console.error('Upload error',err); alert('Không thể tải ảnh.'); }
+            clearPreview();
+        }
+
+        // If there's an image pending, upload first
+        if (pendingImageFile) await uploadImageAndSend();
+
+        // Send text message if exists
+        if (message) {
+            const msg = { senderId: currentUserId, receiverId: otherUserId, content: message, messageType:'TEXT', sentAt:new Date().toISOString() };
+            console.log('Sending message:', msg);
+            try { stompClient.send(`/app/chat/${roomId}`, {}, JSON.stringify(msg)); } catch(err){ console.error('Send error',err); }
+        }
+
+        input.value=''; input.focus();
+    };
+
+    // Enter key to send message
+    document.getElementById('messageInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            window.sendMessage();
+        }
+    });
+
+    // Connect when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('DOM Content Loaded');
+        console.log('Functions available:', {
+            sendMessage: typeof window.sendMessage,
+            connectChat: typeof connectChat,
+            appendMessage: typeof appendMessage
+        });
+        connectChat();
+    });
+
+    // Handle page visibility changes
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden && !isConnected) {
+            // Reconnect when page becomes visible again
+            connectChat();
+        }
+    });
+
+    // Disconnect on page unload to clean up resources
+    window.addEventListener('beforeunload', () => {
+        if (stompClient && stompClient.connected) {
+            stompClient.disconnect();
+        }
+    });
 </script>
 
 </body>

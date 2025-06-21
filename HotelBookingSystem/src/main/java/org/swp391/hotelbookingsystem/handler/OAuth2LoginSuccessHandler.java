@@ -1,20 +1,21 @@
 package org.swp391.hotelbookingsystem.handler;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.List;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.swp391.hotelbookingsystem.model.User;
-import org.swp391.hotelbookingsystem.repository.UserRepo;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.swp391.hotelbookingsystem.model.User;
+import org.swp391.hotelbookingsystem.repository.UserRepo;
 
-import java.io.IOException;
-import java.util.List;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Component
 public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
@@ -36,11 +37,12 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         User user = userRepo.findByEmail(email);
         if (user == null) {
-            user = new User();
-            user.setEmail(email);
-            user.setFullName(name);
-            user.setActive(true);
-            user.setRole("CUSTOMER");
+            user = User.builder()
+                    .email(email)
+                    .fullName(name)
+                    .active(true)
+                    .role("CUSTOMER")
+                    .build();
             userRepo.saveUserFromGoogle(user);
         }
 
