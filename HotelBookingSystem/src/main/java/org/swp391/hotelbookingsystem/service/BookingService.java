@@ -1,10 +1,12 @@
 package org.swp391.hotelbookingsystem.service;
 
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.stereotype.Service;
 import org.swp391.hotelbookingsystem.model.Booking;
+import org.swp391.hotelbookingsystem.model.BookingUnit;
 import org.swp391.hotelbookingsystem.repository.BookingRepo;
-
-import java.util.List;
 
 @Service
 public class BookingService {
@@ -21,8 +23,8 @@ public class BookingService {
     }
 
     // Đặt lại trạng thái
-    public void updateStatus(Booking booking, String status) {
-        bookingRepo.updateStatus(booking.getBookingId(), status);
+    public void updateStatus(BookingUnit bookingUnit, String status) {
+        bookingRepo.updateStatus(bookingUnit.getBookingUnitId(), status);
     }
 
     public List<Booking> getUpcomingBookings(int customerId) {
@@ -41,18 +43,21 @@ public class BookingService {
         return bookingRepo.findById(id);
     }
 
+    public Booking findBooking(int id) {
+        return bookingRepo.findBookingByBookingUnitId(id);
+    }
+
+    public BookingUnit findBookingUnitById(int id) {
+        return bookingRepo.findBookingUnitById(id);
+    }
+
+    public int countBookingsByHostId(int hostId) {
+        return bookingRepo.countBookingsByHostId(hostId);
+    }
+
     // Cập nhật hoàn tiền
     public void updateRefund(int bookingId, Double amount, String status) {
         bookingRepo.updateRefund(bookingId, amount, status);
-    }
-
-    // Lấy ảnh và tên khách sạn
-    public String getImageByBookingId(int bookingId) {
-        return bookingRepo.getImagesByBookingId(bookingId);
-    }
-
-    public String getHotelNameByBookingId(int bookingId) {
-        return bookingRepo.getHotelNameByBookingId(bookingId);
     }
 
     public List<Booking> getAllBookings() {
@@ -73,16 +78,121 @@ public class BookingService {
         return bookingRepo.findByHotelId(hotelId);
     }
 
-    public String getRoomNameByBookingId(int bookingId) {
-        return bookingRepo.getRoomNameByBookingId(bookingId);
-    }
-
     public List<BookingRepo.DailyStat> getCheckInStats() {
         return bookingRepo.getCheckInStats();
     }
 
     public List<BookingRepo.DailyStat> getCheckOutStats() {
         return bookingRepo.getCheckOutStats();
+    }
+
+    public int getTotalBooking(String status) {
+        return bookingRepo.getTotalBookingByStatus(status);
+    }
+
+    public int getTodayBooking(String status) {
+        return bookingRepo.getTodayBookingByStatus(status);
+    }
+
+    public int getTodayCheckIn() {
+        return bookingRepo.getTodayCheckIn();
+    }
+
+    public int getTodayCheckOut() {
+        return bookingRepo.getTodayCheckOut();
+    }
+
+    public int getFutureCheckIn() {
+        return bookingRepo.getFutureCheckIn();
+    }
+
+    public int getFutureCheckOut() {
+        return bookingRepo.getFutureCheckOut();
+    }
+
+    public List<Booking> getBookingsPaginated(int page, int size) {
+        return bookingRepo.findAllPaginated(page, size);
+    }
+
+    public int getTotalPages(int size) {
+        int total = bookingRepo.countAllBookings();
+        return (int) Math.ceil((double) total / size);
+    }
+
+    public int getTotalItems() {
+        return bookingRepo.countAllBookings();
+    }
+
+    public List<Booking> getBookingsByStatusPaginated(String status, int page, int size) {
+        return bookingRepo.findBookingsByStatusPaginated(status, page, size);
+    }
+
+    public int getTotalPagesByStatus(String status, int size) {
+        int count = bookingRepo.countBookingsByStatus(status);
+        return (int) Math.ceil((double) count / size);
+    }
+
+    public List<Booking> getBookingsByStatusAndSearchPaginated(String status, String keyword, int page, int size) {
+        return bookingRepo.findBookingsByStatusAndKeywordPaginated(status, keyword, page, size);
+    }
+
+    public int getTotalPagesByStatusAndSearch(String status, String keyword, int size) {
+        int total = bookingRepo.countBookingsByStatusAndKeyword(status, keyword);
+        return (int) Math.ceil((double) total / size);
+    }
+
+    public List<Booking> getBookingsByHostId(int hostId) {
+        return bookingRepo.findBookingsByHostId(hostId);
+    }
+
+    public int countTotalBookingsByHostId(int hostId) {
+        return bookingRepo.countBookingsByHostId(hostId);
+    }
+
+    public int countPendingBookingsByHostId(int hostId) {
+        return bookingRepo.countBookingsByHostIdAndStatus(hostId, "approved");
+    }
+
+    public int countCompletedBookingsByHostId(int hostId) {
+        return bookingRepo.countBookingsByHostIdAndStatus(hostId, "completed");
+    }
+
+    public double getMonthlyRevenueByHostId(int hostId) {
+        return bookingRepo.getMonthlyRevenueByHostId(hostId);
+    }
+
+    public Double getTotalRevenueByHostId(int hostId) {
+        return bookingRepo.getTotalRevenueByHostId(hostId);
+    }
+
+    public List<Map<String, Object>> getBookingStatsByHostId(int hostId, String period) {
+        return bookingRepo.getBookingStatsByHostId(hostId, period);
+    }
+
+    // Calculate overall booking status based on booking units
+    public String calculateBookingStatus(List<BookingUnit> bookingUnits) {
+        if (bookingUnits == null || bookingUnits.isEmpty()) {
+            return "unknown";
+        }
+
+        // Get all unique statuses
+        List<String> statuses = bookingUnits.stream()
+                .map(BookingUnit::getStatus)
+                .distinct()
+                .toList();
+
+        // If all units have the same status
+        if (statuses.size() == 1) {
+            return statuses.get(0);
+        }
+
+        // If mixed statuses
+        return "mixed";
+    }
+
+    // Update booking unit status
+    public void updateBookingUnitStatus(int bookingUnitId, String status) {
+        bookingRepo.updateStatus(bookingUnitId, status);
     }
 
 }

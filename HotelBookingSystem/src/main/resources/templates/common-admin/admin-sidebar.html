@@ -18,20 +18,7 @@
             <!-- Sidebar menu START -->
             <ul class="navbar-nav flex-column" id="navbar-sidebar">
                 <li class="nav-item"><a th:href="@{/admin-dashboard}" class="nav-link">Tổng Quan</a></li>
-
-                <li class="nav-item ms-2 my-2">Trang</li>
-
-                <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="collapse" href="#collapsebooking" role="button"
-                       aria-expanded="false" aria-controls="collapsebooking">
-                        Đặt phòng
-                    </a>
-                    <ul class="nav collapse flex-column" id="collapsebooking" data-bs-parent="#navbar-sidebar">
-                        <li class="nav-item"><a class="nav-link" href="/admin-booking-list">Danh sách đặt phòng</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/admin-booking-detail">Chi tiết đặt phòng</a></li>
-                    </ul>
-                </li>
-
+                <li class="nav-item"><a class="nav-link" href="/admin-booking-list">Danh sách đặt phòng</a></li>
                 <li class="nav-item">
                     <a class="nav-link" data-bs-toggle="collapse" href="#collapseguest" role="button"
                        aria-expanded="false" aria-controls="collapseguest">
@@ -42,22 +29,10 @@
                         <li class="nav-item"><a class="nav-link" href="admin-guest-detail.html">Chi tiết người dùng</a></li>
                     </ul>
                 </li>
-
-                <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="collapse" href="#collapseagent" role="button"
-                       aria-expanded="false" aria-controls="collapseagent">
-                        Đối tác
-                    </a>
-                    <ul class="nav collapse flex-column" id="collapseagent" data-bs-parent="#navbar-sidebar">
-                        <li class="nav-item"><a class="nav-link" href="admin-agent-list.html">Danh sách đối tác</a></li>
-                        <li class="nav-item"><a class="nav-link" href="admin-agent-detail.html">Chi tiết đối tác</a></li>
-                    </ul>
-                </li>
-
+                <li class="nav-item"><a class="nav-link" href="/admin-agent-list">Danh sách đối tác</a></li>
                 <li class="nav-item"><a class="nav-link" th:href="@{/admin-hotel-list}">Khách sạn</a></li>
-                <li class="nav-item"><a class="nav-link" href="admin-reviews.html">Đánh giá</a></li>
+                <li class="nav-item"><a class="nav-link" href="/admin-review">Đánh giá</a></li>
                 <li class="nav-item"><a class="nav-link" href="admin-earnings.html">Coupon</a></li>
-                <li class="nav-item"><a class="nav-link" href="admin-settings.html">Review</a></li>
 
                 <li class="nav-item">
                     <a class="nav-link" data-bs-toggle="collapse" href="#collapseauthentication" role="button"

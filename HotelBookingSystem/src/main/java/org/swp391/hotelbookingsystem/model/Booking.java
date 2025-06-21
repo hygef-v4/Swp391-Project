@@ -1,9 +1,12 @@
 package org.swp391.hotelbookingsystem.model;
 
-
-import lombok.*;
-
 import java.time.LocalDateTime;
+import java.util.List;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Builder
 @Data
@@ -12,17 +15,18 @@ import java.time.LocalDateTime;
 public class Booking {
     private int bookingId;
     private int hotelId;
-    private int roomId;
     private int customerId;
     private Integer couponId;
     private LocalDateTime checkIn;
     private LocalDateTime checkOut;
     private Double totalPrice;
-    private String status;
-    private Double refundAmount;
-    private String refundStatus;
     private LocalDateTime createdAt;
-    private String imageUrl;
-    private String roomName;
+    
     private String hotelName;
+    private String imageUrl;
+    private String status; // Overall booking status calculated from booking units
+    private List<BookingUnit> bookingUnits;
+    private String customerName;
+    private String customerEmail;
+    private String customerAvatar;
 }

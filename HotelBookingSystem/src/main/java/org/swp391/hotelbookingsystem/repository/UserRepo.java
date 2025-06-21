@@ -1,12 +1,12 @@
 package org.swp391.hotelbookingsystem.repository;
 
-import org.swp391.hotelbookingsystem.model.User;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Repository;
-
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
+import org.swp391.hotelbookingsystem.model.User;
 
 @Repository
 public class UserRepo {
@@ -37,25 +37,45 @@ public class UserRepo {
     public User findByEmail(String email) {
         String sql = "SELECT * FROM Users WHERE email = ?";
         try {
-            return jdbc.queryForObject(sql, (rs, rowNum) -> {
-                User user = new User();
-                user.setId(rs.getInt("user_id"));
-                user.setFullName(rs.getString("full_name"));
-                user.setEmail(rs.getString("email"));
-                user.setPassword(rs.getString("password_hash"));
-                user.setPhone(rs.getString("phone"));
-                user.setRole(rs.getString("role"));
-                user.setActive(rs.getBoolean("is_active"));
-                user.setDob(rs.getDate("date_of_birth"));
-                user.setBio(rs.getString("bio"));
-                user.setGender(rs.getString("gender"));
-                user.setAvatarUrl(rs.getString("avatar_url"));
-                return user;
-            }, email);
+            return jdbc.queryForObject(sql, (rs, rowNum) -> User.builder()
+                    .id(rs.getInt("user_id"))
+                    .fullName(rs.getString("full_name"))
+                    .email(rs.getString("email"))
+                    .password(rs.getString("password_hash"))
+                    .phone(rs.getString("phone"))
+                    .role(rs.getString("role"))
+                    .active(rs.getBoolean("is_active"))
+                    .dob(rs.getDate("date_of_birth"))
+                    .bio(rs.getString("bio"))
+                    .gender(rs.getString("gender"))
+                    .avatarUrl(rs.getString("avatar_url"))
+                    .build(), email);
         } catch (Exception e) {
             return null;
         }
     }
+
+    public List<User> getUsersByRole(String role) {
+        String sql = "SELECT * FROM Users WHERE role = ?";
+        try {
+            return jdbc.query(sql, (rs, rowNum) -> User.builder()
+                    .id(rs.getInt("user_id"))
+                    .fullName(rs.getString("full_name"))
+                    .email(rs.getString("email"))
+                    .password(rs.getString("password_hash"))
+                    .phone(rs.getString("phone"))
+                    .role(rs.getString("role"))
+                    .active(rs.getBoolean("is_active"))
+                    .dob(rs.getDate("date_of_birth"))
+                    .bio(rs.getString("bio"))
+                    .gender(rs.getString("gender"))
+                    .avatarUrl(rs.getString("avatar_url"))
+                    .build(), role);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
 
     public void savePasswordResetToken(int userId, String token) {
         String sql = "INSERT INTO Tokens (user_id, token, expiry_date, token_type) VALUES (?, ?, DATEADD(MINUTE, 30, GETDATE()), 'reset password')";
@@ -69,17 +89,15 @@ public class UserRepo {
             WHERE t.token = ? AND t.expiry_date > GETDATE()
         """;
         try {
-            return jdbc.queryForObject(sql, (rs, rowNum) -> {
-                User user = new User();
-                user.setId(rs.getInt("user_id"));
-                user.setFullName(rs.getString("full_name"));
-                user.setEmail(rs.getString("email"));
-                user.setPassword(rs.getString("password_hash"));
-                user.setPhone(rs.getString("phone"));
-                user.setRole(rs.getString("role"));
-                user.setActive(rs.getBoolean("is_active"));
-                return user;
-            }, token);
+            return jdbc.queryForObject(sql, (rs, rowNum) -> User.builder()
+                    .id(rs.getInt("user_id"))
+                    .fullName(rs.getString("full_name"))
+                    .email(rs.getString("email"))
+                    .password(rs.getString("password_hash"))
+                    .phone(rs.getString("phone"))
+                    .role(rs.getString("role"))
+                    .active(rs.getBoolean("is_active"))
+                    .build(), token);
         } catch (Exception e) {
             return null;
         }
@@ -133,17 +151,6 @@ public class UserRepo {
         jdbc.update(sql, hashedPassword, userId);
     }
 
-    private static String SELECT_USERS_BY_ROLE = """
-            SELECT u.user_id AS userID, 
-                   u.full_name AS fullName, 
-                   u.email, 
-                   u.password_hash AS password, 
-                   u.phone, 
-                   u.role, 
-                   u.is_active
-            FROM Users u WHERE role = ?
-            """;
-
     private static String SELECT_USERS_WITH_PROFILE = """
             SELECT u.user_id AS userID, 
                    u.full_name AS fullName, 
@@ -159,35 +166,17 @@ public class UserRepo {
 
 
     public List<User> getAllUsersWithProfile() {
-        return jdbc.query(SELECT_USERS_WITH_PROFILE, (rs, rowNum) -> {
-            User user = new User();
-            user.setId(rs.getInt("userID"));
-            user.setFullName(rs.getString("fullName"));
-            user.setEmail(rs.getString("email"));
-            user.setPassword(rs.getString("password"));
-            user.setPhone(rs.getString("phone"));
-            user.setRole(rs.getString("role"));
-            user.setActive(rs.getBoolean("is_active"));
-            user.setAvatarUrl(rs.getString("avatarUrl"));
-            user.setBio(rs.getString("bio"));
-            return user;
-        });
-    }
-
-
-
-    public List<User> getUsersByRole(String role) {
-        return jdbc.query(SELECT_USERS_BY_ROLE, (rs, rowNum) -> {
-            User user = new User();
-            user.setId(rs.getInt("userID"));
-            user.setFullName(rs.getString("fullName"));
-            user.setEmail(rs.getString("email"));
-            user.setPassword(rs.getString("password"));
-            user.setPhone(rs.getString("phone"));
-            user.setRole(rs.getString("role"));
-            user.setActive(rs.getBoolean("is_active"));
-            return user;
-        }, role);
+        return jdbc.query(SELECT_USERS_WITH_PROFILE, (rs, rowNum) -> User.builder()
+                .id(rs.getInt("userID"))
+                .fullName(rs.getString("fullName"))
+                .email(rs.getString("email"))
+                .password(rs.getString("password"))
+                .phone(rs.getString("phone"))
+                .role(rs.getString("role"))
+                .active(rs.getBoolean("is_active"))
+                .avatarUrl(rs.getString("avatarUrl"))
+                .bio(rs.getString("bio"))
+                .build());
     }
 
     public void updateUserPassword(String email, String encodedPassword) {
@@ -226,35 +215,35 @@ public class UserRepo {
         """;
 
         String wildcard = "%" + search + "%";
-        return jdbc.query(sql, new Object[]{wildcard}, (rs, rowNum) -> {
-            User user = new User();
-            user.setId(rs.getInt("userID"));
-            user.setFullName(rs.getString("fullName"));
-            user.setEmail(rs.getString("email"));
-            user.setPassword(rs.getString("password"));
-            user.setPhone(rs.getString("phone"));
-            user.setRole(rs.getString("role"));
-            user.setActive(rs.getBoolean("is_active"));
-            user.setAvatarUrl(rs.getString("avatarUrl"));
-            user.setBio(rs.getString("bio"));
-            return user;
-        });
+        return jdbc.query(sql, new Object[]{wildcard}, (rs, rowNum) -> User.builder()
+                .id(rs.getInt("userID"))
+                .fullName(rs.getString("fullName"))
+                .email(rs.getString("email"))
+                .password(rs.getString("password"))
+                .phone(rs.getString("phone"))
+                .role(rs.getString("role"))
+                .active(rs.getBoolean("is_active"))
+                .avatarUrl(rs.getString("avatarUrl"))
+                .bio(rs.getString("bio"))
+                .build());
     }
 
     public User findUserById(int userId) {
         String sql = "SELECT * FROM Users WHERE user_id = ?";
         try {
-            return jdbc.queryForObject(sql, (rs, rowNum) -> {
-                User user = new User();
-                user.setId(rs.getInt("user_id"));
-                user.setFullName(rs.getString("full_name"));
-                user.setEmail(rs.getString("email"));
-                user.setPassword(rs.getString("password_hash"));
-                user.setPhone(rs.getString("phone"));
-                user.setRole(rs.getString("role"));
-                user.setActive(rs.getBoolean("is_active"));
-                return user;
-            }, userId);
+            return jdbc.queryForObject(sql, (rs, rowNum) -> User.builder()
+                    .id(rs.getInt("user_id"))
+                    .fullName(rs.getString("full_name"))
+                    .email(rs.getString("email"))
+                    .password(rs.getString("password_hash"))
+                    .phone(rs.getString("phone"))
+                    .role(rs.getString("role"))
+                    .active(rs.getBoolean("is_active"))
+                    .dob(rs.getDate("date_of_birth"))
+                    .bio(rs.getString("bio"))
+                    .gender(rs.getString("gender"))
+                    .avatarUrl(rs.getString("avatar_url"))
+                    .build(), userId);
         } catch (Exception e) {
             return null;
         }
@@ -263,6 +252,59 @@ public class UserRepo {
     public void updateUserStatus(int userId, boolean isActive) {
         String sql = "UPDATE Users SET is_active = ? WHERE user_id = ?";
         jdbc.update(sql, isActive, userId);
+    }
+
+    public List<User> findUsersByRolePaginated(String role, int offset, int size) {
+        String sql = """
+        SELECT * FROM Users
+        WHERE role = ?
+        ORDER BY full_name
+        OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
+    """;
+
+        return jdbc.query(sql, new Object[]{role, offset, size}, (rs, rowNum) -> User.builder()
+                .id(rs.getInt("user_id"))
+                .fullName(rs.getString("full_name"))
+                .email(rs.getString("email"))
+                .password(rs.getString("password_hash"))
+                .phone(rs.getString("phone"))
+                .role(rs.getString("role"))
+                .active(rs.getBoolean("is_active"))
+                .dob(rs.getDate("date_of_birth"))
+                .bio(rs.getString("bio"))
+                .gender(rs.getString("gender"))
+                .avatarUrl(rs.getString("avatar_url"))
+                .build());
+    }
+
+    public List<User> findUsersByRoleAndSearchPaginated(String role, String keyword, int offset, int size) {
+        String sql = """
+        SELECT * FROM Users
+        WHERE role = ? AND full_name LIKE ?
+        ORDER BY full_name
+        OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
+    """;
+
+        String searchKeyword = "%" + keyword + "%";
+        return jdbc.query(sql, new Object[]{role, searchKeyword, searchKeyword, offset, size}, (rs, rowNum) -> User.builder()
+                .id(rs.getInt("user_id"))
+                .fullName(rs.getString("full_name"))
+                .email(rs.getString("email"))
+                .password(rs.getString("password_hash"))
+                .phone(rs.getString("phone"))
+                .role(rs.getString("role"))
+                .active(rs.getBoolean("is_active"))
+                .dob(rs.getDate("date_of_birth"))
+                .bio(rs.getString("bio"))
+                .gender(rs.getString("gender"))
+                .avatarUrl(rs.getString("avatar_url"))
+                .build());
+    }
+
+    public int countUsersByRoleAndSearch(String role, String keyword) {
+        String sql = "SELECT COUNT(*) FROM Users WHERE role = ? AND full_name LIKE ?";
+        String wildcard = "%" + keyword + "%";
+        return jdbc.queryForObject(sql, Integer.class, role, wildcard);
     }
 
 

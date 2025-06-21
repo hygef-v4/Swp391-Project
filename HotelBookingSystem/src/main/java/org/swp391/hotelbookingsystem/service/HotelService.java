@@ -36,6 +36,10 @@ public class HotelService {
         return hotelRepository.insertHotel(hotel);
     }
 
+    public void updateHotel(Hotel hotel) {
+        hotelRepository.updateHotel(hotel);
+    }
+
     public int countHotels() {
         return hotelRepository.countHotels();
     }
@@ -78,4 +82,7 @@ public class HotelService {
         hotelRepository.cancelHotelDeleteToken(userId, hotelId);
     }
 
+    public int countHotelsByHostId(int id) {
+        return hotelRepository.countHotelByHostId(id);
+    }
 }
