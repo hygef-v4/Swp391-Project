@@ -84,6 +84,32 @@
 
   <!-- Theme CSS -->
   <link rel="stylesheet" th:href="@{/assets/css/style.css}">
+
+  <style>
+    [data-bs-theme="dark"] .page-link {
+        background-color: #2b3035;
+        color: #dee2e6;
+        border-color: #495057;
+    }
+
+    [data-bs-theme="dark"] .page-link:hover {
+        background-color: #343a40;
+        color: #fff;
+        border-color: #495057;
+    }
+
+    [data-bs-theme="dark"] .page-item.active .page-link {
+        background-color: #5143d9;
+        border-color: #5143d9;
+        color: #fff;
+    }
+
+    [data-bs-theme="dark"] .page-item.disabled .page-link {
+        background-color: #212529;
+        color: #6c757d;
+        border-color: #495057;
+    }
+  </style>
 </head>
 
 <body>
