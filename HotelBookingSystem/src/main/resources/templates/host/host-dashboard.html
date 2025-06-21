@@ -794,6 +794,7 @@
         const bookingItem = {
             id: `#BK${booking.bookingId}`,
             bookingId: booking.bookingId,
+            customerId: booking.customerId,
             guestName: booking.customerName || 'Khách ẩn danh',
             email: booking.customerEmail || '',
             avatar: booking.customerAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(booking.customerName || 'A')}&background=random`,
@@ -1270,9 +1271,9 @@
                                 <button class="btn btn-sm btn-outline-primary" onclick="bookingPagination.toggleBookingDetails('${booking.bookingId}')" title="Xem chi tiết phòng">
                                     <i class="bi bi-eye" id="toggle-icon-${booking.bookingId}"></i>
                                 </button>
-                                <button class="btn btn-sm btn-outline-success" title="Liên hệ khách">
+                                <a href="/host-customer-detail?customerId=${booking.customerId}" class="btn btn-sm btn-outline-success" title="Liên hệ khách">
                                     <i class="bi bi-chat-dots"></i>
-                                </button>
+                                </a>
                             </div>
                         </td>
                     </tr>

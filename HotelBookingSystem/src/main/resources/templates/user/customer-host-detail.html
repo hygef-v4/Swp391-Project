@@ -148,18 +148,37 @@
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
         }
         .chat-widget-header { background: var(--primary-gradient); color: #ffffff; padding: 1rem 1.25rem; display: flex; align-items: center; justify-content: space-between; }
-        .chat-widget-header .status-badge { background-color: rgba(0,0,0,0.2); color: #ffffff; padding: 4px 10px; font-size: 0.75rem; border-radius: 8px; font-weight: 500; }
+        .chat-widget-header .status-badge { background-color: rgba(255, 255, 255, 0.9); color: #374151; padding: 4px 10px; font-size: 0.75rem; border-radius: 8px; font-weight: 600; border: 1px solid rgba(255, 255, 255, 0.8); }
+        .chat-header-avatar { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255, 255, 255, 0.3); }
         .chat-messages { flex-grow: 1; padding: 1.25rem; overflow-y: auto; background-color: var(--card-secondary-bg); }
         .message { display: flex; flex-direction: column; margin-bottom: 1rem; max-width: 80%; }
+        .message.sent { align-items: flex-end; margin-left: auto; }
+        .message.received { align-items: flex-start; flex-direction: row; align-items: flex-end; }
+        .message-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin: 0 8px; flex-shrink: 0; }
+        .message-content-wrapper { display: flex; flex-direction: column; }
         .message-bubble { padding: 10px 16px; border-radius: 20px; line-height: 1.5; }
         .message-time { font-size: 0.7rem; color: var(--text-secondary); margin-top: 4px; }
-        .message.received { align-items: flex-start; }
         .message.received .message-bubble { background-color: var(--card-bg); border: 1px solid var(--border-color); border-bottom-left-radius: 4px; color: var(--text-primary); }
-        .message.sent { align-items: flex-end; margin-left: auto; }
         .message.sent .message-bubble { background: var(--primary-gradient); color: #ffffff; border-bottom-right-radius: 4px; }
         .message.sent .message-bubble img { border: 2px solid rgba(255,255,255,0.3); }
         .message.received .message-bubble img { border: 2px solid var(--border-color); }
         .message-bubble img { display: block; }
+        /* Date separator */
+        .date-separator { text-align: center; margin: 1rem 0; }
+        .date-separator span { background-color: var(--card-secondary-bg); color: var(--text-secondary); padding: 4px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: 500; border: 1px solid var(--border-color); }
+        
+        /* Image viewer modal */
+        .image-viewer-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); z-index: 9999; display: none; justify-content: center; align-items: center; }
+        .image-viewer-content { position: relative; width: 80vw; height: 80vh; display: flex; align-items: center; justify-content: center; }
+        .image-viewer-img { width: 100%; height: 100%; object-fit: contain; border-radius: 8px; }
+        .image-viewer-close { position: absolute; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.2); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .image-viewer-close:hover { background: rgba(255, 255, 255, 0.3); }
+        .image-viewer-nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255, 255, 255, 0.2); border: none; color: white; width: 50px; height: 50px; border-radius: 50%; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .image-viewer-nav:hover { background: rgba(255, 255, 255, 0.3); }
+        .image-viewer-nav.disabled { opacity: 0.3; cursor: not-allowed; }
+        .image-viewer-prev { left: 20px; }
+        .image-viewer-next { right: 20px; }
+        .image-viewer-counter { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0, 0, 0, 0.7); color: white; padding: 8px 16px; border-radius: 20px; font-size: 14px; }
         /* Loading state */
         .chat-loading { display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-secondary); }
         .chat-loading i { font-size: 2rem; animation: spin 1s linear infinite; }
@@ -268,8 +287,16 @@
                     <div class="col-lg-5">
                         <div class="chat-widget">
                             <div class="chat-widget-header">
-                                <h6 class="mb-0 fw-bold"><i class="bi bi-chat-dots-fill me-2"></i> Tin Nhắn với <span th:text="${host.fullName}">John Doe</span></h6>
-                                <span class="status-badge">Online</span>
+                                <div class="d-flex align-items-center">
+                                    <img th:src="${host.avatarUrl ?: 'https://ui-avatars.com/api/?name=' + host.fullName + '&background=fff&color=8b5cf6&size=128&bold=true'}"
+                                         alt="Host Avatar"
+                                         class="chat-header-avatar me-3">
+                                    <div>
+                                        <h6 class="mb-0 fw-bold text-white" th:text="${host.fullName}">John Doe</h6>
+                                        <small class="text-white-50" id="chat-date"></small>
+                                    </div>
+                                </div>
+                                <span class="status-badge">Offline</span>
                             </div>
                             <div class="chat-messages" id="chatMessages">
                                 <!-- Messages will be loaded here dynamically -->
@@ -369,6 +396,17 @@
 <div th:replace="~{common/footer :: footer}"></div>
 <!-- **************** MAIN CONTENT END **************** -->
 
+<!-- Image Viewer Modal -->
+<div id="imageViewerModal" class="image-viewer-modal">
+    <div class="image-viewer-content">
+        <img id="imageViewerImg" class="image-viewer-img" src="" alt="Image">
+        <button class="image-viewer-close" onclick="closeImageViewer()">×</button>
+        <button class="image-viewer-nav image-viewer-prev" onclick="showPrevImage()">‹</button>
+        <button class="image-viewer-nav image-viewer-next" onclick="showNextImage()">›</button>
+        <div class="image-viewer-counter" id="imageViewerCounter">1 / 1</div>
+    </div>
+</div>
+
 <!-- Core Bootstrap JS -->
 <script src="/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <!-- SockJS & STOMP -->
@@ -399,21 +437,98 @@
     let isConnected = false;
     let retryCount = 0;
     const MAX_RETRY_COUNT = 10;
+    let heartbeatInterval = null;
+    let lastSeenTimestamp = null;
 
     function updateConnectionStatus(connected) {
         isConnected = connected;
         const statusBadge = document.querySelector('.status-badge');
-        if (statusBadge) {
-            if (connected) {
-                statusBadge.textContent = 'Online';
-                statusBadge.style.backgroundColor = 'rgba(34, 197, 94, 0.2)';
-                statusBadge.style.color = '#22c55e';
-                retryCount = 0;
-            } else {
-                statusBadge.textContent = 'Offline';
-                statusBadge.style.backgroundColor = 'rgba(239, 68, 68, 0.2)';
-                statusBadge.style.color = '#ef4444';
+        if (statusBadge && !connected) {
+            statusBadge.textContent = 'Offline';
+            statusBadge.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
+            statusBadge.style.color = '#374151';
+            statusBadge.style.border = '1px solid rgba(255, 255, 255, 0.8)';
+        }
+        if (connected) {
+            retryCount = 0; // Reset retry count on successful connection
+        }
+    }
+    
+    function updateOtherUserStatus(presenceObj) {
+        // Handle status requests - respond if someone is asking for our status
+        if (presenceObj.type === 'status_request' && presenceObj.requestFor === currentUserId) {
+            // Respond with our current status
+            if (stompClient && stompClient.connected) {
+                const statusResponse = {
+                    userId: currentUserId,
+                    status: 'online',
+                    roomId: roomId,
+                    type: 'status_response',
+                    timestamp: new Date().toISOString()
+                };
+                stompClient.send(`/app/presence/${roomId}`, {}, JSON.stringify(statusResponse));
             }
+            return;
+        }
+        
+        // Only update status if it's about the other user (not current user)
+        if (presenceObj.userId === otherUserId) {
+            const statusBadge = document.querySelector('.status-badge');
+            if (statusBadge) {
+                if (presenceObj.status === 'online') {
+                    statusBadge.textContent = 'Online';
+                    statusBadge.style.backgroundColor = 'rgba(34, 197, 94, 0.2)';
+                    statusBadge.style.color = '#22c55e';
+                    statusBadge.style.border = '1px solid rgba(34, 197, 94, 0.4)';
+                    lastSeenTimestamp = new Date().getTime();
+                } else {
+                    statusBadge.textContent = 'Offline';
+                    statusBadge.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
+                    statusBadge.style.color = '#374151';
+                    statusBadge.style.border = '1px solid rgba(255, 255, 255, 0.8)';
+                }
+            }
+        }
+    }
+    
+    function startHeartbeat() {
+        // Clear existing heartbeat
+        if (heartbeatInterval) {
+            clearInterval(heartbeatInterval);
+        }
+        
+        // Send heartbeat every 30 seconds
+        heartbeatInterval = setInterval(() => {
+            if (stompClient && stompClient.connected && !document.hidden) {
+                const heartbeat = {
+                    userId: currentUserId,
+                    status: 'online',
+                    roomId: roomId,
+                    timestamp: new Date().toISOString(),
+                    type: 'heartbeat'
+                };
+                stompClient.send(`/app/presence/${roomId}`, {}, JSON.stringify(heartbeat));
+            }
+        }, 30000); // 30 seconds
+        
+        // Check if other user is still online (timeout after 60 seconds of no heartbeat)
+        setInterval(() => {
+            if (lastSeenTimestamp && (new Date().getTime() - lastSeenTimestamp) > 60000) {
+                const statusBadge = document.querySelector('.status-badge');
+                if (statusBadge && statusBadge.textContent === 'Online') {
+                    statusBadge.textContent = 'Offline';
+                    statusBadge.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
+                    statusBadge.style.color = '#374151';
+                    statusBadge.style.border = '1px solid rgba(255, 255, 255, 0.8)';
+                }
+            }
+        }, 10000); // Check every 10 seconds
+    }
+    
+    function stopHeartbeat() {
+        if (heartbeatInterval) {
+            clearInterval(heartbeatInterval);
+            heartbeatInterval = null;
         }
     }
 
@@ -442,6 +557,7 @@
         socket.onclose = function() {
             console.log('WebSocket disconnected');
             updateConnectionStatus(false);
+            stopHeartbeat();
             if (!document.hidden) {
                 setTimeout(connectChat, 3000);
             }
@@ -460,6 +576,7 @@
             console.log('Connected to WebSocket successfully');
             updateConnectionStatus(true);
             
+            // Subscribe to room topic for chat messages
             console.log('Subscribing to topic:', `/topic/chat.${roomId}`);
             stompClient.subscribe(`/topic/chat.${roomId}`, (message) => {
                 console.log('Received message:', message);
@@ -473,6 +590,42 @@
                     }
                 }
             });
+            
+            // Subscribe to presence topic for online/offline status
+            stompClient.subscribe(`/topic/presence.${roomId}`, (message) => {
+                console.log('Received presence update:', message);
+                if (message && message.body) {
+                    try {
+                        const presenceObj = JSON.parse(message.body);
+                        console.log('Parsed presence:', presenceObj);
+                        updateOtherUserStatus(presenceObj);
+                    } catch (e) {
+                        console.error('Error parsing presence:', e, message.body);
+                    }
+                }
+            });
+            
+            // Send join presence notification
+            const joinPresence = {
+                userId: currentUserId,
+                status: 'online',
+                roomId: roomId,
+                timestamp: new Date().toISOString()
+            };
+            stompClient.send(`/app/presence/${roomId}`, {}, JSON.stringify(joinPresence));
+            
+            // Request current status of other user
+            const statusRequest = {
+                userId: currentUserId,
+                requestFor: otherUserId,
+                roomId: roomId,
+                type: 'status_request',
+                timestamp: new Date().toISOString()
+            };
+            stompClient.send(`/app/presence/${roomId}`, {}, JSON.stringify(statusRequest));
+            
+            // Start heartbeat to maintain presence
+            startHeartbeat();
             
             console.log('Loading chat history...');
             const fetchHeaders = {
@@ -520,10 +673,24 @@
         });
     }
 
+    let lastMessageDate = null;
+
     function appendMessage(msg) {
         const container = document.getElementById('chatMessages');
         if (container.querySelector('.text-center')) {
             container.innerHTML = '';
+        }
+        
+        // Check if we need to add a date separator
+        const messageDate = new Date(msg.sentAt);
+        const messageDateString = messageDate.toDateString();
+        
+        if (lastMessageDate !== messageDateString) {
+            const dateSeparator = document.createElement('div');
+            dateSeparator.className = 'date-separator';
+            dateSeparator.innerHTML = `<span>${formatDateSeparator(messageDate)}</span>`;
+            container.appendChild(dateSeparator);
+            lastMessageDate = messageDateString;
         }
         
         const isSent = msg.senderId === currentUserId;
@@ -532,15 +699,32 @@
         
         let content = '';
         if (msg.messageType === 'IMAGE' && msg.imageUrl) {
-            content = `<img src="${msg.imageUrl}" style="max-width: 200px; max-height: 200px; border-radius: 12px; cursor: pointer;" onclick="window.open('${msg.imageUrl}', '_blank')">`;
+            content = `<img src="${msg.imageUrl}" style="max-width: 200px; max-height: 200px; border-radius: 12px; cursor: pointer;" onclick="openImageViewer('${msg.imageUrl}')">`;
         } else if (msg.content) {
             content = escapeHtml(msg.content);
         }
         
-        wrapper.innerHTML = `
-            <div class="message-bubble">${content}</div>
-            <div class="message-time">${formatTime(msg.sentAt)}</div>
-        `;
+        // Only show avatar for received messages (from the host)
+        const hostAvatar = '[[${host.avatarUrl}]]' || 'https://ui-avatars.com/api/?name=[[${host.fullName}]]&background=fff&color=8b5cf6&size=128&bold=true';
+        
+        if (isSent) {
+            // Sent messages - no avatar
+            wrapper.innerHTML = `
+                <div class="message-content-wrapper">
+                    <div class="message-bubble">${content}</div>
+                    <div class="message-time">${formatTime(msg.sentAt)}</div>
+                </div>
+            `;
+        } else {
+            // Received messages - show host avatar
+            wrapper.innerHTML = `
+                <img src="${hostAvatar}" alt="Host Avatar" class="message-avatar">
+                <div class="message-content-wrapper">
+                    <div class="message-bubble">${content}</div>
+                    <div class="message-time">${formatTime(msg.sentAt)}</div>
+                </div>
+            `;
+        }
         
         container.appendChild(wrapper);
         container.scrollTop = container.scrollHeight;
@@ -550,6 +734,21 @@
         if (!dateString) return new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
         const date = new Date(dateString);
         return date.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+    }
+
+    function formatDateSeparator(date) {
+        const today = new Date();
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        
+        if (date.toDateString() === today.toDateString()) {
+            return 'Hôm nay';
+        } else if (date.toDateString() === yesterday.toDateString()) {
+            return 'Hôm qua';
+        } else {
+            const options = { weekday: 'short', day: 'numeric', month: 'numeric' };
+            return date.toLocaleDateString('vi-VN', options);
+        }
     }
 
     function escapeHtml(text) {
@@ -652,20 +851,172 @@
     // Connect when page loads
     document.addEventListener('DOMContentLoaded', () => {
         console.log('DOM Content Loaded');
+        
+        // Set current date in chat header
+        updateChatDate();
         connectChat();
     });
+    
+    function updateChatDate() {
+        const chatDateElement = document.getElementById('chat-date');
+        if (chatDateElement) {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            chatDateElement.textContent = now.toLocaleDateString('vi-VN', options);
+        }
+    }
 
-    // Handle page visibility changes
+    // Send offline presence and disconnect on page unload
+    window.addEventListener('beforeunload', () => {
+        if (stompClient && stompClient.connected) {
+            // Send offline presence notification before disconnecting
+            const leavePresence = {
+                userId: currentUserId,
+                status: 'offline',
+                roomId: roomId,
+                timestamp: new Date().toISOString()
+            };
+            stompClient.send(`/app/presence/${roomId}`, {}, JSON.stringify(leavePresence));
+            stopHeartbeat();
+            stompClient.disconnect();
+        }
+    });
+    
+    // Also handle page unload with pagehide (more reliable on mobile)
+    window.addEventListener('pagehide', () => {
+        if (stompClient && stompClient.connected) {
+            const leavePresence = {
+                userId: currentUserId,
+                status: 'offline',
+                roomId: roomId,
+                timestamp: new Date().toISOString()
+            };
+            stompClient.send(`/app/presence/${roomId}`, {}, JSON.stringify(leavePresence));
+            stopHeartbeat();
+            stompClient.disconnect();
+        }
+    });
+    
+    // Also handle when page becomes hidden (user switches tabs, etc.)
     document.addEventListener('visibilitychange', () => {
-        if (!document.hidden && !isConnected) {
-            connectChat();
+        if (document.hidden) {
+            // Send offline when page becomes hidden and stop heartbeat
+            if (stompClient && stompClient.connected) {
+                const hiddenPresence = {
+                    userId: currentUserId,
+                    status: 'offline',
+                    roomId: roomId,
+                    timestamp: new Date().toISOString()
+                };
+                stompClient.send(`/app/presence/${roomId}`, {}, JSON.stringify(hiddenPresence));
+            }
+            stopHeartbeat();
+        } else {
+            // Send online when page becomes visible and reconnect if needed
+            if (!isConnected) {
+                connectChat();
+            } else if (stompClient && stompClient.connected) {
+                const visiblePresence = {
+                    userId: currentUserId,
+                    status: 'online',
+                    roomId: roomId,
+                    timestamp: new Date().toISOString()
+                };
+                stompClient.send(`/app/presence/${roomId}`, {}, JSON.stringify(visiblePresence));
+                startHeartbeat();
+            }
         }
     });
 
-    // Disconnect on page unload to clean up resources
-    window.addEventListener('beforeunload', () => {
-        if (stompClient && stompClient.connected) {
-            stompClient.disconnect();
+    // Image viewer functionality
+    let currentImages = [];
+    let currentImageIndex = 0;
+
+    function openImageViewer(imageUrl) {
+        // Collect all images from the chat
+        currentImages = [];
+        const chatImages = document.querySelectorAll('#chatMessages img[src*="http"]');
+        chatImages.forEach(img => {
+            if (img.src && !img.src.includes('ui-avatars.com')) {
+                currentImages.push(img.src);
+            }
+        });
+        
+        // Find the index of the clicked image
+        currentImageIndex = currentImages.indexOf(imageUrl);
+        if (currentImageIndex === -1) {
+            currentImageIndex = 0;
+        }
+        
+        showImageInViewer();
+        document.getElementById('imageViewerModal').style.display = 'flex';
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    }
+
+    function closeImageViewer() {
+        document.getElementById('imageViewerModal').style.display = 'none';
+        document.body.style.overflow = ''; // Restore scrolling
+    }
+
+    function showPrevImage() {
+        if (currentImageIndex > 0) {
+            currentImageIndex--;
+            showImageInViewer();
+        }
+    }
+
+    function showNextImage() {
+        if (currentImageIndex < currentImages.length - 1) {
+            currentImageIndex++;
+            showImageInViewer();
+        }
+    }
+
+    function showImageInViewer() {
+        const img = document.getElementById('imageViewerImg');
+        const counter = document.getElementById('imageViewerCounter');
+        const prevBtn = document.querySelector('.image-viewer-prev');
+        const nextBtn = document.querySelector('.image-viewer-next');
+        
+        if (currentImages.length > 0) {
+            img.src = currentImages[currentImageIndex];
+            counter.textContent = `${currentImageIndex + 1} / ${currentImages.length}`;
+            
+            // Update navigation button states
+            prevBtn.classList.toggle('disabled', currentImageIndex === 0);
+            nextBtn.classList.toggle('disabled', currentImageIndex === currentImages.length - 1);
+        }
+    }
+
+    // Close modal when clicking outside the image
+    document.getElementById('imageViewerModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeImageViewer();
+        }
+    });
+
+    // Keyboard navigation
+    document.addEventListener('keydown', function(e) {
+        const modal = document.getElementById('imageViewerModal');
+        if (modal.style.display === 'flex') {
+            switch(e.key) {
+                case 'Escape':
+                    closeImageViewer();
+                    break;
+                case 'ArrowLeft':
+                    showPrevImage();
+                    break;
+                case 'ArrowRight':
+                    showNextImage();
+                    break;
+            }
         }
     });
 </script>

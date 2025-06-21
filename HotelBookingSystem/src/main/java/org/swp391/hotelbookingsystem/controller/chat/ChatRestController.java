@@ -5,6 +5,10 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,6 +28,7 @@ public class ChatRestController {
 
     private final MessageService messageService;
     private final CloudinaryService cloudinaryService;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @GetMapping("/api/chat/history")
     public ResponseEntity<List<Message>> getChatHistory(@RequestParam Integer user1, @RequestParam Integer user2) {
@@ -72,6 +77,19 @@ public class ChatRestController {
             log.error("Error uploading image: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of("error", "Failed to upload image: " + e.getMessage()));
+        }
+    }
+
+    @MessageMapping("/presence/{roomId}")
+    public void handlePresence(@DestinationVariable String roomId, @Payload Map<String, Object> presence) {
+        log.info("Received presence update for room {}: {}", roomId, presence);
+        
+        try {
+            // Broadcast presence update to all subscribers of this room
+            messagingTemplate.convertAndSend("/topic/presence." + roomId, presence);
+            log.info("Broadcasted presence update to /topic/presence.{}", roomId);
+        } catch (Exception e) {
+            log.error("Error broadcasting presence for room {}: {}", roomId, e.getMessage(), e);
         }
     }
 } 
