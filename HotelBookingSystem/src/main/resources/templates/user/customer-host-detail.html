@@ -481,11 +481,17 @@
                     statusBadge.style.color = '#22c55e';
                     statusBadge.style.border = '1px solid rgba(34, 197, 94, 0.4)';
                     lastSeenTimestamp = new Date().getTime();
+                    // Update last seen to "now" when user comes online
+                    updateLastSeenTime(new Date().toISOString());
                 } else {
                     statusBadge.textContent = 'Offline';
                     statusBadge.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
                     statusBadge.style.color = '#374151';
                     statusBadge.style.border = '1px solid rgba(255, 255, 255, 0.8)';
+                    // Update last seen time when user goes offline
+                    if (presenceObj.timestamp) {
+                        updateLastSeenTime(presenceObj.timestamp);
+                    }
                 }
             }
         }
@@ -855,21 +861,50 @@
         // Set current date in chat header
         updateChatDate();
         connectChat();
+        
+        // Update last seen time every minute
+        setInterval(() => {
+            const statusBadge = document.querySelector('.status-badge');
+            if (statusBadge && statusBadge.textContent === 'Offline' && lastSeenTimestamp) {
+                updateLastSeenTime(new Date(lastSeenTimestamp).toISOString());
+            }
+        }, 60000); // Update every minute
     });
     
     function updateChatDate() {
         const chatDateElement = document.getElementById('chat-date');
         if (chatDateElement) {
+            chatDateElement.textContent = 'Đang tải...';
+        }
+    }
+    
+    function updateLastSeenTime(timestamp) {
+        const chatDateElement = document.getElementById('chat-date');
+        if (chatDateElement && timestamp) {
+            const lastSeenDate = new Date(timestamp);
             const now = new Date();
-            const options = { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            };
-            chatDateElement.textContent = now.toLocaleDateString('vi-VN', options);
+            const diffInMinutes = Math.floor((now - lastSeenDate) / (1000 * 60));
+            
+            let lastSeenText;
+            if (diffInMinutes < 1) {
+                lastSeenText = 'Vừa mới hoạt động';
+            } else if (diffInMinutes < 60) {
+                lastSeenText = `Hoạt động ${diffInMinutes} phút trước`;
+            } else if (diffInMinutes < 1440) { // Less than 24 hours
+                const hours = Math.floor(diffInMinutes / 60);
+                lastSeenText = `Hoạt động ${hours} giờ trước`;
+            } else {
+                const options = { 
+                    weekday: 'short', 
+                    day: 'numeric', 
+                    month: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                };
+                lastSeenText = `Hoạt động lúc ${lastSeenDate.toLocaleDateString('vi-VN', options)}`;
+            }
+            
+            chatDateElement.textContent = lastSeenText;
         }
     }
 
