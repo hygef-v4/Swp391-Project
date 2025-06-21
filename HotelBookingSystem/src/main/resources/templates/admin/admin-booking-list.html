@@ -373,37 +373,41 @@
                                                th:href="@{'/admin-booking-list'(page=2, status=${statusFilter}, view=${viewMode}, search=${search})}">2</a>
                                         </li>
 
-                                        <!-- Dấu ba chấm bên trái -->
-                                        <li th:if="${totalPages >= 5 && currentPage -2 > 2}" class="page-item mb-0 disabled">
+                                        <!-- Left ellipsis -->
+                                        <li th:if="${totalPages >= 5 and currentPage - 2 > 2}" class="page-item mb-0 disabled">
                                             <a class="page-link">...</a>
                                         </li>
 
-                                        <!-- Trang trước current -->
-                                        <li th:if="${totalPages >= 4 && currentPage > 3}" class="page-item mb-0">
+                                        <!-- Page -1 -->
+                                        <li th:if="${totalPages >= 4 and currentPage != 1 and currentPage - 1 != 1 and currentPage - 1 != 2}"
+                                            class="page-item mb-0">
                                             <a class="page-link"
                                                th:href="@{'/admin-booking-list'(page=${currentPage - 1}, status=${statusFilter}, view=${viewMode}, search=${search})}"
                                                th:text="${currentPage - 1}"></a>
                                         </li>
 
-                                        <!-- Current page -->
-                                        <li th:if="${totalPages >= 4 && currentPage > 2 && currentPage < totalPages}" class="page-item mb-0 active disabled">
+                                        <!-- Current Page -->
+                                        <li th:if="${totalPages >= 4 and currentPage != 1 and currentPage != 2 and currentPage != totalPages}"
+                                            class="page-item mb-0 active disabled">
                                             <a class="page-link" th:text="${currentPage}"></a>
                                         </li>
 
-                                        <!-- Trang sau current -->
-                                        <li th:if="${totalPages >= 4 && currentPage+1 < totalPages}" class="page-item mb-0">
+                                        <!-- Page +1 -->
+                                        <li th:if="${totalPages >= 4 and currentPage + 1 != 2 and currentPage + 1 != totalPages and currentPage != totalPages}"
+                                            class="page-item mb-0">
                                             <a class="page-link"
                                                th:href="@{'/admin-booking-list'(page=${currentPage + 1}, status=${statusFilter}, view=${viewMode}, search=${search})}"
                                                th:text="${currentPage + 1}"></a>
                                         </li>
 
-                                        <!-- Dấu ba chấm bên phải -->
-                                        <li th:if="${totalPages >= 4 && totalPages > currentPage+2}" class="page-item mb-0 disabled">
+                                        <!-- Right ellipsis -->
+                                        <li th:if="${totalPages >= 4 and totalPages > currentPage + 2}" class="page-item mb-0 disabled">
                                             <a class="page-link">...</a>
                                         </li>
 
                                         <!-- Last page -->
-                                        <li th:if="${totalPages >= 3}" th:class="'page-item mb-0' + (${currentPage == totalPages} ? ' active disabled' : '')">
+                                        <li th:if="${totalPages >= 3}"
+                                            th:class="'page-item mb-0' + (${currentPage == totalPages} ? ' active disabled' : '')">
                                             <a class="page-link"
                                                th:href="@{'/admin-booking-list'(page=${totalPages}, status=${statusFilter}, view=${viewMode}, search=${search})}"
                                                th:text="${totalPages}"></a>
@@ -435,20 +439,20 @@
                     <div class="card-body">
 
                         <!-- Header row (hiện trên desktop) -->
-                        <div class="bg-light rounded p-3 d-none d-xxl-block">
-                            <div class="row row-cols-7 g-4">
+                        <div class="bg-light rounded p-3 d-xxl-block">
+                            <div class="row row-cols-5 g-4">
                                 <div class="col"><h6 class="mb-0">Ảnh</h6></div>
-                                <div class="col"><h6 class="mb-0">Loại phòng</h6></div>
+<!--                                <div class="col"><h6 class="mb-0">Loại phòng</h6></div>-->
                                 <div class="col"><h6 class="mb-0">Tên khách sạn</h6></div>
                                 <div class="col"><h6 class="mb-0">Nhận/trả phòng</h6></div>
                                 <div class="col"><h6 class="mb-0">Giá</h6></div>
-                                <div class="col"><h6 class="mb-0">Trạng thái</h6></div>
+<!--                                <div class="col"><h6 class="mb-0">Trạng thái</h6></div>-->
                                 <div class="col"><h6 class="mb-0">Hành động</h6></div>
                             </div>
                         </div>
 
                         <!-- Each booking row -->
-                        <div class="row g-3 g-sm-4 align-items-center border-bottom px-2 py-4"
+                        <div class="row g-3 g-sm-4 align-items-center justify-content-center border-bottom px-2 py-4"
                              th:each="booking : ${bookings}">
 
                             <!-- Room image -->
@@ -528,37 +532,41 @@
                                                th:href="@{'/admin-booking-list'(page=2, status=${statusFilter}, view=${viewMode}, search=${search})}">2</a>
                                         </li>
 
-                                        <!-- Dấu ba chấm bên trái -->
-                                        <li th:if="${totalPages >= 5 && currentPage -2 > 2}" class="page-item mb-0 disabled">
+                                        <!-- Left ellipsis -->
+                                        <li th:if="${totalPages >= 5 and currentPage - 2 > 2}" class="page-item mb-0 disabled">
                                             <a class="page-link">...</a>
                                         </li>
 
-                                        <!-- Trang trước current -->
-                                        <li th:if="${totalPages >= 4 && currentPage > 3}" class="page-item mb-0">
+                                        <!-- Page -1 -->
+                                        <li th:if="${totalPages >= 4 and currentPage != 1 and currentPage - 1 != 1 and currentPage - 1 != 2}"
+                                            class="page-item mb-0">
                                             <a class="page-link"
                                                th:href="@{'/admin-booking-list'(page=${currentPage - 1}, status=${statusFilter}, view=${viewMode}, search=${search})}"
                                                th:text="${currentPage - 1}"></a>
                                         </li>
 
-                                        <!-- Current page -->
-                                        <li th:if="${totalPages >= 4 && currentPage > 2 && currentPage < totalPages}" class="page-item mb-0 active disabled">
+                                        <!-- Current Page -->
+                                        <li th:if="${totalPages >= 4 and currentPage != 1 and currentPage != 2 and currentPage != totalPages}"
+                                            class="page-item mb-0 active disabled">
                                             <a class="page-link" th:text="${currentPage}"></a>
                                         </li>
 
-                                        <!-- Trang sau current -->
-                                        <li th:if="${totalPages >= 4 && currentPage+1 < totalPages}" class="page-item mb-0">
+                                        <!-- Page +1 -->
+                                        <li th:if="${totalPages >= 4 and currentPage + 1 != 2 and currentPage + 1 != totalPages and currentPage != totalPages}"
+                                            class="page-item mb-0">
                                             <a class="page-link"
                                                th:href="@{'/admin-booking-list'(page=${currentPage + 1}, status=${statusFilter}, view=${viewMode}, search=${search})}"
                                                th:text="${currentPage + 1}"></a>
                                         </li>
 
-                                        <!-- Dấu ba chấm bên phải -->
-                                        <li th:if="${totalPages >= 4 && totalPages > currentPage+2}" class="page-item mb-0 disabled">
+                                        <!-- Right ellipsis -->
+                                        <li th:if="${totalPages >= 4 and totalPages > currentPage + 2}" class="page-item mb-0 disabled">
                                             <a class="page-link">...</a>
                                         </li>
 
                                         <!-- Last page -->
-                                        <li th:if="${totalPages >= 3}" th:class="'page-item mb-0' + (${currentPage == totalPages} ? ' active disabled' : '')">
+                                        <li th:if="${totalPages >= 3}"
+                                            th:class="'page-item mb-0' + (${currentPage == totalPages} ? ' active disabled' : '')">
                                             <a class="page-link"
                                                th:href="@{'/admin-booking-list'(page=${totalPages}, status=${statusFilter}, view=${viewMode}, search=${search})}"
                                                th:text="${totalPages}"></a>

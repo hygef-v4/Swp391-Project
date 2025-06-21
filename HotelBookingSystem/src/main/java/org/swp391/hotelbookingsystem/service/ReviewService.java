@@ -1,5 +1,7 @@
 package org.swp391.hotelbookingsystem.service;
 
+import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -7,21 +9,22 @@ import org.swp391.hotelbookingsystem.controller.chatbot.DialogflowWebhookControl
 import org.swp391.hotelbookingsystem.model.Review;
 import org.swp391.hotelbookingsystem.repository.ReviewRepository;
 
-import java.util.List;
-
 @Service
 public class ReviewService {
-
-    private final DialogflowWebhookController dialogflowWebhookController;
-    @Autowired
     private ReviewRepository reviewRepository;
+    private DialogflowWebhookController dialogflowWebhookController;
 
-    ReviewService(DialogflowWebhookController dialogflowWebhookController) {
+    public ReviewService(DialogflowWebhookController dialogflowWebhookController) {
         this.dialogflowWebhookController = dialogflowWebhookController;
     }
 
-    public List<Review> getTop5PublicPositiveReviews() {
-        return reviewRepository.getTop5PublicPositiveReviews();
+    public ReviewService(ReviewRepository reviewRepository) {
+        this.reviewRepository = reviewRepository;
+    }
+
+    public double getAverageHotelRatingForHost(int hostId) {
+        Double rating = reviewRepository.getAverageHotelRatingByHostId(hostId);
+        return rating != null ? rating : 0.0;
     }
 
     public List<Review> getRecentPublicReviews() {
@@ -44,5 +47,9 @@ public class ReviewService {
 
     public List<Review> getHotelReview(int hotelId){
         return reviewRepository.getHotelReview(hotelId);
+    }
+
+    public List<Review> getTop5PublicPositiveReviews() {
+        return reviewRepository.getTop5PublicPositiveReviews();
     }
 }

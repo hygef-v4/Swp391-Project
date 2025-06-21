@@ -102,7 +102,7 @@
                             <a th:href="@{/bookingHistory}" class="btn btn-sm btn-light"><i class="fa fa-arrow-left me-1"></i>Quay lại trang lịch sử đặt phòng</a>
                         </div>
 
-                        <div class="card-body" th:each="bookingUnit : ${booking.bookingUnits}">
+                        <div class="card-body" th:each="bookingUnit : ${booking.bookingUnits}" th:if="${(upcoming && bookingUnit.status == 'approved') || (cancelled && bookingUnit.status == 'cancelled') || (cancelled && bookingUnit.status == 'rejected') || (completed && bookingUnit.status == 'completed')}">
                             <div class="text-center mb-4">
                                 <img th:src="${bookingUnit.imageUrl != null ? bookingUnit.imageUrl : '/assets/images/default-room.jpg'}"
                                      alt="Room Image"
@@ -112,16 +112,23 @@
 
                             <div class="row g-4 px-3 text-center justify-content-center">
                                 <div class="col-sm-6 col-md-4">
-                                    <p class="mb-1 fw-semibold text-muted">Khách sạn</p>
-                                    <h6 th:text="${booking.hotelName}"></h6>
+                                    <p class="mb-1 fw-semibold text-muted">Loại phòng</p>
+                                    <h6 th:text="${bookingUnit.roomName}">2</h6>
                                 </div>
                                 <div class="col-sm-6 col-md-4">
                                     <p class="mb-1 fw-semibold text-muted">Trạng thái</p>
-                                    <h6 th:text="${bookingUnit.status}">approved</h6>
+                                    <h6><span th:switch="${bookingUnit.status}">
+                                        <span th:case="'approved'">Đã xác nhận</span>
+                                        <span th:case="'pending'">Chờ xác nhận</span>
+                                        <span th:case="'cancelled'">Đã hủy</span>
+                                        <span th:case="'completed'">Đã hoàn thành</span>
+                                        <span th:case="'rejected'">Đã bị từ chối</span>
+                                        <span th:case="*">Không xác định</span>
+                                    </span></h6>
                                 </div>
                                 <div class="col-sm-6 col-md-4">
-                                    <p class="mb-1 fw-semibold text-muted">Loại phòng</p>
-                                    <h6 th:text="${bookingUnit.roomName}">2</h6>
+                                    <p class="mb-1 fw-semibold text-muted">Số lượng</p>
+                                    <h6 th:text="${bookingUnit.quantity}"></h6>
                                 </div>
                                 <div class="col-sm-6 col-md-4">
                                     <p class="mb-1 fw-semibold text-muted">Ngày nhận phòng</p>
@@ -133,7 +140,7 @@
                                 </div>
                                 <div class="col-sm-6 col-md-4">
                                     <p class="mb-1 fw-semibold text-muted">Tổng tiền</p>
-                                    <h6 th:text="${#numbers.formatDecimal(bookingUnit.price, 0, 'COMMA', 2, 'POINT')} + ' VND'"></h6>
+                                    <h6 th:text="${#numbers.formatDecimal(bookingUnit.price, 0, 'COMMA', 0, 'POINT')} + '₫'"></h6>
                                 </div>
                             </div>
 

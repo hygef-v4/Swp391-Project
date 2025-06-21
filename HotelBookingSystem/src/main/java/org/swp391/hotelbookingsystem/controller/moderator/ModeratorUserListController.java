@@ -4,10 +4,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
-public class ModeratorDashboardController {
+public class ModeratorUserListController {
 
-    @GetMapping("/moderator-dashboard")
-    public String getDashboard() {
-        return "moderator/moderatorDashboard";
+    @GetMapping("/moderator-user-list")
+    public String getUserList() {
+        return "moderator/moderatorUserList";
     }
 }
+

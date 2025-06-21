@@ -5,6 +5,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.swp391.hotelbookingsystem.model.Booking;
 import org.swp391.hotelbookingsystem.model.BookingUnit;
 import org.swp391.hotelbookingsystem.model.User;
@@ -43,13 +44,25 @@ public class BookingHistoryController {
     }
 
     @GetMapping("/booking-detail/{id}")
-    public String getBookingDetail(@PathVariable int id, Model model, HttpSession session) {
+    public String getBookingDetail(
+        @PathVariable int id,
+        
+        @RequestParam(value = "upcoming", defaultValue = "false") boolean upcoming,
+        @RequestParam(value = "cancelled", defaultValue = "false") boolean cancelled,
+        @RequestParam(value = "completed", defaultValue = "false") boolean completed,
+
+        Model model, HttpSession session
+    ) {
         User user = (User) session.getAttribute("user");
         if (user == null) {
             return "redirect:/login";
         }
         Booking booking = bookingService.findById(id);
         model.addAttribute("booking", booking);
+
+        model.addAttribute("upcoming", upcoming);
+        model.addAttribute("cancelled", cancelled);
+        model.addAttribute("completed", completed);
 
         for (BookingUnit bookingUnit : booking.getBookingUnits()) {
             bookingUnit.setCancelable("approved".equalsIgnoreCase(bookingUnit.getStatus()));

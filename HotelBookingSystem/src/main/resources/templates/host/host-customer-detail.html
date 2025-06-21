@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" data-bs-theme="light">
+
+<head>
+    <title th:text="'Chi Tiết Khách Hàng - ' + ${customer.fullName} + ' - Hamora'">Chi Tiết Khách Hàng - Hamora</title>
+
+    <!-- Meta Tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Chi tiết khách hàng và lịch sử đặt phòng">
+
+    <!-- Dark mode script (for theme toggling) -->
+    <script>
+        const storedTheme = localStorage.getItem('theme')
+        const getPreferredTheme = () => {
+            if (storedTheme) { return storedTheme }
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        }
+        const setTheme = function (theme) {
+            if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.setAttribute('data-bs-theme', 'dark')
+            } else {
+                document.documentElement.setAttribute('data-bs-theme', theme)
+            }
+        }
+        setTheme(getPreferredTheme())
+        window.addEventListener('DOMContentLoaded', () => {
+            var el = document.querySelector('.theme-icon-active');
+            if (el != 'undefined' && el != null) {
+                const showActiveTheme = theme => {
+                    const activeThemeIcon = document.querySelector('.theme-icon-active use')
+                    const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+                    const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
+                    document.querySelectorAll('[data-bs-theme-value]').forEach(element => element.classList.remove('active'))
+                    btnToActive.classList.add('active')
+                    activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+                }
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                    if (storedTheme !== 'light' || storedTheme !== 'dark') { setTheme(getPreferredTheme()) }
+                })
+                showActiveTheme(getPreferredTheme())
+                document.querySelectorAll('[data-bs-theme-value]').forEach(toggle => {
+                    toggle.addEventListener('click', () => {
+                        const theme = toggle.getAttribute('data-bs-theme-value')
+                        localStorage.setItem('theme', theme)
+                        setTheme(theme)
+                        showActiveTheme(theme)
+                    })
+                })
+            }
+        })
+    </script>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="assets/images/favicon.ico">
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+
+    <!-- Plugins CSS -->
+    <link rel="stylesheet" type="text/css" href="assets/vendor/bootstrap-icons/bootstrap-icons.css">
+
+    <!-- Theme CSS -->
+    <link rel="stylesheet" type="text/css" href="assets/css/style.css">
+
+    <style>
+        /* --- Base Variables --- */
+        :root {
+            --primary-gradient: linear-gradient(100deg, #8b5cf6, #ec4899);
+            --border-radius-xl: 24px;
+            --border-radius-lg: 16px;
+        }
+
+        /* --- Light Mode --- */
+        [data-bs-theme="light"] {
+            --body-bg: #f8f9fa;
+            --card-bg: #ffffff;
+            --card-secondary-bg: #f8f9fa;
+            --border-color: #e5e7eb;
+            --text-primary: #111827;
+            --text-secondary: #4b5563;
+        }
+
+        /* --- Dark Mode --- */
+        [data-bs-theme="dark"] {
+            --body-bg: #121212;
+            --card-bg: #1e1e1e;
+            --card-secondary-bg: #2b2b2b;
+            --border-color: #3a3a40;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0b0;
+        }
+
+        body {
+            background-color: var(--body-bg);
+            color: var(--text-primary);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* Spacing and Layout */
+        main .container {
+            display: flex;
+            flex-direction: column;
+            gap: 2.5rem; /* Consistent vertical spacing between main sections */
+        }
+
+        /* Customer Profile Header */
+        .customer-profile-header {
+            background: var(--primary-gradient);
+            color: #ffffff;
+            border-radius: var(--border-radius-xl);
+            padding: 2rem;
+        }
+        .customer-avatar-lg { width: 100px; height: 100px; object-fit: cover; border-radius: 50%; border: 4px solid rgba(255, 255, 255, 0.4); }
+        .customer-profile-header h2 { font-size: 2.5rem; font-weight: 700; color: #ffffff; }
+        .customer-profile-header .contact-info { color: rgba(255, 255, 255, 0.9); display: flex; align-items: center; gap: 1rem; }
+        .btn-back { background-color: rgba(255, 255, 255, 0.2); color: #ffffff; border: none; padding: 10px 20px; border-radius: 50px; text-decoration: none; transition: background-color 0.2s ease; }
+        .btn-back:hover { background-color: rgba(255, 255, 255, 0.3); color: #ffffff; }
+
+        /* Chat Widget */
+        .chat-widget {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-xl);
+            display: flex; flex-direction: column;
+            overflow: hidden; height: 550px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .chat-widget-header { background: var(--primary-gradient); color: #ffffff; padding: 1rem 1.25rem; display: flex; align-items: center; justify-content: space-between; }
+        .chat-widget-header .status-badge { background-color: rgba(0,0,0,0.2); color: #ffffff; padding: 4px 10px; font-size: 0.75rem; border-radius: 8px; font-weight: 500; }
+        .chat-messages { flex-grow: 1; padding: 1.25rem; overflow-y: auto; background-color: var(--card-secondary-bg); }
+        .message { display: flex; flex-direction: column; margin-bottom: 1rem; max-width: 80%; }
+        .message-bubble { padding: 10px 16px; border-radius: 20px; line-height: 1.5; }
+        .message-time { font-size: 0.7rem; color: var(--text-secondary); margin-top: 4px; }
+        .message.received { align-items: flex-start; }
+        .message.received .message-bubble { background-color: var(--card-bg); border: 1px solid var(--border-color); border-bottom-left-radius: 4px; color: var(--text-primary); }
+        .message.sent { align-items: flex-end; margin-left: auto; }
+        .message.sent .message-bubble { background: var(--primary-gradient); color: #ffffff; border-bottom-right-radius: 4px; }
+        .chat-input-area { background-color: var(--card-bg); padding: 1rem 1.25rem; border-top: 1px solid var(--border-color); }
+        .chat-input-area .input-group { background-color: var(--card-secondary-bg); border-radius: 50px; padding: 4px; border: 1px solid var(--border-color); }
+        .chat-input-area .form-control { background-color: transparent; border: none; color: var(--text-primary); height: 44px; padding-left: 1rem; }
+        .chat-input-area .form-control:focus { box-shadow: none; }
+        .chat-input-area .form-control::placeholder { color: var(--text-secondary); }
+        .btn-send { background: var(--primary-gradient); border: none; color: white; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; }
+
+        /* Booking History */
+        .section-header { margin-bottom: 1.5rem; }
+        .section-header h4 { font-weight: 600; font-size: 1.75rem; color: var(--text-primary); }
+        .booking-count-badge { background-color: var(--card-secondary-bg); color: var(--text-secondary); font-size: 0.8rem; font-weight: 500; padding: 6px 14px; border-radius: 50px; border: 1px solid var(--border-color); }
+        .booking-entry { background-color: var(--card-dark-bg); border-radius: var(--border-radius-xl); margin-bottom: 1.5rem; overflow: hidden; background-color: var(--card-bg); border: 1px solid var(--border-color); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
+        .booking-entry-header { background-color: var(--card-secondary-bg); padding: 1.25rem; color: var(--text-primary); }
+        .booking-entry-header h6 { color: var(--text-primary); font-weight: 700; }
+        .booking-entry-header small { color: var(--text-secondary); }
+        .booking-entry-header .booking-total-price { color: var(--text-secondary); }
+        .booking-entry-header strong { color: var(--text-primary); }
+        .booking-hotel-img { width: 60px; height: 60px; border-radius: var(--border-radius-lg); object-fit: cover; }
+        .booking-entry-body { padding: 1.25rem; background-color: var(--card-bg); }
+        .booked-room-item { background-color: var(--card-secondary-bg); color: var(--text-primary); padding: 1rem; border-radius: var(--border-radius-lg); }
+        .booked-room-item h6 { color: var(--text-primary); font-weight: 600; }
+        .booked-room-item .fw-bold { color: var(--text-primary); font-weight: 700 !important; }
+        .booked-room-img { width: 80px; height: 60px; border-radius: 12px; object-fit: cover; }
+    </style>
+</head>
+
+<body>
+<div th:replace="~{common/header :: header}"></div>
+
+<!-- **************** MAIN CONTENT START **************** -->
+<main>
+    <section class="pt-4 pb-5">
+        <div class="container vstack gap-5">
+
+            <!-- Host Menu Fragment -->
+
+
+            <!-- Main Content: Profile Header + Details -->
+            <div>
+                <!-- Customer Profile Header -->
+                <div class="customer-profile-header">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="d-flex align-items-center gap-4">
+                            <img th:src="${customer.avatarUrl ?: 'https://ui-avatars.com/api/?name=' + customer.fullName + '&background=fff&color=8b5cf6&size=128&bold=true'}"
+                                 alt="Customer Avatar"
+                                 class="customer-avatar-lg">
+                            <div>
+                                <h2 class="mb-2" th:text="${customer.fullName}">Alice Nguyen</h2>
+                                <div class="contact-info">
+                                    <span th:text="${customer.email}">alice.nguyen@example.com</span>
+                                    <span th:if="${customer.phone}"><i class="bi bi-telephone-fill me-1"></i> <span th:text="${customer.phone}">0901234567</span></span>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="/host-customers" class="btn btn-back">
+                            <i class="bi bi-arrow-left me-2"></i> Quay Lại
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Chat and Booking History Section -->
+                <div class="row g-4 g-lg-5 mt-4">
+                    <!-- Chat Column -->
+                    <div class="col-lg-5">
+                        <div class="chat-widget">
+                            <div class="chat-widget-header">
+                                <h6 class="mb-0 fw-bold"><i class="bi bi-chat-dots-fill me-2"></i> Tin Nhắn với <span th:text="${customer.fullName}">Alice Nguyen</span></h6>
+                                <span class="status-badge">Online</span>
+                            </div>
+                            <div class="chat-messages" id="chatMessages">
+                                <div class="message received">
+                                    <div class="message-bubble">Xin chào! Tôi muốn hỏi về phòng đã đặt.</div>
+                                    <div class="message-time">10:30 AM</div>
+                                </div>
+                                <div class="message sent">
+                                    <div class="message-bubble">Chào bạn! Tôi sẵn sàng hỗ trợ. Bạn cần hỗ trợ gì?</div>
+                                    <div class="message-time">10:32 AM</div>
+                                </div>
+                            </div>
+                            <div class="chat-input-area">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="Nhập tin nhắn..." id="messageInput">
+                                    <button class="btn-send" type="button" onclick="sendMessage()"><i class="bi bi-send-fill"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Booking History Column -->
+                    <div class="col-lg-7">
+                        <div class="section-header d-flex justify-content-between align-items-center">
+                            <h4>Lịch Sử Đặt Phòng</h4>
+                            <span class="booking-count-badge" th:text="${bookings.size()} + ' đơn đặt'">1 đơn đặt</span>
+                        </div>
+
+                        <div th:each="booking : ${bookings}" class="booking-entry">
+                            <div class="booking-entry-header">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <img th:src="${booking.imageUrl ?: '/assets/images/category/hotel/01.jpg'}" alt="Hotel" class="booking-hotel-img">
+                                        <div>
+                                            <h6 class="mb-0" th:text="'#BK' + ${booking.bookingId}">#BK11</h6>
+                                            <small th:text="${booking.hotelName}">hungheh13</small>
+                                        </div>
+                                    </div>
+                                    <div class="text-end">
+                                        <small class="d-block booking-total-price">Tổng tiền</small>
+                                        <strong class="fs-5" th:text="${#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 0, 'POINT')} + ' ₫'">1,500,000 ₫</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="booking-entry-body">
+                                <div class="row mb-3">
+                                    <div class="col-6">
+                                        <small class="text-secondary">Ngày nhận phòng</small>
+                                        <p class="mb-0 fw-bold" th:text="${#temporals.format(booking.checkIn, 'dd-MM-yyyy HH:mm')}">01-04-2025 00:00</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-secondary">Ngày trả phòng</small>
+                                        <p class="mb-0 fw-bold" th:text="${#temporals.format(booking.checkOut, 'dd-MM-yyyy HH:mm')}">05-04-2025 00:00</p>
+                                    </div>
+                                </div>
+                                <h6 class="fw-bold">Phòng đã đặt:</h6>
+                                <div class="vstack gap-3 mt-3">
+                                    <div th:each="unit : ${booking.bookingUnits}" class="booked-room-item">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <img th:src="${unit.imageUrl ?: '/assets/images/category/hotel/4by3/01.jpg'}" alt="Room" class="booked-room-img">
+                                                <h6 class="mb-0" th:text="${unit.roomName}">12312</h6>
+                                            </div>
+                                            <div class="text-end">
+                                                <div class="fw-bold" th:text="${#numbers.formatDecimal(unit.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">700,000 ₫</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<div th:replace="~{common/footer :: footer}"></div>
+<!-- **************** MAIN CONTENT END **************** -->
+
+<!-- Core Bootstrap JS -->
+<script src="assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Theme Functions -->
+<script src="assets/js/functions.js"></script>
+<!-- Page-specific script -->
+<script>
+    function sendMessage() {
+        const input = document.getElementById('messageInput');
+        if (input.value.trim() === '') return;
+        console.log('Sending:', input.value);
+        input.value = '';
+    }
+    document.getElementById('messageInput').addEventListener('keypress', (e) => e.key === 'Enter' && (e.preventDefault(), sendMessage()));
+</script>
+
+</body>
+</html>

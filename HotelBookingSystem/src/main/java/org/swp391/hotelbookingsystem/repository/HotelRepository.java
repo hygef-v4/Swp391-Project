@@ -1,13 +1,13 @@
 package org.swp391.hotelbookingsystem.repository;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.List;
+
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.swp391.hotelbookingsystem.model.Hotel;
-
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Repository
 public class HotelRepository {
@@ -71,28 +71,29 @@ public class HotelRepository {
 
     private static final String SELECT_TOP_4_POPULAR_HOTELS = """
                 SELECT TOP 4
-                       h.hotel_id AS hotelId,
-                       h.host_id AS hostId,
-                       h.hotel_name AS hotelName,
-                       h.address,
-                       h.description,
-                       h.location_id AS locationId,
-                       h.hotel_image_url AS hotelImageUrl,
-                       h.rating,
-                       h.latitude,
-                       h.longitude,
-                       COUNT(b.booking_id) AS total_bookings,
-                       MIN(r.price) AS min_price,
-                       h.status,
-                       l.city_name AS cityName
-                FROM Hotels h
-                JOIN Rooms r ON h.hotel_id = r.hotel_id
-                JOIN Locations l ON h.location_id = l.location_id
-                JOIN Bookings b ON r.room_id = b.room_id
-                WHERE b.status = 'approved'
-                GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
-                         h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude, h.status, l.city_name
-                ORDER BY COUNT(b.booking_id) DESC
+                                       h.hotel_id AS hotelId,
+                                       h.host_id AS hostId,
+                                       h.hotel_name AS hotelName,
+                                       h.address,
+                                       h.description,
+                                       h.location_id AS locationId,
+                                       h.hotel_image_url AS hotelImageUrl,
+                                       h.rating,
+                                       h.latitude,
+                                       h.longitude,
+                                       COUNT(b.booking_id) AS total_bookings,
+                                       MIN(r.price) AS min_price,
+                                       h.status,
+                                       l.city_name AS cityName
+                                FROM Hotels h
+                                JOIN Rooms r ON h.hotel_id = r.hotel_id
+                                JOIN Locations l ON h.location_id = l.location_id
+                				JOIN BookingUnits bu ON r.room_id = bu.room_id
+                                JOIN Bookings b ON bu.booking_id = b.booking_id
+                                WHERE bu.status = 'approved'
+                                GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
+                                         h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude, h.status, l.city_name
+                                ORDER BY COUNT(b.booking_id) DESC
             """;
 
     public HotelRepository(JdbcTemplate jdbcTemplate) {
@@ -242,6 +243,33 @@ public class HotelRepository {
         return hotel;
     }
 
+    public void updateHotel(Hotel hotel) {
+        String sql = """
+                    UPDATE Hotels 
+                    SET hotel_name = ?, 
+                        address = ?, 
+                        location_id = ?, 
+                        latitude = ?, 
+                        longitude = ?, 
+                        hotel_image_url = ?, 
+                        description = ?, 
+                        policy = ?
+                    WHERE hotel_id = ?
+                """;
+
+        jdbcTemplate.update(sql,
+                hotel.getHotelName(),
+                hotel.getAddress(),
+                hotel.getLocationId(),
+                hotel.getLatitude(),
+                hotel.getLongitude(),
+                hotel.getHotelImageUrl(),
+                hotel.getDescription(),
+                hotel.getPolicy(),
+                hotel.getHotelId()
+        );
+    }
+
     public List<Hotel> findByHostId(int hostId) {
         String sql = """
                     SELECT h.hotel_id AS hotelId,
@@ -298,6 +326,11 @@ public class HotelRepository {
     public void cancelHotelDeleteToken(int userId, int hotelId) {
         String sql = "DELETE FROM Tokens WHERE user_id = ? AND token LIKE ?";
         jdbcTemplate.update(sql, userId, "%:" + hotelId);
+    }
+
+    public int countHotelByHostId(int hostId) {
+        String sql = "SELECT COUNT(*) FROM Hotels WHERE host_id = ?";
+        return jdbcTemplate.queryForObject(sql, Integer.class, hostId);
     }
 
 }

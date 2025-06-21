@@ -1,11 +1,12 @@
 package org.swp391.hotelbookingsystem.service;
 
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.stereotype.Service;
 import org.swp391.hotelbookingsystem.model.Booking;
 import org.swp391.hotelbookingsystem.model.BookingUnit;
 import org.swp391.hotelbookingsystem.repository.BookingRepo;
-
-import java.util.List;
 
 @Service
 public class BookingService {
@@ -48,6 +49,10 @@ public class BookingService {
 
     public BookingUnit findBookingUnitById(int id) {
         return bookingRepo.findBookingUnitById(id);
+    }
+
+    public int countBookingsByHostId(int hostId) {
+        return bookingRepo.countBookingsByHostId(hostId);
     }
 
     // Cập nhật hoàn tiền
@@ -136,5 +141,58 @@ public class BookingService {
         return (int) Math.ceil((double) total / size);
     }
 
+    public List<Booking> getBookingsByHostId(int hostId) {
+        return bookingRepo.findBookingsByHostId(hostId);
+    }
+
+    public int countTotalBookingsByHostId(int hostId) {
+        return bookingRepo.countBookingsByHostId(hostId);
+    }
+
+    public int countPendingBookingsByHostId(int hostId) {
+        return bookingRepo.countBookingsByHostIdAndStatus(hostId, "approved");
+    }
+
+    public int countCompletedBookingsByHostId(int hostId) {
+        return bookingRepo.countBookingsByHostIdAndStatus(hostId, "completed");
+    }
+
+    public double getMonthlyRevenueByHostId(int hostId) {
+        return bookingRepo.getMonthlyRevenueByHostId(hostId);
+    }
+
+    public Double getTotalRevenueByHostId(int hostId) {
+        return bookingRepo.getTotalRevenueByHostId(hostId);
+    }
+
+    public List<Map<String, Object>> getBookingStatsByHostId(int hostId, String period) {
+        return bookingRepo.getBookingStatsByHostId(hostId, period);
+    }
+
+    // Calculate overall booking status based on booking units
+    public String calculateBookingStatus(List<BookingUnit> bookingUnits) {
+        if (bookingUnits == null || bookingUnits.isEmpty()) {
+            return "unknown";
+        }
+
+        // Get all unique statuses
+        List<String> statuses = bookingUnits.stream()
+                .map(BookingUnit::getStatus)
+                .distinct()
+                .toList();
+
+        // If all units have the same status
+        if (statuses.size() == 1) {
+            return statuses.get(0);
+        }
+
+        // If mixed statuses
+        return "mixed";
+    }
+
+    // Update booking unit status
+    public void updateBookingUnitStatus(int bookingUnitId, String status) {
+        bookingRepo.updateStatus(bookingUnitId, status);
+    }
 
 }

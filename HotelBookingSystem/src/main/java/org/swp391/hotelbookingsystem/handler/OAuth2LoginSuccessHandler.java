@@ -54,9 +54,11 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
         request.getSession().setAttribute("user", user);
+        System.out.println("userid after login: " + user.getId());
 
         switch (user.getRole()) {
-            case "ADMIN", "MODERATOR" -> response.sendRedirect("/admin-dashboard");
+            case "ADMIN" -> response.sendRedirect("/admin-dashboard");
+            case "MODERATOR" -> response.sendRedirect("/moderator-dashboard");
             case "HOTEL OWNER" -> response.sendRedirect("/host-dashboard");
             default -> response.sendRedirect("/home");
         }

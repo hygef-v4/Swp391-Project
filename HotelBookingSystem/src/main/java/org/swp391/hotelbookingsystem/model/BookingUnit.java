@@ -14,6 +14,7 @@ public class BookingUnit {
     private String status;
     private Double refundAmount;
     private String refundStatus;
+    private int quantity;
     
     private String imageUrl;
     private String roomName;
