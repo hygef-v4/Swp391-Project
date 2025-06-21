@@ -279,14 +279,14 @@ public class UserRepo {
 
     public List<User> findUsersByRoleAndSearchPaginated(String role, String keyword, int offset, int size) {
         String sql = """
-        SELECT * FROM Users
-        WHERE role = ? AND full_name LIKE ?
-        ORDER BY full_name
-        OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
+    SELECT * FROM Users
+    WHERE role = ? AND full_name LIKE ?
+    ORDER BY full_name
+    OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
     """;
 
         String searchKeyword = "%" + keyword + "%";
-        return jdbc.query(sql, new Object[]{role, searchKeyword, searchKeyword, offset, size}, (rs, rowNum) -> User.builder()
+        return jdbc.query(sql, new Object[]{role, searchKeyword, offset, size}, (rs, rowNum) -> User.builder()
                 .id(rs.getInt("user_id"))
                 .fullName(rs.getString("full_name"))
                 .email(rs.getString("email"))
@@ -300,6 +300,7 @@ public class UserRepo {
                 .avatarUrl(rs.getString("avatar_url"))
                 .build());
     }
+
 
     public int countUsersByRoleAndSearch(String role, String keyword) {
         String sql = "SELECT COUNT(*) FROM Users WHERE role = ? AND full_name LIKE ?";
