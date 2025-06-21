@@ -147,156 +147,45 @@ Page content START -->
 						<div class="card-body p-4 pb-0">
 							<!-- Accordion START -->
 							<div class="accordion accordion-icon accordion-bg-light" id="accordioncircle">
-								<!-- Credit or debit card START -->
-								<div class="accordion-item mb-3">
-									<h6 class="accordion-header" id="heading-1">
-										<button class="accordion-button rounded collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-1" aria-expanded="true" aria-controls="collapse-1">
-											<i class="bi bi-credit-card text-primary me-2"></i>	<span class="me-5">Credit or Debit Card</span>
-										</button>
-									</h6>
-									<div id="collapse-1" class="accordion-collapse collapse show" aria-labelledby="heading-1" data-bs-parent="#accordioncircle">
-										<!-- Accordion body -->
-										<div class="accordion-body">
-
-											<!-- Card list -->     
-											<div class="d-sm-flex justify-content-sm-between my-3">
-												<h6 class="mb-2 mb-sm-0">We Accept:</h6>
-												<ul class="list-inline my-0">
-													<li class="list-inline-item"> <a href="#"><img src="assets/images/element/visa.svg" class="h-30px" alt=""></a></li>
-													<li class="list-inline-item"> <a href="#"><img src="assets/images/element/mastercard.svg" class="h-30px" alt=""></a></li>
-													<li class="list-inline-item"> <a href="#"><img src="assets/images/element/expresscard.svg" class="h-30px" alt=""></a></li>
-												</ul>
-											</div>
-
-											<!-- Form START -->
-											<form class="row g-3">
-												<!-- Card number -->
-												<div class="col-12">
-													<label class="form-label"><span class="h6 fw-normal">Card Number *</span></label>
-													<div class="position-relative">
-														<input type="text" class="form-control" maxlength="14" placeholder="XXXX XXXX XXXX XXXX">
-														<img src="assets/images/element/visa.svg" class="w-30px position-absolute top-50 end-0 translate-middle-y me-2 d-none d-sm-block" alt="">
-													</div>	
-												</div>
-												<!-- Expiration Date -->
-												<div class="col-md-6">
-													<label class="form-label"><span class="h6 fw-normal">Expiration date *</span></label>
-													<div class="input-group">
-														<input type="text" class="form-control" maxlength="2" placeholder="Month">
-														<input type="text" class="form-control" maxlength="4" placeholder="Year">
-													</div>
-												</div>	
-												<!--Cvv code  -->
-												<div class="col-md-6">
-													<label class="form-label"><span class="h6 fw-normal">CVV / CVC *</span></label>
-													<input type="text" class="form-control" maxlength="3" placeholder="xxx">
-												</div>
-												<!-- Card name -->
-												<div class="col-12">
-													<label class="form-label"><span class="h6 fw-normal">Name on Card *</span></label>
-													<input type="text" class="form-control" aria-label="name of card holder" placeholder="Enter card holder name">
-												</div>
-
-												<!-- Buttons -->
-												<div class="col-12">
-													<div class="d-sm-flex justify-content-sm-between align-items-center">
-														<h4>$1800 <span class="small fs-6">Due now</span></h4>
-														<button class="btn btn-primary mb-0">Pay Now</button>
-													</div>
-												</div>
-
-											</form>
-											<!-- Form END -->
-										</div>
-									</div>
-								</div>
-								<!-- Credit or debit card END -->
-
 								<!-- Net banking START -->
 								<div class="accordion-item mb-3">
-									<h6 class="accordion-header" id="heading-2">
-										<button class="accordion-button collapsed rounded" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-2" aria-expanded="false" aria-controls="collapse-2">
-											<i class="bi bi-globe2 text-primary me-2"></i> <span class="me-5">Pay with Net Banking</span>
+									<h6 class="accordion-header" id="heading">
+										<button class="accordion-button rounded" type="button" data-bs-toggle="collapse" data-bs-target="#collapse" aria-expanded="true" aria-controls="collapse">
+											<i class="bi bi-credit-card text-primary me-2"></i>	<span class="me-5">Payment Method</span>
 										</button>
 									</h6>
-									<div id="collapse-2" class="accordion-collapse collapse" aria-labelledby="heading-2" data-bs-parent="#accordioncircle">
+
+									<div id="collapse" class="accordion-collapse show" aria-labelledby="heading" data-bs-parent="#accordioncircle">
 										<!-- Accordion body -->
 										<div class="accordion-body">
-
 											<!-- Form START -->
-											<form class="row g-3 mt-1">
-
-												<!-- Popular bank -->
-												<ul class="list-inline mb-0">
-
-													<li class="list-inline-item"> <h6 class="mb-0">Popular Bank:</h6> </li>
-													<!-- Rent -->
-													<li class="list-inline-item">
-														<input type="radio" class="btn-check" name="options" id="option1">
-														<label class="btn btn-light btn-primary-soft-check" for="option1">
-															<img src="assets/images/element/13.svg" class="h-20px me-2" alt="">Bank of America
-														</label>
-													</li>
-													<!-- Sale -->
-													<li class="list-inline-item">
-														<input type="radio" class="btn-check" name="options" id="option2">
-														<label class="btn btn-light btn-primary-soft-check" for="option2">
-															<img src="assets/images/element/15.svg" class="h-20px me-2" alt="">Bank of Japan
-														</label>
-													</li>
-													<!-- Buy -->
-													<li class="list-inline-item">
-														<input type="radio" class="btn-check" name="options" id="option3">
-														<label class="btn btn-light btn-primary-soft-check" for="option3">
-															<img src="assets/images/element/14.svg" class="h-20px me-2" alt="">VIVIV Bank
-														</label>
-													</li>
-												</ul>
-
-												<p class="mb-1">In order to complete your transaction, we will transfer you over to Booking secure servers.</p>
-												<p class="my-0">Select your bank from the drop-down list and click proceed to continue with your payment.</p>
+											<form action="/create-payment" method="post" class="row g-3 mt-1">
 												<!-- Select bank -->
 												<div class="col-md-6">
 													<select class="form-select form-select-sm js-choice border-0">
-														<option value="">Please choose one</option>
-														<option>Bank of America</option>
-														<option>Bank of India</option>
-														<option>Bank of London</option>
+														<option>VNPay</option>
 													</select>
 												</div>
 
-												<!-- Button -->
-												<div class="d-grid">
-													<button class="btn btn-success mb-0">Pay $1800</button>
-												</div>
+                                                <!-- Accordion body -->
+                                                <div class="accordion-body">
+                                                    <div class="card card-body border align-items-center text-center mt-4">
+                                                        <!-- Image -->
+                                                        <img src="assets/images/element/paypal.svg" class="h-70px mb-3" alt="">
+                                                        <p class="mb-3"><strong>Tips:</strong> Simply click on the payment button below to proceed to the PayPal payment page.</p>
 
+                                                        <input type="hidden" name="amount" th:value="${booking.totalPrice.longValue()}">
+                                                        <input type="hidden" name="orderInfo" value="Payment for booking">
+                                                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                                        <input type="submit" class="btn btn-success mb-0 w-100" th:value="'Pay $' + ${booking.totalPrice.longValue()}"/>
+                                                    </div>
+                                                </div>
 											</form>
 											<!-- Form END -->
 										</div>
 									</div>
 								</div>
 								<!-- Net banking END -->
-
-								<!-- Paypal START -->
-								<div class="accordion-item mb-3">
-									<h6 class="accordion-header" id="heading-3">
-										<button class="accordion-button collapsed rounded" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-3" aria-expanded="false" aria-controls="collapse-3">
-											<i class="bi bi-paypal text-primary me-2"></i><span class="me-5">Pay with Paypal</span>
-										</button>
-									</h6>
-									<div id="collapse-3" class="accordion-collapse collapse" aria-labelledby="heading-3" data-bs-parent="#accordioncircle">
-										<!-- Accordion body -->
-										<div class="accordion-body">
-											<div class="card card-body border align-items-center text-center mt-4">
-												<!-- Image -->
-												<img src="assets/images/element/paypal.svg" class="h-70px mb-3" alt="">
-												<p class="mb-3"><strong>Tips:</strong> Simply click on the payment button below to proceed to the PayPal payment page.</p>
-												<a href="#" class="btn btn-sm btn-outline-primary mb-0">Pay with paypal</a>
-											</div>
-										</div>
-									</div>
-								</div>
-								<!-- Paypal END -->
 							</div>
 							<!-- Accordion END -->
 						</div>	
@@ -304,7 +193,7 @@ Page content START -->
 
 						<div class="card-footer p-4 pt-0">
 							<!-- Condition link -->
-							<p class="mb-0">By processing, You accept Booking <a href="#">Terms of Services</a> and <a href="#">Policy</a></p>
+							<p class="mb-0">By processing, You accept Booking Terms of Services and Policy</p>
 						</div>
 					</div>
 					<!-- Payment Options END -->
@@ -314,50 +203,61 @@ Page content START -->
 
 			<!-- Right side content START -->
 			<aside class="col-xl-4">
-				<div class="row g-4">
 
-					<!-- Price summary START -->
-					<div class="col-md-6 col-xl-12">
-						<div class="card shadow rounded-2">
-							<!-- card header -->
-							<div class="card-header border-bottom">
-								<h5 class="card-title mb-0">Price Summary</h5>
-							</div>
-	
-							<!-- Card body -->
-							<div class="card-body">
-								<ul class="list-group list-group-borderless">
-									<li class="list-group-item d-flex justify-content-between align-items-center">
-										<span class="h6 fw-light mb-0">Room Charges</span>
-										<span class="fs-5">$28,660</span>
-									</li>
-									<li class="list-group-item d-flex justify-content-between align-items-center">
-										<span class="h6 fw-light mb-0">Total Discount<span class="badge text-bg-danger smaller mb-0 ms-2">10% off</span></span>
-										<span class="fs-5 text-success">-$2,560</span>	
-									</li>
-									<li class="list-group-item d-flex justify-content-between align-items-center">
-										<span class="h6 fw-light mb-0">Price after discount</span>
-										<span class="fs-5">$1852</span>
-									</li>
-									<li class="list-group-item d-flex justify-content-between align-items-center">
-										<span class="h6 fw-light mb-0">Taxes % Fees</span>
-										<span class="fs-5">$350</span>
-									</li>
-								</ul>
-							</div>
-	
-							<!-- Card footer -->
-							<div class="card-footer border-top">
-								<div class="d-flex justify-content-between align-items-center">
-									<span class="h5 mb-0">Payable Now</span>
-									<span class="h5 mb-0">$22,500</span>
-								</div>
-							</div>
-						</div>
-					</div>
-					<!-- Price summary END -->
+                <div class="row g-4">
+                    <!-- Price summary START -->
+                    <div class="col-md-6 col-xl-12">
+                        <div class="card shadow rounded-2">
+                            <!-- card header -->
+                            <div class="card-header border-bottom">
+                                <h5 class="card-title mb-0">Price Summary</h5>
+                                <input type="hidden" name="hotelId" th:value="${booking.hotelId}">
+                                <input type="hidden" name="checkIn" th:value="${booking.checkIn}">
+                                <input type="hidden" name="checkOut" th:value="${booking.checkOut}">
+                            </div>
 
-				</div>
+                            <!-- Card body -->
+                            <div class="card-body">
+                                <ul class="list-group list-group-borderless" id="booking-info">
+                                    <div th:each="bookingUnit : ${booking.bookingUnits}">
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <h6 class="ellipsis" th:text="${bookingUnit.roomName}"></h6>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span class="h6 fw-light mb-0">Room Charges</span>
+                                            <span class="fs-5 priceText" th:text="'$' + ${bookingUnit.price}"></span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span class="h6 fw-light mb-0">Amount</span>
+                                            <span class="fs-5 quantityText" th:text="${bookingUnit.quantity}"></span>
+                                        </li>
+                                        <hr>
+                                    </div>
+                                </ul>
+                                <ul class="list-group list-group-borderless">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span class="h6 fw-light mb-0">Total Price</span>
+                                        <span class="fs-5">$<span id="totalPrice" th:text="${price}"></span></span>
+                                    </li>                                    
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span class="h6 fw-light mb-0">Total Discount</span>
+                                        <span class="fs-5 text-success">-$<span id="totalDiscount" th:text="${discount}"></span></span>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <!-- Card footer -->
+                            <div class="card-footer border-top">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="h5 mb-0">Payable</span>
+                                    <span class="h5 mb-0">$<span id="paidPrice" th:text="${booking.totalPrice}"></span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Price summary END -->
+                </div>
+
 			</aside>
 			<!-- Right side content END -->
 		</div> <!-- Row END -->

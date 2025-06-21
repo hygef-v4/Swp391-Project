@@ -28,8 +28,8 @@ public class HotelService {
         return hotelRepository.getTop8HighRatedHotels();
     }
 
-    public List<Hotel> getHotelsByLocation(int id, int maxGuests, int roomQuantity, String name, int min, int max) {
-        return hotelRepository.getHotelsByLocation(id, maxGuests, roomQuantity, name, min, max);
+    public List<Hotel> getHotelsByLocation(int id, int maxGuests, int roomQuantity, String name, int min, int max, boolean star) {
+        return hotelRepository.getHotelsByLocation(id, maxGuests, roomQuantity, name, min, max, star);
     }
 
     public Hotel saveHotel(Hotel hotel) {

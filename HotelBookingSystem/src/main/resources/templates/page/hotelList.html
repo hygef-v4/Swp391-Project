@@ -11,6 +11,15 @@
 	<meta name="author" content="StackBros">
 	<meta name="description" content="Booking - Multipurpose Online Booking Theme">
 
+	<style>
+		#star *{
+			transition: color 0.2s ease;
+		}
+		#star:hover *{
+			color: white !important;
+		}
+	</style>
+
 	<!-- Dark mode -->
 	<script>
 		const storedTheme = localStorage.getItem('theme')
@@ -233,7 +242,7 @@ Main Banner START -->
 				</div>
 
 				<!--                        hidden field for adults, children, and rooms-->
-
+				
 				<input type="hidden" name="adults" id="adultsInput" th:value="${adults}">
 				<input type="hidden" name="children" id="childrenInput" th:value="${children}">
 				<input type="hidden" name="rooms" id="roomsInput" th:value="${rooms}">
@@ -263,12 +272,18 @@ Title and Tabs START -->
 			<div class="col-12">
 				<!-- Meta START -->
 				<div class="d-flex justify-content-end">
-          <!-- Filter collapse button -->
-          <input type="checkbox" class="btn-check" id="btn-check-soft">
-          <label class="btn btn-primary-soft btn-primary-check mb-0" for="btn-check-soft" data-bs-toggle="collapse" data-bs-target="#collapseFilter" aria-controls="collapseFilter">
-            <i class="bi fa-fe bi-sliders me-2"></i>Bộ Lọc
-          </label>
+					<!-- Filter collapse button -->
+					<input type="checkbox" class="btn-check" id="btn-check-soft">
+					<label class="btn btn-primary-soft btn-primary-check mx-1 mb-0" for="btn-check-soft" data-bs-toggle="collapse" data-bs-target="#collapseFilter" aria-controls="collapseFilter">
+						<i class="bi fa-fe bi-sliders me-2"></i>Bộ Lọc
+					</label>
 
+					<a th:href="'/hotel-list?star=' + ${!star} + ${request}">
+						<button id="star" class="btn btn-secondary-soft btn-secondary-check mx-1 mb-0" onclick="toggleSortStar()">
+							<span th:if="${star}"><i class="bi bi-star-fill text-secondary"></i><i id="sortArrowIcon" class="bi bi-caret-up-fill text-secondary"></i></span>
+							<span th:unless="${star}"><i class="bi bi-star-fill text-secondary"></i><i id="sortArrowIcon" class="bi bi-caret-down-fill text-secondary"></i></span>
+						</button>
+					</a>	
 				</div>
 				<!-- Meta END -->
 			</div>
@@ -282,6 +297,7 @@ Title and Tabs START -->
 				<!-- Form START -->
 				<form class="row g-4" action="/hotel-list" method="GET" id="filter">
 					<input type="hidden" name="locationId" th:value="${hamora.id}">
+					<input type="hidden" name="dateRange" th:value="${dateRange}">
 					<input type="hidden" name="adults" th:value="${adults}">
 					<input type="hidden" name="children" th:value="${children}">
 					<input type="hidden" name="rooms" th:value="${rooms}">	
@@ -308,26 +324,7 @@ Title and Tabs START -->
 								</div>
 							</div>
 						</div>
-					</div>
-
-					<!-- Check box item -->
-					<div class="col-12">
-						<div class="form-control-borderless">
-							<label class="form-label">Cơ sở vật chất</label>
-							<!-- <label class="form-label">Cơ sở vật chất</label> -->
-							<div th:each="category: ${categories}" class="row g-3">
-								<!-- checkbox -->
-								<h6 class="col-12" th:text="${category.name}"></h6>
-								<div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 mt-0" th:each="amenity: ${category.amenities}">
-									<div class="form-check">
-										<input class="form-check-input" type="checkbox" th:value="${amenity.amenityId}" th:id="${amenity.amenityId}" name="amenities">
-										<label class="form-check-label h6 fw-light mb-0" th:for="${amenity.amenityId}" th:text="${amenity.name}">
-										</label>
-									</div>
-								</div>
-							</div> <!-- Row END -->
-						</div>
-					</div>				
+					</div>			
 
 					<!-- Button -->
 					<div class="text-end align-items-center">
@@ -408,16 +405,16 @@ Hotel grid START -->
 			<div class="col-12">
 				<nav class="mt-4 d-flex justify-content-center" aria-label="navigation">
 					<ul class="pagination pagination-primary-soft d-inline-block d-md-flex rounded mb-0">
-						<li th:if="${pagination >= 2}" th:class="'page-item mb-0' + ${page == 1 ? ' disabled' : ''}"><a class="page-link" th:href="'/hotel-list?page=' + ${page-1} + ${request}"><i class="fa-solid fa-angle-left"></i></a></li>
-						<li th:if="${pagination >= 1}" th:class="'page-item mb-0' + ${page == 1 ? ' active disabled' : ''}"><a class="page-link" th:href="'/hotel-list?page=1' + ${request}">1</a></li>
-						<li th:if="${pagination >= 2}" th:class="'page-item mb-0' + ${page == 2 ? ' active disabled' : ''}"><a class="page-link" th:href="'/hotel-list?page=2' + ${request}">2</a></li>
+						<li th:if="${pagination >= 2}" th:class="'page-item mb-0' + ${page == 1 ? ' disabled' : ''}"><a class="page-link" th:href="'/hotel-list?page=' + ${page-1} + '&star=' + ${star} + ${request}"><i class="fa-solid fa-angle-left"></i></a></li>
+						<li th:if="${pagination >= 1}" th:class="'page-item mb-0' + ${page == 1 ? ' active disabled' : ''}"><a class="page-link" th:href="'/hotel-list?page=1' + '&star=' + ${star} + ${request}">1</a></li>
+						<li th:if="${pagination >= 2}" th:class="'page-item mb-0' + ${page == 2 ? ' active disabled' : ''}"><a class="page-link" th:href="'/hotel-list?page=2' + '&star=' + ${star} + ${request}">2</a></li>
 						<li th:if="${pagination >= 5 && page-2 > 2}" class="page-item mb-0 disabled"><a class="page-link">...</a></li>
-						<li th:if="${pagination >= 4 && page != 1 && page-1 != 1 && page-1 != 2}" class="page-item mb-0"><a class="page-link" th:href="'/hotel-list?page=' + ${page-1} + ${request}" th:text="${page-1}"></a></li>
+						<li th:if="${pagination >= 4 && page != 1 && page-1 != 1 && page-1 != 2}" class="page-item mb-0"><a class="page-link" th:href="'/hotel-list?page=' + ${page-1} + '&star=' + ${star} + ${request}" th:text="${page-1}"></a></li>
 						<li th:if="${pagination >= 4 && page != 1 && page != 2 && page != pagination}" class="page-item mb-0 active disabled"><a class="page-link" th:text="${page}"></a></li>
-						<li th:if="${pagination >= 4 && page+1 != 2 && page+1 != pagination && page != pagination}" class="page-item mb-0"><a class="page-link" th:href="'/hotel-list?page=' + ${page+1} + ${request}" th:text="${page+1}"></a></li>
+						<li th:if="${pagination >= 4 && page+1 != 2 && page+1 != pagination && page != pagination}" class="page-item mb-0"><a class="page-link" th:href="'/hotel-list?page=' + ${page+1} + '&star=' + ${star} + ${request}" th:text="${page+1}"></a></li>
 						<li th:if="${pagination >= 4 && pagination > page+2}" class="page-item mb-0 disabled"><a class="page-link">...</a></li>
-						<li th:if="${pagination >= 3}" th:class="'page-item mb-0' + ${page == pagination ? ' active disabled' : ''}"><a class="page-link" th:href="'/hotel-list?page=' + ${pagination} + ${request}" th:text="${pagination}"></a></li>
-						<li th:if="${pagination >= 2}" th:class="'page-item mb-0' + ${page == pagination ? ' disabled' : ''}"><a class="page-link" th:href="'/hotel-list?page=' + ${page+1} + ${request}"><i class="fa-solid fa-angle-right"></i></a></li>
+						<li th:if="${pagination >= 3}" th:class="'page-item mb-0' + ${page == pagination ? ' active disabled' : ''}"><a class="page-link" th:href="'/hotel-list?page=' + ${pagination} + '&star=' + ${star} + ${request}" th:text="${pagination}"></a></li>
+						<li th:if="${pagination >= 2}" th:class="'page-item mb-0' + ${page == pagination ? ' disabled' : ''}"><a class="page-link" th:href="'/hotel-list?page=' + ${page+1} + '&star=' + ${star} + ${request}"><i class="fa-solid fa-angle-right"></i></a></li>
 					</ul>
 				</nav>
 			</div>

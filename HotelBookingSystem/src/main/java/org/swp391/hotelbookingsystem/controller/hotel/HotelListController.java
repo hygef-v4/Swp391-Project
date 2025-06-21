@@ -1,5 +1,7 @@
 package org.swp391.hotelbookingsystem.controller.hotel;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +39,8 @@ public class HotelListController {
         @RequestParam(value = "name", defaultValue = "") String name,
         @RequestParam(value = "min", defaultValue = "200,000") String min,
         @RequestParam(value = "max", defaultValue = "1,500,000") String max,
-        @RequestParam(value = "amenities", required = false) List<Integer> hotelAmenities,
+
+        @RequestParam(value = "star", defaultValue = "false") boolean star,
 
         @RequestParam(value = "page", defaultValue = "1") int page,
         Model model
@@ -60,22 +63,7 @@ public class HotelListController {
         model.addAttribute("min", minPrice/1000);
         model.addAttribute("max", maxPrice/1000);
 
-        List<Amenity> amenities = amenityService.getAllAmenitiesWithCategory();
-        List<AmenityCategory> categories = new ArrayList<>();
-        String category = "";
-        int index = -1;
-
-        for(Amenity amenity : amenities){
-            if(!category.equals(amenity.getCategory().getName())){
-                category = amenity.getCategory().getName();
-                categories.add(new AmenityCategory(amenity.getAmenityId(), category, new ArrayList<>()));
-                index++;
-            }categories.get(index).getAmenities().add(amenity);
-        }
-
-        model.addAttribute("categories", categories);
-
-        List<Hotel> hotel = hotelService.getHotelsByLocation(locationId, (adults + children), rooms, name.trim(), minPrice, maxPrice);
+        List<Hotel> hotel = hotelService.getHotelsByLocation(locationId, (adults + children), rooms, name.trim(), minPrice, maxPrice, star);
         int item = page * 12;
         
         List<Hotel> current;
@@ -89,7 +77,7 @@ public class HotelListController {
 
         String redirect = "";
         if(locationId != -1) redirect += "&locationId=" + locationId;
-        if(!"".equals(dateRange)) redirect += "&dateRange=" + dateRange;
+        if(!"".equals(dateRange)) redirect += "&dateRange=" + URLEncoder.encode(dateRange, StandardCharsets.UTF_8);
         if(adults != 1) redirect += "&adults=" + adults;
         if(children != 0) redirect += "&children=" + children;
         if(rooms != 1) redirect += "&rooms=" + rooms;
@@ -101,6 +89,8 @@ public class HotelListController {
         if(!"200,000".equals(min)) request += "&min=" + min;
         if(!"15,000,000".equals(max)) request += "&max=" + max;
         model.addAttribute("request", request);
+
+        model.addAttribute("star", star);
 
         return "page/hotelList";
     }

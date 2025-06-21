@@ -27,7 +27,9 @@ import org.swp391.hotelbookingsystem.service.AmenityService;
 import org.swp391.hotelbookingsystem.service.HotelService;
 import org.swp391.hotelbookingsystem.service.LocationService;
 import org.swp391.hotelbookingsystem.service.RoomService;
+import org.swp391.hotelbookingsystem.service.VNPayService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
@@ -95,9 +97,10 @@ public class BookingController {
         @RequestParam(value = "totalPrice") double totalPrice,
         @RequestParam(value = "couponId", required = false) Integer couponId,
 
-        @RequestParam(value = "roomId") List<String> roomId,
-        @RequestParam(value = "price") List<String> price,
-        @RequestParam(value = "quantity") List<String> quantity,
+        @RequestParam(value = "roomId") List<Integer> roomId,
+        @RequestParam(value = "roomName") List<String> roomName,
+        @RequestParam(value = "price") List<Double> price,
+        @RequestParam(value = "quantity") List<Integer> quantity,
 
         Model model, HttpSession session
     ){
@@ -118,9 +121,10 @@ public class BookingController {
         List<BookingUnit> bookingUnits = new ArrayList<>();
         for(int i = 0; i < roomId.size(); i++){
             BookingUnit bookingUnit = BookingUnit.builder()
-                .roomId(Integer.parseInt(roomId.get(i)))
-                .price(Double.parseDouble(price.get(i)))
-                .quantity(Integer.parseInt(quantity.get(i)))
+                .roomId(roomId.get(i))
+                .roomName(roomName.get(i))
+                .price(price.get(i))
+                .quantity(quantity.get(i))
                 .build();
             bookingUnits.add(bookingUnit);
         }booking.setBookingUnits(bookingUnits);
@@ -128,24 +132,5 @@ public class BookingController {
         session.setAttribute("booking", booking);
 
         return "redirect:/payment";
-    }
-
-    @GetMapping("/payment")
-    public String payment(
-        Model model, HttpSession session
-    ){
-        Booking booking = (Booking) session.getAttribute("booking");
-        if(booking == null) {
-            return "redirect:/login";
-        }
-
-        User user = (User) session.getAttribute("user");
-        if(user == null || user.getId() != booking.getCustomerId()) {
-            return "redirect:/login";
-        }
-
-        model.addAttribute("booking", booking);
-
-        return "page/payment";
     }
 }

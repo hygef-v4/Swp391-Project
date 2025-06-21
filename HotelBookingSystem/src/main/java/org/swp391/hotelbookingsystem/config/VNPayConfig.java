@@ -14,10 +14,10 @@ import java.util.*;
 @Component
 public class VNPayConfig {
     public static String vnp_PayUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-    public static String vnp_Returnurl = "/vnpay-payment";
-    public static String vnp_TmnCode = "4E8F6SAS";
-    public static String vnp_HashSecret = "XME75O67LOGFZFSK9PTKDUTU4BTP6HJK";
-    public static String vnp_apiUrl = "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction";
+    public static String vnp_ReturnUrl = "http://localhost:8386/return-payment";
+    public static String vnp_TmnCode = "DIAKJRAJ";
+    public static String vnp_HashSecret = "7ZXBXLVLJIILITFSX7T91BK11CA7XQ9W";
+    public static String vnp_ApiUrl = "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction";
 
     public static String md5(String message) {
         String digest = null;
@@ -75,7 +75,7 @@ public class VNPayConfig {
         }
         return hmacSHA512(vnp_HashSecret,sb.toString());
     }
-
+    
     public static String hmacSHA512(final String key, final String data) {
         try {
 
@@ -95,16 +95,16 @@ public class VNPayConfig {
             return sb.toString();
 
         } catch (Exception ex) {
-            return key;
+            return "";
         }
     }
-
+    
     public static String getIpAddress(HttpServletRequest request) {
         String ipAdress;
         try {
             ipAdress = request.getHeader("X-FORWARDED-FOR");
             if (ipAdress == null) {
-                ipAdress = request.getLocalAddr();
+                ipAdress = request.getRemoteAddr();
             }
         } catch (Exception e) {
             ipAdress = "Invalid IP:" + e.getMessage();

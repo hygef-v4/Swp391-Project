@@ -12,6 +12,9 @@ import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.repository.UserWishlistRepository;
 
 import jakarta.servlet.http.HttpSession;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Controller
@@ -61,7 +64,7 @@ public class UserWishlistController {
     public String removeFavorite(
         @RequestParam("hotelId") int hotelId, 
         @RequestParam(value = "detail", defaultValue = "false") boolean detail,
-
+        @RequestParam(value = "dateRange", defaultValue = "") String dateRange,
         @RequestParam(value = "adults", defaultValue = "1") int adults,
         @RequestParam(value = "children", defaultValue = "0") int children,
         @RequestParam(value = "rooms", defaultValue = "1") int rooms,
@@ -89,6 +92,7 @@ public class UserWishlistController {
         // Chuyển hướng về trang danh sách yêu thích
         if(detail){
             String redirect = "";
+            if(!"".equals(dateRange)) redirect += "&dateRange=" + URLEncoder.encode(dateRange, StandardCharsets.UTF_8);
             if(adults != 1) redirect += "&adults=" + adults;
             if(children != 0) redirect += "&children=" + children;
             if(rooms != 1) redirect += "&rooms=" + rooms;
@@ -102,6 +106,7 @@ public class UserWishlistController {
     public String addFavorite(
         @RequestParam("hotelId") int hotelId, 
         @RequestParam(value = "detail", defaultValue = "false") boolean detail,
+        @RequestParam(value = "dateRange", defaultValue = "") String dateRange,
         @RequestParam(value = "adults", defaultValue = "1") int adults,
         @RequestParam(value = "children", defaultValue = "0") int children,
         @RequestParam(value = "rooms", defaultValue = "1") int rooms,
@@ -127,6 +132,7 @@ public class UserWishlistController {
         // Chuyển hướng về trang chi tiết khách sạn
         if(detail){
             String redirect = "";
+            if(!"".equals(dateRange)) redirect += "&dateRange=" + URLEncoder.encode(dateRange, StandardCharsets.UTF_8);
             if(adults != 1) redirect += "&adults=" + adults;
             if(children != 0) redirect += "&children=" + children;
             if(rooms != 1) redirect += "&rooms=" + rooms;

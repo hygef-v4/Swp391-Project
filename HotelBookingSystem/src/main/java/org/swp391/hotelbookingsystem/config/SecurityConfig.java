@@ -33,7 +33,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/api/files/**", "/webhook", "/booking")
+                        .ignoringRequestMatchers("/api/files/**", "/webhook")
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(

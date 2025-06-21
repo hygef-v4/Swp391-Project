@@ -116,7 +116,13 @@
 
             const params = new URLSearchParams(window.location.search);
             const roomId = params.get("roomId");
-            if(roomId) booking(roomId);
+            const amount = params.get("amount");
+
+            if(roomId){
+                const room = document.getElementById('booked' + roomId);
+                room.querySelector(".bookedQuantity").value = amount;
+                booking(roomId);
+            }scroll("hotel");
         });
 
         function updatePaid(t, d){
@@ -162,9 +168,10 @@
                 ul.innerHTML += `
                 <div id=${'price' + id}>
                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <h6 class="ellipsis">${title}</h6>
-                        <a class="mb-0" onclick="less(${id})" title="Xóa"><i class="bi bi-x-circle"></i></a>  
                         <input type="hidden" name="roomId" value="${id}">
+                        <h6 class="ellipsis">${title}</h6>
+                        <a class="mb-0" onclick="less(${id})" title="Xóa" style="cursor: pointer;"><i class="bi bi-x-circle"></i></a>  
+                        <input type="hidden" name="roomName" value="${title}">
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <span class="h6 fw-light mb-0">Room Charges</span>
@@ -400,7 +407,7 @@ Page content START -->
 <!--					&lt;!&ndash; Guest detail END &ndash;&gt;-->
 
 					<!-- Hotel information START -->
-					<div class="card shadow">
+					<div class="card shadow" id="hotel">
 						<!-- Card header -->
 						<div class="card-header p-4 border-bottom">
 							<!-- Title -->
@@ -436,8 +443,6 @@ Page content START -->
                                                 <li class="list-inline-item me-0"><i th:class="(${hotel.rating <= 3.2} ? 'fa-regular fa-star' : (${hotel.rating >= 3.8} ? 'fa-solid fa-star' : 'fa-solid fa-star-half-alt')) + ' text-warning'"></i></li>
                                                 <li class="list-inline-item me-0"><i th:class="(${hotel.rating <= 4.2} ? 'fa-regular fa-star' : (${hotel.rating >= 4.8} ? 'fa-solid fa-star' : 'fa-solid fa-star-half-alt')) + ' text-warning'"></i></li>
 											</ul>
-                                            
-                                            <a class="btn btn-link p-0 mb-0" data-bs-toggle="modal" data-bs-target="#policyModal">View Cancellation Policy</a>
 										</div>
 									</div>
 
@@ -488,7 +493,7 @@ Page content START -->
                                                         <div class="tiny-slider-inner" data-autoplay="true" data-arrow="true" data-dots="false" data-items="1">
                                                             <!-- Image item -->
                                                             <div class="text-center" th:each="image: ${room.images}">
-                                                                <a href="#" data-bs-toggle="modal" th:data-bs-target="'#roomDetail' + ${room.roomId}">
+                                                                <a>
                                                                     <img style="max-height: 170px;" th:src="${image}" th:alt="${room.title}">
                                                                 </a>
                                                             </div>
@@ -502,7 +507,7 @@ Page content START -->
                                                     <div class="card-body d-flex flex-column h-100 p-0">
                             
                                                         <!-- Title -->
-                                                        <h5 class="card-title"><a href="#" class="bookedTitle" th:text="${room.title}" data-bs-toggle="modal" th:data-bs-target="'#roomDetail' + ${room.roomId}"></a></h5>
+                                                        <h5 class="card-title"><a class="bookedTitle" th:text="${room.title}"></a></h5>
 
                                                         <ul class="list-group list-group-borderless mb-2 room-description" th:utext="${room.description}"></ul>
 
@@ -563,7 +568,7 @@ Page content START -->
                                                         <div class="tiny-slider-inner" data-autoplay="true" data-arrow="true" data-dots="false" data-items="1">
                                                             <!-- Image item -->
                                                             <div class="text-center" th:each="image: ${room.images}">
-                                                                <a href="#" data-bs-toggle="modal" th:data-bs-target="'#roomDetail' + ${room.roomId}">
+                                                                <a>
                                                                     <img style="max-height: 170px;" th:src="${image}" th:alt="${room.title}">
                                                                 </a>
                                                             </div>
@@ -577,7 +582,7 @@ Page content START -->
                                                     <div class="card-body d-flex flex-column h-100 p-0">
                             
                                                         <!-- Title -->
-                                                        <h5 class="card-title"><a href="#" th:text="${room.title}" data-bs-toggle="modal" th:data-bs-target="'#roomDetail' + ${room.roomId}"></a></h5>
+                                                        <h5 class="card-title"><a th:text="${room.title}"></a></h5>
 
                                                         <ul class="list-group list-group-borderless mb-2 room-description" th:utext="${room.description}"></ul>
 
@@ -617,8 +622,8 @@ Page content START -->
 
 			<!-- Right side content START -->
 			<aside class="col-xl-4">
-				<div class="row g-4">
-                    <form action="/booking" method="post">
+                <form action="/booking" method="post">
+                    <div class="row g-4">
                         <!-- Price summary START -->
                         <div class="col-md-6 col-xl-12">
                             <div class="card shadow rounded-2">
@@ -656,6 +661,7 @@ Page content START -->
 
                                 <div class="card-footer border-top">
                                     <div class="d-flex justify-content-end align-items-center">
+                                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                                         <input type="submit" class="btn btn-sm btn-primary mb-0" id="payButton" value="Pay Now" disabled>
                                     </div>
                                 </div>
@@ -694,8 +700,8 @@ Page content START -->
                             </div>
                         </div>
                         <!-- Offer and discount END -->
-                    </form>
-				</div>
+                    </div>
+                </form>
 			</aside>
 			<!-- Right side content END -->
 		</div> <!-- Row END -->
@@ -734,105 +740,6 @@ Footer END -->
 	</div>
 </div>
 <!-- Map modal END -->
-
-<!-- Policy modal START -->
-<div class="modal fade" id="policyModal" tabindex="-1" aria-labelledby="policyModalLabel" aria-hidden="true">
-	<div class="modal-dialog modal-dialog-centered modal-lg">
-		<div class="modal-content">
-			<!-- Title -->
-			<div class="modal-header">
-				<h5 class="mb-0">Chính sách khách sạn</h5>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-			</div>
-			<!-- Map -->
-			<div class="modal-body p-0">
-                <!-- List -->
-				<ul class="list-group list-group-borderless mb-2" th:utext="${hotel.policy}"></ul>
-            </div>
-		</div>
-	</div>
-</div>
-<!-- Policy modal END -->
-
-<!-- Room modal START -->
-<div class="modal fade" th:each="room: ${rooms}" th:id="'roomDetail' + ${room.roomId}" tabindex="-1" aria-labelledby="roomDetailLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content p-0">
-
-            <!-- Title -->
-            <div class="modal-header p-3">
-                <h5 class="modal-title mb-0" id="roomDetailLabel">Chi tiết</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-
-            <!-- Modal body -->
-            <div class="modal-body p-0">
-
-                <!-- Card START -->
-                <div class="card bg-transparent p-3">
-                    <!-- Slider START -->
-                    <div class="tiny-slider arrow-round arrow-dark overflow-hidden rounded-2">
-                        <div class="tiny-slider-inner rounded-2 overflow-hidden" data-autoplay="true" data-arrow="true" data-dots="false" data-items="1">
-                            <!-- Image item -->
-                            <div th:each="image: ${room.images}"> <img th:src="${image}" class="rounded-2 img-fluid d-block mx-auto" style="max-height: 300px;" th:alt="${room.title}"></div>
-                        </div>
-                    </div>
-                    <!-- Slider END -->
-
-                    <!-- Card header -->
-                    <div class="card-header bg-transparent pb-0">
-                        <h5 class="card-title mb-0" th:text="${room.title}"></h5>
-                    </div>
-
-                    <!-- Card body START -->
-                    <div class="card-body">
-                        <!-- Content -->
-                        <ul class="list-group list-group-borderless mt-0 mb-2 room-description" th:utext="${room.description}"></ul>
-                        
-                        <div class="row">
-                            <h5 class="mb-0">Cơ sở vật chất</h5>
-
-                            <!-- List -->
-                            <div class="col-md-12" th:each="category: ${room.categories}">
-                                <h6 class="card-title mb-0" th:text="${category.name}"></h6>
-
-                                <!-- List -->
-                                <div style="column-count: 2; column-gap: 1.5rem;">
-                                    <ul class="list-group list-group-borderless mt-2 mb-2">
-                                        <li class="list-group-item d-flex mb-0" th:each="amenity: ${category.amenities}">
-                                            <i class="fa-solid fa-thumbtack text-danger me-2"></i>
-                                            <span class="h6 fw-light mb-0" th:text="${amenity.name}"></span>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-
-                            <div class="d-flex justify-content-end align-items-center">
-                                <span>Số lượng: </span>
-                                <b th:class="'fw-bold mb-0 me-1' + ${room.quantity == 0 ? ' text-danger' : ''}" th:text="${room.quantity}"></b>
-                            </div>    
-
-                            <div class="d-sm-flex justify-content-sm-between align-items-center mt-2 mb-0">
-                                <!-- Button -->
-                                <div class="d-flex align-items-center">
-                                    <h5 class="fw-bold mb-0 me-1" th:text="${#numbers.formatDecimal(room.price, 0, 'COMMA', 0, 'POINT')} + '₫'"></h5>
-                                    <span class="mb-0 me-2">/Ngày</span>
-                                </div>
-                                <!-- Price -->
-                                <div class="mt-3 mt-sm-0">
-                                    <a href="#" th:class="'btn btn-sm btn-primary mb-0' + ${room.quantity == 0 ? ' disabled' : ''}">Chọn Phòng</a>    
-                                </div>                  
-                            </div>
-                        </div> <!-- Row END -->
-                    </div>
-                    <!-- Card body END -->
-                </div>
-                <!-- Card END -->
-            </div>
-        </div>
-    </div>
-</div>
-<!-- Room modal END -->
 
 <!-- Back to top -->
 <div class="back-top"></div>

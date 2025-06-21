@@ -14,11 +14,13 @@ import org.swp391.hotelbookingsystem.model.Amenity;
 import org.swp391.hotelbookingsystem.model.AmenityCategory;
 import org.swp391.hotelbookingsystem.model.Hotel;
 import org.swp391.hotelbookingsystem.model.Location;
+import org.swp391.hotelbookingsystem.model.Review;
 import org.swp391.hotelbookingsystem.model.Room;
 import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.service.AmenityService;
 import org.swp391.hotelbookingsystem.service.HotelService;
 import org.swp391.hotelbookingsystem.service.LocationService;
+import org.swp391.hotelbookingsystem.service.ReviewService;
 import org.swp391.hotelbookingsystem.service.RoomService;
 
 import jakarta.servlet.http.HttpSession;
@@ -33,6 +35,8 @@ public class HotelDetailController {
     RoomService roomService;
     @Autowired
     AmenityService amenityService;
+    @Autowired
+    ReviewService reviewService;
 
     @GetMapping("/hotel-detail")
     public String hotelDetail(
@@ -65,7 +69,7 @@ public class HotelDetailController {
         }model.addAttribute("favorite", favorite);
 
         String redirect = "";
-        if(!"".equals(dateRange)) redirect += "&dateRange=" + dateRange;
+        if(!"".equals(dateRange)) redirect += "&dateRange=" + URLEncoder.encode(dateRange, StandardCharsets.UTF_8);
         if(adults != 1) redirect += "&adults=" + adults;
         if(children != 0) redirect += "&children=" + children;
         if(roomQuantity != 1) redirect += "&rooms=" + roomQuantity;
@@ -107,6 +111,12 @@ public class HotelDetailController {
 
             room.setCategories(categories);
         }model.addAttribute("rooms", rooms);
+
+        boolean commented = reviewService.checkReview(hotelId, user.getId());
+        model.addAttribute("comment", commented);
+
+        List<Review> comments = reviewService.getHotelReview(hotelId);
+        model.addAttribute("comments", comments);
 
         String hotelName = hotel.getHotelName();
         String encode = URLEncoder.encode(hotelName, StandardCharsets.UTF_8);
