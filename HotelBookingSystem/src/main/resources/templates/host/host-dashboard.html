@@ -590,11 +590,11 @@
                                     </span>
                                 </a>
 
-                                <a href="/add-room" class="btn btn-outline-info quick-action-btn text-start">
-                                    <i class="bi bi-door-open me-3"></i>
+                                <a href="/host-customers" class="btn btn-outline-info quick-action-btn text-start">
+                                    <i class="bi bi-people me-3"></i>
                                     <span>
-                                        <strong>Thêm Phòng Mới</strong><br>
-                                        <small class="text-muted">Thêm phòng cho khách sạn</small>
+                                        <strong>Khách Hàng Của Tôi</strong><br>
+                                        <small class="text-muted">Xem và liên hệ khách hàng</small>
                                     </span>
                                 </a>
 
@@ -1232,7 +1232,7 @@
                         </td>
                         <td>
                             <div class="d-flex align-items-center">
-                                <a href="/hotel-detail?id=${booking.hotelId}" target="_blank">
+                                <a href="/hotel-detail?hotelId=${booking.hotelId}" target="_blank">
                                     <img src="${booking.hotelImage}" alt="Hotel" class="rounded me-2" style="width: 40px; height: 30px; object-fit: cover; cursor: pointer;" title="Xem chi tiết khách sạn">
                                 </a>
                                 <span class="hotel-name-truncate" title="${booking.hotel}">${booking.hotel}</span>
