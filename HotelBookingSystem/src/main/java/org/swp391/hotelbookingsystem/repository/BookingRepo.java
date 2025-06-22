@@ -1003,6 +1003,7 @@ public class BookingRepo {
                 groupBy = "CAST(b.created_at AS DATE)";
                 whereClause += " AND b.created_at >= DATEADD(day, -30, GETDATE())";
                 break;
+
             case "year2024":
                 dateTrunc = "FORMAT(b.created_at, 'yyyy-MM')";
                 groupBy = "FORMAT(b.created_at, 'yyyy-MM')";
@@ -1012,6 +1013,11 @@ public class BookingRepo {
                 dateTrunc = "FORMAT(b.created_at, 'yyyy-MM')";
                 groupBy = "FORMAT(b.created_at, 'yyyy-MM')";
                 whereClause += " AND YEAR(b.created_at) = 2023";
+                break;
+            case "year2022":
+                dateTrunc = "FORMAT(b.created_at, 'yyyy-MM')";
+                groupBy = "FORMAT(b.created_at, 'yyyy-MM')";
+                whereClause += " AND YEAR(b.created_at) = 2022";
                 break;
             case "6months":
             default:
