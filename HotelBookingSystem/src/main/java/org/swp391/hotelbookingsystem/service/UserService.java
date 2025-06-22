@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.repository.UserRepo;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -58,6 +60,14 @@ public class UserService {
         }
     }
 
+    public void toggleUserStatus(Long userId) {
+        User user = userRepo.findUserById(userId.intValue());
+        if (user != null) {
+            boolean newStatus = !user.isActive();
+            userRepo.updateUserStatus(userId.intValue(), newStatus);
+        }
+    }
+
     //  Update role to HOTEL_OWNER by user ID
     public void updateUserRoleToHost(int userId) {
         userRepo.updateUserRoleById(userId, "HOTEL_OWNER");
@@ -74,6 +84,24 @@ public class UserService {
     public List<User> getTop5Users() {
         List<User> allUsers = userRepo.getAllUsersWithProfile();
         return allUsers.size() > 5 ? allUsers.subList(0, 5) : allUsers;
+    }
+
+    public Page<User> getUsersByRoleAndSearch(String role, String search, Pageable pageable) {
+        return userRepo.findByRoleAndSearch(role, search, pageable);
+    }
+
+    public Page<User> getUsersByRoleAndSearchAndStatus(String role, String search, String status, Pageable pageable) {
+        Boolean isActive = null;
+        if ("active".equalsIgnoreCase(status)) {
+            isActive = true;
+        } else if ("inactive".equalsIgnoreCase(status)) {
+            isActive = false;
+        }
+        return userRepo.findByRoleAndSearchAndStatus(role, search, isActive, pageable);
+    }
+
+    public long countUsersByStatus(boolean isActive) {
+        return userRepo.countByIsActive(isActive);
     }
 
     public void saveEmailOtpToken(String email, String otp) {

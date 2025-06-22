@@ -135,9 +135,9 @@
                             <p class="text-muted mb-0">Xem, quản lý và báo cáo người dùng trong hệ thống.</p>
                         </div>
                         <div class="d-flex align-items-center">
-                            <span class="badge bg-success me-2">1,200 Hoạt động</span>
-                            <span class="badge bg-warning me-2">45 Bị khóa</span>
-                            <span class="badge bg-danger">8 Bị báo cáo</span>
+                            <span class.badge.bg-success.me-2 th:text="${#lists.size(users)} + ' Tổng'"></span>
+                            <span class="badge bg-success me-2" th:text="${activeUsers} + ' Hoạt động'"></span>
+                            <span class="badge bg-warning me-2" th:text="${lockedUsers} + ' Bị khóa'"></span>
                         </div>
                     </div>
                 </div>
@@ -153,7 +153,8 @@
                                 <div class="col-md-4">
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="bi bi-search"></i></span>
-                                        <input type="text" class="form-control" id="searchInput" placeholder="Tìm theo tên hoặc email...">
+                                        <input type="text" class="form-control" id="searchInput"
+                                               placeholder="Tìm theo tên hoặc email...">
                                     </div>
                                 </div>
                                 <div class="col-md-3">
@@ -162,6 +163,7 @@
                                         <option value="customer">Khách hàng</option>
                                         <option value="host">Chủ khách sạn</option>
                                         <option value="moderator">Quản lý viên</option>
+                                        <option value="admin">Quản trị viên</option>
                                     </select>
                                 </div>
                                 <div class="col-md-3">
@@ -169,11 +171,10 @@
                                         <option value="">Tất cả trạng thái</option>
                                         <option value="active">Hoạt động</option>
                                         <option value="inactive">Bị khóa</option>
-                                        <option value="flagged">Bị báo cáo</option>
                                     </select>
                                 </div>
                                 <div class="col-md-2">
-                                    <button class="btn btn-primary w-100" onclick="applyFilters()">
+                                    <button class="btn btn-primary w-100" id="filterBtn">
                                         <i class="bi bi-funnel me-1"></i>Lọc
                                     </button>
                                 </div>
@@ -186,82 +187,7 @@
 
             <!-- User list START -->
             <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4" id="userGrid">
-
-                <!-- User Card 1: Active Customer -->
-                <div class="col user-card" data-role="customer" data-status="active" data-name="nguyễn văn a" data-email="nguyenvana@example.com">
-                    <div class="card shadow h-100">
-                        <div class="card-body text-center">
-                            <div class="avatar avatar-xl mx-auto mb-3">
-                                <img class="avatar-img rounded-circle" src="/assets/images/avatar/01.jpg" alt="avatar">
-                            </div>
-                            <h5 class="card-title mb-1">Nguyễn Văn A</h5>
-                            <p class="card-text text-muted small">nguyenvana@example.com</p>
-                            <span class="badge bg-success bg-opacity-10 text-success mb-3">Khách hàng</span>
-                        </div>
-                        <div class="card-footer text-center">
-                            <button class="btn btn-sm btn-outline-danger" onclick="openFlagModal('user-1', 'Nguyễn Văn A')"><i class="bi bi-flag me-1"></i>Báo cáo</button>
-                            <button class="btn btn-sm btn-outline-warning" onclick="toggleUserStatus('user-1', false)"><i class="bi bi-slash-circle me-1"></i>Khóa</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- User Card 2: Active Host -->
-                <div class="col user-card" data-role="host" data-status="active" data-name="trần thị b" data-email="tranthib@example.com">
-                    <div class="card shadow h-100">
-                        <div class="card-body text-center">
-                            <div class="avatar avatar-xl mx-auto mb-3">
-                                <img class="avatar-img rounded-circle" src="/assets/images/avatar/02.jpg" alt="avatar">
-                            </div>
-                            <h5 class="card-title mb-1">Trần Thị B</h5>
-                            <p class="card-text text-muted small">tranthib@example.com</p>
-                            <span class="badge bg-info bg-opacity-10 text-info mb-3">Chủ khách sạn</span>
-                        </div>
-                        <div class="card-footer text-center">
-                            <button class="btn btn-sm btn-outline-danger" onclick="openFlagModal('user-2', 'Trần Thị B')"><i class="bi bi-flag me-1"></i>Báo cáo</button>
-                            <button class="btn btn-sm btn-outline-warning" onclick="toggleUserStatus('user-2', false)"><i class="bi bi-slash-circle me-1"></i>Khóa</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- User Card 3: Inactive User -->
-                <div class="col user-card" data-role="customer" data-status="inactive" data-name="lê văn c" data-email="levanc@example.com">
-                    <div class="card shadow h-100">
-                        <div class="card-body text-center">
-                            <div class="avatar avatar-xl mx-auto mb-3">
-                                <img class="avatar-img rounded-circle" style="filter: grayscale(100%);" src="/assets/images/avatar/03.jpg" alt="avatar">
-                            </div>
-                            <h5 class="card-title mb-1">Lê Văn C</h5>
-                            <p class="card-text text-muted small">levanc@example.com</p>
-                            <span class="badge bg-warning bg-opacity-10 text-warning mb-3">Đã bị khóa</span>
-                        </div>
-                        <div class="card-footer text-center">
-                            <button class="btn btn-sm btn-outline-success" onclick="toggleUserStatus('user-3', true)"><i class="bi bi-check-circle me-1"></i>Mở khóa</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- User Card 4: Flagged User -->
-                <div class="col user-card" data-role="host" data-status="flagged" data-name="phạm thị d" data-email="phamthid@example.com">
-                    <div class="card shadow h-100 border border-danger">
-                        <div class="card-body text-center">
-                            <div class="avatar avatar-xl mx-auto mb-3 position-relative">
-                                <img class="avatar-img rounded-circle" src="/assets/images/avatar/04.jpg" alt="avatar">
-                                <span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle">
-                                    <span class="visually-hidden">Báo cáo</span>
-                                </span>
-                            </div>
-                            <h5 class="card-title mb-1">Phạm Thị D</h5>
-                            <p class="card-text text-muted small">phamthid@example.com</p>
-                            <span class="badge bg-danger bg-opacity-10 text-danger mb-3">Bị báo cáo</span>
-                        </div>
-                        <div class="card-footer text-center">
-                            <button class="btn btn-sm btn-outline-secondary" onclick="viewFlagReason('user-4')"><i class="bi bi-info-circle me-1"></i>Xem lý do</button>
-                            <button class="btn btn-sm btn-outline-warning" onclick="toggleUserStatus('user-4', false)"><i class="bi bi-slash-circle me-1"></i>Khóa</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- More users... -->
+                <!-- User cards will be injected here by JavaScript -->
             </div>
             <!-- User list END -->
 
@@ -269,12 +195,8 @@
             <div class="row mt-4">
                 <div class="col-12">
                     <nav aria-label="User pagination">
-                        <ul class="pagination justify-content-center">
-                            <li class="page-item disabled"><a class="page-link" href="#" tabindex="-1"><i class="bi bi-chevron-left"></i></a></li>
-                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                            <li class="page-item"><a class="page-link" href="#">2</a></li>
-                            <li class="page-item"><a class="page-link" href="#">3</a></li>
-                            <li class="page-item"><a class="page-link" href="#"><i class="bi bi-chevron-right"></i></a></li>
+                        <ul class="pagination justify-content-center" id="pagination">
+                            <!-- Pagination links will be injected here by JavaScript -->
                         </ul>
                     </nav>
                 </div>
@@ -318,13 +240,176 @@
 
 
 <script th:src="@{/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
-<script>
+<script th:inline="javascript">
     document.addEventListener('DOMContentLoaded', function () {
+        const users = /*[[${users}]]*/ [];
+        const userGrid = document.getElementById('userGrid');
+        const paginationContainer = document.getElementById('pagination');
+        const searchInput = document.getElementById('searchInput');
+        const roleFilter = document.getElementById('roleFilter');
+        const statusFilter = document.getElementById('statusFilter');
+        const filterBtn = document.getElementById('filterBtn');
+
         const flagUserModal = new bootstrap.Modal(document.getElementById('flag-user-modal'));
         const notificationToast = new bootstrap.Toast(document.getElementById('notificationToast'));
-        let currentUserId = null;
 
-        // --- Toast Notification Handler ---
+        let currentPage = 1;
+        const itemsPerPage = 8;
+        let filteredUsers = users;
+        let currentUserIdToFlag = null;
+
+        function displayUsers(page) {
+            userGrid.innerHTML = '';
+            page = page < 1 ? 1 : page;
+            const start = (page - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const paginatedUsers = filteredUsers.slice(start, end);
+
+            paginatedUsers.forEach(user => {
+                const userCard = `
+                    <div class="col user-card">
+                        <div class="card shadow h-100">
+                            <div class="card-body text-center">
+                                <div class="avatar avatar-xl mx-auto mb-3">
+                                    <img class="avatar-img rounded-circle"
+                                         src="${user.avatarUrl || '/assets/images/avatar/01.jpg'}"
+                                         alt="avatar"
+                                         style="${!user.active ? 'filter: grayscale(100%);' : ''}">
+                                </div>
+                                <h5 class="card-title mb-1">${user.fullName}</h5>
+                                <p class="card-text text-muted small">${user.email}</p>
+                                ${getStatusBadge(user)}
+                            </div>
+                            <div class="card-footer text-center">
+                                 <a href="/user-detail/${user.id}" class="btn btn-sm btn-outline-info"><i class="bi bi-eye me-1"></i>Xem chi tiết</a>
+                                <button class="btn btn-sm btn-outline-danger" onclick="openFlagModal('${user.id}', '${user.fullName}')"><i class="bi bi-flag me-1"></i>Báo cáo</button>
+                            </div>
+                        </div>
+                    </div>`;
+                userGrid.innerHTML += userCard;
+            });
+        }
+
+        function getStatusBadge(user) {
+            if (!user.active) {
+                return '<span class="badge bg-warning bg-opacity-10 text-warning mb-3">Đã bị khóa</span>';
+            }
+            const role = (user.role || 'CUSTOMER').toUpperCase();
+            switch (role) {
+                case 'HOTEL_OWNER':
+                    return '<span class="badge bg-info bg-opacity-10 text-info mb-3">Chủ khách sạn</span>';
+                case 'MODERATOR':
+                    return '<span class="badge bg-primary bg-opacity-10 text-primary mb-3">Quản lý viên</span>';
+                case 'ADMIN':
+                    return '<span class="badge bg-secondary bg-opacity-10 text-secondary mb-3">Quản trị viên</span>';
+                default:
+                    return '<span class="badge bg-success bg-opacity-10 text-success mb-3">Khách hàng</span>';
+            }
+        }
+
+        function setupPagination() {
+            paginationContainer.innerHTML = '';
+            const pageCount = Math.ceil(filteredUsers.length / itemsPerPage);
+
+            if (pageCount <= 1) return;
+
+            // Previous button
+            const prevLi = document.createElement('li');
+            prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+            const prevA = document.createElement('a');
+            prevA.className = 'page-link';
+            prevA.href = '#';
+            prevA.innerHTML = '<i class="bi bi-chevron-left"></i>';
+            prevA.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (currentPage > 1) {
+                    currentPage--;
+                    displayUsers(currentPage);
+                    setupPagination();
+                }
+            });
+            prevLi.appendChild(prevA);
+            paginationContainer.appendChild(prevLi);
+
+            // Page numbers
+            for (let i = 1; i <= pageCount; i++) {
+                const li = document.createElement('li');
+                li.className = `page-item ${i === currentPage ? 'active' : ''}`;
+                const a = document.createElement('a');
+                a.className = 'page-link';
+                a.href = '#';
+                a.textContent = i;
+                a.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    currentPage = i;
+                    displayUsers(currentPage);
+                    setupPagination();
+                });
+                li.appendChild(a);
+                paginationContainer.appendChild(li);
+            }
+
+            // Next button
+            const nextLi = document.createElement('li');
+            nextLi.className = `page-item ${currentPage === pageCount ? 'disabled' : ''}`;
+            const nextA = document.createElement('a');
+            nextA.className = 'page-link';
+            nextA.href = '#';
+            nextA.innerHTML = '<i class="bi bi-chevron-right"></i>';
+            nextA.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (currentPage < pageCount) {
+                    currentPage++;
+                    displayUsers(currentPage);
+                    setupPagination();
+                }
+            });
+            nextLi.appendChild(nextA);
+            paginationContainer.appendChild(nextLi);
+        }
+
+        function applyFilters() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const role = roleFilter.value;
+            const status = statusFilter.value;
+
+            filteredUsers = users.filter(user => {
+                const nameMatch = user.fullName && user.fullName.toLowerCase().includes(searchTerm);
+                const emailMatch = user.email && user.email.toLowerCase().includes(searchTerm);
+                const roleMatch = !role || (user.role && user.role.toLowerCase().replace('_', '') === role) || (role === 'customer' && !user.role);
+                const statusMatch = !status || (status === 'active' && user.active) || (status === 'inactive' && !user.active);
+
+                return (nameMatch || emailMatch) && roleMatch && statusMatch;
+            });
+
+            currentPage = 1;
+            displayUsers(currentPage);
+            setupPagination();
+        }
+
+        filterBtn.addEventListener('click', applyFilters);
+        searchInput.addEventListener('input', applyFilters);
+
+        window.openFlagModal = function (userId, userName) {
+            currentUserIdToFlag = userId;
+            document.getElementById('flag-user-name').textContent = userName;
+            document.getElementById('flag-reason').value = '';
+            document.getElementById('reason-error').classList.add('d-none');
+            flagUserModal.show();
+        };
+
+        document.getElementById('confirm-flag-btn').addEventListener('click', function () {
+            const reason = document.getElementById('flag-reason').value.trim();
+            if (!reason) {
+                document.getElementById('reason-error').classList.remove('d-none');
+                return;
+            }
+            console.log(`Flagging user ${currentUserIdToFlag} for reason: ${reason}`);
+            showToast('Thành công', 'Yêu cầu báo cáo đã được gửi tới quản trị viên.', true);
+            flagUserModal.hide();
+        });
+
+
         function showToast(title, body, isSuccess) {
             const toastTitle = document.getElementById('toast-title');
             const toastBody = document.getElementById('toast-body');
@@ -342,123 +427,8 @@
             notificationToast.show();
         }
 
-        // --- Filter and Search Functions ---
-        window.applyFilters = function() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const roleFilter = document.getElementById('roleFilter').value;
-            const statusFilter = document.getElementById('statusFilter').value;
-
-            document.querySelectorAll('.user-card').forEach(card => {
-                const name = card.dataset.name.toLowerCase();
-                const email = card.dataset.email.toLowerCase();
-                const role = card.dataset.role;
-                const status = card.dataset.status;
-
-                const matchesSearch = name.includes(searchTerm) || email.includes(searchTerm);
-                const matchesRole = !roleFilter || role === roleFilter;
-                const matchesStatus = !statusFilter || status === statusFilter;
-
-                if (matchesSearch && matchesRole && matchesStatus) {
-                    card.style.display = 'block';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-        };
-
-        // --- Modal Opening ---
-        window.openFlagModal = function (userId, userName) {
-            currentUserId = userId;
-            document.getElementById('flag-user-name').textContent = userName;
-            document.getElementById('flag-reason').value = '';
-            document.getElementById('reason-error').classList.add('d-none');
-            flagUserModal.show();
-        };
-
-        // --- Action Handlers ---
-        document.getElementById('confirm-flag-btn').addEventListener('click', function () {
-            const reason = document.getElementById('flag-reason').value.trim();
-            if (!reason) {
-                document.getElementById('reason-error').classList.remove('d-none');
-                return;
-            }
-
-            // Mock API Call
-            console.log(`Flagging user ${currentUserId} for reason: ${reason}`);
-            showToast('Thành công', `Người dùng đã bị báo cáo.`, true);
-            updateUserStatusUI(currentUserId, 'flagged');
-            flagUserModal.hide();
-            currentUserId = null;
-        });
-
-        window.toggleUserStatus = function (userId, activate) {
-            const action = activate ? 'mở khóa' : 'khóa';
-            if (confirm(`Bạn có chắc muốn ${action} người dùng này?`)) {
-                // Mock API Call
-                console.log(`Toggling status for user ${userId} to ${activate}`);
-                const newStatus = activate ? 'active' : 'inactive';
-                showToast('Thành công', `Người dùng đã được ${action}.`, true);
-                updateUserStatusUI(userId, newStatus);
-            }
-        };
-
-        window.viewFlagReason = (userId) => {
-            // In a real app, you'd fetch this from the server
-            const mockReason = "Lạm dụng hệ thống bình luận, đăng tải nội dung không phù hợp.";
-            alert(`Lý do báo cáo: ${mockReason}`);
-        };
-
-        // --- UI Update ---
-        function updateUserStatusUI(userId, newStatus) {
-            const card = document.querySelector(`[onclick*="'${userId}'"]`).closest('.user-card');
-            if (!card) return;
-
-            const avatarImg = card.querySelector('.avatar-img');
-            const statusBadge = card.querySelector('.card-body .badge');
-            const footer = card.querySelector('.card-footer');
-
-            card.dataset.status = newStatus;
-
-            // Reset styles
-            card.classList.remove('border', 'border-danger');
-            avatarImg.style.filter = 'none';
-
-            if (newStatus === 'inactive') {
-                avatarImg.style.filter = 'grayscale(100%)';
-                statusBadge.className = 'badge bg-warning bg-opacity-10 text-warning mb-3';
-                statusBadge.textContent = 'Đã bị khóa';
-                footer.innerHTML = `<button class="btn btn-sm btn-outline-success" onclick="toggleUserStatus('${userId}', true)"><i class="bi bi-check-circle me-1"></i>Mở khóa</button>`;
-            } else if (newStatus === 'flagged') {
-                card.classList.add('border', 'border-danger');
-                statusBadge.className = 'badge bg-danger bg-opacity-10 text-danger mb-3';
-                statusBadge.textContent = 'Bị báo cáo';
-                footer.innerHTML = `
-                <button class="btn btn-sm btn-outline-secondary" onclick="viewFlagReason('${userId}')"><i class="bi bi-info-circle me-1"></i>Xem lý do</button>
-                <button class="btn btn-sm btn-outline-warning" onclick="toggleUserStatus('${userId}', false)"><i class="bi bi-slash-circle me-1"></i>Khóa</button>
-            `;
-            } else { // active
-                const role = card.dataset.role;
-                let badgeClass = 'bg-success bg-opacity-10 text-success';
-                let roleText = 'Khách hàng';
-                if(role === 'host') {
-                    badgeClass = 'bg-info bg-opacity-10 text-info';
-                    roleText = 'Chủ khách sạn';
-                } else if (role === 'moderator') {
-                    badgeClass = 'bg-primary bg-opacity-10 text-primary';
-                    roleText = 'Quản lý viên';
-                }
-
-                statusBadge.className = `badge ${badgeClass} mb-3`;
-                statusBadge.textContent = roleText;
-                footer.innerHTML = `
-                <button class="btn btn-sm btn-outline-danger" onclick="openFlagModal('${userId}', '${card.querySelector('.card-title').textContent}')"><i class="bi bi-flag me-1"></i>Báo cáo</button>
-                <button class="btn btn-sm btn-outline-warning" onclick="toggleUserStatus('${userId}', false)"><i class="bi bi-slash-circle me-1"></i>Khóa</button>
-            `;
-            }
-        }
-
-        // --- Search input event listener ---
-        document.getElementById('searchInput').addEventListener('input', applyFilters);
+        // Initial display
+        applyFilters();
     });
 </script>
 

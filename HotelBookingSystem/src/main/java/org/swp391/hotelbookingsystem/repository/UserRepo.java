@@ -2,11 +2,16 @@ package org.swp391.hotelbookingsystem.repository;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.swp391.hotelbookingsystem.model.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.util.StringUtils;
 
 @Repository
 public class UserRepo {
@@ -308,7 +313,92 @@ public class UserRepo {
         return jdbc.queryForObject(sql, Integer.class, role, wildcard);
     }
 
+    public Page<User> findByRoleAndSearch(String role, String search, Pageable pageable) {
+        StringBuilder sqlBuilder = new StringBuilder("SELECT * FROM Users WHERE 1=1 AND role IN ('CUSTOMER', 'HOTEL_OWNER')");
+        List<Object> params = new ArrayList<>();
 
+        if (StringUtils.hasText(role)) {
+            sqlBuilder.append(" AND role = ?");
+            params.add(role);
+        }
+
+        if (StringUtils.hasText(search)) {
+            sqlBuilder.append(" AND (full_name LIKE ? OR email LIKE ?)");
+            params.add("%" + search + "%");
+            params.add("%" + search + "%");
+        }
+
+        String countSql = "SELECT count(*) FROM (" + sqlBuilder.toString() + ") as count_table";
+        int total = jdbc.queryForObject(countSql, Integer.class, params.toArray());
+
+        sqlBuilder.append(" ORDER BY user_id OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+        params.add(pageable.getOffset());
+        params.add(pageable.getPageSize());
+
+        List<User> users = jdbc.query(sqlBuilder.toString(), (rs, rowNum) -> User.builder()
+                .id(rs.getInt("user_id"))
+                .fullName(rs.getString("full_name"))
+                .email(rs.getString("email"))
+                .password(rs.getString("password_hash"))
+                .phone(rs.getString("phone"))
+                .role(rs.getString("role"))
+                .active(rs.getBoolean("is_active"))
+                .dob(rs.getDate("date_of_birth"))
+                .bio(rs.getString("bio"))
+                .gender(rs.getString("gender"))
+                .avatarUrl(rs.getString("avatar_url"))
+                .build(), params.toArray());
+
+        return new PageImpl<>(users, pageable, total);
+    }
+
+    public Page<User> findByRoleAndSearchAndStatus(String role, String search, Boolean isActive, Pageable pageable) {
+        StringBuilder sqlBuilder = new StringBuilder("SELECT * FROM Users WHERE 1=1");
+        List<Object> params = new ArrayList<>();
+
+        if (StringUtils.hasText(role)) {
+            sqlBuilder.append(" AND role = ?");
+            params.add(role);
+        }
+
+        if (StringUtils.hasText(search)) {
+            sqlBuilder.append(" AND (full_name LIKE ? OR email LIKE ?)");
+            params.add("%" + search + "%");
+            params.add("%" + search + "%");
+        }
+        if (isActive != null) {
+            sqlBuilder.append(" AND is_active = ?");
+            params.add(isActive);
+        }
+
+        String countSql = "SELECT count(*) FROM (" + sqlBuilder.toString() + ") as count_table";
+        int total = jdbc.queryForObject(countSql, Integer.class, params.toArray());
+
+        sqlBuilder.append(" ORDER BY user_id OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+        params.add(pageable.getOffset());
+        params.add(pageable.getPageSize());
+
+        List<User> users = jdbc.query(sqlBuilder.toString(), (rs, rowNum) -> User.builder()
+                .id(rs.getInt("user_id"))
+                .fullName(rs.getString("full_name"))
+                .email(rs.getString("email"))
+                .password(rs.getString("password_hash"))
+                .phone(rs.getString("phone"))
+                .role(rs.getString("role"))
+                .active(rs.getBoolean("is_active"))
+                .dob(rs.getDate("date_of_birth"))
+                .bio(rs.getString("bio"))
+                .gender(rs.getString("gender"))
+                .avatarUrl(rs.getString("avatar_url"))
+                .build(), params.toArray());
+
+        return new PageImpl<>(users, pageable, total);
+    }
+
+    public long countByIsActive(boolean isActive) {
+        String sql = "SELECT COUNT(*) FROM Users WHERE is_active = ?";
+        return jdbc.queryForObject(sql, Long.class, isActive);
+    }
 
 }
 
