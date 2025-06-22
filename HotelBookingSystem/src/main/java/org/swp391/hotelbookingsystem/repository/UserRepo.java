@@ -157,15 +157,17 @@ public class UserRepo {
     }
 
     private static String SELECT_USERS_WITH_PROFILE = """
-            SELECT u.user_id AS userID, 
-                   u.full_name AS fullName, 
-                   u.email, 
-                   u.password_hash AS password, 
-                   u.phone, 
-                   u.role, 
+            SELECT u.user_id AS userID,
+                   u.full_name AS fullName,
+                   u.email,
+                   u.password_hash AS password,
+                   u.phone,
+                   u.role,
                    u.is_active,
                    u.avatar_url AS avatarUrl,
-                   u.bio
+                   u.bio,
+                   u.gender,
+                   u.date_of_birth
             FROM Users u
             """;
 
@@ -181,6 +183,8 @@ public class UserRepo {
                 .active(rs.getBoolean("is_active"))
                 .avatarUrl(rs.getString("avatarUrl"))
                 .bio(rs.getString("bio"))
+                .gender(rs.getString("gender"))
+                .dob(rs.getDate("date_of_birth"))
                 .build());
     }
 

@@ -206,6 +206,62 @@
     </div>
 </main>
 
+<!-- User Detail Modal -->
+<div class="modal fade" id="user-detail-modal" tabindex="-1" aria-labelledby="userDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="userDetailModalLabel">Chi tiết người dùng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-3">
+                    <div class="avatar avatar-xxl">
+                        <img id="detail-avatar" class="avatar-img rounded-circle" src="" alt="avatar">
+                    </div>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between">
+                        <strong>Họ và tên:</strong>
+                        <span id="detail-fullName"></span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <strong>Email:</strong>
+                        <span id="detail-email"></span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <strong>Số điện thoại:</strong>
+                        <span id="detail-phone"></span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <strong>Vai trò:</strong>
+                        <span id="detail-role"></span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <strong>Trạng thái:</strong>
+                        <span id="detail-status"></span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <strong>Giới tính:</strong>
+                        <span id="detail-gender"></span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <strong>Ngày sinh:</strong>
+                        <span id="detail-dob"></span>
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Bio:</strong>
+                        <p id="detail-bio" class="mt-1 mb-0"></p>
+                    </li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Flag User Modal -->
 <div class="modal fade" id="flag-user-modal" tabindex="-1" aria-labelledby="flagUserModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -250,6 +306,7 @@
         const statusFilter = document.getElementById('statusFilter');
         const filterBtn = document.getElementById('filterBtn');
 
+        const userDetailModal = new bootstrap.Modal(document.getElementById('user-detail-modal'));
         const flagUserModal = new bootstrap.Modal(document.getElementById('flag-user-modal'));
         const notificationToast = new bootstrap.Toast(document.getElementById('notificationToast'));
 
@@ -281,7 +338,7 @@
                                 ${getStatusBadge(user)}
                             </div>
                             <div class="card-footer text-center">
-                                 <a href="/user-detail/${user.id}" class="btn btn-sm btn-outline-info"><i class="bi bi-eye me-1"></i>Xem chi tiết</a>
+                                 <button class="btn btn-sm btn-outline-info" onclick="openUserDetailsModal('${user.id}')"><i class="bi bi-eye me-1"></i>Xem chi tiết</button>
                                 <button class="btn btn-sm btn-outline-danger" onclick="openFlagModal('${user.id}', '${user.fullName}')"><i class="bi bi-flag me-1"></i>Báo cáo</button>
                             </div>
                         </div>
@@ -389,6 +446,40 @@
 
         filterBtn.addEventListener('click', applyFilters);
         searchInput.addEventListener('input', applyFilters);
+
+        window.openUserDetailsModal = function (userId) {
+            const user = users.find(u => u.id == userId);
+            if (!user) return;
+
+            document.getElementById('detail-avatar').src = user.avatarUrl || '/assets/images/avatar/01.jpg';
+            document.getElementById('detail-fullName').textContent = user.fullName || 'N/A';
+            document.getElementById('detail-email').textContent = user.email || 'N/A';
+            document.getElementById('detail-phone').textContent = user.phone || 'N/A';
+
+            const role = (user.role || 'CUSTOMER').toUpperCase();
+            let roleText = 'Khách hàng';
+            switch (role) {
+                case 'HOTEL_OWNER':
+                    roleText = 'Chủ khách sạn';
+                    break;
+                case 'MODERATOR':
+                    roleText = 'Quản lý viên';
+                    break;
+                case 'ADMIN':
+                    roleText = 'Quản trị viên';
+                    break;
+            }
+            document.getElementById('detail-role').textContent = roleText;
+            document.getElementById('detail-status').innerHTML = user.active
+                ? '<span class="badge bg-success">Hoạt động</span>'
+                : '<span class="badge bg-danger">Bị khóa</span>';
+
+            document.getElementById('detail-gender').textContent = user.gender || 'N/A';
+            document.getElementById('detail-dob').textContent = user.dob ? new Date(user.dob).toLocaleDateString('vi-VN') : 'N/A';
+            document.getElementById('detail-bio').textContent = user.bio || 'Không có thông tin.';
+
+            userDetailModal.show();
+        };
 
         window.openFlagModal = function (userId, userName) {
             currentUserIdToFlag = userId;
