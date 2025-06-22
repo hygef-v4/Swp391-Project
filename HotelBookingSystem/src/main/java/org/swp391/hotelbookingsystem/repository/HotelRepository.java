@@ -200,6 +200,7 @@ public class HotelRepository {
                        h.latitude,
                        h.longitude,
                        h.policy,
+                       h.status,
                        MIN(r.price) AS minPrice,
                        l.city_name AS cityName
                 FROM Hotels h
@@ -208,7 +209,7 @@ public class HotelRepository {
                 WHERE h.hotel_id like ?
                 GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
                          h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude, h.policy,
-                         l.city_name
+                         l.city_name, h.status
                 """;
         return jdbcTemplate.queryForObject(query, HOTEL_MAPPER, id);
     }
@@ -330,6 +331,11 @@ public class HotelRepository {
     public int countHotelByHostId(int hostId) {
         String sql = "SELECT COUNT(*) FROM Hotels WHERE host_id = ?";
         return jdbcTemplate.queryForObject(sql, Integer.class, hostId);
+    }
+
+    public int updateHotelStatus(int hotelId, String status) {
+        String sql = "UPDATE Hotels SET status = ? WHERE hotel_id = ?";
+        return jdbcTemplate.update(sql, status, hotelId);
     }
 
 }

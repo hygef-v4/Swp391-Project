@@ -11,12 +11,14 @@ import java.util.List;
 public class HotelService {
 
     private final HotelRepository hotelRepository;
+    private final NotificationService notificationService;
 
-    public HotelService(HotelRepository hotelRepository) {
+    public HotelService(HotelRepository hotelRepository, NotificationService notificationService) {
         this.hotelRepository = hotelRepository;
+        this.notificationService = notificationService;
     }
 
-    public Hotel getHotelById(int id){
+    public Hotel getHotelById(int id) {
         return hotelRepository.getHotelById(id);
     }
 
@@ -67,7 +69,7 @@ public class HotelService {
     public boolean isFavoriteHotel(int userId, int hotelId) {
         return hotelRepository.isFavoriteHotel(userId, hotelId) != 0;
     }
-    
+
     public void insertHotelDeletionToken(int userId, String token, LocalDateTime expiry, String tokenType) {
         hotelRepository.insertHotelDeletionToken(userId, token, expiry, tokenType);
     }
@@ -77,7 +79,6 @@ public class HotelService {
     }
 
 
-
     public void cancelHotelDeleteToken(int userId, int hotelId) {
         hotelRepository.cancelHotelDeleteToken(userId, hotelId);
     }
@@ -85,4 +86,19 @@ public class HotelService {
     public int countHotelsByHostId(int id) {
         return hotelRepository.countHotelByHostId(id);
     }
+
+    public boolean banHotel(int hotelId, String reason, int adminId) {
+        Hotel hotel = hotelRepository.getHotelById(hotelId);
+        if (hotel == null) return false;
+
+        int updated = hotelRepository.updateHotelStatus(hotelId, "banned");
+        if (updated <= 0) return false;
+
+        String message = "Khách sạn \"" + hotel.getHotelName() + "\" đã bị cấm. Lý do: " + reason;
+        notificationService.notifyUser(hotel.getHostId(), message);
+
+        return true;
+    }
+
+
 }

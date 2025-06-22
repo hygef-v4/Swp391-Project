@@ -7,7 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.swp391.hotelbookingsystem.constant.ConstantVariables;
 import org.swp391.hotelbookingsystem.model.*;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -87,6 +89,7 @@ public class AdminHotelController {
     @GetMapping("/admin/hotel/view/{hotelId}")
     public String hotelDetail(
             @PathVariable("hotelId") int hotelId,
+            @RequestParam(value = "dateRange", defaultValue = "") String dateRange,
             @RequestParam(value = "adults", defaultValue = "1") int adults,
             @RequestParam(value = "children", defaultValue = "0") int children,
             @RequestParam(value = "rooms", defaultValue = "1") int roomQuantity,
@@ -95,6 +98,8 @@ public class AdminHotelController {
     ){
         List<Location> locations = locationService.getAllLocations();
         model.addAttribute("locations", locations);
+
+        model.addAttribute("dateRange", dateRange);
 
         model.addAttribute("adults", adults);
         model.addAttribute("children", children);
@@ -111,6 +116,7 @@ public class AdminHotelController {
         }model.addAttribute("favorite", favorite);
 
         String redirect = "";
+        if(!"".equals(dateRange)) redirect += "&dateRange=" + dateRange;
         if(adults != 1) redirect += "&adults=" + adults;
         if(children != 0) redirect += "&children=" + children;
         if(roomQuantity != 1) redirect += "&rooms=" + roomQuantity;
@@ -132,8 +138,6 @@ public class AdminHotelController {
                 }
             }
         }
-
-        model.addAttribute("hotel", hotel);
 
         List<Room> rooms = roomService.getRoomByHotelId(hotelId);
         for(Room room : rooms){
@@ -162,4 +166,22 @@ public class AdminHotelController {
 
         return "admin/admin-hotel-detail";
     }
+
+    @PostMapping("/admin/hotel/ban/{hotelId}")
+    public String banHotel(@PathVariable("hotelId") int hotelId,
+                           @RequestParam("reason") String reason,
+                           HttpSession session,
+                           RedirectAttributes redirectAttributes) {
+        User admin = (User) session.getAttribute("user");
+        boolean result = hotelService.banHotel(hotelId, reason, admin.getId());
+
+        if (result) {
+            redirectAttributes.addFlashAttribute("successMessage", "Khách sạn đã bị cấm và thông báo đã được ghi nhận.");
+        } else {
+            redirectAttributes.addFlashAttribute("errorMessage", "Không thể cấm khách sạn.");
+        }
+
+        return "redirect:/admin/hotel/view/" + hotelId;
+    }
+
 }

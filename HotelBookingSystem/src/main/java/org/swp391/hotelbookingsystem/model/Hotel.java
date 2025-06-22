@@ -20,7 +20,7 @@ public class Hotel {
     private BigDecimal latitude;
     private BigDecimal longitude;
     private String policy;
-
+    private String status;
     private String cityName; // Added field for city name
     private BigDecimal minPrice; // For the minimum room price
     private int maxGuests;
