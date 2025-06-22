@@ -269,7 +269,9 @@
                     <h5 class="mb-3"><i class="bi bi-building me-2"></i>Khách sạn của chủ sở hữu</h5>
                     <div th:each="hotel : ${hostHotels}" class="hotel-item">
                         <div class="d-flex align-items-center">
-                            <img th:src="${hotel.hotelImageUrl ?: '/assets/images/category/hotel/01.jpg'}" alt="Hotel" class="booking-hotel-img me-3">
+                            <a th:href="@{/hotel-detail(hotelId=${hotel.hotelId})}" class="text-decoration-none">
+                                <img th:src="${hotel.hotelImageUrl ?: '/assets/images/category/hotel/01.jpg'}" alt="Hotel" class="booking-hotel-img me-3" style="cursor: pointer;">
+                            </a>
                             <div>
                                 <h6 class="mb-0" th:text="${hotel.hotelName}">Hotel Name</h6>
                                 <small class="text-muted" th:text="${hotel.address}">Hotel Address</small>
@@ -326,7 +328,9 @@
                             <div class="booking-entry-header">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div class="d-flex align-items-center gap-3">
-                                        <img th:src="${booking.imageUrl ?: '/assets/images/category/hotel/01.jpg'}" alt="Hotel" class="booking-hotel-img">
+                                        <a th:href="@{/hotel-detail(hotelId=${booking.hotelId})}" class="text-decoration-none">
+                                            <img th:src="${booking.imageUrl ?: '/assets/images/category/hotel/01.jpg'}" alt="Hotel" class="booking-hotel-img" style="cursor: pointer;">
+                                        </a>
                                         <div>
                                             <h6 class="mb-0" th:text="'#BK' + ${booking.bookingId}">#BK11</h6>
                                             <small th:text="${booking.hotelName}">Hotel Name</small>
@@ -334,7 +338,7 @@
                                     </div>
                                     <div class="text-end">
                                         <small class="d-block booking-total-price">Tổng tiền</small>
-                                        <strong class="fs-5" th:text="${#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 0, 'POINT')} + ' ₫'">1,500,000 ₫</strong>
+                                        <strong class="fs-5" th:text="${booking.totalPrice > 0 ? (#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 0, 'POINT') + ' ₫') : 'Đã hủy/ Từ chối'}">1,500,000 ₫</strong>
                                     </div>
                                 </div>
                             </div>
@@ -352,27 +356,37 @@
                                 <h6 class="fw-bold">Phòng đã đặt:</h6>
                                 <div class="vstack gap-3 mt-3">
                                     <div th:each="unit : ${booking.bookingUnits}" class="booked-room-item">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div class="d-flex align-items-center gap-3">
+                                        <div class="d-flex justify-content-between align-items-center" style="position: relative;">
+                                            <div class="d-flex align-items-center gap-3" style="flex: 1; min-width: 0;">
                                                 <img th:src="${unit.imageUrl ?: '/assets/images/category/hotel/4by3/01.jpg'}" alt="Room" class="booked-room-img">
-                                                <div>
-                                                    <h6 class="mb-0 d-flex align-items-center">
-                                                        <span th:text="${unit.roomName}">Room Name</span>
-                                                        <span th:if="${unit.status}" 
-                                                              class="unit-status-badge"
-                                                              th:classappend="${'status-' + unit.status}"
-                                                              th:text="${unit.status == 'approved' ? 'Đã duyệt' : 
-                                                                       unit.status == 'pending' ? 'Chờ duyệt' : 
-                                                                       unit.status == 'cancelled' ? 'Đã hủy' : 
-                                                                       unit.status == 'completed' ? 'Hoàn thành' : 
-                                                                       unit.status == 'rejected' ? 'Từ chối' : unit.status}">Đã duyệt</span>
+                                                <div style="flex: 1; min-width: 0;">
+                                                    <h6 class="mb-0">
+                                                        <span th:text="${unit.roomName}" 
+                                                              th:title="${unit.roomName}"
+                                                              style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; max-width: 240px;">Room Name</span>
                                                     </h6>
                                                     <small class="text-muted" th:if="${unit.quantity > 1}" th:text="'Số lượng: ' + ${unit.quantity}">Số lượng: 2</small>
                                                 </div>
                                             </div>
+                                            <div style="position: absolute; right: 130px; top: 15px;">
+                                                <span th:if="${unit.status}" 
+                                                      class="unit-status-badge"
+                                                      th:classappend="${'status-' + unit.status}"
+                                                      th:text="${unit.status == 'approved' ? 'Đã duyệt' : 
+                                                               unit.status == 'pending' ? 'Chờ duyệt' : 
+                                                               unit.status == 'cancelled' ? 'Đã hủy' : 
+                                                               unit.status == 'completed' ? 'Hoàn thành' : 
+                                                               unit.status == 'rejected' ? 'Từ chối' : unit.status}">Đã duyệt</span>
+                                            </div>
                                             <div class="text-end">
                                                 <div class="fw-bold" th:text="${#numbers.formatDecimal(unit.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">700,000 ₫</div>
-                                                <small class="text-muted" th:if="${unit.quantity > 1}" th:text="'(' + ${#numbers.formatDecimal(unit.price * unit.quantity, 0, 'COMMA', 0, 'POINT')} + ' ₫ tổng)'">700,000 ₫ tổng</small>
+                                                <small th:if="${unit.quantity > 1}" 
+                                                       th:class="${(unit.status == 'approved' or unit.status == 'completed') ? 'text-success fw-bold' : 'text-muted text-decoration-line-through'}"
+                                                       th:text="'(' + ${#numbers.formatDecimal(unit.price * unit.quantity, 0, 'COMMA', 0, 'POINT')} + ' ₫ tổng)'">700,000 ₫ tổng</small>
+                                                <small th:if="${unit.quantity <= 1 and (unit.status != 'approved' and unit.status != 'completed')}" 
+                                                       class="text-muted">
+                                                    <i class="bi bi-exclamation-triangle me-1" title="Không tính vào tổng do trạng thái"></i>Không tính vào tổng
+                                                </small>
                                             </div>
                                         </div>
                                     </div>
@@ -474,6 +488,8 @@
         // Only update status if it's about the other user (not current user)
         if (presenceObj.userId === otherUserId) {
             const statusBadge = document.querySelector('.status-badge');
+            const chatDateElement = document.getElementById('chat-date');
+            
             if (statusBadge) {
                 if (presenceObj.status === 'online') {
                     statusBadge.textContent = 'Online';
@@ -481,8 +497,10 @@
                     statusBadge.style.color = '#22c55e';
                     statusBadge.style.border = '1px solid rgba(34, 197, 94, 0.4)';
                     lastSeenTimestamp = new Date().getTime();
-                    // Update last seen to "now" when user comes online
-                    updateLastSeenTime(new Date().toISOString());
+                    // Update chat date to show "Đang hoạt động" when user is online
+                    if (chatDateElement) {
+                        chatDateElement.textContent = 'Đang hoạt động';
+                    }
                 } else {
                     statusBadge.textContent = 'Offline';
                     statusBadge.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
@@ -490,6 +508,7 @@
                     statusBadge.style.border = '1px solid rgba(255, 255, 255, 0.8)';
                     // Update last seen time when user goes offline
                     if (presenceObj.timestamp) {
+                        lastSeenTimestamp = new Date(presenceObj.timestamp).getTime();
                         updateLastSeenTime(presenceObj.timestamp);
                     }
                 }
@@ -874,7 +893,7 @@
     function updateChatDate() {
         const chatDateElement = document.getElementById('chat-date');
         if (chatDateElement) {
-            chatDateElement.textContent = 'Đang tải...';
+            chatDateElement.textContent = 'Chưa có hoạt động';
         }
     }
     
