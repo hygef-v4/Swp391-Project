@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class Review {
     private int reviewId;           // review_id
-    private int bookingId;          // booking_id
+    private int hotelId;            // hotel_id
     private int reviewerId;         // reviewer_id
     private int rating;             // rating (0–5)
     private String comment;         // comment text

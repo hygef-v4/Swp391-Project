@@ -1,8 +1,5 @@
 package org.swp391.hotelbookingsystem.config;
 
-import org.swp391.hotelbookingsystem.handler.CustomUserDetailsService;
-import org.swp391.hotelbookingsystem.handler.FormLoginSuccessHandler;
-import org.swp391.hotelbookingsystem.handler.OAuth2LoginSuccessHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +12,9 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
+import org.swp391.hotelbookingsystem.handler.CustomUserDetailsService;
+import org.swp391.hotelbookingsystem.handler.FormLoginSuccessHandler;
+import org.swp391.hotelbookingsystem.handler.OAuth2LoginSuccessHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -33,7 +33,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/api/files/**", "/webhook", "/filter-hotels")
+                        .ignoringRequestMatchers("/api/files/**", "/webhook", "/booking",
+                                "/update-hotel", "/update-room", "/delete-room", "/ws/**", "/api/chat/**")
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
@@ -41,7 +42,7 @@ public class SecurityConfig {
                                 "/login", "/register", "/verify-email-otp", "/resend-otp", "/forgotPassword", "/resetPassword",
                                 "/hotel-list", "/filter-hotels", "/hotel-detail",
                                 "/css/**", "/js/**", "/images/**", "/assets/**",
-                                "/api/files/**", "user-profile", "user-wishlist"
+                                "/api/files/**", "user-profile", "user-wishlist", "/ws/**", "/api/chat/**"
                         ).permitAll()
                         .requestMatchers("/admin-dashboard", "/admin-user-list", "/admin-hotel-list").access(AuthorizationManagers.allOf(
                                 new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
@@ -49,12 +50,19 @@ public class SecurityConfig {
                         ))
                         .requestMatchers("/admin-dashboard").access(AuthorizationManagers.allOf(
                                 new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
-                                new WebExpressionAuthorizationManager("hasAnyRole('MODERATOR', 'ADMIN')")
+                                new WebExpressionAuthorizationManager("hasAnyRole('ADMIN')")
                         ))
-                        .requestMatchers("/host-dashboard","/add-hotel","/add-room","/request-delete-hotel").access(AuthorizationManagers.allOf(
+                        .requestMatchers("/host-dashboard","/add-hotel","/add-room","/request-delete-hotel",
+                                "/manage-hotel","/update-hotel","/update-room","/delete-room",
+                                "/host-customers","/host-customer-detail").access(AuthorizationManagers.allOf(
                                 new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
                                 new WebExpressionAuthorizationManager("hasAnyRole('HOTEL_OWNER', 'ADMIN')")
                         ))
+                        .requestMatchers("/moderator-dashboard").access(AuthorizationManagers.allOf(
+                                new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
+                                new WebExpressionAuthorizationManager("hasAnyRole('MODERATOR', 'ADMIN')")
+                        ))
+
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form

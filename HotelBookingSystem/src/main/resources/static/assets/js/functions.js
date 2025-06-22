@@ -614,6 +614,22 @@ var e = {
     // START: 16 Flatpicker
     flatPicker: function () {
 
+        // Định nghĩa tiếng Việt cho Flatpickr
+        flatpickr.localize({
+            weekdays: {
+                shorthand: ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'],
+                longhand: ['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy']
+            },
+            months: {
+                shorthand: ['Th1', 'Th2', 'Th3', 'Th4', 'Th5', 'Th6', 'Th7', 'Th8', 'Th9', 'Th10', 'Th11', 'Th12'],
+                longhand: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12']
+            },
+            firstDayOfWeek: 1,
+            rangeSeparator: " => ",
+            weekAbbreviation: "Tuần",
+            time_24hr: true
+        });
+
         var picker = e.select('.flatpickr');
         if (e.isVariableDefined(picker)) {
             var element = e.selectAll('.flatpickr');
@@ -622,17 +638,19 @@ var e = {
                 var enableTime = item.getAttribute('data-enableTime') == 'true' ? true : false;
                 var noCalendar = item.getAttribute('data-noCalendar') == 'true' ? true : false;
                 var inline = item.getAttribute('data-inline') == 'true' ? true : false;
-                var dateFormat = item.getAttribute('data-date-format') ? item.getAttribute('data-date-format') : item.getAttribute('data-enableTime') == 'true' ? "h:i K" : "d M";
+                var dateFormat = item.getAttribute('data-date-format') ? item.getAttribute('data-date-format') : item.getAttribute('data-enableTime') == 'true' ? "h:i K" : "Y-m-d";
 
                 flatpickr(item, {
-                    locale: "vn", // <-- Add this line
+                    locale: "vn",
                     mode: mode,
                     enableTime: enableTime,
                     noCalendar: noCalendar,
                     inline: inline,
                     animate: "false",
                     position: "top",
-                    dateFormat: dateFormat, //Check supported characters here: https://flatpickr.js.org/formatting/
+                    dateFormat: dateFormat,
+                    altInput: true,
+                    altFormat: "d/m/Y",
                     disableMobile: "true",
                     minDate: "today"  
                 });

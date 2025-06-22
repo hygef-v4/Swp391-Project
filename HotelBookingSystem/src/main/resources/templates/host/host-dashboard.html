@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html lang="vi"> <!-- Changed lang to Vietnamese -->
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 
-<!-- Mirrored from stackbros.in/bookinga/landing/agent-dashboard.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:05:49 GMT -->
 <head>
-    <title>Hamora - Bảng điều khiển</title> <!-- Translated -->
+    <title>Bảng Điều Khiển Chủ Nhà - Hamora</title>
 
     <!-- Meta Tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-    <meta name="description" content="Booking - Chủ đề Đặt phòng Trực tuyến Đa năng"> <!-- Translated -->
+    <meta name="description" content="Bảng Điều Khiển Chủ Nhà - Quản lý khách sạn và đặt phòng của bạn">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 
     <!-- Dark mode -->
     <script>
@@ -34,7 +34,7 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             var el = document.querySelector('.theme-icon-active');
-            if(el != 'undefined' && el != null) {
+            if (el != 'undefined' && el != null) {
                 const showActiveTheme = theme => {
                     const activeThemeIcon = document.querySelector('.theme-icon-active use')
                     const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
@@ -68,7 +68,6 @@
 
             }
         })
-
     </script>
 
     <!-- Favicon -->
@@ -77,7 +76,8 @@
     <!-- Google Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com/">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Poppins:wght@400;500;700&display=swap">
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Poppins:wght@400;500;700&display=swap">
 
     <!-- Plugins CSS -->
     <link rel="stylesheet" type="text/css" href="assets/vendor/font-awesome/css/all.min.css">
@@ -88,293 +88,633 @@
     <!-- Theme CSS -->
     <link rel="stylesheet" type="text/css" href="assets/css/style.css">
 
+    <style>
+        .metric-card {
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .quick-action-btn {
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .quick-action-btn:hover {
+            border-color: var(--bs-primary);
+            transform: translateY(-2px);
+        }
+
+        /* Beautiful Zoom Controls */
+        .zoom-controls {
+            display: flex;
+            gap: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 4px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .zoom-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            min-width: 36px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .zoom-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .zoom-btn:active {
+            transform: translateY(0);
+        }
+
+        .zoom-btn:focus {
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+
+        /* Beautiful Pagination */
+        .pagination-custom {
+            gap: 8px;
+        }
+
+        .pagination-custom .page-item .page-link {
+            border: none;
+            background: transparent;
+            color: #6c757d;
+            font-weight: 500;
+            min-width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pagination-custom .page-item .page-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 12px;
+        }
+
+        .pagination-custom .page-item .page-link span,
+        .pagination-custom .page-item .page-link {
+            position: relative;
+            z-index: 3;
+        }
+
+        .pagination-custom .page-item .page-link button {
+            position: relative;
+            z-index: 3;
+            background: transparent;
+            border: none;
+            color: inherit;
+            font-weight: inherit;
+        }
+
+        .pagination-custom .page-item:hover .page-link::before {
+            opacity: 0.1;
+        }
+
+        .pagination-custom .page-item:hover .page-link {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+            color: #667eea;
+        }
+
+        .pagination-custom .page-item.active .page-link {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white !important;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transform: translateY(-2px);
+            z-index: 2;
+        }
+
+        .pagination-custom .page-item.active .page-link::before {
+            opacity: 0;
+        }
+
+        .pagination-custom .page-item.disabled .page-link {
+            color: #dee2e6;
+            cursor: not-allowed;
+        }
+
+        .pagination-custom .page-item.disabled:hover .page-link {
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Beautiful Info Badge */
+        .pagination-info-badge {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Chart Container Enhancement */
+        .chart-container {
+            position: relative;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .chart-header-enhanced {
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 20px 20px 0 0;
+        }
+
+        /* Enhanced Dropdown */
+        .enhanced-dropdown .dropdown-toggle {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+
+        .enhanced-dropdown .dropdown-toggle:hover,
+        .enhanced-dropdown .dropdown-toggle:focus {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: none;
+            color: white;
+        }
+
+        .enhanced-dropdown .dropdown-menu {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            padding: 8px;
+        }
+
+        .enhanced-dropdown .dropdown-item {
+            border-radius: 10px;
+            margin: 2px 0;
+            padding: 8px 12px;
+            transition: all 0.3s ease;
+            color: #495057;
+        }
+
+        .enhanced-dropdown .dropdown-item:hover {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .enhanced-dropdown .dropdown-item.active {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            font-weight: 600;
+        }
+
+        .enhanced-dropdown .dropdown-divider {
+            margin: 8px 0;
+            border-color: rgba(102, 126, 234, 0.2);
+        }
+
+        /* Loading Animation */
+        .chart-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 350px;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Booking List Enhancements */
+        .booking-main-row:hover {
+            background-color: rgba(102, 126, 234, 0.05);
+        }
+
+        .booking-details-row {
+            background-color: rgba(248, 249, 250, 0.8);
+        }
+
+        .booking-details-row .card {
+            transition: box-shadow 0.2s ease; /* Only transition box-shadow */
+        }
+
+        /* THE FIX - Part 1: Remove transform, use a more prominent shadow for hover effect */
+        .booking-details-row .card:hover {
+            /* transform: translateY(-2px);  <-- REMOVED to prevent stacking context and jump issues */
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12); /* Enhanced shadow for feedback */
+        }
+
+        .table tbody tr.booking-details-row td {
+            border-top: none;
+        }
+
+        .table tbody tr.booking-main-row + tr.booking-details-row td {
+            border-top: 1px solid rgba(102, 126, 234, 0.2);
+        }
+
+        /* Purple color for mixed status */
+        .bg-purple {
+            background-color: #6f42c1 !important;
+        }
+
+        .text-purple {
+            color: #6f42c1 !important;
+        }
+
+        /* Text truncation for hotel names */
+        .hotel-name-truncate {
+            max-width: 150px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: inline-block;
+            vertical-align: top;
+        }
+
+        @media (max-width: 768px) {
+            .hotel-name-truncate {
+                max-width: 100px;
+            }
+        }
+
+        /* Room name truncation in details */
+        .room-name-truncate {
+            max-width: 120px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: inline-block;
+        }
+
+        /* THE FIX - Part 2: Ensure the table wrapper does not clip the dropdown */
+        .table-responsive {
+            overflow: visible !important;
+        }
+    </style>
 </head>
 
 <body>
-
 
 <div th:replace="~{common/header :: header}"></div>
 
 <!-- **************** MAIN CONTENT START **************** -->
 <main>
-
-<!--    menu-->
+    <!-- Host Menu -->
     <section th:replace="~{common-host/menu-host :: menu}"></section>
-
-
-
 
     <section class="pt-0">
         <div class="container vstack gap-4">
-            <!-- Title START -->
+
+            <!-- Welcome Header START -->
             <div class="row">
                 <div class="col-12">
-                    <h1 class="fs-4 mb-0"><i class="bi bi-house-door fa-fw me-1"></i>Bảng điều khiển</h1> <!-- Translated -->
-                </div>
-            </div>
-            <!-- Title END -->
-
-            <!-- Counter START -->
-            <div class="row g-4">
-                <!-- Counter item -->
-                <div class="col-sm-6 col-xl-3">
-                    <div class="card card-body border">
-                        <div class="d-flex align-items-center">
-                            <!-- Icon -->
-                            <div class="icon-xl bg-success rounded-3 text-white">
-                                <i class="bi bi-journals"></i>
-                            </div>
-                            <!-- Content -->
-                            <div class="ms-3">
-                                <h4>56</h4>
-                                <span>Tổng số Danh mục</span> <!-- Translated -->
-                            </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="fs-3 mb-2">
+                                <i class="bi bi-speedometer2 text-primary me-2"></i>
+                                Bảng Điều Khiển Chủ Nhà
+                            </h1>
+                            <p class="text-muted mb-0">Chào mừng trở lại! Đây là những gì đang diễn ra với khách sạn của
+                                bạn hôm nay.</p>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Counter item -->
-                <div class="col-sm-6 col-xl-3">
-                    <div class="card card-body border">
-                        <div class="d-flex align-items-center">
-                            <!-- Icon -->
-                            <div class="icon-xl bg-info rounded-3 text-white">
-                                <i class="bi bi-graph-up-arrow"></i>
-                            </div>
-                            <!-- Content -->
-                            <div class="ms-3">
-                                <h4>$2,55,365</h4>
-                                <span>Thu nhập</span> <!-- Translated -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Counter item -->
-                <div class="col-sm-6 col-xl-3">
-                    <div class="card card-body border">
-                        <div class="d-flex align-items-center">
-                            <!-- Icon -->
-                            <div class="icon-xl bg-warning rounded-3 text-white">
-                                <i class="bi bi-bar-chart-line-fill"></i>
-                            </div>
-                            <!-- Content -->
-                            <div class="ms-3">
-                                <h4>15K</h4>
-                                <span>Lượt truy cập</span> <!-- Translated -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Counter item -->
-                <div class="col-sm-6 col-xl-3">
-                    <div class="card card-body border">
-                        <div class="d-flex align-items-center">
-                            <!-- Icon -->
-                            <div class="icon-xl bg-primary rounded-3 text-white">
-                                <i class="bi bi-star"></i>
-                            </div>
-                            <!-- Content -->
-                            <div class="ms-3">
-                                <h4>12K</h4>
-                                <span>Tổng số Đánh giá</span> <!-- Translated -->
-                            </div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-primary btn-sm" onclick="exportReport()">
+                                <i class="bi bi-download me-1"></i>Xuất Báo Cáo
+                            </button>
+                            <a href="/add-hotel" class="btn btn-primary btn-sm">
+                                <i class="bi bi-plus-circle me-1"></i>Thêm Khách Sạn Mới
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
-            <!-- Counter END -->
+            <!-- Welcome Header END -->
 
-            <!-- Graph START -->
+            <!-- Key Metrics START -->
             <div class="row g-4">
-                <!-- Booking Chart START -->
-                <div class="col-lg-7 col-xl-8">
-                    <!-- Chart START -->
-                    <div class="card border h-100">
-                        <!-- Card header -->
-                        <div class="card-header border-bottom">
-                            <h5 class="card-header-title">Thống kê Đặt chỗ</h5> <!-- Translated -->
-                        </div>
-                        <!-- Card body -->
+                <!-- Total Hotels -->
+                <div class="col-sm-6 col-xl-3">
+                    <div class="card metric-card border-0 shadow-sm h-100">
                         <div class="card-body">
-                            <!-- Apex chart -->
+                            <div class="d-flex align-items-center">
+                                <div class="icon-xl bg-primary bg-opacity-10 rounded-3 text-primary">
+                                    <i class="bi bi-buildings fs-4"></i>
+                                </div>
+                                <div class="ms-3 flex-grow-1">
+                                    <h3 th:text="${totalHotels}" class="mb-1 fw-bold">0</h3>
+                                    <h6 class="mb-1">Tổng Số Khách Sạn</h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total Revenue -->
+                <div class="col-sm-6 col-xl-3">
+                    <div class="card metric-card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="icon-xl bg-success bg-opacity-10 rounded-3 text-success">
+                                    <i class="bi bi-cash-stack fs-4"></i>
+                                </div>
+                                <div class="ms-3 flex-grow-1">
+                                    <h3 class="mb-1 fw-bold" th:text="${totalRevenue} + ' ₫'">0 ₫</h3>
+                                    <h6 class="mb-1">Tổng Doanh Thu</h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total Bookings -->
+                <div class="col-sm-6 col-xl-3">
+                    <div class="card metric-card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="icon-xl bg-info bg-opacity-10 rounded-3 text-info">
+                                    <i class="bi bi-calendar-check fs-4"></i>
+                                </div>
+                                <div class="ms-3 flex-grow-1">
+                                    <h3 class="mb-1 fw-bold" th:text="${totalBookings}">0</h3>
+                                    <h6 class="mb-1">Tổng Số Đơn Đặt Phòng</h6>
+                                    <small class="text-success" th:if="${completedBookings > 0}">
+                                        <i class="bi bi-check-circle-fill me-1"></i>
+                                        <span th:text="${completedBookings}">0</span> đã hoàn thành
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Average Rating -->
+                <div class="col-sm-6 col-xl-3">
+                    <div class="card metric-card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="icon-xl bg-warning bg-opacity-10 rounded-3 text-warning">
+                                    <i class="bi bi-star-fill fs-4"></i>
+                                </div>
+                                <div class="ms-3 flex-grow-1">
+                                    <h3 class="mb-1 fw-bold" th:text="${averageRating}">0.0</h3>
+                                    <h6 class="mb-1">Đánh Giá Trung Bình</h6>
+                                    <small class="text-muted" th:if="${totalReviews > 0}">
+                                        <i class="bi bi-chat-dots me-1"></i>Dựa trên
+                                        <span th:text="${totalReviews}">0</span> đánh giá
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Key Metrics END -->
+
+            <!-- Charts and Quick Actions START -->
+            <div class="row g-4">
+                <!-- Enhanced Chart with Toggle -->
+                <div class="col-xl-8">
+                    <div class="card border-0 shadow-sm h-100 chart-container">
+                        <div class="chart-header-enhanced">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center gap-3">
+                                    <h5 class="card-title mb-0" id="chartTitle">Thống Kê Đặt Phòng</h5>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <!-- Zoom Controls -->
+                                    <div class="zoom-controls">
+                                        <button class="btn btn-sm zoom-btn" onclick="zoomIn()" title="Phóng to">
+                                            <i class="bi bi-zoom-in"></i>
+                                        </button>
+                                        <button class="btn btn-sm zoom-btn" onclick="zoomOut()" title="Thu nhỏ">
+                                            <i class="bi bi-zoom-out"></i>
+                                        </button>
+                                        <button class="btn btn-sm zoom-btn" onclick="resetZoom()" title="Đặt lại">
+                                            <i class="bi bi-arrow-clockwise"></i>
+                                        </button>
+                                    </div>
+                                    <!-- DYNAMIC DROPDOWN -->
+                                    <div class="enhanced-dropdown dropdown">
+                                        <button class="btn btn-sm dropdown-toggle" type="button"
+                                                data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="bi bi-calendar3 me-2"></i><span id="filter-display-name">6 tháng qua</span>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <!-- Items are generated by JavaScript -->
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body p-4">
                             <div id="apexChartTrafficStats" class="mt-2"></div>
-                        </div>
-                    </div>
-                    <!-- Chart END -->
-                </div>
-                <!-- Booking Chart END -->
-
-                <!-- Booking graph START -->
-                <div class="col-lg-4">
-                    <div class="card border h-100">
-
-                        <!-- Card header -->
-                        <div class="card-header border-bottom d-flex justify-content-between align-items-center">
-                            <h5 class="card-header-title">Lưu lượng Đặt chỗ</h5> <!-- Translated -->
-                            <a href="#" class="btn btn-link p-0 mb-0">Xem tất cả</a> <!-- Translated -->
-                        </div>
-
-                        <!-- Card body START -->
-                        <div class="card-body p-3">
-                            <!-- Chart -->
-                            <div class="col-sm-6 mx-auto">
-                                <div class="d-flex justify-content-center" id="ChartTrafficViews"></div>
+                            <div id="chartLoading" class="chart-loading d-none">
+                                <div class="text-center">
+                                    <div class="loading-spinner mb-3"></div>
+                                    <p class="text-muted">Đang tải dữ liệu...</p>
+                                </div>
                             </div>
-
-                            <!-- Content -->
-                            <ul class="list-group list-group-borderless align-items-center mt-3">
-                                <li class="list-group-item"><i class="text-primary fas fa-circle me-2"></i>Tự nhiên</li> <!-- Translated -->
-                                <li class="list-group-item"><i class="text-success fas fa-circle me-2"></i>Google</li> <!-- Kept Google -->
-                                <li class="list-group-item"><i class="text-warning fas fa-circle me-2"></i>Mạng xã hội</li> <!-- Translated -->
-                                <li class="list-group-item"><i class="text-danger fas fa-circle me-2"></i>Chương trình giới thiệu</li> <!-- Translated -->
-                            </ul>
                         </div>
                     </div>
                 </div>
-                <!-- Booking graph END -->
-            </div>
-            <!-- Graph END -->
 
-            <!-- Booking table START -->
+                <!-- Quick Actions -->
+                <div class="col-xl-4">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-header bg-transparent border-bottom-0">
+                            <h5 class="card-title mb-0">Thao Tác Nhanh</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-3">
+                                <a href="/add-hotel" class="btn btn-outline-primary quick-action-btn text-start">
+                                    <i class="bi bi-plus-circle me-3"></i>
+                                    <span>
+                                        <strong>Thêm Khách Sạn Mới</strong><br>
+                                        <small class="text-muted">Đăng ký tài sản mới</small>
+                                    </span>
+                                </a>
+
+                                <a href="/host-listing" class="btn btn-outline-success quick-action-btn text-start">
+                                    <i class="bi bi-buildings me-3"></i>
+                                    <span>
+                                        <strong>Quản Lý Khách Sạn</strong><br>
+                                        <small class="text-muted">Xem và quản lý khách sạn của bạn</small>
+                                    </span>
+                                </a>
+
+                                <a href="/host-customers" class="btn btn-outline-info quick-action-btn text-start">
+                                    <i class="bi bi-people me-3"></i>
+                                    <span>
+                                        <strong>Khách Hàng Của Tôi</strong><br>
+                                        <small class="text-muted">Xem và liên hệ khách hàng</small>
+                                    </span>
+                                </a>
+
+                                <a href="/bookingHistory" class="btn btn-outline-warning quick-action-btn text-start">
+                                    <i class="bi bi-calendar-check me-3"></i>
+                                    <span>
+                                        <strong>Lịch Sử Đặt Phòng</strong><br>
+                                        <small class="text-muted">Xem tất cả đặt phòng</small>
+                                    </span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Charts and Quick Actions END -->
+
+            <!-- Recent Bookings START -->
             <div class="row">
                 <div class="col-12">
-                    <div class="card border rounded-3">
-                        <!-- Card header START -->
-                        <div class="card-header border-bottom">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-transparent border-bottom-0">
                             <div class="d-sm-flex justify-content-between align-items-center">
-                                <h5 class="mb-2 mb-sm-0">Đặt chỗ Sắp tới</h5> <!-- Translated -->
-                                <a href="#" class="btn btn-sm btn-primary mb-0">Xem Tất cả</a> <!-- Translated -->
+                                <h5 class="card-title mb-2 mb-sm-0">Đặt Phòng Gần Đây</h5>
+                                <a href="/bookingHistory" class="btn btn-sm btn-primary">Xem Tất Cả Đặt Phòng</a>
                             </div>
                         </div>
-                        <!-- Card header END -->
 
-                        <!-- Card body START -->
                         <div class="card-body">
-                            <!-- Search and select START -->
-                            <div class="row g-3 align-items-center justify-content-between mb-3">
-                                <!-- Search -->
-                                <div class="col-md-8">
-                                    <form class="rounded position-relative">
-                                        <input class="form-control pe-5" type="search" placeholder="Tìm kiếm" aria-label="Tìm kiếm"> <!-- Translated -->
-                                        <button class="btn border-0 px-3 py-0 position-absolute top-50 end-0 translate-middle-y" type="submit"><i class="fas fa-search fs-6"></i></button>
-                                    </form>
+                            <!-- Filter Controls -->
+                            <div class="row g-3 align-items-center mb-4">
+                                <div class="col-md-6">
+                                    <div class="input-group">
+                                        <input id="bookingSearch" class="form-control" type="search"
+                                               placeholder="Tìm kiếm đặt phòng...">
+                                        <button class="btn btn-outline-secondary" type="button">
+                                            <i class="bi bi-search"></i>
+                                        </button>
+                                    </div>
                                 </div>
-
-                                <!-- Select option -->
                                 <div class="col-md-3">
-                                    <!-- Short by filter -->
-                                    <form>
-                                        <select class="form-select js-choice" aria-label=".form-select-sm">
-                                            <option value="">Sắp xếp theo</option> <!-- Translated -->
-                                            <option>Miễn phí</option> <!-- Translated -->
-                                            <option>Mới nhất</option> <!-- Translated -->
-                                            <option>Cũ nhất</option> <!-- Translated -->
-                                        </select>
-                                    </form>
+                                    <select id="sortFilter" class="form-select">
+                                        <option value="dateDesc" selected>Mới nhất</option>
+                                        <option value="dateAsc">Cũ nhất</option>
+                                        <option value="priceAsc">Giá thấp đến cao</option>
+                                        <option value="priceDesc">Giá cao đến thấp</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <select id="hotelFilter" class="form-select">
+                                        <option>Tất cả khách sạn</option>
+                                        <option>Khách Sạn Grand Plaza</option>
+                                        <option>Resort Sunset</option>
+                                        <option>Nhà Nghỉ Trung Tâm Thành Phố</option>
+                                    </select>
                                 </div>
                             </div>
-                            <!-- Search and select END -->
 
-                            <!-- Hotel room list START -->
-                            <div class="table-responsive border-0">
-                                <table class="table align-middle p-4 mb-0 table-hover table-shrink">
-                                    <!-- Table head -->
+                            <!-- Enhanced Pagination Info -->
+                            <div class="row mb-3">
+                                <div class="col-12 d-flex justify-content-between align-items-center">
+                                    <div class="pagination-info-badge" id="paginationInfo">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        <span>Hiển thị dữ liệu</span>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <small class="text-muted">Số mục mỗi trang:</small>
+                                        <select class="form-select form-select-sm" style="width: auto;"
+                                                id="itemsPerPageSelect">
+                                            <option value="3" selected>3</option>
+                                            <option value="5">5</option>
+                                            <option value="10">10</option>
+                                            <option value="15">15</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Bookings Table -->
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
                                     <thead class="table-light">
                                     <tr>
-                                        <th scope="col" class="border-0 rounded-start">#</th>
-                                        <th scope="col" class="border-0">Tên</th> <!-- Translated -->
-                                        <th scope="col" class="border-0">Loại</th> <!-- Translated -->
-                                        <th scope="col" class="border-0">Ngày</th> <!-- Translated -->
-                                        <th scope="col" class="border-0">Trạng thái</th> <!-- Translated -->
-                                        <th scope="col" class="border-0">Thanh toán</th> <!-- Translated -->
-                                        <th scope="col" class="border-0 rounded-end">Hành động</th> <!-- Translated -->
+                                        <th scope="col" class="border-0">Mã Đặt Phòng</th>
+                                        <th scope="col" class="border-0">Khách Hàng</th>
+                                        <th scope="col" class="border-0">Khách Sạn</th>
+                                        <th scope="col" class="border-0">Số Phòng</th>
+                                        <th scope="col" class="border-0">Nhận Phòng</th>
+                                        <th scope="col" class="border-0">Trả Phòng</th>
+                                        <th scope="col" class="border-0">Tổng Tiền</th>
+                                        <th scope="col" class="border-0">Hành Động</th>
                                     </tr>
                                     </thead>
-
-                                    <!-- Table body START -->
-                                    <tbody class="border-top-0">
-                                    <!-- Table item -->
-                                    <tr>
-                                        <td> <h6 class="mb-0">01</h6> </td>
-                                        <td> <h6 class="mb-0"><a href="#">Phòng Deluxe View Hồ Bơi</a></h6> </td> <!-- Translated -->
-                                        <td> Có Bữa Sáng </td> <!-- Translated -->
-                                        <td> Tháng 11 22 - 25 </td> <!-- Translated -->
-                                        <td> <div class="badge text-bg-success">Đã đặt</div> </td> <!-- Translated -->
-                                        <td> <div class="badge bg-success bg-opacity-10 text-success">Thanh toán đầy đủ</div> </td> <!-- Translated -->
-                                        <td> <a href="#" class="btn btn-sm btn-light mb-0">Xem</a> </td> <!-- Translated -->
-                                    </tr>
-
-                                    <!-- Table item -->
-                                    <tr>
-                                        <td> <h6 class="mb-0">02</h6> </td>
-                                        <td> <h6 class="mb-0"><a href="#">Phòng Deluxe View Hồ Bơi kèm Bữa Sáng</a></h6> </td> <!-- Translated -->
-                                        <td> Hủy miễn phí | Chỉ bữa sáng </td> <!-- Translated -->
-                                        <td> Tháng 11 24 - 28 </td> <!-- Translated -->
-                                        <td> <div class="badge text-bg-success">Đã đặt</div> </td> <!-- Translated -->
-                                        <td> <div class="badge bg-orange bg-opacity-10 text-orange">Tại cơ sở</div> </td> <!-- Translated -->
-                                        <td> <a href="#" class="btn btn-sm btn-light mb-0">Xem</a> </td> <!-- Translated -->
-                                    </tr>
-
-                                    <!-- Table item -->
-                                    <tr>
-                                        <td> <h6 class="mb-0">03</h6> </td>
-                                        <td> <h6 class="mb-0"><a href="#">Phòng Luxury có Ban Công</a></h6> </td> <!-- Translated -->
-                                        <td> Hủy miễn phí | Bữa sáng + Bữa trưa/tối </td> <!-- Translated -->
-                                        <td> Tháng 11 24 - 28 </td> <!-- Translated -->
-                                        <td> <div class="badge text-bg-info">Đã giữ chỗ</div> </td> <!-- Translated -->
-                                        <td> <div class="badge bg-info bg-opacity-10 text-info">Thanh toán một nửa</div> </td> <!-- Translated -->
-                                        <td> <a href="#" class="btn btn-sm btn-light mb-0">Xem</a> </td> <!-- Translated -->
-                                    </tr>
-
-                                    <!-- Table item -->
-                                    <tr>
-                                        <td> <h6 class="mb-0">04</h6> </td>
-                                        <td> <h6 class="mb-0"><a href="#">Phòng Deluxe Giường Đôi Có Ban Công</a></h6> </td> <!-- Translated -->
-                                        <td> Hủy miễn phí </td> <!-- Translated -->
-                                        <td> Tháng 11 28 - 30 </td> <!-- Translated -->
-                                        <td> <div class="badge text-bg-success">Đã đặt</div> </td> <!-- Translated -->
-                                        <td> <div class="badge bg-success bg-opacity-10 text-success">Thanh toán đầy đủ</div> </td> <!-- Translated -->
-                                        <td> <a href="#" class="btn btn-sm btn-light mb-0">Xem</a> </td> <!-- Translated -->
-                                    </tr>
-
-                                    <!-- Table item -->
-                                    <tr>
-                                        <td> <h6 class="mb-0">05</h6> </td>
-                                        <td> <h6 class="mb-0"><a href="#">Phòng Hủy Miễn Phí | Bữa sáng + Bữa trưa</a></h6> </td> <!-- Translated -->
-                                        <td> Hủy miễn phí </td> <!-- Translated -->
-                                        <td> Tháng 11 28 - 30 </td> <!-- Translated -->
-                                        <td> <div class="badge text-bg-info">Đã giữ chỗ</div> </td> <!-- Translated -->
-                                        <td> <div class="badge bg-success bg-opacity-10 text-success">Thanh toán đầy đủ</div> </td> <!-- Translated -->
-                                        <td> <a href="#" class="btn btn-sm btn-light mb-0">Xem</a> </td> <!-- Translated -->
-                                    </tr>
+                                    <tbody id="bookingsTableBody">
+                                    <!-- Dynamic content will be loaded here -->
                                     </tbody>
-                                    <!-- Table body END -->
                                 </table>
                             </div>
-                            <!-- Hotel room list END -->
+
+                            <!-- Pagination -->
+                            <div id="paginationContainer"></div>
                         </div>
-                        <!-- Card body END -->
-
-                        <!-- Card footer START -->
-
-                        <!-- Card footer END -->
                     </div>
                 </div>
             </div>
-            <!-- Booking table END -->
+            <!-- Recent Bookings END -->
+
         </div>
     </section>
-    <!-- =======================
-    Content END -->
 
 </main>
 <!-- **************** MAIN CONTENT END **************** -->
 
-
 <div th:replace="~{common/footer :: footer}"></div>
-
 
 <div class="back-top"></div>
 
@@ -388,7 +728,775 @@
 <!-- ThemeFunctions -->
 <script src="assets/js/functions.js"></script>
 
-</body>
+<!-- Chart Script -->
+<script th:inline="javascript">
+    /* <![CDATA[ */
+    // Booking Status System:
+    // - approved: Đã phê duyệt (bookings confirmed by host, ready for check-in)
+    // - completed: Hoàn thành (bookings that have been completed)
+    // - cancelled: Đã hủy (bookings cancelled by customer/host)
+    // - rejected: Đã từ chối (bookings rejected by host)
+    const bookingsData = [];
+    const bookings = /*[[${bookings}]]*/ [];
 
-<!-- Mirrored from stackbros.in/bookinga/landing/agent-dashboard.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:06:13 GMT -->
+    const getStatusClass = (status) => {
+        if (!status) return 'bg-secondary bg-opacity-10 text-secondary';
+        switch (status.toLowerCase()) {
+            case 'completed':
+                return 'bg-success bg-opacity-10 text-success';
+            case 'approved':
+                return 'bg-info bg-opacity-10 text-info';
+            case 'rejected':
+                return 'bg-danger bg-opacity-10 text-danger';
+            case 'cancelled':
+                return 'bg-warning bg-opacity-10 text-warning';
+            case 'mixed':
+                return 'bg-purple bg-opacity-10 text-purple';
+            default:
+                return 'bg-secondary bg-opacity-10 text-secondary';
+        }
+    };
+
+    const getStatusText = (status) => {
+        if (!status) return 'Không xác định';
+        switch (status.toLowerCase()) {
+            case 'completed':
+                return 'Hoàn thành';
+            case 'approved':
+                return 'Đã phê duyệt';
+            case 'rejected':
+                return 'Đã từ chối';
+            case 'cancelled':
+                return 'Đã hủy';
+            case 'mixed':
+                return 'Hỗn hợp';
+            default:
+                return status;
+        }
+    };
+
+    const formatDate = (dateString) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('vi-VN', {day: '2-digit', month: '2-digit', year: 'numeric'});
+    };
+
+    const formatCurrency = (amount) => {
+        if (amount == null) return 'N/A';
+        return new Intl.NumberFormat('vi-VN', {style: 'currency', currency: 'VND'}).format(amount);
+    };
+
+
+    // Group bookings and create hierarchical structure
+    bookings.forEach(booking => {
+        const units = booking.bookingUnits || [];
+        const totalPriceRaw = units.reduce((sum, u) => sum + (u.price || 0), 0);
+        const bookingItem = {
+            id: `#BK${booking.bookingId}`,
+            bookingId: booking.bookingId,
+            customerId: booking.customerId,
+            guestName: booking.customerName || 'Khách ẩn danh',
+            email: booking.customerEmail || '',
+            avatar: booking.customerAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(booking.customerName || 'A')}&background=random`,
+            hotel: booking.hotelName || 'Không có tên',
+            hotelId: booking.hotelId,
+            hotelImage: booking.imageUrl || '/assets/images/category/hotel/01.jpg', // Use actual hotel image
+            checkIn: formatDate(booking.checkIn),
+            checkOut: formatDate(booking.checkOut),
+            checkInTime: new Date(booking.checkIn).getTime(), // numeric timestamp for sorting
+            totalAmount: formatCurrency(totalPriceRaw),
+            totalPrice: totalPriceRaw, // numeric for sorting
+            totalUnits: units.length,
+            bookingStatus: booking.status || 'unknown',
+            bookingUnits: units.map(unit => ({
+                unitId: unit.bookingUnitId,
+                roomName: unit.roomName || 'Không có tên',
+                roomImage: unit.imageUrl || '/assets/images/category/hotel/4by3/01.jpg', // Use actual room image
+                status: getStatusText(unit.status),
+                statusClass: getStatusClass(unit.status),
+                unitPrice: formatCurrency(unit.price || 0),
+                roomCapacity: unit.roomCapacity || 'N/A',
+                roomAmenities: unit.roomAmenities || []
+            })),
+            actions: [
+                {icon: 'bi-eye', text: 'Xem Chi Tiết'},
+                {icon: 'bi-chat', text: 'Liên Hệ Khách'}
+            ]
+        };
+        bookingsData.push(bookingItem);
+    });
+
+    /*]]>*/
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        populateDateFilterDropdown();
+        initializePagination();
+
+        if (typeof ApexCharts !== 'undefined') {
+            console.log('Initializing custom booking chart...');
+            changePeriod('last-6-months', '6 tháng qua'); // Default view
+        } else {
+            console.error('ApexCharts not loaded');
+            document.querySelector("#apexChartTrafficStats").innerHTML =
+                '<div class="text-center p-5"><i class="bi bi-bar-chart fs-1 mb-3"></i><p>Đang tải biểu đồ...</p></div>';
+        }
+    });
+
+    // --- Populates the date filter dropdown dynamically
+    function populateDateFilterDropdown() {
+        const menu = document.querySelector('.enhanced-dropdown .dropdown-menu');
+        if (!menu) return;
+
+        const currentYear = new Date().getFullYear();
+        let menuHTML = '';
+
+        // Relative timeframes
+        menuHTML += `<li><a class="dropdown-item" href="#" onclick="changePeriod('this-month', 'Tháng này')"><i class="bi bi-calendar-event me-2"></i>Tháng này</a></li>`;
+        menuHTML += `<li><a class="dropdown-item" href="#" onclick="changePeriod('last-month', 'Tháng trước')"><i class="bi bi-calendar-minus me-2"></i>Tháng trước</a></li>`;
+        menuHTML += `<li><a class="dropdown-item" href="#" onclick="changePeriod('last-30-days', '30 ngày qua')"><i class="bi bi-calendar-week me-2"></i>30 ngày qua</a></li>`;
+        menuHTML += `<li><a class="dropdown-item" href="#" onclick="changePeriod('last-6-months', '6 tháng qua')"><i class="bi bi-calendar-range me-2"></i>6 tháng qua</a></li>`;
+        menuHTML += `<li><hr class="dropdown-divider"></li>`;
+
+        // Year-based timeframes
+        for (let i = 0; i < 3; i++) {
+            const year = currentYear - i;
+            menuHTML += `<li><a class="dropdown-item" href="#" onclick="changePeriod('year-${year}', 'Năm ${year}')"><i class="bi bi-calendar4-range me-2"></i>Năm ${year}</a></li>`;
+        }
+
+        menu.innerHTML = menuHTML;
+    }
+
+    // Chart Management
+    let currentChart = null;
+    let zoomLevel = 1;
+
+    function changePeriod(periodKey, displayName) {
+        const buttonText = document.getElementById('filter-display-name');
+        const chartContainer = document.querySelector("#apexChartTrafficStats");
+
+        // Show loading state
+        buttonText.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Đang tải...`;
+        chartContainer.innerHTML = '<div class="d-flex align-items-center justify-content-center" style="height: 350px;"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Đang tải...</span></div></div>';
+
+        // Update active states in dropdown
+        document.querySelectorAll('.enhanced-dropdown .dropdown-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        const clickedItem = document.querySelector(`.enhanced-dropdown .dropdown-item[onclick*="'${periodKey}'"]`);
+        if (clickedItem) {
+            clickedItem.classList.add('active');
+        }
+
+        // --- CORRECTED --- Simulate API call with different data for each filter
+        const simulateApiCall = new Promise((resolve) => {
+            setTimeout(() => {
+                let sampleData = [];
+                const now = new Date();
+
+                // Helper to generate random data for demonstration
+                const generateRandomData = (categories) => categories.map(cat => ({
+                    category: cat,
+                    count: Math.floor(Math.random() * 20)
+                }));
+
+                switch (periodKey) {
+                    case 'last-6-months': {
+                        // --- Use FIXED data for this specific view ---
+                        sampleData = [
+                            {category: "2025-01", count: 0},
+                            {category: "2025-02", count: 0},
+                            {category: "2025-03", count: 0},
+                            {category: "2025-04", count: 0},
+                            {category: "2025-05", count: 0},
+                            {category: "2025-06", count: 2}
+                        ];
+                        break;
+                    }
+                    case 'this-month': {
+                        const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+                        const categories = Array.from({length: daysInMonth}, (_, i) => `Ngày ${i + 1}`);
+                        sampleData = generateRandomData(categories);
+                        break;
+                    }
+                    case 'last-month': {
+                        const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                        const daysInMonth = new Date(prevMonth.getFullYear(), prevMonth.getMonth() + 1, 0).getDate();
+                        const categories = Array.from({length: daysInMonth}, (_, i) => `Ngày ${i + 1}`);
+                        sampleData = generateRandomData(categories);
+                        break;
+                    }
+                    case 'last-30-days': {
+                        const categories = Array.from({length: 30}, (_, i) => `Ngày ${i + 1}`);
+                        sampleData = generateRandomData(categories);
+                        break;
+                    }
+                    default: // Handles year-2024, year-2023 etc.
+                        const year = periodKey.split('-')[1];
+                        const categories = ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"];
+                        sampleData = generateRandomData(categories.map(m => `${m}, ${year}`));
+                        break;
+                }
+                resolve(sampleData);
+            }, 500); // Simulate network delay
+        });
+
+        simulateApiCall
+            .then(data => {
+                const categories = data.map(item => item.category);
+                const seriesData = data.map(item => item.count);
+                const newChartData = {categories, data: seriesData, title: displayName};
+
+                buttonText.textContent = displayName;
+                initializeBookingChartWithData(newChartData);
+            })
+            .catch(error => {
+                console.error('Error fetching chart data:', error);
+                buttonText.textContent = 'Lỗi';
+                chartContainer.innerHTML = '<div class="text-center text-danger p-5">Không thể tải dữ liệu biểu đồ.</div>';
+            });
+    }
+
+
+    function initializeBookingChartWithData(chartData) {
+        const chartContainer = document.querySelector("#apexChartTrafficStats");
+        chartContainer.innerHTML = '';
+
+        if (currentChart) {
+            currentChart.destroy();
+        }
+
+        if (!chartData || !chartData.data || chartData.data.length === 0) {
+            chartContainer.innerHTML = `
+            <div class="d-flex align-items-center justify-content-center h-100 text-muted" style="min-height: 350px;">
+                <div class="text-center">
+                    <i class="bi bi-bar-chart fs-1 mb-3"></i>
+                    <p>Không có dữ liệu cho khoảng thời gian này.</p>
+                </div>
+            </div>`;
+            const titleElement = document.querySelector('#chartTitle');
+            if (titleElement) {
+                titleElement.innerHTML = `Thống Kê Đặt Phòng <small class="text-light opacity-75 ms-2">(${chartData.title})</small>`;
+            }
+            return;
+        }
+
+        window.originalChartData = chartData.data;
+        window.originalCategories = chartData.categories;
+        zoomLevel = 1;
+        currentZoomStart = 0;
+        currentZoomEnd = window.originalCategories.length - 1;
+
+        const options = {
+            series: [{
+                name: 'Số Đặt Phòng',
+                data: window.originalChartData
+            }],
+            chart: {
+                type: 'area',
+                height: 350,
+                toolbar: {show: false},
+                zoom: {enabled: false}
+            },
+            colors: ['#667eea'],
+            dataLabels: {enabled: false},
+            stroke: {
+                curve: 'smooth',
+                width: 3
+            },
+            xaxis: {
+                categories: window.originalCategories,
+                type: 'category',
+                labels: {
+                    show: true,
+                    style: {colors: '#888', fontSize: '12px'},
+                    rotate: -20,
+                    hideOverlappingLabels: true
+                },
+                axisBorder: {show: false},
+                axisTicks: {show: true, color: '#e0e0e0'}
+            },
+            yaxis: {show: false},
+            grid: {
+                show: true,
+                borderColor: '#f0f0f0',
+                strokeDashArray: 4,
+                yaxis: {lines: {show: true}},
+                xaxis: {lines: {show: false}}
+            },
+            fill: {
+                type: 'gradient',
+                gradient: {
+                    shade: 'dark',
+                    type: "vertical",
+                    shadeIntensity: 0.5,
+                    gradientToColors: ['#764ba2'],
+                    inverseColors: true,
+                    opacityFrom: 0.5,
+                    opacityTo: 0.1,
+                    stops: [0, 100]
+                }
+            },
+            tooltip: {
+                theme: 'dark',
+                y: {
+                    formatter: (val) => `${val} đặt phòng`,
+                    title: {formatter: () => "Số lượng: "}
+                }
+            },
+            responsive: [{
+                breakpoint: 480,
+                options: {chart: {height: 250}}
+            }]
+        };
+
+        currentChart = new ApexCharts(chartContainer, options);
+        currentChart.render()
+            .then(() => {
+                const titleElement = document.querySelector('#chartTitle');
+                if (titleElement) {
+                    const totalBookings = chartData.data.reduce((sum, val) => sum + val, 0);
+                    titleElement.innerHTML = `
+                    Thống Kê Đặt Phòng
+                    <small class="text-light opacity-75 ms-2">
+                        (${chartData.title} - ${totalBookings} đặt phòng)
+                    </small>`;
+                }
+                setTimeout(updateZoomButtonStates, 100);
+            })
+            .catch(error => console.error('Error rendering chart:', error));
+    }
+
+    // Zoom Controls and other functions remain the same...
+    // ... (rest of the script is unchanged)
+    let currentZoomStart = 0;
+    let currentZoomEnd = 5;
+
+    function zoomIn() {
+        if (currentChart && zoomLevel < 3) {
+            zoomLevel += 0.5;
+            const totalCategories = window.originalCategories.length;
+            const categoriesToShow = Math.max(2, Math.floor(totalCategories / zoomLevel));
+            currentZoomEnd = totalCategories - 1;
+            currentZoomStart = Math.max(0, currentZoomEnd - categoriesToShow + 1);
+            updateChartZoom();
+        }
+    }
+
+    function zoomOut() {
+        if (currentChart && zoomLevel > 1) {
+            if (zoomLevel <= 1.5) {
+                resetZoom();
+                return;
+            }
+            zoomLevel -= 0.5;
+            const totalCategories = window.originalCategories.length;
+            const categoriesToShow = Math.max(2, Math.floor(totalCategories / zoomLevel));
+            currentZoomEnd = totalCategories - 1;
+            currentZoomStart = Math.max(0, currentZoomEnd - categoriesToShow + 1);
+            updateChartZoom();
+        }
+    }
+
+    function resetZoom() {
+        if (currentChart) {
+            zoomLevel = 1;
+            currentZoomStart = 0;
+            currentZoomEnd = window.originalCategories.length - 1;
+            currentChart.updateOptions({xaxis: {categories: window.originalCategories}});
+            currentChart.updateSeries([{data: window.originalChartData}]);
+            updateZoomButtonStates();
+        }
+    }
+
+    function updateChartZoom() {
+        if (currentChart) {
+            const zoomedCategories = window.originalCategories.slice(currentZoomStart, currentZoomEnd + 1);
+            const zoomedData = window.originalChartData.slice(currentZoomStart, currentZoomEnd + 1);
+            currentChart.updateOptions({xaxis: {categories: zoomedCategories}});
+            currentChart.updateSeries([{data: zoomedData}]);
+            updateZoomButtonStates();
+        }
+    }
+
+    function updateZoomButtonStates() {
+        const zoomInBtn = document.querySelector('[onclick="zoomIn()"]');
+        const zoomOutBtn = document.querySelector('[onclick="zoomOut()"]');
+        const resetBtn = document.querySelector('[onclick="resetZoom()"]');
+        if (zoomInBtn && zoomOutBtn && resetBtn) {
+            zoomInBtn.style.opacity = zoomLevel >= 3 ? '0.5' : '1';
+            zoomInBtn.style.cursor = zoomLevel >= 3 ? 'not-allowed' : 'pointer';
+            zoomOutBtn.style.opacity = zoomLevel <= 1 ? '0.5' : '1';
+            zoomOutBtn.style.cursor = zoomLevel <= 1 ? 'not-allowed' : 'pointer';
+            resetBtn.style.opacity = zoomLevel === 1 ? '0.7' : '1';
+        }
+    }
+
+    class BookingPagination {
+        constructor(data, itemsPerPage = 5) {
+            this.allData = data;
+            this.filteredData = [...data];
+            this.itemsPerPage = itemsPerPage;
+            this.currentPage = 1;
+            this.tableBody = document.querySelector('#bookingsTableBody');
+            this.paginationContainer = document.querySelector('#paginationContainer');
+            this.searchInput = document.querySelector('#bookingSearch');
+            this.sortFilter = document.querySelector('#sortFilter');
+            this.hotelFilter = document.querySelector('#hotelFilter');
+            this.itemsPerPageSelect = document.querySelector('#itemsPerPageSelect');
+            this.bindEvents();
+            // Apply initial sort (newest by default)
+            this.sortData(this.sortFilter ? this.sortFilter.value : 'dateDesc');
+        }
+
+        bindEvents() {
+            if (this.searchInput) {
+                this.searchInput.addEventListener('input', (e) => this.search(e.target.value));
+            }
+            if (this.sortFilter) {
+                this.sortFilter.addEventListener('change', (e) => this.sortData(e.target.value));
+            }
+            if (this.hotelFilter) {
+                this.hotelFilter.addEventListener('change', (e) => this.filterByHotel(e.target.value));
+            }
+            if (this.itemsPerPageSelect) {
+                this.itemsPerPageSelect.addEventListener('change', (e) => this.changeItemsPerPage(parseInt(e.target.value)));
+            }
+        }
+
+        search(term) {
+            this.filteredData = this.allData.filter(b => Object.values(b).some(val => String(val).toLowerCase().includes(term.toLowerCase())));
+            this.sortData(this.sortFilter ? this.sortFilter.value : 'dateDesc');
+        }
+
+        filterByHotel(hotel) {
+            this.filteredData = (hotel === '' || hotel === 'Tất cả khách sạn') ? [...this.allData] : this.allData.filter(b => b.hotel === hotel);
+            this.sortData(this.sortFilter ? this.sortFilter.value : 'dateDesc');
+        }
+
+        sortData(criteria) {
+            switch (criteria) {
+                case 'dateAsc':
+                    this.filteredData.sort((a, b) => a.checkInTime - b.checkInTime);
+                    break;
+                case 'dateDesc':
+                    this.filteredData.sort((a, b) => b.checkInTime - a.checkInTime);
+                    break;
+                case 'priceAsc':
+                    this.filteredData.sort((a, b) => a.totalPrice - b.totalPrice);
+                    break;
+                case 'priceDesc':
+                    this.filteredData.sort((a, b) => b.totalPrice - a.totalPrice);
+                    break;
+                default:
+                    // default newest date
+                    this.filteredData.sort((a, b) => b.checkInTime - a.checkInTime);
+            }
+            this.updatePagination();
+        }
+
+        updatePagination() {
+            this.currentPage = 1;
+            this.render();
+        }
+
+        changeItemsPerPage(num) {
+            this.itemsPerPage = num;
+            this.updatePagination();
+        }
+
+        goToPage(page) {
+            this.totalPages = Math.ceil(this.filteredData.length / this.itemsPerPage);
+            if (page >= 1 && page <= this.totalPages) {
+                this.currentPage = page;
+                this.render();
+            }
+        }
+
+        render() {
+            this.renderTable();
+            this.renderPagination();
+            const info = document.querySelector('#paginationInfo span');
+            if (info) {
+                const start = (this.currentPage - 1) * this.itemsPerPage + 1;
+                const end = Math.min(this.currentPage * this.itemsPerPage, this.filteredData.length);
+                info.textContent = this.filteredData.length > 0 ? `Hiển thị ${start}-${end} của ${this.filteredData.length} kết quả` : 'Không có kết quả';
+            }
+        }
+
+        renderTable() {
+            const data = this.filteredData.slice((this.currentPage - 1) * this.itemsPerPage, this.currentPage * this.itemsPerPage);
+            if (data.length === 0) {
+                this.tableBody.innerHTML = `<tr><td colspan="8" class="text-center py-4"><h6 class="text-muted">Không tìm thấy kết quả</h6></td></tr>`;
+                return;
+            }
+
+            let html = '';
+            data.forEach((booking, index) => {
+                const rowId = `booking-${booking.bookingId}`;
+                const expandId = `expand-${booking.bookingId}`;
+
+                // Main booking row
+                html += `
+                    <tr class="booking-main-row" data-booking-id="${booking.bookingId}">
+                        <td><strong>${booking.id}</strong></td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar avatar-sm me-2">
+                                    <img class="avatar-img rounded-circle" src="${booking.avatar}" alt="Guest">
+                                </div>
+                                <div>
+                                    <h6 class="mb-0">${booking.guestName}</h6>
+                                    <small class="text-muted">${booking.email}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <a href="/hotel-detail?hotelId=${booking.hotelId}" target="_blank">
+                                    <img src="${booking.hotelImage}" alt="Hotel" class="rounded me-2" style="width: 40px; height: 30px; object-fit: cover; cursor: pointer;" title="Xem chi tiết khách sạn">
+                                </a>
+                                <span class="hotel-name-truncate" title="${booking.hotel}">${booking.hotel}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-info bg-opacity-10 text-info">${booking.totalUnits} phòng</span>
+                        </td>
+                        <td>${booking.checkIn}</td>
+                        <td>${booking.checkOut}</td>
+                        <td><strong>${booking.totalAmount}</strong></td>
+                        <td>
+                            <div class="d-flex gap-1">
+                                <button class="btn btn-sm btn-outline-primary" onclick="bookingPagination.toggleBookingDetails('${booking.bookingId}')" title="Xem chi tiết phòng">
+                                    <i class="bi bi-eye" id="toggle-icon-${booking.bookingId}"></i>
+                                </button>
+                                <a href="/host-customer-detail?customerId=${booking.customerId}" class="btn btn-sm btn-outline-success" title="Liên hệ khách">
+                                    <i class="bi bi-chat-dots"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+
+                // Expandable booking units row (initially hidden)
+                html += `
+                    <tr id="${expandId}" class="booking-details-row d-none">
+                        <td colspan="8" class="p-0">
+                            <div class="bg-light p-3 border-start border-primary border-3">
+                                <h6 class="mb-3 text-primary">
+                                    <i class="bi bi-door-open me-2"></i>Chi Tiết Phòng Đặt
+                                </h6>
+                                <div class="row g-3">
+                `;
+
+                // Add booking units
+                booking.bookingUnits.forEach(unit => {
+                    html += `
+                        <div class="col-md-6">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-body p-3">
+                                    <div class="d-flex align-items-start">
+                                        <img src="${unit.roomImage}" alt="Room" class="rounded me-3" style="width: 60px; height: 45px; object-fit: cover;">
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1 room-name-truncate" title="${unit.roomName}">${unit.roomName}</h6>
+                                            <p class="mb-1 small text-muted">
+                                                <i class="bi bi-people me-1"></i>Sức chứa: ${unit.roomCapacity}
+                                            </p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <span class="badge ${unit.statusClass}" id="status-badge-${unit.unitId}">${unit.status}</span>
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" title="Thay đổi trạng thái">
+                                                            <i class="bi bi-gear"></i>
+                                                        </button>
+                                                        <ul class="dropdown-menu dropdown-menu-end">
+                                                            <li><a class="dropdown-item" href="#" onclick="updateBookingUnitStatus(${unit.unitId}, 'approved')">Phê duyệt</a></li>
+                                                            <li><a class="dropdown-item" href="#" onclick="updateBookingUnitStatus(${unit.unitId}, 'completed')">Hoàn thành</a></li>
+                                                            <li><a class="dropdown-item" href="#" onclick="updateBookingUnitStatus(${unit.unitId}, 'cancelled')">Hủy</a></li>
+                                                            <li><a class="dropdown-item" href="#" onclick="updateBookingUnitStatus(${unit.unitId}, 'rejected')">Từ chối</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <strong class="text-success">${unit.unitPrice}</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += `
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            this.tableBody.innerHTML = html;
+
+            // THE FIX - Part 3: Initialize dropdowns *after* the new HTML is added to the DOM
+            this.initializeDropdowns();
+        }
+
+        // --- THIS FUNCTION IS THE ULTIMATE FIX ---
+        initializeDropdowns() {
+            // Ensure all newly-added dropdown toggles are wired up with the
+            // default Bootstrap behaviour (Popper handles the positioning).
+            // We do NOT override the Popper strategy here so that the menu
+            // is positioned relative to its toggle button instead of the viewport.
+            const dropdownElements = this.tableBody.querySelectorAll('.booking-details-row .dropdown-toggle');
+            dropdownElements.forEach(element => {
+                // Re-initialise only if it has not been initialised yet
+                if (!bootstrap.Dropdown.getInstance(element)) {
+                    new bootstrap.Dropdown(element);
+                }
+            });
+        }
+
+        getBookingStatusClass(status) {
+            switch (status ? status.toLowerCase() : '') {
+                case 'completed': return 'bg-success bg-opacity-10 text-success';
+                case 'approved': return 'bg-info bg-opacity-10 text-info';
+                case 'rejected': return 'bg-danger bg-opacity-10 text-danger';
+                case 'cancelled': return 'bg-warning bg-opacity-10 text-warning';
+                case 'mixed': return 'bg-purple bg-opacity-10 text-purple';
+                default: return 'bg-secondary bg-opacity-10 text-secondary';
+            }
+        }
+
+        getBookingStatusText(status) {
+            switch (status ? status.toLowerCase() : '') {
+                case 'completed': return 'Hoàn thành';
+                case 'approved': return 'Đã phê duyệt';
+                case 'rejected': return 'Đã từ chối';
+                case 'cancelled': return 'Đã hủy';
+                case 'mixed': return 'Hỗn hợp';
+                default: return 'Không xác định';
+            }
+        }
+
+        toggleBookingDetails(bookingId) {
+            const detailsRow = document.getElementById(`expand-${bookingId}`);
+            const toggleIcon = document.getElementById(`toggle-icon-${bookingId}`);
+
+            if (detailsRow.classList.contains('d-none')) {
+                detailsRow.classList.remove('d-none');
+                toggleIcon.className = 'bi bi-eye-slash';
+            } else {
+                detailsRow.classList.add('d-none');
+                toggleIcon.className = 'bi bi-eye';
+            }
+        }
+
+        renderPagination() {
+            this.totalPages = Math.ceil(this.filteredData.length / this.itemsPerPage);
+            this.paginationContainer.innerHTML = '';
+            if (this.totalPages <= 1) return;
+            let html = '<nav><ul class="pagination pagination-custom pagination-sm justify-content-center mt-3">';
+            html += `<li class="page-item ${this.currentPage === 1 ? 'disabled' : ''}"><button class="page-link" onclick="bookingPagination.goToPage(${this.currentPage - 1})">Trước</button></li>`;
+            for (let i = 1; i <= this.totalPages; i++) {
+                html += `<li class="page-item ${i === this.currentPage ? 'active' : ''}"><button class="page-link" onclick="bookingPagination.goToPage(${i})">${i}</button></li>`;
+            }
+            html += `<li class="page-item ${this.currentPage === this.totalPages ? 'disabled' : ''}"><button class="page-link" onclick="bookingPagination.goToPage(${this.currentPage + 1})">Tiếp</button></li>`;
+            html += '</ul></nav>';
+            this.paginationContainer.innerHTML = html;
+        }
+    }
+
+    let bookingPagination;
+
+    function initializePagination() {
+        bookingPagination = new BookingPagination(bookingsData, 3);
+    }
+
+    function exportReport() {
+        alert('Tính năng xuất báo cáo đang được phát triển.');
+    }
+
+    // Function to update booking unit status
+    async function updateBookingUnitStatus(bookingUnitId, newStatus) {
+        console.log('Updating booking unit status:', bookingUnitId, newStatus);
+
+        try {
+            // Get CSRF token
+            const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+            console.log('CSRF token available:', !!csrfToken, 'Header:', csrfHeader);
+
+            const headers = {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            };
+
+            // Add CSRF token if available
+            if (csrfToken && csrfHeader) {
+                headers[csrfHeader] = csrfToken;
+            }
+
+            const response = await fetch('/api/host/update-booking-unit-status', {
+                method: 'POST',
+                headers: headers,
+                body: `bookingUnitId=${bookingUnitId}&status=${newStatus}`
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Response not OK:', response.status, errorText);
+                showNotification('error', 'Lỗi', `HTTP ${response.status}: ${errorText}`);
+                return;
+            }
+
+            const result = await response.json();
+            console.log('Response result:', result);
+
+            if (result.success) {
+                // Update the status badge
+                const statusBadge = document.getElementById(`status-badge-${bookingUnitId}`);
+                if (statusBadge) {
+                    statusBadge.textContent = getStatusText(newStatus);
+                    statusBadge.className = `badge ${getStatusClass(newStatus)}`;
+                }
+
+                // Show success message
+                showNotification('success', 'Thành công', result.message);
+
+                // Refresh the page after a short delay to update overall booking status
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                console.error('Result not successful:', result);
+                showNotification('error', 'Lỗi', result.message || 'Không thể cập nhật trạng thái');
+            }
+        } catch (error) {
+            console.error('Error updating status:', error);
+            showNotification('error', 'Lỗi', 'Không thể cập nhật trạng thái: ' + error.message);
+        }
+    }
+
+    // Simple notification function
+    function showNotification(type, title, message) {
+        const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+        const notification = document.createElement('div');
+        notification.className = `alert ${alertClass} alert-dismissible fade show position-fixed`;
+        notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; max-width: 350px;';
+        notification.innerHTML = `
+            <strong>${title}:</strong> ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.body.appendChild(notification);
+
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 5000);
+    }
+</script>
+
+</body>
 </html>

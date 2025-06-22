@@ -149,7 +149,7 @@ Main Banner START -->
 							<!-- Date input -->
 							<div class="form-control-border form-control-transparent form-fs-md">
 								<label class="form-label">Nhận phòng – Trả phòng</label>
-								<input type="text" class="form-control flatpickr" data-mode="range" name="dateRange" placeholder="Chọn ngày">
+								<input type="text" th:value="${dateRange}" class="form-control flatpickr" data-mode="range" name="dateRange" placeholder="Chọn ngày">
 							</div>
 						</div>
 					</div>
@@ -331,7 +331,7 @@ Title and Tabs START -->
 
 					<!-- Button -->
 					<div class="text-end align-items-center">
-						<a class="btn btn-link p-0 mb-0" th:href="${'/hotel-list?locationId=' + hamora.id + redirect}">Reset</a>
+						<a class="btn btn-link p-0 mb-0" th:href="${'/hotel-list?' + redirect}">Reset</a>
 						<button class="btn btn-dark mb-0 ms-3">Áp dụng</button>
 					</div>
 				</form>
@@ -444,7 +444,6 @@ Footer END -->
 
 <!-- Vendors -->
 <script src="assets/vendor/flatpickr/js/flatpickr.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
 <script src="assets/vendor/choices/js/choices.min.js"></script>
 <script src="assets/vendor/tiny-slider/tiny-slider.js"></script>
 <script src="assets/vendor/nouislider/nouislider.min.js"></script>

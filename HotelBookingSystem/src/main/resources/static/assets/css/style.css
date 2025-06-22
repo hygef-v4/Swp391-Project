@@ -22420,3 +22420,7 @@ html[dir=rtl] .choices__input {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.hidden {
+  display: none !important;
+}

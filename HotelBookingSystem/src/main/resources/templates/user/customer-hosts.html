@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" data-bs-theme="light">
+
+<head>
+    <title>Liên Hệ Chủ Khách Sạn - Hamora</title>
+
+    <!-- Meta Tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Liên hệ với chủ khách sạn">
+
+    <!-- Dark mode script -->
+    <script>
+        const storedTheme = localStorage.getItem('theme')
+        const getPreferredTheme = () => {
+            if (storedTheme) { return storedTheme }
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        }
+        const setTheme = function (theme) {
+            if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.setAttribute('data-bs-theme', 'dark')
+            } else {
+                document.documentElement.setAttribute('data-bs-theme', theme)
+            }
+        }
+        setTheme(getPreferredTheme())
+        window.addEventListener('DOMContentLoaded', () => {
+            var el = document.querySelector('.theme-icon-active');
+            if (el != 'undefined' && el != null) {
+                const showActiveTheme = theme => {
+                    const activeThemeIcon = document.querySelector('.theme-icon-active use')
+                    const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+                    const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
+                    document.querySelectorAll('[data-bs-theme-value]').forEach(element => element.classList.remove('active'))
+                    btnToActive.classList.add('active')
+                    activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+                }
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                    if (storedTheme !== 'light' || storedTheme !== 'dark') { setTheme(getPreferredTheme()) }
+                })
+                showActiveTheme(getPreferredTheme())
+                document.querySelectorAll('[data-bs-theme-value]').forEach(toggle => {
+                    toggle.addEventListener('click', () => {
+                        const theme = toggle.getAttribute('data-bs-theme-value')
+                        localStorage.setItem('theme', theme)
+                        setTheme(theme)
+                        showActiveTheme(theme)
+                    })
+                })
+            }
+        })
+    </script>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/assets/images/favicon.ico">
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+
+    <!-- Plugins CSS -->
+    <link rel="stylesheet" type="text/css" href="/assets/vendor/bootstrap-icons/bootstrap-icons.css">
+    <link rel="stylesheet" type="text/css" href="/assets/vendor/font-awesome/css/all.min.css">
+
+    <!-- Theme CSS -->
+    <link rel="stylesheet" type="text/css" href="/assets/css/style.css">
+
+    <style>
+        /* --- Base Variables --- */
+        :root {
+            --primary-gradient: linear-gradient(100deg, #8b5cf6, #ec4899);
+            --primary-accent: #8b5cf6;
+            --blue-accent: #3b82f6;
+            --green-accent: #10b981;
+            --border-radius-xl: 24px;
+            --border-radius-lg: 16px;
+        }
+
+        /* --- Light Mode --- */
+        [data-bs-theme="light"] {
+            --body-bg: #f8f9fa;
+            --card-bg: #ffffff;
+            --card-secondary-bg: #f8f9fa;
+            --border-color: #e5e7eb;
+            --text-primary: #111827;
+            --text-secondary: #4b5563;
+        }
+
+        /* --- Dark Mode --- */
+        [data-bs-theme="dark"] {
+            --body-bg: #121212;
+            --card-bg: #1e1e1e;
+            --card-secondary-bg: #2b2b2b;
+            --border-color: #3a3a40;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0b0;
+            --green-accent: #34d399;
+        }
+
+        body {
+            background-color: var(--body-bg);
+            color: var(--text-primary);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .page-header {
+            background: var(--primary-gradient);
+            color: #ffffff;
+            border-radius: var(--border-radius-xl);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .page-header h1 {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header p {
+            opacity: 0.9;
+            margin-bottom: 0;
+        }
+
+        .stats-overview {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-xl);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.07);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-accent);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .search-filters {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-xl);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.07);
+        }
+
+        .host-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-xl);
+            padding: 24px;
+            transition: all 0.3s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.07);
+        }
+
+        .host-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-accent);
+        }
+
+        .host-avatar {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .host-info {
+            flex-grow: 1;
+        }
+
+        .host-card .card-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .host-card .card-title:hover {
+            color: var(--primary-accent);
+        }
+
+        .host-card .card-text {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .host-stat-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .badge-bookings {
+            background-color: rgba(99, 102, 241, 0.1);
+            color: var(--primary-accent);
+        }
+
+        .badge-hotels {
+            background-color: rgba(34, 197, 94, 0.1);
+            color: #166534;
+        }
+
+        [data-bs-theme="dark"] .badge-hotels {
+            color: var(--green-accent);
+        }
+
+        .btn-host-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border: none;
+            transition: all 0.2s ease-in-out;
+            text-decoration: none;
+        }
+
+        .btn-view-details {
+            background-color: var(--blue-accent);
+            color: white;
+        }
+
+        .btn-view-details:hover {
+            background-color: #1d4ed8;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn-contact {
+            background-color: var(--green-accent);
+            color: white;
+        }
+
+        .btn-contact:hover {
+            background-color: #16a34a;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .no-hosts-found {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--text-secondary);
+        }
+
+        .hotel-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .hotel-badge {
+            background-color: var(--card-secondary-bg);
+            color: var(--text-secondary);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            border: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+
+<body>
+<div th:replace="~{common/header :: header}"></div>
+
+<!-- **************** MAIN CONTENT START **************** -->
+<main>
+    <section class="pt-4 pb-5">
+        <div class="container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1>Liên Hệ Chủ Khách Sạn</h1>
+                <p>Kết nối với các chủ khách sạn mà bạn đã từng đặt phòng để được hỗ trợ tốt nhất</p>
+            </div>
+
+            <!-- Stats Overview -->
+            <div class="stats-overview" th:if="${totalHosts > 0}">
+                <div class="row text-center">
+                    <div class="col-md-4">
+                        <div class="stat-item">
+                            <div class="stat-number" th:text="${totalHosts}">0</div>
+                            <div class="stat-label">Chủ khách sạn</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-item">
+                            <div class="stat-number" th:text="${totalBookings}">0</div>
+                            <div class="stat-label">Tổng đơn đặt</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-item">
+                            <div class="stat-number" th:text="${totalHotels}">0</div>
+                            <div class="stat-label">Khách sạn</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hosts List -->
+            <div class="row g-4" id="host-list" th:if="${totalHosts > 0}">
+                <div th:each="hostInfo : ${hosts}" class="col-md-6 col-lg-4 host-item">
+                    <div class="host-card">
+                        <div class="host-info">
+                            <div class="d-flex align-items-center mb-3">
+                                <img th:src="${hostInfo.host.avatarUrl ?: 'https://ui-avatars.com/api/?name=' + hostInfo.host.fullName + '&background=8b5cf6&color=fff&rounded=true'}"
+                                     alt="Avatar" class="host-avatar me-3">
+                                <div class="flex-grow-1">
+                                    <h5 class="mb-0">
+                                        <a th:href="@{/customer-host-detail(hostId=${hostInfo.host.id})}"
+                                           th:text="${hostInfo.host.fullName}" class="card-title">Tên Chủ Khách Sạn</a>
+                                    </h5>
+                                    <p class="card-text mb-0" th:text="${hostInfo.host.email}">host@example.com</p>
+                                </div>
+                            </div>
+                            <div class="d-flex gap-2 my-3">
+                                <span class="host-stat-badge badge-bookings">
+                                    <i class="bi bi-journal-bookmark"></i>
+                                    <span th:text="${hostInfo.totalBookings}">0</span> Đơn đặt
+                                </span>
+                                <span class="host-stat-badge badge-hotels">
+                                    <i class="bi bi-building"></i>
+                                    <span th:text="${hostInfo.hotels.size()}">0</span> Khách sạn
+                                </span>
+                            </div>
+                            <div class="hotel-list" th:if="${hostInfo.hotels.size() > 0}">
+                                <span th:each="hotel : ${hostInfo.hotels}" class="hotel-badge" th:text="${hotel.hotelName}">Hotel Name</span>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end gap-2 mt-auto">
+                            <a th:href="@{/customer-host-detail(hostId=${hostInfo.host.id})}" class="btn-host-action btn-contact">
+                                <i class="bi bi-chat-dots"></i> Liên Hệ
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div th:if="${totalHosts == 0}" class="no-hosts-found">
+                <i class="bi bi-person-x" style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                <h4>Chưa có chủ khách sạn nào</h4>
+                <p>Bạn chưa có lịch sử đặt phòng nào. Hãy đặt phòng đầu tiên để có thể liên hệ với chủ khách sạn!</p>
+                <a href="/hotel-list" class="btn btn-primary mt-3">
+                    <i class="bi bi-search me-2"></i>Tìm Khách Sạn
+                </a>
+            </div>
+        </div>
+    </section>
+</main>
+<!-- **************** MAIN CONTENT END **************** -->
+
+<div th:replace="~{common/footer :: footer}"></div>
+
+<!-- Core Bootstrap JS -->
+<script src="/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Theme Functions -->
+<script src="/assets/js/functions.js"></script>
+
+</body>
+</html> 

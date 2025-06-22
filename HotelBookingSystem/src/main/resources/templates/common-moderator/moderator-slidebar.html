@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- Sidebar START -->
+<nav class="navbar sidebar navbar-expand-xl navbar-light" th:fragment="moderator_sidebar">
+    <!-- Navbar brand for xl START -->
+    <div class="d-flex align-items-center">
+        <a class="navbar-brand" th:href="@{/home}">
+            <img class="light-mode-item navbar-brand-item" th:src="@{/assets/images/logo.svg}" alt="logo">
+            <img class="dark-mode-item navbar-brand-item" th:src="@{/assets/images/logo-light.svg}" alt="logo">
+        </a>
+    </div>
+    <!-- Navbar brand for xl END -->
+
+    <div class="offcanvas offcanvas-start flex-row custom-scrollbar h-100" data-bs-backdrop="true" tabindex="-1"
+         id="offcanvasSidebar">
+        <div class="offcanvas-body sidebar-content d-flex flex-column pt-4">
+            <!-- Sidebar menu START -->
+            <ul class="navbar-nav flex-column" id="navbar-sidebar">
+                <li class="nav-item"><a th:href="@{/moderator-dashboard}" class="nav-link">Tổng Quan</a></li>
+
+                <li class="nav-item ms-2 my-2">Trang</li>
+
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="collapse" href="#collapsebooking" role="button"
+                       aria-expanded="false" aria-controls="collapsebooking">
+                        Đặt phòng
+                    </a>
+                    <ul class="nav collapse flex-column" id="collapsebooking" data-bs-parent="#navbar-sidebar">
+                        <li class="nav-item"><a class="nav-link" href="/admin-booking-list">Danh sách đặt phòng</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/admin-booking-detail">Chi tiết đặt phòng</a></li>
+                    </ul>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="collapse" href="#collapseguest" role="button"
+                       aria-expanded="false" aria-controls="collapseguest">
+                        Người dùng
+                    </a>
+                    <ul class="nav collapse flex-column" id="collapseguest" data-bs-parent="#navbar-sidebar">
+                        <li class="nav-item"><a class="nav-link" th:href="@{/moderator-user-list}">Danh sách người dùng</a></li>
+                        <li class="nav-item"><a class="nav-link" href="admin-guest-detail.html">Chi tiết người dùng</a></li>
+                    </ul>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="collapse" href="#collapseagent" role="button"
+                       aria-expanded="false" aria-controls="collapseagent">
+                        Đối tác
+                    </a>
+                    <ul class="nav collapse flex-column" id="collapseagent" data-bs-parent="#navbar-sidebar">
+                        <li class="nav-item"><a class="nav-link" href="admin-agent-list.html">Danh sách đối tác</a></li>
+                        <li class="nav-item"><a class="nav-link" href="admin-agent-detail.html">Chi tiết đối tác</a></li>
+                    </ul>
+                </li>
+
+                <li class="nav-item"><a class="nav-link" th:href="@{/moderator-hotel-list}">Khách sạn</a></li>
+                <li class="nav-item"><a class="nav-link" href="admin-reviews.html">Đánh giá</a></li>
+                <li class="nav-item"><a class="nav-link" href="admin-earnings.html">Coupon</a></li>
+                <li class="nav-item"><a class="nav-link" href="admin-settings.html">Review</a></li>
+
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="collapse" href="#collapseauthentication" role="button"
+                       aria-expanded="false" aria-controls="collapseauthentication">
+                        Xác thực
+                    </a>
+                    <ul class="nav collapse flex-column" id="collapseauthentication" data-bs-parent="#navbar-sidebar">
+                        <li class="nav-item"><a class="nav-link" th:href="@{/register}">Đăng ký</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/login">Đăng nhập</a></li>
+                        <li class="nav-item"><a class="nav-link" href="forgot-password.html">Quên mật khẩu</a></li>
+                        <li class="nav-item"><a class="nav-link" href="error.html">Error 404</a></li>
+                    </ul>
+                </li>
+            </ul>
+            <!-- Sidebar menu END -->
+
+            <!-- Sidebar footer START -->
+            <div class="d-flex align-items-center justify-content-between text-primary-hover mt-auto p-3">
+                <a class="h6 fw-light mb-0 text-body" href="/logout" data-bs-toggle="tooltip"
+                   data-bs-placement="top" aria-label="Sign out">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất
+                </a>
+                <a class="h6 mb-0 text-body" href="admin-settings.html" data-bs-toggle="tooltip"
+                   data-bs-placement="top" aria-label="Settings">
+                    <i class="bi bi-gear-fill"></i>
+                </a>
+            </div>
+            <!-- Sidebar footer END -->
+        </div>
+    </div>
+</nav>
+<!-- Sidebar END -->
+</body>
+</html>

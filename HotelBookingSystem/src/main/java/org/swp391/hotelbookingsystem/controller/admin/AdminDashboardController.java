@@ -1,20 +1,25 @@
 package org.swp391.hotelbookingsystem.controller.admin;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpSession;
+import java.util.List;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.swp391.hotelbookingsystem.constant.ConstantVariables;
-import org.swp391.hotelbookingsystem.model.*;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.swp391.hotelbookingsystem.repository.BookingRepo;
-import org.swp391.hotelbookingsystem.service.*;
+import org.swp391.hotelbookingsystem.constant.ConstantVariables;
+import org.swp391.hotelbookingsystem.model.Hotel;
+import org.swp391.hotelbookingsystem.model.Location;
+import org.swp391.hotelbookingsystem.model.Review;
+import org.swp391.hotelbookingsystem.model.User;
+import org.swp391.hotelbookingsystem.service.BookingService;
+import org.swp391.hotelbookingsystem.service.HotelService;
+import org.swp391.hotelbookingsystem.service.LocationService;
+import org.swp391.hotelbookingsystem.service.ReviewService;
+import org.swp391.hotelbookingsystem.service.RoomService;
+import org.swp391.hotelbookingsystem.service.UserService;
 
-import java.util.*;
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class AdminDashboardController {
@@ -80,45 +85,7 @@ public class AdminDashboardController {
         List<Location> getTop5Location = locationService.getTop5Locations();
         model.addAttribute("locationList", getTop5Location);
 
-        // Merge dates from both stats
-        Set<String> allDates = new TreeSet<>();
-        Map<String, Integer> checkInMap = new HashMap<>();
-        Map<String, Integer> checkOutMap = new HashMap<>();
 
-        for (BookingRepo.DailyStat stat : bookingService.getCheckInStats()) {
-            allDates.add(stat.date());
-            checkInMap.put(stat.date(), stat.count());
-        }
-        for (BookingRepo.DailyStat stat : bookingService.getCheckOutStats()) {
-            allDates.add(stat.date());
-            checkOutMap.put(stat.date(), stat.count());
-        }
-
-// Prepare aligned chart data
-        List<String> dateLabels = new ArrayList<>(allDates);
-        List<Integer> checkInData = new ArrayList<>();
-        List<Integer> checkOutData = new ArrayList<>();
-
-        for (String date : dateLabels) {
-            checkInData.add(checkInMap.getOrDefault(date, 0));
-            checkOutData.add(checkOutMap.getOrDefault(date, 0));
-        }
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            model.addAttribute("dateLabels", objectMapper.writeValueAsString(dateLabels));
-            model.addAttribute("checkInData", objectMapper.writeValueAsString(checkInData));
-            model.addAttribute("checkOutData", objectMapper.writeValueAsString(checkOutData));
-
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-
-        int checkInCount = checkInData.stream().mapToInt(Integer::intValue).sum();
-        int checkOutCount = checkOutData.stream().mapToInt(Integer::intValue).sum();
-
-        model.addAttribute("checkInCount", checkInCount);
-        model.addAttribute("checkOutCount", checkOutCount);
 
         return "admin/admin-dashboard";
     }

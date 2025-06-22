@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách đặt phòng</title>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" th:href="@{/assets/images/favicon.ico}" />
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/" />
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Poppins:wght@400;500;700&amp;display=swap" />
+
+    <!-- Plugins CSS -->
+    <link rel="stylesheet" th:href="@{/assets/vendor/font-awesome/css/all.min.css}" />
+    <link rel="stylesheet" th:href="@{/assets/vendor/bootstrap-icons/bootstrap-icons.css}" />
+    <link rel="stylesheet" th:href="@{/assets/vendor/overlay-scrollbar/css/overlayscrollbars.min.css}" />
+    <link rel="stylesheet" th:href="@{/assets/vendor/choices/css/choices.min.css}" />
+    <link rel="stylesheet" th:href="@{/assets/vendor/glightbox/css/glightbox.css}" />
+
+    <!-- Theme CSS -->
+    <link rel="stylesheet" th:href="@{/assets/css/style.css}" />
+    <style>
+        .tab-content.hidden-before-js {
+            visibility: hidden;
+        }
+    </style>
+    <!-- Dark mode -->
+    <script>
+        const storedTheme = localStorage.getItem('theme')
+
+        const getPreferredTheme = () => {
+            if (storedTheme) {
+                return storedTheme
+            }
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        }
+
+        const setTheme = function (theme) {
+            if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.setAttribute('data-bs-theme', 'dark')
+            } else {
+                document.documentElement.setAttribute('data-bs-theme', theme)
+            }
+        }
+
+        setTheme(getPreferredTheme())
+
+        window.addEventListener('DOMContentLoaded', () => {
+            var el = document.querySelector('.theme-icon-active');
+            if(el != 'undefined' && el != null) {
+                const showActiveTheme = theme => {
+                    const activeThemeIcon = document.querySelector('.theme-icon-active use')
+                    const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+                    const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
+
+                    document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+                        element.classList.remove('active')
+                    })
+
+                    btnToActive.classList.add('active')
+                    activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+                }
+
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                    if (storedTheme !== 'light' || storedTheme !== 'dark') {
+                        setTheme(getPreferredTheme())
+                    }
+                })
+
+                showActiveTheme(getPreferredTheme())
+
+                document.querySelectorAll('[data-bs-theme-value]')
+                    .forEach(toggle => {
+                        toggle.addEventListener('click', () => {
+                            const theme = toggle.getAttribute('data-bs-theme-value')
+                            localStorage.setItem('theme', theme)
+                            setTheme(theme)
+                            showActiveTheme(theme)
+                        })
+                    })
+            }
+        })
+    </script>
+</head>
+
+<body>
+
+<!-- **************** MAIN CONTENT START **************** -->
+<main>
+
+    <!-- Sidebar START -->
+    <div th:replace="~{common-admin/admin-sidebar :: admin_sidebar}"></div>
+    <!-- Sidebar END -->
+
+    <!-- Page content START -->
+    <div class="page-content">
+
+        <!-- Top bar START -->
+        <div th:replace="~{common-admin/admin-topbar :: admin_topbar}"></div>
+        <!-- Top bar END -->
+
+        <!-- Page main content START -->
+        <div class="page-content-wrapper p-xxl-4">
+
+            <!-- Title -->
+            <div class="row">
+                <div class="col-12 mb-5">
+                    <div class="d-sm-flex justify-content-between align-items-center">
+                        <h1 class="h3 mb-2 mb-sm-0">Danh sách đặt phòng</h1>
+                        <div class="d-grid"><a href="#" class="btn btn-primary-soft mb-0"><i class="bi bi-plus-lg fa-fw"></i>Thêm yêu cầu đặt phòng</a></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Counter START -->
+            <div class="row g-4 mb-5">
+
+                <!-- New Booked Rooms -->
+                <div class="col-md-6 col-xxl-3">
+                    <div class="card card-body shadow p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="me-2">
+                                <span>Lượt đặt mới</span>
+                                <h3 class="mb-0 mt-2" th:text="${totalBooked}">0</h3>
+                            </div>
+                            <div class="icon-lg rounded-circle flex-shrink-0 bg-primary bg-opacity-10 text-primary mb-0">
+                                <i class="bi bi-door-open fa-fw"></i>
+                            </div>
+                        </div>
+                        <div class="progress progress-xs bg-primary bg-opacity-10 mb-2">
+                            <div class="progress-bar bg-primary"
+                                 role="progressbar"
+                                 th:style="'width:' + (${todayBooked} * 100 / (${totalBooked} == 0 ? 1 : ${totalBooked})) + '%'"
+                                 aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+                            </div>
+                        </div>
+                        <span><span class="text-primary" th:text="${todayBooked} + ' lượt đặt mới'">0</span> hôm nay</span>
+                    </div>
+                </div>
+
+                <!-- Cancelled Rooms -->
+                <div class="col-md-6 col-xxl-3">
+                    <div class="card card-body shadow p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="me-2">
+                                <span>Yêu cầu huỷ</span>
+                                <h3 class="mb-0 mt-2" th:text="${totalCancelled}">0</h3>
+                            </div>
+                            <div class="icon-lg rounded-circle flex-shrink-0 bg-danger bg-opacity-10 text-danger mb-0">
+                                <i class="bi bi-x-circle fa-fw"></i>
+                            </div>
+                        </div>
+                        <div class="progress progress-xs bg-danger bg-opacity-10 mb-2">
+                            <div class="progress-bar bg-danger"
+                                 role="progressbar"
+                                 th:style="'width:' + (${todayCancelled} * 100 / (${totalCancelled} == 0 ? 1 : ${totalCancelled})) + '%'"
+                                 aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+                            </div>
+                        </div>
+                        <span><span class="text-danger" th:text="${todayCancelled} + ' yêu cầu huỷ'">0</span> hôm nay</span>
+                    </div>
+                </div>
+
+                <!-- Check-in Today -->
+                <div class="col-md-6 col-xxl-3">
+                    <div class="card card-body shadow p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="me-2">
+                                <span>Nhận phòng</span>
+                                <h3 class="mb-0 mt-2" th:text="${checkInToday}">0</h3>
+                            </div>
+                            <div class="icon-lg rounded-circle flex-shrink-0 bg-success bg-opacity-10 text-success mb-0">
+                                <i class="bi bi-box-arrow-in-right fa-fw"></i>
+                            </div>
+                        </div>
+                        <div class="progress progress-xs bg-success bg-opacity-10 mb-2">
+                            <div class="progress-bar bg-success"
+                                 role="progressbar"
+                                 th:style="'width:' + (${checkInToday} * 100 / (${checkInToday} + ${checkInFuture} == 0 ? 1 : ${checkInToday} + ${checkInFuture})) + '%'"
+                                 aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+                            </div>
+                        </div>
+                        <span><span class="text-success" th:text="${checkInFuture} + ' lượt nhận phòng'">0</span> sắp tới</span>
+                    </div>
+                </div>
+
+                <!-- Check-out Today -->
+                <div class="col-md-6 col-xxl-3">
+                    <div class="card card-body shadow p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="me-2">
+                                <span>Trả phòng</span>
+                                <h3 class="mb-0 mt-2" th:text="${checkOutToday}">0</h3>
+                            </div>
+                            <div class="icon-lg rounded-circle flex-shrink-0 bg-warning bg-opacity-10 text-warning mb-0">
+                                <i class="bi bi-box-arrow-right fa-fw"></i>
+                            </div>
+                        </div>
+                        <div class="progress progress-xs bg-warning bg-opacity-10 mb-2">
+                            <div class="progress-bar bg-warning"
+                                 role="progressbar"
+                                 th:style="'width:' + (${checkOutToday} * 100 / (${checkOutToday} + ${checkOutFuture} == 0 ? 1 : ${checkOutToday} + ${checkOutFuture})) + '%'"
+                                 aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+                            </div>
+                        </div>
+                        <span><span class="text-warning" th:text="${checkOutFuture} + ' lượt trả phòng'">0</span> sắp tới</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Counter END -->
+
+            <!-- Tabs and search START -->
+            <div class="row g-4 justify-content-between align-items-center">
+                <div class="col-lg-5">
+                    <!-- Tabs -->
+                    <ul class="nav nav-pills-shadow nav-responsive">
+                        <li class="nav-item">
+                            <a class="nav-link border rounded-pill mb-0 me-sm-2"
+                               th:classappend="${statusFilter} == '' ? ' active'"
+                               th:href="@{'/admin-booking-list'(status='', view=${viewMode}, search=${search})}">Tất cả</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link border rounded-pill mb-0 me-sm-2"
+                               th:classappend="${statusFilter} == 'approved' ? ' active'"
+                               th:href="@{'/admin-booking-list'(status='approved', view=${viewMode}, search=${search})}">Sắp tới</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link border rounded-pill mb-0 me-sm-2"
+                               th:classappend="${statusFilter} == 'cancelled' ? ' active'"
+                               th:href="@{'/admin-booking-list'(status='cancelled', view=${viewMode}, search=${search})}">Đã huỷ</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link border rounded-pill mb-0"
+                               th:classappend="${statusFilter} == 'completed' ? ' active'"
+                               th:href="@{'/admin-booking-list'(status='completed', view=${viewMode}, search=${search})}">Hoàn thành</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-6 col-xxl-5">
+                    <div class="d-sm-flex gap-4 justify-content-between justify-content-lg-end">
+                        <!-- Search -->
+                        <div class="col-md-8">
+                            <form class="rounded position-relative" th:action="@{/admin-booking-list}" method="get">
+                                <input class="form-control bg-transparent"
+                                       type="text"
+                                       name="search"
+                                       th:value="${search}"
+                                       placeholder="Tìm kiếm">
+                                <input type="hidden" name="status" th:value="${statusFilter}">
+                                <input type="hidden" name="view" th:value="${viewMode}">
+                                <button class="bg-transparent p-2 position-absolute top-50 end-0 translate-middle-y border-0 text-primary-hover text-reset" type="submit">
+                                    <i class="fas fa-search fs-6"></i>
+                                </button>
+                            </form>
+                        </div>
+                        <!-- Tabs -->
+                        <div class="d-flex justify-content-end mt-2 mt-sm-0">
+                            <ul class="nav nav-pills nav-pills-dark" id="room-pills-tab" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link rounded-start rounded-0"
+                                       th:classappend="${viewMode} == 'grid' ? ' active'"
+                                       th:href="@{'/admin-booking-list'(page=${currentPage}, status=${statusFilter}, view='grid', search=${search})}">
+                                        <i class="bi fa-fw bi-grid-fill"></i>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link rounded-end rounded-0"
+                                       th:classappend="${viewMode} == 'list' ? ' active'"
+                                       th:href="@{'/admin-booking-list'(page=${currentPage}, status=${statusFilter}, view='list', search=${search})}">
+                                        <i class="bi fa-fw bi-list-ul"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Tabs and search END -->
+
+            <!-- Tab content START -->
+            <div class="tab-content mt-5 hidden-before-js" id="myTabContent">
+            <!-- Content item START -->
+
+                <!-- GRID VIEW -->
+                <div th:if="${viewMode} == 'grid'">
+                    <div class="tab-pane fade show active" id="grid-tab-pane">
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xxl-5 g-4">
+                        <!-- Duyệt danh sách Booking -->
+                        <div class="col" th:each="booking : ${bookings}">
+                            <div class="card shadow h-100">
+                                <!-- 1. Ảnh phòng -->
+                                <div class="position-relative">
+                                    <img th:src="@{${booking.imageUrl}}" class="card-img-top" alt="Room image" />
+                                    <div class="card-img-overlay d-flex flex-column p-3">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="badge text-bg-dark">
+                                                <i class="bi bi-star-fill me-2 text-warning"></i>4.5
+                                            </div>
+                                            <div class="list-inline-item dropdown">
+                                                <a href="#" class="btn btn-sm btn-round btn-light" data-bs-toggle="dropdown">
+                                                    <i class="bi bi-three-dots-vertical"></i>
+                                                </a>
+                                                <ul class="dropdown-menu dropdown-menu-end min-w-auto shadow rounded small">
+                                                    <li><a class="dropdown-item" href="#"><i class="bi bi-info-circle me-2"></i>Report</a></li>
+                                                    <li><a class="dropdown-item" href="#"><i class="bi bi-slash-circle me-2"></i>Disable</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 2. Thông tin phòng -->
+                                <div class="card-body px-3">
+                                    <h5 class="card-title mb-1">
+                                        <a th:href="@{'/admin/bookings/detail/' + ${booking.bookingId}}" th:text="${booking.hotelName}">Loại phòng</a>
+                                    </h5>
+                                    <ul class="list-group list-group-borderless small mt-2 mb-0">
+                                        <!-- <li class="list-group-item pb-0">
+                                            <i class="fa-solid fa-building fa-fw me-2"></i>
+                                            <span th:text="${booking.hotelName}">Tên khách sạn</span>
+                                        </li> -->
+                                        <li class="list-group-item pb-0">
+                                            <i class="bi bi-calendar-check me-2"></i>
+                                            <span th:text="${#temporals.format(booking.checkIn, 'yyyy-MM-dd')}">Ngày nhận</span> →
+                                            <span th:text="${#temporals.format(booking.checkOut, 'yyyy-MM-dd')}">Ngày trả</span>
+                                        </li>
+                                        <li class="list-group-item pb-0">
+                                            <i class="bi bi-currency-dollar me-2"></i>
+                                            <span th:text="${booking.totalPrice}">Giá</span>
+                                        </li>
+                                        <!-- <li class="list-group-item pb-0">
+                                            <i class="bi bi-check-circle me-2"></i>
+                                            <span th:text="${booking.status}">Trạng thái</span>
+                                        </li> -->
+                                    </ul>
+                                </div>
+
+                                <!-- 3. Footer -->
+                                <div class="card-footer pt-0">
+                                    <a th:href="@{'/admin/bookings/detail/' + ${booking.bookingId}}"
+                                       class="btn btn-sm btn-primary-soft w-100">Xem chi tiết</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                        <!-- Pagination -->
+                        <div class="row">
+                            <div class="d-sm-flex justify-content-sm-center align-items-sm-center mt-4">
+                                <nav class="mb-sm-0 d-flex justify-content-center" aria-label="navigation">
+                                    <ul class="pagination pagination-sm pagination-primary-soft d-inline-block d-md-flex rounded mb-0">
+                                        <!-- Previous -->
+                                        <li th:if="${totalPages >= 2}" th:class="'page-item mb-0' + (${currentPage == 1} ? ' disabled' : '')">
+                                            <a class="page-link"
+                                               th:href="@{'/admin-booking-list'(page=${currentPage - 1}, status=${statusFilter}, view=${viewMode}, search=${search})}">
+                                                <i class="fa-solid fa-angle-left"></i>
+                                            </a>
+                                        </li>
+
+                                        <!-- Page 1 -->
+                                        <li th:if="${totalPages >= 1}" th:class="'page-item mb-0' + (${currentPage == 1} ? ' active disabled' : '')">
+                                            <a class="page-link"
+                                               th:href="@{'/admin-booking-list'(page=1, status=${statusFilter}, view=${viewMode}, search=${search})}">1</a>
+                                        </li>
+
+                                        <!-- Page 2 -->
+                                        <li th:if="${totalPages >= 2}" th:class="'page-item mb-0' + (${currentPage == 2} ? ' active disabled' : '')">
+                                            <a class="page-link"
+                                               th:href="@{'/admin-booking-list'(page=2, status=${statusFilter}, view=${viewMode}, search=${search})}">2</a>
+                                        </li>
+
+                                        <!-- Left ellipsis -->
+                                        <li th:if="${totalPages >= 5 and currentPage - 2 > 2}" class="page-item mb-0 disabled">
+                                            <a class="page-link">...</a>
+                                        </li>
+
+                                        <!-- Page -1 -->
+                                        <li th:if="${totalPages >= 4 and currentPage != 1 and currentPage - 1 != 1 and currentPage - 1 != 2}"
+                                            class="page-item mb-0">
+                                            <a class="page-link"
+                                               th:href="@{'/admin-booking-list'(page=${currentPage - 1}, status=${statusFilter}, view=${viewMode}, search=${search})}"
+                                               th:text="${currentPage - 1}"></a>
+                                        </li>
+
+                                        <!-- Current Page -->
+                                        <li th:if="${totalPages >= 4 and currentPage != 1 and currentPage != 2 and currentPage != totalPages}"
+                                            class="page-item mb-0 active disabled">
+                                            <a class="page-link" th:text="${currentPage}"></a>
+                                        </li>
+
+                                        <!-- Page +1 -->
+                                        <li th:if="${totalPages >= 4 and currentPage + 1 != 2 and currentPage + 1 != totalPages and currentPage != totalPages}"
+                                            class="page-item mb-0">
+                                            <a class="page-link"
+                                               th:href="@{'/admin-booking-list'(page=${currentPage + 1}, status=${statusFilter}, view=${viewMode}, search=${search})}"
+                                               th:text="${currentPage + 1}"></a>
+                                        </li>
+
+                                        <!-- Right ellipsis -->
+                                        <li th:if="${totalPages >= 4 and totalPages > currentPage + 2}" class="page-item mb-0 disabled">
+                                            <a class="page-link">...</a>
+                                        </li>
+
+                                        <!-- Last page -->
+                                        <li th:if="${totalPages >= 3}"
+                                            th:class="'page-item mb-0' + (${currentPage == totalPages} ? ' active disabled' : '')">
+                                            <a class="page-link"
+                                               th:href="@{'/admin-booking-list'(page=${totalPages}, status=${statusFilter}, view=${viewMode}, search=${search})}"
+                                               th:text="${totalPages}"></a>
+                                        </li>
+
+                                        <!-- Next -->
+                                        <li th:if="${totalPages >= 2}" th:class="'page-item mb-0' + (${currentPage == totalPages} ? ' disabled' : '')">
+                                            <a class="page-link"
+                                               th:href="@{'/admin-booking-list'(page=${currentPage + 1}, status=${statusFilter}, view=${viewMode}, search=${search})}">
+                                                <i class="fa-solid fa-angle-right"></i>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                        <!-- Pagination end-->
+                    </div>
+                </div>
+            <!-- Rooms END -->
+            </div>
+                <!-- Content item END -->
+
+                <!-- Content item START -->
+            <!-- LIST VIEW -->
+            <div th:if="${viewMode} == 'list'">
+                <div class="tab-pane fade show active" id="list-tab-pane">
+                <div class="card shadow">
+                    <div class="card-body">
+
+                        <!-- Header row (hiện trên desktop) -->
+                        <div class="bg-light rounded p-3 d-xxl-block">
+                            <div class="row row-cols-5 g-4">
+                                <div class="col"><h6 class="mb-0">Ảnh</h6></div>
+<!--                                <div class="col"><h6 class="mb-0">Loại phòng</h6></div>-->
+                                <div class="col"><h6 class="mb-0">Tên khách sạn</h6></div>
+                                <div class="col"><h6 class="mb-0">Nhận/trả phòng</h6></div>
+                                <div class="col"><h6 class="mb-0">Giá</h6></div>
+<!--                                <div class="col"><h6 class="mb-0">Trạng thái</h6></div>-->
+                                <div class="col"><h6 class="mb-0">Hành động</h6></div>
+                            </div>
+                        </div>
+
+                        <!-- Each booking row -->
+                        <div class="row g-3 g-sm-4 align-items-center justify-content-center border-bottom px-2 py-4"
+                             th:each="booking : ${bookings}">
+
+                            <!-- Room image -->
+                            <div class="col">
+                                <img th:src="@{${booking.imageUrl}}"
+                                     alt="Room image"
+                                     class="rounded"
+                                     style="width: 80px; height: 60px; object-fit: cover;">
+                            </div>
+
+                            <!-- Room name -->
+                            <div class="col two-line-ellipsis" th:title="${booking.hotelName}">
+                                <h6 class="mb-0" th:text="${booking.hotelName}"
+                                    style="white-space: normal; word-break: break-word;">
+                                    Loại phòng
+                                </h6>
+                            </div>
+
+                            <!-- Hotel name -->
+                            <!-- <div class="col two-line-ellipsis" th:title="${booking.hotelName}">
+                                <span th:text="${booking.hotelName}" style="white-space: normal; word-break: break-word;">
+                                    Tên khách sạn
+                                </span>
+                            </div> -->
+
+                            <!-- Check-in/out -->
+                            <div class="col">
+                                <small th:text="'Nhận: ' + ${#temporals.format(booking.checkIn, 'yyyy-MM-dd')}"></small><br/>
+                                <small th:text="'Trả: ' + ${#temporals.format(booking.checkOut, 'yyyy-MM-dd')}"></small>
+                            </div>
+
+                            <!-- Amount -->
+                            <div class="col">
+                                <span class="text-success fw-bold" th:text="'$' + ${booking.totalPrice}">$0.0</span>
+                            </div>
+
+                            <!-- Status -->
+                            <!-- <div class="col">
+                                <span class="badge"
+                                    th:classappend="
+                                        ${booking.status} == 'approved' ? ' bg-success' :
+                                        (${booking.status} == 'cancelled' ? ' bg-danger' :
+                                        (${booking.status} == 'pending' ? ' bg-warning text-dark' : ' bg-secondary'))"
+                                    th:text="${booking.status}">
+                                    Status
+                                </span>
+                            </div> -->
+                            <!-- Action -->
+                            <div class="col">
+                                <a th:href="@{'/admin/bookings/detail/' + ${booking.bookingId}}"
+                                   class="btn btn-sm btn-light">Xem chi tiết</a>
+                            </div>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div class="row">
+                            <div class="d-sm-flex justify-content-sm-center align-items-sm-center mt-4">
+                                <nav class="mb-sm-0 d-flex justify-content-center" aria-label="navigation">
+                                    <ul class="pagination pagination-sm pagination-primary-soft d-inline-block d-md-flex rounded mb-0">
+                                        <!-- Previous -->
+                                        <li th:if="${totalPages >= 2}" th:class="'page-item mb-0' + (${currentPage == 1} ? ' disabled' : '')">
+                                            <a class="page-link"
+                                               th:href="@{'/admin-booking-list'(page=${currentPage - 1}, status=${statusFilter}, view=${viewMode}, search=${search})}">
+                                                <i class="fa-solid fa-angle-left"></i>
+                                            </a>
+                                        </li>
+
+                                        <!-- Page 1 -->
+                                        <li th:if="${totalPages >= 1}" th:class="'page-item mb-0' + (${currentPage == 1} ? ' active disabled' : '')">
+                                            <a class="page-link"
+                                               th:href="@{'/admin-booking-list'(page=1, status=${statusFilter}, view=${viewMode}, search=${search})}">1</a>
+                                        </li>
+
+                                        <!-- Page 2 -->
+                                        <li th:if="${totalPages >= 2}" th:class="'page-item mb-0' + (${currentPage == 2} ? ' active disabled' : '')">
+                                            <a class="page-link"
+                                               th:href="@{'/admin-booking-list'(page=2, status=${statusFilter}, view=${viewMode}, search=${search})}">2</a>
+                                        </li>
+
+                                        <!-- Left ellipsis -->
+                                        <li th:if="${totalPages >= 5 and currentPage - 2 > 2}" class="page-item mb-0 disabled">
+                                            <a class="page-link">...</a>
+                                        </li>
+
+                                        <!-- Page -1 -->
+                                        <li th:if="${totalPages >= 4 and currentPage != 1 and currentPage - 1 != 1 and currentPage - 1 != 2}"
+                                            class="page-item mb-0">
+                                            <a class="page-link"
+                                               th:href="@{'/admin-booking-list'(page=${currentPage - 1}, status=${statusFilter}, view=${viewMode}, search=${search})}"
+                                               th:text="${currentPage - 1}"></a>
+                                        </li>
+
+                                        <!-- Current Page -->
+                                        <li th:if="${totalPages >= 4 and currentPage != 1 and currentPage != 2 and currentPage != totalPages}"
+                                            class="page-item mb-0 active disabled">
+                                            <a class="page-link" th:text="${currentPage}"></a>
+                                        </li>
+
+                                        <!-- Page +1 -->
+                                        <li th:if="${totalPages >= 4 and currentPage + 1 != 2 and currentPage + 1 != totalPages and currentPage != totalPages}"
+                                            class="page-item mb-0">
+                                            <a class="page-link"
+                                               th:href="@{'/admin-booking-list'(page=${currentPage + 1}, status=${statusFilter}, view=${viewMode}, search=${search})}"
+                                               th:text="${currentPage + 1}"></a>
+                                        </li>
+
+                                        <!-- Right ellipsis -->
+                                        <li th:if="${totalPages >= 4 and totalPages > currentPage + 2}" class="page-item mb-0 disabled">
+                                            <a class="page-link">...</a>
+                                        </li>
+
+                                        <!-- Last page -->
+                                        <li th:if="${totalPages >= 3}"
+                                            th:class="'page-item mb-0' + (${currentPage == totalPages} ? ' active disabled' : '')">
+                                            <a class="page-link"
+                                               th:href="@{'/admin-booking-list'(page=${totalPages}, status=${statusFilter}, view=${viewMode}, search=${search})}"
+                                               th:text="${totalPages}"></a>
+                                        </li>
+
+                                        <!-- Next -->
+                                        <li th:if="${totalPages >= 2}" th:class="'page-item mb-0' + (${currentPage == totalPages} ? ' disabled' : '')">
+                                            <a class="page-link"
+                                               th:href="@{'/admin-booking-list'(page=${currentPage + 1}, status=${statusFilter}, view=${viewMode}, search=${search})}">
+                                                <i class="fa-solid fa-angle-right"></i>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                        <!-- Pagination end-->
+
+                    </div>
+                </div>
+            </div>
+            </div>
+        <!-- Content item END -->
+            </div>
+            <!-- Tab content END -->
+        </div>
+        <!-- Page main content END -->
+    </div>
+    <!-- Page content END -->
+
+</main>
+<!-- **************** MAIN CONTENT END **************** -->
+<script th:src="@{/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/assets/vendor/overlay-scrollbar/js/overlayscrollbars.min.js}"></script>
+<script th:src="@{/assets/js/functions.js}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const storedTab = localStorage.getItem('adminTab');
+        if (storedTab) {
+            const triggerEl = document.querySelector(`#${storedTab}-tab`);
+            if (triggerEl) new bootstrap.Tab(triggerEl).show();
+        }
+
+        document.querySelectorAll('button[data-bs-toggle="tab"]').forEach(btn => {
+            btn.addEventListener('shown.bs.tab', function (e) {
+                localStorage.setItem('adminTab', e.target.id.replace('-tab', ''));
+            });
+        });
+        document.querySelector('.tab-content').classList.remove('hidden-before-js');
+    });
+</script>
+</body>
+</html>

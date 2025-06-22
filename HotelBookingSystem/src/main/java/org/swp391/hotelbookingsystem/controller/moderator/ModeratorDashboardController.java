@@ -8,6 +8,6 @@ public class ModeratorDashboardController {
 
     @GetMapping("/moderator-dashboard")
     public String getDashboard() {
-        return "page/moderatorDashboard";
+        return "moderator/moderatorDashboard";
     }
 }
