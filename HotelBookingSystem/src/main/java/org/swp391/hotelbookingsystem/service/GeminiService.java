@@ -15,7 +15,7 @@
 
      public String generateReply(String userMessage) {
          try {
-             String safeText = mapper.writeValueAsString(userMessage); // auto escape and add quotes
+             String safeText = mapper.writeValueAsString(userMessage);
 
              String jsonBody = """
                  {

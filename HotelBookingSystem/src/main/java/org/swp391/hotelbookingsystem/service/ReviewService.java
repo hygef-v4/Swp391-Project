@@ -30,11 +30,6 @@ public class ReviewService {
         return reviewRepository.getTop5PublicPositiveReviews();
     }
 
-    public List<Review> getReviewsByStatus(String status, int page, int size) {
-        int offset = (page - 1) * size;
-        return reviewRepository.getReviewsByStatus(status, offset, size);
-    }
-
     public int getTotalReviewCount() {
         return reviewRepository.countAllReviews();
     }
@@ -46,15 +41,6 @@ public class ReviewService {
 
     public List<Integer> getRatingDistribution() {
         return reviewRepository.getRatingDistribution();
-    }
-
-    public int getTotalPagesByStatus(String filter, int pageSize) {
-        int totalReviews = switch (filter.toLowerCase()) {
-            case "published" -> reviewRepository.countByPublic(true);
-            case "deleted" -> reviewRepository.countByPublic(false);
-            default -> reviewRepository.countAllReviews();
-        };
-        return (int) Math.ceil((double) totalReviews / pageSize);
     }
 
     public void restoreReviewById(int id) {
