@@ -647,10 +647,10 @@
                                 </div>
                                 <div class="col-md-3">
                                     <select id="hotelFilter" class="form-select">
-                                        <option>Tất cả khách sạn</option>
-                                        <option>Khách Sạn Grand Plaza</option>
-                                        <option>Resort Sunset</option>
-                                        <option>Nhà Nghỉ Trung Tâm Thành Phố</option>
+                                        <option value="">Tất cả khách sạn</option>
+                                        <option th:each="hotel : ${hotels}" 
+                                                th:value="${hotel.hotelName}" 
+                                                th:text="${hotel.hotelName}"></option>
                                     </select>
                                 </div>
                             </div>
@@ -734,6 +734,7 @@
     // - rejected: Đã từ chối (bookings rejected by host)
     const bookingsData = [];
     const bookings = /*[[${bookings}]]*/ [];
+    const hostHotels = /*[[${hotels}]]*/ [];
 
     const getStatusClass = (status) => {
         if (!status) return 'bg-secondary bg-opacity-10 text-secondary';
@@ -828,6 +829,7 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         populateDateFilterDropdown();
+        populateHotelFilterDropdown();
         initializePagination();
 
         if (typeof ApexCharts !== 'undefined') {
@@ -860,6 +862,34 @@
         }
 
         menu.innerHTML = menuHTML;
+    }
+
+    // --- Populates the hotel filter dropdown with host's actual hotels
+    function populateHotelFilterDropdown() {
+        const hotelSelect = document.querySelector('#hotelFilter');
+        if (!hotelSelect || !hostHotels) return;
+
+        // Clear existing options except the first one (Tất cả khách sạn)
+        const firstOption = hotelSelect.querySelector('option[value=""]');
+        hotelSelect.innerHTML = '';
+        if (firstOption) {
+            hotelSelect.appendChild(firstOption);
+        } else {
+            const allOption = document.createElement('option');
+            allOption.value = '';
+            allOption.textContent = 'Tất cả khách sạn';
+            hotelSelect.appendChild(allOption);
+        }
+
+        // Add hotel options dynamically
+        hostHotels.forEach(hotel => {
+            const option = document.createElement('option');
+            option.value = hotel.hotelName;
+            option.textContent = hotel.hotelName;
+            hotelSelect.appendChild(option);
+        });
+
+        console.log('Hotel filter populated with', hostHotels.length, 'hotels');
     }
 
     // Helper functions for data formatting
