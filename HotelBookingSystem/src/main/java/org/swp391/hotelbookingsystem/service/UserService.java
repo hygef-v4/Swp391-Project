@@ -195,4 +195,13 @@ public class UserService {
     public void deleteEmailOtp(String email) {
         userRepo.deleteEmailOtp(email);
     }
+
+    // Thêm method để tính tổng số người dùng
+    public int getTotalUsers() {
+        List<User> allUsers = userRepo.getAllUser();
+        return allUsers != null ? allUsers.size() : 0;
+    }
+
 }
+
+
