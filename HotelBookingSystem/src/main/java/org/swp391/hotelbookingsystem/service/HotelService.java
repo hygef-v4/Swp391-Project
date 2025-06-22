@@ -85,4 +85,14 @@ public class HotelService {
     public int countHotelsByHostId(int id) {
         return hotelRepository.countHotelByHostId(id);
     }
+
+    public int getTotalHotels() {
+        try {
+            return hotelRepository.getAllHotels().size();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
 }

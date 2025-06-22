@@ -170,7 +170,7 @@
                 <i class="bi bi-building"></i>
               </div>
               <div class="ms-3">
-                <h3 class="mb-0" th:text="${totalHotels ?: '324'}">324</h3>
+                <h3 class="mb-0" th:text="${totalHotels != null ? #numbers.formatInteger(totalHotels, 0, 'COMMA') : '0'}">0</h3>
                 <h6 class="mb-0">Tổng Khách Sạn</h6>
                 <div class="badge text-bg-info bg-opacity-10 text-info border border-info">
                   <span>+8% tháng này</span>
