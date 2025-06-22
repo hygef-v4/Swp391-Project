@@ -92,8 +92,13 @@ public class CustomerHostController {
                             long totalBookings = hostBookings.size();
                             double totalSpent = hostBookings.stream()
                                     .mapToDouble(b -> {
+                                        // Only count approved and completed booking units
                                         double sum = b.getBookingUnits().stream()
-                                                .filter(u -> u.getPrice() != null)
+                                                .filter(u -> u.getPrice() != null && u.getPrice() > 0)
+                                                .filter(u -> {
+                                                    String unitStatus = (u.getStatus() != null) ? u.getStatus().toLowerCase() : "";
+                                                    return "approved".equals(unitStatus) || "completed".equals(unitStatus);
+                                                })
                                                 .mapToDouble(u -> u.getPrice() * (u.getQuantity() == 0 ? 1 : u.getQuantity()))
                                                 .sum();
                                         return sum;
@@ -168,18 +173,32 @@ public class CustomerHostController {
                         Hotel hotel = hotelService.getHotelById(b.getHotelId());
                         return hotel != null && hotel.getHostId() == hostId;
                     })
+                    .sorted((b1, b2) -> Integer.compare(b2.getBookingId(), b1.getBookingId())) // Sort by booking ID descending
                     .collect(Collectors.toList());
 
             log.debug("Found {} bookings for customer {} and host {}", 
                 customerBookings.size(), customer.getId(), hostId);
 
-            // Calculate total price for each booking
+            // Calculate total price for each booking - only count approved and completed booking units
             for (Booking booking : customerBookings) {
-                double sum = booking.getBookingUnits().stream()
-                        .filter(u -> u.getPrice() != null)
-                        .mapToDouble(u -> u.getPrice() * (u.getQuantity() == 0 ? 1 : u.getQuantity()))
-                        .sum();
-                booking.setTotalPrice(sum);
+                if (booking.getBookingUnits() != null && !booking.getBookingUnits().isEmpty()) {
+                    double sum = booking.getBookingUnits().stream()
+                            .filter(u -> u.getPrice() != null && u.getPrice() > 0)
+                            .filter(u -> {
+                                String unitStatus = (u.getStatus() != null) ? u.getStatus().toLowerCase() : "";
+                                return "approved".equals(unitStatus) || "completed".equals(unitStatus);
+                            })
+                            .mapToDouble(u -> u.getPrice() * (u.getQuantity() == 0 ? 1 : u.getQuantity()))
+                            .sum();
+                    booking.setTotalPrice(sum);
+                    
+                    // Calculate booking status based on booking units
+                    String status = bookingService.calculateBookingStatus(booking.getBookingUnits());
+                    booking.setStatus(status);
+                } else {
+                    booking.setTotalPrice(0.0);
+                    booking.setStatus("unknown");
+                }
             }
 
             // Get host hotels for additional context

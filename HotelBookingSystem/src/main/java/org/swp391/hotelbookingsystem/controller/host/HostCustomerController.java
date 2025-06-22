@@ -49,9 +49,13 @@ public class HostCustomerController {
             // Calculate total price and status for each booking
             for (Booking booking : allBookings) {
                 if (booking.getBookingUnits() != null && !booking.getBookingUnits().isEmpty()) {
-                    // Calculate total price
+                    // Calculate total price - only count approved and completed booking units
                     double sum = booking.getBookingUnits().stream()
                             .filter(u -> u.getPrice() != null && u.getPrice() > 0)
+                            .filter(u -> {
+                                String unitStatus = (u.getStatus() != null) ? u.getStatus().toLowerCase() : "";
+                                return "approved".equals(unitStatus) || "completed".equals(unitStatus);
+                            })
                             .mapToDouble(u -> {
                                 int qty = u.getQuantity() <= 0 ? 1 : u.getQuantity();
                                 return u.getPrice() * qty;
@@ -99,10 +103,8 @@ public class HostCustomerController {
                                     .filter(b -> "completed".equals(b.getStatus()))
                                     .count();
                             
-                            // Calculate total revenue from all approved/completed bookings
+                            // Calculate total revenue from all bookings (totalPrice already filtered for approved/completed units)
                             double totalSpent = bookings.stream()
-                                    .filter(b -> "completed".equals(b.getStatus()) || 
-                                               "approved".equals(b.getStatus()))
                                     .mapToDouble(b -> {
                                         double price = b.getTotalPrice() != null ? b.getTotalPrice() : 0.0;
                                         if (price > 0) {
@@ -181,9 +183,13 @@ public class HostCustomerController {
             // Calculate total price and status for each booking
             for (Booking booking : customerBookings) {
                 if (booking.getBookingUnits() != null && !booking.getBookingUnits().isEmpty()) {
-                    // Calculate total price
+                    // Calculate total price - only count approved and completed booking units
                     double sum = booking.getBookingUnits().stream()
                             .filter(u -> u.getPrice() != null && u.getPrice() > 0)
+                            .filter(u -> {
+                                String unitStatus = (u.getStatus() != null) ? u.getStatus().toLowerCase() : "";
+                                return "approved".equals(unitStatus) || "completed".equals(unitStatus);
+                            })
                             .mapToDouble(u -> {
                                 int qty = u.getQuantity() <= 0 ? 1 : u.getQuantity();
                                 return u.getPrice() * qty;

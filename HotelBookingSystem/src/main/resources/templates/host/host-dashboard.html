@@ -787,7 +787,15 @@
     // Group bookings and create hierarchical structure
     bookings.forEach(booking => {
         const units = booking.bookingUnits || [];
-        const totalPriceRaw = units.reduce((sum, u) => sum + (u.price || 0), 0);
+        // Calculate total price correctly: sum of (unit price * quantity) for each unit
+        // Only count approved and completed booking units, exclude rejected and cancelled
+        const totalPriceRaw = units.reduce((sum, u) => {
+            const status = (u.status || '').toLowerCase();
+            if (status === 'approved' || status === 'completed') {
+                return sum + ((u.price || 0) * (u.quantity || 1));
+            }
+            return sum;
+        }, 0);
         const bookingItem = {
             id: `#BK${booking.bookingId}`,
             bookingId: booking.bookingId,
@@ -801,20 +809,27 @@
             checkIn: formatDate(booking.checkIn),
             checkOut: formatDate(booking.checkOut),
             checkInTime: new Date(booking.checkIn).getTime(), // numeric timestamp for sorting
-            totalAmount: formatCurrency(totalPriceRaw),
+            totalAmount: totalPriceRaw > 0 ? formatCurrency(totalPriceRaw) : 'Đã hủy/ Từ chối',
             totalPrice: totalPriceRaw, // numeric for sorting
             totalUnits: units.length,
             bookingStatus: booking.status || 'unknown',
-            bookingUnits: units.map(unit => ({
-                unitId: unit.bookingUnitId,
-                roomName: unit.roomName || 'Không có tên',
-                roomImage: unit.imageUrl || '/assets/images/category/hotel/4by3/01.jpg', // Use actual room image
-                status: getStatusText(unit.status),
-                statusClass: getStatusClass(unit.status),
-                unitPrice: formatCurrency(unit.price || 0),
-                roomCapacity: unit.roomCapacity || 'N/A',
-                roomAmenities: unit.roomAmenities || []
-            })),
+            bookingUnits: units.map(unit => {
+                const status = (unit.status || '').toLowerCase();
+                const isCountedInTotal = status === 'approved' || status === 'completed';
+                return {
+                    unitId: unit.bookingUnitId,
+                    roomName: unit.roomName || 'Không có tên',
+                    roomImage: unit.imageUrl || '/assets/images/category/hotel/4by3/01.jpg', // Use actual room image
+                    status: getStatusText(unit.status),
+                    statusClass: getStatusClass(unit.status),
+                    quantity: unit.quantity || 1,
+                    unitPrice: formatCurrency(unit.price || 0),
+                    totalUnitPrice: formatCurrency((unit.price || 0) * (unit.quantity || 1)),
+                    isCountedInTotal: isCountedInTotal,
+                    roomCapacity: unit.roomCapacity > 0 ? `${unit.roomCapacity} khách` : 'Chưa cập nhật',
+                    roomAmenities: unit.roomAmenities || []
+                };
+            }),
             actions: [
                 {icon: 'bi-eye', text: 'Xem Chi Tiết'},
                 {icon: 'bi-chat', text: 'Liên Hệ Khách'}
@@ -1432,9 +1447,21 @@
                                         <img src="${unit.roomImage}" alt="Room" class="rounded me-3" style="width: 60px; height: 45px; object-fit: cover;">
                                         <div class="flex-grow-1">
                                             <h6 class="mb-1 room-name-truncate" title="${unit.roomName}">${unit.roomName}</h6>
-                                            <p class="mb-1 small text-muted">
-                                                <i class="bi bi-people me-1"></i>Sức chứa: ${unit.roomCapacity}
-                                            </p>
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <p class="mb-0 small text-muted">
+                                                    <i class="bi bi-people me-1"></i>Sức chứa: <strong>${unit.roomCapacity}</strong>
+                                                </p>
+                                                <p class="mb-0 small text-primary">
+                                                    <i class="bi bi-box me-1"></i>Số lượng: <strong>${unit.quantity}</strong>
+                                                </p>
+                                            </div>
+                                            <div class="mb-2">
+                                                <small class="text-muted d-block">Giá 1 phòng: ${unit.unitPrice}</small>
+                                                <small class="fw-bold ${unit.isCountedInTotal ? 'text-success' : 'text-muted text-decoration-line-through'}">
+                                                    Tổng tiền: ${unit.totalUnitPrice}
+                                                    ${unit.isCountedInTotal ? '' : '<i class="bi bi-exclamation-triangle ms-1" title="Không tính vào tổng do trạng thái"></i>'}
+                                                </small>
+                                            </div>
                                             <div class="d-flex justify-content-between align-items-center">
                                                 <div class="d-flex align-items-center gap-2">
                                                     <span class="badge ${unit.statusClass}" id="status-badge-${unit.unitId}">${unit.status}</span>
@@ -1450,7 +1477,6 @@
                                                         </ul>
                                                     </div>
                                                 </div>
-                                                <strong class="text-success">${unit.unitPrice}</strong>
                                             </div>
                                         </div>
                                     </div>
