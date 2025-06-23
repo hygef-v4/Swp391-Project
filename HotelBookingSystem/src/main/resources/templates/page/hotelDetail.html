@@ -10,6 +10,8 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<meta name="author" content="StackBros">
 	<meta name="description" content="Booking - Multipurpose Online Booking Theme">
+	<meta name="_csrf" th:content="${_csrf.token}"/>
+	<meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 
 	<!-- Dark mode -->
 	<script>
@@ -83,6 +85,56 @@
 			})
 		});
 	</script>
+
+	<script>
+		async function review() {
+			const form = document.getElementById('review');
+			const formData = new FormData(form);
+
+			// Lấy CSRF từ meta tag
+			const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+			const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+			let request = await fetch('/review', {
+				method: 'POST',
+				headers: {
+					[csrfHeader]: csrfToken
+				},
+				body: formData
+			});
+
+			form.reset();
+
+			let response = await request.json();
+			
+			let review = `	
+				<div>
+					<div class="d-md-flex my-4">
+						<div class="avatar avatar-lg me-3 flex-shrink-0">
+							<img class="avatar-img rounded-circle" src="${response.avatarUrl ? response.avatarUrl : '/assets/images/avatar/avatar.jpg'}" alt="${response.fullName}">
+						</div>
+						<div class="w-100">
+							<div class="d-flex justify-content-between mt-1 mt-md-0">
+								<div>
+									<h6 class="me-3 mb-0">${response.fullName}</h6>
+									<ul class="nav nav-divider small mb-2">
+										<li class="nav-item">${response.createdAt.toLocaleString()}</li>
+									</ul>
+								</div>
+								<div class="icon-md rounded text-bg-warning fs-6">${response.rating}</div>
+							</div>
+							<p class="mb-0">${response.comment}</p>
+						</div>
+					</div>
+					<hr>
+				</div>
+			`;
+			
+			let comment = document.getElementById("comment");
+			comment.innerHTML = review + comment.innerHTML;
+		}
+	</script>
+
 
 	<!-- Favicon -->
 	<link rel="shortcut icon" href="assets/images/favicon.ico">
@@ -308,7 +360,7 @@ Main Title START -->
 						<!-- Share icon -->
 						<li class="list-inline-item dropdown">
 							<!-- Share button -->
-							<a href="#" class="btn btn-sm btn-light px-2" role="button" id="dropdownShare" data-bs-toggle="dropdown" aria-expanded="false">
+							<a class="btn btn-sm btn-light px-2" role="button" id="dropdownShare" data-bs-toggle="dropdown" aria-expanded="false">
 								<i class="fa-solid fa-fw fa-share-alt"></i>
 							</a>
 							<!-- dropdown button -->
@@ -392,7 +444,7 @@ Image gallery START -->
 
 							<!-- Overlay text -->
 							<div class="card-img-overlay d-flex h-100 w-100">
-								<h6 class="card-title m-auto fw-light text-decoration-underline"><a href="#" class="text-white">View all</a></h6>
+								<h6 class="card-title m-auto fw-light text-decoration-underline"><a class="text-white">View all</a></h6>
 							</div>
 						</div>
 					</div>
@@ -489,7 +541,7 @@ About hotel START -->
 											<div class="card-body d-flex flex-column h-100 p-0">
 					
 												<!-- Title -->
-												<h5 class="card-title"><a href="#" th:text="${room.title}" data-bs-toggle="modal" th:data-bs-target="'#roomDetail' + ${room.roomId}"></a></h5>
+												<h5 class="card-title"><a href="" th:text="${room.title}" data-bs-toggle="modal" th:data-bs-target="'#roomDetail' + ${room.roomId}"></a></h5>
 
 												<ul class="list-group list-group-borderless mb-2 room-description" th:utext="${room.description}"></ul>
 
@@ -532,7 +584,7 @@ About hotel START -->
 
 						<!-- Card body START -->
 						<div class="card-body pt-4 p-0">
-							<form class="mb-5">	
+							<form class="mb-5" id="review">	
 								<!-- Progress bar and rating START -->
 								<div class="card bg-light p-4 mb-4">
 									<div class="row g-4 align-items-center">
@@ -555,26 +607,31 @@ About hotel START -->
 										<!-- Progress-bar START -->
 										<div th:class="${hotel.rating == 0 ? 'col-md-12' : 'col-md-8'}">
 											<div class="card-body p-0">
-												<div class="row gx-3 g-2 align-items-center">
+												<div th:if="${session.user != null}" class="row gx-3 g-2 align-items-center">
 													<!-- Leave review START -->
+														<input type="hidden" name="hotelId" th:value="${hotel.hotelId}">
 														<!-- Rating -->
 														<div class="form-control-bg-light mb-3">
-															<select class="form-select js-choice">
-																<option selected="">★★★★★ (5/5)</option>
-																<option>★★★★☆ (4/5)</option>
-																<option>★★★☆☆ (3/5)</option>
-																<option>★★☆☆☆ (2/5)</option>
-																<option>★☆☆☆☆ (1/5)</option>
+															<select name="rating" class="form-select js-choice">
+																<option value="5" selected="">★★★★★ (5/5)</option>
+																<option value="4">★★★★☆ (4/5)</option>
+																<option value="3">★★★☆☆ (3/5)</option>
+																<option value="2">★★☆☆☆ (2/5)</option>
+																<option value="1">★☆☆☆☆ (1/5)</option>
 															</select>
 														</div>
 														<!-- Message -->
 														<div class="form-control-bg-light mb-3">
-															<textarea class="form-control" id="exampleFormControlTextarea1" placeholder="Đánh giá về khách sạn" rows="3"></textarea>
+															<textarea name="comment" class="form-control" id="exampleFormControlTextarea1" placeholder="Đánh giá về khách sạn" rows="3"></textarea>
 														</div> 
 														<!-- Button -->
-														<button type="submit" class="btn btn-lg btn-primary mb-0">Gửi<i class="bi fa-fw bi-arrow-right ms-2"></i></button>
+														<button onclick="review()" type="button" class="btn btn-lg btn-primary mb-0">Gửi<i class="bi fa-fw bi-arrow-right ms-2"></i></button>
 													<!-- Leave review END -->
-												</div> <!-- Row END -->
+												</div> 
+												<div th:unless="${session.user != null}">
+													<a href="/login" class="text-center">Đăng nhập hoặc đăng ký tài khoản để bình luận</a>
+												</div>
+												<!-- Row END -->
 											</div>
 										</div>
 										<!-- Progress-bar END -->
@@ -584,45 +641,40 @@ About hotel START -->
 							<!-- Progress bar and rating END -->
 
 							<!-- Review item START -->
-							<div class="d-md-flex my-4">
-								<!-- Avatar -->
-								<div class="avatar avatar-lg me-3 flex-shrink-0">
-									<img class="avatar-img rounded-circle" src="assets/images/avatar/09.jpg" alt="avatar">
-								</div>
-								<!-- Text -->
-								<div>
-									<div class="d-flex justify-content-between mt-1 mt-md-0">
-										<div>
-											<h6 class="me-3 mb-0">Jacqueline Miller</h6>
-											<!-- Info -->
-											<ul class="nav nav-divider small mb-2">
-												<li class="nav-item">Stayed 13 Nov 2022</li>
-												<li class="nav-item">4 Reviews written</li>
-											</ul>
+							<div id="comment">
+								<div th:each="comment : ${comments}">
+									<div class="d-md-flex my-4">
+										<!-- Avatar -->
+										<div class="avatar avatar-lg me-3 flex-shrink-0">
+											<img class="avatar-img rounded-circle" th:src="${comment.avatarUrl != null ? comment.avatarUrl : '/assets/images/avatar/avatar.jpg'}" th:alt="${comment.fullName}">
 										</div>
-										<!-- Review star -->
-										<div class="icon-md rounded text-bg-warning fs-6">4.5</div>
+										<!-- Text -->
+										<div class="w-100">
+											<div class="d-flex justify-content-between mt-1 mt-md-0">
+												<div>
+													<h6 class="me-3 mb-0" th:text="${comment.fullName}"></h6>
+													<!-- Info -->
+													<ul class="nav nav-divider small mb-2">
+														<li class="nav-item" th:text="${comment.createdAt}"></li>
+													</ul>
+												</div>
+												<!-- Review star -->
+												<div class="icon-md rounded text-bg-warning fs-6" th:text="${comment.rating}"></div>
+											</div>
+											
+											<p class="mb-0" th:text="${comment.comment}"></p>
+										</div>
+										
 									</div>
-									
-									<p class="mb-2">Handsome met debating sir dwelling age material. As style lived he worse dried. Offered related so visitors we private removed. Moderate do subjects to distance. </p>
-									
-									<!-- Images -->
-									<div class="row g-4">
-										<div class="col-4 col-sm-3 col-lg-2">
-											<img src="assets/images/category/hotel/4by3/07.jpg" class="rounded" alt="">
-										</div>
-										<div class="col-4 col-sm-3 col-lg-2">
-											<img src="assets/images/category/hotel/4by3/08.jpg" class="rounded" alt="">
-										</div>
-										<div class="col-4 col-sm-3 col-lg-2">
-											<img src="assets/images/category/hotel/4by3/05.jpg" class="rounded" alt="">
-										</div>
-									</div>
+
+									<!-- Divider -->
+									<hr>
 								</div>
 							</div>
+							<!-- Review item END -->
 
 							<!-- Child review START -->
-							<div class="my-4 ps-2 ps-md-3">
+							<!-- <div class="my-4 ps-2 ps-md-3">
 								<div class="d-md-flex p-3 bg-light rounded-3">
 									<img class="avatar avatar-sm rounded-circle me-3" src="assets/images/avatar/02.jpg" alt="avatar">
 									<div class="mt-2 mt-md-0">
@@ -630,46 +682,13 @@ About hotel START -->
 										<p class="mb-0">But discretion frequently sir she instruments unaffected admiration everything. </p>
 									</div>
 								</div>
-							</div>
+							</div> -->
 							<!-- Child review END -->
 
-							<!-- Divider -->
-							<hr>
-							<!-- Review item END -->
-
-							<!-- Review item START -->
-							<div class="d-md-flex my-4">
-								<!-- Avatar -->
-								<div class="avatar avatar-lg me-3 flex-shrink-0">
-									<img class="avatar-img rounded-circle" src="assets/images/avatar/08.jpg" alt="avatar">
-								</div>
-								<!-- Text -->
-								<div>
-									<div class="d-flex justify-content-between mt-1 mt-md-0">
-										<div>
-											<h6 class="me-3 mb-0">Dennis Barrett</h6>
-											<!-- Info -->
-											<ul class="nav nav-divider small mb-2">
-												<li class="nav-item">Stayed 02 Nov 2022</li>
-												<li class="nav-item">2 Reviews written</li>
-											</ul>
-										</div>
-										<!-- Review star -->
-										<div class="icon-md rounded text-bg-warning fs-6">4.0</div>
-									</div>
-									
-									<p class="mb-0">Delivered dejection necessary objection do Mr prevailed. Mr feeling does chiefly cordial in do. Water timed folly right aware if oh truth. Large above be to means. Dashwood does provide stronger is.</p>
-								</div>
-							</div>
-
-							<!-- Divider -->
-							<hr>
-							<!-- Review item END -->
-
 							<!-- Button -->
-							<div class="text-center">
-								<a href="#" class="btn btn-primary-soft mb-0">Xem Thêm</a>
-							</div>
+							<!-- <div class="text-center">
+								<a class="btn btn-primary-soft mb-0">Xem Thêm</a>
+							</div> -->
 						</div>
 						<!-- Card body END -->
 					</div>
@@ -683,7 +702,6 @@ About hotel START -->
 				<div data-sticky data-margin-top="100" data-sticky-for="1199">
 					<!-- Book now START -->
 					<div class="card card-body border">
-						
 						<!-- Title -->
 						<div class="d-sm-flex justify-content-sm-between align-items-center mb-3">
 							<div>
@@ -779,15 +797,17 @@ Footer END -->
 					<!-- Card header -->
 					<div class="card-header bg-transparent pb-0">
 						<h5 class="card-title mb-0" th:text="${room.title}"></h5>
+						<hr>
 					</div>
 
 					<!-- Card body START -->
-					<div class="card-body">
+					<div class="card-body pt-0">
 						<!-- Content -->
 						<ul class="list-group list-group-borderless mt-0 mb-2 room-description" th:utext="${room.description}"></ul>
 						
 						<div class="row">
 							<h5 class="mb-0">Cơ sở vật chất</h5>
+							<hr>
 
 							<!-- List -->
 							<div class="col-md-12" th:each="category: ${room.categories}">
@@ -802,6 +822,8 @@ Footer END -->
 										</li>
 									</ul>
 								</div>
+
+								<hr>
 							</div>
 
 							<div class="d-flex justify-content-end align-items-center">
@@ -817,7 +839,7 @@ Footer END -->
 								</div>
 								<!-- Price -->
 								<div class="mt-3 mt-sm-0">
-									<a href="#" th:class="'btn btn-sm btn-primary mb-0' + ${room.quantity == 0 ? ' disabled' : ''}">Chọn Phòng</a>    
+									<a href="" th:class="'btn btn-sm btn-primary mb-0' + ${room.quantity == 0 ? ' disabled' : ''}" data-bs-toggle="modal" th:data-bs-target="'#bookingModal' + ${room.roomId}">Chọn Phòng</a>    
 								</div>                  
 							</div>
 						</div> <!-- Row END -->
@@ -845,7 +867,7 @@ Footer END -->
 				<div class="modal-body p-0">                
 					<!-- Check in -->
 					<div class="col-lg-10 mx-auto my-2">
-						<div class="d-flex">
+						<div class="d-flex mb-2">
 							<!-- Icon -->
 							<i class="bi bi-calendar fs-3 me-2 mt-2"></i>
 							<!-- Date input -->
@@ -854,7 +876,7 @@ Footer END -->
 								<input type="text" th:value="${dateRange}" class="form-control flatpickr" data-mode="range" name="dateRange" placeholder="Chọn ngày" required="true">
 							</div>
 						</div>
-					</div>
+					</div>                                                          
 				</div>
 				<!-- Button -->
 				<div class="modal-footer">
@@ -877,8 +899,8 @@ Footer END -->
 				<!-- Date Range -->
 				<div class="modal-body p-0">                
 					<!-- Check in -->
-					<div class="col-lg-10 mx-auto my-2">
-						<div class="d-flex">
+					<div class="col-md-10 mx-auto my-2">
+						<div class="d-flex mb-2">
 							<!-- Icon -->
 							<i class="bi bi-calendar fs-3 me-2 mt-2"></i>
 							<!-- Date input -->
@@ -886,6 +908,17 @@ Footer END -->
 								<label class="form-label">Nhận phòng – Trả phòng</label>
 								<input type="hidden" name="roomId" th:value="${room.roomId}">
 								<input type="text" th:value="${dateRange}" class="form-control flatpickr" data-mode="range" name="dateRange" placeholder="Chọn ngày" required>
+							</div>
+						</div>
+
+						<div class="d-flex justify-content-between">
+							<div>
+								<span><b>Số phòng đặt: </b></span>
+								<input class="bookedQuantity" type="number" name="amount" min="1" th:max="${room.quantity}" value="1" required="">
+							</div>
+							<div>
+								<span>Còn: </span>
+								<b class="fw-bold mb-0 me-1" th:text="${room.quantity}"></b>
 							</div>
 						</div>
 					</div>

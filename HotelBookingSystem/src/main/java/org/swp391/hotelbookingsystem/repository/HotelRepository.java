@@ -122,7 +122,7 @@ public class HotelRepository {
         return jdbcTemplate.query(SELECT_TOP_8_HOTELS, HOTEL_MAPPER);
     }
 
-    public List<Hotel> getHotelsByLocation(int locationId, int maxGuests, int roomQuantity, String name, int min, int max) {
+    public List<Hotel> getHotelsByLocation(int locationId, int maxGuests, int roomQuantity, String name, int min, int max, boolean star) {
         String query = """
                     SELECT h.hotel_id AS hotelId,
                            h.host_id AS hostId,
@@ -147,9 +147,10 @@ public class HotelRepository {
                              h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude,
                              l.city_name
                     HAVING SUM(r.max_guests) >= ? AND SUM(r.quantity) >= ? AND MIN(r.price) >= ? AND MIN(r.price) <= ? 
-                    ORDER BY h.rating DESC
                 """;
-        return jdbcTemplate.query(query, ps -> {
+        String order = " ORDER BY h.rating " + (star ? "ASC" : "DESC");
+
+        return jdbcTemplate.query(query+order, ps -> {
             ps.setInt(1, locationId);
             ps.setInt(2, locationId);
             ps.setString(3, "%" + name + "%");

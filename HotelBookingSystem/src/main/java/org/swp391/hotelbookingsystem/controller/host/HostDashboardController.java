@@ -84,7 +84,7 @@ public class HostDashboardController {
         List<Hotel> hotels = hotelService.getHotelsByHostId(host.getId());
         model.addAttribute("hotels", hotels);
 
-        // Key Metrics
+
         model.addAttribute("totalHotels", hotelService.getHotelsByHostId(host.getId()).size());
         double totalRevenue = bookingService.getTotalRevenueByHostId(host.getId());
         model.addAttribute("totalRevenue", formatRevenue(totalRevenue));
