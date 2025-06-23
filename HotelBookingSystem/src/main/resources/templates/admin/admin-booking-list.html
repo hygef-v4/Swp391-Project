@@ -28,7 +28,7 @@
             visibility: hidden;
         }
         .hotel-image-wrapper {
-            height: 200px; /* hoặc 220px tùy bạn muốn ảnh cao bao nhiêu */
+            height: 200px;
             overflow: hidden;
         }
 
@@ -37,6 +37,29 @@
             height: 100%;
             object-fit: cover;
         }
+
+        .badge {
+            display: inline-block;
+            font-size: 0.875rem;
+            border-radius: 999px;
+        }
+
+        .bg-soft-primary {
+            background-color: rgba(0, 123, 255, 0.1);
+        }
+
+        .bg-soft-success {
+            background-color: rgba(40, 167, 69, 0.1);
+        }
+
+        .bg-soft-warning {
+            background-color: rgba(255, 193, 7, 0.1);
+        }
+
+        .bg-soft-danger {
+            background-color: rgba(220, 53, 69, 0.1);
+        }
+
     </style>
     <!-- Dark mode -->
     <script>
@@ -327,7 +350,13 @@
                                 <!-- 2. Thông tin khách sạn -->
                                 <div class="card-body px-3">
                                     <h5 class="card-title mb-1">
-                                        <a th:href="@{'/admin/bookings'(hotelId=${hotel.hotelId})}" th:text="${hotel.hotelName}">Tên khách sạn</a>
+                                        <a th:href="@{'/admin/bookings'(hotelId=${hotel.hotelId})}"
+                                           th:text="${hotel.hotelName}"
+                                           class="d-inline-block text-truncate"
+                                           style="max-width: 180px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;"
+                                           th:title="${hotel.hotelName}">
+                                            Tên khách sạn
+                                        </a>
                                     </h5>
                                     <ul class="list-group list-group-borderless small mt-2 mb-0">
                                         <li class="list-group-item pb-0">
@@ -440,13 +469,13 @@
                     <div class="card-body">
 
                         <div class="bg-light rounded p-3 d-xxl-block">
-                            <div class="row row-cols-6 g-4">
+                            <div class="row row-cols-7 g-4">
                                 <div class="col"><h6 class="mb-0">Ảnh</h6></div>
                                 <div class="col"><h6 class="mb-0">Khách hàng</h6></div>
                                 <div class="col"><h6 class="mb-0">Tên khách sạn</h6></div>
                                 <div class="col"><h6 class="mb-0">Nhận/trả phòng</h6></div>
                                 <div class="col"><h6 class="mb-0">Giá</h6></div>
-<!--                                <div class="col"><h6 class="mb-0">Trạng thái</h6></div>-->
+                                <div class="col"><h6 class="mb-0">Trạng thái</h6></div>
                                 <div class="col"><h6 class="mb-0">Hành động</h6></div>
                             </div>
                         </div>
@@ -470,9 +499,14 @@
                                      class="rounded-circle"
                                      style="width: 40px; height: 40px; object-fit: cover;">
                                 <div>
-                                    <h6 class="mb-0" th:text="${booking.customerName}"
-                                        style="white-space: normal; word-break: break-word;"></h6>
-                                    <small th:text="${booking.customerEmail}" class="text-muted" style="font-size: 0.85rem;"></small>
+                                    <h6 class="mb-0 text-truncate"
+                                        th:text="${booking.customerName}"
+                                        style="max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                    </h6>
+                                    <small th:text="${booking.customerEmail}"
+                                           class="text-muted d-block text-truncate"
+                                           style="font-size: 0.85rem; max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                    </small>
                                 </div>
                             </div>
 
@@ -495,6 +529,18 @@
                                 <span class="text-success fw-bold" th:text="${#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 3, 'POINT')} + '₫'">Giá</span>
                             </div>
 
+                            <!-- Booking status -->
+                            <div class="col">
+                                <div th:switch="${booking.determineStatus()}">
+                                    <span th:case="'approved'" class="badge rounded-pill bg-soft-primary text-primary fw-semibold px-3 py-1">Đã xác nhận</span>
+                                    <span th:case="'cancelled'" class="badge rounded-pill bg-soft-warning text-warning fw-semibold px-3 py-1">Đã hủy</span>
+                                    <span th:case="'completed'" class="badge rounded-pill bg-soft-success text-success fw-semibold px-3 py-1">Đã hoàn thành</span>
+                                    <span th:case="'rejected'" class="badge rounded-pill bg-soft-danger text-danger fw-semibold px-3 py-1">Đã bị từ chối</span>
+                                    <span th:case="*"
+                                          class="badge rounded-pill bg-secondary text-light fw-semibold px-3 py-1">Không xác định</span>
+                                </div>
+                            </div>
+
                             <!-- Toggle detail -->
                             <div class="col">
                                 <button class="btn btn-sm btn-light"
@@ -515,8 +561,19 @@
                                                 <div class="d-flex mb-2">
                                                     <img th:src="@{${unit.imageUrl}}" class="rounded me-3" style="width: 60px; height: 60px; object-fit: cover;" alt="room">
                                                     <div>
-                                                        <h6 class="mb-0 text-truncate" th:text="${unit.roomName}">Tên phòng</h6>
+                                                        <h6 class="mb-0 text-truncate"
+                                                            th:text="${unit.roomName}"
+                                                            style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                                            Tên phòng
+                                                        </h6>
                                                         <small th:text="'Số lượng: ' + ${unit.quantity}"></small>
+                                                        <!-- Trạng thái styled badge -->
+                                                        <div th:switch="${unit.status}">
+                                                            <span th:case="'approved'" class="badge rounded-pill bg-soft-primary text-primary fw-semibold px-3 py-1">Đã xác nhận</span>
+                                                            <span th:case="'cancelled'" class="badge rounded-pill bg-soft-warning text-warning fw-semibold px-3 py-1">Đã hủy</span>
+                                                            <span th:case="'completed'" class="badge rounded-pill bg-soft-success text-success fw-semibold px-3 py-1">Đã hoàn thành</span>
+                                                            <span th:case="'rejected'" class="badge rounded-pill bg-soft-danger text-danger fw-semibold px-3 py-1">Đã bị từ chối</span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <p class="mb-1" th:text="'Giá 1 phòng: ' + ${#numbers.formatDecimal(unit.price, 0, 'COMMA', 3, 'POINT')} + ' ₫'"></p>

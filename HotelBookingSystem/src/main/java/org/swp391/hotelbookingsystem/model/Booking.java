@@ -36,4 +36,29 @@ public class Booking {
             size += bookingUnit.getQuantity();
         }return size;
     }
+
+    public String determineStatus() {
+        boolean hasCompleted = false;
+        boolean hasApproved = false;
+        boolean allCancelledOrRejected = true;
+
+        for (BookingUnit unit : bookingUnits) {
+            String status = unit.getStatus();
+            if ("completed".equals(status)) {
+                hasCompleted = true;
+            } else if ("approved".equals(status)) {
+                hasApproved = true;
+            }
+            if (!"cancelled".equals(status) && !"rejected".equals(status)) {
+                allCancelledOrRejected = false;
+            }
+        }
+
+        if (hasCompleted) return "completed";
+        if (hasApproved) return "approved";
+        if (allCancelledOrRejected) return "cancelled";
+        return null;
+    }
+
+
 }
