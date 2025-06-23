@@ -231,7 +231,11 @@ public class UserService {
     }
 
     public void flagUser(int userId, String reason) {
-        userRepo.flagUserById(userId, reason);
+        if (reason == null) {
+            userRepo.flagUserById(userId, null); // truyền null để huỷ flag
+        } else {
+            userRepo.flagUserById(userId, reason);
+        }
     }
 
 }

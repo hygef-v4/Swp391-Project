@@ -53,6 +53,16 @@ public class ModeratorUserListController {
             return ResponseEntity.badRequest().body("Error flagging user");
         }
     }
+
+    @PostMapping("/moderator-user-list/unflag/{userId}")
+    public ResponseEntity<?> unflagUser(@PathVariable int userId) {
+        try {
+            userService.flagUser(userId, null);
+            return ResponseEntity.ok().body("User unflagged successfully.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error unflagging user");
+        }
+    }
 }
 
 

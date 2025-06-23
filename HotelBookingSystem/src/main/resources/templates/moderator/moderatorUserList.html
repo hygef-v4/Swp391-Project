@@ -403,7 +403,11 @@
                                     <button class="btn btn-outline-danger btn-sm"
                                             onclick="showFlagModal(${user.id}, '${user.fullName}')">
                                         <i class="bi bi-flag"></i>
-                                    </button>` : ''}
+                                    </button>` : `
+                                    <button class="btn btn-outline-danger btn-sm"
+                                            onclick="unflagUser(${user.id})" title="Huỷ flagged">
+                                        <i class="bi bi-flag-fill"></i>
+                                    </button>`}
                                 </div>
                             </div>
                         </div>
@@ -598,10 +602,46 @@
                 });
         });
 
+        function unflagUser(userId) {
+            // Get CSRF token
+            const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+            fetch(`/moderator-user-list/unflag/${userId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
+                }
+            })
+            .then(response => response.text())
+            .then(data => {
+                if (data === 'User unflagged successfully.') {
+                    showToast('Thành công', 'Đã huỷ flagged người dùng!');
+                    // Update user in local array
+                    const userIndex = users.findIndex(u => u.id === userId);
+                    if (userIndex !== -1) {
+                        users[userIndex].flagged = false;
+                        users[userIndex].flagReason = null;
+                    }
+                    filterUsers();
+                    // Update flagged count in header
+                    const flaggedCount = users.filter(u => u.flagged).length;
+                    document.querySelector('.badge.bg-danger').textContent = flaggedCount + ' Bị flagged';
+                } else {
+                    showToast('Lỗi', 'Có lỗi xảy ra khi huỷ flagged', true);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Lỗi', 'Có lỗi xảy ra khi huỷ flagged', true);
+            });
+        }
+
         // Make functions global for onclick handlers
         window.showUserDetail = showUserDetail;
         window.showFlagModal = showFlagModal;
         window.changePage = changePage;
+        window.unflagUser = unflagUser;
 
         // Initial display
         displayUsers(currentPage);
