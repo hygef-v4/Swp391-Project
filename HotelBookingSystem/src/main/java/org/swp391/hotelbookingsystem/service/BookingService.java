@@ -190,8 +190,16 @@ public class BookingService {
             return statuses.get(0);
         }
 
-        // If mixed statuses
-        return "mixed";
+        // If multiple statuses, prioritize in order: completed > approved > pending > cancelled
+        if (statuses.contains("completed")) {
+            return "completed";
+        } else if (statuses.contains("approved")) {
+            return "approved";
+        } else if (statuses.contains("pending")) {
+            return "pending";
+        } else {
+            return "cancelled";
+        }
     }
 
     // Update booking unit status

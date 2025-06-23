@@ -110,11 +110,76 @@
             <div class="row">
                 <div class="col-12 mb-4 mb-sm-5">
                     <div class="d-sm-flex justify-content-between align-items-center">
-                        <h1 class="h3 mb-2 mb-sm-0">Premium Room With Balcony</h1>
+                        <h1 class="h3 mb-2 mb-sm-0" th:text="${booking.hotelName}">Tên khách sạn</h1>
+                        <span class="badge bg-primary" th:text="${booking.status}">Trạng thái</span>
                         <a href="#" class="btn btn-primary-soft text-nowrap mb-0"><i class="bi bi-pencil-square fa-fw"></i> Edit Room</a>
                     </div>
                 </div>
             </div>
+
+
+            <!-- Thông tin đặt phòng -->
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <img class="img-fluid rounded" th:src="@{${booking.imageUrl}}" alt="Hình ảnh khách sạn">
+                </div>
+                <div class="col-md-6">
+                    <h5>Khách hàng</h5>
+                    <div class="d-flex align-items-center mb-3">
+                        <img class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover" th:src="@{${booking.customerAvatar}}" alt="Avatar">
+                        <div>
+                            <strong th:text="${booking.customerName}">Tên khách</strong><br/>
+                            <small th:text="${booking.customerEmail}">Email</small>
+                        </div>
+                    </div>
+
+                    <p><strong>Check-in:</strong> <span th:text="${#temporals.format(booking.checkIn, 'dd/MM/yyyy HH:mm')}"></span></p>
+                    <p><strong>Check-out:</strong> <span th:text="${#temporals.format(booking.checkOut, 'dd/MM/yyyy HH:mm')}"></span></p>
+                    <p><strong>Ngày đặt:</strong> <span th:text="${#temporals.format(booking.createdAt, 'dd/MM/yyyy HH:mm')}"></span></p>
+                    <p><strong>Tổng tiền:</strong> <span class="text-success fw-bold" th:text="${#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 2, 'POINT')} + '₫'"></span></p>
+                    <p th:if="${booking.couponId != null}"><strong>Mã giảm giá:</strong> <span th:text="'Coupon #' + ${booking.couponId}"></span></p>
+                </div>
+            </div>
+
+            <!-- Chi tiết các phòng đã đặt -->
+            <h4 class="mt-5">Chi tiết các phòng</h4>
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead class="table-light">
+                    <tr>
+                        <th>Phòng</th>
+                        <th>Ảnh</th>
+                        <th>Giá</th>
+                        <th>Số lượng</th>
+                        <th>Trạng thái</th>
+                        <th>Hoàn tiền</th>
+                        <th>Hành động</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="unit : ${booking.bookingUnits}">
+                        <td th:text="${unit.roomName}">Phòng ABC</td>
+                        <td><img th:src="@{${unit.imageUrl}}" alt="Ảnh phòng" style="width: 80px; height: 60px; object-fit: cover;"></td>
+                        <td th:text="${#numbers.formatDecimal(unit.price, 0, 'COMMA', 2, 'POINT')} + '₫'"></td>
+                        <td th:text="${unit.quantity}">1</td>
+                        <td>
+                <span class="badge"
+                      th:classappend="
+                        ${unit.status} == 'cancelled' ? ' bg-danger' :
+                        (${unit.status} == 'completed' ? ' bg-success' :
+                        (${unit.status} == 'pending' ? ' bg-warning text-dark' : ' bg-secondary'))"
+                      th:text="${unit.status}">Status</span>
+                        </td>
+                        <td th:text="${unit.refundAmount != null ? (#numbers.formatDecimal(unit.refundAmount, 0, 'COMMA', 2, 'POINT') + '₫') : 'Không'}"></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-danger" th:if="${unit.cancelable}">Huỷ phòng</button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <br>
 
             <!-- Booking detail START -->
             <div class="row g-4 g-xl-5">
@@ -123,6 +188,7 @@
                     <div class="row g-2 g-sm-4">
                         <div class="col-6">
                             <a data-glightbox data-gallery="gallery" href="assets/images/category/hotel/4by3/02.jpg">
+                                <img class="img-fluid rounded" th:src="@{${booking.imageUrl}}" alt="Hình ảnh khách sạn">
                                 <div class="card card-element-hover card-overlay-hover overflow-hidden">
                                     <!-- Image -->
                                     <img src="assets/images/category/hotel/4by3/02.jpg" class="rounded-3" alt="">

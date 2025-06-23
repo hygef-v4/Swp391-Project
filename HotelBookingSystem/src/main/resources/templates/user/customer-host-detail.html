@@ -2,16 +2,16 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org" data-bs-theme="light">
 
 <head>
-    <title th:text="'Chi Tiết Khách Hàng - ' + ${customer.fullName} + ' - Hamora'">Chi Tiết Khách Hàng - Hamora</title>
+    <title th:text="'Liên Hệ - ' + ${host.fullName} + ' - Hamora'">Liên Hệ Chủ Khách Sạn - Hamora</title>
 
     <!-- Meta Tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="Chi tiết khách hàng và lịch sử đặt phòng">
+    <meta name="description" content="Liên hệ với chủ khách sạn">
     <meta name="_csrf" th:content="${_csrf?.token}" />
     <meta name="_csrf_header" th:content="${_csrf?.headerName}" />
 
-    <!-- Dark mode script (for theme toggling) -->
+    <!-- Dark mode script -->
     <script>
         const storedTheme = localStorage.getItem('theme')
         const getPreferredTheme = () => {
@@ -54,7 +54,7 @@
     </script>
 
     <!-- Favicon -->
-    <link rel="shortcut icon" href="assets/images/favicon.ico">
+    <link rel="shortcut icon" href="/assets/images/favicon.ico">
 
     <!-- Google Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com/">
@@ -62,62 +62,12 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
 
     <!-- Plugins CSS -->
-    <link rel="stylesheet" type="text/css" href="assets/vendor/bootstrap-icons/bootstrap-icons.css">
-
-    <!-- Theme CSS -->
-    <link rel="stylesheet" type="text/css" href="assets/css/style.css">
-    <!-- Favicon -->
-    <link rel="shortcut icon" href="/assets/images/favicon.ico">
-
-    <!-- Google Font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com/">
-    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
-    <link rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Poppins:wght@400;500;700&amp;display=swap">
-
-    <!-- Flatpickr CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-
-    <!-- Flatpickr JS -->
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-
-    <!-- Vietnamese Locale -->
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
-
-
-    <!-- Plugins CSS -->
-
-
-    <link rel="stylesheet" type="text/css" href="/assets/vendor/font-awesome/css/all.min.css">
     <link rel="stylesheet" type="text/css" href="/assets/vendor/bootstrap-icons/bootstrap-icons.css">
-    <link rel="stylesheet" type="text/css" href="/assets/vendor/tiny-slider/tiny-slider.css">
-    <link rel="stylesheet" type="text/css" href="/assets/vendor/glightbox/css/glightbox.css">
-    <link rel="stylesheet" type="text/css" href="/assets/vendor/flatpickr/css/flatpickr.min.css">
-    <link rel="stylesheet" type="text/css" href="/assets/vendor/choices/css/choices.min.css">
-
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-          integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer"/>
-
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"/>
-
-    <!-- Tiny Slider -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.9.4/tiny-slider.css"
-          integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer"/>
-
-    <!-- Glightbox -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css"/>
-
-    <!-- Flatpickr -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"/>
-
-    <!-- Choices.js -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css"/>
-
+    <link rel="stylesheet" type="text/css" href="/assets/vendor/font-awesome/css/all.min.css">
 
     <!-- Theme CSS -->
     <link rel="stylesheet" type="text/css" href="/assets/css/style.css">
+    
     <style>
         /* --- Base Variables --- */
         :root {
@@ -156,21 +106,37 @@
         main .container {
             display: flex;
             flex-direction: column;
-            gap: 2.5rem; /* Consistent vertical spacing between main sections */
+            gap: 2.5rem;
         }
 
-        /* Customer Profile Header */
-        .customer-profile-header {
+        /* Host Profile Header */
+        .host-profile-header {
             background: var(--primary-gradient);
             color: #ffffff;
             border-radius: var(--border-radius-xl);
             padding: 2rem;
         }
-        .customer-avatar-lg { width: 100px; height: 100px; object-fit: cover; border-radius: 50%; border: 4px solid rgba(255, 255, 255, 0.4); }
-        .customer-profile-header h2 { font-size: 2.5rem; font-weight: 700; color: #ffffff; }
-        .customer-profile-header .contact-info { color: rgba(255, 255, 255, 0.9); display: flex; align-items: center; gap: 1rem; }
+        .host-avatar-lg { width: 100px; height: 100px; object-fit: cover; border-radius: 50%; border: 4px solid rgba(255, 255, 255, 0.4); }
+        .host-profile-header h2 { font-size: 2.5rem; font-weight: 700; color: #ffffff; }
+        .host-profile-header .contact-info { color: rgba(255, 255, 255, 0.9); display: flex; align-items: center; gap: 1rem; }
         .btn-back { background-color: rgba(255, 255, 255, 0.2); color: #ffffff; border: none; padding: 10px 20px; border-radius: 50px; text-decoration: none; transition: background-color 0.2s ease; }
         .btn-back:hover { background-color: rgba(255, 255, 255, 0.3); color: #ffffff; }
+
+        /* Hotels Section */
+        .hotels-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-xl);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .hotel-item {
+            background-color: var(--card-secondary-bg);
+            border-radius: var(--border-radius-lg);
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .hotel-item:last-child { margin-bottom: 0; }
 
         /* Chat Widget */
         .chat-widget {
@@ -312,44 +278,60 @@
     <section class="pt-4 pb-5">
         <div class="container vstack gap-5">
 
-            <!-- Host Menu Fragment -->
-
-
             <!-- Main Content: Profile Header + Details -->
             <div>
-                <!-- Customer Profile Header -->
-                <div class="customer-profile-header">
+                <!-- Host Profile Header -->
+                <div class="host-profile-header">
                     <div class="d-flex justify-content-between align-items-start">
                         <div class="d-flex align-items-center gap-4">
-                            <img th:src="${customer.avatarUrl ?: 'https://ui-avatars.com/api/?name=' + customer.fullName + '&background=fff&color=8b5cf6&size=128&bold=true'}"
-                                 alt="Customer Avatar"
-                                 class="customer-avatar-lg">
+                            <img th:src="${host.avatarUrl ?: 'https://ui-avatars.com/api/?name=' + host.fullName + '&background=fff&color=8b5cf6&size=128&bold=true'}"
+                                 alt="Host Avatar"
+                                 class="host-avatar-lg">
                             <div>
-                                <h2 class="mb-2" th:text="${customer.fullName}">Alice Nguyen</h2>
+                                <h2 class="mb-2" th:text="${host.fullName}">John Doe</h2>
                                 <div class="contact-info">
-                                    <span th:text="${customer.email}">alice.nguyen@example.com</span>
-                                    <span th:if="${customer.phone}"><i class="bi bi-telephone-fill me-1"></i> <span th:text="${customer.phone}">0901234567</span></span>
+                                    <span th:text="${host.email}">john.doe@example.com</span>
+                                    <span th:if="${host.phone}"><i class="bi bi-telephone-fill me-1"></i> <span th:text="${host.phone}">0901234567</span></span>
                                 </div>
                             </div>
                         </div>
-                        <a href="/host-customers" class="btn btn-back">
+                        <a href="/customer-hosts" class="btn btn-back">
                             <i class="bi bi-arrow-left me-2"></i> Quay Lại
                         </a>
                     </div>
                 </div>
 
+                <!-- Host Hotels Section (Optional) -->
+                <div class="hotels-section" th:if="${hostHotels != null and !hostHotels.isEmpty()}">
+                    <h5 class="mb-3"><i class="bi bi-building me-2"></i>Khách sạn của chủ sở hữu</h5>
+                    <div th:each="hotel : ${hostHotels}" class="hotel-item">
+                        <div class="d-flex align-items-center">
+                            <a th:href="@{/hotel-detail(hotelId=${hotel.hotelId})}" class="text-decoration-none">
+                                <img th:src="${hotel.hotelImageUrl ?: '/assets/images/category/hotel/01.jpg'}" alt="Hotel" class="booking-hotel-img me-3" style="cursor: pointer;">
+                            </a>
+                            <div>
+                                <h6 class="mb-0" th:text="${hotel.hotelName}">Hotel Name</h6>
+                                <small class="text-muted" th:text="${hotel.address}">Hotel Address</small>
+                                <div class="text-warning">
+                                    <small th:text="'⭐ ' + ${hotel.rating} + '/5'">⭐ 4.5/5</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Chat and Booking History Section -->
-                <div class="row g-4 g-lg-5 mt-4">
+                <div class="row g-4 g-lg-5 mt-2">
                     <!-- Chat Column -->
                     <div class="col-lg-5">
                         <div class="chat-widget">
                             <div class="chat-widget-header">
                                 <div class="d-flex align-items-center">
-                                    <img th:src="${customer.avatarUrl ?: 'https://ui-avatars.com/api/?name=' + customer.fullName + '&background=fff&color=8b5cf6&size=128&bold=true'}"
-                                         alt="Customer Avatar"
+                                    <img th:src="${host.avatarUrl ?: 'https://ui-avatars.com/api/?name=' + host.fullName + '&background=fff&color=8b5cf6&size=128&bold=true'}"
+                                         alt="Host Avatar"
                                          class="chat-header-avatar me-3">
                                     <div>
-                                        <h6 class="mb-0 fw-bold text-white" th:text="${customer.fullName}">Alice Nguyen</h6>
+                                        <h6 class="mb-0 fw-bold text-white" th:text="${host.fullName}">John Doe</h6>
                                         <small class="text-white-50" id="chat-date"></small>
                                     </div>
                                 </div>
@@ -388,7 +370,7 @@
                                         </a>
                                         <div>
                                             <h6 class="mb-0" th:text="'#BK' + ${booking.bookingId}">#BK11</h6>
-                                            <small th:text="${booking.hotelName}">hungheh13</small>
+                                            <small th:text="${booking.hotelName}">Hotel Name</small>
                                         </div>
                                     </div>
                                     <div class="text-end">
@@ -419,7 +401,7 @@
                                                         <span th:text="${unit.roomName}" 
                                                               th:title="${unit.roomName}"
                                                               class="room-name-tooltip"
-                                                              style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; max-width: 240px; cursor: help;">12312</span>
+                                                              style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; max-width: 240px; cursor: help;">Room Name</span>
                                                     </h6>
                                                     <small class="text-muted" th:if="${unit.quantity > 1}" th:text="'Số lượng: ' + ${unit.quantity}">Số lượng: 2</small>
                                                 </div>
@@ -449,6 +431,13 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Empty State for Bookings -->
+                        <div th:if="${bookings.isEmpty()}" class="text-center py-5">
+                            <i class="bi bi-journal-x" style="font-size: 3rem; opacity: 0.5; margin-bottom: 1rem;"></i>
+                            <h5>Chưa có đơn đặt phòng nào</h5>
+                            <p class="text-muted">Bạn chưa có lịch sử đặt phòng với chủ khách sạn này.</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -471,22 +460,21 @@
 </div>
 
 <!-- Core Bootstrap JS -->
-<script src="assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <!-- SockJS & STOMP -->
 <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
-<!-- Use stomp.js 2.3.3 from cdnjs which exposes global Stomp object -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js" crossorigin="anonymous"></script>
-
 <!-- Theme Functions -->
-<script src="assets/js/functions.js"></script>
-<!-- Page-specific script -->
+<script src="/assets/js/functions.js"></script>
+
+<!-- Page-specific script (Same as host-customer-detail) -->
 <script>
     // Safely extract user IDs from Thymeleaf
     let currentUserId, otherUserId, roomId;
     
     try {
         currentUserId = parseInt('[[${currentUserId}]]') || 0;
-        otherUserId = parseInt('[[${customer.id}]]') || 0;
+        otherUserId = parseInt('[[${host.id}]]') || 0;
         roomId = [currentUserId, otherUserId].sort().join('-');
         
         console.log('User IDs - currentUserId:', currentUserId, 'otherUserId:', otherUserId, 'roomId:', roomId);
@@ -608,13 +596,11 @@
     }
 
     function connectChat() {
-        // Show loading state
         const chatMessages = document.getElementById('chatMessages');
         chatMessages.innerHTML = '<div class="chat-loading"><i class="bi bi-arrow-repeat"></i></div>';
         
         console.log('Attempting to connect with currentUserId:', currentUserId, 'otherUserId:', otherUserId);
         
-        // Validate user IDs
         if (!currentUserId || !otherUserId || currentUserId === 0 || otherUserId === 0) {
             console.error('Invalid user IDs:', { currentUserId, otherUserId });
             chatMessages.innerHTML = '<div class="text-center text-danger py-5">Lỗi: Không thể xác định người dùng. Vui lòng tải lại trang.</div>';
@@ -622,7 +608,6 @@
         }
         
         const socket = new SockJS('/ws');
-        // Fallback if global Stomp variable is not present
         const StompImpl = window.Stomp || window.StompJs || undefined;
         if (!StompImpl) {
             console.error('STOMP library not loaded');
@@ -630,19 +615,17 @@
             return;
         }
         stompClient = StompImpl.over(socket);
-        stompClient.debug = function(str) { console.log('STOMP: ' + str); }; // Enable debug for troubleshooting
+        stompClient.debug = function(str) { console.log('STOMP: ' + str); };
         
-        // Handle disconnection
         socket.onclose = function() {
             console.log('WebSocket disconnected');
             updateConnectionStatus(false);
             stopHeartbeat();
-            if (!document.hidden) { // Only reconnect if page is visible
+            if (!document.hidden) {
                 setTimeout(connectChat, 3000);
             }
         };
         
-        // Get CSRF token if it exists
         const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
         const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
         
@@ -707,7 +690,6 @@
             // Start heartbeat to maintain presence
             startHeartbeat();
             
-            // load history via REST
             console.log('Loading chat history...');
             const fetchHeaders = {
                 'Content-Type': 'application/json'
@@ -729,7 +711,7 @@
                 })
                 .then(list => {
                     console.log('Chat history loaded:', list);
-                    chatMessages.innerHTML = ''; // Clear loading state
+                    chatMessages.innerHTML = '';
                     if (list.length === 0) {
                         chatMessages.innerHTML = '<div class="text-center text-muted py-5">Chưa có tin nhắn nào. Hãy bắt đầu cuộc trò chuyện!</div>';
                     } else {
@@ -747,7 +729,7 @@
             
             if (retryCount < MAX_RETRY_COUNT) {
                 chatMessages.innerHTML = `<div class="text-center text-danger py-5">Không thể kết nối. Đang thử lại... (${retryCount}/${MAX_RETRY_COUNT})</div>`;
-                setTimeout(connectChat, 5000); // Retry connection after 5 seconds
+                setTimeout(connectChat, 5000);
             } else {
                 chatMessages.innerHTML = '<div class="text-center text-danger py-5">Không thể kết nối. Vui lòng tải lại trang.</div>';
             }
@@ -758,7 +740,6 @@
 
     function appendMessage(msg) {
         const container = document.getElementById('chatMessages');
-        // Clear empty state if present
         if (container.querySelector('.text-center')) {
             container.innerHTML = '';
         }
@@ -786,8 +767,8 @@
             content = escapeHtml(msg.content);
         }
         
-        // Only show avatar for received messages (from the customer)
-        const customerAvatar = '[[${customer.avatarUrl}]]' || 'https://ui-avatars.com/api/?name=[[${customer.fullName}]]&background=fff&color=8b5cf6&size=128&bold=true';
+        // Only show avatar for received messages (from the host)
+        const hostAvatar = '[[${host.avatarUrl}]]' || 'https://ui-avatars.com/api/?name=[[${host.fullName}]]&background=fff&color=8b5cf6&size=128&bold=true';
         
         if (isSent) {
             // Sent messages - no avatar
@@ -798,9 +779,9 @@
                 </div>
             `;
         } else {
-            // Received messages - show customer avatar
+            // Received messages - show host avatar
             wrapper.innerHTML = `
-                <img src="${customerAvatar}" alt="Customer Avatar" class="message-avatar">
+                <img src="${hostAvatar}" alt="Host Avatar" class="message-avatar">
                 <div class="message-content-wrapper">
                     <div class="message-bubble">${content}</div>
                     <div class="message-time">${formatTime(msg.sentAt)}</div>
@@ -864,7 +845,6 @@
         wrapper.appendChild(img);
         wrapper.appendChild(btn);
         previewContainer.appendChild(wrapper);
-        // Reset input to allow re-select same file later
         e.target.value = '';
     });
 
@@ -877,7 +857,7 @@
         // Allow sending if there's either a message or an image
         if (!message && !pendingImageFile) {
             console.log('No message or image to send');
-            return; // Don't send if there's nothing to send
+            return;
         }
         
         console.log('Attempting to send message:', message);
@@ -895,7 +875,6 @@
         }
         
         async function uploadImageAndSend() {
-            // Upload image
             const formData = new FormData();
             formData.append('file', pendingImageFile);
             const uploadHeaders = {};
@@ -913,10 +892,8 @@
             clearPreview();
         }
 
-        // If there's an image pending, upload first
         if (pendingImageFile) await uploadImageAndSend();
 
-        // Send text message if exists
         if (message) {
             const msg = { senderId: currentUserId, receiverId: otherUserId, content: message, messageType:'TEXT', sentAt:new Date().toISOString() };
             console.log('Sending message:', msg);
@@ -937,11 +914,6 @@
     // Connect when page loads
     document.addEventListener('DOMContentLoaded', () => {
         console.log('DOM Content Loaded');
-        console.log('Functions available:', {
-            sendMessage: typeof window.sendMessage,
-            connectChat: typeof connectChat,
-            appendMessage: typeof appendMessage
-        });
         
         // Set current date in chat header
         updateChatDate();
@@ -1142,4 +1114,4 @@
 </script>
 
 </body>
-</html>
+</html> 

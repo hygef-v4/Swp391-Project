@@ -1,6 +1,9 @@
 package org.swp391.hotelbookingsystem.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Builder
 @Data
@@ -14,7 +17,8 @@ public class BookingUnit {
     private String status;
     private Double refundAmount;
     private String refundStatus;
-    
+
+    private int roomCapacity;
     private String imageUrl;
     private String roomName;
     private boolean cancelable;

@@ -33,8 +33,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/api/files/**", "/webhook", "/booking", 
-                                "/update-hotel", "/update-room", "/delete-room")
+                        .ignoringRequestMatchers("/api/files/**", "/webhook", "/booking",
+                                "/update-hotel", "/update-room", "/delete-room", "/ws/**", "/api/chat/**")
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
@@ -42,7 +42,7 @@ public class SecurityConfig {
                                 "/login", "/register", "/verify-email-otp", "/resend-otp", "/forgotPassword", "/resetPassword",
                                 "/hotel-list", "/filter-hotels", "/hotel-detail",
                                 "/css/**", "/js/**", "/images/**", "/assets/**",
-                                "/api/files/**", "user-profile", "user-wishlist"
+                                "/api/files/**", "user-profile", "user-wishlist", "/ws/**", "/api/chat/**"
                         ).permitAll()
                         .requestMatchers("/admin-dashboard", "/admin-user-list", "/admin-hotel-list").access(AuthorizationManagers.allOf(
                                 new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
@@ -53,7 +53,8 @@ public class SecurityConfig {
                                 new WebExpressionAuthorizationManager("hasAnyRole('ADMIN')")
                         ))
                         .requestMatchers("/host-dashboard","/add-hotel","/add-room","/request-delete-hotel",
-                                "/manage-hotel","/update-hotel","/update-room","/delete-room").access(AuthorizationManagers.allOf(
+                                "/manage-hotel","/update-hotel","/update-room","/delete-room",
+                                "/host-customers","/host-customer-detail").access(AuthorizationManagers.allOf(
                                 new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
                                 new WebExpressionAuthorizationManager("hasAnyRole('HOTEL_OWNER', 'ADMIN')")
                         ))

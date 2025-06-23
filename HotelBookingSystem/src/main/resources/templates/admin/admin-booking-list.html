@@ -317,26 +317,21 @@
                                 <!-- 2. Thông tin phòng -->
                                 <div class="card-body px-3">
                                     <h5 class="card-title mb-1">
-                                        <a th:href="@{'/admin/bookings/detail/' + ${booking.bookingId}}" th:text="${booking.hotelName}">Loại phòng</a>
+                                        <a th:href="@{'/admin/bookings/detail/' + ${booking.bookingId}}" th:text="${booking.hotelName}">Tên khách sạn</a>
                                     </h5>
                                     <ul class="list-group list-group-borderless small mt-2 mb-0">
-                                        <!-- <li class="list-group-item pb-0">
-                                            <i class="fa-solid fa-building fa-fw me-2"></i>
-                                            <span th:text="${booking.hotelName}">Tên khách sạn</span>
-                                        </li> -->
                                         <li class="list-group-item pb-0">
                                             <i class="bi bi-calendar-check me-2"></i>
-                                            <span th:text="${#temporals.format(booking.checkIn, 'yyyy-MM-dd')}">Ngày nhận</span> →
+                                            <span th:text="${#temporals.format(booking.checkIn, 'yyyy-MM-dd')}">Ngày nhận</span>
+                                        </li>
+                                        <li class="list-group-item pb-0">
+                                            <i class="bi bi-calendar-check-fill me-2"></i>
                                             <span th:text="${#temporals.format(booking.checkOut, 'yyyy-MM-dd')}">Ngày trả</span>
                                         </li>
                                         <li class="list-group-item pb-0">
-                                            <i class="bi bi-currency-dollar me-2"></i>
-                                            <span th:text="${booking.totalPrice}">Giá</span>
+                                            <i class="bi bi-cash-coin me-2"></i>
+                                            <span th:text="${#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 3, 'POINT')} + '₫'">Giá</span>
                                         </li>
-                                        <!-- <li class="list-group-item pb-0">
-                                            <i class="bi bi-check-circle me-2"></i>
-                                            <span th:text="${booking.status}">Trạng thái</span>
-                                        </li> -->
                                     </ul>
                                 </div>
 
@@ -471,13 +466,6 @@
                                 </h6>
                             </div>
 
-                            <!-- Hotel name -->
-                            <!-- <div class="col two-line-ellipsis" th:title="${booking.hotelName}">
-                                <span th:text="${booking.hotelName}" style="white-space: normal; word-break: break-word;">
-                                    Tên khách sạn
-                                </span>
-                            </div> -->
-
                             <!-- Check-in/out -->
                             <div class="col">
                                 <small th:text="'Nhận: ' + ${#temporals.format(booking.checkIn, 'yyyy-MM-dd')}"></small><br/>
@@ -486,7 +474,7 @@
 
                             <!-- Amount -->
                             <div class="col">
-                                <span class="text-success fw-bold" th:text="'$' + ${booking.totalPrice}">$0.0</span>
+                                <span class="text-success fw-bold" th:text="${#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 3, 'POINT')} + '₫'">Giá</span>
                             </div>
 
                             <!-- Status -->

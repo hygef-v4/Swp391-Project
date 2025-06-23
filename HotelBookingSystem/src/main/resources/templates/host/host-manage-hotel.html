@@ -347,41 +347,14 @@ Image gallery START -->
                     </div>
 
                     <div th:if="${rooms != null && rooms.size() > 0 && rooms.get(0).getImages() != null && !rooms.get(0).getImages().isEmpty() && !rooms.get(0).getImages().get(0).isEmpty()}" class="col-md-6">
-                        <!-- Room images preview -->
-                        <div class="row g-2">
-                            <div class="col-12" th:if="${rooms.size() >= 1}">
-                                <a data-glightbox="type: image" data-gallery="gallery" th:href="${rooms.get(0).getImages().get(0)}">
-                                    <div class="card card-grid-sm card-element-hover card-overlay-hover overflow-hidden" th:style="'background-image:url(' + ${rooms.get(0).getImages().get(0)} + '); background-position: center left; background-size: cover;'">
-                                        <div class="hover-element position-absolute w-100 h-100">
-                                            <i class="bi bi-fullscreen fs-6 text-white position-absolute top-50 start-50 translate-middle bg-dark rounded-1 p-2 lh-1"></i>
-                                        </div>
-                                    </div>
-                                </a>	
-                            </div>
-                            <div class="col-md-6" th:if="${rooms.size() >= 2 && rooms.get(1).getImages() != null && !rooms.get(1).getImages().isEmpty()}">
-                                <a data-glightbox="type: image" data-gallery="gallery" th:href="${rooms.get(1).getImages().get(0)}">
-                                    <div class="card card-grid-sm card-element-hover card-overlay-hover overflow-hidden" th:style="'background-image:url(' + ${rooms.get(1).getImages().get(0)} + '); background-position: center left; background-size: cover;'">
-                                        <div class="hover-element position-absolute w-100 h-100">
-                                            <i class="bi bi-fullscreen fs-6 text-white position-absolute top-50 start-50 translate-middle bg-dark rounded-1 p-2 lh-1"></i>
-                                        </div>
-                                    </div>
-                                </a>	
-                            </div>
-                            <div class="col-md-6" th:if="${rooms.size() >= 3 && rooms.get(2).getImages() != null && !rooms.get(2).getImages().isEmpty()}">
-                                <div class="card card-grid-sm overflow-hidden" th:style="'background-image:url(' + ${rooms.get(2).getImages().get(0)} + '); background-position: center left; background-size: cover;'">
-                                    <a data-glightbox="type: image" data-gallery="gallery" th:href="${rooms.get(2).getImages().get(0)}" class="stretched-link z-index-9"></a>
-                                    <!-- Show more room images -->
-                                    <a th:each="room, i: ${rooms}" th:if="${i.index >= 3 && room.getImages() != null && !room.getImages().isEmpty()}" data-glightbox="type: image" data-gallery="gallery" th:href="${room.getImages().get(0)}"></a>
-                                    
-                                    <div class="bg-overlay bg-dark opacity-7"></div>
-                                    <div class="card-img-overlay d-flex h-100 w-100">
-                                        <h6 class="card-title m-auto fw-light text-decoration-underline">
-                                            <a href="#" class="text-white">Xem tất cả</a>
-                                        </h6>
-                                    </div>
+                        <a data-glightbox="type: image" data-gallery="gallery" th:href="${rooms.get(0).getImages().get(0)}">
+                            <div class="card card-grid-lg card-element-hover card-overlay-hover overflow-hidden" th:style="'background-image:url(' + ${rooms.get(0).getImages().get(0)} + '); background-position: center left; background-size: cover;'">
+                                <!-- Card hover element -->
+                                <div class="hover-element position-absolute w-100 h-100">
+                                    <i class="bi bi-fullscreen fs-6 text-white position-absolute top-50 start-50 translate-middle bg-dark rounded-1 p-2 lh-1"></i>
                                 </div>
                             </div>
-                        </div>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -597,7 +570,7 @@ About hotel START -->
                                 <div class="card shadow p-3 card-editable" th:each="room: ${rooms}" th:id="'room-' + ${room.roomId}">
                                     <div class="row g-4">
                                         <!-- Card img -->
-                                        <div class="col-md-5 position-relative d-flex flex-column justify-content-center">
+                                        <div class="col-md-5 position-relative d-flex flex-column justify-content-start">
                                             <!-- Slider START -->
                                             <div class="tiny-slider arrow-round arrow-xs arrow-dark overflow-hidden rounded-2">
                                                 <div class="tiny-slider-inner" data-autoplay="true" data-arrow="true" data-dots="false" data-items="1">

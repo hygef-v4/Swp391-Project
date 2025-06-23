@@ -22466,3 +22466,47 @@ html[dir=rtl] .choices__input {
 .hidden {
   display: none !important;
 }
+
+/* Custom styles for testimonial customer images */
+.testimonial-customer-image {
+    width: 100%;
+    max-width: 320px;
+    height: 320px;
+    object-fit: cover;
+    object-position: center top;
+    border-radius: 1rem !important;
+    box-shadow: 0 1rem 3rem rgba(29, 58, 83, 0.15);
+    transition: transform 0.3s ease-in-out;
+    border: 5px solid #fff;
+}
+
+.testimonial-customer-image:hover {
+    transform: translateY(-5px);
+}
+
+.testimonial-image-container {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--bs-light);
+    padding: 1rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08);
+}
+
+/* Responsive adjustments for testimonial images */
+@media (max-width: 768px) {
+    .testimonial-customer-image {
+        height: 250px;
+        max-width: 250px;
+    }
+}
+
+@media (max-width: 576px) {
+    .testimonial-customer-image {
+        height: 220px;
+        max-width: 220px;
+    }
+}

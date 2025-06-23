@@ -44,4 +44,34 @@ public class ReviewService {
     public List<Review> getTop5PublicPositiveReviews() {
         return reviewRepository.getTop5PublicPositiveReviews();
     }
+
+    public int getTotalReviewCount() {
+        return reviewRepository.countAllReviews();
+    }
+
+
+    public double getAverageRating() {
+        return reviewRepository.getAverageRating();
+    }
+
+    public List<Integer> getRatingDistribution() {
+        return reviewRepository.getRatingDistribution();
+    }
+
+    public void restoreReviewById(int id) {
+        reviewRepository.setPublicStatus(id, true);
+    }
+
+    public void softDeleteReviewById(int id) {
+        reviewRepository.setPublicStatus(id, false);
+    }
+
+    public List<Review> getAllPublicReviews() {
+        return reviewRepository.getAllPublicReviews();
+    }
+
+    public List<Review> getReviewsByStatus(String status) {
+        return reviewRepository.getReviewsByStatus(status);
+    }
+
 }

@@ -349,12 +349,13 @@
         }
 
         .booking-details-row .card {
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            transition: box-shadow 0.2s ease; /* Only transition box-shadow */
         }
 
+        /* THE FIX - Part 1: Remove transform, use a more prominent shadow for hover effect */
         .booking-details-row .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            /* transform: translateY(-2px);  <-- REMOVED to prevent stacking context and jump issues */
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12); /* Enhanced shadow for feedback */
         }
 
         .table tbody tr.booking-details-row td {
@@ -369,7 +370,7 @@
         .bg-purple {
             background-color: #6f42c1 !important;
         }
-        
+
         .text-purple {
             color: #6f42c1 !important;
         }
@@ -397,6 +398,11 @@
             overflow: hidden;
             text-overflow: ellipsis;
             display: inline-block;
+        }
+
+        /* THE FIX - Part 2: Ensure the table wrapper does not clip the dropdown */
+        .table-responsive {
+            overflow: visible !important;
         }
     </style>
 </head>
@@ -485,10 +491,6 @@
                                 <div class="ms-3 flex-grow-1">
                                     <h3 class="mb-1 fw-bold" th:text="${totalBookings}">0</h3>
                                     <h6 class="mb-1">Tổng Số Đơn Đặt Phòng</h6>
-                                    <small class="text-success" th:if="${completedBookings > 0}">
-                                        <i class="bi bi-check-circle-fill me-1"></i>
-                                        <span th:text="${completedBookings}">0</span> đã hoàn thành
-                                    </small>
                                 </div>
                             </div>
                         </div>
@@ -636,21 +638,19 @@
                                     </div>
                                 </div>
                                 <div class="col-md-3">
-                                    <select id="statusFilter" class="form-select">
-                                        <option value="">Tất cả trạng thái</option>
-                                        <option value="approved">Đã phê duyệt</option>
-                                        <option value="completed">Hoàn thành</option>
-                                        <option value="cancelled">Đã hủy</option>
-                                        <option value="rejected">Đã từ chối</option>
-                                        <option value="mixed">Hỗn hợp</option>
+                                    <select id="sortFilter" class="form-select">
+                                        <option value="dateDesc" selected>Mới nhất</option>
+                                        <option value="dateAsc">Cũ nhất</option>
+                                        <option value="priceAsc">Giá thấp đến cao</option>
+                                        <option value="priceDesc">Giá cao đến thấp</option>
                                     </select>
                                 </div>
                                 <div class="col-md-3">
                                     <select id="hotelFilter" class="form-select">
-                                        <option>Tất cả khách sạn</option>
-                                        <option>Khách Sạn Grand Plaza</option>
-                                        <option>Resort Sunset</option>
-                                        <option>Nhà Nghỉ Trung Tâm Thành Phố</option>
+                                        <option value="">Tất cả khách sạn</option>
+                                        <option th:each="hotel : ${hotels}" 
+                                                th:value="${hotel.hotelName}" 
+                                                th:text="${hotel.hotelName}"></option>
                                     </select>
                                 </div>
                             </div>
@@ -686,7 +686,6 @@
                                         <th scope="col" class="border-0">Số Phòng</th>
                                         <th scope="col" class="border-0">Nhận Phòng</th>
                                         <th scope="col" class="border-0">Trả Phòng</th>
-                                        <th scope="col" class="border-0">Trạng Thái</th>
                                         <th scope="col" class="border-0">Tổng Tiền</th>
                                         <th scope="col" class="border-0">Hành Động</th>
                                     </tr>
@@ -735,6 +734,7 @@
     // - rejected: Đã từ chối (bookings rejected by host)
     const bookingsData = [];
     const bookings = /*[[${bookings}]]*/ [];
+    const hostHotels = /*[[${hotels}]]*/ [];
 
     const getStatusClass = (status) => {
         if (!status) return 'bg-secondary bg-opacity-10 text-secondary';
@@ -765,8 +765,7 @@
                 return 'Đã từ chối';
             case 'cancelled':
                 return 'Đã hủy';
-            case 'mixed':
-                return 'Hỗn hợp';
+
             default:
                 return status;
         }
@@ -786,36 +785,56 @@
 
     // Group bookings and create hierarchical structure
     bookings.forEach(booking => {
-                const bookingItem = {
+        const units = booking.bookingUnits || [];
+        // Calculate total price correctly: sum of (unit price * quantity) for each unit
+        // Only count approved and completed booking units, exclude rejected and cancelled
+        const totalPriceRaw = units.reduce((sum, u) => {
+            const status = (u.status || '').toLowerCase();
+            if (status === 'approved' || status === 'completed') {
+                return sum + ((u.price || 0) * (u.quantity || 1));
+            }
+            return sum;
+        }, 0);
+        const bookingItem = {
             id: `#BK${booking.bookingId}`,
             bookingId: booking.bookingId,
-                    guestName: booking.customerName || 'Khách ẩn danh',
-                    email: booking.customerEmail || '',
-                    avatar: booking.customerAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(booking.customerName || 'A')}&background=random`,
-                    hotel: booking.hotelName || 'Không có tên',
+            customerId: booking.customerId,
+            guestName: booking.customerName || 'Khách ẩn danh',
+            email: booking.customerEmail || '',
+            avatar: booking.customerAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(booking.customerName || 'A')}&background=random`,
+            hotel: booking.hotelName || 'Không có tên',
             hotelId: booking.hotelId,
             hotelImage: booking.imageUrl || '/assets/images/category/hotel/01.jpg', // Use actual hotel image
-                    checkIn: formatDate(booking.checkIn),
-                    checkOut: formatDate(booking.checkOut),
-            totalAmount: formatCurrency(booking.totalPrice),
-            totalUnits: booking.bookingUnits ? booking.bookingUnits.length : 0,
+            checkIn: formatDate(booking.checkIn),
+            checkOut: formatDate(booking.checkOut),
+            checkInTime: new Date(booking.checkIn).getTime(), // numeric timestamp for sorting
+            totalAmount: totalPriceRaw > 0 ? formatCurrency(totalPriceRaw) : 'Đã hủy/ Từ chối',
+            totalPrice: totalPriceRaw, // numeric for sorting
+            totalUnits: units.length,
             bookingStatus: booking.status || 'unknown',
-            bookingUnits: booking.bookingUnits ? booking.bookingUnits.map(unit => ({
-                unitId: unit.bookingUnitId,
-                roomName: unit.roomName || 'Không có tên',
-                roomImage: unit.imageUrl || '/assets/images/category/hotel/4by3/01.jpg', // Use actual room image
+            bookingUnits: units.map(unit => {
+                const status = (unit.status || '').toLowerCase();
+                const isCountedInTotal = status === 'approved' || status === 'completed';
+                return {
+                    unitId: unit.bookingUnitId,
+                    roomName: unit.roomName || 'Không có tên',
+                    roomImage: unit.imageUrl || '/assets/images/category/hotel/4by3/01.jpg', // Use actual room image
                     status: getStatusText(unit.status),
                     statusClass: getStatusClass(unit.status),
-                unitPrice: formatCurrency(unit.price || 0),
-                roomCapacity: unit.roomCapacity || 'N/A',
-                roomAmenities: unit.roomAmenities || []
-            })) : [],
-            actions: [
-                        {icon: 'bi-eye', text: 'Xem Chi Tiết'},
-                        {icon: 'bi-chat', text: 'Liên Hệ Khách'}
-                    ]
+                    quantity: unit.quantity || 1,
+                    unitPrice: formatCurrency(unit.price || 0),
+                    totalUnitPrice: formatCurrency((unit.price || 0) * (unit.quantity || 1)),
+                    isCountedInTotal: isCountedInTotal,
+                    roomCapacity: unit.roomCapacity > 0 ? `${unit.roomCapacity} khách` : 'Chưa cập nhật',
+                    roomAmenities: unit.roomAmenities || []
                 };
-                bookingsData.push(bookingItem);
+            }),
+            actions: [
+                {icon: 'bi-eye', text: 'Xem Chi Tiết'},
+                {icon: 'bi-chat', text: 'Liên Hệ Khách'}
+            ]
+        };
+        bookingsData.push(bookingItem);
     });
 
     /*]]>*/
@@ -824,6 +843,7 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         populateDateFilterDropdown();
+        populateHotelFilterDropdown();
         initializePagination();
 
         if (typeof ApexCharts !== 'undefined') {
@@ -845,19 +865,131 @@
         let menuHTML = '';
 
         // Relative timeframes
-        menuHTML += `<li><a class="dropdown-item" href="#" onclick="changePeriod('this-month', 'Tháng này')"><i class="bi bi-calendar-event me-2"></i>Tháng này</a></li>`;
-        menuHTML += `<li><a class="dropdown-item" href="#" onclick="changePeriod('last-month', 'Tháng trước')"><i class="bi bi-calendar-minus me-2"></i>Tháng trước</a></li>`;
         menuHTML += `<li><a class="dropdown-item" href="#" onclick="changePeriod('last-30-days', '30 ngày qua')"><i class="bi bi-calendar-week me-2"></i>30 ngày qua</a></li>`;
         menuHTML += `<li><a class="dropdown-item" href="#" onclick="changePeriod('last-6-months', '6 tháng qua')"><i class="bi bi-calendar-range me-2"></i>6 tháng qua</a></li>`;
         menuHTML += `<li><hr class="dropdown-divider"></li>`;
 
         // Year-based timeframes
-        for (let i = 0; i < 3; i++) {
+        for (let i = 0; i < 4; i++) {
             const year = currentYear - i;
             menuHTML += `<li><a class="dropdown-item" href="#" onclick="changePeriod('year-${year}', 'Năm ${year}')"><i class="bi bi-calendar4-range me-2"></i>Năm ${year}</a></li>`;
         }
 
         menu.innerHTML = menuHTML;
+    }
+
+    // --- Populates the hotel filter dropdown with host's actual hotels
+    function populateHotelFilterDropdown() {
+        const hotelSelect = document.querySelector('#hotelFilter');
+        if (!hotelSelect || !hostHotels) return;
+
+        // Clear existing options except the first one (Tất cả khách sạn)
+        const firstOption = hotelSelect.querySelector('option[value=""]');
+        hotelSelect.innerHTML = '';
+        if (firstOption) {
+            hotelSelect.appendChild(firstOption);
+        } else {
+            const allOption = document.createElement('option');
+            allOption.value = '';
+            allOption.textContent = 'Tất cả khách sạn';
+            hotelSelect.appendChild(allOption);
+        }
+
+        // Add hotel options dynamically
+        hostHotels.forEach(hotel => {
+            const option = document.createElement('option');
+            option.value = hotel.hotelName;
+            option.textContent = hotel.hotelName;
+            hotelSelect.appendChild(option);
+        });
+
+        console.log('Hotel filter populated with', hostHotels.length, 'hotels');
+    }
+
+    // Helper functions for data formatting
+    function formatCategoryForDisplay(category, periodKey) {
+        if (!category) return 'N/A';
+        
+        // Handle different period formats
+        if (periodKey.includes('year-')) {
+            // For yearly data, category comes as "2024-12" format
+            if (category.includes('-')) {
+                const [year, month] = category.split('-');
+                const monthNames = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
+                                  'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
+                const monthIndex = parseInt(month) - 1;
+                return monthNames[monthIndex] + ', ' + year;
+            }
+        } else if (periodKey === 'last-6-months') {
+            // For monthly data, category comes as "2024-12" format
+            if (category.includes('-')) {
+                const [year, month] = category.split('-');
+                const monthNames = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6',
+                                  'T7', 'T8', 'T9', 'T10', 'T11', 'T12'];
+                const monthIndex = parseInt(month) - 1;
+                return monthNames[monthIndex] + '/' + year.substring(2);
+            }
+        } else if (periodKey === 'last-30-days') {
+            // For daily data, category comes as date format "2024-12-18"
+            if (category.includes('-')) {
+                const date = new Date(category + 'T00:00:00'); // Add time to avoid timezone issues
+                if (!isNaN(date.getTime())) {
+                    return (date.getDate()).toString().padStart(2, '0') + '/' + (date.getMonth() + 1).toString().padStart(2, '0');
+                }
+            }
+        }
+        
+        return category;
+    }
+
+    function generateEmptyDataForPeriod(periodKey) {
+        const now = new Date();
+        let emptyData = [];
+        
+        switch (periodKey) {
+            case 'last-6-months': {
+                // Generate last 6 months
+                for (let i = 5; i >= 0; i--) {
+                    const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                    const category = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
+                    emptyData.push({
+                        category: formatCategoryForDisplay(category, periodKey),
+                        count: 0
+                    });
+                }
+                break;
+            }
+
+            case 'last-30-days': {
+                for (let i = 29; i >= 0; i--) {
+                    const date = new Date(now);
+                    date.setDate(now.getDate() - i);
+                    const category = date.toISOString().split('T')[0];
+                    emptyData.push({
+                        category: formatCategoryForDisplay(category, periodKey),
+                        count: 0
+                    });
+                }
+                break;
+            }
+            default: {
+                // For yearly data (year-2024, year-2023, etc.)
+                if (periodKey.startsWith('year-')) {
+                    const year = periodKey.split('-')[1];
+                    const monthNames = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'];
+                    for (let i = 1; i <= 12; i++) {
+                        const category = year + '-' + String(i).padStart(2, '0');
+                        emptyData.push({
+                            category: formatCategoryForDisplay(category, periodKey),
+                            count: 0
+                        });
+                    }
+                }
+                break;
+            }
+        }
+        
+        return emptyData;
     }
 
     // Chart Management
@@ -881,60 +1013,82 @@
             clickedItem.classList.add('active');
         }
 
-        // --- CORRECTED --- Simulate API call with different data for each filter
-        const simulateApiCall = new Promise((resolve) => {
-            setTimeout(() => {
-                let sampleData = [];
-                const now = new Date();
+        // Map frontend period keys to backend API periods
+        const periodMap = {
+            'last-6-months': '6months',
+            'last-30-days': '30days',
+            'year-2024': 'year2024',
+            'year-2023': 'year2023',
+            'year-2022': 'year2022'
+        };
 
-                // Helper to generate random data for demonstration
-                const generateRandomData = (categories) => categories.map(cat => ({
-                    category: cat,
-                    count: Math.floor(Math.random() * 20)
-                }));
-
-                switch (periodKey) {
-                    case 'last-6-months': {
-                        // --- Use FIXED data for this specific view ---
-                        sampleData = [
-                            {category: "2025-01", count: 0},
-                            {category: "2025-02", count: 0},
-                            {category: "2025-03", count: 0},
-                            {category: "2025-04", count: 0},
-                            {category: "2025-05", count: 0},
-                            {category: "2025-06", count: 2}
-                        ];
-                        break;
-                    }
-                    case 'this-month': {
-                        const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-                        const categories = Array.from({length: daysInMonth}, (_, i) => `Ngày ${i + 1}`);
-                        sampleData = generateRandomData(categories);
-                        break;
-                    }
-                    case 'last-month': {
-                        const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-                        const daysInMonth = new Date(prevMonth.getFullYear(), prevMonth.getMonth() + 1, 0).getDate();
-                        const categories = Array.from({length: daysInMonth}, (_, i) => `Ngày ${i + 1}`);
-                        sampleData = generateRandomData(categories);
-                        break;
-                    }
-                    case 'last-30-days': {
-                        const categories = Array.from({length: 30}, (_, i) => `Ngày ${i + 1}`);
-                        sampleData = generateRandomData(categories);
-                        break;
-                    }
-                    default: // Handles year-2024, year-2023 etc.
-                        const year = periodKey.split('-')[1];
-                        const categories = ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"];
-                        sampleData = generateRandomData(categories.map(m => `${m}, ${year}`));
-                        break;
+        const apiPeriod = periodMap[periodKey] || '6months';
+        
+        // Fetch real data from API
+        const apiCall = fetch(`/api/host/booking-stats?period=${apiPeriod}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                // Add CSRF token if needed
+                ...(document.querySelector('meta[name="_csrf"]') && {
+                    [document.querySelector('meta[name="_csrf_header"]').getAttribute('content')]: 
+                    document.querySelector('meta[name="_csrf"]').getAttribute('content')
+                })
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
+                 .then(data => {
+            console.log('Raw API data:', data);
+            
+            // Transform the data to match the chart format
+            let transformedData = [];
+            
+            if (data && data.length > 0) {
+                // Data comes as [{category: "2024-12-18", count: 5}, ...] for daily data
+                // or [{category: "2024-12", count: 5}, ...] for monthly data
+                if (periodKey === 'last-30-days') {
+                    // For 30-day data, we need to create a complete 30-day range and fill in the data
+                    const fullRange = generateEmptyDataForPeriod(periodKey);
+                    const dataMap = new Map();
+                    
+                    // Create a map of the actual data
+                    data.forEach(item => {
+                        const formattedCategory = formatCategoryForDisplay(item.category, periodKey);
+                        dataMap.set(formattedCategory, item.count || 0);
+                    });
+                    
+                    // Fill in the data for the full range
+                    transformedData = fullRange.map(item => ({
+                        category: item.category,
+                        count: dataMap.get(item.category) || 0
+                    }));
+                } else {
+                    // For other periods, use the data as-is with formatting
+                    transformedData = data.map(item => ({
+                        category: formatCategoryForDisplay(item.category, periodKey),
+                        count: item.count || 0
+                    }));
                 }
-                resolve(sampleData);
-            }, 500); // Simulate network delay
+            } else {
+                // If no data, create empty data structure based on period
+                transformedData = generateEmptyDataForPeriod(periodKey);
+            }
+            
+            console.log('Transformed data:', transformedData);
+            return transformedData;
+        })
+                 .catch(error => {
+            console.error('Error fetching chart data:', error);
+            // Return empty data on error
+            return generateEmptyDataForPeriod(periodKey);
         });
 
-        simulateApiCall
+        apiCall
             .then(data => {
                 const categories = data.map(item => item.category);
                 const seriesData = data.map(item => item.count);
@@ -1134,19 +1288,20 @@
             this.tableBody = document.querySelector('#bookingsTableBody');
             this.paginationContainer = document.querySelector('#paginationContainer');
             this.searchInput = document.querySelector('#bookingSearch');
-            this.statusFilter = document.querySelector('#statusFilter');
+            this.sortFilter = document.querySelector('#sortFilter');
             this.hotelFilter = document.querySelector('#hotelFilter');
             this.itemsPerPageSelect = document.querySelector('#itemsPerPageSelect');
             this.bindEvents();
-            this.render();
+            // Apply initial sort (newest by default)
+            this.sortData(this.sortFilter ? this.sortFilter.value : 'dateDesc');
         }
 
         bindEvents() {
             if (this.searchInput) {
                 this.searchInput.addEventListener('input', (e) => this.search(e.target.value));
             }
-            if (this.statusFilter) {
-                this.statusFilter.addEventListener('change', (e) => this.filterByStatus(e.target.value));
+            if (this.sortFilter) {
+                this.sortFilter.addEventListener('change', (e) => this.sortData(e.target.value));
             }
             if (this.hotelFilter) {
                 this.hotelFilter.addEventListener('change', (e) => this.filterByHotel(e.target.value));
@@ -1158,19 +1313,32 @@
 
         search(term) {
             this.filteredData = this.allData.filter(b => Object.values(b).some(val => String(val).toLowerCase().includes(term.toLowerCase())));
-            this.updatePagination();
-        }
-
-        filterByStatus(status) {
-            this.filteredData = (status === '' || status === 'Tất cả trạng thái') ? [...this.allData] : this.allData.filter(b => {
-                // Filter by overall booking status
-                return b.bookingStatus && b.bookingStatus.toLowerCase() === status.toLowerCase();
-            });
-            this.updatePagination();
+            this.sortData(this.sortFilter ? this.sortFilter.value : 'dateDesc');
         }
 
         filterByHotel(hotel) {
             this.filteredData = (hotel === '' || hotel === 'Tất cả khách sạn') ? [...this.allData] : this.allData.filter(b => b.hotel === hotel);
+            this.sortData(this.sortFilter ? this.sortFilter.value : 'dateDesc');
+        }
+
+        sortData(criteria) {
+            switch (criteria) {
+                case 'dateAsc':
+                    this.filteredData.sort((a, b) => a.checkInTime - b.checkInTime);
+                    break;
+                case 'dateDesc':
+                    this.filteredData.sort((a, b) => b.checkInTime - a.checkInTime);
+                    break;
+                case 'priceAsc':
+                    this.filteredData.sort((a, b) => a.totalPrice - b.totalPrice);
+                    break;
+                case 'priceDesc':
+                    this.filteredData.sort((a, b) => b.totalPrice - a.totalPrice);
+                    break;
+                default:
+                    // default newest date
+                    this.filteredData.sort((a, b) => b.checkInTime - a.checkInTime);
+            }
             this.updatePagination();
         }
 
@@ -1206,15 +1374,15 @@
         renderTable() {
             const data = this.filteredData.slice((this.currentPage - 1) * this.itemsPerPage, this.currentPage * this.itemsPerPage);
             if (data.length === 0) {
-                this.tableBody.innerHTML = `<tr><td colspan="9" class="text-center py-4"><h6 class="text-muted">Không tìm thấy kết quả</h6></td></tr>`;
+                this.tableBody.innerHTML = `<tr><td colspan="8" class="text-center py-4"><h6 class="text-muted">Không tìm thấy kết quả</h6></td></tr>`;
                 return;
             }
-            
+
             let html = '';
             data.forEach((booking, index) => {
                 const rowId = `booking-${booking.bookingId}`;
                 const expandId = `expand-${booking.bookingId}`;
-                
+
                 // Main booking row
                 html += `
                     <tr class="booking-main-row" data-booking-id="${booking.bookingId}">
@@ -1243,32 +1411,31 @@
                         </td>
                         <td>${booking.checkIn}</td>
                         <td>${booking.checkOut}</td>
-                        <td><span class="badge ${this.getBookingStatusClass(booking.bookingStatus)}">${this.getBookingStatusText(booking.bookingStatus)}</span></td>
                         <td><strong>${booking.totalAmount}</strong></td>
                         <td>
                             <div class="d-flex gap-1">
                                 <button class="btn btn-sm btn-outline-primary" onclick="bookingPagination.toggleBookingDetails('${booking.bookingId}')" title="Xem chi tiết phòng">
                                     <i class="bi bi-eye" id="toggle-icon-${booking.bookingId}"></i>
                                 </button>
-                                <button class="btn btn-sm btn-outline-success" title="Liên hệ khách">
+                                <a href="/host-customer-detail?customerId=${booking.customerId}" class="btn btn-sm btn-outline-success" title="Liên hệ khách">
                                     <i class="bi bi-chat-dots"></i>
-                                </button>
+                                </a>
                             </div>
                         </td>
                     </tr>
                 `;
-                
+
                 // Expandable booking units row (initially hidden)
                 html += `
                     <tr id="${expandId}" class="booking-details-row d-none">
-                        <td colspan="9" class="p-0">
+                        <td colspan="8" class="p-0">
                             <div class="bg-light p-3 border-start border-primary border-3">
                                 <h6 class="mb-3 text-primary">
                                     <i class="bi bi-door-open me-2"></i>Chi Tiết Phòng Đặt
                                 </h6>
                                 <div class="row g-3">
                 `;
-                
+
                 // Add booking units
                 booking.bookingUnits.forEach(unit => {
                     html += `
@@ -1279,9 +1446,21 @@
                                         <img src="${unit.roomImage}" alt="Room" class="rounded me-3" style="width: 60px; height: 45px; object-fit: cover;">
                                         <div class="flex-grow-1">
                                             <h6 class="mb-1 room-name-truncate" title="${unit.roomName}">${unit.roomName}</h6>
-                                            <p class="mb-1 small text-muted">
-                                                <i class="bi bi-people me-1"></i>Sức chứa: ${unit.roomCapacity}
-                                            </p>
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <p class="mb-0 small text-muted">
+                                                    <i class="bi bi-people me-1"></i>Sức chứa: <strong>${unit.roomCapacity}</strong>
+                                                </p>
+                                                <p class="mb-0 small text-primary">
+                                                    <i class="bi bi-box me-1"></i>Số lượng: <strong>${unit.quantity}</strong>
+                                                </p>
+                                            </div>
+                                            <div class="mb-2">
+                                                <small class="text-muted d-block">Giá 1 phòng: ${unit.unitPrice}</small>
+                                                <small class="fw-bold ${unit.isCountedInTotal ? 'text-success' : 'text-muted text-decoration-line-through'}">
+                                                    Tổng tiền: ${unit.totalUnitPrice}
+                                                    ${unit.isCountedInTotal ? '' : '<i class="bi bi-exclamation-triangle ms-1" title="Không tính vào tổng do trạng thái"></i>'}
+                                                </small>
+                                            </div>
                                             <div class="d-flex justify-content-between align-items-center">
                                                 <div class="d-flex align-items-center gap-2">
                                                     <span class="badge ${unit.statusClass}" id="status-badge-${unit.unitId}">${unit.status}</span>
@@ -1289,7 +1468,7 @@
                                                         <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" title="Thay đổi trạng thái">
                                                             <i class="bi bi-gear"></i>
                                                         </button>
-                                                        <ul class="dropdown-menu">
+                                                        <ul class="dropdown-menu dropdown-menu-end">
                                                             <li><a class="dropdown-item" href="#" onclick="updateBookingUnitStatus(${unit.unitId}, 'approved')">Phê duyệt</a></li>
                                                             <li><a class="dropdown-item" href="#" onclick="updateBookingUnitStatus(${unit.unitId}, 'completed')">Hoàn thành</a></li>
                                                             <li><a class="dropdown-item" href="#" onclick="updateBookingUnitStatus(${unit.unitId}, 'cancelled')">Hủy</a></li>
@@ -1297,7 +1476,6 @@
                                                         </ul>
                                                     </div>
                                                 </div>
-                                                <strong class="text-success">${unit.unitPrice}</strong>
                                             </div>
                                         </div>
                                     </div>
@@ -1306,7 +1484,7 @@
                         </div>
                     `;
                 });
-                
+
                 html += `
                                 </div>
                             </div>
@@ -1314,10 +1492,28 @@
                     </tr>
                 `;
             });
-            
+
             this.tableBody.innerHTML = html;
+
+            // THE FIX - Part 3: Initialize dropdowns *after* the new HTML is added to the DOM
+            this.initializeDropdowns();
         }
-        
+
+        // --- THIS FUNCTION IS THE ULTIMATE FIX ---
+        initializeDropdowns() {
+            // Ensure all newly-added dropdown toggles are wired up with the
+            // default Bootstrap behaviour (Popper handles the positioning).
+            // We do NOT override the Popper strategy here so that the menu
+            // is positioned relative to its toggle button instead of the viewport.
+            const dropdownElements = this.tableBody.querySelectorAll('.booking-details-row .dropdown-toggle');
+            dropdownElements.forEach(element => {
+                // Re-initialise only if it has not been initialised yet
+                if (!bootstrap.Dropdown.getInstance(element)) {
+                    new bootstrap.Dropdown(element);
+                }
+            });
+        }
+
         getBookingStatusClass(status) {
             switch (status ? status.toLowerCase() : '') {
                 case 'completed': return 'bg-success bg-opacity-10 text-success';
@@ -1328,7 +1524,7 @@
                 default: return 'bg-secondary bg-opacity-10 text-secondary';
             }
         }
-        
+
         getBookingStatusText(status) {
             switch (status ? status.toLowerCase() : '') {
                 case 'completed': return 'Hoàn thành';
@@ -1339,11 +1535,11 @@
                 default: return 'Không xác định';
             }
         }
-        
+
         toggleBookingDetails(bookingId) {
             const detailsRow = document.getElementById(`expand-${bookingId}`);
             const toggleIcon = document.getElementById(`toggle-icon-${bookingId}`);
-            
+
             if (detailsRow.classList.contains('d-none')) {
                 detailsRow.classList.remove('d-none');
                 toggleIcon.className = 'bi bi-eye-slash';
@@ -1381,22 +1577,22 @@
     // Function to update booking unit status
     async function updateBookingUnitStatus(bookingUnitId, newStatus) {
         console.log('Updating booking unit status:', bookingUnitId, newStatus);
-        
+
         try {
             // Get CSRF token
             const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
             const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
             console.log('CSRF token available:', !!csrfToken, 'Header:', csrfHeader);
-            
+
             const headers = {
                 'Content-Type': 'application/x-www-form-urlencoded',
             };
-            
+
             // Add CSRF token if available
             if (csrfToken && csrfHeader) {
                 headers[csrfHeader] = csrfToken;
             }
-            
+
             const response = await fetch('/api/host/update-booking-unit-status', {
                 method: 'POST',
                 headers: headers,
