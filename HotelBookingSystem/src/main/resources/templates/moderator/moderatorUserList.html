@@ -398,6 +398,8 @@
                         <small><strong>Lý do flagged:</strong> ${user.flagReason}</small>
                     </div>` : '';
 
+                const canFlag = user.role === 'CUSTOMER' || user.role === 'HOTEL_OWNER';
+
                 const userCard = `
                     <div class="col user-card">
                         <div class="card shadow h-100 position-relative ${flaggedClass}">
@@ -424,15 +426,20 @@
                                             onclick="showUserDetail(${user.id})">
                                         Chi tiết
                                     </button>
-                                    ${!user.flagged ? `
+                                    ${canFlag && !user.flagged ? `
                                     <button class="btn btn-outline-danger btn-sm"
                                             onclick="showFlagModal(${user.id}, '${user.fullName}')">
                                         <i class="bi bi-flag"></i>
-                                    </button>` : `
+                                    </button>` : ''}
+                                    ${canFlag && user.flagged ? `
                                     <button class="btn btn-outline-danger btn-sm"
                                             onclick="showConfirmUnflagModal(${user.id})" title="Huỷ flagged">
                                         <i class="bi bi-flag-fill"></i>
-                                    </button>`}
+                                    </button>` : ''}
+                                    ${!canFlag ? `
+                                    <button class="btn btn-outline-secondary btn-sm" disabled style="cursor:not-allowed;opacity:0.6;">
+                                        <i class="bi bi-flag"></i>
+                                    </button>` : ''}
                                 </div>
                             </div>
                         </div>
