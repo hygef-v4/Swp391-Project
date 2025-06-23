@@ -24,7 +24,7 @@ public class Booking {
     
     private String hotelName;
     private String imageUrl;
-    private String status; // Overall booking status calculated from booking units
+    private String status;
     private List<BookingUnit> bookingUnits;
     private String customerName;
     private String customerEmail;

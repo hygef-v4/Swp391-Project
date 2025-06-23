@@ -27,6 +27,16 @@
         .tab-content.hidden-before-js {
             visibility: hidden;
         }
+        .hotel-image-wrapper {
+            height: 200px; /* hoặc 220px tùy bạn muốn ảnh cao bao nhiêu */
+            overflow: hidden;
+        }
+
+        .hotel-image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
     </style>
     <!-- Dark mode -->
     <script>
@@ -109,9 +119,9 @@
             <!-- Title -->
             <div class="row">
                 <div class="col-12 mb-5">
-                    <div class="d-sm-flex justify-content-between align-items-center">
+                    <div class="d-sm-flex justify-content-start align-items-center">
                         <h1 class="h3 mb-2 mb-sm-0">Danh sách đặt phòng</h1>
-                        <div class="d-grid"><a href="#" class="btn btn-primary-soft mb-0"><i class="bi bi-plus-lg fa-fw"></i>Thêm yêu cầu đặt phòng</a></div>
+<!--                        <div class="d-grid"><a href="#" class="btn btn-primary-soft mb-0"><i class="bi bi-plus-lg fa-fw"></i>Thêm yêu cầu đặt phòng</a></div>-->
                     </div>
                 </div>
             </div>
@@ -217,7 +227,7 @@
             <div class="row g-4 justify-content-between align-items-center">
                 <div class="col-lg-5">
                     <!-- Tabs -->
-                    <ul class="nav nav-pills-shadow nav-responsive">
+                    <ul class="nav nav-pills-shadow nav-responsive" th:if="${viewMode} == 'list'">
                         <li class="nav-item">
                             <a class="nav-link border rounded-pill mb-0 me-sm-2"
                                th:classappend="${statusFilter} == '' ? ' active'"
@@ -241,7 +251,8 @@
                     </ul>
                 </div>
 
-                <div class="col-lg-6 col-xxl-5">
+
+            <div class="col-lg-6 col-xxl-5">
                     <div class="d-sm-flex gap-4 justify-content-between justify-content-lg-end">
                         <!-- Search -->
                         <div class="col-md-8">
@@ -264,14 +275,14 @@
                                 <li class="nav-item">
                                     <a class="nav-link rounded-start rounded-0"
                                        th:classappend="${viewMode} == 'grid' ? ' active'"
-                                       th:href="@{'/admin-booking-list'(page=${currentPage}, status=${statusFilter}, view='grid', search=${search})}">
+                                       th:href="@{'/admin-booking-list'(page=1, status=${statusFilter}, view='grid', search=${search})}">
                                         <i class="bi fa-fw bi-grid-fill"></i>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link rounded-end rounded-0"
                                        th:classappend="${viewMode} == 'list' ? ' active'"
-                                       th:href="@{'/admin-booking-list'(page=${currentPage}, status=${statusFilter}, view='list', search=${search})}">
+                                       th:href="@{'/admin-booking-list'(page=1, status=${statusFilter}, view='list', search=${search})}">
                                         <i class="bi fa-fw bi-list-ul"></i>
                                     </a>
                                 </li>
@@ -290,66 +301,62 @@
                 <div th:if="${viewMode} == 'grid'">
                     <div class="tab-pane fade show active" id="grid-tab-pane">
                     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xxl-5 g-4">
-                        <!-- Duyệt danh sách Booking -->
-                        <div class="col" th:each="booking : ${bookings}">
+                        <div class="col" th:each="hotel : ${hotelList}">
                             <div class="card shadow h-100">
-                                <!-- 1. Ảnh phòng -->
-                                <div class="position-relative">
-                                    <img th:src="@{${booking.imageUrl}}" class="card-img-top" alt="Room image" />
+                                <div class="position-relative hotel-image-wrapper">
+                                    <img th:src="@{${hotel.hotelImageUrl}}" class="card-img-top hotel-image" alt="Hotel image" />
                                     <div class="card-img-overlay d-flex flex-column p-3">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div class="badge text-bg-dark">
-                                                <i class="bi bi-star-fill me-2 text-warning"></i>4.5
+                                                <i class="bi bi-star-fill me-2 text-warning"></i>
+                                                <span th:text="${hotel.rating}">0</span>
                                             </div>
                                             <div class="list-inline-item dropdown">
                                                 <a href="#" class="btn btn-sm btn-round btn-light" data-bs-toggle="dropdown">
                                                     <i class="bi bi-three-dots-vertical"></i>
                                                 </a>
                                                 <ul class="dropdown-menu dropdown-menu-end min-w-auto shadow rounded small">
-                                                    <li><a class="dropdown-item" href="#"><i class="bi bi-info-circle me-2"></i>Report</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="bi bi-slash-circle me-2"></i>Disable</a></li>
+                                                    <li><a class="dropdown-item" href="#"><i class="bi bi-info-circle me-2"></i>Báo cáo</a></li>
+                                                    <li><a class="dropdown-item" href="#"><i class="bi bi-slash-circle me-2"></i>Vô hiệu hoá</a></li>
                                                 </ul>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- 2. Thông tin phòng -->
+                                <!-- 2. Thông tin khách sạn -->
                                 <div class="card-body px-3">
                                     <h5 class="card-title mb-1">
-                                        <a th:href="@{'/admin/bookings/detail/' + ${booking.bookingId}}" th:text="${booking.hotelName}">Tên khách sạn</a>
+                                        <a th:href="@{'/admin/bookings'(hotelId=${hotel.hotelId})}" th:text="${hotel.hotelName}">Tên khách sạn</a>
                                     </h5>
                                     <ul class="list-group list-group-borderless small mt-2 mb-0">
                                         <li class="list-group-item pb-0">
-                                            <i class="bi bi-calendar-check me-2"></i>
-                                            <span th:text="${#temporals.format(booking.checkIn, 'yyyy-MM-dd')}">Ngày nhận</span>
+                                            <i class="bi bi-geo-alt-fill me-2"></i>
+                                            <span th:text="${hotel.cityName}">Địa chỉ</span>
                                         </li>
                                         <li class="list-group-item pb-0">
-                                            <i class="bi bi-calendar-check-fill me-2"></i>
-                                            <span th:text="${#temporals.format(booking.checkOut, 'yyyy-MM-dd')}">Ngày trả</span>
-                                        </li>
-                                        <li class="list-group-item pb-0">
-                                            <i class="bi bi-cash-coin me-2"></i>
-                                            <span th:text="${#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 3, 'POINT')} + '₫'">Giá</span>
+                                            <i class="bi bi-person-circle me-2"></i>
+                                            <span th:text="'Chủ: ' + ${hotel.hostName}">Chủ khách sạn</span>
                                         </li>
                                     </ul>
                                 </div>
 
                                 <!-- 3. Footer -->
                                 <div class="card-footer pt-0">
-                                    <a th:href="@{'/admin/bookings/detail/' + ${booking.bookingId}}"
+                                    <a th:href="@{'/admin/bookings'(hotelId=${hotel.hotelId})}"
                                        class="btn btn-sm btn-primary-soft w-100">Xem chi tiết</a>
                                 </div>
                             </div>
                         </div>
                     </div>
+
                         <!-- Pagination -->
                         <div class="row">
                             <div class="d-sm-flex justify-content-sm-center align-items-sm-center mt-4">
                                 <nav class="mb-sm-0 d-flex justify-content-center" aria-label="navigation">
                                     <ul class="pagination pagination-sm pagination-primary-soft d-inline-block d-md-flex rounded mb-0">
                                         <!-- Previous -->
-                                        <li th:if="${totalPages >= 2}" th:class="'page-item mb-0' + (${currentPage == 1} ? ' disabled' : '')">
+                                        <li th:if="${totalHotelPages >= 2}" th:class="'page-item mb-0' + (${currentPage == 1} ? ' disabled' : '')">
                                             <a class="page-link"
                                                th:href="@{'/admin-booking-list'(page=${currentPage - 1}, status=${statusFilter}, view=${viewMode}, search=${search})}">
                                                 <i class="fa-solid fa-angle-left"></i>
@@ -357,24 +364,24 @@
                                         </li>
 
                                         <!-- Page 1 -->
-                                        <li th:if="${totalPages >= 1}" th:class="'page-item mb-0' + (${currentPage == 1} ? ' active disabled' : '')">
+                                        <li th:if="${totalHotelPages >= 1}" th:class="'page-item mb-0' + (${currentPage == 1} ? ' active disabled' : '')">
                                             <a class="page-link"
                                                th:href="@{'/admin-booking-list'(page=1, status=${statusFilter}, view=${viewMode}, search=${search})}">1</a>
                                         </li>
 
                                         <!-- Page 2 -->
-                                        <li th:if="${totalPages >= 2}" th:class="'page-item mb-0' + (${currentPage == 2} ? ' active disabled' : '')">
+                                        <li th:if="${totalHotelPages >= 2}" th:class="'page-item mb-0' + (${currentPage == 2} ? ' active disabled' : '')">
                                             <a class="page-link"
                                                th:href="@{'/admin-booking-list'(page=2, status=${statusFilter}, view=${viewMode}, search=${search})}">2</a>
                                         </li>
 
                                         <!-- Left ellipsis -->
-                                        <li th:if="${totalPages >= 5 and currentPage - 2 > 2}" class="page-item mb-0 disabled">
+                                        <li th:if="${totalHotelPages >= 5 and currentPage - 2 > 2}" class="page-item mb-0 disabled">
                                             <a class="page-link">...</a>
                                         </li>
 
                                         <!-- Page -1 -->
-                                        <li th:if="${totalPages >= 4 and currentPage != 1 and currentPage - 1 != 1 and currentPage - 1 != 2}"
+                                        <li th:if="${totalHotelPages >= 4 and currentPage != 1 and currentPage - 1 != 1 and currentPage - 1 != 2}"
                                             class="page-item mb-0">
                                             <a class="page-link"
                                                th:href="@{'/admin-booking-list'(page=${currentPage - 1}, status=${statusFilter}, view=${viewMode}, search=${search})}"
@@ -382,13 +389,13 @@
                                         </li>
 
                                         <!-- Current Page -->
-                                        <li th:if="${totalPages >= 4 and currentPage != 1 and currentPage != 2 and currentPage != totalPages}"
+                                        <li th:if="${totalHotelPages >= 4 and currentPage != 1 and currentPage != 2 and currentPage != totalHotelPages}"
                                             class="page-item mb-0 active disabled">
                                             <a class="page-link" th:text="${currentPage}"></a>
                                         </li>
 
                                         <!-- Page +1 -->
-                                        <li th:if="${totalPages >= 4 and currentPage + 1 != 2 and currentPage + 1 != totalPages and currentPage != totalPages}"
+                                        <li th:if="${totalHotelPages >= 4 and currentPage + 1 != 2 and currentPage + 1 != totalHotelPages and currentPage != totalHotelPages}"
                                             class="page-item mb-0">
                                             <a class="page-link"
                                                th:href="@{'/admin-booking-list'(page=${currentPage + 1}, status=${statusFilter}, view=${viewMode}, search=${search})}"
@@ -396,20 +403,20 @@
                                         </li>
 
                                         <!-- Right ellipsis -->
-                                        <li th:if="${totalPages >= 4 and totalPages > currentPage + 2}" class="page-item mb-0 disabled">
+                                        <li th:if="${totalHotelPages >= 4 and totalHotelPages > currentPage + 2}" class="page-item mb-0 disabled">
                                             <a class="page-link">...</a>
                                         </li>
 
                                         <!-- Last page -->
-                                        <li th:if="${totalPages >= 3}"
-                                            th:class="'page-item mb-0' + (${currentPage == totalPages} ? ' active disabled' : '')">
+                                        <li th:if="${totalHotelPages >= 3}"
+                                            th:class="'page-item mb-0' + (${currentPage == totalHotelPages} ? ' active disabled' : '')">
                                             <a class="page-link"
-                                               th:href="@{'/admin-booking-list'(page=${totalPages}, status=${statusFilter}, view=${viewMode}, search=${search})}"
-                                               th:text="${totalPages}"></a>
+                                               th:href="@{'/admin-booking-list'(page=${totalHotelPages}, status=${statusFilter}, view=${viewMode}, search=${search})}"
+                                               th:text="${totalHotelPages}"></a>
                                         </li>
 
                                         <!-- Next -->
-                                        <li th:if="${totalPages >= 2}" th:class="'page-item mb-0' + (${currentPage == totalPages} ? ' disabled' : '')">
+                                        <li th:if="${totalHotelPages >= 2}" th:class="'page-item mb-0' + (${currentPage == totalHotelPages} ? ' disabled' : '')">
                                             <a class="page-link"
                                                th:href="@{'/admin-booking-list'(page=${currentPage + 1}, status=${statusFilter}, view=${viewMode}, search=${search})}">
                                                 <i class="fa-solid fa-angle-right"></i>
@@ -421,7 +428,6 @@
                         </div>
                         <!-- Pagination end-->
                     </div>
-                </div>
             <!-- Rooms END -->
             </div>
                 <!-- Content item END -->
@@ -433,11 +439,10 @@
                 <div class="card shadow">
                     <div class="card-body">
 
-                        <!-- Header row (hiện trên desktop) -->
                         <div class="bg-light rounded p-3 d-xxl-block">
-                            <div class="row row-cols-5 g-4">
+                            <div class="row row-cols-6 g-4">
                                 <div class="col"><h6 class="mb-0">Ảnh</h6></div>
-<!--                                <div class="col"><h6 class="mb-0">Loại phòng</h6></div>-->
+                                <div class="col"><h6 class="mb-0">Khách hàng</h6></div>
                                 <div class="col"><h6 class="mb-0">Tên khách sạn</h6></div>
                                 <div class="col"><h6 class="mb-0">Nhận/trả phòng</h6></div>
                                 <div class="col"><h6 class="mb-0">Giá</h6></div>
@@ -456,6 +461,19 @@
                                      alt="Room image"
                                      class="rounded"
                                      style="width: 80px; height: 60px; object-fit: cover;">
+                            </div>
+
+                            <!-- Customer info with avatar -->
+                            <div class="col d-flex align-items-center gap-2">
+                                <img th:src="@{${booking.customerAvatar}}"
+                                     alt="Avatar"
+                                     class="rounded-circle"
+                                     style="width: 40px; height: 40px; object-fit: cover;">
+                                <div>
+                                    <h6 class="mb-0" th:text="${booking.customerName}"
+                                        style="white-space: normal; word-break: break-word;"></h6>
+                                    <small th:text="${booking.customerEmail}" class="text-muted" style="font-size: 0.85rem;"></small>
+                                </div>
                             </div>
 
                             <!-- Room name -->
@@ -477,31 +495,47 @@
                                 <span class="text-success fw-bold" th:text="${#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 3, 'POINT')} + '₫'">Giá</span>
                             </div>
 
-                            <!-- Status -->
-                            <!-- <div class="col">
-                                <span class="badge"
-                                    th:classappend="
-                                        ${booking.status} == 'approved' ? ' bg-success' :
-                                        (${booking.status} == 'cancelled' ? ' bg-danger' :
-                                        (${booking.status} == 'pending' ? ' bg-warning text-dark' : ' bg-secondary'))"
-                                    th:text="${booking.status}">
-                                    Status
-                                </span>
-                            </div> -->
-                            <!-- Action -->
+                            <!-- Toggle detail -->
                             <div class="col">
-                                <a th:href="@{'/admin/bookings/detail/' + ${booking.bookingId}}"
-                                   class="btn btn-sm btn-light">Xem chi tiết</a>
+                                <button class="btn btn-sm btn-light"
+                                        type="button"
+                                        data-bs-toggle="collapse"
+                                        th:attr="data-bs-target='#bookingDetail__' + ${booking.bookingId}">
+                                    Xem chi tiết
+                                </button>
+                            </div>
+                        <!-- Detail collapsible section -->
+                        <div class="collapse px-4 pb-4" th:id="'bookingDetail__' + ${booking.bookingId}">
+                            <div class="border-top pt-3">
+                                <h6 class="text-primary mb-3"><i class="bi bi-info-circle"></i> Chi Tiết Phòng Đặt</h6>
+                                <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+                                    <div class="col" th:each="unit : ${booking.bookingUnits}">
+                                        <div class="card border shadow-sm h-100">
+                                            <div class="card-body">
+                                                <div class="d-flex mb-2">
+                                                    <img th:src="@{${unit.imageUrl}}" class="rounded me-3" style="width: 60px; height: 60px; object-fit: cover;" alt="room">
+                                                    <div>
+                                                        <h6 class="mb-0 text-truncate" th:text="${unit.roomName}">Tên phòng</h6>
+                                                        <small th:text="'Số lượng: ' + ${unit.quantity}"></small>
+                                                    </div>
+                                                </div>
+                                                <p class="mb-1" th:text="'Giá 1 phòng: ' + ${#numbers.formatDecimal(unit.price, 0, 'COMMA', 3, 'POINT')} + ' ₫'"></p>
+                                                <p class="mb-1 text-success" th:text="'Tổng tiền: ' + ${#numbers.formatDecimal(unit.price * unit.quantity, 0, 'COMMA', 3, 'POINT')} + ' ₫'"></p>
+                                            </div>
+                                        </div>
+                                    </div> <!-- end unit loop -->
+                                </div>
                             </div>
                         </div>
-
+                        <!-- End collapse -->
+                        </div>
                         <!-- Pagination -->
                         <div class="row">
                             <div class="d-sm-flex justify-content-sm-center align-items-sm-center mt-4">
                                 <nav class="mb-sm-0 d-flex justify-content-center" aria-label="navigation">
                                     <ul class="pagination pagination-sm pagination-primary-soft d-inline-block d-md-flex rounded mb-0">
                                         <!-- Previous -->
-                                        <li th:if="${totalPages >= 2}" th:class="'page-item mb-0' + (${currentPage == 1} ? ' disabled' : '')">
+                                        <li th:if="${totalBookingPages >= 2}" th:class="'page-item mb-0' + (${currentPage == 1} ? ' disabled' : '')">
                                             <a class="page-link"
                                                th:href="@{'/admin-booking-list'(page=${currentPage - 1}, status=${statusFilter}, view=${viewMode}, search=${search})}">
                                                 <i class="fa-solid fa-angle-left"></i>
@@ -509,24 +543,24 @@
                                         </li>
 
                                         <!-- Page 1 -->
-                                        <li th:if="${totalPages >= 1}" th:class="'page-item mb-0' + (${currentPage == 1} ? ' active disabled' : '')">
+                                        <li th:if="${totalBookingPages >= 1}" th:class="'page-item mb-0' + (${currentPage == 1} ? ' active disabled' : '')">
                                             <a class="page-link"
                                                th:href="@{'/admin-booking-list'(page=1, status=${statusFilter}, view=${viewMode}, search=${search})}">1</a>
                                         </li>
 
                                         <!-- Page 2 -->
-                                        <li th:if="${totalPages >= 2}" th:class="'page-item mb-0' + (${currentPage == 2} ? ' active disabled' : '')">
+                                        <li th:if="${totalBookingPages >= 2}" th:class="'page-item mb-0' + (${currentPage == 2} ? ' active disabled' : '')">
                                             <a class="page-link"
                                                th:href="@{'/admin-booking-list'(page=2, status=${statusFilter}, view=${viewMode}, search=${search})}">2</a>
                                         </li>
 
                                         <!-- Left ellipsis -->
-                                        <li th:if="${totalPages >= 5 and currentPage - 2 > 2}" class="page-item mb-0 disabled">
+                                        <li th:if="${totalBookingPages >= 5 and currentPage - 2 > 2}" class="page-item mb-0 disabled">
                                             <a class="page-link">...</a>
                                         </li>
 
                                         <!-- Page -1 -->
-                                        <li th:if="${totalPages >= 4 and currentPage != 1 and currentPage - 1 != 1 and currentPage - 1 != 2}"
+                                        <li th:if="${totalBookingPages >= 4 and currentPage != 1 and currentPage - 1 != 1 and currentPage - 1 != 2}"
                                             class="page-item mb-0">
                                             <a class="page-link"
                                                th:href="@{'/admin-booking-list'(page=${currentPage - 1}, status=${statusFilter}, view=${viewMode}, search=${search})}"
@@ -534,13 +568,13 @@
                                         </li>
 
                                         <!-- Current Page -->
-                                        <li th:if="${totalPages >= 4 and currentPage != 1 and currentPage != 2 and currentPage != totalPages}"
+                                        <li th:if="${totalBookingPages >= 4 and currentPage != 1 and currentPage != 2 and currentPage != totalBookingPages}"
                                             class="page-item mb-0 active disabled">
                                             <a class="page-link" th:text="${currentPage}"></a>
                                         </li>
 
                                         <!-- Page +1 -->
-                                        <li th:if="${totalPages >= 4 and currentPage + 1 != 2 and currentPage + 1 != totalPages and currentPage != totalPages}"
+                                        <li th:if="${totalBookingPages >= 4 and currentPage + 1 != 2 and currentPage + 1 != totalBookingPages and currentPage != totalBookingPages}"
                                             class="page-item mb-0">
                                             <a class="page-link"
                                                th:href="@{'/admin-booking-list'(page=${currentPage + 1}, status=${statusFilter}, view=${viewMode}, search=${search})}"
@@ -548,20 +582,20 @@
                                         </li>
 
                                         <!-- Right ellipsis -->
-                                        <li th:if="${totalPages >= 4 and totalPages > currentPage + 2}" class="page-item mb-0 disabled">
+                                        <li th:if="${totalBookingPages >= 4 and totalBookingPages > currentPage + 2}" class="page-item mb-0 disabled">
                                             <a class="page-link">...</a>
                                         </li>
 
                                         <!-- Last page -->
-                                        <li th:if="${totalPages >= 3}"
-                                            th:class="'page-item mb-0' + (${currentPage == totalPages} ? ' active disabled' : '')">
+                                        <li th:if="${totalBookingPages >= 3}"
+                                            th:class="'page-item mb-0' + (${currentPage == totalBookingPages} ? ' active disabled' : '')">
                                             <a class="page-link"
-                                               th:href="@{'/admin-booking-list'(page=${totalPages}, status=${statusFilter}, view=${viewMode}, search=${search})}"
-                                               th:text="${totalPages}"></a>
+                                               th:href="@{'/admin-booking-list'(page=${totalBookingPages}, status=${statusFilter}, view=${viewMode}, search=${search})}"
+                                               th:text="${totalBookingPages}"></a>
                                         </li>
 
                                         <!-- Next -->
-                                        <li th:if="${totalPages >= 2}" th:class="'page-item mb-0' + (${currentPage == totalPages} ? ' disabled' : '')">
+                                        <li th:if="${totalBookingPages >= 2}" th:class="'page-item mb-0' + (${currentPage == totalBookingPages} ? ' disabled' : '')">
                                             <a class="page-link"
                                                th:href="@{'/admin-booking-list'(page=${currentPage + 1}, status=${statusFilter}, view=${viewMode}, search=${search})}">
                                                 <i class="fa-solid fa-angle-right"></i>
@@ -572,7 +606,6 @@
                             </div>
                         </div>
                         <!-- Pagination end-->
-
                     </div>
                 </div>
             </div>

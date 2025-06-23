@@ -96,6 +96,14 @@ public class HotelService {
         }
     }
 
+    public List<Hotel> searchHotelsPaginated(String search, int offset, int size) {
+        return hotelRepository.searchHotelsPaginated(search, offset, size);
+    }
+
+    public int countHotelsBySearch(String search) {
+        return hotelRepository.countHotelsBySearch(search);
+    }
+
     public boolean banHotel(int hotelId, String reason, int adminId) {
         Hotel hotel = hotelRepository.getHotelById(hotelId);
         if (hotel == null) return false;

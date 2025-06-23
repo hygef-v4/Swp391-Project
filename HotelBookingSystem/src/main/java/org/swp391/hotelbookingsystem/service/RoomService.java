@@ -106,4 +106,8 @@ public class RoomService {
         return roomRepository.countAvailableRoomsByHotelId(hotelId);
     }
 
+
+    public Room getRoomById(int roomId) {
+        return roomRepository.getRoomById(roomId);
+    }
 }
