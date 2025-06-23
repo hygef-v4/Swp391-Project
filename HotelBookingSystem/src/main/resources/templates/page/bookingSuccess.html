@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Mirrored from stackbros.in/bookinga/landing/booking-confirm.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:07:22 GMT -->
+<head>
+	<title>Đặt phòng thành công</title>
+
+	<!-- Meta Tags -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="author" content="StackBros">
+	<meta name="description" content="Đặt phòng thành công">
+
+	<!-- Dark mode -->
+	<script>
+		const storedTheme = localStorage.getItem('theme')
+ 
+		const getPreferredTheme = () => {
+			if (storedTheme) {
+				return storedTheme
+			}
+			return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+		}
+
+		const setTheme = function (theme) {
+			if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+				document.documentElement.setAttribute('data-bs-theme', 'dark')
+			} else {
+				document.documentElement.setAttribute('data-bs-theme', theme)
+			}
+		}
+
+		setTheme(getPreferredTheme())
+
+		window.addEventListener('DOMContentLoaded', () => {
+		    var el = document.querySelector('.theme-icon-active');
+			if(el != 'undefined' && el != null) {
+				const showActiveTheme = theme => {
+				const activeThemeIcon = document.querySelector('.theme-icon-active use')
+				const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+				const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
+
+				document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+					element.classList.remove('active')
+				})
+
+				btnToActive.classList.add('active')
+				activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+			}
+
+			window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+				if (storedTheme !== 'light' || storedTheme !== 'dark') {
+					setTheme(getPreferredTheme())
+				}
+			})
+
+			showActiveTheme(getPreferredTheme())
+
+			document.querySelectorAll('[data-bs-theme-value]')
+				.forEach(toggle => {
+					toggle.addEventListener('click', () => {
+						const theme = toggle.getAttribute('data-bs-theme-value')
+						localStorage.setItem('theme', theme)
+						setTheme(theme)
+						showActiveTheme(theme)
+					})
+				})
+
+			}
+		})
+		
+	</script>
+
+	<!-- Favicon -->
+	<link rel="shortcut icon" href="assets/images/favicon.ico">
+
+	<!-- Google Font -->
+	<link rel="preconnect" href="https://fonts.googleapis.com/">
+	<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Poppins:wght@400;500;700&amp;display=swap">
+
+	<!-- Plugins CSS -->
+	<link rel="stylesheet" type="text/css" href="assets/vendor/font-awesome/css/all.min.css">
+	<link rel="stylesheet" type="text/css" href="assets/vendor/bootstrap-icons/bootstrap-icons.css">
+	<link rel="stylesheet" type="text/css" href="assets/vendor/glightbox/css/glightbox.css">
+
+	<!-- Theme CSS -->
+	<link rel="stylesheet" type="text/css" href="assets/css/style.css">
+
+</head>
+
+<body>
+
+<!-- Header START -->
+<div th:replace="~{common/header :: header}"></div>
+<!-- Header END -->
+
+<!-- **************** MAIN CONTENT START **************** -->
+<main>
+
+<!-- =======================
+Main content START -->
+<section class="pt-4">
+	<div class="container">
+		<div class="row">
+			<div class="col-md-10 col-xl-8 mx-auto">
+
+				<div class="card shadow">
+					<!-- Image -->
+					<img th:src="${booking.imageUrl}" class="rounded-top">
+
+					<!-- Card body -->
+					<div class="card-body text-center p-4">
+						<!-- Title -->
+						<h1 class="card-title fs-3">🎊 Bạn đã đặt phòng thành công! 🎊</h1>
+
+						<!-- Second title -->
+						<h5 class="text-primary mb-4" th:text="${booking.hotelName}"></h5>
+
+						<!-- List -->
+						<div class="row justify-content-between text-start mb-4">
+							<div class="col-md-5">
+								<ul class="list-group list-group-borderless">
+									<li class="list-group-item d-sm-flex justify-content-between align-items-center">
+										<span class="mb-0"><i class="bi bi-person fa-fw me-2"></i>Người đặt:</span>
+										<span class="h6 fw-normal mb-0" th:text="${booking.customerName}"></span>
+									</li>
+									<li class="list-group-item d-sm-flex justify-content-between align-items-center">
+										<span class="mb-0"><i class="bi bi-vr fa-fw me-2"></i>Số phòng đặt:</span>
+										<span class="h6 fw-normal mb-0" th:text="${booking.getBookingUnitSize()}"></span>
+									</li>
+									<li class="list-group-item d-sm-flex justify-content-between align-items-center">
+										<span class="mb-0"><i class="bi bi-calendar fa-fw me-2"></i>Ngày nhận phòng:</span>
+										<span class="h6 fw-normal mb-0" th:text="${booking.checkIn.format(T(java.time.format.DateTimeFormatter).ofPattern('dd/MM/yyyy'))}"></span>
+									</li>
+								</ul>
+							</div>
+
+							<div class="col-md-5">
+								<ul class="list-group list-group-borderless">
+									<li class="list-group-item d-sm-flex justify-content-between align-items-center">
+										<span class="mb-0"><i class="bi bi-calendar fa-fw me-2"></i>Ngày Đặt:</span>
+										<span class="h6 fw-normal mb-0" th:text="${booking.createdAt.format(T(java.time.format.DateTimeFormatter).ofPattern('dd/MM/yyyy'))}"></span>
+									</li>
+									<li class="list-group-item d-sm-flex justify-content-between align-items-center">
+										<span class="mb-0"><i class="bi bi-currency-dollar fa-fw me-2"></i>Tổng tiền:</span>
+										<span class="h6 fw-normal mb-0" th:text="${booking.totalPrice}"></span>
+									</li>
+									<li class="list-group-item d-sm-flex justify-content-between align-items-center">
+										<span class="mb-0"><i class="bi bi-calendar fa-fw me-2"></i>Ngày trả phòng:</span>
+										<span class="h6 fw-normal mb-0" th:text="${booking.checkOut.format(T(java.time.format.DateTimeFormatter).ofPattern('dd/MM/yyyy'))}"></span>
+									</li>
+								</ul>
+							</div>
+						</div>
+
+						<!-- Button -->
+						<div class="d-sm-flex justify-content-sm-end d-grid">
+							<!-- Download button -->
+							<a href="/bookingHistory" class="btn btn-light mb-0 me-2"><i class="bi bi-journal-text me-2"></i>Xem lịch sử đặt phòng</a>
+							<!-- Return button -->
+							<a th:href="'hotel-detail?hotelId=' + ${booking.hotelId}" class="btn btn-primary mb-0">Tiếp tục đặt phòng<i class="bi bi-arrow-right ms-2"></i></a>
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+</section>
+<!-- =======================
+Main content START -->
+
+</main>
+<!-- **************** MAIN CONTENT END **************** -->
+
+<!-- =======================
+Footer START -->
+<div th:replace="~{common/footer :: footer}"></div>
+<!-- =======================
+Footer END -->
+
+<!-- Back to top -->
+<div class="back-top"></div>
+
+<!-- Bootstrap JS -->
+<script src="assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Vendors -->
+<script src="assets/vendor/glightbox/js/glightbox.js"></script>
+
+<!-- ThemeFunctions -->
+<script src="assets/js/functions.js"></script>
+
+</body>
+
+<!-- Mirrored from stackbros.in/bookinga/landing/booking-confirm.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:07:22 GMT -->
+</html>

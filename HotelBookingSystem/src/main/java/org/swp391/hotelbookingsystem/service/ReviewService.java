@@ -1,22 +1,14 @@
 package org.swp391.hotelbookingsystem.service;
 
 import java.util.List;
-import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.swp391.hotelbookingsystem.controller.chatbot.DialogflowWebhookController;
 import org.swp391.hotelbookingsystem.model.Review;
 import org.swp391.hotelbookingsystem.repository.ReviewRepository;
 
 @Service
 public class ReviewService {
     private ReviewRepository reviewRepository;
-    private DialogflowWebhookController dialogflowWebhookController;
-
-    public ReviewService(DialogflowWebhookController dialogflowWebhookController) {
-        this.dialogflowWebhookController = dialogflowWebhookController;
-    }
 
     public ReviewService(ReviewRepository reviewRepository) {
         this.reviewRepository = reviewRepository;

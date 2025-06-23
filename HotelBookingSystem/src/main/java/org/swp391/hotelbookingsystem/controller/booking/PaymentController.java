@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.swp391.hotelbookingsystem.model.Booking;
 import org.swp391.hotelbookingsystem.model.BookingUnit;
 import org.swp391.hotelbookingsystem.model.User;
+import org.swp391.hotelbookingsystem.service.BookingService;
 import org.swp391.hotelbookingsystem.service.VNPayService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,11 +18,13 @@ import jakarta.servlet.http.HttpSession;
 @Controller
 public class PaymentController {
     @Autowired
+    BookingService bookingService;
+    @Autowired
     VNPayService vnpayService;
 
     @GetMapping("/payment")
     public String payment(
-        Model model, HttpSession session
+        HttpSession session, Model model
     ){
         Booking booking = (Booking) session.getAttribute("booking");
         if(booking == null) {
@@ -48,20 +51,43 @@ public class PaymentController {
     @PostMapping("/create-payment")
     public String createPayment(@RequestParam("amount") long amount, @RequestParam("orderInfo") String orderInfo, HttpServletRequest request){
         try{
-            String paymentUrl = vnpayService.createPayment(amount, orderInfo, request);
+            String returnUrl = "/booking-success";
+            String paymentUrl = vnpayService.createPayment(amount, orderInfo, returnUrl, request);
             return "redirect:" + paymentUrl;
         }catch(Exception e){
             return "redirect:/error";
         }
     }
 
-    @GetMapping("/return-payment")
-    public String returnPayment(HttpServletRequest request, Model model){
+    @GetMapping("/booking-success")
+    public String returnPayment(HttpServletRequest request, HttpSession session, Model model){
         try{
             boolean paymentStatus = vnpayService.returnPayment(request);
-            return "redirect:" + (paymentStatus ? "/" : "/error");
+            if(!paymentStatus) return "redirect:/booking-error";
+
+            Booking booking = (Booking) session.getAttribute("booking");
+            if(booking == null) return "redirect:/";
+
+            bookingService.saveBooking(booking);
+            session.setAttribute("booking", null);
+            model.addAttribute("booking", booking);
+
+            return "page/bookingSuccess";
         }catch(Exception e){
             return "redirect:/error";
         }
     }
+
+    @GetMapping("/booking-error")
+    public String getMethodName(HttpSession session, Model model){
+        Booking booking = (Booking) session.getAttribute("booking");
+        if(booking == null) return "redirect:/";
+
+        session.setAttribute("booking", null);
+        model.addAttribute("id", booking.getHotelId());
+
+        return "page/bookingError";
+    }
+    
+
 }

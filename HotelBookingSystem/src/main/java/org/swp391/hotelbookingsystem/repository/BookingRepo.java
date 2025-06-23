@@ -1,5 +1,6 @@
 package org.swp391.hotelbookingsystem.repository;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -120,6 +121,21 @@ public class BookingRepo {
         }, bookingUnitId);
     }
 
+    public void saveBookingUnit(int id, BookingUnit bookingUnit){
+        String sql = """
+            INSERT INTO BookingUnits (booking_id, room_id, quantity, price, refund_amount)
+            VALUES (?, ?, ?, ?, ?)
+        """;
+
+        jdbcTemplate.update(sql,
+            id,
+            bookingUnit.getRoomId(),
+            bookingUnit.getQuantity(),
+            bookingUnit.getPrice(),
+            (Object) bookingUnit.getRefundAmount()
+        );
+    }
+
     // 1. Lấy tất cả booking
     public List<Booking> findAll() {
         String sql = """
@@ -204,25 +220,25 @@ public class BookingRepo {
     }
 
     // 3. Tạo booking mới
-    // public int save(Booking booking) {
-    //     String sql = """
-    //             INSERT INTO Bookings (hotel_id, customer_id, coupon_id, check_in, check_out, total_price)
-    //             VALUES (?, ?, ?, ?, ?, ?)
-    //             """;
+    public void saveBooking(Booking booking) {
+        String sql = """
+            INSERT INTO Bookings (hotel_id, customer_id, coupon_id, check_in, check_out, total_price)
+            OUTPUT inserted.booking_id
+            VALUES (?, ?, ?, ?, ?, ?)
+        """;
+        int id = jdbcTemplate.queryForObject(sql, Integer.class, 
+            booking.getHotelId(),
+            booking.getCustomerId(),
+            booking.getCouponId(),
+            booking.getCheckIn(),
+            booking.getCheckOut(),
+            booking.getTotalPrice()
+        );
 
-    //     return jdbcTemplate.update(sql,
-    //             booking.getHotelId(),
-    //             booking.getRoomId(),
-    //             booking.getCustomerId(),
-    //             booking.getCouponId(),
-    //             booking.getCheckIn(),
-    //             booking.getCheckOut(),
-    //             booking.getTotalPrice(),
-    //             booking.getStatus(),
-    //             booking.getRefundAmount(),
-    //             booking.getRefundStatus(),
-    //     );
-    // }
+        for(BookingUnit bookingUnit : booking.getBookingUnits()){
+            saveBookingUnit(id, bookingUnit);
+        }
+    }
 
     // 4. Cập nhật trạng thái đặt phòng
     public int updateStatus(int bookingUnitId, String status) {

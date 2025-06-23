@@ -109,12 +109,18 @@ public class BookingController {
             return "redirect:/login";
         }
 
+        Hotel hotel = hotelService.getHotelById(hotelId);
+
         Booking booking = Booking.builder()
             .customerId(user.getId())
+            .customerName(user.getFullName())
             .hotelId(hotelId)
+            .hotelName(hotel.getHotelName())
+            .imageUrl(hotel.getHotelImageUrl())
             .checkIn(LocalDate.parse(checkIn).atStartOfDay())
             .checkOut(LocalDate.parse(checkOut).atStartOfDay())
             .totalPrice(totalPrice)
+            .createdAt(LocalDateTime.now())
             .couponId(couponId)
             .build();
 

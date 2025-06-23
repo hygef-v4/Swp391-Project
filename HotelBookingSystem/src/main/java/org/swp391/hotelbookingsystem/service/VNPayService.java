@@ -12,7 +12,7 @@ import java.util.*;
 
 @Service
 public class VNPayService {
-    public String createPayment(long total, String orderInfo, HttpServletRequest request) throws UnsupportedEncodingException{
+    public String createPayment(long total, String orderInfo, String url, HttpServletRequest request) throws UnsupportedEncodingException{
         StringBuilder hashData = new StringBuilder();
         StringBuilder query = new StringBuilder();
 
@@ -25,7 +25,7 @@ public class VNPayService {
         String txnRef = VNPayConfig.getRandomNumber(8);
         String orderType = "other";
         String locale = "vn";
-        String returnUrl = VNPayConfig.vnp_ReturnUrl;
+        String returnUrl = VNPayConfig.vnp_ReturnUrl + url;
         String ipAddr = VNPayConfig.getIpAddress(request);
 
         Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));

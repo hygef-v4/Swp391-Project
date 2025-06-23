@@ -63,7 +63,7 @@ public class RoomRepository {
                         max_guests AS maxGuests,
                         room_type_id AS roomTypeId,
                         status,
-                        quantity
+                        quantity - ISNULL((SELECT SUM(quantity) FROM BookingUnits WHERE room_id = Rooms.room_id AND status LIKE 'approved'), 0) AS quantity
                     FROM Rooms
                     WHERE hotel_id = ?
                 """;
@@ -81,7 +81,7 @@ public class RoomRepository {
                         max_guests AS maxGuests,
                         room_type_id AS roomTypeId,
                         status,
-                        quantity
+                        quantity - ISNULL((SELECT SUM(quantity) FROM BookingUnits WHERE room_id = Rooms.room_id AND status LIKE 'approved'), 0) AS quantity
                     FROM Rooms
                     WHERE hotel_id = ? AND quantity > 0
                 """;

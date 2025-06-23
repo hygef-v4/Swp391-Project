@@ -29,4 +29,11 @@ public class Booking {
     private String customerName;
     private String customerEmail;
     private String customerAvatar;
+
+    public int getBookingUnitSize(){
+        int size = 0;
+        for(BookingUnit bookingUnit : bookingUnits){
+            size += bookingUnit.getQuantity();
+        }return size;
+    }
 }
