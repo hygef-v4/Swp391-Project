@@ -230,6 +230,10 @@ public class UserService {
         return allUsers != null ? allUsers.size() : 0;
     }
 
+    public void flagUser(int userId, String reason) {
+        userRepo.flagUserById(userId, reason);
+    }
+
 }
 
 

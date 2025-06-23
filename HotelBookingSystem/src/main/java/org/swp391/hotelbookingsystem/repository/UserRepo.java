@@ -404,6 +404,11 @@ public class UserRepo {
         return jdbc.queryForObject(sql, Long.class, isActive);
     }
 
+    public void flagUserById(int userId, String reason) {
+        String sql = "UPDATE Users SET is_flagged = 1, flag_reason = ? WHERE user_id = ?";
+        jdbc.update(sql, reason, userId);
+    }
+
 }
 
 

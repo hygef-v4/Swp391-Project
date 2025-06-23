@@ -9,6 +9,8 @@
     <!-- Meta Tags -->
     <meta name="author" content="Đội Ngũ Hamora">
     <meta name="description" content="Hamora - Trang Quản Lý Người Dùng">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 
     <!-- Dark mode -->
     <script>
@@ -495,9 +497,35 @@
                 document.getElementById('reason-error').classList.remove('d-none');
                 return;
             }
-            console.log(`Flagging user ${currentUserIdToFlag} for reason: ${reason}`);
-            showToast('Thành công', 'Yêu cầu báo cáo đã được gửi tới quản trị viên.', true);
-            flagUserModal.hide();
+            const btn = this;
+            btn.disabled = true;
+            const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+            fetch(`/moderator-user-list/flag/${currentUserIdToFlag}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
+                },
+                body: JSON.stringify({ reason: reason })
+            })
+            .then(response => {
+                if (response.ok) {
+                    showToast('Thành công', 'Người dùng đã được báo cáo.', true);
+                    flagUserModal.hide();
+                    setTimeout(function() {
+                        window.location.href = '/moderator-user-list';
+                    }, 1000);
+                } else {
+                    return response.text().then(text => { throw new Error(text); });
+                }
+            })
+            .catch(error => {
+                showToast('Lỗi', error.message || 'Không thể báo cáo người dùng.', false);
+            })
+            .finally(() => {
+                btn.disabled = false;
+            });
         });
 
 

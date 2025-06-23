@@ -11,10 +11,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.service.UserService;
 
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class ModeratorUserListController {
@@ -37,13 +39,17 @@ public class ModeratorUserListController {
         return "moderator/moderatorUserList";
     }
 
-    @PostMapping("/moderator-user-list/toggle-status/{userId}")
-    public ResponseEntity<?> toggleUserStatus(@PathVariable Long userId) {
+    @PostMapping("/moderator-user-list/flag/{userId}")
+    public ResponseEntity<?> flagUser(@PathVariable int userId, @RequestBody Map<String, String> payload) {
         try {
-            userService.toggleUserStatus(userId);
-            return ResponseEntity.ok().build();
+            String reason = payload.get("reason");
+            if (reason == null || reason.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body("Reason is required.");
+            }
+            userService.flagUser(userId, reason);
+            return ResponseEntity.ok().body("User flagged successfully.");
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error toggling user status");
+            return ResponseEntity.badRequest().body("Error flagging user");
         }
     }
 }
