@@ -67,9 +67,9 @@ public class HostHotelController {
     public String viewHostListings(HttpSession session, Model model) {
         User host = (User) session.getAttribute("user");
 
-        // if (host == null || !host.getRole().equalsIgnoreCase("HOTEL_OWNER")) {
-        //     return "redirect:/login"; // not logged in
-        // }
+        if (host == null || !host.getRole().equalsIgnoreCase("HOTEL_OWNER")) {
+            return "redirect:/login"; // not logged in
+        }
 
         List<Hotel> hotels = hotelService.getHotelsByHostId(host.getId());
         model.addAttribute("hotels", hotels);
