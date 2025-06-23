@@ -26,11 +26,20 @@ public class ModeratorDashboardController {
             // Lấy tổng số khách sạn
             int totalHotels = hotelService.getTotalHotels();
             model.addAttribute("totalHotels", totalHotels);
-            
+
+            // Lấy số lượng người dùng bị flagged
+            long flaggedUsers = userService.getAllUsersWithProfile().stream().filter(u -> Boolean.TRUE.equals(u.isFlagged())).count();
+            model.addAttribute("flaggedUsers", flaggedUsers);
+
+            // Lấy tổng số người dùng hoạt động (không bị flagged)
+            long activeUsers = userService.getAllUsersWithProfile().stream().filter(u -> u.isActive() && !Boolean.TRUE.equals(u.isFlagged())).count();
+            model.addAttribute("activeUsers", activeUsers);
         } catch (Exception e) {
             // Xử lý lỗi và set giá trị mặc định
             model.addAttribute("totalUsers", 0);
             model.addAttribute("totalHotels", 0);
+            model.addAttribute("flaggedUsers", 0);
+            model.addAttribute("activeUsers", 0);
             e.printStackTrace();
         }
         

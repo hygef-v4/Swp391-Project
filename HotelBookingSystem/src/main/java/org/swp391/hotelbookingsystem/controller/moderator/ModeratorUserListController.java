@@ -29,9 +29,9 @@ public class ModeratorUserListController {
     @GetMapping("/moderator-user-list")
     public String getUserList(Model model) {
         List<User> userList = userService.getAllUsersWithProfile();
-        long activeUsers = userList.stream().filter(User::isActive).count();
-        long lockedUsers = userList.size() - activeUsers;
-        long flaggedUsers = userList.stream().filter(User::isFlagged).count();
+        long activeUsers = userList.stream().filter(u -> u.isActive() && !Boolean.TRUE.equals(u.isFlagged())).count();
+        long lockedUsers = userList.stream().filter(u -> !u.isActive() && !Boolean.TRUE.equals(u.isFlagged())).count();
+        long flaggedUsers = userList.stream().filter(u -> Boolean.TRUE.equals(u.isFlagged())).count();
 
         model.addAttribute("users", userList);
         model.addAttribute("activeUsers", activeUsers);
