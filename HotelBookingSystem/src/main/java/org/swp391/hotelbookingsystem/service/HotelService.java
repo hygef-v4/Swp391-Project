@@ -11,12 +11,14 @@ import java.util.List;
 public class HotelService {
 
     private final HotelRepository hotelRepository;
+    private final NotificationService notificationService;
 
-    public HotelService(HotelRepository hotelRepository) {
+    public HotelService(HotelRepository hotelRepository, NotificationService notificationService) {
         this.hotelRepository = hotelRepository;
+        this.notificationService = notificationService;
     }
 
-    public Hotel getHotelById(int id){
+    public Hotel getHotelById(int id) {
         return hotelRepository.getHotelById(id);
     }
 
@@ -28,8 +30,8 @@ public class HotelService {
         return hotelRepository.getTop8HighRatedHotels();
     }
 
-    public List<Hotel> getHotelsByLocation(int id, int maxGuests, int roomQuantity, String name, int min, int max) {
-        return hotelRepository.getHotelsByLocation(id, maxGuests, roomQuantity, name, min, max);
+    public List<Hotel> getHotelsByLocation(int id, int maxGuests, int roomQuantity, String name, int min, int max, boolean star) {
+        return hotelRepository.getHotelsByLocation(id, maxGuests, roomQuantity, name, min, max, star);
     }
 
     public Hotel saveHotel(Hotel hotel) {
@@ -67,7 +69,7 @@ public class HotelService {
     public boolean isFavoriteHotel(int userId, int hotelId) {
         return hotelRepository.isFavoriteHotel(userId, hotelId) != 0;
     }
-    
+
     public void insertHotelDeletionToken(int userId, String token, LocalDateTime expiry, String tokenType) {
         hotelRepository.insertHotelDeletionToken(userId, token, expiry, tokenType);
     }
@@ -75,7 +77,6 @@ public class HotelService {
     public String getHotelDeleteTokenType(String token, int userId) {
         return hotelRepository.findValidTokenType(token, userId);
     }
-
 
 
     public void cancelHotelDeleteToken(int userId, int hotelId) {
@@ -95,4 +96,38 @@ public class HotelService {
         }
     }
 
+    public boolean banHotel(int hotelId, String reason, int adminId) {
+        Hotel hotel = hotelRepository.getHotelById(hotelId);
+        if (hotel == null) return false;
+
+        int updated = hotelRepository.updateHotelStatus(hotelId, "banned");
+        if (updated <= 0) return false;
+
+        String message = "Khách sạn \"" + hotel.getHotelName() + "\" đã bị cấm. Lý do: " + reason;
+        notificationService.notifyUser(hotel.getHostId(), message);
+
+        return true;
+    }
+
+    public void updateHotelStatus(int hotelId, String status) {
+        hotelRepository.updateHotelStatus(hotelId, status);
+    }
+
+    public boolean unbanHotel(int hotelId, int adminId) {
+        Hotel hotel = hotelRepository.getHotelById(hotelId);
+        if (hotel == null) return false;
+
+        int updated = hotelRepository.updateHotelStatus(hotelId, "active");
+        if (updated <= 0) return false;
+
+        String message = "Khách sạn \"" + hotel.getHotelName() + "\" đã được gỡ cấm và hiện có thể hoạt động trở lại.";
+        notificationService.notifyUser(hotel.getHostId(), message);
+
+        return true;
+    }
+
+    public int countBookingsByHotelId(int hotelId) {
+        return hotelRepository.countBookingsByHotelId(hotelId);
+
+    }
 }
