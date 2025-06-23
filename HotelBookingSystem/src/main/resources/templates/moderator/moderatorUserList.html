@@ -242,6 +242,9 @@
                     <div class="avatar avatar-xxl">
                         <img id="detail-avatar" class="avatar-img rounded-circle" src="" alt="avatar">
                     </div>
+                    <div id="detail-flagged-badge" style="display:none;">
+                        <span class="badge bg-danger"><i class="bi bi-flag-fill me-1"></i>Bị flagged</span>
+                    </div>
                 </div>
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item d-flex justify-content-between">
@@ -312,6 +315,25 @@
     </div>
 </div>
 
+<!-- Confirm Unflag Modal -->
+<div class="modal fade" id="confirm-unflag-modal" tabindex="-1" aria-labelledby="confirmUnflagModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmUnflagModalLabel">Xác nhận huỷ flagged</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+      </div>
+      <div class="modal-body">
+        <p>Bạn có chắc chắn muốn huỷ flagged người dùng này không?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Không</button>
+        <button type="button" class="btn btn-danger" id="confirm-unflag-btn">Huỷ flagged</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Toast Notification -->
 <div class="position-fixed top-0 end-0 p-3" style="z-index: 1055">
     <div id="notificationToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
@@ -343,6 +365,7 @@
         const itemsPerPage = 8;
         let filteredUsers = users;
         let currentUserIdToFlag = null;
+        let currentUserIdToUnflag = null;
 
         function getRoleDisplayName(role) {
             const roleMap = {
@@ -362,9 +385,11 @@
             const paginatedUsers = filteredUsers.slice(start, end);
 
             paginatedUsers.forEach(user => {
-                const statusBadge = user.active
-                    ? '<span class="badge bg-success">Hoạt động</span>'
-                    : '<span class="badge bg-warning">Bị khóa</span>';
+                const statusBadge = user.flagged
+                    ? '<span class="badge bg-danger"><i class="bi bi-flag-fill me-1"></i>Bị flagged</span>'
+                    : (user.active
+                        ? '<span class="badge bg-success">Hoạt động</span>'
+                        : '<span class="badge bg-warning">Bị khóa</span>');
 
                 const flaggedClass = user.flagged ? 'flagged-card' : '';
                 const flaggedIndicator = user.flagged ? '<i class="bi bi-flag-fill text-danger position-absolute top-0 end-0 m-2"></i>' : '';
@@ -405,7 +430,7 @@
                                         <i class="bi bi-flag"></i>
                                     </button>` : `
                                     <button class="btn btn-outline-danger btn-sm"
-                                            onclick="unflagUser(${user.id})" title="Huỷ flagged">
+                                            onclick="showConfirmUnflagModal(${user.id})" title="Huỷ flagged">
                                         <i class="bi bi-flag-fill"></i>
                                     </button>`}
                                 </div>
@@ -425,20 +450,27 @@
                 document.getElementById('detail-email').textContent = user.email;
                 document.getElementById('detail-phone').textContent = user.phone || 'Chưa cập nhật';
                 document.getElementById('detail-role').textContent = getRoleDisplayName(user.role);
-                document.getElementById('detail-status').innerHTML = user.active
-                    ? '<span class="badge bg-success">Hoạt động</span>'
-                    : '<span class="badge bg-warning">Bị khóa</span>';
+                if (user.flagged) {
+                    document.getElementById('detail-status').innerHTML = '<span class="badge bg-danger"><i class="bi bi-flag-fill me-1"></i>Bị flagged</span>';
+                } else {
+                    document.getElementById('detail-status').innerHTML = user.active
+                        ? '<span class="badge bg-success">Hoạt động</span>'
+                        : '<span class="badge bg-warning">Bị khóa</span>';
+                }
                 document.getElementById('detail-gender').textContent = user.gender || 'Chưa cập nhật';
                 document.getElementById('detail-dob').textContent = user.dob || 'Chưa cập nhật';
                 document.getElementById('detail-bio').textContent = user.bio || 'Chưa có thông tin';
 
                 // Hiển thị thông tin flagged nếu có
                 const flagContainer = document.getElementById('flag-info-container');
+                const flaggedBadge = document.getElementById('detail-flagged-badge');
                 if (user.flagged && user.flagReason) {
                     document.getElementById('detail-flag-reason').textContent = user.flagReason;
                     flagContainer.style.display = 'block';
+                    flaggedBadge.style.display = 'block';
                 } else {
                     flagContainer.style.display = 'none';
+                    flaggedBadge.style.display = 'none';
                 }
 
                 userDetailModal.show();
@@ -466,11 +498,14 @@
                     (roleFilter_value === 'host' && user.role === 'HOTEL_OWNER') ||
                     (roleFilter_value === 'moderator' && user.role === 'MODERATOR') ||
                     (roleFilter_value === 'admin' && user.role === 'ADMIN');
-                const matchesStatus = !statusFilter_value ||
-                    (statusFilter_value === 'active' && user.active) ||
-                    (statusFilter_value === 'inactive' && !user.active) ||
-                    (statusFilter_value === 'flagged' && user.flagged);
-
+                let matchesStatus = true;
+                if (statusFilter_value === 'active') {
+                    matchesStatus = user.active && !user.flagged;
+                } else if (statusFilter_value === 'inactive') {
+                    matchesStatus = !user.active && !user.flagged;
+                } else if (statusFilter_value === 'flagged') {
+                    matchesStatus = user.flagged;
+                }
                 return matchesSearch && matchesRole && matchesStatus;
             });
 
@@ -637,11 +672,25 @@
             });
         }
 
+        function showConfirmUnflagModal(userId) {
+            currentUserIdToUnflag = userId;
+            const modal = new bootstrap.Modal(document.getElementById('confirm-unflag-modal'));
+            modal.show();
+        }
+
+        document.getElementById('confirm-unflag-btn').addEventListener('click', function() {
+            if (currentUserIdToUnflag) {
+                unflagUser(currentUserIdToUnflag);
+                // Ẩn modal sau khi xác nhận
+                bootstrap.Modal.getInstance(document.getElementById('confirm-unflag-modal')).hide();
+            }
+        });
+
         // Make functions global for onclick handlers
         window.showUserDetail = showUserDetail;
         window.showFlagModal = showFlagModal;
         window.changePage = changePage;
-        window.unflagUser = unflagUser;
+        window.showConfirmUnflagModal = showConfirmUnflagModal;
 
         // Initial display
         displayUsers(currentPage);
