@@ -167,26 +167,35 @@ public class UserRepo {
                    u.avatar_url AS avatarUrl,
                    u.bio,
                    u.gender,
-                   u.date_of_birth
+                   u.date_of_birth,
+                   u.is_flagged,
+                   u.flag_reason
             FROM Users u
             """;
 
 
+
     public List<User> getAllUsersWithProfile() {
-        return jdbc.query(SELECT_USERS_WITH_PROFILE, (rs, rowNum) -> User.builder()
-                .id(rs.getInt("userID"))
-                .fullName(rs.getString("fullName"))
-                .email(rs.getString("email"))
-                .password(rs.getString("password"))
-                .phone(rs.getString("phone"))
-                .role(rs.getString("role"))
-                .active(rs.getBoolean("is_active"))
-                .avatarUrl(rs.getString("avatarUrl"))
-                .bio(rs.getString("bio"))
-                .gender(rs.getString("gender"))
-                .dob(rs.getDate("date_of_birth"))
-                .build());
+        String sql = SELECT_USERS_WITH_PROFILE + " ORDER BY u.user_id";
+        return jdbc.query(sql, (rs, rowNum) -> {
+            User user = new User();
+            user.setId(rs.getInt("userID"));
+            user.setFullName(rs.getString("fullName"));
+            user.setEmail(rs.getString("email"));
+            user.setPassword(rs.getString("password"));
+            user.setPhone(rs.getString("phone"));
+            user.setRole(rs.getString("role"));
+            user.setActive(rs.getBoolean("is_active"));
+            user.setAvatarUrl(rs.getString("avatarUrl"));
+            user.setBio(rs.getString("bio"));
+            user.setGender(rs.getString("gender"));
+            user.setDob(rs.getDate("date_of_birth"));
+            user.setFlagged(rs.getBoolean("is_flagged"));
+            user.setFlagReason(rs.getString("flag_reason"));
+            return user;
+        });
     }
+
 
     public void updateUserPassword(String email, String encodedPassword) {
         String sql = "UPDATE Users SET password_hash = ? WHERE email = ?";
@@ -408,6 +417,7 @@ public class UserRepo {
         String sql = "UPDATE Users SET is_flagged = 1, flag_reason = ? WHERE user_id = ?";
         jdbc.update(sql, reason, userId);
     }
+
 
 }
 
