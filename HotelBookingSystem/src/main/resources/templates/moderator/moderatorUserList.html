@@ -613,20 +613,7 @@
                     if (data === 'User flagged successfully.') {
                         showToast('Thành công', 'Đã báo cáo người dùng thành công!');
                         flagUserModal.hide();
-
-                        // Update user in local array
-                        const userIndex = users.findIndex(u => u.id === currentUserIdToFlag);
-                        if (userIndex !== -1) {
-                            users[userIndex].flagged = true;
-                            users[userIndex].flagReason = reason;
-                        }
-
-                        // Refresh display
-                        filterUsers();
-
-                        // Update flagged count in header
-                        const flaggedCount = users.filter(u => u.flagged).length;
-                        document.querySelector('.badge.bg-danger').textContent = flaggedCount + ' Bị flagged';
+                        window.location.reload();
                     } else {
                         showToast('Lỗi', 'Có lỗi xảy ra khi báo cáo người dùng', true);
                     }
@@ -652,16 +639,7 @@
             .then(data => {
                 if (data === 'User unflagged successfully.') {
                     showToast('Thành công', 'Đã huỷ flagged người dùng!');
-                    // Update user in local array
-                    const userIndex = users.findIndex(u => u.id === userId);
-                    if (userIndex !== -1) {
-                        users[userIndex].flagged = false;
-                        users[userIndex].flagReason = null;
-                    }
-                    filterUsers();
-                    // Update flagged count in header
-                    const flaggedCount = users.filter(u => u.flagged).length;
-                    document.querySelector('.badge.bg-danger').textContent = flaggedCount + ' Bị flagged';
+                    window.location.reload();
                 } else {
                     showToast('Lỗi', 'Có lỗi xảy ra khi huỷ flagged', true);
                 }
