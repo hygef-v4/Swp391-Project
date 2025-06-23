@@ -40,13 +40,17 @@ public class AdminHotelController {
     final
     AmenityService amenityService;
 
-    public AdminHotelController(HotelService hotelService, RoomService roomService, ReviewService reviewService, UserService userService, LocationService locationService, AmenityService amenityService) {
+    final
+    BookingService bookingService;
+
+    public AdminHotelController(HotelService hotelService, RoomService roomService, ReviewService reviewService, UserService userService, LocationService locationService, AmenityService amenityService, BookingService bookingService) {
         this.hotelService = hotelService;
         this.roomService = roomService;
         this.reviewService = reviewService;
         this.userService = userService;
         this.locationService = locationService;
         this.amenityService = amenityService;
+        this.bookingService = bookingService;
     }
 
     @GetMapping("/admin-hotel-list")
@@ -159,6 +163,12 @@ public class AdminHotelController {
             room.setCategories(categories);
         }model.addAttribute("rooms", rooms);
 
+        int roomCount = rooms.stream().mapToInt(Room::getQuantity).sum();
+        model.addAttribute("roomCount", roomCount);
+
+        int totalBookings = hotelService.countBookingsByHotelId(hotelId);
+        model.addAttribute("totalBookings", totalBookings);
+
         String hotelName = hotel.getHotelName();
         String encode = URLEncoder.encode(hotelName, StandardCharsets.UTF_8);
         String map = "https://www.google.com/maps/search/" + encode + "//@" + hotel.getLatitude() + "," + hotel.getLongitude() + ",17z";
@@ -184,4 +194,21 @@ public class AdminHotelController {
         return "redirect:/admin/hotel/view/" + hotelId;
     }
 
+    @PostMapping("/admin/hotel/unban/{hotelId}")
+    public String unbanHotel(@PathVariable("hotelId") int hotelId,
+                             HttpSession session,
+                             RedirectAttributes redirectAttributes) {
+        int adminId = ((User) session.getAttribute("user")).getId();
+        try {
+            boolean success = hotelService.unbanHotel(hotelId, adminId);
+            if (success) {
+                redirectAttributes.addFlashAttribute("successMessage", "Đã gỡ cấm khách sạn và gửi thông báo.");
+            } else {
+                redirectAttributes.addFlashAttribute("errorMessage", "Không thể gỡ cấm khách sạn.");
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi: " + e.getMessage());
+        }
+        return "redirect:/admin/hotel/view/" + hotelId;
+    }
 }

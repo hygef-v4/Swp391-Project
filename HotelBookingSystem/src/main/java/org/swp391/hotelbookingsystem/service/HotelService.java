@@ -99,6 +99,24 @@ public class HotelService {
 
         return true;
     }
+    public void updateHotelStatus(int hotelId, String status) {
+        hotelRepository.updateHotelStatus(hotelId, status);
+    }
 
+    public boolean unbanHotel(int hotelId, int adminId) {
+        Hotel hotel = hotelRepository.getHotelById(hotelId);
+        if (hotel == null) return false;
+
+        int updated = hotelRepository.updateHotelStatus(hotelId, "active");
+        if (updated <= 0) return false;
+
+        String message = "Khách sạn \"" + hotel.getHotelName() + "\" đã được gỡ cấm và hiện có thể hoạt động trở lại.";
+        notificationService.notifyUser(hotel.getHostId(), message);
+
+        return true;
+    }
+    public int countBookingsByHotelId(int hotelId) {
+        return hotelRepository.countBookingsByHotelId(hotelId);
+    }
 
 }

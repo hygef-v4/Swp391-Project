@@ -338,4 +338,14 @@ public class HotelRepository {
         return jdbcTemplate.update(sql, status, hotelId);
     }
 
+    public int countBookingsByHotelId(int hotelId) {
+        String sql = """
+        SELECT COUNT(*) FROM BookingUnits bu
+        JOIN Rooms r ON bu.room_id = r.room_id
+        WHERE r.hotel_id = ?
+    """;
+        return jdbcTemplate.queryForObject(sql, Integer.class, hotelId);
+    }
+
+
 }

@@ -166,4 +166,13 @@ public class RoomRepository {
         jdbcTemplate.update(sql, roomId);
     }
 
+    public int countAvailableRoomsByHotelId(int hotelId) {
+        String sql = """
+        SELECT SUM(quantity) FROM Rooms
+        WHERE hotel_id = ? AND status = 'available'
+    """;
+        Integer result = jdbcTemplate.queryForObject(sql, Integer.class, hotelId);
+        return result != null ? result : 0;
+    }
+
 }
