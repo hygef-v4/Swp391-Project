@@ -31,11 +31,12 @@ public class ModeratorUserListController {
         List<User> userList = userService.getAllUsersWithProfile();
         long activeUsers = userList.stream().filter(User::isActive).count();
         long lockedUsers = userList.size() - activeUsers;
+        long flaggedUsers = userList.stream().filter(User::isFlagged).count();
 
         model.addAttribute("users", userList);
         model.addAttribute("activeUsers", activeUsers);
         model.addAttribute("lockedUsers", lockedUsers);
-        model.addAttribute("reportedUsers", 0); // Placeholder for reported users
+        model.addAttribute("flaggedUsers", flaggedUsers);
         return "moderator/moderatorUserList";
     }
 
@@ -51,8 +52,8 @@ public class ModeratorUserListController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error flagging user");
         }
-
     }
 }
+
 
 

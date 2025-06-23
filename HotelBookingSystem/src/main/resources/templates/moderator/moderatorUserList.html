@@ -1,4 +1,3 @@
-<!-- moderatorUserList.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="vi">
 <head>
@@ -88,29 +87,49 @@
     <link rel="stylesheet" th:href="@{/assets/css/style.css}">
 
     <style>
-      [data-bs-theme="dark"] .page-link {
-          background-color: #2b3035;
-          color: #dee2e6;
-          border-color: #495057;
-      }
+        [data-bs-theme="dark"] .page-link {
+            background-color: #2b3035;
+            color: #dee2e6;
+            border-color: #495057;
+        }
 
-      [data-bs-theme="dark"] .page-link:hover {
-          background-color: #343a40;
-          color: #fff;
-          border-color: #495057;
-      }
+        [data-bs-theme="dark"] .page-link:hover {
+            background-color: #343a40;
+            color: #fff;
+            border-color: #495057;
+        }
 
-      [data-bs-theme="dark"] .page-item.active .page-link {
-          background-color: #5143d9;
-          border-color: #5143d9;
-          color: #fff;
-      }
+        [data-bs-theme="dark"] .page-item.active .page-link {
+            background-color: #5143d9;
+            border-color: #5143d9;
+            color: #fff;
+        }
 
-      [data-bs-theme="dark"] .page-item.disabled .page-link {
-          background-color: #212529;
-          color: #6c757d;
-          border-color: #495057;
-      }
+        [data-bs-theme="dark"] .page-item.disabled .page-link {
+            background-color: #212529;
+            color: #6c757d;
+            border-color: #495057;
+        }
+
+        .flagged-card {
+            border: 2px solid #dc3545 !important;
+            box-shadow: 0 0 10px rgba(220, 53, 69, 0.3) !important;
+        }
+
+        .flag-reason-alert {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            border-radius: 0.375rem;
+            padding: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        [data-bs-theme="dark"] .flag-reason-alert {
+            background-color: #2d1b1c;
+            color: #ea868f;
+            border-color: #58151c;
+        }
     </style>
 
 </head>
@@ -137,9 +156,10 @@
                             <p class="text-muted mb-0">Xem, quản lý và báo cáo người dùng trong hệ thống.</p>
                         </div>
                         <div class="d-flex align-items-center">
-                            <span class.badge.bg-success.me-2 th:text="${#lists.size(users)} + ' Tổng'"></span>
+                            <span class="badge bg-success me-2" th:text="${#lists.size(users)} + ' Tổng'"></span>
                             <span class="badge bg-success me-2" th:text="${activeUsers} + ' Hoạt động'"></span>
                             <span class="badge bg-warning me-2" th:text="${lockedUsers} + ' Bị khóa'"></span>
+                            <span class="badge bg-danger me-2" th:text="${flaggedUsers} + ' Bị flagged'"></span>
                         </div>
                     </div>
                 </div>
@@ -173,6 +193,7 @@
                                         <option value="">Tất cả trạng thái</option>
                                         <option value="active">Hoạt động</option>
                                         <option value="inactive">Bị khóa</option>
+                                        <option value="flagged">Bị flagged</option>
                                     </select>
                                 </div>
                                 <div class="col-md-2">
@@ -255,6 +276,12 @@
                         <strong>Bio:</strong>
                         <p id="detail-bio" class="mt-1 mb-0"></p>
                     </li>
+                    <li class="list-group-item" id="flag-info-container" style="display: none;">
+                        <div class="alert alert-danger mb-0">
+                            <strong><i class="bi bi-flag-fill me-2"></i>Người dùng bị flagged:</strong>
+                            <p id="detail-flag-reason" class="mt-2 mb-0"></p>
+                        </div>
+                    </li>
                 </ul>
             </div>
             <div class="modal-footer">
@@ -317,6 +344,16 @@
         let filteredUsers = users;
         let currentUserIdToFlag = null;
 
+        function getRoleDisplayName(role) {
+            const roleMap = {
+                'CUSTOMER': 'Khách hàng',
+                'HOTEL_OWNER': 'Chủ khách sạn',
+                'MODERATOR': 'Quản lý viên',
+                'ADMIN': 'Quản trị viên'
+            };
+            return roleMap[role] || role;
+        }
+
         function displayUsers(page) {
             userGrid.innerHTML = '';
             page = page < 1 ? 1 : page;
@@ -325,182 +362,205 @@
             const paginatedUsers = filteredUsers.slice(start, end);
 
             paginatedUsers.forEach(user => {
+                const statusBadge = user.active
+                    ? '<span class="badge bg-success">Hoạt động</span>'
+                    : '<span class="badge bg-warning">Bị khóa</span>';
+
+                const flaggedClass = user.flagged ? 'flagged-card' : '';
+                const flaggedIndicator = user.flagged ? '<i class="bi bi-flag-fill text-danger position-absolute top-0 end-0 m-2"></i>' : '';
+                const flagReason = user.flagged && user.flagReason ?
+                    `<div class="flag-reason-alert mt-2">
+                        <small><strong>Lý do flagged:</strong> ${user.flagReason}</small>
+                    </div>` : '';
+
                 const userCard = `
                     <div class="col user-card">
-                        <div class="card shadow h-100">
+                        <div class="card shadow h-100 position-relative ${flaggedClass}">
+                            ${flaggedIndicator}
                             <div class="card-body text-center">
                                 <div class="avatar avatar-xl mx-auto mb-3">
                                     <img class="avatar-img rounded-circle"
                                          src="${user.avatarUrl || '/assets/images/avatar/01.jpg'}"
                                          alt="avatar"
-                                         style="${!user.active ? 'filter: grayscale(100%);' : ''}">
+                                         onerror="this.src='/assets/images/avatar/01.jpg'">
                                 </div>
-                                <h5 class="card-title mb-1">${user.fullName}</h5>
-                                <p class="card-text text-muted small">${user.email}</p>
-                                ${getStatusBadge(user)}
+                                <h6 class="card-title mb-1">${user.fullName || 'N/A'}</h6>
+                                <p class="text-muted small mb-2">${user.email}</p>
+                                <div class="mb-2">
+                                    <span class="badge bg-primary">${getRoleDisplayName(user.role)}</span>
+                                    ${statusBadge}
+                                </div>
+                                <p class="text-muted small">${user.phone || 'Chưa cập nhật'}</p>
+                                ${flagReason}
                             </div>
-                            <div class="card-footer text-center">
-                                 <button class="btn btn-sm btn-outline-info" onclick="openUserDetailsModal('${user.id}')"><i class="bi bi-eye me-1"></i>Xem chi tiết</button>
-                                <button class="btn btn-sm btn-outline-danger" onclick="openFlagModal('${user.id}', '${user.fullName}')"><i class="bi bi-flag me-1"></i>Báo cáo</button>
+                            <div class="card-footer bg-transparent border-0 pt-0">
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-outline-primary btn-sm flex-fill"
+                                            onclick="showUserDetail(${user.id})">
+                                        Chi tiết
+                                    </button>
+                                    ${!user.flagged ? `
+                                    <button class="btn btn-outline-danger btn-sm"
+                                            onclick="showFlagModal(${user.id}, '${user.fullName}')">
+                                        <i class="bi bi-flag"></i>
+                                    </button>` : ''}
+                                </div>
                             </div>
                         </div>
-                    </div>`;
+                    </div>
+                `;
                 userGrid.innerHTML += userCard;
             });
         }
 
-        function getStatusBadge(user) {
-            if (!user.active) {
-                return '<span class="badge bg-warning bg-opacity-10 text-warning mb-3">Đã bị khóa</span>';
-            }
-            const role = (user.role || 'CUSTOMER').toUpperCase();
-            switch (role) {
-                case 'HOTEL_OWNER':
-                    return '<span class="badge bg-info bg-opacity-10 text-info mb-3">Chủ khách sạn</span>';
-                case 'MODERATOR':
-                    return '<span class="badge bg-primary bg-opacity-10 text-primary mb-3">Quản lý viên</span>';
-                case 'ADMIN':
-                    return '<span class="badge bg-secondary bg-opacity-10 text-secondary mb-3">Quản trị viên</span>';
-                default:
-                    return '<span class="badge bg-success bg-opacity-10 text-success mb-3">Khách hàng</span>';
-            }
-        }
+        function showUserDetail(userId) {
+            const user = users.find(u => u.id === userId);
+            if (user) {
+                document.getElementById('detail-avatar').src = user.avatarUrl || '/assets/images/avatar/01.jpg';
+                document.getElementById('detail-fullName').textContent = user.fullName || 'N/A';
+                document.getElementById('detail-email').textContent = user.email;
+                document.getElementById('detail-phone').textContent = user.phone || 'Chưa cập nhật';
+                document.getElementById('detail-role').textContent = getRoleDisplayName(user.role);
+                document.getElementById('detail-status').innerHTML = user.active
+                    ? '<span class="badge bg-success">Hoạt động</span>'
+                    : '<span class="badge bg-warning">Bị khóa</span>';
+                document.getElementById('detail-gender').textContent = user.gender || 'Chưa cập nhật';
+                document.getElementById('detail-dob').textContent = user.dob || 'Chưa cập nhật';
+                document.getElementById('detail-bio').textContent = user.bio || 'Chưa có thông tin';
 
-        function setupPagination() {
-            paginationContainer.innerHTML = '';
-            const pageCount = Math.ceil(filteredUsers.length / itemsPerPage);
-
-            if (pageCount <= 1) return;
-
-            // Previous button
-            const prevLi = document.createElement('li');
-            prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
-            const prevA = document.createElement('a');
-            prevA.className = 'page-link';
-            prevA.href = '#';
-            prevA.innerHTML = '<i class="bi bi-chevron-left"></i>';
-            prevA.addEventListener('click', (e) => {
-                e.preventDefault();
-                if (currentPage > 1) {
-                    currentPage--;
-                    displayUsers(currentPage);
-                    setupPagination();
+                // Hiển thị thông tin flagged nếu có
+                const flagContainer = document.getElementById('flag-info-container');
+                if (user.flagged && user.flagReason) {
+                    document.getElementById('detail-flag-reason').textContent = user.flagReason;
+                    flagContainer.style.display = 'block';
+                } else {
+                    flagContainer.style.display = 'none';
                 }
-            });
-            prevLi.appendChild(prevA);
-            paginationContainer.appendChild(prevLi);
 
-            // Page numbers
-            for (let i = 1; i <= pageCount; i++) {
-                const li = document.createElement('li');
-                li.className = `page-item ${i === currentPage ? 'active' : ''}`;
-                const a = document.createElement('a');
-                a.className = 'page-link';
-                a.href = '#';
-                a.textContent = i;
-                a.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    currentPage = i;
-                    displayUsers(currentPage);
-                    setupPagination();
-                });
-                li.appendChild(a);
-                paginationContainer.appendChild(li);
+                userDetailModal.show();
             }
-
-            // Next button
-            const nextLi = document.createElement('li');
-            nextLi.className = `page-item ${currentPage === pageCount ? 'disabled' : ''}`;
-            const nextA = document.createElement('a');
-            nextA.className = 'page-link';
-            nextA.href = '#';
-            nextA.innerHTML = '<i class="bi bi-chevron-right"></i>';
-            nextA.addEventListener('click', (e) => {
-                e.preventDefault();
-                if (currentPage < pageCount) {
-                    currentPage++;
-                    displayUsers(currentPage);
-                    setupPagination();
-                }
-            });
-            nextLi.appendChild(nextA);
-            paginationContainer.appendChild(nextLi);
         }
 
-        function applyFilters() {
-            const searchTerm = searchInput.value.toLowerCase();
-            const role = roleFilter.value;
-            const status = statusFilter.value;
-
-            filteredUsers = users.filter(user => {
-                const nameMatch = user.fullName && user.fullName.toLowerCase().includes(searchTerm);
-                const emailMatch = user.email && user.email.toLowerCase().includes(searchTerm);
-                const roleMatch = !role || (user.role && user.role.toLowerCase().replace('_', '') === role) || (role === 'customer' && !user.role);
-                const statusMatch = !status || (status === 'active' && user.active) || (status === 'inactive' && !user.active);
-
-                return (nameMatch || emailMatch) && roleMatch && statusMatch;
-            });
-
-            currentPage = 1;
-            displayUsers(currentPage);
-            setupPagination();
-        }
-
-        filterBtn.addEventListener('click', applyFilters);
-        searchInput.addEventListener('input', applyFilters);
-
-        window.openUserDetailsModal = function (userId) {
-            const user = users.find(u => u.id == userId);
-            if (!user) return;
-
-            document.getElementById('detail-avatar').src = user.avatarUrl || '/assets/images/avatar/01.jpg';
-            document.getElementById('detail-fullName').textContent = user.fullName || 'N/A';
-            document.getElementById('detail-email').textContent = user.email || 'N/A';
-            document.getElementById('detail-phone').textContent = user.phone || 'N/A';
-
-            const role = (user.role || 'CUSTOMER').toUpperCase();
-            let roleText = 'Khách hàng';
-            switch (role) {
-                case 'HOTEL_OWNER':
-                    roleText = 'Chủ khách sạn';
-                    break;
-                case 'MODERATOR':
-                    roleText = 'Quản lý viên';
-                    break;
-                case 'ADMIN':
-                    roleText = 'Quản trị viên';
-                    break;
-            }
-            document.getElementById('detail-role').textContent = roleText;
-            document.getElementById('detail-status').innerHTML = user.active
-                ? '<span class="badge bg-success">Hoạt động</span>'
-                : '<span class="badge bg-danger">Bị khóa</span>';
-
-            document.getElementById('detail-gender').textContent = user.gender || 'N/A';
-            document.getElementById('detail-dob').textContent = user.dob ? new Date(user.dob).toLocaleDateString('vi-VN') : 'N/A';
-            document.getElementById('detail-bio').textContent = user.bio || 'Không có thông tin.';
-
-            userDetailModal.show();
-        };
-
-        window.openFlagModal = function (userId, userName) {
+        function showFlagModal(userId, userName) {
             currentUserIdToFlag = userId;
             document.getElementById('flag-user-name').textContent = userName;
             document.getElementById('flag-reason').value = '';
             document.getElementById('reason-error').classList.add('d-none');
             flagUserModal.show();
-        };
+        }
 
-        document.getElementById('confirm-flag-btn').addEventListener('click', function () {
+        function filterUsers() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const roleFilter_value = roleFilter.value.toLowerCase();
+            const statusFilter_value = statusFilter.value.toLowerCase();
+
+            filteredUsers = users.filter(user => {
+                const matchesSearch = user.fullName.toLowerCase().includes(searchTerm) ||
+                    user.email.toLowerCase().includes(searchTerm);
+                const matchesRole = !roleFilter_value ||
+                    (roleFilter_value === 'customer' && user.role === 'CUSTOMER') ||
+                    (roleFilter_value === 'host' && user.role === 'HOTEL_OWNER') ||
+                    (roleFilter_value === 'moderator' && user.role === 'MODERATOR') ||
+                    (roleFilter_value === 'admin' && user.role === 'ADMIN');
+                const matchesStatus = !statusFilter_value ||
+                    (statusFilter_value === 'active' && user.active) ||
+                    (statusFilter_value === 'inactive' && !user.active) ||
+                    (statusFilter_value === 'flagged' && user.flagged);
+
+                return matchesSearch && matchesRole && matchesStatus;
+            });
+
+            currentPage = 1;
+            displayUsers(currentPage);
+            displayPagination();
+        }
+
+        function displayPagination() {
+            const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+            paginationContainer.innerHTML = '';
+
+            if (totalPages <= 1) return;
+
+            // Previous button
+            const prevButton = `
+                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="changePage(${currentPage - 1})">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+            `;
+            paginationContainer.innerHTML += prevButton;
+
+            // Page numbers
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                    const pageButton = `
+                        <li class="page-item ${i === currentPage ? 'active' : ''}">
+                            <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
+                        </li>
+                    `;
+                    paginationContainer.innerHTML += pageButton;
+                } else if (i === currentPage - 3 || i === currentPage + 3) {
+                    paginationContainer.innerHTML += '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                }
+            }
+
+            // Next button
+            const nextButton = `
+                <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="changePage(${currentPage + 1})">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+            `;
+            paginationContainer.innerHTML += nextButton;
+        }
+
+        function changePage(page) {
+            const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+            if (page < 1 || page > totalPages) return;
+
+            currentPage = page;
+            displayUsers(currentPage);
+            displayPagination();
+        }
+
+        function showToast(title, message, isError = false) {
+            document.getElementById('toast-title').textContent = title;
+            document.getElementById('toast-body').textContent = message;
+
+            if (isError) {
+                document.getElementById('notificationToast').classList.add('text-bg-danger');
+            } else {
+                document.getElementById('notificationToast').classList.remove('text-bg-danger');
+            }
+
+            notificationToast.show();
+        }
+
+        // Event listeners
+        filterBtn.addEventListener('click', filterUsers);
+        searchInput.addEventListener('keyup', function(e) {
+            if (e.key === 'Enter') {
+                filterUsers();
+            }
+        });
+
+        document.getElementById('confirm-flag-btn').addEventListener('click', function() {
             const reason = document.getElementById('flag-reason').value.trim();
+            const errorElement = document.getElementById('reason-error');
+
             if (!reason) {
-                document.getElementById('reason-error').classList.remove('d-none');
+                errorElement.classList.remove('d-none');
                 return;
             }
-            const btn = this;
-            btn.disabled = true;
+
+            errorElement.classList.add('d-none');
+
+            // Get CSRF token
             const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
             const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
             fetch(`/moderator-user-list/flag/${currentUserIdToFlag}`, {
                 method: 'POST',
                 headers: {
@@ -509,45 +569,43 @@
                 },
                 body: JSON.stringify({ reason: reason })
             })
-            .then(response => {
-                if (response.ok) {
-                    showToast('Thành công', 'Người dùng đã được báo cáo.', true);
-                    flagUserModal.hide();
-                    setTimeout(function() {
-                        window.location.reload(); // Thay đổi từ href thành reload()
-                    }, 1000);
-                } else {
-                    return response.text().then(text => { throw new Error(text); });
-                }
-            })
-            .catch(error => {
-                showToast('Lỗi', error.message || 'Không thể báo cáo người dùng.', false);
-            })
-            .finally(() => {
-                btn.disabled = false;
-            });
+                .then(response => response.text())
+                .then(data => {
+                    if (data === 'User flagged successfully.') {
+                        showToast('Thành công', 'Đã báo cáo người dùng thành công!');
+                        flagUserModal.hide();
+
+                        // Update user in local array
+                        const userIndex = users.findIndex(u => u.id === currentUserIdToFlag);
+                        if (userIndex !== -1) {
+                            users[userIndex].flagged = true;
+                            users[userIndex].flagReason = reason;
+                        }
+
+                        // Refresh display
+                        filterUsers();
+
+                        // Update flagged count in header
+                        const flaggedCount = users.filter(u => u.flagged).length;
+                        document.querySelector('.badge.bg-danger').textContent = flaggedCount + ' Bị flagged';
+                    } else {
+                        showToast('Lỗi', 'Có lỗi xảy ra khi báo cáo người dùng', true);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Lỗi', 'Có lỗi xảy ra khi báo cáo người dùng', true);
+                });
         });
 
-
-        function showToast(title, body, isSuccess) {
-            const toastTitle = document.getElementById('toast-title');
-            const toastBody = document.getElementById('toast-body');
-            const toastHeader = document.querySelector('#notificationToast .toast-header');
-
-            toastTitle.textContent = title;
-            toastBody.textContent = body;
-
-            toastHeader.classList.remove('bg-success', 'bg-danger', 'text-white');
-            if (isSuccess) {
-                toastHeader.classList.add('bg-success', 'text-white');
-            } else {
-                toastHeader.classList.add('bg-danger', 'text-white');
-            }
-            notificationToast.show();
-        }
+        // Make functions global for onclick handlers
+        window.showUserDetail = showUserDetail;
+        window.showFlagModal = showFlagModal;
+        window.changePage = changePage;
 
         // Initial display
-        applyFilters();
+        displayUsers(currentPage);
+        displayPagination();
     });
 </script>
 
