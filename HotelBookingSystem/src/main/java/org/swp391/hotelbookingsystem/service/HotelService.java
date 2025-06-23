@@ -87,6 +87,15 @@ public class HotelService {
         return hotelRepository.countHotelByHostId(id);
     }
 
+    public int getTotalHotels() {
+        try {
+            return hotelRepository.getAllHotels().size();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
     public boolean banHotel(int hotelId, String reason, int adminId) {
         Hotel hotel = hotelRepository.getHotelById(hotelId);
         if (hotel == null) return false;
@@ -99,6 +108,7 @@ public class HotelService {
 
         return true;
     }
+
     public void updateHotelStatus(int hotelId, String status) {
         hotelRepository.updateHotelStatus(hotelId, status);
     }
@@ -115,8 +125,9 @@ public class HotelService {
 
         return true;
     }
+
     public int countBookingsByHotelId(int hotelId) {
         return hotelRepository.countBookingsByHotelId(hotelId);
-    }
 
+    }
 }
