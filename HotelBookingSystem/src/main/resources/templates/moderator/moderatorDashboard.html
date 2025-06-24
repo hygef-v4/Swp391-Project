@@ -202,8 +202,8 @@
                 <i class="bi bi-exclamation-triangle-fill"></i>
               </div>
               <div class="ms-3">
-                <h3 class="mb-0" th:text="${pendingApprovals ?: '15'}">15</h3>
-                <h6 class="mb-0">Chờ Phê Duyệt</h6>
+                <h3 class="mb-0" th:text="${pendingApprovals != null ? #numbers.formatInteger(pendingApprovals, 0, 'COMMA') : '0'}">0</h3>
+                <h6 class="mb-0">Khách Sạn Chờ Phê Duyệt</h6>
                 <div class="badge text-bg-warning bg-opacity-10 text-warning border border-warning">
                   <span>Cần xử lý</span>
                 </div>
@@ -327,24 +327,70 @@
                   </thead>
                   <tbody>
                   <!-- Loop through pending hotels -->
-                  <tr th:if="${pendingHotels != null and !pendingHotels.isEmpty()}" th:each="hotel : ${pendingHotels}" th:id="'hotel-row-' + ${hotel.hotelId}">
+                  <tr id="hotel-row-1">
                     <td>
                       <div class="d-flex align-items-center">
-                        <img class="rounded me-2" th:src="${hotel.hotelImageUrl}" alt="hotel" width="40" height="40">
-                        <span th:text="${hotel.hotelName}">Hotel Name</span>
+                        <img class="rounded me-2" src="/assets/images/category/hotel/01.jpg" alt="hotel" width="40" height="40">
+                        <span>Khách Sạn Mặt Trời</span>
                       </div>
                     </td>
-                    <td th:text="${hotel.cityName}">City</td>
-                    <td th:text="${hotel.hostName}">Host Name</td>
+                    <td>Hà Nội</td>
+                    <td>Nguyễn Văn A</td>
                     <td>
                       <div class="btn-group" role="group">
-                        <button class="btn btn-sm btn-success" th:data-hotel-id="${hotel.hotelId}" th:data-hotel-name="${hotel.hotelName}" onclick="openApproveModal(this)" title="Approve">
+                        <button class="btn btn-sm btn-success" data-hotel-id="1" data-hotel-name="Khách Sạn Mặt Trời" onclick="openApproveModal(this)" title="Approve">
                           <i class="bi bi-check-lg"></i>
                         </button>
-                        <button class="btn btn-sm btn-danger" th:data-hotel-id="${hotel.hotelId}" th:data-hotel-name="${hotel.hotelName}" onclick="openRejectModal(this)" title="Reject">
+                        <button class="btn btn-sm btn-danger" data-hotel-id="1" data-hotel-name="Khách Sạn Mặt Trời" onclick="openRejectModal(this)" title="Reject">
                           <i class="bi bi-x-lg"></i>
                         </button>
-                        <button class="btn btn-sm btn-light" th:onclick="'viewHotel(' + ${hotel.hotelId} + ')'" title="View Details">
+                        <button class="btn btn-sm btn-light" onclick="viewHotel(1)" title="View Details">
+                          <i class="bi bi-eye"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr id="hotel-row-2">
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <img class="rounded me-2" src="/assets/images/category/hotel/02.jpg" alt="hotel" width="40" height="40">
+                        <span>Khách Sạn Biển Xanh</span>
+                      </div>
+                    </td>
+                    <td>Đà Nẵng</td>
+                    <td>Trần Thị B</td>
+                    <td>
+                      <div class="btn-group" role="group">
+                        <button class="btn btn-sm btn-success" data-hotel-id="2" data-hotel-name="Khách Sạn Biển Xanh" onclick="openApproveModal(this)" title="Approve">
+                          <i class="bi bi-check-lg"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger" data-hotel-id="2" data-hotel-name="Khách Sạn Biển Xanh" onclick="openRejectModal(this)" title="Reject">
+                          <i class="bi bi-x-lg"></i>
+                        </button>
+                        <button class="btn btn-sm btn-light" onclick="viewHotel(2)" title="View Details">
+                          <i class="bi bi-eye"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr id="hotel-row-3">
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <img class="rounded me-2" src="/assets/images/category/hotel/03.jpg" alt="hotel" width="40" height="40">
+                        <span>Khách Sạn Núi Xanh</span>
+                      </div>
+                    </td>
+                    <td>Sapa</td>
+                    <td>Lê Văn C</td>
+                    <td>
+                      <div class="btn-group" role="group">
+                        <button class="btn btn-sm btn-success" data-hotel-id="3" data-hotel-name="Khách Sạn Núi Xanh" onclick="openApproveModal(this)" title="Approve">
+                          <i class="bi bi-check-lg"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger" data-hotel-id="3" data-hotel-name="Khách Sạn Núi Xanh" onclick="openRejectModal(this)" title="Reject">
+                          <i class="bi bi-x-lg"></i>
+                        </button>
+                        <button class="btn btn-sm btn-light" onclick="viewHotel(3)" title="View Details">
                           <i class="bi bi-eye"></i>
                         </button>
                       </div>
@@ -368,74 +414,74 @@
       <!-- Phần báo cáo BẮT ĐẦU -->
       <div class="row g-4 mt-4">
         <!-- Báo cáo người dùng -->
-        <div class="col-md-6">
-          <div class="card shadow">
-            <div class="card-header d-flex justify-content-between align-items-center">
-              <h5 class="card-header-title mb-0">Báo Cáo Người Dùng</h5>
-              <a href="/moderator/reports/users" class="btn btn-link p-0">Xem Tất Cả</a>
-            </div>
-            <div class="card-body">
-              <div class="list-group list-group-flush">
-                <div class="list-group-item d-flex justify-content-between align-items-center px-0">
-                  <div>
-                    <h6 class="mb-1">Nội Dung Hồ Sơ Không Phù Hợp</h6>
-                    <small class="text-muted">Được báo cáo bởi nhiều người dùng</small>
-                  </div>
-                  <span class="badge bg-danger">Cao</span>
-                </div>
-                <div class="list-group-item d-flex justify-content-between align-items-center px-0">
-                  <div>
-                    <h6 class="mb-1">Đánh Giá Spam</h6>
-                    <small class="text-muted">Nghi ngờ đánh giá giả mạo</small>
-                  </div>
-                  <span class="badge bg-warning">Trung bình</span>
-                </div>
-                <div class="list-group-item d-flex justify-content-between align-items-center px-0">
-                  <div>
-                    <h6 class="mb-1">Vấn Đề Xác Minh Tài Khoản</h6>
-                    <small class="text-muted">Xác minh tài liệu thất bại</small>
-                  </div>
-                  <span class="badge bg-info">Thấp</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+<!--        <div class="col-md-6">-->
+<!--          <div class="card shadow">-->
+<!--            <div class="card-header d-flex justify-content-between align-items-center">-->
+<!--              <h5 class="card-header-title mb-0">Báo Cáo Người Dùng</h5>-->
+<!--              <a href="/moderator/reports/users" class="btn btn-link p-0">Xem Tất Cả</a>-->
+<!--            </div>-->
+<!--            <div class="card-body">-->
+<!--              <div class="list-group list-group-flush">-->
+<!--                <div class="list-group-item d-flex justify-content-between align-items-center px-0">-->
+<!--                  <div>-->
+<!--                    <h6 class="mb-1">Nội Dung Hồ Sơ Không Phù Hợp</h6>-->
+<!--                    <small class="text-muted">Được báo cáo bởi nhiều người dùng</small>-->
+<!--                  </div>-->
+<!--                  <span class="badge bg-danger">Cao</span>-->
+<!--                </div>-->
+<!--                <div class="list-group-item d-flex justify-content-between align-items-center px-0">-->
+<!--                  <div>-->
+<!--                    <h6 class="mb-1">Đánh Giá Spam</h6>-->
+<!--                    <small class="text-muted">Nghi ngờ đánh giá giả mạo</small>-->
+<!--                  </div>-->
+<!--                  <span class="badge bg-warning">Trung bình</span>-->
+<!--                </div>-->
+<!--                <div class="list-group-item d-flex justify-content-between align-items-center px-0">-->
+<!--                  <div>-->
+<!--                    <h6 class="mb-1">Vấn Đề Xác Minh Tài Khoản</h6>-->
+<!--                    <small class="text-muted">Xác minh tài liệu thất bại</small>-->
+<!--                  </div>-->
+<!--                  <span class="badge bg-info">Thấp</span>-->
+<!--                </div>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
 
         <!-- Báo cáo khách sạn -->
-        <div class="col-md-6">
-          <div class="card shadow">
-            <div class="card-header d-flex justify-content-between align-items-center">
-              <h5 class="card-header-title mb-0">Báo Cáo Khách Sạn</h5>
-              <a href="/moderator/reports/hotels" class="btn btn-link p-0">Xem Tất Cả</a>
-            </div>
-            <div class="card-body">
-              <div class="list-group list-group-flush">
-                <div class="list-group-item d-flex justify-content-between align-items-center px-0">
-                  <div>
-                    <h6 class="mb-1">Hình Ảnh Gây Hiểu Lầm</h6>
-                    <small class="text-muted">Hình ảnh không khớp với thực tế</small>
-                  </div>
-                  <span class="badge bg-danger">Cao</span>
-                </div>
-                <div class="list-group-item d-flex justify-content-between align-items-center px-0">
-                  <div>
-                    <h6 class="mb-1">Giá Cả Không Nhất Quán</h6>
-                    <small class="text-muted">Phí ẩn không được tiết lộ</small>
-                  </div>
-                  <span class="badge bg-warning">Trung bình</span>
-                </div>
-                <div class="list-group-item d-flex justify-content-between align-items-center px-0">
-                  <div>
-                    <h6 class="mb-1">Thông Tin Tiện Ích Không Chính Xác</h6>
-                    <small class="text-muted">Tiện ích được liệt kê không có sẵn</small>
-                  </div>
-                  <span class="badge bg-info">Thấp</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+<!--        <div class="col-md-6">-->
+<!--          <div class="card shadow">-->
+<!--            <div class="card-header d-flex justify-content-between align-items-center">-->
+<!--              <h5 class="card-header-title mb-0">Báo Cáo Khách Sạn</h5>-->
+<!--              <a href="/moderator/reports/hotels" class="btn btn-link p-0">Xem Tất Cả</a>-->
+<!--            </div>-->
+<!--            <div class="card-body">-->
+<!--              <div class="list-group list-group-flush">-->
+<!--                <div class="list-group-item d-flex justify-content-between align-items-center px-0">-->
+<!--                  <div>-->
+<!--                    <h6 class="mb-1">Hình Ảnh Gây Hiểu Lầm</h6>-->
+<!--                    <small class="text-muted">Hình ảnh không khớp với thực tế</small>-->
+<!--                  </div>-->
+<!--                  <span class="badge bg-danger">Cao</span>-->
+<!--                </div>-->
+<!--                <div class="list-group-item d-flex justify-content-between align-items-center px-0">-->
+<!--                  <div>-->
+<!--                    <h6 class="mb-1">Giá Cả Không Nhất Quán</h6>-->
+<!--                    <small class="text-muted">Phí ẩn không được tiết lộ</small>-->
+<!--                  </div>-->
+<!--                  <span class="badge bg-warning">Trung bình</span>-->
+<!--                </div>-->
+<!--                <div class="list-group-item d-flex justify-content-between align-items-center px-0">-->
+<!--                  <div>-->
+<!--                    <h6 class="mb-1">Thông Tin Tiện Ích Không Chính Xác</h6>-->
+<!--                    <small class="text-muted">Tiện ích được liệt kê không có sẵn</small>-->
+<!--                  </div>-->
+<!--                  <span class="badge bg-info">Thấp</span>-->
+<!--                </div>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
       </div>
       <!-- Phần báo cáo KẾT THÚC -->
 

@@ -34,6 +34,13 @@ public class ModeratorDashboardController {
             // Lấy tổng số người dùng hoạt động (không bị flagged)
             long activeUsers = userService.getAllUsersWithProfile().stream().filter(u -> u.isActive() && !Boolean.TRUE.equals(u.isFlagged())).count();
             model.addAttribute("activeUsers", activeUsers);
+
+            // Lấy danh sách khách sạn chờ duyệt
+            java.util.List<org.swp391.hotelbookingsystem.model.Hotel> pendingHotels = hotelService.getAllHotels().stream()
+                .filter(h -> "pending".equals(h.getStatus()))
+                .toList();
+            model.addAttribute("pendingHotels", pendingHotels);
+            model.addAttribute("pendingApprovals", pendingHotels.size());
         } catch (Exception e) {
             // Xử lý lỗi và set giá trị mặc định
             model.addAttribute("totalUsers", 0);
