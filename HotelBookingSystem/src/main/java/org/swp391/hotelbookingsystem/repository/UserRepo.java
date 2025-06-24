@@ -30,6 +30,11 @@ public class UserRepo {
         ));
     }
 
+    public int countAgent() {
+        String sql = "SELECT COUNT(*) FROM Users WHERE role = 'HOTEL_OWNER'";
+        return jdbc.queryForObject(sql, Integer.class);
+    }
+
     public void saveUser(User user) {
         String sql = "INSERT INTO Users (full_name,email, password_hash) VALUES (?, ?, ?)";
         jdbc.update(sql, user.getFullName(), user.getEmail(), user.getPassword());

@@ -166,6 +166,33 @@ public class RoomRepository {
         jdbcTemplate.update(sql, roomId);
     }
 
+    public Room getRoomById(int roomId) {
+        String sql = """
+        SELECT 
+            room_id AS roomId,
+            hotel_id AS hotelId,
+            title,
+            description,
+            price,
+            max_guests AS maxGuests,
+            room_type_id AS roomTypeId,
+            status,
+            quantity
+        FROM Rooms
+        WHERE room_id = ?
+    """;
+
+        try {
+            Room room = jdbcTemplate.queryForObject(sql, ROOM_MAPPER, roomId);
+            List<String> images = getRoomImages(roomId);
+            room.setImages(images);
+
+            return room;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     public int countAvailableRoomsByHotelId(int hotelId) {
         String sql = """
         SELECT SUM(quantity) FROM Rooms

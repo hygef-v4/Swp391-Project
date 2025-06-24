@@ -145,11 +145,10 @@
 
                 <!-- Progress bars động -->
                 <div class="col-lg-4">
-                    <div class="bg-light bg-opacity-10 p-4 rounded">
+                    <div class="bg-light p-4 rounded">
                         <div class="row gx-3 g-0 align-items-center"
                              th:each="count, iStat : ${ratingDistribution}"
-                             th:with="rating=${5 - iStat.index},
-                      percent=${totalReviews > 0 ? (count * 100.0 / totalReviews) : 0}">
+                             th:with="rating=${5 - iStat.index}, percent=${totalReviews > 0 ? (count * 100.0 / totalReviews) : 0}">
                             <!-- Số sao -->
                             <div class="col-3 col-sm-2 text-warning text-end">
                                 <small class="fw-medium" th:text="${rating} + '★'"></small>
