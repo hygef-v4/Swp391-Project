@@ -350,5 +350,42 @@ public class HotelRepository {
         return jdbcTemplate.queryForObject(sql, Integer.class, hotelId);
     }
 
+    public List<Hotel> searchHotelsPaginated(String search, int offset, int limit) {
+        String query = """
+        SELECT h.hotel_id AS hotelId,
+               h.host_id AS hostId,
+               h.hotel_name AS hotelName,
+               h.address,
+               h.description,
+               h.location_id AS locationId,
+               h.hotel_image_url AS hotelImageUrl,
+               h.rating,
+               h.latitude,
+               h.longitude,
+               MIN(r.price) AS minPrice,
+               l.city_name AS cityName,
+               u.full_name AS hostName
+        FROM Hotels h
+        JOIN Locations l ON h.location_id = l.location_id
+        JOIN Users u ON h.host_id = u.user_id
+        LEFT JOIN Rooms r ON h.hotel_id = r.hotel_id
+        WHERE h.hotel_name LIKE ?
+        GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
+                 h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude,
+                 l.city_name, u.full_name
+        ORDER BY h.hotel_id
+        OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
+    """;
 
+        return jdbcTemplate.query(query, ps -> {
+            ps.setString(1, "%" + (search == null ? "" : search.trim()) + "%");
+            ps.setInt(2, offset);
+            ps.setInt(3, limit);
+        }, HOTEL_MAPPER);
+    }
+
+    public int countHotelsBySearch(String search) {
+        String sql = "SELECT COUNT(*) FROM Hotels WHERE hotel_name LIKE ?";
+        return jdbcTemplate.queryForObject(sql, Integer.class, "%" + (search == null ? "" : search.trim()) + "%");
+    }
 }
