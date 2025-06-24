@@ -1,6 +1,5 @@
 package org.swp391.hotelbookingsystem.repository;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -784,10 +783,12 @@ public class BookingRepo {
 
     public Double getMonthlyRevenueByHostId(int hostId) {
         String sql = """
-            SELECT SUM(b.total_price)
-            FROM Bookings b
+            SELECT SUM(bu.price * bu.quantity)
+            FROM BookingUnits bu
+            JOIN Bookings b ON bu.booking_id = b.booking_id
             JOIN Hotels h ON b.hotel_id = h.hotel_id
             WHERE h.host_id = ?
+            AND bu.status IN ('approved', 'completed')
             AND b.created_at >= DATEADD(month, DATEDIFF(month, 0, GETDATE()), 0)
             AND b.created_at < DATEADD(month, DATEDIFF(month, 0, GETDATE()) + 1, 0)
         """;
@@ -797,10 +798,12 @@ public class BookingRepo {
 
     public Double getTotalRevenueByHostId(int hostId) {
         String sql = """
-            SELECT SUM(b.total_price)
-            FROM Bookings b
+            SELECT SUM(bu.price * bu.quantity)
+            FROM BookingUnits bu
+            JOIN Bookings b ON bu.booking_id = b.booking_id
             JOIN Hotels h ON b.hotel_id = h.hotel_id
             WHERE h.host_id = ?
+            AND bu.status IN ('approved', 'completed')
         """;
         Double revenue = jdbcTemplate.queryForObject(sql, Double.class, hostId);
         return revenue != null ? revenue : 0.0;

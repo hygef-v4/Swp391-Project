@@ -15,7 +15,6 @@ import org.swp391.hotelbookingsystem.model.Booking;
 import org.swp391.hotelbookingsystem.model.BookingUnit;
 import org.swp391.hotelbookingsystem.model.Hotel;
 import org.swp391.hotelbookingsystem.model.User;
-import org.swp391.hotelbookingsystem.repository.ReviewRepository;
 import org.swp391.hotelbookingsystem.service.AmenityService;
 import org.swp391.hotelbookingsystem.service.BookingService;
 import org.swp391.hotelbookingsystem.service.CloudinaryService;
