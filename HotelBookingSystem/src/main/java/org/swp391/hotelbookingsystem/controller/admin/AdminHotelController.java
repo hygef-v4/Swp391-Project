@@ -166,6 +166,9 @@ public class AdminHotelController {
         int roomCount = rooms.stream().mapToInt(Room::getQuantity).sum();
         model.addAttribute("roomCount", roomCount);
 
+        int roomTypeCount = rooms.size();
+        model.addAttribute("roomTypeCount", roomTypeCount);
+
         int totalBookings = hotelService.countBookingsByHotelId(hotelId);
         model.addAttribute("totalBookings", totalBookings);
 
