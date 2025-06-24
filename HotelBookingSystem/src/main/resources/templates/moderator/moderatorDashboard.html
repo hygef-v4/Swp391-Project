@@ -111,6 +111,82 @@
         color: #6c757d;
         border-color: #495057;
     }
+
+    .card {
+      border-radius: 16px;
+      box-shadow: 0 2px 12px 0 rgba(0,0,0,0.07);
+      height: 100%;
+      background: #181c20;
+    }
+    .card-header {
+      border-radius: 16px 16px 0 0;
+      background: #181c20;
+      border-bottom: 1px solid #23272b;
+      padding: 1rem 1.5rem;
+    }
+    .card-body {
+      background: #181c20;
+      border-radius: 0 0 16px 16px;
+      padding: 1.5rem;
+    }
+    .table-responsive {
+      border-radius: 12px;
+      overflow-x: auto;
+    }
+    .table {
+      width: 100%;
+      table-layout: auto;
+      background: transparent;
+      border-radius: 12px;
+    }
+    .table th, .table td {
+      vertical-align: middle;
+      font-size: 1rem;
+      padding: 0.75rem 0.75rem;
+      white-space: nowrap;
+      text-align: left;
+      border: none;
+    }
+    .table th {
+      background: #23272b;
+      color: #fff;
+      font-weight: 600;
+    }
+    .table-hover tbody tr:hover {
+      background: #23272b33;
+    }
+    .badge {
+      font-size: 0.95rem;
+      border-radius: 6px;
+      padding: 0.4em 0.8em;
+    }
+    .btn-group .btn {
+      border-radius: 6px !important;
+      margin-right: 0.25rem;
+      margin-left: 0.25rem;
+    }
+    .btn-sm {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.95rem;
+    }
+    .avatar-xs {
+      width: 32px;
+      height: 32px;
+    }
+    .avatar-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+    @media (max-width: 1200px) {
+      .card-header-title {
+        font-size: 1.1rem;
+      }
+      .table th, .table td {
+        font-size: 0.95rem;
+      }
+    }
   </style>
 </head>
 
@@ -223,11 +299,11 @@
         <!-- Người dùng bị flagged BẮT ĐẦU -->
         <div class="col-xxl-6">
           <div class="card shadow h-100">
-            <div class="card-header d-flex justify-content-between align-items-center border-0">
+            <div class="card-header d-flex justify-content-between align-items-center">
               <h5 class="card-header-title">Người Dùng Bị Báo Cáo</h5>
               <a href="/moderator-user-list" class="btn btn-link p-0 text-primary">Xem Tất Cả</a>
             </div>
-            <div class="card-body pt-0">
+            <div class="card-body">
               <div class="table-responsive">
                 <table class="table table-hover align-middle">
                   <thead>
