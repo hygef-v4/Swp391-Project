@@ -167,7 +167,7 @@
                     <div class="bg-light p-4 rounded h-100 d-flex flex-column justify-content-center hover-card">
                         <div class="row gx-3 g-0 align-items-center"
                              th:each="count, iStat : ${ratingDistribution}"
-                             th:with="rating=${5 - iStat.index}, percent=${totalReviews > 0 ? (count * 100.0 / totalReviews) : 0}">
+                             th:with="rating=${5 - iStat.index}, percent=${thisYearReviewCount > 0 ? (count * 100.0 / thisYearReviewCount) : 0}">
                             <!-- Số sao -->
                             <div class="col-3 col-sm-2 text-warning text-end">
                                 <small class="fw-medium" th:text="${rating} + '★'"></small>
