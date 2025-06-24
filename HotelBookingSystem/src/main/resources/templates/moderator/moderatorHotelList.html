@@ -259,28 +259,36 @@
                         </div>
                         <div class="card-footer bg-transparent border-0">
                             <div class="d-flex gap-2 mb-2">
-                                <!-- Nút phê duyệt -->
-                                <button class="btn btn-success flex-fill approve-btn" 
-                                        th:if="${hotel.status != 'active'}"
-                                        th:data-hotel-id="${hotel.hotelId}"
-                                        th:data-hotel-name="${hotel.hotelName}">
-                                    <i class="bi bi-check-circle me-1"></i>
-                                    <span th:text="${hotel.status == 'inactive' ? 'Phê duyệt lại' : 'Phê duyệt'}">Phê duyệt</span>
+                                <!-- Nếu pending -->
+                                <button class="btn btn-success flex-fill approve-btn"
+                                        th:if="${hotel.status == 'pending'}"
+                                        th:data-hotel-id="${hotel.hotelId}">
+                                    <i class="bi bi-check-circle me-1"></i>Phê duyệt
                                 </button>
-                                <button class="btn btn-success flex-fill" disabled th:if="${hotel.status == 'active'}">
-                                    <i class="bi bi-check-circle me-1"></i>Đã duyệt
+                                <button class="btn btn-danger flex-fill reject-btn"
+                                        th:if="${hotel.status == 'pending'}"
+                                        th:data-hotel-id="${hotel.hotelId}">
+                                    <i class="bi bi-x-circle me-1"></i>Từ chối
                                 </button>
-                                
-                                <!-- Nút từ chối -->
-                                <button class="btn btn-danger flex-fill reject-btn" 
-                                        th:if="${hotel.status != 'inactive'}"
-                                        th:data-hotel-id="${hotel.hotelId}"
-                                        th:data-hotel-name="${hotel.hotelName}">
-                                    <i class="bi bi-x-circle me-1"></i>
-                                    <span th:text="${hotel.status == 'active' ? 'Thu hồi' : 'Từ chối'}">Từ chối</span>
+                                <!-- Nếu active -->
+                                <button class="btn btn-success flex-fill" disabled
+                                        th:if="${hotel.status == 'active'}">
+                                    <i class="bi bi-check-circle me-1"></i>Đã phê duyệt
                                 </button>
-                                <button class="btn btn-danger flex-fill" disabled th:if="${hotel.status == 'inactive'}">
-                                    <i class="bi bi-x-circle me-1"></i>Đã từ chối
+                                <button class="btn btn-warning flex-fill revoke-btn"
+                                        th:if="${hotel.status == 'active'}"
+                                        th:data-hotel-id="${hotel.hotelId}">
+                                    <i class="bi bi-arrow-clockwise me-1"></i>Thu hồi
+                                </button>
+                                <!-- Nếu inactive -->
+                                <button class="btn btn-success flex-fill approve-btn"
+                                        th:if="${hotel.status == 'inactive'}"
+                                        th:data-hotel-id="${hotel.hotelId}">
+                                    <i class="bi bi-check-circle me-1"></i>Phê duyệt lại
+                                </button>
+                                <button class="btn btn-secondary flex-fill" disabled
+                                        th:if="${hotel.status == 'inactive'}">
+                                    <i class="bi bi-x-circle me-1"></i>Đã thu hồi
                                 </button>
                             </div>
                             <button class="btn btn-outline-primary w-100 view-details-btn"
@@ -340,46 +348,6 @@
     </div>
 </div>
 
-<!-- Approve Confirmation Modal -->
-<div class="modal fade" id="approve-modal" tabindex="-1" aria-labelledby="approveModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="approveModalLabel">Xác nhận phê duyệt</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                Bạn có chắc chắn muốn phê duyệt khách sạn <strong id="approve-hotel-name"></strong>?
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                <button type="button" class="btn btn-success" id="confirm-approve-btn">Phê duyệt</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Reject Reason Modal -->
-<div class="modal fade" id="reject-modal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="rejectModalLabel">Lý do từ chối</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>Vui lòng cung cấp lý do từ chối khách sạn <strong id="reject-hotel-name"></strong>:</p>
-                <textarea id="rejection-reason" class="form-control" rows="3" placeholder="Nhập lý do từ chối..."></textarea>
-                <div class="text-danger mt-2 d-none" id="reason-error">Vui lòng nhập lý do từ chối.</div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                <button type="button" class="btn btn-danger" id="confirm-reject-btn">Từ chối</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- Hotel Details Modal -->
 <div class="modal fade" id="hotel-details-modal" tabindex="-1" aria-labelledby="hotelDetailsModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -398,20 +366,49 @@
     </div>
 </div>
 
+<!-- Modal xác nhận hành động -->
+<div class="modal fade" id="confirm-action-modal" tabindex="-1" aria-labelledby="confirmActionModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmActionModalLabel">Xác nhận</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+      </div>
+      <div class="modal-body" id="confirm-action-message">
+        <!-- Nội dung xác nhận sẽ được thay đổi động -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+        <button type="button" class="btn btn-primary" id="confirm-action-btn">Xác nhận</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Bootstrap JS -->
 <script th:src="@{/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
 
 <script>
     // --- Embedded Moderator Hotel List Logic ---
     document.addEventListener('DOMContentLoaded', function () {
-        const approveModal = new bootstrap.Modal(document.getElementById('approve-modal'));
-        const rejectModal = new bootstrap.Modal(document.getElementById('reject-modal'));
         const hotelDetailsModal = new bootstrap.Modal(document.getElementById('hotel-details-modal'));
         const notificationToast = new bootstrap.Toast(document.getElementById('notificationToast'));
+
+        // Lấy CSRF token và header
+        const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
 
         let currentHotelId = null;
         const PAGE_SIZE = 6;
         let currentPage = 1;
+
+        // Biến lưu hotelId và action đang thao tác
+        let pendingActionHotelId = null;
+        let pendingActionType = null;
+        // Khởi tạo modal
+        const actionConfirmModal = new bootstrap.Modal(document.getElementById('confirm-action-modal'));
+        const confirmActionMessage = document.getElementById('confirm-action-message');
+        const confirmActionBtn = document.getElementById('confirm-action-btn');
 
         // --- Toast Notification Handler ---
         function showToast(title, body, isSuccess) {
@@ -525,20 +522,6 @@
         applyFilters();
 
         // --- Modal Opening Functions ---
-        window.openApproveModal = function (hotelId, hotelName) {
-            currentHotelId = hotelId;
-            document.getElementById('approve-hotel-name').textContent = hotelName;
-            approveModal.show();
-        };
-
-        window.openRejectModal = function (hotelId, hotelName) {
-            currentHotelId = hotelId;
-            document.getElementById('reject-hotel-name').textContent = hotelName;
-            document.getElementById('rejection-reason').value = '';
-            document.getElementById('reason-error').classList.add('d-none');
-            rejectModal.show();
-        };
-
         window.viewHotelDetails = function (hotelId) {
             // Get CSRF token
             const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
@@ -598,182 +581,7 @@
                 });
         };
 
-        // --- Action Handlers ---
-        document.getElementById('confirm-approve-btn').addEventListener('click', function () {
-            if (currentHotelId) {
-                // Get CSRF token
-                const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-                const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-                
-                // Real API call to approve hotel
-                fetch(`/moderator-hotel-list/api/moderator/hotels/${currentHotelId}/approve`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        [csrfHeader]: csrfToken
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        showToast('Thành công', data.message, true);
-                        updateHotelStatus(currentHotelId, 'active');
-                        approveModal.hide();
-                        currentHotelId = null;
-                        setTimeout(() => { window.location.reload(); }, 1000); // Reload lại trang sau 1s
-                    } else {
-                        showToast('Lỗi', data.message, false);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast('Lỗi', 'Không thể phê duyệt khách sạn', false);
-                });
-            }
-        });
-
-        document.getElementById('confirm-reject-btn').addEventListener('click', function () {
-            const reason = document.getElementById('rejection-reason').value.trim();
-            const reasonError = document.getElementById('reason-error');
-
-            if (!reason) {
-                reasonError.classList.remove('d-none');
-                return;
-            } else {
-                reasonError.classList.add('d-none');
-            }
-
-            if (currentHotelId) {
-                // Get CSRF token
-                const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-                const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-                
-                // Real API call to reject hotel
-                fetch(`/moderator-hotel-list/api/moderator/hotels/${currentHotelId}/reject`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        [csrfHeader]: csrfToken
-                    },
-                    body: JSON.stringify({ reason: reason })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        showToast('Thành công', data.message, true);
-                        updateHotelStatus(currentHotelId, 'inactive', reason);
-                        rejectModal.hide();
-                        currentHotelId = null;
-                        setTimeout(() => { window.location.reload(); }, 1000); // Reload lại trang sau 1s
-                    } else {
-                        showToast('Lỗi', data.message, false);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast('Lỗi', 'Không thể từ chối khách sạn', false);
-                });
-            }
-        });
-
-        // --- UI Update Functions ---
-        function updateHotelStatus(hotelId, status, reason = '') {
-            const hotelCard = document.querySelector(`[data-hotel-id="${hotelId}"]`).closest('.hotel-card');
-            if (!hotelCard) return;
-            
-            const statusBadge = hotelCard.querySelector('.position-absolute .badge');
-            const actionButtons = hotelCard.querySelector('.card-footer .d-flex');
-
-            // Update status badge
-            statusBadge.className = `badge ${status === 'active' ? 'bg-success' : status === 'inactive' ? 'bg-danger' : 'bg-warning'}`;
-            statusBadge.textContent = status === 'active' ? 'Đã duyệt' : status === 'inactive' ? 'Bị từ chối' : 'Chờ duyệt';
-
-            // Update action buttons
-            if (status === 'active') {
-                actionButtons.innerHTML = `
-          <button class="btn btn-success flex-fill" disabled>
-            <i class="bi bi-check-circle me-1"></i>Đã duyệt
-          </button>
-          <button class="btn btn-warning flex-fill reject-btn" 
-                  data-hotel-id="${hotelId}" 
-                  data-hotel-name="${hotelCard.querySelector('.card-title').textContent}">
-            <i class="bi bi-arrow-clockwise me-1"></i>Thu hồi
-          </button>
-        `;
-            } else if (status === 'inactive') {
-                actionButtons.innerHTML = `
-          <button class="btn btn-success flex-fill approve-btn" 
-                  data-hotel-id="${hotelId}" 
-                  data-hotel-name="${hotelCard.querySelector('.card-title').textContent}">
-            <i class="bi bi-check-circle me-1"></i>Phê duyệt lại
-          </button>
-          <button class="btn btn-danger flex-fill" disabled>
-            <i class="bi bi-x-circle me-1"></i>Đã từ chối
-          </button>
-        `;
-
-                // Add rejection reason
-                const cardBody = hotelCard.querySelector('.card-body');
-                const existingAlert = cardBody.querySelector('.alert');
-                if (!existingAlert) {
-                    const alert = document.createElement('div');
-                    alert.className = 'alert alert-danger small';
-                    alert.innerHTML = `<strong>Lý do từ chối:</strong> ${reason}`;
-                    cardBody.appendChild(alert);
-                }
-            }
-
-            // Update data attribute
-            hotelCard.setAttribute('data-status', status);
-            
-            // Update statistics
-            updateStatistics();
-        }
-        
-        // Function to update statistics
-        function updateStatistics() {
-            const hotelCards = document.querySelectorAll('.hotel-card');
-            let pendingCount = 0;
-            let approvedCount = 0;
-            let rejectedCount = 0;
-            
-            hotelCards.forEach(card => {
-                const status = card.getAttribute('data-status');
-                if (status === 'pending') pendingCount++;
-                else if (status === 'active') approvedCount++;
-                else if (status === 'inactive') rejectedCount++;
-            });
-            
-            // Update the statistics badges
-            const badges = document.querySelectorAll('.d-flex.align-items-center .badge');
-            if (badges.length >= 3) {
-                badges[0].textContent = pendingCount + ' chờ duyệt';
-                badges[1].textContent = approvedCount + ' đã duyệt';
-                badges[2].textContent = rejectedCount + ' bị từ chối';
-            }
-        }
-
         // --- Event Listeners for Hotel Actions ---
-        // Approve buttons
-        document.addEventListener('click', function(e) {
-            if (e.target.closest('.approve-btn')) {
-                const button = e.target.closest('.approve-btn');
-                const hotelId = button.getAttribute('data-hotel-id');
-                const hotelName = button.getAttribute('data-hotel-name');
-                openApproveModal(hotelId, hotelName);
-            }
-        });
-
-        // Reject buttons
-        document.addEventListener('click', function(e) {
-            if (e.target.closest('.reject-btn')) {
-                const button = e.target.closest('.reject-btn');
-                const hotelId = button.getAttribute('data-hotel-id');
-                const hotelName = button.getAttribute('data-hotel-name');
-                openRejectModal(hotelId, hotelName);
-            }
-        });
-
         // View details buttons
         document.addEventListener('click', function(e) {
             if (e.target.closest('.view-details-btn')) {
@@ -781,6 +589,79 @@
                 const hotelId = button.getAttribute('data-hotel-id');
                 viewHotelDetails(hotelId);
             }
+        });
+
+        // Thay đổi event handler cho các nút hành động
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.approve-btn')) {
+                const button = e.target.closest('.approve-btn');
+                const hotelId = button.getAttribute('data-hotel-id');
+                const status = button.closest('.hotel-card').getAttribute('data-status');
+                pendingActionHotelId = hotelId;
+                if (status === 'inactive') {
+                    pendingActionType = 'approve-again';
+                    confirmActionMessage.textContent = 'Bạn có chắc chắn muốn phê duyệt lại khách sạn này không?';
+                    confirmActionBtn.className = 'btn btn-success';
+                } else {
+                    pendingActionType = 'approve';
+                    confirmActionMessage.textContent = 'Bạn có chắc chắn muốn phê duyệt khách sạn này không?';
+                    confirmActionBtn.className = 'btn btn-success';
+                }
+                actionConfirmModal.show();
+            }
+            if (e.target.closest('.reject-btn')) {
+                const button = e.target.closest('.reject-btn');
+                const hotelId = button.getAttribute('data-hotel-id');
+                pendingActionHotelId = hotelId;
+                pendingActionType = 'reject';
+                confirmActionMessage.textContent = 'Bạn có chắc chắn muốn từ chối khách sạn này không?';
+                confirmActionBtn.className = 'btn btn-danger';
+                actionConfirmModal.show();
+            }
+            if (e.target.closest('.revoke-btn')) {
+                const button = e.target.closest('.revoke-btn');
+                const hotelId = button.getAttribute('data-hotel-id');
+                pendingActionHotelId = hotelId;
+                pendingActionType = 'revoke';
+                confirmActionMessage.textContent = 'Bạn có chắc chắn muốn thu hồi phê duyệt khách sạn này không?';
+                confirmActionBtn.className = 'btn btn-warning';
+                actionConfirmModal.show();
+            }
+        });
+
+        // Xác nhận hành động
+        confirmActionBtn.addEventListener('click', function() {
+            if (!pendingActionHotelId || !pendingActionType) return;
+            if (pendingActionType === 'approve' || pendingActionType === 'approve-again') {
+                fetch(`/moderator-hotel-list/api/moderator/hotels/${pendingActionHotelId}/approve`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        [csrfHeader]: csrfToken
+                    }
+                }).then(() => window.location.reload());
+            } else if (pendingActionType === 'reject') {
+                fetch(`/moderator-hotel-list/api/moderator/hotels/${pendingActionHotelId}/reject`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        [csrfHeader]: csrfToken
+                    },
+                    body: JSON.stringify({ reason: 'Từ chối bởi quản trị viên' })
+                }).then(() => window.location.reload());
+            } else if (pendingActionType === 'revoke') {
+                fetch(`/moderator-hotel-list/api/moderator/hotels/${pendingActionHotelId}/reject`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        [csrfHeader]: csrfToken
+                    },
+                    body: JSON.stringify({ reason: 'Thu hồi phê duyệt' })
+                }).then(() => window.location.reload());
+            }
+            actionConfirmModal.hide();
+            pendingActionHotelId = null;
+            pendingActionType = null;
         });
     });
 </script>
