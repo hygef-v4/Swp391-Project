@@ -9,6 +9,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="author" content="Đội Ngũ Hamora">
   <meta name="description" content="Hamora - Bảng Điều Khiển Quản Trị Viên Hệ Thống Đặt Phòng Khách Sạn">
+  <meta name="_csrf" th:content="${_csrf.token}"/>
+  <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 
   <!-- Dark mode -->
   <script>
@@ -242,20 +244,23 @@
                     <td>
                       <div class="d-flex align-items-center">
                         <div class="avatar avatar-xs me-2">
-                          <img class="avatar-img rounded-circle" th:src="*{avatarUrl != null ? avatarUrl : '/assets/images/avatar/default-avatar.jpg'}" alt="avatar">
+                          <img class="avatar-img rounded-circle" th:src="*{avatarUrl} ?: '/assets/images/avatar/default-avatar.jpg'" alt="avatar">
                         </div>
                         <span th:text="*{fullName}">Tên Người Dùng</span>
                       </div>
                     </td>
                     <td th:text="*{email}">user@email.com</td>
                     <td>
-                      <span class="badge" th:classappend="*{role == 'CUSTOMER' ? 'bg-success' : (role == 'HOTEL_OWNER' ? 'bg-info' : (role == 'MODERATOR' ? 'bg-warning' : 'bg-primary'))}" th:text="*{role == 'CUSTOMER' ? 'KHÁCH HÀNG' : (role == 'HOTEL_OWNER' ? 'CHỦ KHÁCH SẠN' : (role == 'MODERATOR' ? 'QUẢN LÝ' : 'ADMIN'))}">KHÁCH HÀNG</span>
+                      <span class="badge bg-success" th:if="*{role == 'CUSTOMER'}">KHÁCH HÀNG</span>
+                      <span class="badge bg-info" th:if="*{role == 'HOTEL_OWNER'}">CHỦ KHÁCH SẠN</span>
+                      <span class="badge bg-warning" th:if="*{role == 'MODERATOR'}">QUẢN LÝ</span>
+                      <span class="badge bg-primary" th:if="*{role != 'CUSTOMER' and role != 'HOTEL_OWNER' and role != 'MODERATOR'}">ADMIN</span>
                     </td>
                     <td>
                       <span class="badge bg-danger">Bị flagged</span>
                     </td>
                     <td>
-                      <button class="btn btn-sm btn-light view-flagged-user-btn" th:data-user-id="*{id}" title="Xem chi tiết">
+                      <button class="btn btn-sm btn-light view-flagged-user-btn" th:attr="data-user-id=*{id}" title="Xem chi tiết">
                         <i class="bi bi-eye"></i>
                       </button>
                     </td>
@@ -295,70 +300,24 @@
                   </thead>
                   <tbody>
                   <!-- Loop through pending hotels -->
-                  <tr id="hotel-row-1">
+                  <tr th:each="hotel,iter : ${pendingHotels}" th:id="${'hotel-row-' + hotel.hotelId}">
                     <td>
                       <div class="d-flex align-items-center">
-                        <img class="rounded me-2" src="/assets/images/category/hotel/01.jpg" alt="hotel" width="40" height="40">
-                        <span>Khách Sạn Mặt Trời</span>
+                        <img class="rounded me-2" th:src="${hotel.hotelImageUrl} ?: '/assets/images/category/hotel/01.jpg'" alt="hotel" width="40" height="40">
+                        <span th:title="${hotel.hotelName}" th:text="${hotel.hotelName}">Hotel Name</span>
                       </div>
                     </td>
-                    <td>Hà Nội</td>
-                    <td>Nguyễn Văn A</td>
+                    <td th:text="${hotel.cityName}">City</td>
+                    <td th:text="${hostMap != null and hostMap.containsKey(hotel.hostId)} ? ${hostMap[hotel.hostId].fullName} : 'Chưa có thông tin'">Host Name</td>
                     <td>
                       <div class="btn-group" role="group">
-                        <button class="btn btn-sm btn-success" data-hotel-id="1" data-hotel-name="Khách Sạn Mặt Trời" onclick="openApproveModal(this)" title="Approve">
+                        <button class="btn btn-sm btn-success" th:attr="data-hotel-id=${hotel.hotelId},data-hotel-name=${hotel.hotelName}" onclick="openApproveModal(this)" title="Approve">
                           <i class="bi bi-check-lg"></i>
                         </button>
-                        <button class="btn btn-sm btn-danger" data-hotel-id="1" data-hotel-name="Khách Sạn Mặt Trời" onclick="openRejectModal(this)" title="Reject">
+                        <button class="btn btn-sm btn-danger" th:attr="data-hotel-id=${hotel.hotelId},data-hotel-name=${hotel.hotelName}" onclick="openRejectModal(this)" title="Reject">
                           <i class="bi bi-x-lg"></i>
                         </button>
-                        <button class="btn btn-sm btn-light" onclick="viewHotel(1)" title="View Details">
-                          <i class="bi bi-eye"></i>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr id="hotel-row-2">
-                    <td>
-                      <div class="d-flex align-items-center">
-                        <img class="rounded me-2" src="/assets/images/category/hotel/02.jpg" alt="hotel" width="40" height="40">
-                        <span>Khách Sạn Biển Xanh</span>
-                      </div>
-                    </td>
-                    <td>Đà Nẵng</td>
-                    <td>Trần Thị B</td>
-                    <td>
-                      <div class="btn-group" role="group">
-                        <button class="btn btn-sm btn-success" data-hotel-id="2" data-hotel-name="Khách Sạn Biển Xanh" onclick="openApproveModal(this)" title="Approve">
-                          <i class="bi bi-check-lg"></i>
-                        </button>
-                        <button class="btn btn-sm btn-danger" data-hotel-id="2" data-hotel-name="Khách Sạn Biển Xanh" onclick="openRejectModal(this)" title="Reject">
-                          <i class="bi bi-x-lg"></i>
-                        </button>
-                        <button class="btn btn-sm btn-light" onclick="viewHotel(2)" title="View Details">
-                          <i class="bi bi-eye"></i>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr id="hotel-row-3">
-                    <td>
-                      <div class="d-flex align-items-center">
-                        <img class="rounded me-2" src="/assets/images/category/hotel/03.jpg" alt="hotel" width="40" height="40">
-                        <span>Khách Sạn Núi Xanh</span>
-                      </div>
-                    </td>
-                    <td>Sapa</td>
-                    <td>Lê Văn C</td>
-                    <td>
-                      <div class="btn-group" role="group">
-                        <button class="btn btn-sm btn-success" data-hotel-id="3" data-hotel-name="Khách Sạn Núi Xanh" onclick="openApproveModal(this)" title="Approve">
-                          <i class="bi bi-check-lg"></i>
-                        </button>
-                        <button class="btn btn-sm btn-danger" data-hotel-id="3" data-hotel-name="Khách Sạn Núi Xanh" onclick="openRejectModal(this)" title="Reject">
-                          <i class="bi bi-x-lg"></i>
-                        </button>
-                        <button class="btn btn-sm btn-light" onclick="viewHotel(3)" title="View Details">
+                        <button class="btn btn-sm btn-light" th:attr="onclick=|viewHotel(${hotel.hotelId})|" title="View Details">
                           <i class="bi bi-eye"></i>
                         </button>
                       </div>
@@ -524,13 +483,11 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="rejectModalLabel">Reason for Rejection</h5>
+        <h5 class="modal-title" id="rejectModalLabel">Confirm Rejection</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <p>Please provide a reason for rejecting the hotel <strong id="reject-hotel-name"></strong>:</p>
-        <textarea id="rejection-reason" class="form-control" rows="3" placeholder="Enter reason..."></textarea>
-        <div class="text-danger mt-2 d-none" id="reason-error">Please enter a reason.</div>
+        Are you sure you want to reject the hotel <strong id="reject-hotel-name"></strong>?
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -607,17 +564,18 @@
       currentHotelId = button.getAttribute('data-hotel-id');
       const hotelName = button.getAttribute('data-hotel-name');
       document.getElementById('reject-hotel-name').textContent = hotelName;
-      document.getElementById('rejection-reason').value = ''; // Clear previous reason
-      document.getElementById('reason-error').classList.add('d-none'); // Hide error
       rejectModal.show();
     };
 
     // --- Action Handlers ---
     document.getElementById('confirm-approve-btn').addEventListener('click', function () {
       if (currentHotelId) {
-        fetch(`/moderator/hotels/${currentHotelId}/approve`, {
+        const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+        fetch(`/moderator-hotel-list/api/moderator/hotels/${currentHotelId}/approve`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json', [csrfHeader]: csrfToken },
+          credentials: 'same-origin'
         })
                 .then(response => response.json().then(data => ({ ok: response.ok, data })))
                 .then(({ ok, data }) => {
@@ -640,21 +598,14 @@
     });
 
     document.getElementById('confirm-reject-btn').addEventListener('click', function () {
-      const reason = document.getElementById('rejection-reason').value.trim();
-      const reasonError = document.getElementById('reason-error');
-
-      if (!reason) {
-        reasonError.classList.remove('d-none');
-        return;
-      } else {
-        reasonError.classList.add('d-none');
-      }
-
       if (currentHotelId) {
-        fetch(`/moderator/hotels/${currentHotelId}/reject`, {
+        const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+        fetch(`/moderator-hotel-list/api/moderator/hotels/${currentHotelId}/reject`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ reason: reason })
+          headers: { 'Content-Type': 'application/json', [csrfHeader]: csrfToken },
+          credentials: 'same-origin',
+          body: JSON.stringify({ reason: 'Từ chối bởi quản trị viên' })
         })
                 .then(response => response.json().then(data => ({ ok: response.ok, data })))
                 .then(({ ok, data }) => {

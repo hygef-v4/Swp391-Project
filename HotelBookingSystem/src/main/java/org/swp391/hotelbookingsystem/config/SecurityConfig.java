@@ -66,7 +66,7 @@ public class SecurityConfig {
                                 new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
                                 new WebExpressionAuthorizationManager("hasAnyRole('MODERATOR', 'ADMIN')")
                         ))
-                        .requestMatchers("/api/moderator/hotels/**").access(AuthorizationManagers.allOf(
+                        .requestMatchers("/moderator-hotel-list/api/moderator/hotels/**").access(AuthorizationManagers.allOf(
                                 new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
                                 new WebExpressionAuthorizationManager("hasAnyRole('MODERATOR', 'ADMIN')")
                         ))
