@@ -182,6 +182,31 @@
         font-size: 0.95rem;
       }
     }
+    /* Thêm CSS cho tên khách sạn bị tràn */
+    .hotel-name-ellipsis {
+      display: inline-block;
+      max-width: 220px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      vertical-align: middle;
+    }
+    .table-warning-row {
+      color: #ffc107;
+      font-weight: 500;
+      font-size: 1rem;
+      text-align: center;
+      padding: 0.7em 0;
+    }
+    .table-warning-row a {
+      color: #7269ef;
+      font-weight: 600;
+      text-decoration: none;
+      margin-left: 0.5em;
+    }
+    .table-warning-row a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 
@@ -337,7 +362,7 @@
                     </td>
                   </tr>
                   <tr th:if="${flaggedUsersList.size() > 4}">
-                    <td colspan="5" class="text-center text-danger">Có nhiều hơn 4 người dùng bị báo cáo. <a href="/moderator-user-list">Xem thêm</a></td>
+                    <td colspan="5" class="text-center text-danger">Có nhiều hơn 4 người dùng bị báo cáo. <a href="/moderator-user-list" style="color:#7269ef;font-weight:600;text-decoration:none;margin-left:0.5em;">Xem thêm</a></td>
                   </tr>
                   <tr th:if="${flaggedUsersList == null or flaggedUsersList.isEmpty()}">
                     <td colspan="5" class="text-center">Không có người dùng bị báo cáo.</td>
@@ -354,8 +379,8 @@
         <div class="col-xxl-6">
           <div class="card shadow h-100">
             <div class="card-header d-flex justify-content-between align-items-center">
-              <h5 class="card-header-title">Listings Pending Approval</h5>
-              <a href="/moderator/hotels/pending" class="btn btn-link p-0">View All</a>
+              <h5 class="card-header-title">Khách Sạn Chờ Duyệt</h5>
+              <a href="/moderator/hotels/pending" class="btn btn-link p-0 text-primary">Xem Tất Cả</a>
             </div>
             <div class="card-body">
               <!-- Table START -->
@@ -363,40 +388,43 @@
                 <table class="table table-hover align-middle">
                   <thead>
                   <tr>
-                    <th>Hotel</th>
-                    <th>Location</th>
-                    <th>Host</th>
-                    <th>Action</th>
+                    <th>Khách Sạn</th>
+                    <th>Địa Điểm</th>
+                    <th>Chủ Khách Sạn</th>
+                    <th>Hành Động</th>
                   </tr>
                   </thead>
                   <tbody>
                   <!-- Loop through pending hotels -->
-                  <tr th:each="hotel,iter : ${pendingHotels}" th:id="${'hotel-row-' + hotel.hotelId}">
+                  <tr th:each="hotel,iter : ${pendingHotels}" th:if="${iter.index} < 4" th:id="${'hotel-row-' + hotel.hotelId}">
                     <td>
                       <div class="d-flex align-items-center">
                         <img class="rounded me-2" th:src="${hotel.hotelImageUrl} ?: '/assets/images/category/hotel/01.jpg'" alt="hotel" width="40" height="40">
-                        <span th:title="${hotel.hotelName}" th:text="${hotel.hotelName}">Hotel Name</span>
+                        <span class="hotel-name-ellipsis" th:title="${hotel.hotelName}" th:text="${hotel.hotelName}">Tên khách sạn</span>
                       </div>
                     </td>
                     <td th:text="${hotel.cityName}">City</td>
                     <td th:text="${hostMap != null and hostMap.containsKey(hotel.hostId)} ? ${hostMap[hotel.hostId].fullName} : 'Chưa có thông tin'">Host Name</td>
                     <td>
                       <div class="btn-group" role="group">
-                        <button class="btn btn-sm btn-success" th:attr="data-hotel-id=${hotel.hotelId},data-hotel-name=${hotel.hotelName}" onclick="openApproveModal(this)" title="Approve">
+                        <button class="btn btn-sm btn-success" th:attr="data-hotel-id=${hotel.hotelId},data-hotel-name=${hotel.hotelName}" onclick="openApproveModal(this)" title="Duyệt">
                           <i class="bi bi-check-lg"></i>
                         </button>
-                        <button class="btn btn-sm btn-danger" th:attr="data-hotel-id=${hotel.hotelId},data-hotel-name=${hotel.hotelName}" onclick="openRejectModal(this)" title="Reject">
+                        <button class="btn btn-sm btn-danger" th:attr="data-hotel-id=${hotel.hotelId},data-hotel-name=${hotel.hotelName}" onclick="openRejectModal(this)" title="Từ chối">
                           <i class="bi bi-x-lg"></i>
                         </button>
-                        <button class="btn btn-sm btn-light" th:attr="onclick=|viewHotel(${hotel.hotelId})|" title="View Details">
+                        <button class="btn btn-sm btn-light" th:attr="onclick=|viewHotel(${hotel.hotelId})|" title="Xem chi tiết">
                           <i class="bi bi-eye"></i>
                         </button>
                       </div>
                     </td>
                   </tr>
+                  <tr th:if="${pendingHotels.size() > 4}">
+                    <td colspan="4" class="text-center" style="color:#ffc107;">Có nhiều hơn 4 khách sạn chờ duyệt. <a href="/moderator/hotels/pending" style="color:#7269ef;font-weight:600;text-decoration:none;margin-left:0.5em;">Xem thêm</a></td>
+                  </tr>
                   <!-- Placeholder for when the list is empty -->
                   <tr th:if="${pendingHotels == null or pendingHotels.isEmpty()}">
-                    <td colspan="4" class="text-center">No pending hotels found.</td>
+                    <td colspan="4" class="text-center">Không có khách sạn chờ duyệt.</td>
                   </tr>
                   </tbody>
                 </table>
