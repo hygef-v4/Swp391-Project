@@ -697,8 +697,7 @@
                 .then(response => response.json().then(data => ({ ok: response.ok, data })))
                 .then(({ ok, data }) => {
                   if (ok) {
-                    showToast('Success', `The hotel has been approved.`, true);
-                    updateUIAfterAction(currentHotelId);
+                    window.location.href = '/moderator-dashboard';
                   } else {
                     showToast('Error', data.message || 'Could not approve the hotel.', false);
                   }
@@ -727,8 +726,7 @@
                 .then(response => response.json().then(data => ({ ok: response.ok, data })))
                 .then(({ ok, data }) => {
                   if (ok) {
-                    showToast('Success', `The hotel has been rejected.`, true);
-                    updateUIAfterAction(currentHotelId);
+                    window.location.href = '/moderator-dashboard';
                   } else {
                     showToast('Error', data.message || 'Could not reject the hotel.', false);
                   }
