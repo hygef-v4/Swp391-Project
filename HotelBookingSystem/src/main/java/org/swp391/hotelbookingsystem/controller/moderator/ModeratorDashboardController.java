@@ -41,6 +41,13 @@ public class ModeratorDashboardController {
                 .toList();
             model.addAttribute("pendingHotels", pendingHotels);
             model.addAttribute("pendingApprovals", pendingHotels.size());
+
+            // Lấy danh sách tối đa 10 người dùng bị flagged
+            java.util.List<org.swp391.hotelbookingsystem.model.User> flaggedUsersList = userService.getAllUsersWithProfile().stream()
+                .filter(u -> Boolean.TRUE.equals(u.isFlagged()))
+                .toList();
+            model.addAttribute("flaggedUsersList", flaggedUsersList);
+            model.addAttribute("flaggedUsersListLimited", flaggedUsersList.size() > 4 ? flaggedUsersList.subList(0, 4) : flaggedUsersList);
         } catch (Exception e) {
             // Xử lý lỗi và set giá trị mặc định
             model.addAttribute("totalUsers", 0);
