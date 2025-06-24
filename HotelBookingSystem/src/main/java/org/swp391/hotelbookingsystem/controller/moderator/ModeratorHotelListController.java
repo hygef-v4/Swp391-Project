@@ -16,6 +16,7 @@ import org.swp391.hotelbookingsystem.service.UserService;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Comparator;
 
 @Controller
 @RequestMapping("/moderator-hotel-list")
@@ -28,6 +29,9 @@ public class ModeratorHotelListController {
     @GetMapping("")
     public String getHotelList(Model model) {
         List<Hotel> hotels = hotelService.getAllHotels();
+        // Sắp xếp: pending lên đầu, sau đó active, rồi inactive
+        hotels.sort(Comparator.comparing((Hotel h) -> !"pending".equals(h.getStatus()))
+            .thenComparing((Hotel h) -> !"active".equals(h.getStatus())));
         Map<Integer, User> hostMap = new HashMap<>();
         int pendingCount = 0, approvedCount = 0, rejectedCount = 0;
         for (Hotel hotel : hotels) {
