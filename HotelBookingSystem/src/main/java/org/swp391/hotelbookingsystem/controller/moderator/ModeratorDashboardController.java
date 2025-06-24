@@ -42,6 +42,16 @@ public class ModeratorDashboardController {
             model.addAttribute("pendingHotels", pendingHotels);
             model.addAttribute("pendingApprovals", pendingHotels.size());
 
+            // Lấy thông tin chủ khách sạn cho từng khách sạn chờ duyệt
+            java.util.Map<Integer, org.swp391.hotelbookingsystem.model.User> hostMap = new java.util.HashMap<>();
+            for (org.swp391.hotelbookingsystem.model.Hotel hotel : pendingHotels) {
+                if (!hostMap.containsKey(hotel.getHostId())) {
+                    org.swp391.hotelbookingsystem.model.User host = userService.findUserById(hotel.getHostId());
+                    if (host != null) hostMap.put(hotel.getHostId(), host);
+                }
+            }
+            model.addAttribute("hostMap", hostMap);
+
             // Lấy danh sách tối đa 10 người dùng bị flagged
             java.util.List<org.swp391.hotelbookingsystem.model.User> flaggedUsersList = userService.getAllUsersWithProfile().stream()
                 .filter(u -> Boolean.TRUE.equals(u.isFlagged()))
