@@ -69,4 +69,15 @@ public class CouponRepository {
         String sql = "SELECT * FROM Coupons WHERE coupon_id = ?";
         return jdbcTemplate.queryForObject(sql, COUPON_MAPPER, id);
     }
+
+    public List<Coupon> searchCouponsByCode(String code) {
+        String sql = "SELECT * FROM Coupons WHERE code LIKE ? ORDER BY coupon_id DESC";
+        return jdbcTemplate.query(sql, COUPON_MAPPER, "%" + code + "%");
+    }
+    public boolean existsByCode(String code) {
+        String sql = "SELECT COUNT(*) FROM Coupons WHERE code = ?";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, code);
+        return count != null && count > 0;
+    }
+
 }
