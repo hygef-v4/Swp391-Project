@@ -134,10 +134,11 @@
                     </p>
                     <p class="mb-4">
                         <span id="shortDesc">
-                            <span th:utext="${#strings.substring(hotel.description, 0, 300)}">Mô tả rút gọn</span>...
-                        </span>
+                            <span th:if="${#strings.length(hotel.description) > 300}">
+                                <span th:utext="${#strings.substring(hotel.description, 0, 300)}">Mô tả rút gọn</span>...
+                                <a href="javascript:void(0)" class="text-primary fw-semibold ms-1" id="toggleDesc">Xem thêm</a>
+                            </span>
                         <span id="fullDesc" class="d-none" th:utext="${hotel.description}">Mô tả đầy đủ</span>
-                        <a href="javascript:void(0)" class="text-primary fw-semibold ms-1" id="toggleDesc">Xem thêm</a>
                     </p>
 
                     <!-- Booking info -->

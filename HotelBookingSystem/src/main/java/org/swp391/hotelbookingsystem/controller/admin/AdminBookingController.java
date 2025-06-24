@@ -53,7 +53,6 @@ public class AdminBookingController {
         model.addAttribute("viewMode", view);
         model.addAttribute("search", search);
 
-        // Statistics giữ nguyên
         model.addAttribute("totalBooked", bookingService.getTotalBooking("approved"));
         model.addAttribute("todayBooked", bookingService.getTodayBooking("approved"));
         model.addAttribute("totalCancelled", bookingService.getTotalBooking("cancelled"));

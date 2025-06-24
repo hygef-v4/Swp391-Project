@@ -526,18 +526,17 @@
 
                             <!-- Amount -->
                             <div class="col">
-                                <span class="text-success fw-bold" th:text="${#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 3, 'POINT')} + '₫'">Giá</span>
+                                <span class="text-success fw-bold" th:text="${#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 0, 'POINT')} + '₫'">Giá</span>
                             </div>
 
                             <!-- Booking status -->
                             <div class="col">
-                                <div th:switch="${booking.determineStatus()}">
+                                <div th:switch="${booking.status}">
                                     <span th:case="'approved'" class="badge rounded-pill bg-soft-primary text-primary fw-semibold px-3 py-1">Đã xác nhận</span>
                                     <span th:case="'cancelled'" class="badge rounded-pill bg-soft-warning text-warning fw-semibold px-3 py-1">Đã hủy</span>
                                     <span th:case="'completed'" class="badge rounded-pill bg-soft-success text-success fw-semibold px-3 py-1">Đã hoàn thành</span>
                                     <span th:case="'rejected'" class="badge rounded-pill bg-soft-danger text-danger fw-semibold px-3 py-1">Đã bị từ chối</span>
-                                    <span th:case="*"
-                                          class="badge rounded-pill bg-secondary text-light fw-semibold px-3 py-1">Không xác định</span>
+                                    <span th:case="*" class="badge rounded-pill bg-secondary text-light fw-semibold px-3 py-1">Không xác định</span>
                                 </div>
                             </div>
 
@@ -573,11 +572,12 @@
                                                             <span th:case="'cancelled'" class="badge rounded-pill bg-soft-warning text-warning fw-semibold px-3 py-1">Đã hủy</span>
                                                             <span th:case="'completed'" class="badge rounded-pill bg-soft-success text-success fw-semibold px-3 py-1">Đã hoàn thành</span>
                                                             <span th:case="'rejected'" class="badge rounded-pill bg-soft-danger text-danger fw-semibold px-3 py-1">Đã bị từ chối</span>
+                                                            <span th:case="*" class="badge rounded-pill bg-secondary text-light fw-semibold px-3 py-1">Không xác định</span>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <p class="mb-1" th:text="'Giá 1 phòng: ' + ${#numbers.formatDecimal(unit.price, 0, 'COMMA', 3, 'POINT')} + ' ₫'"></p>
-                                                <p class="mb-1 text-success" th:text="'Tổng tiền: ' + ${#numbers.formatDecimal(unit.price * unit.quantity, 0, 'COMMA', 3, 'POINT')} + ' ₫'"></p>
+                                                <p class="mb-1" th:text="'Giá 1 phòng: ' + ${#numbers.formatDecimal(unit.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></p>
+                                                <p class="mb-1 text-success" th:text="'Tổng tiền: ' + ${#numbers.formatDecimal(unit.price * unit.quantity, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></p>
                                             </div>
                                         </div>
                                     </div> <!-- end unit loop -->

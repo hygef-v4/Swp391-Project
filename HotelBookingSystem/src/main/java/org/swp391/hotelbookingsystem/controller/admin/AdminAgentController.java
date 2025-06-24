@@ -39,14 +39,15 @@ public class AdminAgentController {
         int totalItems = userService.countAgentsBySearch(search);
         int totalPages = (int) Math.ceil((double) totalItems / size);
 
-
-        // Map lưu số lượng hotel cho từng agent
         Map<Integer, Integer> hotelCountMap = new HashMap<>();
         for (User agent : agentList) {
             int count = hotelService.countHotelsByHostId(agent.getId());
             hotelCountMap.put(agent.getId(), count);
         }
 
+        int totalAgent = userService.countAgent();
+
+        model.addAttribute("totalAgent", totalAgent);
         model.addAttribute("agentList", agentList);
         model.addAttribute("hotelCountMap", hotelCountMap);
         model.addAttribute("currentPage", page);

@@ -1,6 +1,5 @@
 package org.swp391.hotelbookingsystem.repository;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -729,7 +728,8 @@ public class BookingRepo {
                     .build();
 
             booking.setBookingUnits(findBookingUnitsByBookingId(bookingId));
-
+            booking.setStatus(booking.determineStatus());
+            booking.setTotalPrice(booking.calculateTotalPrice());
             return booking;
         }, params.toArray());
     }

@@ -102,14 +102,14 @@ public class BookingService {
         return bookingRepo.getFutureCheckOut();
     }
 
-    public List<Booking> getBookingsByStatusAndSearchPaginated(String status, String keyword, int page, int size) {
-        return bookingRepo.findBookingsByStatusAndKeywordPaginated(status, keyword, page, size);
-    }
+//    public List<Booking> getBookingsByStatusAndSearchPaginated(String status, String keyword, int page, int size) {
+//        return bookingRepo.findBookingsByStatusAndKeywordPaginated(status, keyword, page, size);
+//    }
 
-    public int getTotalPagesByStatusAndSearch(String status, String keyword, int size) {
-        int total = bookingRepo.countBookingsByStatusAndKeyword(status, keyword);
-        return (int) Math.ceil((double) total / size);
-    }
+//    public int getTotalPagesByStatusAndSearch(String status, String keyword, int size) {
+//        int total = bookingRepo.countBookingsByStatusAndKeyword(status, keyword);
+//        return (int) Math.ceil((double) total / size);
+//    }
 
     public List<Booking> getBookingsByHostId(int hostId) {
         return bookingRepo.findBookingsByHostId(hostId);
@@ -213,4 +213,36 @@ public class BookingService {
     public int getTotalCancelledBookings(int customerId) {
         return bookingRepo.countBookingsByStatusAndCustomer(customerId, "cancelled_or_rejected", null);
     }
+
+    public List<Booking> getBookingsByStatusAndSearchPaginated(String status, String keyword, int page, int size) {
+        List<Booking> all = bookingRepo.findBookingsByStatusAndKeywordPaginated(null, keyword, page, size);
+
+        for (Booking booking : all) {
+            booking.setBookingUnits(bookingRepo.findBookingUnitsByBookingId(booking.getBookingId())); // cần nếu units chưa load
+            booking.setStatus(booking.determineStatus());
+            booking.setTotalPrice(booking.calculateTotalPrice());
+        }
+        if (status != null && !status.isBlank()) {
+            all = all.stream()
+                    .filter(b -> status.equals(b.getStatus()))
+                    .toList();
+        }
+        return all;
+    }
+    public int getTotalPagesByStatusAndSearch(String status, String keyword, int size) {
+        List<Booking> all = bookingRepo.findBookingsByStatusAndKeywordPaginated(null, keyword, 0, Integer.MAX_VALUE);
+
+        for (Booking booking : all) {
+            booking.setBookingUnits(bookingRepo.findBookingUnitsByBookingId(booking.getBookingId()));
+            booking.setStatus(booking.determineStatus());
+        }
+
+        long count = all.stream()
+                .filter(b -> status == null || status.isBlank() || status.equals(b.getStatus()))
+                .count();
+
+        return (int) Math.ceil((double) count / size);
+    }
+
+
 }

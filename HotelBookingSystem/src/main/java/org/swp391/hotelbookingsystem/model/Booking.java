@@ -60,5 +60,15 @@ public class Booking {
         return null;
     }
 
+    public double calculateTotalPrice() {
+        if (bookingUnits == null) return 0.0;
+
+        return bookingUnits.stream()
+                .filter(unit -> "approved".equals(unit.getStatus()) || "completed".equals(unit.getStatus()))
+                .mapToDouble(unit -> unit.getPrice() * unit.getQuantity())
+                .sum();
+    }
+
+
 
 }
