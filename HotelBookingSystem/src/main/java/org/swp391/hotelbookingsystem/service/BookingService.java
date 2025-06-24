@@ -244,5 +244,9 @@ public class BookingService {
         return (int) Math.ceil((double) count / size);
     }
 
+    public int countBookingsByRoomId(int roomId) {
+        return bookingRepo.countBookingsByRoomId(roomId);
+    }
+
 
 }

@@ -1033,4 +1033,14 @@ public class BookingRepo {
         Integer count = jdbcTemplate.queryForObject(sql, params.toArray(), Integer.class);
         return count != null ? count : 0;
     }
+
+    public int countBookingsByRoomId(int roomId) {
+        String sql = """
+        SELECT COALESCE(SUM(quantity), 0)
+        FROM BookingUnits
+        WHERE room_id = ? AND status IN ('approved', 'completed')
+    """;
+        return jdbcTemplate.queryForObject(sql, Integer.class, roomId);
+    }
+
 }
