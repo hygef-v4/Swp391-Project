@@ -363,7 +363,7 @@
                                             <th>Số lượng</th>
                                             <th>Sức chứa</th>
                                             <th>Giá tiền</th>
-                                            <th>Số lượng đặt</th>
+                                            <th>Số lượng đặt thành công</th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -384,7 +384,7 @@
                                             </td>
                                             <td><span th:text="${room.maxGuests} + ' Người'"></span></td>
                                             <td><span th:text="${#numbers.formatDecimal(room.price, 0, 'COMMA', 0, 'POINT')} + '₫'"></span></td>
-                                            <td><span th:text="${room.bookedCount}"></span></td>
+                                            <td><span th:text="${room.bookedCount} + ' Lượt'"></span></td>
 
                                         </tr>
                                         </tbody>

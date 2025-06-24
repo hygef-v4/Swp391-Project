@@ -1038,7 +1038,7 @@ public class BookingRepo {
         String sql = """
         SELECT COALESCE(SUM(quantity), 0)
         FROM BookingUnits
-        WHERE room_id = ? AND status IN ('approved', 'completed')
+        WHERE room_id = ? AND status IN ('completed')
     """;
         return jdbcTemplate.queryForObject(sql, Integer.class, roomId);
     }
