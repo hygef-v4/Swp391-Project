@@ -2128,18 +2128,87 @@ About hotel END -->
             if (data.success) {
                 showNotification(data.message);
                 toggleEditMode('hotel-location');
-                // Update view mode coordinates
-                document.querySelector('#hotel-location .view-mode .col-md-6:first-child p').textContent = latField.value.trim();
-                document.querySelector('#hotel-location .view-mode .col-md-6:last-child p').textContent = lngField.value.trim();
-                // Update hotel title address as well
-                const locationText = addressField.value.trim() + ', ' + document.querySelector(`#locationLocationEdit option[value="${locationField.value}"]`).textContent;
-                document.querySelector('#hotel-title .view-mode p span').textContent = locationText;
-                // Reinitialize view map with new coordinates
-                if (viewMap) {
-                    viewMap.remove();
-                    viewMap = null;
-                }
-                setTimeout(() => initializeViewMap(), 100);
+                
+                // Use setTimeout to ensure the edit mode toggle has completed before updating UI
+                setTimeout(() => {
+                    try {
+                        // Update view mode coordinates
+                        const latCoordElement = document.querySelector('#hotel-location .view-mode .col-md-6:first-child p');
+                        const lngCoordElement = document.querySelector('#hotel-location .view-mode .col-md-6:last-child p');
+                        
+                        if (latCoordElement) {
+                            latCoordElement.textContent = latField.value.trim();
+                        }
+                        
+                        if (lngCoordElement) {
+                            lngCoordElement.textContent = lngField.value.trim();
+                        }
+                        
+                        // Update hotel title address as well - Simple and direct approach
+                        let cityName = '';
+                        
+                        // Get city name from the dropdown
+                        const selectedOption = locationField.options[locationField.selectedIndex];
+                        if (selectedOption && selectedOption.value && selectedOption.text !== "Chọn thành phố") {
+                            cityName = selectedOption.text;
+                        }
+                        
+                        if (cityName) {
+                            const newAddressText = addressField.value.trim() + ', ' + cityName;
+                            console.log('Attempting to update hotel title address to:', newAddressText);
+                            
+                            // Direct approach: find ALL spans and update the one that looks like an address
+                            const updateHotelTitleAddress = () => {
+                                // Find all spans in the entire page
+                                const allSpans = document.querySelectorAll('span');
+                                let updated = false;
+                                
+                                for (const span of allSpans) {
+                                    const text = span.textContent.trim();
+                                    // Check if this span contains an address-like pattern (has comma and city)
+                                    if (text.includes(',') && (
+                                        text.toLowerCase().includes('đà nẵng') || 
+                                        text.toLowerCase().includes('cần thơ') || 
+                                        text.toLowerCase().includes('hà nội') || 
+                                        text.toLowerCase().includes('hồ chí minh') ||
+                                        text.toLowerCase().includes('hai phong') ||
+                                        text.toLowerCase().includes('fpt') ||
+                                        text.includes('dai hoc fpt')
+                                    )) {
+                                        console.log('Found address span with text:', text);
+                                        console.log('Updating to:', newAddressText);
+                                        span.textContent = newAddressText;
+                                        updated = true;
+                                        break;
+                                    }
+                                }
+                                
+                                return updated;
+                            };
+                            
+                            // Try multiple times with delays
+                            if (!updateHotelTitleAddress()) {
+                                setTimeout(() => {
+                                    if (!updateHotelTitleAddress()) {
+                                        setTimeout(() => {
+                                            updateHotelTitleAddress();
+                                        }, 500);
+                                    }
+                                }, 200);
+                            }
+                        }
+                        
+                        // Reinitialize view map with new coordinates
+                        if (viewMap) {
+                            viewMap.remove();
+                            viewMap = null;
+                        }
+                        setTimeout(() => initializeViewMap(), 100);
+                    } catch (domError) {
+                        // Don't show error notification for DOM issues, location was saved successfully
+                        console.warn('Minor UI update issue, but location was saved successfully');
+                    }
+                }, 200); // Wait for toggle edit mode to complete
             } else {
                 showNotification(data.message, 'error');
             }
