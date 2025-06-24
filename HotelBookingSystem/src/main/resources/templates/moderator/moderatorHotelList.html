@@ -111,6 +111,13 @@
           color: #6c757d;
           border-color: #495057;
       }
+
+      .box-shadow-danger {
+          box-shadow: 0 0 10px rgba(220, 53, 69, 0.3) !important;
+      }
+      .box-shadow-warning {
+          box-shadow: 0 0 10px rgba(255, 193, 7, 0.3) !important;
+      }
     </style>
 </head>
 
@@ -207,13 +214,14 @@
                      th:data-status="${hotel.status}" 
                      th:data-city="${hotel.cityName != null ? hotel.cityName.toLowerCase().replace(' ', '').replace('.', '') : ''}"
                      th:data-hotel-id="${hotel.hotelId}">
-                    <div class="card shadow h-100">
+                    <div class="card shadow h-100"
+                         th:classappend="${hotel.status == 'inactive' ? ' border-danger border-2 box-shadow-danger' : (hotel.status == 'pending' ? ' border-warning border-2 box-shadow-warning' : '')}">
                         <div class="position-relative">
                             <img th:src="${hotel.hotelImageUrl != null ? hotel.hotelImageUrl : 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=200&fit=crop'}"
                                  class="card-img-top" th:alt="${hotel.hotelName}" style="height: 200px; object-fit: cover;">
                             <div class="position-absolute top-0 end-0 m-2">
-                                <span class="badge" 
-                                      th:classappend="${hotel.status == 'pending' ? 'bg-warning' : (hotel.status == 'active' ? 'bg-success' : 'bg-danger')}"
+                                <span class="badge"
+                                      th:classappend="${hotel.status == 'pending' ? 'bg-warning border border-warning border-2 shadow' : (hotel.status == 'active' ? 'bg-success' : 'bg-danger border border-danger border-2 shadow')}"
                                       th:text="${hotel.status == 'pending' ? 'Chờ duyệt' : (hotel.status == 'active' ? 'Đã duyệt' : 'Bị từ chối')}">
                                     Chờ duyệt
                                 </span>
@@ -396,6 +404,8 @@
         const notificationToast = new bootstrap.Toast(document.getElementById('notificationToast'));
 
         let currentHotelId = null;
+        const PAGE_SIZE = 6;
+        let currentPage = 1;
 
         // --- Toast Notification Handler ---
         function showToast(title, body, isSuccess) {
@@ -417,30 +427,96 @@
             notificationToast.show();
         }
 
-        // --- Filter and Search Functions ---
-        window.applyFilters = function() {
+        function normalizeCity(str) {
+            if (!str) return '';
+            return str.toLowerCase()
+                .replace(/tp\.?\s*/g, '')
+                .replace(/[àáạảãâầấậẩẫăằắặẳẵ]/g, 'a')
+                .replace(/[èéẹẻẽêềếệểễ]/g, 'e')
+                .replace(/[ìíịỉĩ]/g, 'i')
+                .replace(/[òóọỏõôồốộổỗơờớợởỡ]/g, 'o')
+                .replace(/[ùúụủũưừứựửữ]/g, 'u')
+                .replace(/[ỳýỵỷỹ]/g, 'y')
+                .replace(/đ/g, 'd')
+                .replace(/\s+/g, '')
+                .replace(/\./g, '');
+        }
+
+        function getFilteredHotels() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const statusFilter = document.getElementById('statusFilter').value;
             const cityFilter = document.getElementById('cityFilter').value;
+            const normCityFilter = normalizeCity(cityFilter);
 
-            const hotelCards = document.querySelectorAll('.hotel-card');
-
-            hotelCards.forEach(card => {
+            const hotelCards = Array.from(document.querySelectorAll('.hotel-card'));
+            return hotelCards.filter(card => {
                 const hotelName = card.querySelector('.card-title').textContent.toLowerCase();
                 const status = card.getAttribute('data-status');
                 const city = card.getAttribute('data-city');
-
+                const normCity = normalizeCity(city);
                 const matchesSearch = hotelName.includes(searchTerm);
                 const matchesStatus = !statusFilter || status === statusFilter;
-                const matchesCity = !cityFilter || city === cityFilter;
-
-                if (matchesSearch && matchesStatus && matchesCity) {
-                    card.style.display = 'block';
-                } else {
-                    card.style.display = 'none';
-                }
+                const matchesCity = !normCityFilter || normCity === normCityFilter;
+                return matchesSearch && matchesStatus && matchesCity;
             });
+        }
+
+        function renderPagination(filteredHotels) {
+            const totalPages = Math.ceil(filteredHotels.length / PAGE_SIZE) || 1;
+            const pagination = document.querySelector('.pagination');
+            if (!pagination) return;
+
+            let html = '';
+            html += `<li class="page-item${currentPage === 1 ? ' disabled' : ''}">
+                <a class="page-link" href="#" data-page="${currentPage - 1}"><i class="bi bi-chevron-left"></i></a>
+            </li>`;
+            for (let i = 1; i <= totalPages; i++) {
+                html += `<li class="page-item${currentPage === i ? ' active' : ''}">
+                    <a class="page-link" href="#" data-page="${i}">${i}</a>
+                </li>`;
+            }
+            html += `<li class="page-item${currentPage === totalPages ? ' disabled' : ''}">
+                <a class="page-link" href="#" data-page="${currentPage + 1}"><i class="bi bi-chevron-right"></i></a>
+            </li>`;
+            pagination.innerHTML = html;
+
+            // Gán sự kiện click cho các nút phân trang
+            pagination.querySelectorAll('.page-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const page = parseInt(this.getAttribute('data-page'));
+                    if (!isNaN(page) && page >= 1 && page <= totalPages) {
+                        currentPage = page;
+                        applyFilters();
+                    }
+                });
+            });
+        }
+
+        window.applyFilters = function() {
+            const filteredHotels = getFilteredHotels();
+            const hotelCards = Array.from(document.querySelectorAll('.hotel-card'));
+            hotelCards.forEach(card => card.style.display = 'none');
+
+            // Hiển thị các hotel thuộc trang hiện tại
+            const start = (currentPage - 1) * PAGE_SIZE;
+            const end = start + PAGE_SIZE;
+            filteredHotels.slice(start, end).forEach(card => card.style.display = 'block');
+
+            renderPagination(filteredHotels);
         };
+
+        // Chỉ filter khi bấm nút Lọc
+        const filterBtn = document.querySelector('button.btn.btn-primary');
+        if (filterBtn) {
+            filterBtn.addEventListener('click', function() {
+                currentPage = 1;
+                applyFilters();
+            });
+        }
+
+        // Gọi lần đầu khi load trang
+        applyFilters();
 
         // --- Modal Opening Functions ---
         window.openApproveModal = function (hotelId, hotelName) {
@@ -536,8 +612,9 @@
                     if (data.success) {
                         showToast('Thành công', data.message, true);
                         updateHotelStatus(currentHotelId, 'active');
-                    approveModal.hide();
-                    currentHotelId = null;
+                        approveModal.hide();
+                        currentHotelId = null;
+                        setTimeout(() => { window.location.reload(); }, 1000); // Reload lại trang sau 1s
                     } else {
                         showToast('Lỗi', data.message, false);
                     }
@@ -579,8 +656,9 @@
                     if (data.success) {
                         showToast('Thành công', data.message, true);
                         updateHotelStatus(currentHotelId, 'inactive', reason);
-                    rejectModal.hide();
-                    currentHotelId = null;
+                        rejectModal.hide();
+                        currentHotelId = null;
+                        setTimeout(() => { window.location.reload(); }, 1000); // Reload lại trang sau 1s
                     } else {
                         showToast('Lỗi', data.message, false);
                     }
@@ -668,11 +746,6 @@
                 badges[2].textContent = rejectedCount + ' bị từ chối';
             }
         }
-
-        // --- Search input event listener ---
-        document.getElementById('searchInput').addEventListener('input', applyFilters);
-        document.getElementById('statusFilter').addEventListener('change', applyFilters);
-        document.getElementById('cityFilter').addEventListener('change', applyFilters);
 
         // --- Event Listeners for Hotel Actions ---
         // Approve buttons
