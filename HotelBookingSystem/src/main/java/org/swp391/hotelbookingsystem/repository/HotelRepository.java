@@ -32,7 +32,7 @@ public class HotelRepository {
                    h.rating,
                    h.latitude,
                    h.longitude,
-                   h.description,
+                   h.status,
                    MIN(r.price) AS minPrice,
                    l.city_name AS cityName
             FROM Hotels h
@@ -40,7 +40,7 @@ public class HotelRepository {
             LEFT JOIN Rooms r ON h.hotel_id = r.hotel_id
             GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
                      h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude,
-                     l.city_name
+                     h.status, l.city_name
             ORDER BY h.rating DESC
             """;
 
@@ -57,6 +57,7 @@ public class HotelRepository {
                    h.rating,
                    h.latitude,
                    h.longitude,
+                   h.status,
                    MIN(r.price) AS minPrice,
                    l.city_name AS cityName
             FROM Hotels h
@@ -64,7 +65,7 @@ public class HotelRepository {
             LEFT JOIN Rooms r ON h.hotel_id = r.hotel_id
             GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
                      h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude,
-                     l.city_name
+                     h.status, l.city_name
             ORDER BY h.hotel_id ASC
             """;
 
@@ -134,7 +135,7 @@ public class HotelRepository {
                            h.rating,
                            h.latitude,
                            h.longitude,
-                           h.description,
+                           h.status,
                            MIN(r.price) AS minPrice,
                            SUM(r.max_guests) AS maxGuests,
                            SUM(r.quantity) AS roomQuantity,
@@ -145,7 +146,7 @@ public class HotelRepository {
                     WHERE (h.location_id = ? OR ? = -1) AND h.hotel_name like ?
                     GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
                              h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude,
-                             l.city_name
+                             h.status, l.city_name
                     HAVING SUM(r.max_guests) >= ? AND SUM(r.quantity) >= ? AND MIN(r.price) >= ? AND MIN(r.price) <= ? 
                 """;
         String order = " ORDER BY h.rating " + (star ? "ASC" : "DESC");
@@ -173,6 +174,7 @@ public class HotelRepository {
                        h.rating,
                        h.latitude,
                        h.longitude,
+                       h.status,
                        MIN(r.price) AS minPrice,
                        l.city_name AS cityName
                 FROM Hotels h
@@ -181,7 +183,7 @@ public class HotelRepository {
                 WHERE h.hotel_name like ?
                 GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
                          h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude,
-                         l.city_name
+                         h.status, l.city_name
                 """;
         return jdbcTemplate.query(query, ps -> {
             ps.setString(1, "%" + search + "%");

@@ -62,6 +62,14 @@ public class SecurityConfig {
                                 new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
                                 new WebExpressionAuthorizationManager("hasAnyRole('MODERATOR', 'ADMIN')")
                         ))
+                        .requestMatchers("/moderator-hotel-list").access(AuthorizationManagers.allOf(
+                                new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
+                                new WebExpressionAuthorizationManager("hasAnyRole('MODERATOR', 'ADMIN')")
+                        ))
+                        .requestMatchers("/api/moderator/hotels/**").access(AuthorizationManagers.allOf(
+                                new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
+                                new WebExpressionAuthorizationManager("hasAnyRole('MODERATOR', 'ADMIN')")
+                        ))
                         .requestMatchers("/moderator-user-list/flag/**").access(AuthorizationManagers.allOf(
                                 new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
                                 new WebExpressionAuthorizationManager("hasAnyRole('MODERATOR', 'ADMIN')")
