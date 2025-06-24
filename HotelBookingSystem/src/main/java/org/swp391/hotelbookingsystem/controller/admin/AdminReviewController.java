@@ -51,12 +51,21 @@ public class AdminReviewController {
                 .sorted()
                 .toList();
 
+        int lastYearReviewCount = reviewService.getTotalReviewCountLastYear();
+        int thisYearReviewCount = reviewService.getTotalReviewCountThisYear();
+
+        double growthRate = 100.0;
+        if (lastYearReviewCount > 0) {
+            growthRate = ((double)(thisYearReviewCount - lastYearReviewCount) / lastYearReviewCount) * 100;
+        }
+
+        model.addAttribute("growthRate", Math.round(growthRate));
         model.addAttribute("reviewList", reviews);
         model.addAttribute("filter", filter);
         model.addAttribute("page", page);
         model.addAttribute("totalPages", totalPages);
-        model.addAttribute("totalReviews", reviewService.getTotalReviewCount());
-        model.addAttribute("avgRating", reviewService.getAverageRating());
+        model.addAttribute("thisYearReviewCount", reviewService.getTotalReviewCountThisYear());
+        model.addAttribute("avgRating", reviewService.getAverageRatingThisYear());
         model.addAttribute("ratingDistribution", ratingDistribution);
         model.addAttribute("totalPublicReviews", totalPublicReviews);
         model.addAttribute("hotelNames", hotelNames);

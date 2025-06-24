@@ -49,10 +49,19 @@ public class ReviewService {
         return reviewRepository.countAllReviews();
     }
 
-
-    public double getAverageRating() {
-        return reviewRepository.getAverageRating();
+    public int getTotalReviewCountThisYear() {
+        return reviewRepository.countReviewsThisYear();
     }
+
+    public int getTotalReviewCountLastYear() {
+        return reviewRepository.countReviewsLastYear();
+    }
+
+
+    public double getAverageRatingThisYear() {
+        return reviewRepository.getAverageRatingThisYear();
+    }
+
 
     public List<Integer> getRatingDistribution() {
         return reviewRepository.getRatingDistribution();
