@@ -77,18 +77,6 @@ public class BookingService {
         return bookingRepo.findByRefundStatus(status);
     }
 
-    // Lấy theo khách sạn (ví dụ dùng trong admin hoặc host dashboard)
-    public List<Booking> getBookingsByHotel(int hotelId) {
-        return bookingRepo.findByHotelId(hotelId);
-    }
-
-    public List<BookingRepo.DailyStat> getCheckInStats() {
-        return bookingRepo.getCheckInStats();
-    }
-
-    public List<BookingRepo.DailyStat> getCheckOutStats() {
-        return bookingRepo.getCheckOutStats();
-    }
 
     public int getTotalBooking(String status) {
         return bookingRepo.getTotalBookingByStatus(status);
@@ -114,36 +102,14 @@ public class BookingService {
         return bookingRepo.getFutureCheckOut();
     }
 
-    public List<Booking> getBookingsPaginated(int page, int size) {
-        return bookingRepo.findAllPaginated(page, size);
-    }
+//    public List<Booking> getBookingsByStatusAndSearchPaginated(String status, String keyword, int page, int size) {
+//        return bookingRepo.findBookingsByStatusAndKeywordPaginated(status, keyword, page, size);
+//    }
 
-    public int getTotalPages(int size) {
-        int total = bookingRepo.countAllBookings();
-        return (int) Math.ceil((double) total / size);
-    }
-
-    public int getTotalItems() {
-        return bookingRepo.countAllBookings();
-    }
-
-    public List<Booking> getBookingsByStatusPaginated(String status, int page, int size) {
-        return bookingRepo.findBookingsByStatusPaginated(status, page, size);
-    }
-
-    public int getTotalPagesByStatus(String status, int size) {
-        int count = bookingRepo.countBookingsByStatus(status);
-        return (int) Math.ceil((double) count / size);
-    }
-
-    public List<Booking> getBookingsByStatusAndSearchPaginated(String status, String keyword, int page, int size) {
-        return bookingRepo.findBookingsByStatusAndKeywordPaginated(status, keyword, page, size);
-    }
-
-    public int getTotalPagesByStatusAndSearch(String status, String keyword, int size) {
-        int total = bookingRepo.countBookingsByStatusAndKeyword(status, keyword);
-        return (int) Math.ceil((double) total / size);
-    }
+//    public int getTotalPagesByStatusAndSearch(String status, String keyword, int size) {
+//        int total = bookingRepo.countBookingsByStatusAndKeyword(status, keyword);
+//        return (int) Math.ceil((double) total / size);
+//    }
 
     public List<Booking> getBookingsByHostId(int hostId) {
         return bookingRepo.findBookingsByHostId(hostId);
@@ -206,5 +172,77 @@ public class BookingService {
     public void updateBookingUnitStatus(int bookingUnitId, String status) {
         bookingRepo.updateStatus(bookingUnitId, status);
     }
+
+    public List<Booking> getBookingsByHotelId(int hotelId) {
+        return bookingRepo.findByHotelId(hotelId);
+    }
+    public List<Booking> getUpcomingBookingsPaginated(int customerId, int page, int size) {
+        return bookingRepo.findBookingsByStatusAndCustomerPaginated(customerId, "approved", "future", page, size);
+    }
+
+    public List<Booking> getCancelledBookingsPaginated(int customerId, int page, int size) {
+        return bookingRepo.findBookingsByStatusAndCustomerPaginated(customerId, "cancelled_or_rejected", null, page, size);
+    }
+
+    public List<Booking> getCompletedBookingsPaginated(int customerId, int page, int size) {
+        return bookingRepo.findBookingsByStatusAndCustomerPaginated(customerId, "completed", "past", page, size);
+    }
+
+    public int getTotalPagesUpcoming(int customerId, int size) {
+        int count = bookingRepo.countBookingsByStatusAndCustomer(customerId, "approved", "future");
+        return (int) Math.ceil((double) count / size);
+    }
+
+    public int getTotalPagesCancelled(int customerId, int size) {
+        int count = bookingRepo.countBookingsByStatusAndCustomer(customerId, "cancelled_or_rejected", null);
+        return (int) Math.ceil((double) count / size);
+    }
+
+    public int getTotalPagesCompleted(int customerId, int size) {
+        int count = bookingRepo.countBookingsByStatusAndCustomer(customerId, "completed", "past");
+        return (int) Math.ceil((double) count / size);
+    }
+
+    public int getTotalCompletedBookings(int customerId) {
+        return bookingRepo.countBookingsByStatusAndCustomer(customerId, "completed", "past");
+    }
+
+    public int getTotalUpcomingBookings(int customerId) {
+        return bookingRepo.countBookingsByStatusAndCustomer(customerId, "approved", "future");
+    }
+    public int getTotalCancelledBookings(int customerId) {
+        return bookingRepo.countBookingsByStatusAndCustomer(customerId, "cancelled_or_rejected", null);
+    }
+
+    public List<Booking> getBookingsByStatusAndSearchPaginated(String status, String keyword, int page, int size) {
+        List<Booking> all = bookingRepo.findBookingsByStatusAndKeywordPaginated(null, keyword, page, size);
+
+        for (Booking booking : all) {
+            booking.setBookingUnits(bookingRepo.findBookingUnitsByBookingId(booking.getBookingId())); // cần nếu units chưa load
+            booking.setStatus(booking.determineStatus());
+            booking.setTotalPrice(booking.calculateTotalPrice());
+        }
+        if (status != null && !status.isBlank()) {
+            all = all.stream()
+                    .filter(b -> status.equals(b.getStatus()))
+                    .toList();
+        }
+        return all;
+    }
+    public int getTotalPagesByStatusAndSearch(String status, String keyword, int size) {
+        List<Booking> all = bookingRepo.findBookingsByStatusAndKeywordPaginated(null, keyword, 0, Integer.MAX_VALUE);
+
+        for (Booking booking : all) {
+            booking.setBookingUnits(bookingRepo.findBookingUnitsByBookingId(booking.getBookingId()));
+            booking.setStatus(booking.determineStatus());
+        }
+
+        long count = all.stream()
+                .filter(b -> status == null || status.isBlank() || status.equals(b.getStatus()))
+                .count();
+
+        return (int) Math.ceil((double) count / size);
+    }
+
 
 }

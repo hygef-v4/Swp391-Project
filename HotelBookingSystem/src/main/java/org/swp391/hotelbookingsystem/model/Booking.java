@@ -24,7 +24,7 @@ public class Booking {
     
     private String hotelName;
     private String imageUrl;
-    private String status; // Overall booking status calculated from booking units
+    private String status;
     private List<BookingUnit> bookingUnits;
     private String customerName;
     private String customerEmail;
@@ -36,4 +36,39 @@ public class Booking {
             size += bookingUnit.getQuantity();
         }return size;
     }
+
+    public String determineStatus() {
+        boolean hasCompleted = false;
+        boolean hasApproved = false;
+        boolean allCancelledOrRejected = true;
+
+        for (BookingUnit unit : bookingUnits) {
+            String status = unit.getStatus();
+            if ("completed".equals(status)) {
+                hasCompleted = true;
+            } else if ("approved".equals(status)) {
+                hasApproved = true;
+            }
+            if (!"cancelled".equals(status) && !"rejected".equals(status)) {
+                allCancelledOrRejected = false;
+            }
+        }
+
+        if (hasCompleted) return "completed";
+        if (hasApproved) return "approved";
+        if (allCancelledOrRejected) return "cancelled";
+        return null;
+    }
+
+    public double calculateTotalPrice() {
+        if (bookingUnits == null) return 0.0;
+
+        return bookingUnits.stream()
+                .filter(unit -> "approved".equals(unit.getStatus()) || "completed".equals(unit.getStatus()))
+                .mapToDouble(unit -> unit.getPrice() * unit.getQuantity())
+                .sum();
+    }
+
+
+
 }

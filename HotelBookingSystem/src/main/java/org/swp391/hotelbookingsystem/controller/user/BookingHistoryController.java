@@ -24,21 +24,47 @@ public class BookingHistoryController {
     }
 
     @GetMapping("/bookingHistory")
-    public String bookingHistory(HttpSession session, Model model) {
+    public String bookingHistory(
+            HttpSession session,
+            Model model,
+            @RequestParam(value = "tab", defaultValue = "upcoming") String tab,
+            @RequestParam(value = "pageUpcoming", defaultValue = "1") int pageUpcoming,
+            @RequestParam(value = "pageCancelled", defaultValue = "1") int pageCancelled,
+            @RequestParam(value = "pageCompleted", defaultValue = "1") int pageCompleted,
+            @RequestParam(value = "size", defaultValue = "3") int size
+    ) {
         User user = (User) session.getAttribute("user");
-        if (user == null) {
-            return "redirect:/login";
-        }
-
         int customerId = user.getId();
 
-        List<Booking> upcomingBookings = bookingService.getUpcomingBookings(customerId);
-        List<Booking> completedBookings = bookingService.getCompletedBookings(customerId);
-        List<Booking> cancelledBookings = bookingService.getCancelledBookings(customerId);
+        List<Booking> upcomingBookings = bookingService.getUpcomingBookingsPaginated(customerId, pageUpcoming - 1, size);
+        List<Booking> cancelledBookings = bookingService.getCancelledBookingsPaginated(customerId, pageCancelled - 1, size);
+        List<Booking> completedBookings = bookingService.getCompletedBookingsPaginated(customerId, pageCompleted - 1, size);
+
+        int totalPagesUpcoming = bookingService.getTotalPagesUpcoming(customerId, size);
+        int totalPagesCancelled = bookingService.getTotalPagesCancelled(customerId, size);
+        int totalPagesCompleted = bookingService.getTotalPagesCompleted(customerId, size);
+
+        int totalUpcomingBookings = bookingService.getTotalUpcomingBookings(customerId);
+        int totalCancelledBookings = bookingService.getTotalCancelledBookings(customerId);
+        int totalCompletedBookings = bookingService.getTotalCompletedBookings(customerId);
+
+        model.addAttribute("totalUpcomingBookings", totalUpcomingBookings);
+        model.addAttribute("totalCancelledBookings", totalCancelledBookings);
+        model.addAttribute("totalCompletedBookings", totalCompletedBookings);
+
+        model.addAttribute("tab", tab);
 
         model.addAttribute("upcomingBookings", upcomingBookings);
-        model.addAttribute("completedBookings", completedBookings);
         model.addAttribute("cancelledBookings", cancelledBookings);
+        model.addAttribute("completedBookings", completedBookings);
+
+        model.addAttribute("currentPageUpcoming", pageUpcoming);
+        model.addAttribute("currentPageCancelled", pageCancelled);
+        model.addAttribute("currentPageCompleted", pageCompleted);
+
+        model.addAttribute("totalPagesUpcoming", totalPagesUpcoming);
+        model.addAttribute("totalPagesCancelled", totalPagesCancelled);
+        model.addAttribute("totalPagesCompleted", totalPagesCompleted);
 
         return "page/bookingHistory";
     }

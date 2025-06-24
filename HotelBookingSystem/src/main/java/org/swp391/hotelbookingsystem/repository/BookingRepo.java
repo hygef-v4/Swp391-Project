@@ -1,6 +1,5 @@
 package org.swp391.hotelbookingsystem.repository;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -629,31 +628,6 @@ public class BookingRepo {
         }, hotelId);
     }
 
-    public record DailyStat(String date, int count) {
-    }
-
-    public List<DailyStat> getCheckInStats() {
-        String sql = """
-            SELECT CAST(check_in AS DATE) as check_in_date, COUNT(*) as count
-            FROM Bookings
-            WHERE check_in >= DATEADD(day, -30, GETDATE())
-            GROUP BY CAST(check_in AS DATE)
-            ORDER BY check_in_date
-        """;
-        return jdbcTemplate.query(sql, (rs, rowNum) -> new DailyStat(rs.getString("check_in_date"), rs.getInt("count")));
-    }
-
-    public List<DailyStat> getCheckOutStats() {
-        String sql = """
-            SELECT CAST(check_out AS DATE) as check_out_date, COUNT(*) as count
-            FROM Bookings
-            WHERE check_out >= DATEADD(day, -30, GETDATE())
-            GROUP BY CAST(check_out AS DATE)
-            ORDER BY check_out_date
-        """;
-        return jdbcTemplate.query(sql, (rs, rowNum) -> new DailyStat(rs.getString("check_out_date"), rs.getInt("count")));
-    }
-
     public int getTotalBookingByStatus(String status) {
         String sql = "SELECT COUNT(*) FROM BookingUnits WHERE status = ?";
         Integer total = jdbcTemplate.queryForObject(sql, Integer.class, status);
@@ -694,111 +668,6 @@ public class BookingRepo {
         return total != null ? total : 0;
     }
 
-    public List<Booking> findAllPaginated(int page, int size) {
-        int offset = page * size;
-        String sql = """
-            SELECT 
-                b.booking_id,
-                b.hotel_id,
-                b.customer_id,
-                b.coupon_id,
-                b.check_in,
-                b.check_out,
-                b.total_price,
-                b.created_at,
-                h.hotel_name,
-                h.hotel_image_url
-            FROM Bookings b
-            JOIN Hotels h ON b.hotel_id = h.hotel_id
-            ORDER BY b.created_at DESC
-            OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
-        """;
-
-        return jdbcTemplate.query(sql, (rs, rowNum) -> {
-            int bookingId = rs.getInt("booking_id");
-
-            Booking booking = Booking.builder()
-                    .bookingId(bookingId)
-                    .hotelId(rs.getInt("hotel_id"))
-                    .customerId(rs.getInt("customer_id"))
-                    .couponId((Integer) rs.getObject("coupon_id"))
-                    .checkIn(rs.getTimestamp("check_in").toLocalDateTime())
-                    .checkOut(rs.getTimestamp("check_out").toLocalDateTime())
-                    .totalPrice(rs.getDouble("total_price"))
-                    .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
-                    .hotelName(rs.getString("hotel_name"))
-                    .imageUrl(rs.getString("hotel_image_url"))
-                    .build();
-
-            booking.setBookingUnits(findBookingUnitsByBookingId(bookingId));
-
-            return booking;
-        }, offset, size);
-    }
-
-    public int countAllBookings() {
-        return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM Bookings", Integer.class);
-    }
-
-    public List<Booking> findBookingsByStatusPaginated(String status, int page, int size) {
-        StringBuilder sql = new StringBuilder("""
-            SELECT 
-                b.booking_id,
-                b.hotel_id,
-                b.customer_id,
-                b.coupon_id,
-                b.check_in,
-                b.check_out,
-                b.total_price,
-                b.created_at,
-                h.hotel_name,
-                h.hotel_image_url
-            FROM Bookings b
-            JOIN Hotels h ON b.hotel_id = h.hotel_id
-        """);
-
-        List<Object> params = new ArrayList<>();
-
-        if (status != null && !status.isBlank()) {
-            sql.append(" WHERE EXISTS (SELECT 1 FROM BookingUnits bu WHERE bu.booking_id = b.booking_id AND bu.status = ?)");
-            params.add(status);
-        }
-
-        sql.append(" ORDER BY b.created_at DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
-        params.add(page * size);
-        params.add(size);
-
-        return jdbcTemplate.query(sql.toString(), (rs, rowNum) -> {
-            int bookingId = rs.getInt("booking_id");
-
-            Booking booking = Booking.builder()
-                    .bookingId(bookingId)
-                    .hotelId(rs.getInt("hotel_id"))
-                    .customerId(rs.getInt("customer_id"))
-                    .couponId((Integer) rs.getObject("coupon_id"))
-                    .checkIn(rs.getTimestamp("check_in").toLocalDateTime())
-                    .checkOut(rs.getTimestamp("check_out").toLocalDateTime())
-                    .totalPrice(rs.getDouble("total_price"))
-                    .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
-                    .hotelName(rs.getString("hotel_name"))
-                    .imageUrl(rs.getString("hotel_image_url"))
-                    .build();
-
-            booking.setBookingUnits(findBookingUnitsByBookingId(bookingId));
-
-            return booking;
-        }, params.toArray());
-    }
-
-    public int countBookingsByStatus(String status) {
-        String sql = "SELECT COUNT(*) FROM Bookings b";
-        if (status != null && !status.isBlank()) {
-            sql += " WHERE EXISTS (SELECT 1 FROM BookingUnits bu WHERE bu.booking_id = b.booking_id AND bu.status = ?)";
-            return jdbcTemplate.queryForObject(sql, Integer.class, status);
-        }
-        return jdbcTemplate.queryForObject(sql, Integer.class);
-    }
-
     public List<Booking> findBookingsByStatusAndKeywordPaginated(String status, String keyword, int page, int size) {
         StringBuilder sql = new StringBuilder("""
             SELECT 
@@ -811,9 +680,13 @@ public class BookingRepo {
                 b.total_price,
                 b.created_at,
                 h.hotel_name,
-                h.hotel_image_url
+                h.hotel_image_url,
+                u.full_name AS customerName,
+                u.email AS customerEmail,
+                u.avatar_url AS customerAvatar
             FROM Bookings b
             JOIN Hotels h ON b.hotel_id = h.hotel_id
+            JOIN Users u on u.user_id = b.customer_id
             WHERE 1=1
         """);
 
@@ -849,10 +722,14 @@ public class BookingRepo {
                     .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
                     .hotelName(rs.getString("hotel_name"))
                     .imageUrl(rs.getString("hotel_image_url"))
+                    .customerName(rs.getString("customerName"))
+                    .customerEmail(rs.getString("customerEmail"))
+                    .customerAvatar(rs.getString("customerAvatar"))
                     .build();
 
             booking.setBookingUnits(findBookingUnitsByBookingId(bookingId));
-
+            booking.setStatus(booking.determineStatus());
+            booking.setTotalPrice(booking.calculateTotalPrice());
             return booking;
         }, params.toArray());
     }
@@ -1025,4 +902,135 @@ public class BookingRepo {
         });
     }
 
+    public List<Booking> findBookingsByStatusAndCustomerPaginated(
+            int customerId,
+            String status,
+            String timeCondition,
+            int page,
+            int size
+    ) {
+        int offset = page * size;
+
+        // Xử lý điều kiện thời gian
+        String timeFilter = "";
+        if ("future".equals(timeCondition)) {
+            timeFilter = "AND b.check_in > GETDATE()";
+        } else if ("past".equals(timeCondition)) {
+            timeFilter = "AND b.check_in < GETDATE()";
+        }
+
+        // SQL cơ bản
+        StringBuilder sql = new StringBuilder("""
+        SELECT 
+            b.booking_id,
+            b.hotel_id,
+            b.customer_id,
+            b.coupon_id,
+            b.check_in,
+            b.check_out,
+            b.created_at,
+            h.hotel_name,
+            h.hotel_image_url,
+            (
+                SELECT SUM(price) 
+                FROM BookingUnits bu 
+                WHERE bu.booking_id = b.booking_id
+    """);
+
+        List<Object> params = new ArrayList<>();
+
+        // Nếu là status cụ thể
+        if (!"cancelled_or_rejected".equals(status)) {
+            sql.append(" AND bu.status = ?");
+            params.add(status);
+        } else {
+            sql.append(" AND bu.status IN ('cancelled', 'rejected')");
+        }
+
+        sql.append("""
+            ) AS total_price
+        FROM Bookings b
+        JOIN Hotels h ON b.hotel_id = h.hotel_id
+        WHERE b.customer_id = ?
+    """);
+
+        params.add(customerId); // b.customer_id = ?
+
+        // Thêm time filter nếu có
+        if (!timeFilter.isEmpty()) {
+            sql.append("\n").append(timeFilter);
+        }
+
+        // Thêm EXISTS kiểm tra booking units theo status
+        sql.append("\nAND EXISTS (SELECT 1 FROM BookingUnits bu WHERE bu.booking_id = b.booking_id");
+
+        if (!"cancelled_or_rejected".equals(status)) {
+            sql.append(" AND bu.status = ?)");
+            params.add(status); // thêm lần 2 cho EXISTS
+        } else {
+            sql.append(" AND bu.status IN ('cancelled', 'rejected'))");
+        }
+
+        // Cuối cùng: ORDER BY và phân trang
+        sql.append("\nORDER BY b.check_in ASC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+        params.add(offset);
+        params.add(size);
+
+        return jdbcTemplate.query(sql.toString(), params.toArray(), (rs, rowNum) -> {
+            int bookingId = rs.getInt("booking_id");
+
+            Booking booking = Booking.builder()
+                    .bookingId(bookingId)
+                    .hotelId(rs.getInt("hotel_id"))
+                    .customerId(rs.getInt("customer_id"))
+                    .couponId((Integer) rs.getObject("coupon_id"))
+                    .checkIn(rs.getTimestamp("check_in").toLocalDateTime())
+                    .checkOut(rs.getTimestamp("check_out").toLocalDateTime())
+                    .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
+                    .totalPrice(rs.getDouble("total_price"))
+                    .hotelName(rs.getString("hotel_name"))
+                    .imageUrl(rs.getString("hotel_image_url"))
+                    .build();
+
+            booking.setBookingUnits(findBookingUnitsByBookingId(bookingId));
+
+            return booking;
+        });
+    }
+
+    public int countBookingsByStatusAndCustomer(int customerId, String status, String timeCondition) {
+        String timeFilter = "";
+        if ("future".equals(timeCondition)) {
+            timeFilter = "AND b.check_in > GETDATE()";
+        } else if ("past".equals(timeCondition)) {
+            timeFilter = "AND b.check_in < GETDATE()";
+        }
+
+        String statusCondition;
+        if ("cancelled_or_rejected".equals(status)) {
+            statusCondition = "bu.status IN ('cancelled', 'rejected')";
+        } else {
+            statusCondition = "bu.status = ?";
+        }
+
+        String sql = String.format("""
+        SELECT COUNT(*)
+        FROM Bookings b
+        WHERE b.customer_id = ?
+        %s
+        AND EXISTS (
+            SELECT 1 FROM BookingUnits bu
+            WHERE bu.booking_id = b.booking_id AND %s
+        )
+    """, timeFilter, statusCondition);
+
+        List<Object> params = new ArrayList<>();
+        params.add(customerId);
+        if (!"cancelled_or_rejected".equals(status)) {
+            params.add(status);
+        }
+
+        Integer count = jdbcTemplate.queryForObject(sql, params.toArray(), Integer.class);
+        return count != null ? count : 0;
+    }
 }
