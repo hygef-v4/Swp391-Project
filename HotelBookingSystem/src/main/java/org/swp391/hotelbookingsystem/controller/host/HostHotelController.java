@@ -418,6 +418,7 @@ public class HostHotelController {
         Map<String, Object> response = new HashMap<>();
         
         try {
+            // 1. Authentication and authorization check
             User host = (User) session.getAttribute("user");
             if (host == null || !host.getRole().equalsIgnoreCase("HOTEL_OWNER")) {
                 response.put("success", false);
@@ -425,29 +426,74 @@ public class HostHotelController {
                 return response;
             }
 
-            Hotel hotel = hotelService.getHotelById(hotelId);
-            if (hotel == null || hotel.getHostId() != host.getId()) {
+            // 2. Hotel ownership verification
+            Hotel hotel;
+            try {
+                hotel = hotelService.getHotelById(hotelId);
+                if (hotel == null || hotel.getHostId() != host.getId()) {
+                    response.put("success", false);
+                    response.put("message", "Không có quyền xóa phòng này");
+                    return response;
+                }
+            } catch (Exception e) {
+                System.err.println("Error fetching hotel data for hotelId " + hotelId + ": " + e.getMessage());
                 response.put("success", false);
-                response.put("message", "Không có quyền xóa phòng này");
+                response.put("message", "Lỗi khi kiểm tra thông tin khách sạn");
                 return response;
             }
 
-            // Check if this is the last room in the hotel
-            List<Room> currentRooms = roomService.getRoomsByHotelId(hotelId);
-            if (currentRooms.size() <= 1) {
+            // 3. Check if this is the last room in the hotel
+            List<Room> currentRooms;
+            try {
+                currentRooms = roomService.getRoomsByHotelId(hotelId);
+                if (currentRooms.size() <= 1) {
+                    response.put("success", false);
+                    response.put("message", "Không thể xóa phòng cuối cùng. Khách sạn phải có ít nhất 1 phòng.");
+                    return response;
+                }
+            } catch (Exception e) {
+                System.err.println("Error fetching rooms for hotelId " + hotelId + ": " + e.getMessage());
                 response.put("success", false);
-                response.put("message", "Không thể xóa phòng cuối cùng. Khách sạn phải có ít nhất 1 phòng.");
+                response.put("message", "Lỗi khi kiểm tra danh sách phòng");
                 return response;
             }
 
-            roomService.deleteRoom(roomId);
+            // 4. Check if the room has active booking units (approved or completed)
+            try {
+                if (roomService.hasActiveBookingUnits(roomId)) {
+                    response.put("success", false);
+                    response.put("message", "Không thể xóa phòng này vì có khách đang đặt phòng.");
+                    return response;
+                }
+            } catch (Exception e) {
+                System.err.println("Error checking active bookings for roomId " + roomId + ": " + e.getMessage());
+                response.put("success", false);
+                response.put("message", "Lỗi khi kiểm tra booking đang hoạt động");
+                return response;
+            }
 
+            // 5. Actually delete the room
+            try {
+                roomService.deleteRoom(roomId);
+                System.out.println("Successfully deleted room " + roomId);
+            } catch (Exception e) {
+                System.err.println("Error deleting room " + roomId + ": " + e.getMessage());
+                e.printStackTrace();
+                response.put("success", false);
+                response.put("message", "Lỗi khi xóa phòng: " + e.getMessage());
+                return response;
+            }
+
+            // 6. Success response
             response.put("success", true);
             response.put("message", "Xóa phòng thành công");
             
         } catch (Exception e) {
+            // Catch any unexpected errors
+            System.err.println("Unexpected error in deleteRoom for roomId " + roomId + ": " + e.getMessage());
+            e.printStackTrace();
             response.put("success", false);
-            response.put("message", "Lỗi khi xóa phòng: " + e.getMessage());
+            response.put("message", "Lỗi không mong muốn khi xóa phòng");
         }
         
         return response;

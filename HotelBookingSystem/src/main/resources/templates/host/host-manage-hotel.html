@@ -1808,23 +1808,30 @@ About hotel END -->
             })
             .then(response => response.json())
             .then(data => {
+                console.log('Delete room response:', data);
                 if (data.success) {
                     showNotification(data.message);
-                    // Remove room element from DOM
-                    document.getElementById('room-' + roomId).remove();
                     
-                    // Update delete buttons for remaining rooms
-                    updateDeleteButtons();
-                    
-                    // Update statistics
-                    updateRoomStatistics();
+                    try {
+                        // Remove room element from DOM
+                        document.getElementById('room-' + roomId).remove();
+                        
+                        // Update delete buttons for remaining rooms
+                        updateDeleteButtons();
+                        
+                        // Update statistics
+                        updateRoomStatistics();
+                    } catch (uiError) {
+                        console.error('UI update error after successful deletion:', uiError);
+                        // Don't show error notification since deletion was successful
+                    }
                 } else {
-                    showNotification(data.message, 'danger');
+                    showNotification(data.message, 'error');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                showNotification('Có lỗi xảy ra khi xóa phòng', 'danger');
+                showNotification('Có lỗi xảy ra khi xóa phòng', 'error');
             });
         }
     }
@@ -1867,13 +1874,16 @@ About hotel END -->
         // Calculate total room quantity
         let totalQuantity = 0;
         currentRooms.forEach(roomElement => {
-            const quantityText = roomElement.querySelector('.view-mode p:contains("Số lượng:")');
-            if (quantityText) {
-                const quantityMatch = quantityText.textContent.match(/(\d+)\s*phòng/);
-                if (quantityMatch) {
-                    totalQuantity += parseInt(quantityMatch[1]);
+            // Find all paragraphs in view mode and search for the one containing "Số lượng"
+            const paragraphs = roomElement.querySelectorAll('.view-mode .room-info-grid > div p');
+            paragraphs.forEach(p => {
+                if (p.textContent.includes('phòng')) {
+                    const quantityMatch = p.textContent.match(/(\d+)\s*phòng/);
+                    if (quantityMatch) {
+                        totalQuantity += parseInt(quantityMatch[1]);
+                    }
                 }
-            }
+            });
         });
         
         // Update total room count

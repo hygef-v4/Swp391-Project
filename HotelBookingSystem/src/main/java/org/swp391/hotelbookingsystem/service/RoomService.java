@@ -110,4 +110,8 @@ public class RoomService {
     public Room getRoomById(int roomId) {
         return roomRepository.getRoomById(roomId);
     }
+
+    public boolean hasActiveBookingUnits(int roomId) {
+        return roomRepository.hasActiveBookingUnits(roomId);
+    }
 }
