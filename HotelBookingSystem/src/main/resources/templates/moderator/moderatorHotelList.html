@@ -539,7 +539,17 @@
                     if (data.success) {
                         const hotel = data.hotel;
                         const host = data.host;
-            const content = `
+                        // Thu gọn mô tả nếu dài
+                        let description = hotel.description || 'Chưa có mô tả';
+                        let isLong = description.length > 150;
+                        let shortDesc = description.substring(0, 150) + (isLong ? '...' : '');
+                        let descHtml = `
+                          <p class="text-muted" id="hotel-desc">
+                            ${isLong ? shortDesc : description}
+                            ${isLong ? `<a href="#" id="toggle-desc" style="margin-left:8px;">Xem thêm</a>` : ''}
+                          </p>
+                        `;
+                        const content = `
         <div class="row">
           <div class="col-md-6">
                         <img src="${hotel.hotelImageUrl || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=200&fit=crop'}" 
@@ -547,7 +557,7 @@
           </div>
           <div class="col-md-6">
                         <h5>${hotel.hotelName}</h5>
-                        <p class="text-muted">${hotel.description || 'Chưa có mô tả'}</p>
+                        ${descHtml}
 
                         <h6>Thông tin cơ bản:</h6>
             <ul class="list-unstyled">
@@ -569,8 +579,22 @@
           </div>
         </div>
       `;
-            document.getElementById('hotel-details-content').innerHTML = content;
-            hotelDetailsModal.show();
+                        document.getElementById('hotel-details-content').innerHTML = content;
+                        // Toggle mô tả
+                        if (isLong) {
+                          document.getElementById('toggle-desc').addEventListener('click', function toggleDesc(e) {
+                            e.preventDefault();
+                            const descElem = document.getElementById('hotel-desc');
+                            if (this.textContent === 'Xem thêm') {
+                              descElem.innerHTML = description + ` <a href='#' id='toggle-desc'>Thu gọn</a>`;
+                              document.getElementById('toggle-desc').addEventListener('click', toggleDesc);
+                            } else {
+                              descElem.innerHTML = shortDesc + ` <a href='#' id='toggle-desc'>Xem thêm</a>`;
+                              document.getElementById('toggle-desc').addEventListener('click', toggleDesc);
+                            }
+                          });
+                        }
+                        hotelDetailsModal.show();
                     } else {
                         showToast('Lỗi', data.message, false);
                     }
