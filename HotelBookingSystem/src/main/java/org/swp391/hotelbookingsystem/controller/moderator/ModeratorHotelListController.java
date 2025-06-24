@@ -29,23 +29,24 @@ public class ModeratorHotelListController {
     @GetMapping("")
     public String getHotelList(Model model) {
         List<Hotel> hotels = hotelService.getAllHotels();
-        // Sắp xếp: pending lên đầu, sau đó active, rồi inactive
-        hotels.sort(Comparator.comparing((Hotel h) -> !"pending".equals(h.getStatus()))
-            .thenComparing((Hotel h) -> !"active".equals(h.getStatus())));
+        // Tách thành 3 list: pending, active, inactive
+        List<Hotel> pendingHotels = hotels.stream().filter(h -> "pending".equals(h.getStatus())).toList();
+        List<Hotel> activeHotels = hotels.stream().filter(h -> "active".equals(h.getStatus())).toList();
+        List<Hotel> inactiveHotels = hotels.stream().filter(h -> "inactive".equals(h.getStatus())).toList();
+        List<Hotel> sortedHotels = new java.util.ArrayList<>();
+        sortedHotels.addAll(pendingHotels);
+        sortedHotels.addAll(activeHotels);
+        sortedHotels.addAll(inactiveHotels);
         Map<Integer, User> hostMap = new HashMap<>();
-        int pendingCount = 0, approvedCount = 0, rejectedCount = 0;
-        for (Hotel hotel : hotels) {
-            // Đếm số lượng theo status
-            if ("pending".equals(hotel.getStatus())) pendingCount++;
-            else if ("active".equals(hotel.getStatus())) approvedCount++;
-            else if ("inactive".equals(hotel.getStatus())) rejectedCount++;
+        int pendingCount = pendingHotels.size(), approvedCount = activeHotels.size(), rejectedCount = inactiveHotels.size();
+        for (Hotel hotel : sortedHotels) {
             // Lấy thông tin chủ khách sạn
             if (!hostMap.containsKey(hotel.getHostId())) {
                 User host = userService.findUserById(hotel.getHostId());
                 if (host != null) hostMap.put(hotel.getHostId(), host);
             }
         }
-        model.addAttribute("hotels", hotels);
+        model.addAttribute("hotels", sortedHotels);
         model.addAttribute("hostMap", hostMap);
         model.addAttribute("pendingCount", pendingCount);
         model.addAttribute("approvedCount", approvedCount);
