@@ -370,10 +370,16 @@
                                         <tr th:each="room : ${rooms}">
                                             <td>
                                                 <a href="#" data-bs-toggle="modal" th:data-bs-target="'#roomDetail' + ${room.roomId}">
-                                                    <img th:src="${room.images[0]}" alt="Room Image"
-                                                         class="img-thumbnail" style="width: 80px; height: auto;">
+                                                    <th:block th:if="${room.images != null and #lists.size(room.images) > 0}">
+                                                        <img th:src="${room.images[0]}" alt="Room Image"
+                                                             class="img-thumbnail" style="width: 80px; height: auto;">
+                                                    </th:block>
+                                                    <th:block th:unless="${room.images != null and #lists.size(room.images) > 0}">
+                                                        <span>No image</span>
+                                                    </th:block>
                                                 </a>
                                             </td>
+
                                             <td>
                                                 <a href="#" th:text="${room.title}" data-bs-toggle="modal"
                                                    th:data-bs-target="'#roomDetail' + ${room.roomId}"></a>

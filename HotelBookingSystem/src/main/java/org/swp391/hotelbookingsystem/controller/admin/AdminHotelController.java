@@ -116,9 +116,9 @@ public class AdminHotelController {
                 model.addAttribute("short", description.substring(0, index));
                 model.addAttribute("long", description.substring(index));
             } else {
-                if (description.length() > 200) {
-                    model.addAttribute("short", description.substring(0, 200));
-                    model.addAttribute("long", description.substring(200));
+                if (description.length() > 800) {
+                    model.addAttribute("short", description.substring(0, 800));
+                    model.addAttribute("long", description.substring(800));
                 } else {
                     model.addAttribute("short", description);
                     model.addAttribute("long", "");
