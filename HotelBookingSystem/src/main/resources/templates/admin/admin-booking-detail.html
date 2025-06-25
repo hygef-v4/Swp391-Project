@@ -112,7 +112,6 @@
                     <div class="d-sm-flex justify-content-start align-items-center">
 <!--                        <h1 class="h3 mb-2 mb-sm-0" th:text="${booking.hotelName}">Tên khách sạn</h1>-->
                         <h1 class="h3 mb-2 mb-sm-0">Chi tiết đặt phòng</h1>
-                        <span class="badge bg-primary" th:text="${booking.status}">Trạng thái</span>
 <!--                        <a href="#" class="btn btn-primary-soft text-nowrap mb-0"><i class="bi bi-pencil-square fa-fw"></i> Edit Room</a>-->
                     </div>
                 </div>
@@ -133,12 +132,14 @@
                         <span th:text="${hotel.cityName}">Địa điểm</span>
                     </p>
                     <p class="mb-4">
-                        <span id="shortDesc">
-                            <span th:if="${#strings.length(hotel.description) > 300}">
+                        <span th:if="${#strings.length(hotel.description) > 300}">
+                            <span id="shortDesc">
                                 <span th:utext="${#strings.substring(hotel.description, 0, 300)}">Mô tả rút gọn</span>...
-                                <a href="javascript:void(0)" class="text-primary fw-semibold ms-1" id="toggleDesc">Xem thêm</a>
                             </span>
-                        <span id="fullDesc" class="d-none" th:utext="${hotel.description}">Mô tả đầy đủ</span>
+                            <span id="fullDesc" class="d-none" th:utext="${hotel.description}">Mô tả đầy đủ</span>
+                            <a href="javascript:void(0)" class="text-primary fw-semibold ms-1" id="toggleDesc">Xem thêm</a>
+                        </span>
+                        <span th:unless="${#strings.length(hotel.description) > 300}" th:utext="${hotel.description}">Mô tả đầy đủ</span>
                     </p>
 
                     <!-- Booking info -->
@@ -210,68 +211,124 @@
                     <!-- Table head -->
                     <div class="bg-light rounded p-3 d-none d-lg-block">
                         <div class="row row-cols-7 g-4">
+                            <div class="col"><h6 class="mb-0">Ảnh</h6></div>
                             <div class="col"><h6 class="mb-0">Khách hàng</h6></div>
-                            <div class="col"><h6 class="mb-0">Nhận phòng</h6></div>
-                            <div class="col"><h6 class="mb-0">Trả phòng</h6></div>
-                            <div class="col"><h6 class="mb-0">Giá tiền</h6></div>
+                            <div class="col"><h6 class="mb-0">Tên khách sạn</h6></div>
+                            <div class="col"><h6 class="mb-0">Nhận/trả phòng</h6></div>
+                            <div class="col"><h6 class="mb-0">Giá</h6></div>
                             <div class="col"><h6 class="mb-0">Trạng thái</h6></div>
                             <div class="col"><h6 class="mb-0">Hành động</h6></div>
                         </div>
                     </div>
 
-                    <!-- Table data -->
-                    <div class="row row-cols-xl-7 align-items-lg-center border-bottom g-4 px-2 py-4">
-                        <!-- Data item -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Khách hàng:</small>
-                            <div class="d-flex align-items-center">
-                                <!-- Avatar -->
-                                <div class="avatar avatar-xs flex-shrink-0">
-                                    <img th:src="${customer.avatarUrl}" class="avatar-img rounded-circle" alt="avatar">
-                                </div>
-                                <!-- Info -->
-                                <div class="ms-2">
-                                    <h6 class="mb-0 fw-light" th:text="${customer.fullName}">Tên</h6>
+                    <!-- Booking LIST VIEW for this hotel -->
+                    <div class="mt-4" th:each="booking : ${bookingList}">
+                        <div class="row g-3 g-sm-4 align-items-center justify-content-center border-bottom px-2 py-4">
+
+                            <!-- Room image -->
+                            <div class="col">
+                                <img th:src="@{${booking.imageUrl}}"
+                                     alt="Room image"
+                                     class="rounded"
+                                     style="width: 80px; height: 60px; object-fit: cover;">
+                            </div>
+
+                            <!-- Customer info with avatar -->
+                            <div class="col d-flex align-items-center gap-2">
+                                <img th:src="@{${booking.customerAvatar}}"
+                                     alt="Avatar"
+                                     class="rounded-circle"
+                                     style="width: 40px; height: 40px; object-fit: cover;">
+                                <div>
+                                    <h6 class="mb-0 text-truncate"
+                                        th:text="${booking.customerName}"
+                                        style="max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                    </h6>
+                                    <small th:text="${booking.customerEmail}"
+                                           class="text-muted d-block text-truncate"
+                                           style="font-size: 0.85rem; max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                    </small>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Nhận phòng -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Nhận phòng:</small>
-                            <h6 class="mb-0 fw-normal" th:text="${#temporals.format(booking.checkIn, 'dd MMM yyyy')}">Check-in</h6>
-                        </div>
+                            <!-- Room name -->
+                            <div class="col two-line-ellipsis" th:title="${booking.hotelName}">
+                                <h6 class="mb-0" th:text="${booking.hotelName}"
+                                    style="white-space: normal; word-break: break-word;">
+                                    Loại phòng
+                                </h6>
+                            </div>
 
-                        <!-- Trả phòng -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Trả phòng:</small>
-                            <h6 class="mb-0 fw-normal" th:text="${#temporals.format(booking.checkOut, 'dd MMM yyyy')}">Check-out</h6>
-                        </div>
+                            <!-- Check-in/out -->
+                            <div class="col">
+                                <small th:text="'Nhận: ' + ${#temporals.format(booking.checkIn, 'yyyy-MM-dd')}"></small><br/>
+                                <small th:text="'Trả: ' + ${#temporals.format(booking.checkOut, 'yyyy-MM-dd')}"></small>
+                            </div>
 
-                        <!-- Giá tiền -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Giá tiền:</small>
-                            <h6 class="text-success mb-0" th:text="${#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 3, 'POINT')} + '₫'">₫</h6>
-                        </div>
+                            <!-- Amount -->
+                            <div class="col">
+                                <span class="text-success fw-bold" th:text="${#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 0, 'POINT')} + '₫'">Giá</span>
+                            </div>
 
+                            <!-- Booking status -->
+                            <div class="col">
+                                <div th:switch="${booking.status}">
+                                    <span th:case="'approved'" class="badge rounded-pill bg-soft-primary text-primary fw-semibold px-3 py-1">Đã xác nhận</span>
+                                    <span th:case="'check_in'" class="badge rounded-pill bg-soft-info text-info fw-semibold px-3 py-1">Nhận phòng</span>
+                                    <span th:case="'cancelled'" class="badge rounded-pill bg-soft-warning text-warning fw-semibold px-3 py-1">Đã hủy</span>
+                                    <span th:case="'completed'" class="badge rounded-pill bg-soft-success text-success fw-semibold px-3 py-1">Đã hoàn thành</span>
+                                    <span th:case="'rejected'" class="badge rounded-pill bg-soft-danger text-danger fw-semibold px-3 py-1">Đã bị từ chối</span>
+                                    <span th:case="*" class="badge rounded-pill bg-secondary text-light fw-semibold px-3 py-1">Không xác định</span>
+                                </div>
+                            </div>
 
-                        <!-- Trạng thái -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Trạng thái:</small>
-                            <div class="badge"
-                                 th:classappend="
-                                     ${booking.status} == 'completed' ? ' bg-success bg-opacity-10 text-success' :
-                                     (${booking.status} == 'cancelled' ? ' bg-danger bg-opacity-10 text-danger' :
-                                     (${booking.status} == 'approved' ? ' bg-success bg-opacity-10 text-success' : ' bg-secondary'))"
-                                 th:text="${booking.status}">Trạng thái</div>
-                        </div>
+                            <!-- Toggle detail -->
+                            <div class="col">
+                                <button class="btn btn-sm btn-light"
+                                        type="button"
+                                        data-bs-toggle="collapse"
+                                        th:attr="data-bs-target='#bookingDetail__' + ${booking.bookingId}">
+                                    Xem chi tiết
+                                </button>
+                            </div>
 
-                        <!-- Hành động -->
-                        <div class="col">
-                            <a th:href="@{/admin-booking-detail(id=${booking.bookingId})}" class="btn btn-sm btn-light mb-0">Xem</a>
+                            <!-- Collapsible Booking Units -->
+                            <div class="collapse px-4 pb-4" th:id="'bookingDetail__' + ${booking.bookingId}">
+                                <div class="border-top pt-3">
+                                    <h6 class="text-primary mb-3"><i class="bi bi-info-circle"></i> Chi Tiết Phòng Đặt</h6>
+                                    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+                                        <div class="col" th:each="unit : ${booking.bookingUnits}">
+                                            <div class="card border shadow-sm h-100">
+                                                <div class="card-body">
+                                                    <div class="d-flex mb-2">
+                                                        <img th:src="@{${unit.imageUrl}}" class="rounded me-3"
+                                                             style="width: 60px; height: 60px; object-fit: cover;" alt="room">
+                                                        <div>
+                                                            <h6 class="mb-0 text-truncate"
+                                                                th:text="${unit.roomName}"
+                                                                style="max-width: 200px;">Tên phòng</h6>
+                                                            <small th:text="'Số lượng: ' + ${unit.quantity}"></small>
+                                                            <div th:switch="${unit.status}">
+                                                                <span th:case="'approved'" class="badge rounded-pill bg-soft-primary text-primary fw-semibold px-3 py-1">Đã xác nhận</span>
+                                                                <span th:case="'check_in'" class="badge rounded-pill bg-soft-info text-info fw-semibold px-3 py-1">Nhận phòng</span>
+                                                                <span th:case="'cancelled'" class="badge rounded-pill bg-soft-warning text-warning fw-semibold px-3 py-1">Đã hủy</span>
+                                                                <span th:case="'completed'" class="badge rounded-pill bg-soft-success text-success fw-semibold px-3 py-1">Hoàn thành</span>
+                                                                <span th:case="'rejected'" class="badge rounded-pill bg-soft-danger text-danger fw-semibold px-3 py-1">Từ chối</span>
+                                                                <span th:case="*" class="badge rounded-pill bg-secondary text-light fw-semibold px-3 py-1">Không xác định</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <p class="mb-1" th:text="'Giá 1 phòng: ' + ${#numbers.formatDecimal(unit.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></p>
+                                                    <p class="mb-1 text-success" th:text="'Tổng tiền: ' + ${#numbers.formatDecimal(unit.price * unit.quantity, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div> <!-- End collapse -->
                         </div>
                     </div>
-                <!-- Card body END -->
+                    <!-- Card body END -->
 
                 <!-- Card footer START -->
                 <div class="card-footer pt-0">

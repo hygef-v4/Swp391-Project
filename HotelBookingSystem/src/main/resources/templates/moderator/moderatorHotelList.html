@@ -9,6 +9,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="author" content="Đội Ngũ Hamora">
     <meta name="description" content="Hamora - Trang Duyệt Khách Sạn Hệ Thống Đặt Phòng">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 
     <!-- Dark mode -->
     <script>
@@ -109,6 +111,13 @@
           color: #6c757d;
           border-color: #495057;
       }
+
+      .box-shadow-danger {
+          box-shadow: 0 0 10px rgba(220, 53, 69, 0.3) !important;
+      }
+      .box-shadow-warning {
+          box-shadow: 0 0 10px rgba(255, 193, 7, 0.3) !important;
+      }
     </style>
 </head>
 
@@ -140,14 +149,20 @@
                             <p class="text-muted mb-0">Quản lý và phê duyệt các khách sạn mới đăng ký</p>
                         </div>
                         <div class="d-flex align-items-center">
-                            <span class="badge bg-warning me-2">15 chờ duyệt</span>
-                            <span class="badge bg-success me-2">324 đã duyệt</span>
-                            <span class="badge bg-danger">8 bị từ chối</span>
+                            <span class="badge bg-warning me-2" th:text="${pendingCount} + ' chờ duyệt'">15 chờ duyệt</span>
+                            <span class="badge bg-success me-2" th:text="${approvedCount} + ' đã duyệt'">324 đã duyệt</span>
+                            <span class="badge bg-danger" th:text="${rejectedCount} + ' bị từ chối'">8 bị từ chối</span>
                         </div>
                     </div>
                 </div>
             </div>
             <!-- Tiêu đề và thống kê KẾT THÚC -->
+
+            <!-- Highlight cần phê duyệt -->
+            <div th:if="${pendingCount > 0}" class="alert alert-warning d-flex align-items-center mb-4" role="alert" style="font-size:1.1rem;font-weight:500;">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <span>Cần phê duyệt: Có <b th:text="${pendingCount}"></b> khách sạn đang chờ phê duyệt!</span>
+            </div>
 
             <!-- Bộ lọc và tìm kiếm BẮT ĐẦU -->
             <div class="row g-4 mb-4">
@@ -168,8 +183,8 @@
                                     <select class="form-select" id="statusFilter">
                                         <option value="">Tất cả trạng thái</option>
                                         <option value="pending">Chờ duyệt</option>
-                                        <option value="approved">Đã duyệt</option>
-                                        <option value="rejected">Bị từ chối</option>
+                                        <option value="active">Đã duyệt</option>
+                                        <option value="inactive">Bị từ chối</option>
                                     </select>
                                 </div>
 
@@ -200,253 +215,84 @@
             <!-- Danh sách khách sạn BẮT ĐẦU -->
             <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4" id="hotelGrid">
 
-                <!-- Khách sạn mẫu 1 -->
-                <div class="col hotel-card" data-status="pending" data-city="hcm">
-                    <div class="card shadow h-100">
+                <!-- Khách sạn từ database -->
+                <div class="col hotel-card" th:each="hotel : ${hotels}" 
+                     th:data-status="${hotel.status}" 
+                     th:data-city="${hotel.cityName != null ? hotel.cityName.toLowerCase().replace(' ', '').replace('.', '') : ''}"
+                     th:data-hotel-id="${hotel.hotelId}">
+                    <div class="card shadow h-100"
+                         th:classappend="${hotel.status == 'inactive' ? ' border-danger border-2 box-shadow-danger' : (hotel.status == 'pending' ? ' border-warning border-2 box-shadow-warning' : '')}">
                         <div class="position-relative">
-                            <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=200&fit=crop"
-                                 class="card-img-top" alt="Khách Sạn Sài Gòn Star" style="height: 200px; object-fit: cover;">
+                            <img th:src="${hotel.hotelImageUrl != null ? hotel.hotelImageUrl : 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=200&fit=crop'}"
+                                 class="card-img-top" th:alt="${hotel.hotelName}" style="height: 200px; object-fit: cover;">
                             <div class="position-absolute top-0 end-0 m-2">
-                                <span class="badge bg-warning">Chờ duyệt</span>
+                                <span class="badge"
+                                      th:classappend="${hotel.status == 'pending' ? 'bg-warning border border-warning border-2 shadow' : (hotel.status == 'active' ? 'bg-success' : 'bg-danger border border-danger border-2 shadow')}"
+                                      th:text="${hotel.status == 'pending' ? 'Chờ duyệt' : (hotel.status == 'active' ? 'Đã duyệt' : 'Bị từ chối')}">
+                                    Chờ duyệt
+                                </span>
                             </div>
                         </div>
                         <div class="card-body">
-                            <h5 class="card-title">Khách Sạn Sài Gòn Star</h5>
+                            <h5 class="card-title" th:text="${hotel.hotelName}">Tên khách sạn</h5>
                             <p class="card-text text-muted">
-                                <i class="bi bi-geo-alt me-1"></i>Quận 1, TP.HCM
+                                <i class="bi bi-geo-alt me-1"></i><span th:text="${hotel.cityName != null ? hotel.cityName : 'Chưa có thông tin'}">Thành phố</span>
                             </p>
                             <p class="card-text small">
-                                <strong>Địa chỉ:</strong> 123 Lê Lợi, P. Bến Thành<br>
-                                <strong>Chủ khách sạn:</strong> Nguyễn Văn A<br>
-                                <strong>Điện thoại:</strong> 0909 123 456
+                                <strong>Địa chỉ:</strong> <span th:text="${hotel.address != null ? hotel.address : 'Chưa có thông tin'}">Địa chỉ</span><br>
+                                <strong>Chủ khách sạn:</strong> <span th:text="${hostMap.get(hotel.hostId) != null ? hostMap.get(hotel.hostId).fullName : 'Chưa có thông tin'}">Tên chủ</span><br>
+                                <strong>Điện thoại:</strong> <span th:text="${hostMap.get(hotel.hostId) != null ? hostMap.get(hotel.hostId).phone : 'Chưa có thông tin'}">Số điện thoại</span>
                             </p>
                             <div class="d-flex align-items-center mb-2">
                                 <div class="me-2">
-                                    <i class="bi bi-star-fill text-warning"></i>
-                                    <i class="bi bi-star-fill text-warning"></i>
-                                    <i class="bi bi-star-fill text-warning"></i>
-                                    <i class="bi bi-star-fill text-warning"></i>
-                                    <i class="bi bi-star text-warning"></i>
+                                    <i class="bi bi-star-fill text-warning" th:each="i : ${#numbers.sequence(1, 5)}" 
+                                       th:classappend="${i <= hotel.rating ? 'text-warning' : 'text-muted'}"></i>
                                 </div>
-                                <small class="text-muted">4.0 (120 đánh giá)</small>
+                                <small class="text-muted" th:text="${hotel.rating} + ' (' + ${hotel.rating} + ' đánh giá)'">4.0 (120 đánh giá)</small>
                             </div>
                             <p class="card-text">
-                                <strong>Giá từ:</strong> <span class="text-primary fw-bold">1,200,000 VNĐ</span>/đêm
+                                <strong>Giá từ:</strong> 
+                                <span class="text-primary fw-bold" th:if="${hotel.minPrice != null}" 
+                                      th:text="${#numbers.formatDecimal(hotel.minPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">1,200,000 VNĐ</span>
+                                <span class="text-muted" th:if="${hotel.minPrice == null}">Chưa có thông tin</span>/đêm
                             </p>
                         </div>
                         <div class="card-footer bg-transparent border-0">
                             <div class="d-flex gap-2 mb-2">
-                                <button class="btn btn-success flex-fill" onclick="openApproveModal('hotel-1', 'Khách Sạn Sài Gòn Star')">
+                                <!-- Nếu pending -->
+                                <button class="btn btn-success flex-fill approve-btn"
+                                        th:if="${hotel.status == 'pending'}"
+                                        th:data-hotel-id="${hotel.hotelId}">
                                     <i class="bi bi-check-circle me-1"></i>Phê duyệt
                                 </button>
-                                <button class="btn btn-danger flex-fill" onclick="openRejectModal('hotel-1', 'Khách Sạn Sài Gòn Star')">
+                                <button class="btn btn-danger flex-fill reject-btn"
+                                        th:if="${hotel.status == 'pending'}"
+                                        th:data-hotel-id="${hotel.hotelId}">
                                     <i class="bi bi-x-circle me-1"></i>Từ chối
                                 </button>
-                            </div>
-                            <button class="btn btn-outline-primary w-100" onclick="viewHotelDetails('hotel-1')">
-                                <i class="bi bi-eye me-1"></i>Xem chi tiết
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Khách sạn mẫu 2 -->
-                <div class="col hotel-card" data-status="pending" data-city="phuquoc">
-                    <div class="card shadow h-100">
-                        <div class="position-relative">
-                            <img src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=400&h=200&fit=crop"
-                                 class="card-img-top" alt="Resort Biển Xanh" style="height: 200px; object-fit: cover;">
-                            <div class="position-absolute top-0 end-0 m-2">
-                                <span class="badge bg-warning">Chờ duyệt</span>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <h5 class="card-title">Resort Biển Xanh</h5>
-                            <p class="card-text text-muted">
-                                <i class="bi bi-geo-alt me-1"></i>Phú Quốc, Kiên Giang
-                            </p>
-                            <p class="card-text small">
-                                <strong>Địa chỉ:</strong> 78 Trần Hưng Đạo, Dương Đông<br>
-                                <strong>Chủ khách sạn:</strong> Trần Thị B<br>
-                                <strong>Điện thoại:</strong> 0912 345 678
-                            </p>
-                            <div class="d-flex align-items-center mb-2">
-                                <div class="me-2">
-                                    <i class="bi bi-star-fill text-warning"></i>
-                                    <i class="bi bi-star-fill text-warning"></i>
-                                    <i class="bi bi-star-fill text-warning"></i>
-                                    <i class="bi bi-star-fill text-warning"></i>
-                                    <i class="bi bi-star-fill text-warning"></i>
-                                </div>
-                                <small class="text-muted">4.8 (89 đánh giá)</small>
-                            </div>
-                            <p class="card-text">
-                                <strong>Giá từ:</strong> <span class="text-primary fw-bold">2,500,000 VNĐ</span>/đêm
-                            </p>
-                        </div>
-                        <div class="card-footer bg-transparent border-0">
-                            <div class="d-flex gap-2 mb-2">
-                                <button class="btn btn-success flex-fill" onclick="openApproveModal('hotel-2', 'Resort Biển Xanh')">
-                                    <i class="bi bi-check-circle me-1"></i>Phê duyệt
+                                <!-- Nếu active -->
+                                <button class="btn btn-success flex-fill" disabled
+                                        th:if="${hotel.status == 'active'}">
+                                    <i class="bi bi-check-circle me-1"></i>Đã phê duyệt
                                 </button>
-                                <button class="btn btn-danger flex-fill" onclick="openRejectModal('hotel-2', 'Resort Biển Xanh')">
-                                    <i class="bi bi-x-circle me-1"></i>Từ chối
-                                </button>
-                            </div>
-                            <button class="btn btn-outline-primary w-100" onclick="viewHotelDetails('hotel-2')">
-                                <i class="bi bi-eye me-1"></i>Xem chi tiết
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Khách sạn mẫu 3 -->
-                <div class="col hotel-card" data-status="pending" data-city="hanoi">
-                    <div class="card shadow h-100">
-                        <div class="position-relative">
-                            <img src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=400&h=200&fit=crop"
-                                 class="card-img-top" alt="Khách Sạn Hà Nội Palace" style="height: 200px; object-fit: cover;">
-                            <div class="position-absolute top-0 end-0 m-2">
-                                <span class="badge bg-warning">Chờ duyệt</span>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <h5 class="card-title">Khách Sạn Hà Nội Palace</h5>
-                            <p class="card-text text-muted">
-                                <i class="bi bi-geo-alt me-1"></i>Hoàn Kiếm, Hà Nội
-                            </p>
-                            <p class="card-text small">
-                                <strong>Địa chỉ:</strong> 45 Nguyễn Huệ, P. Hàng Bạc<br>
-                                <strong>Chủ khách sạn:</strong> Lê Văn C<br>
-                                <strong>Điện thoại:</strong> 0987 654 321
-                            </p>
-                            <div class="d-flex align-items-center mb-2">
-                                <div class="me-2">
-                                    <i class="bi bi-star-fill text-warning"></i>
-                                    <i class="bi bi-star-fill text-warning"></i>
-                                    <i class="bi bi-star-fill text-warning"></i>
-                                    <i class="bi bi-star-fill text-warning"></i>
-                                    <i class="bi bi-star text-warning"></i>
-                                </div>
-                                <small class="text-muted">4.2 (156 đánh giá)</small>
-                            </div>
-                            <p class="card-text">
-                                <strong>Giá từ:</strong> <span class="text-primary fw-bold">1,800,000 VNĐ</span>/đêm
-                            </p>
-                        </div>
-                        <div class="card-footer bg-transparent border-0">
-                            <div class="d-flex gap-2 mb-2">
-                                <button class="btn btn-success flex-fill" onclick="openApproveModal('hotel-3', 'Khách Sạn Hà Nội Palace')">
-                                    <i class="bi bi-check-circle me-1"></i>Phê duyệt
-                                </button>
-                                <button class="btn btn-danger flex-fill" onclick="openRejectModal('hotel-3', 'Khách Sạn Hà Nội Palace')">
-                                    <i class="bi bi-x-circle me-1"></i>Từ chối
-                                </button>
-                            </div>
-                            <button class="btn btn-outline-primary w-100" onclick="viewHotelDetails('hotel-3')">
-                                <i class="bi bi-eye me-1"></i>Xem chi tiết
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Khách sạn mẫu 4 -->
-                <div class="col hotel-card" data-status="approved" data-city="danang">
-                    <div class="card shadow h-100">
-                        <div class="position-relative">
-                            <img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=400&h=200&fit=crop"
-                                 class="card-img-top" alt="Resort Đà Nẵng Beach" style="height: 200px; object-fit: cover;">
-                            <div class="position-absolute top-0 end-0 m-2">
-                                <span class="badge bg-success">Đã duyệt</span>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <h5 class="card-title">Resort Đà Nẵng Beach</h5>
-                            <p class="card-text text-muted">
-                                <i class="bi bi-geo-alt me-1"></i>Sơn Trà, Đà Nẵng
-                            </p>
-                            <p class="card-text small">
-                                <strong>Địa chỉ:</strong> 12 Võ Nguyên Giáp, P. Mỹ An<br>
-                                <strong>Chủ khách sạn:</strong> Phạm Thị D<br>
-                                <strong>Điện thoại:</strong> 0933 444 555
-                            </p>
-                            <div class="d-flex align-items-center mb-2">
-                                <div class="me-2">
-                                    <i class="bi bi-star-fill text-warning"></i>
-                                    <i class="bi bi-star-fill text-warning"></i>
-                                    <i class="bi bi-star-fill text-warning"></i>
-                                    <i class="bi bi-star-fill text-warning"></i>
-                                    <i class="bi bi-star-fill text-warning"></i>
-                                </div>
-                                <small class="text-muted">4.9 (203 đánh giá)</small>
-                            </div>
-                            <p class="card-text">
-                                <strong>Giá từ:</strong> <span class="text-primary fw-bold">3,200,000 VNĐ</span>/đêm
-                            </p>
-                        </div>
-                        <div class="card-footer bg-transparent border-0">
-                            <div class="d-flex gap-2 mb-2">
-                                <button class="btn btn-success flex-fill" disabled>
-                                    <i class="bi bi-check-circle me-1"></i>Đã duyệt
-                                </button>
-                                <button class="btn btn-warning flex-fill" onclick="openRejectModal('hotel-4', 'Resort Đà Nẵng Beach')">
+                                <button class="btn btn-warning flex-fill revoke-btn"
+                                        th:if="${hotel.status == 'active'}"
+                                        th:data-hotel-id="${hotel.hotelId}">
                                     <i class="bi bi-arrow-clockwise me-1"></i>Thu hồi
                                 </button>
-                            </div>
-                            <button class="btn btn-outline-primary w-100" onclick="viewHotelDetails('hotel-4')">
-                                <i class="bi bi-eye me-1"></i>Xem chi tiết
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Khách sạn mẫu 5 -->
-                <div class="col hotel-card" data-status="rejected" data-city="hcm">
-                    <div class="card shadow h-100">
-                        <div class="position-relative">
-                            <img src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=200&fit=crop"
-                                 class="card-img-top" alt="Khách Sạn Bình Dân" style="height: 200px; object-fit: cover;">
-                            <div class="position-absolute top-0 end-0 m-2">
-                                <span class="badge bg-danger">Bị từ chối</span>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <h5 class="card-title">Khách Sạn Bình Dân</h5>
-                            <p class="card-text text-muted">
-                                <i class="bi bi-geo-alt me-1"></i>Quận 3, TP.HCM
-                            </p>
-                            <p class="card-text small">
-                                <strong>Địa chỉ:</strong> 67 Võ Văn Tần, P. 6<br>
-                                <strong>Chủ khách sạn:</strong> Hoàng Văn E<br>
-                                <strong>Điện thoại:</strong> 0966 777 888
-                            </p>
-                            <div class="d-flex align-items-center mb-2">
-                                <div class="me-2">
-                                    <i class="bi bi-star-fill text-warning"></i>
-                                    <i class="bi bi-star-fill text-warning"></i>
-                                    <i class="bi bi-star text-warning"></i>
-                                    <i class="bi bi-star text-warning"></i>
-                                    <i class="bi bi-star text-warning"></i>
-                                </div>
-                                <small class="text-muted">2.1 (45 đánh giá)</small>
-                            </div>
-                            <p class="card-text">
-                                <strong>Giá từ:</strong> <span class="text-primary fw-bold">800,000 VNĐ</span>/đêm
-                            </p>
-                            <div class="alert alert-danger small">
-                                <strong>Lý do từ chối:</strong> Hình ảnh không khớp với thực tế, thông tin không chính xác
-                            </div>
-                        </div>
-                        <div class="card-footer bg-transparent border-0">
-                            <div class="d-flex gap-2 mb-2">
-                                <button class="btn btn-success flex-fill" onclick="openApproveModal('hotel-5', 'Khách Sạn Bình Dân')">
+                                <!-- Nếu inactive -->
+                                <button class="btn btn-success flex-fill approve-btn"
+                                        th:if="${hotel.status == 'inactive'}"
+                                        th:data-hotel-id="${hotel.hotelId}">
                                     <i class="bi bi-check-circle me-1"></i>Phê duyệt lại
                                 </button>
-                                <button class="btn btn-danger flex-fill" disabled>
-                                    <i class="bi bi-x-circle me-1"></i>Đã từ chối
+                                <button class="btn btn-secondary flex-fill" disabled
+                                        th:if="${hotel.status == 'inactive'}">
+                                    <i class="bi bi-x-circle me-1"></i>Đã thu hồi
                                 </button>
                             </div>
-                            <button class="btn btn-outline-primary w-100" onclick="viewHotelDetails('hotel-5')">
+                            <button class="btn btn-outline-primary w-100 view-details-btn"
+                                    th:data-hotel-id="${hotel.hotelId}">
                                 <i class="bi bi-eye me-1"></i>Xem chi tiết
                             </button>
                         </div>
@@ -502,46 +348,6 @@
     </div>
 </div>
 
-<!-- Approve Confirmation Modal -->
-<div class="modal fade" id="approve-modal" tabindex="-1" aria-labelledby="approveModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="approveModalLabel">Xác nhận phê duyệt</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                Bạn có chắc chắn muốn phê duyệt khách sạn <strong id="approve-hotel-name"></strong>?
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                <button type="button" class="btn btn-success" id="confirm-approve-btn">Phê duyệt</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Reject Reason Modal -->
-<div class="modal fade" id="reject-modal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="rejectModalLabel">Lý do từ chối</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>Vui lòng cung cấp lý do từ chối khách sạn <strong id="reject-hotel-name"></strong>:</p>
-                <textarea id="rejection-reason" class="form-control" rows="3" placeholder="Nhập lý do từ chối..."></textarea>
-                <div class="text-danger mt-2 d-none" id="reason-error">Vui lòng nhập lý do từ chối.</div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                <button type="button" class="btn btn-danger" id="confirm-reject-btn">Từ chối</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- Hotel Details Modal -->
 <div class="modal fade" id="hotel-details-modal" tabindex="-1" aria-labelledby="hotelDetailsModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -560,18 +366,49 @@
     </div>
 </div>
 
+<!-- Modal xác nhận hành động -->
+<div class="modal fade" id="confirm-action-modal" tabindex="-1" aria-labelledby="confirmActionModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmActionModalLabel">Xác nhận</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+      </div>
+      <div class="modal-body" id="confirm-action-message">
+        <!-- Nội dung xác nhận sẽ được thay đổi động -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+        <button type="button" class="btn btn-primary" id="confirm-action-btn">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Bootstrap JS -->
 <script th:src="@{/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
 
 <script>
     // --- Embedded Moderator Hotel List Logic ---
     document.addEventListener('DOMContentLoaded', function () {
-        const approveModal = new bootstrap.Modal(document.getElementById('approve-modal'));
-        const rejectModal = new bootstrap.Modal(document.getElementById('reject-modal'));
         const hotelDetailsModal = new bootstrap.Modal(document.getElementById('hotel-details-modal'));
         const notificationToast = new bootstrap.Toast(document.getElementById('notificationToast'));
 
+        // Lấy CSRF token và header
+        const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
         let currentHotelId = null;
+        const PAGE_SIZE = 6;
+        let currentPage = 1;
+
+        // Biến lưu hotelId và action đang thao tác
+        let pendingActionHotelId = null;
+        let pendingActionType = null;
+        // Khởi tạo modal
+        const actionConfirmModal = new bootstrap.Modal(document.getElementById('confirm-action-modal'));
+        const confirmActionMessage = document.getElementById('confirm-action-message');
+        const confirmActionBtn = document.getElementById('confirm-action-btn');
 
         // --- Toast Notification Handler ---
         function showToast(title, body, isSuccess) {
@@ -593,189 +430,263 @@
             notificationToast.show();
         }
 
-        // --- Filter and Search Functions ---
-        window.applyFilters = function() {
+        function normalizeCity(str) {
+            if (!str) return '';
+            return str.toLowerCase()
+                .replace(/tp\.?\s*/g, '')
+                .replace(/[àáạảãâầấậẩẫăằắặẳẵ]/g, 'a')
+                .replace(/[èéẹẻẽêềếệểễ]/g, 'e')
+                .replace(/[ìíịỉĩ]/g, 'i')
+                .replace(/[òóọỏõôồốộổỗơờớợởỡ]/g, 'o')
+                .replace(/[ùúụủũưừứựửữ]/g, 'u')
+                .replace(/[ỳýỵỷỹ]/g, 'y')
+                .replace(/đ/g, 'd')
+                .replace(/\s+/g, '')
+                .replace(/\./g, '');
+        }
+
+        function getFilteredHotels() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const statusFilter = document.getElementById('statusFilter').value;
             const cityFilter = document.getElementById('cityFilter').value;
+            const normCityFilter = normalizeCity(cityFilter);
 
-            const hotelCards = document.querySelectorAll('.hotel-card');
-
-            hotelCards.forEach(card => {
+            const hotelCards = Array.from(document.querySelectorAll('.hotel-card'));
+            return hotelCards.filter(card => {
                 const hotelName = card.querySelector('.card-title').textContent.toLowerCase();
                 const status = card.getAttribute('data-status');
                 const city = card.getAttribute('data-city');
-
+                const normCity = normalizeCity(city);
                 const matchesSearch = hotelName.includes(searchTerm);
                 const matchesStatus = !statusFilter || status === statusFilter;
-                const matchesCity = !cityFilter || city === cityFilter;
-
-                if (matchesSearch && matchesStatus && matchesCity) {
-                    card.style.display = 'block';
-                } else {
-                    card.style.display = 'none';
-                }
+                const matchesCity = !normCityFilter || normCity === normCityFilter;
+                return matchesSearch && matchesStatus && matchesCity;
             });
+        }
+
+        function renderPagination(filteredHotels) {
+            const totalPages = Math.ceil(filteredHotels.length / PAGE_SIZE) || 1;
+            const pagination = document.querySelector('.pagination');
+            if (!pagination) return;
+
+            let html = '';
+            html += `<li class="page-item${currentPage === 1 ? ' disabled' : ''}">
+                <a class="page-link" href="#" data-page="${currentPage - 1}"><i class="bi bi-chevron-left"></i></a>
+            </li>`;
+            for (let i = 1; i <= totalPages; i++) {
+                html += `<li class="page-item${currentPage === i ? ' active' : ''}">
+                    <a class="page-link" href="#" data-page="${i}">${i}</a>
+                </li>`;
+            }
+            html += `<li class="page-item${currentPage === totalPages ? ' disabled' : ''}">
+                <a class="page-link" href="#" data-page="${currentPage + 1}"><i class="bi bi-chevron-right"></i></a>
+            </li>`;
+            pagination.innerHTML = html;
+
+            // Gán sự kiện click cho các nút phân trang
+            pagination.querySelectorAll('.page-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const page = parseInt(this.getAttribute('data-page'));
+                    if (!isNaN(page) && page >= 1 && page <= totalPages) {
+                        currentPage = page;
+                        applyFilters();
+                    }
+                });
+            });
+        }
+
+        window.applyFilters = function() {
+            const filteredHotels = getFilteredHotels();
+            const hotelCards = Array.from(document.querySelectorAll('.hotel-card'));
+            hotelCards.forEach(card => card.style.display = 'none');
+
+            // Hiển thị các hotel thuộc trang hiện tại
+            const start = (currentPage - 1) * PAGE_SIZE;
+            const end = start + PAGE_SIZE;
+            filteredHotels.slice(start, end).forEach(card => card.style.display = 'block');
+
+            renderPagination(filteredHotels);
         };
+
+        // Chỉ filter khi bấm nút Lọc
+        const filterBtn = document.querySelector('button.btn.btn-primary');
+        if (filterBtn) {
+            filterBtn.addEventListener('click', function() {
+                currentPage = 1;
+                applyFilters();
+            });
+        }
+
+        // Gọi lần đầu khi load trang
+        applyFilters();
 
         // --- Modal Opening Functions ---
-        window.openApproveModal = function (hotelId, hotelName) {
-            currentHotelId = hotelId;
-            document.getElementById('approve-hotel-name').textContent = hotelName;
-            approveModal.show();
-        };
-
-        window.openRejectModal = function (hotelId, hotelName) {
-            currentHotelId = hotelId;
-            document.getElementById('reject-hotel-name').textContent = hotelName;
-            document.getElementById('rejection-reason').value = '';
-            document.getElementById('reason-error').classList.add('d-none');
-            rejectModal.show();
-        };
-
         window.viewHotelDetails = function (hotelId) {
-            // Mock hotel details - in real app, this would fetch from server
-            const hotelDetails = {
-                'hotel-1': {
-                    name: 'Khách Sạn Sài Gòn Star',
-                    description: 'Khách sạn 4 sao tại trung tâm TP.HCM với dịch vụ chất lượng cao và tiện nghi hiện đại.',
-                    amenities: ['WiFi miễn phí', 'Bể bơi', 'Phòng gym', 'Nhà hàng', 'Spa'],
-                    rooms: ['Phòng đơn', 'Phòng đôi', 'Suite cao cấp'],
-                    images: [
-                        'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=200&fit=crop',
-                        'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=400&h=200&fit=crop'
-                    ]
-                },
-                'hotel-2': {
-                    name: 'Resort Biển Xanh',
-                    description: 'Resort 5 sao tại Phú Quốc với view biển tuyệt đẹp và dịch vụ đẳng cấp quốc tế.',
-                    amenities: ['Bãi biển riêng', 'Bể bơi vô cực', 'Spa & Wellness', 'Nhà hàng hải sản', 'Bar'],
-                    rooms: ['Bungalow', 'Villa biển', 'Suite tổng thống'],
-                    images: [
-                        'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=400&h=200&fit=crop',
-                        'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=400&h=200&fit=crop'
-                    ]
+            // Get CSRF token
+            const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+            
+            // Fetch hotel details from server
+            fetch(`/moderator-hotel-list/api/moderator/hotels/${hotelId}/details`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
                 }
-            };
-
-            const hotel = hotelDetails[hotelId] || {
-                name: 'Khách sạn mẫu',
-                description: 'Thông tin chi tiết về khách sạn này.',
-                amenities: ['WiFi', 'Bể bơi', 'Nhà hàng'],
-                rooms: ['Phòng đơn', 'Phòng đôi'],
-                images: ['https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=200&fit=crop']
-            };
-
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const hotel = data.hotel;
+                        const host = data.host;
+                        // Thu gọn mô tả nếu dài
+                        let description = hotel.description || 'Chưa có mô tả';
+                        let isLong = description.length > 150;
+                        let shortDesc = description.substring(0, 150) + (isLong ? '...' : '');
+                        let descHtml = `
+                          <p class="text-muted" id="hotel-desc">
+                            ${isLong ? shortDesc : description}
+                            ${isLong ? `<a href="#" id="toggle-desc" style="margin-left:8px;">Xem thêm</a>` : ''}
+                          </p>
+                        `;
             const content = `
         <div class="row">
           <div class="col-md-6">
-            <img src="${hotel.images[0]}" class="img-fluid rounded" alt="${hotel.name}">
+                        <img src="${hotel.hotelImageUrl || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=200&fit=crop'}" 
+                             class="img-fluid rounded" alt="${hotel.hotelName}">
           </div>
           <div class="col-md-6">
-            <h5>${hotel.name}</h5>
-            <p class="text-muted">${hotel.description}</p>
+                        <h5>${hotel.hotelName}</h5>
+                        ${descHtml}
 
-            <h6>Tiện ích:</h6>
+                        <h6>Thông tin cơ bản:</h6>
             <ul class="list-unstyled">
-              ${hotel.amenities.map(amenity => `<li><i class="bi bi-check-circle-fill text-success me-2"></i>${amenity}</li>`).join('')}
+                          <li><i class="bi bi-geo-alt me-2"></i><strong>Địa chỉ:</strong> ${hotel.address || 'Chưa có thông tin'}</li>
+                          <li><i class="bi bi-building me-2"></i><strong>Thành phố:</strong> ${hotel.cityName || 'Chưa có thông tin'}</li>
+                          <li><i class="bi bi-star me-2"></i><strong>Đánh giá:</strong> ${hotel.rating || 0}/5</li>
+                          <li><i class="bi bi-currency-dollar me-2"></i><strong>Giá từ:</strong> ${hotel.minPrice ? hotel.minPrice.toLocaleString('vi-VN') + ' VNĐ' : 'Chưa có thông tin'}</li>
             </ul>
 
-            <h6>Loại phòng:</h6>
+                        <h6>Thông tin chủ khách sạn:</h6>
             <ul class="list-unstyled">
-              ${hotel.rooms.map(room => `<li><i class="bi bi-house-door me-2"></i>${room}</li>`).join('')}
+                          <li><i class="bi bi-person me-2"></i><strong>Tên:</strong> ${host ? host.fullName : 'Chưa có thông tin'}</li>
+                          <li><i class="bi bi-envelope me-2"></i><strong>Email:</strong> ${host ? host.email : 'Chưa có thông tin'}</li>
+                          <li><i class="bi bi-telephone me-2"></i><strong>Điện thoại:</strong> ${host ? host.phone : 'Chưa có thông tin'}</li>
             </ul>
+
+                        <h6>Chính sách:</h6>
+                        <p class="small">${hotel.policy || 'Chưa có thông tin chính sách'}</p>
           </div>
         </div>
       `;
-
             document.getElementById('hotel-details-content').innerHTML = content;
+                        // Toggle mô tả
+                        if (isLong) {
+                          document.getElementById('toggle-desc').addEventListener('click', function toggleDesc(e) {
+                            e.preventDefault();
+                            const descElem = document.getElementById('hotel-desc');
+                            if (this.textContent === 'Xem thêm') {
+                              descElem.innerHTML = description + ` <a href='#' id='toggle-desc'>Thu gọn</a>`;
+                              document.getElementById('toggle-desc').addEventListener('click', toggleDesc);
+                            } else {
+                              descElem.innerHTML = shortDesc + ` <a href='#' id='toggle-desc'>Xem thêm</a>`;
+                              document.getElementById('toggle-desc').addEventListener('click', toggleDesc);
+                            }
+                          });
+                        }
             hotelDetailsModal.show();
+                    } else {
+                        showToast('Lỗi', data.message, false);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Lỗi', 'Không thể tải thông tin khách sạn', false);
+                });
         };
 
-        // --- Action Handlers ---
-        document.getElementById('confirm-approve-btn').addEventListener('click', function () {
-            if (currentHotelId) {
-                // Mock API call
-                setTimeout(() => {
-                    showToast('Thành công', `Khách sạn đã được phê duyệt.`, true);
-                    updateHotelStatus(currentHotelId, 'approved');
-                    approveModal.hide();
-                    currentHotelId = null;
-                }, 1000);
+        // --- Event Listeners for Hotel Actions ---
+        // View details buttons
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.view-details-btn')) {
+                const button = e.target.closest('.view-details-btn');
+                const hotelId = button.getAttribute('data-hotel-id');
+                viewHotelDetails(hotelId);
             }
         });
 
-        document.getElementById('confirm-reject-btn').addEventListener('click', function () {
-            const reason = document.getElementById('rejection-reason').value.trim();
-            const reasonError = document.getElementById('reason-error');
-
-            if (!reason) {
-                reasonError.classList.remove('d-none');
-                return;
+        // Thay đổi event handler cho các nút hành động
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.approve-btn')) {
+                const button = e.target.closest('.approve-btn');
+                const hotelId = button.getAttribute('data-hotel-id');
+                const status = button.closest('.hotel-card').getAttribute('data-status');
+                pendingActionHotelId = hotelId;
+                if (status === 'inactive') {
+                    pendingActionType = 'approve-again';
+                    confirmActionMessage.textContent = 'Bạn có chắc chắn muốn phê duyệt lại khách sạn này không?';
+                    confirmActionBtn.className = 'btn btn-success';
             } else {
-                reasonError.classList.add('d-none');
+                    pendingActionType = 'approve';
+                    confirmActionMessage.textContent = 'Bạn có chắc chắn muốn phê duyệt khách sạn này không?';
+                    confirmActionBtn.className = 'btn btn-success';
+                }
+                actionConfirmModal.show();
             }
-
-            if (currentHotelId) {
-                // Mock API call
-                setTimeout(() => {
-                    showToast('Thành công', `Khách sạn đã bị từ chối.`, true);
-                    updateHotelStatus(currentHotelId, 'rejected', reason);
-                    rejectModal.hide();
-                    currentHotelId = null;
-                }, 1000);
+            if (e.target.closest('.reject-btn')) {
+                const button = e.target.closest('.reject-btn');
+                const hotelId = button.getAttribute('data-hotel-id');
+                pendingActionHotelId = hotelId;
+                pendingActionType = 'reject';
+                confirmActionMessage.textContent = 'Bạn có chắc chắn muốn từ chối khách sạn này không?';
+                confirmActionBtn.className = 'btn btn-danger';
+                actionConfirmModal.show();
+            }
+            if (e.target.closest('.revoke-btn')) {
+                const button = e.target.closest('.revoke-btn');
+                const hotelId = button.getAttribute('data-hotel-id');
+                pendingActionHotelId = hotelId;
+                pendingActionType = 'revoke';
+                confirmActionMessage.textContent = 'Bạn có chắc chắn muốn thu hồi phê duyệt khách sạn này không?';
+                confirmActionBtn.className = 'btn btn-warning';
+                actionConfirmModal.show();
             }
         });
 
-        // --- UI Update Functions ---
-        function updateHotelStatus(hotelId, status, reason = '') {
-            const hotelCard = document.querySelector(`[onclick*="${hotelId}"]`).closest('.hotel-card');
-            const statusBadge = hotelCard.querySelector('.position-absolute .badge');
-            const actionButtons = hotelCard.querySelector('.card-footer .d-flex');
-
-            // Update status badge
-            statusBadge.className = `badge ${status === 'approved' ? 'bg-success' : status === 'rejected' ? 'bg-danger' : 'bg-warning'}`;
-            statusBadge.textContent = status === 'approved' ? 'Đã duyệt' : status === 'rejected' ? 'Bị từ chối' : 'Chờ duyệt';
-
-            // Update action buttons
-            if (status === 'approved') {
-                actionButtons.innerHTML = `
-          <button class="btn btn-success flex-fill" disabled>
-            <i class="bi bi-check-circle me-1"></i>Đã duyệt
-          </button>
-          <button class="btn btn-warning flex-fill" onclick="openRejectModal('${hotelId}', '${hotelCard.querySelector('.card-title').textContent}')">
-            <i class="bi bi-arrow-clockwise me-1"></i>Thu hồi
-          </button>
-        `;
-            } else if (status === 'rejected') {
-                actionButtons.innerHTML = `
-          <button class="btn btn-success flex-fill" onclick="openApproveModal('${hotelId}', '${hotelCard.querySelector('.card-title').textContent}')">
-            <i class="bi bi-check-circle me-1"></i>Phê duyệt lại
-          </button>
-          <button class="btn btn-danger flex-fill" disabled>
-            <i class="bi bi-x-circle me-1"></i>Đã từ chối
-          </button>
-        `;
-
-                // Add rejection reason
-                const cardBody = hotelCard.querySelector('.card-body');
-                const existingAlert = cardBody.querySelector('.alert');
-                if (!existingAlert) {
-                    const alert = document.createElement('div');
-                    alert.className = 'alert alert-danger small';
-                    alert.innerHTML = `<strong>Lý do từ chối:</strong> ${reason}`;
-                    cardBody.appendChild(alert);
-                }
+        // Xác nhận hành động
+        confirmActionBtn.addEventListener('click', function() {
+            if (!pendingActionHotelId || !pendingActionType) return;
+            if (pendingActionType === 'approve' || pendingActionType === 'approve-again') {
+                fetch(`/moderator-hotel-list/api/moderator/hotels/${pendingActionHotelId}/approve`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        [csrfHeader]: csrfToken
+                    }
+                }).then(() => window.location.reload());
+            } else if (pendingActionType === 'reject') {
+                fetch(`/moderator-hotel-list/api/moderator/hotels/${pendingActionHotelId}/reject`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        [csrfHeader]: csrfToken
+                    },
+                    body: JSON.stringify({ reason: 'Từ chối bởi quản trị viên' })
+                }).then(() => window.location.reload());
+            } else if (pendingActionType === 'revoke') {
+                fetch(`/moderator-hotel-list/api/moderator/hotels/${pendingActionHotelId}/reject`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        [csrfHeader]: csrfToken
+                    },
+                    body: JSON.stringify({ reason: 'Thu hồi phê duyệt' })
+                }).then(() => window.location.reload());
             }
-
-            // Update data attribute
-            hotelCard.setAttribute('data-status', status);
-        }
-
-        // --- Search input event listener ---
-        document.getElementById('searchInput').addEventListener('input', applyFilters);
-        document.getElementById('statusFilter').addEventListener('change', applyFilters);
-        document.getElementById('cityFilter').addEventListener('change', applyFilters);
+            actionConfirmModal.hide();
+            pendingActionHotelId = null;
+            pendingActionType = null;
+        });
     });
 </script>
 

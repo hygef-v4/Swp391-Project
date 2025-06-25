@@ -29,14 +29,20 @@ public class ModeratorUserListController {
     @GetMapping("/moderator-user-list")
     public String getUserList(Model model) {
         List<User> userList = userService.getAllUsersWithProfile();
+        List<User> flaggedUsers = userList.stream().filter(u -> Boolean.TRUE.equals(u.isFlagged())).toList();
+        List<User> nonFlaggedUsers = userList.stream().filter(u -> !Boolean.TRUE.equals(u.isFlagged())).toList();
+        List<User> sortedUsers = new java.util.ArrayList<>();
+        sortedUsers.addAll(flaggedUsers);
+        sortedUsers.addAll(nonFlaggedUsers);
         long activeUsers = userList.stream().filter(u -> u.isActive() && !Boolean.TRUE.equals(u.isFlagged())).count();
         long lockedUsers = userList.stream().filter(u -> !u.isActive() && !Boolean.TRUE.equals(u.isFlagged())).count();
-        long flaggedUsers = userList.stream().filter(u -> Boolean.TRUE.equals(u.isFlagged())).count();
+        long flaggedUsersCount = flaggedUsers.size();
 
-        model.addAttribute("users", userList);
+        model.addAttribute("users", sortedUsers);
         model.addAttribute("activeUsers", activeUsers);
         model.addAttribute("lockedUsers", lockedUsers);
-        model.addAttribute("flaggedUsers", flaggedUsers);
+        model.addAttribute("flaggedUsers", flaggedUsersCount);
+        model.addAttribute("flaggedUsersCount", flaggedUsersCount);
         return "moderator/moderatorUserList";
     }
 

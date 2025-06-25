@@ -34,6 +34,30 @@ public class ModeratorDashboardController {
             // Lấy tổng số người dùng hoạt động (không bị flagged)
             long activeUsers = userService.getAllUsersWithProfile().stream().filter(u -> u.isActive() && !Boolean.TRUE.equals(u.isFlagged())).count();
             model.addAttribute("activeUsers", activeUsers);
+
+            // Lấy danh sách khách sạn chờ duyệt
+            java.util.List<org.swp391.hotelbookingsystem.model.Hotel> pendingHotels = hotelService.getAllHotels().stream()
+                .filter(h -> "pending".equals(h.getStatus()))
+                .toList();
+            model.addAttribute("pendingHotels", pendingHotels);
+            model.addAttribute("pendingApprovals", pendingHotels.size());
+
+            // Lấy thông tin chủ khách sạn cho từng khách sạn chờ duyệt
+            java.util.Map<Integer, org.swp391.hotelbookingsystem.model.User> hostMap = new java.util.HashMap<>();
+            for (org.swp391.hotelbookingsystem.model.Hotel hotel : pendingHotels) {
+                if (!hostMap.containsKey(hotel.getHostId())) {
+                    org.swp391.hotelbookingsystem.model.User host = userService.findUserById(hotel.getHostId());
+                    if (host != null) hostMap.put(hotel.getHostId(), host);
+                }
+            }
+            model.addAttribute("hostMap", hostMap);
+
+            // Lấy danh sách tối đa 10 người dùng bị flagged
+            java.util.List<org.swp391.hotelbookingsystem.model.User> flaggedUsersList = userService.getAllUsersWithProfile().stream()
+                .filter(u -> Boolean.TRUE.equals(u.isFlagged()))
+                .toList();
+            model.addAttribute("flaggedUsersList", flaggedUsersList);
+            model.addAttribute("flaggedUsersListLimited", flaggedUsersList.size() > 4 ? flaggedUsersList.subList(0, 4) : flaggedUsersList);
         } catch (Exception e) {
             // Xử lý lỗi và set giá trị mặc định
             model.addAttribute("totalUsers", 0);

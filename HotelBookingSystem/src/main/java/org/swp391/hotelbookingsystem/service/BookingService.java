@@ -1,5 +1,6 @@
 package org.swp391.hotelbookingsystem.service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -17,30 +18,12 @@ public class BookingService {
         this.bookingRepo = bookingRepo;
     }
 
-    // Hủy đơn đặt phòng
-    public void cancelBooking(int id) {
-        bookingRepo.updateStatus(id, "cancelled");
-    }
-
-    // Đặt lại trạng thái
     public void updateStatus(BookingUnit bookingUnit, String status) {
         bookingRepo.updateStatus(bookingUnit.getBookingUnitId(), status);
     }
 
     public void saveBooking(Booking booking){
         bookingRepo.saveBooking(booking);
-    }
-
-    public List<Booking> getUpcomingBookings(int customerId) {
-        return bookingRepo.findUpcomingBookings(customerId);
-    }
-
-    public List<Booking> getCompletedBookings(int customerId) {
-        return bookingRepo.findCompletedBookings(customerId);
-    }
-
-    public List<Booking> getCancelledBookings(int customerId) {
-        return bookingRepo.findCancelledBookings(customerId);
     }
 
     public Booking findById(int id) {
@@ -59,24 +42,9 @@ public class BookingService {
         return bookingRepo.countBookingsByHostId(hostId);
     }
 
-    // Cập nhật hoàn tiền
-    public void updateRefund(int bookingId, Double amount, String status) {
-        bookingRepo.updateRefund(bookingId, amount, status);
-    }
-
     public List<Booking> getAllBookings() {
         return bookingRepo.findAll();
     }
-
-    public List<Booking> searchBookings(String keyword) {
-        return bookingRepo.searchByKeyword(keyword);
-    }
-
-    // Lấy các booking theo trạng thái refund
-    public List<Booking> getBookingsByRefundStatus(String status) {
-        return bookingRepo.findByRefundStatus(status);
-    }
-
 
     public int getTotalBooking(String status) {
         return bookingRepo.getTotalBookingByStatus(status);
@@ -102,25 +70,12 @@ public class BookingService {
         return bookingRepo.getFutureCheckOut();
     }
 
-//    public List<Booking> getBookingsByStatusAndSearchPaginated(String status, String keyword, int page, int size) {
-//        return bookingRepo.findBookingsByStatusAndKeywordPaginated(status, keyword, page, size);
-//    }
-
-//    public int getTotalPagesByStatusAndSearch(String status, String keyword, int size) {
-//        int total = bookingRepo.countBookingsByStatusAndKeyword(status, keyword);
-//        return (int) Math.ceil((double) total / size);
-//    }
-
     public List<Booking> getBookingsByHostId(int hostId) {
         return bookingRepo.findBookingsByHostId(hostId);
     }
 
     public int countTotalBookingsByHostId(int hostId) {
         return bookingRepo.countBookingsByHostId(hostId);
-    }
-
-    public int countPendingBookingsByHostId(int hostId) {
-        return bookingRepo.countBookingsByHostIdAndStatus(hostId, "approved");
     }
 
     public int countCompletedBookingsByHostId(int hostId) {
@@ -168,7 +123,6 @@ public class BookingService {
         }
     }
 
-    // Update booking unit status
     public void updateBookingUnitStatus(int bookingUnitId, String status) {
         bookingRepo.updateStatus(bookingUnitId, status);
     }
@@ -215,20 +169,25 @@ public class BookingService {
     }
 
     public List<Booking> getBookingsByStatusAndSearchPaginated(String status, String keyword, int page, int size) {
-        List<Booking> all = bookingRepo.findBookingsByStatusAndKeywordPaginated(null, keyword, page, size);
+        List<Booking> all = bookingRepo.findBookingsByStatusAndKeywordPaginated(null, keyword, 0, Integer.MAX_VALUE); // lấy hết
 
         for (Booking booking : all) {
-            booking.setBookingUnits(bookingRepo.findBookingUnitsByBookingId(booking.getBookingId())); // cần nếu units chưa load
+            booking.setBookingUnits(bookingRepo.findBookingUnitsByBookingId(booking.getBookingId()));
             booking.setStatus(booking.determineStatus());
             booking.setTotalPrice(booking.calculateTotalPrice());
         }
-        if (status != null && !status.isBlank()) {
-            all = all.stream()
-                    .filter(b -> status.equals(b.getStatus()))
-                    .toList();
-        }
-        return all;
+
+        List<Booking> filtered = all.stream()
+                .filter(b -> status == null || status.isBlank() || status.equals(b.getStatus()))
+                .sorted(Comparator.comparing(Booking::getCreatedAt).reversed())
+                .toList();
+
+        int fromIndex = page * size;
+        int toIndex = Math.min(fromIndex + size, filtered.size());
+
+        return fromIndex >= filtered.size() ? List.of() : filtered.subList(fromIndex, toIndex);
     }
+
     public int getTotalPagesByStatusAndSearch(String status, String keyword, int size) {
         List<Booking> all = bookingRepo.findBookingsByStatusAndKeywordPaginated(null, keyword, 0, Integer.MAX_VALUE);
 

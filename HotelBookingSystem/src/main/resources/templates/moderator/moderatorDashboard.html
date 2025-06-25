@@ -9,6 +9,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="author" content="Đội Ngũ Hamora">
   <meta name="description" content="Hamora - Bảng Điều Khiển Quản Trị Viên Hệ Thống Đặt Phòng Khách Sạn">
+  <meta name="_csrf" th:content="${_csrf.token}"/>
+  <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 
   <!-- Dark mode -->
   <script>
@@ -109,6 +111,102 @@
         color: #6c757d;
         border-color: #495057;
     }
+
+    .card {
+      border-radius: 16px;
+      box-shadow: 0 2px 12px 0 rgba(0,0,0,0.07);
+      height: 100%;
+      background: #181c20;
+    }
+    .card-header {
+      border-radius: 16px 16px 0 0;
+      background: #181c20;
+      border-bottom: 1px solid #23272b;
+      padding: 1rem 1.5rem;
+    }
+    .card-body {
+      background: #181c20;
+      border-radius: 0 0 16px 16px;
+      padding: 1.5rem;
+    }
+    .table-responsive {
+      border-radius: 12px;
+      overflow-x: auto;
+    }
+    .table {
+      width: 100%;
+      table-layout: auto;
+      background: transparent;
+      border-radius: 12px;
+    }
+    .table th, .table td {
+      vertical-align: middle;
+      font-size: 1rem;
+      padding: 0.75rem 0.75rem;
+      white-space: nowrap;
+      text-align: left;
+      border: none;
+    }
+    .table th {
+      background: #23272b;
+      color: #fff;
+      font-weight: 600;
+    }
+    .table-hover tbody tr:hover {
+      background: #23272b33;
+    }
+    .btn-group .btn, .btn-sm {
+      padding: 0.18rem 0.38rem;
+      font-size: 0.85rem;
+    }
+    .badge {
+      font-size: 0.85rem;
+      border-radius: 6px;
+      padding: 0.28em 0.6em;
+    }
+    .avatar-xs {
+      width: 32px;
+      height: 32px;
+    }
+    .avatar-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+    @media (max-width: 1200px) {
+      .card-header-title {
+        font-size: 1.1rem;
+      }
+      .table th, .table td {
+        font-size: 0.95rem;
+      }
+    }
+    /* Thêm CSS cho tên khách sạn bị tràn */
+    .hotel-name-ellipsis {
+      display: inline-block;
+      max-width: 220px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      vertical-align: middle;
+    }
+    .table-warning-row {
+      color: #ffc107;
+      font-weight: 500;
+      font-size: 1rem;
+      text-align: center;
+      padding: 0.7em 0;
+    }
+    .table-warning-row a {
+      color: #7269ef;
+      font-weight: 600;
+      text-decoration: none;
+      margin-left: 0.5em;
+    }
+    .table-warning-row a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 
@@ -202,8 +300,8 @@
                 <i class="bi bi-exclamation-triangle-fill"></i>
               </div>
               <div class="ms-3">
-                <h3 class="mb-0" th:text="${pendingApprovals ?: '15'}">15</h3>
-                <h6 class="mb-0">Chờ Phê Duyệt</h6>
+                <h3 class="mb-0" th:text="${pendingApprovals != null ? #numbers.formatInteger(pendingApprovals, 0, 'COMMA') : '0'}">0</h3>
+                <h6 class="mb-0">Khách Sạn Chờ Phê Duyệt</h6>
                 <div class="badge text-bg-warning bg-opacity-10 text-warning border border-warning">
                   <span>Cần xử lý</span>
                 </div>
@@ -218,14 +316,14 @@
 
       <!-- Hàng nội dung chính BẮT ĐẦU -->
       <div class="row g-4">
-        <!-- Người dùng mới đăng ký BẮT ĐẦU -->
+        <!-- Người dùng bị flagged BẮT ĐẦU -->
         <div class="col-xxl-6">
           <div class="card shadow h-100">
-            <div class="card-header d-flex justify-content-between align-items-center border-0">
-              <h5 class="card-header-title">Người Dùng Đăng Ký Gần Đây</h5>
-              <a href="/admin/users" class="btn btn-link p-0 text-primary">Xem Tất Cả</a>
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h5 class="card-header-title">Người Dùng Bị Báo Cáo</h5>
+              <a href="/moderator-user-list" class="btn btn-link p-0 text-primary">Xem Tất Cả</a>
             </div>
-            <div class="card-body pt-0">
+            <div class="card-body">
               <div class="table-responsive">
                 <table class="table table-hover align-middle">
                   <thead>
@@ -238,65 +336,36 @@
                   </tr>
                   </thead>
                   <tbody>
-                  <!-- Lặp qua người dùng gần đây nếu có, nếu không hiển thị dữ liệu mẫu -->
-                  <tr th:if="${recentUsers != null and !recentUsers.isEmpty()}" th:each="user : ${recentUsers}">
+                  <tr th:each="user : ${flaggedUsersListLimited}" th:object="${user}">
                     <td>
                       <div class="d-flex align-items-center">
                         <div class="avatar avatar-xs me-2">
-                          <img class="avatar-img rounded-circle" th:src="${user.avatarUrl ?: '/assets/images/avatar/default-avatar.jpg'}" alt="avatar">
+                          <img class="avatar-img rounded-circle" th:src="*{avatarUrl} ?: '/assets/images/avatar/default-avatar.jpg'" alt="avatar">
                         </div>
-                        <span th:text="${user.fullName}">Tên Người Dùng</span>
+                        <span th:text="*{fullName}">Tên Người Dùng</span>
                       </div>
                     </td>
-                    <td th:text="${user.email}">user@email.com</td>
+                    <td th:text="*{email}">user@email.com</td>
                     <td>
-                      <span class="badge" th:classappend="${user.role == 'CUSTOMER' ? 'bg-success' : (user.role == 'HOST' ? 'bg-info' : 'bg-warning')}" th:text="${user.role == 'CUSTOMER' ? 'KHÁCH HÀNG' : (user.role == 'HOST' ? 'CHỦ KHÁCH SẠN' : user.role)}">KHÁCH HÀNG</span>
+                      <span class="badge bg-success" th:if="*{role == 'CUSTOMER'}">KHÁCH HÀNG</span>
+                      <span class="badge bg-info" th:if="*{role == 'HOTEL_OWNER'}">CHỦ KHÁCH SẠN</span>
+                      <span class="badge bg-warning" th:if="*{role == 'MODERATOR'}">QUẢN LÝ</span>
+                      <span class="badge bg-primary" th:if="*{role != 'CUSTOMER' and role != 'HOTEL_OWNER' and role != 'MODERATOR'}">ADMIN</span>
                     </td>
                     <td>
-                      <span class="badge" th:classappend="${user.active ? 'bg-success' : 'bg-danger'}" th:text="${user.active ? 'Hoạt động' : 'Không hoạt động'}">Hoạt động</span>
+                      <span class="badge bg-danger">Bị flagged</span>
                     </td>
                     <td>
-                      <button class="btn btn-sm btn-light" th:onclick="'viewUser(' + ${user.id} + ')'" title="Xem chi tiết">
+                      <button class="btn btn-sm btn-light view-flagged-user-btn" th:attr="data-user-id=*{id}" title="Xem chi tiết">
                         <i class="bi bi-eye"></i>
                       </button>
                     </td>
                   </tr>
-                  <!-- Dữ liệu mẫu khi không có người dùng -->
-                  <tr th:if="${recentUsers == null or recentUsers.isEmpty()}">
-                    <td>
-                      <div class="d-flex align-items-center">
-                        <div class="avatar avatar-xs me-2">
-                          <img class="avatar-img rounded-circle" src="/assets/images/avatar/default-avatar.jpg" alt="avatar">
-                        </div>
-                        <span>Nguyễn Văn A</span>
-                      </div>
-                    </td>
-                    <td>nguyenvana@example.com</td>
-                    <td><span class="badge bg-success">KHÁCH HÀNG</span></td>
-                    <td><span class="badge bg-success">Hoạt động</span></td>
-                    <td>
-                      <button class="btn btn-sm btn-light" title="Xem chi tiết">
-                        <i class="bi bi-eye"></i>
-                      </button>
-                    </td>
+                  <tr th:if="${flaggedUsersList.size() > 4}">
+                    <td colspan="5" class="text-center text-danger">Có nhiều hơn 4 người dùng bị báo cáo. <a href="/moderator-user-list" style="color:#7269ef;font-weight:600;text-decoration:none;margin-left:0.5em;">Xem thêm</a></td>
                   </tr>
-                  <tr th:if="${recentUsers == null or recentUsers.isEmpty()}">
-                    <td>
-                      <div class="d-flex align-items-center">
-                        <div class="avatar avatar-xs me-2">
-                          <img class="avatar-img rounded-circle" src="/assets/images/avatar/default-avatar.jpg" alt="avatar">
-                        </div>
-                        <span>Trần Thị B</span>
-                      </div>
-                    </td>
-                    <td>tranthib@example.com</td>
-                    <td><span class="badge bg-info">CHỦ KHÁCH SẠN</span></td>
-                    <td><span class="badge bg-warning">Chờ duyệt</span></td>
-                    <td>
-                      <button class="btn btn-sm btn-light" title="Xem chi tiết">
-                        <i class="bi bi-eye"></i>
-                      </button>
-                    </td>
+                  <tr th:if="${flaggedUsersList == null or flaggedUsersList.isEmpty()}">
+                    <td colspan="5" class="text-center">Không có người dùng bị báo cáo.</td>
                   </tr>
                   </tbody>
                 </table>
@@ -304,14 +373,14 @@
             </div>
           </div>
         </div>
-        <!-- Người dùng mới đăng ký KẾT THÚC -->
+        <!-- Người dùng bị flagged KẾT THÚC -->
 
         <!-- Listings Waiting Approval START -->
         <div class="col-xxl-6">
           <div class="card shadow h-100">
             <div class="card-header d-flex justify-content-between align-items-center">
-              <h5 class="card-header-title">Listings Pending Approval</h5>
-              <a href="/moderator/hotels/pending" class="btn btn-link p-0">View All</a>
+              <h5 class="card-header-title">Khách Sạn Chờ Duyệt</h5>
+              <a href="/moderator-hotel-list" class="btn btn-link p-0 text-primary">Xem Tất Cả</a>
             </div>
             <div class="card-body">
               <!-- Table START -->
@@ -319,40 +388,43 @@
                 <table class="table table-hover align-middle">
                   <thead>
                   <tr>
-                    <th>Hotel</th>
-                    <th>Location</th>
-                    <th>Host</th>
-                    <th>Action</th>
+                    <th>Khách Sạn</th>
+                    <th>Địa Điểm</th>
+                    <th>Chủ Khách Sạn</th>
+                    <th>Hành Động</th>
                   </tr>
                   </thead>
                   <tbody>
                   <!-- Loop through pending hotels -->
-                  <tr th:if="${pendingHotels != null and !pendingHotels.isEmpty()}" th:each="hotel : ${pendingHotels}" th:id="'hotel-row-' + ${hotel.hotelId}">
+                  <tr th:each="hotel,iter : ${pendingHotels}" th:if="${iter.index} < 4" th:id="${'hotel-row-' + hotel.hotelId}">
                     <td>
                       <div class="d-flex align-items-center">
-                        <img class="rounded me-2" th:src="${hotel.hotelImageUrl}" alt="hotel" width="40" height="40">
-                        <span th:text="${hotel.hotelName}">Hotel Name</span>
+                        <img class="rounded me-2" th:src="${hotel.hotelImageUrl} ?: '/assets/images/category/hotel/01.jpg'" alt="hotel" width="40" height="40">
+                        <span class="hotel-name-ellipsis" th:title="${hotel.hotelName}" th:text="${hotel.hotelName}">Tên khách sạn</span>
                       </div>
                     </td>
                     <td th:text="${hotel.cityName}">City</td>
-                    <td th:text="${hotel.hostName}">Host Name</td>
+                    <td th:text="${hostMap != null and hostMap.containsKey(hotel.hostId)} ? ${hostMap[hotel.hostId].fullName} : 'Chưa có thông tin'">Host Name</td>
                     <td>
                       <div class="btn-group" role="group">
-                        <button class="btn btn-sm btn-success" th:data-hotel-id="${hotel.hotelId}" th:data-hotel-name="${hotel.hotelName}" onclick="openApproveModal(this)" title="Approve">
+                        <button class="btn btn-sm btn-success" th:attr="data-hotel-id=${hotel.hotelId},data-hotel-name=${hotel.hotelName}" onclick="openApproveModal(this)" title="Duyệt">
                           <i class="bi bi-check-lg"></i>
                         </button>
-                        <button class="btn btn-sm btn-danger" th:data-hotel-id="${hotel.hotelId}" th:data-hotel-name="${hotel.hotelName}" onclick="openRejectModal(this)" title="Reject">
+                        <button class="btn btn-sm btn-danger" th:attr="data-hotel-id=${hotel.hotelId},data-hotel-name=${hotel.hotelName}" onclick="openRejectModal(this)" title="Từ chối">
                           <i class="bi bi-x-lg"></i>
                         </button>
-                        <button class="btn btn-sm btn-light" th:onclick="'viewHotel(' + ${hotel.hotelId} + ')'" title="View Details">
+                        <button class="btn btn-sm btn-light view-hotel-detail-btn" th:attr="data-hotel-id=${hotel.hotelId}" title="Xem chi tiết">
                           <i class="bi bi-eye"></i>
                         </button>
                       </div>
                     </td>
                   </tr>
+                  <tr th:if="${pendingHotels.size() > 4}">
+                    <td colspan="4" class="text-center" style="color:#ffc107;">Có nhiều hơn 4 khách sạn chờ duyệt. <a href="/moderator-hotel-list" style="color:#7269ef;font-weight:600;text-decoration:none;margin-left:0.5em;">Xem thêm</a></td>
+                  </tr>
                   <!-- Placeholder for when the list is empty -->
                   <tr th:if="${pendingHotels == null or pendingHotels.isEmpty()}">
-                    <td colspan="4" class="text-center">No pending hotels found.</td>
+                    <td colspan="4" class="text-center">Không có khách sạn chờ duyệt.</td>
                   </tr>
                   </tbody>
                 </table>
@@ -368,74 +440,74 @@
       <!-- Phần báo cáo BẮT ĐẦU -->
       <div class="row g-4 mt-4">
         <!-- Báo cáo người dùng -->
-        <div class="col-md-6">
-          <div class="card shadow">
-            <div class="card-header d-flex justify-content-between align-items-center">
-              <h5 class="card-header-title mb-0">Báo Cáo Người Dùng</h5>
-              <a href="/moderator/reports/users" class="btn btn-link p-0">Xem Tất Cả</a>
-            </div>
-            <div class="card-body">
-              <div class="list-group list-group-flush">
-                <div class="list-group-item d-flex justify-content-between align-items-center px-0">
-                  <div>
-                    <h6 class="mb-1">Nội Dung Hồ Sơ Không Phù Hợp</h6>
-                    <small class="text-muted">Được báo cáo bởi nhiều người dùng</small>
-                  </div>
-                  <span class="badge bg-danger">Cao</span>
-                </div>
-                <div class="list-group-item d-flex justify-content-between align-items-center px-0">
-                  <div>
-                    <h6 class="mb-1">Đánh Giá Spam</h6>
-                    <small class="text-muted">Nghi ngờ đánh giá giả mạo</small>
-                  </div>
-                  <span class="badge bg-warning">Trung bình</span>
-                </div>
-                <div class="list-group-item d-flex justify-content-between align-items-center px-0">
-                  <div>
-                    <h6 class="mb-1">Vấn Đề Xác Minh Tài Khoản</h6>
-                    <small class="text-muted">Xác minh tài liệu thất bại</small>
-                  </div>
-                  <span class="badge bg-info">Thấp</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+<!--        <div class="col-md-6">-->
+<!--          <div class="card shadow">-->
+<!--            <div class="card-header d-flex justify-content-between align-items-center">-->
+<!--              <h5 class="card-header-title mb-0">Báo Cáo Người Dùng</h5>-->
+<!--              <a href="/moderator/reports/users" class="btn btn-link p-0">Xem Tất Cả</a>-->
+<!--            </div>-->
+<!--            <div class="card-body">-->
+<!--              <div class="list-group list-group-flush">-->
+<!--                <div class="list-group-item d-flex justify-content-between align-items-center px-0">-->
+<!--                  <div>-->
+<!--                    <h6 class="mb-1">Nội Dung Hồ Sơ Không Phù Hợp</h6>-->
+<!--                    <small class="text-muted">Được báo cáo bởi nhiều người dùng</small>-->
+<!--                  </div>-->
+<!--                  <span class="badge bg-danger">Cao</span>-->
+<!--                </div>-->
+<!--                <div class="list-group-item d-flex justify-content-between align-items-center px-0">-->
+<!--                  <div>-->
+<!--                    <h6 class="mb-1">Đánh Giá Spam</h6>-->
+<!--                    <small class="text-muted">Nghi ngờ đánh giá giả mạo</small>-->
+<!--                  </div>-->
+<!--                  <span class="badge bg-warning">Trung bình</span>-->
+<!--                </div>-->
+<!--                <div class="list-group-item d-flex justify-content-between align-items-center px-0">-->
+<!--                  <div>-->
+<!--                    <h6 class="mb-1">Vấn Đề Xác Minh Tài Khoản</h6>-->
+<!--                    <small class="text-muted">Xác minh tài liệu thất bại</small>-->
+<!--                  </div>-->
+<!--                  <span class="badge bg-info">Thấp</span>-->
+<!--                </div>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
 
         <!-- Báo cáo khách sạn -->
-        <div class="col-md-6">
-          <div class="card shadow">
-            <div class="card-header d-flex justify-content-between align-items-center">
-              <h5 class="card-header-title mb-0">Báo Cáo Khách Sạn</h5>
-              <a href="/moderator/reports/hotels" class="btn btn-link p-0">Xem Tất Cả</a>
-            </div>
-            <div class="card-body">
-              <div class="list-group list-group-flush">
-                <div class="list-group-item d-flex justify-content-between align-items-center px-0">
-                  <div>
-                    <h6 class="mb-1">Hình Ảnh Gây Hiểu Lầm</h6>
-                    <small class="text-muted">Hình ảnh không khớp với thực tế</small>
-                  </div>
-                  <span class="badge bg-danger">Cao</span>
-                </div>
-                <div class="list-group-item d-flex justify-content-between align-items-center px-0">
-                  <div>
-                    <h6 class="mb-1">Giá Cả Không Nhất Quán</h6>
-                    <small class="text-muted">Phí ẩn không được tiết lộ</small>
-                  </div>
-                  <span class="badge bg-warning">Trung bình</span>
-                </div>
-                <div class="list-group-item d-flex justify-content-between align-items-center px-0">
-                  <div>
-                    <h6 class="mb-1">Thông Tin Tiện Ích Không Chính Xác</h6>
-                    <small class="text-muted">Tiện ích được liệt kê không có sẵn</small>
-                  </div>
-                  <span class="badge bg-info">Thấp</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+<!--        <div class="col-md-6">-->
+<!--          <div class="card shadow">-->
+<!--            <div class="card-header d-flex justify-content-between align-items-center">-->
+<!--              <h5 class="card-header-title mb-0">Báo Cáo Khách Sạn</h5>-->
+<!--              <a href="/moderator/reports/hotels" class="btn btn-link p-0">Xem Tất Cả</a>-->
+<!--            </div>-->
+<!--            <div class="card-body">-->
+<!--              <div class="list-group list-group-flush">-->
+<!--                <div class="list-group-item d-flex justify-content-between align-items-center px-0">-->
+<!--                  <div>-->
+<!--                    <h6 class="mb-1">Hình Ảnh Gây Hiểu Lầm</h6>-->
+<!--                    <small class="text-muted">Hình ảnh không khớp với thực tế</small>-->
+<!--                  </div>-->
+<!--                  <span class="badge bg-danger">Cao</span>-->
+<!--                </div>-->
+<!--                <div class="list-group-item d-flex justify-content-between align-items-center px-0">-->
+<!--                  <div>-->
+<!--                    <h6 class="mb-1">Giá Cả Không Nhất Quán</h6>-->
+<!--                    <small class="text-muted">Phí ẩn không được tiết lộ</small>-->
+<!--                  </div>-->
+<!--                  <span class="badge bg-warning">Trung bình</span>-->
+<!--                </div>-->
+<!--                <div class="list-group-item d-flex justify-content-between align-items-center px-0">-->
+<!--                  <div>-->
+<!--                    <h6 class="mb-1">Thông Tin Tiện Ích Không Chính Xác</h6>-->
+<!--                    <small class="text-muted">Tiện ích được liệt kê không có sẵn</small>-->
+<!--                  </div>-->
+<!--                  <span class="badge bg-info">Thấp</span>-->
+<!--                </div>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
       </div>
       <!-- Phần báo cáo KẾT THÚC -->
 
@@ -510,13 +582,11 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="rejectModalLabel">Reason for Rejection</h5>
+        <h5 class="modal-title" id="rejectModalLabel">Confirm Rejection</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <p>Please provide a reason for rejecting the hotel <strong id="reject-hotel-name"></strong>:</p>
-        <textarea id="rejection-reason" class="form-control" rows="3" placeholder="Enter reason..."></textarea>
-        <div class="text-danger mt-2 d-none" id="reason-error">Please enter a reason.</div>
+        Are you sure you want to reject the hotel <strong id="reject-hotel-name"></strong>?
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -526,69 +596,52 @@
   </div>
 </div>
 
+<!-- Modal chi tiết người dùng bị flagged (dùng lại modal user list) -->
+<div class="modal fade" id="flagged-user-detail-modal" tabindex="-1" aria-labelledby="flaggedUserDetailModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="flaggedUserDetailModalLabel">Chi tiết người dùng</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="flagged-user-detail-content">
+        <!-- Nội dung chi tiết sẽ được load bằng JS -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal chi tiết khách sạn -->
+<div class="modal fade" id="hotel-details-modal" tabindex="-1" aria-labelledby="hotelDetailsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="hotelDetailsModalLabel">Chi tiết khách sạn</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="hotel-details-content">
+        <!-- Hotel details will be loaded here -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Bootstrap JS -->
 <script th:src="@{/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
 <!-- ApexChart -->
 <script th:src="@{/assets/vendor/apexcharts/js/apexcharts.min.js}"></script>
+<script th:inline="javascript">
+  /*<![CDATA[*/
+  var flaggedUsersList = /*[[${flaggedUsersList}]]*/ [];
+  /*]]>*/
+</script>
 <script>
-  // Example chart
-  var options = {
-    chart: {
-      type: 'area',
-      height: '350px',
-      toolbar: {
-        show: true
-      }
-    },
-    series: [
-      {
-        name: 'Người dùng đã xem xét',
-        data: [23, 18, 25, 30, 22, 28, 35]
-      },
-      {
-        name: 'Khách sạn đã phê duyệt',
-        data: [8, 12, 6, 15, 10, 18, 12]
-      },
-      {
-        name: 'Nội dung bị báo cáo',
-        data: [5, 8, 12, 7, 9, 6, 11]
-      }
-    ],
-    xaxis: {
-      categories: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN']
-    },
-    colors: ['#0d6efd', '#198754', '#dc3545'],
-    fill: {
-      type: 'gradient',
-      gradient: {
-        shadeIntensity: 1,
-        opacityFrom: 0.7,
-        opacityTo: 0.3,
-      }
-    },
-    dataLabels: {
-      enabled: false
-    },
-    stroke: {
-      curve: 'smooth',
-      width: 2
-    },
-    legend: {
-      position: 'top',
-      horizontalAlign: 'left'
-    },
-    tooltip: {
-      y: {
-        formatter: function (val) {
-          return val + " mục"
-        }
-      }
-    }
-  };
-  var chart = new ApexCharts(document.getElementById('activityChart'), options);
-  chart.render();
-
-  // --- Embedded Moderator Dashboard Logic ---
   document.addEventListener('DOMContentLoaded', function () {
     const approveModal = new bootstrap.Modal(document.getElementById('approve-modal'));
     const rejectModal = new bootstrap.Modal(document.getElementById('reject-modal'));
@@ -628,23 +681,23 @@
       currentHotelId = button.getAttribute('data-hotel-id');
       const hotelName = button.getAttribute('data-hotel-name');
       document.getElementById('reject-hotel-name').textContent = hotelName;
-      document.getElementById('rejection-reason').value = ''; // Clear previous reason
-      document.getElementById('reason-error').classList.add('d-none'); // Hide error
       rejectModal.show();
     };
 
     // --- Action Handlers ---
     document.getElementById('confirm-approve-btn').addEventListener('click', function () {
       if (currentHotelId) {
-        fetch(`/moderator/hotels/${currentHotelId}/approve`, {
+        const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+        fetch(`/moderator-hotel-list/api/moderator/hotels/${currentHotelId}/approve`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json', [csrfHeader]: csrfToken },
+          credentials: 'same-origin'
         })
                 .then(response => response.json().then(data => ({ ok: response.ok, data })))
                 .then(({ ok, data }) => {
                   if (ok) {
-                    showToast('Success', `The hotel has been approved.`, true);
-                    updateUIAfterAction(currentHotelId);
+                    window.location.href = '/moderator-dashboard';
                   } else {
                     showToast('Error', data.message || 'Could not approve the hotel.', false);
                   }
@@ -661,27 +714,19 @@
     });
 
     document.getElementById('confirm-reject-btn').addEventListener('click', function () {
-      const reason = document.getElementById('rejection-reason').value.trim();
-      const reasonError = document.getElementById('reason-error');
-
-      if (!reason) {
-        reasonError.classList.remove('d-none');
-        return;
-      } else {
-        reasonError.classList.add('d-none');
-      }
-
       if (currentHotelId) {
-        fetch(`/moderator/hotels/${currentHotelId}/reject`, {
+        const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+        fetch(`/moderator-hotel-list/api/moderator/hotels/${currentHotelId}/reject`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ reason: reason })
+          headers: { 'Content-Type': 'application/json', [csrfHeader]: csrfToken },
+          credentials: 'same-origin',
+          body: JSON.stringify({ reason: 'Từ chối bởi quản trị viên' })
         })
                 .then(response => response.json().then(data => ({ ok: response.ok, data })))
                 .then(({ ok, data }) => {
                   if (ok) {
-                    showToast('Success', `The hotel has been rejected.`, true);
-                    updateUIAfterAction(currentHotelId);
+                    window.location.href = '/moderator-dashboard';
                   } else {
                     showToast('Error', data.message || 'Could not reject the hotel.', false);
                   }
@@ -722,6 +767,119 @@
     window.viewHotel = function(hotelId) {
       window.location.href = '/moderator/hotels/' + hotelId;
     };
+
+    // Xem chi tiết người dùng bị flagged (dùng dữ liệu đã render sẵn)
+    document.addEventListener('click', function(e) {
+      if (e.target.closest('.view-flagged-user-btn')) {
+        const btn = e.target.closest('.view-flagged-user-btn');
+        const userId = btn.getAttribute('data-user-id');
+        // Lấy user từ biến JS đã render sẵn (flaggedUsersList)
+        const user = flaggedUsersList.find(u => u.id == userId);
+        if (!user) return;
+        let html = `<div class='text-center mb-3'>
+          <div class='avatar avatar-xxl'><img class='avatar-img rounded-circle' src='${user.avatarUrl || '/assets/images/avatar/default-avatar.jpg'}' alt='avatar'></div>
+          <h6 class='mt-2 mb-1'>${user.fullName || 'N/A'}</h6>
+          <p class='text-muted mb-2'>${user.email}</p>
+          <span class='badge bg-primary mb-2'>${user.role}</span>
+          <span class='badge bg-danger mb-2'>Bị flagged</span>
+          <div class='mb-2'><strong>Trạng thái:</strong> ${user.active ? '<span class="badge bg-success">Hoạt động</span>' : '<span class="badge bg-warning">Bị khóa</span>'}</div>
+          <div class='mb-2'><strong>Số điện thoại:</strong> ${user.phone || 'Chưa cập nhật'}</div>
+          <div class='mb-2'><strong>Giới tính:</strong> ${user.gender || 'Chưa cập nhật'}</div>
+          <div class='mb-2'><strong>Ngày sinh:</strong> ${user.dob || 'Chưa cập nhật'}</div>
+          <div class='mb-2'><strong>Bio:</strong> ${user.bio || 'Chưa có thông tin'}</div>
+          <div class='alert alert-danger mt-2'>${user.flagReason ? `<strong>Lý do flagged:</strong> ${user.flagReason}` : ''}</div>
+        </div>`;
+        document.getElementById('flagged-user-detail-content').innerHTML = html;
+        new bootstrap.Modal(document.getElementById('flagged-user-detail-modal')).show();
+      }
+    });
+
+    // --- Modal chi tiết khách sạn dùng lại logic từ hotel list ---
+    const hotelDetailsModal = new bootstrap.Modal(document.getElementById('hotel-details-modal'));
+    const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+    window.viewHotelDetails = function (hotelId) {
+      fetch(`/moderator-hotel-list/api/moderator/hotels/${hotelId}/details`, {
+        headers: {
+          'Content-Type': 'application/json',
+          [csrfHeader]: csrfToken
+        }
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            const hotel = data.hotel;
+            const host = data.host;
+            let description = hotel.description || 'Chưa có mô tả';
+            let isLong = description.length > 150;
+            let shortDesc = description.substring(0, 150) + (isLong ? '...' : '');
+            let descHtml = `
+              <p class="text-muted" id="hotel-desc">
+                ${isLong ? shortDesc : description}
+                ${isLong ? `<a href="#" id="toggle-desc" style="margin-left:8px;">Xem thêm</a>` : ''}
+              </p>
+            `;
+            const content = `
+<div class="row">
+  <div class="col-md-6">
+    <img src="${hotel.hotelImageUrl || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=200&fit=crop'}" 
+         class="img-fluid rounded" alt="${hotel.hotelName}">
+  </div>
+  <div class="col-md-6">
+    <h5>${hotel.hotelName}</h5>
+    ${descHtml}
+    <h6>Thông tin cơ bản:</h6>
+    <ul class="list-unstyled">
+      <li><i class="bi bi-geo-alt me-2"></i><strong>Địa chỉ:</strong> ${hotel.address || 'Chưa có thông tin'}</li>
+      <li><i class="bi bi-building me-2"></i><strong>Thành phố:</strong> ${hotel.cityName || 'Chưa có thông tin'}</li>
+      <li><i class="bi bi-star me-2"></i><strong>Đánh giá:</strong> ${hotel.rating || 0}/5</li>
+      <li><i class="bi bi-currency-dollar me-2"></i><strong>Giá từ:</strong> ${hotel.minPrice ? hotel.minPrice.toLocaleString('vi-VN') + ' VNĐ' : 'Chưa có thông tin'}</li>
+    </ul>
+    <h6>Thông tin chủ khách sạn:</h6>
+    <ul class="list-unstyled">
+      <li><i class="bi bi-person me-2"></i><strong>Tên:</strong> ${host ? host.fullName : 'Chưa có thông tin'}</li>
+      <li><i class="bi bi-envelope me-2"></i><strong>Email:</strong> ${host ? host.email : 'Chưa có thông tin'}</li>
+      <li><i class="bi bi-telephone me-2"></i><strong>Điện thoại:</strong> ${host ? host.phone : 'Chưa có thông tin'}</li>
+    </ul>
+    <h6>Chính sách:</h6>
+    <p class="small">${hotel.policy || 'Chưa có thông tin chính sách'}</p>
+  </div>
+</div>
+`;
+            document.getElementById('hotel-details-content').innerHTML = content;
+            // Toggle mô tả
+            if (isLong) {
+              document.getElementById('toggle-desc').addEventListener('click', function toggleDesc(e) {
+                e.preventDefault();
+                const descElem = document.getElementById('hotel-desc');
+                if (this.textContent === 'Xem thêm') {
+                  descElem.innerHTML = description + ` <a href='#' id='toggle-desc'>Thu gọn</a>`;
+                  document.getElementById('toggle-desc').addEventListener('click', toggleDesc);
+                } else {
+                  descElem.innerHTML = shortDesc + ` <a href='#' id='toggle-desc'>Xem thêm</a>`;
+                  document.getElementById('toggle-desc').addEventListener('click', toggleDesc);
+                }
+              });
+            }
+            hotelDetailsModal.show();
+          } else {
+            alert('Không thể tải thông tin khách sạn: ' + data.message);
+          }
+        })
+        .catch(error => {
+          alert('Lỗi khi tải thông tin khách sạn');
+        });
+    };
+
+    // Event delegation cho nút con mắt
+    document.addEventListener('click', function(e) {
+      if (e.target.closest('.view-hotel-detail-btn')) {
+        const button = e.target.closest('.view-hotel-detail-btn');
+        const hotelId = button.getAttribute('data-hotel-id');
+        window.viewHotelDetails(hotelId);
+      }
+    });
   });
 </script>
 </body>

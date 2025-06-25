@@ -166,6 +166,13 @@
             </div>
             <!-- Title and stats END -->
 
+            <!-- Alert flagged users START -->
+            <div th:if="${flaggedUsersCount > 0}" class="alert alert-danger d-flex align-items-center mb-4" role="alert" style="font-size:1.1rem;font-weight:500;">
+                <i class="bi bi-flag-fill me-2"></i>
+                <span>Có <b th:text="${flaggedUsersCount}"></b> người dùng đang bị flagged!</span>
+            </div>
+            <!-- Alert flagged users END -->
+
             <!-- Filters and search START -->
             <div class="row g-4 mb-4">
                 <div class="col-12">
