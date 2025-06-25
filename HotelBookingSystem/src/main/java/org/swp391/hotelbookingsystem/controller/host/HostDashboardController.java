@@ -74,9 +74,9 @@ public class HostDashboardController {
     public String showHostDashboard(HttpSession session, Model model) {
         User host = (User) session.getAttribute("user");
 
-        if (host == null || !host.getRole().equalsIgnoreCase("HOTEL_OWNER")) {
-            return "redirect:/login"; // not logged in
-        }
+        // if (host == null || !host.getRole().equalsIgnoreCase("HOTEL_OWNER")) {
+        //     return "redirect:/login"; // not logged in
+        // }
 
         int totalRooms = roomService.getTotalRoomsByHostId(host.getId());
         model.addAttribute("totalRooms", totalRooms);

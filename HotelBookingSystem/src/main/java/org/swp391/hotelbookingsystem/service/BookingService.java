@@ -27,8 +27,8 @@ public class BookingService {
         bookingRepo.updateStatus(bookingUnit.getBookingUnitId(), status);
     }
 
-    public void saveBooking(Booking booking){
-        bookingRepo.saveBooking(booking);
+    public int saveBooking(Booking booking){
+        return bookingRepo.saveBooking(booking);
     }
 
     public List<Booking> getUpcomingBookings(int customerId) {

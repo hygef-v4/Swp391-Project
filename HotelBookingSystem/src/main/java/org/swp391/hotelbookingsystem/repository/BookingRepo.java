@@ -221,7 +221,7 @@ public class BookingRepo {
     }
 
     // 3. Tạo booking mới
-    public void saveBooking(Booking booking) {
+    public int saveBooking(Booking booking) {
         String sql = """
             INSERT INTO Bookings (hotel_id, customer_id, coupon_id, check_in, check_out, total_price)
             OUTPUT inserted.booking_id
@@ -239,6 +239,8 @@ public class BookingRepo {
         for(BookingUnit bookingUnit : booking.getBookingUnits()){
             saveBookingUnit(id, bookingUnit);
         }
+
+        return id;
     }
 
     // 4. Cập nhật trạng thái đặt phòng

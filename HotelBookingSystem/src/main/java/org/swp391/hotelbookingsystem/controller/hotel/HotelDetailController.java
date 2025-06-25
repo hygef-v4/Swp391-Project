@@ -112,8 +112,10 @@ public class HotelDetailController {
             room.setCategories(categories);
         }model.addAttribute("rooms", rooms);
 
-        boolean commented = reviewService.checkReview(hotelId, user.getId());
-        model.addAttribute("comment", commented);
+        if(user != null){
+            boolean commented = reviewService.checkReview(hotelId, user.getId());
+            model.addAttribute("comment", commented);
+        }
 
         List<Review> comments = reviewService.getHotelReview(hotelId);
         model.addAttribute("comments", comments);

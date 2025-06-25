@@ -736,6 +736,16 @@ var e = {
                     inputs[handle].value = values[handle];
                 });
 
+                // Ép giá trị nhập vào không vượt quá min/max
+                imin.addEventListener('change', function () {
+                    let value = parseInt(this.value.replace(/,/g, '')) / 1000;
+                    slider.noUiSlider.set([value, null]);
+                });
+
+                imax.addEventListener('change', function () {
+                    let value = parseInt(this.value.replace(/,/g, '')) / 1000;
+                    slider.noUiSlider.set([null, value]);
+                });
             });
         }
     },

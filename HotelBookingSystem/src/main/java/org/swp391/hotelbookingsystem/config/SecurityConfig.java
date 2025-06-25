@@ -34,7 +34,9 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf
                         .ignoringRequestMatchers("/api/files/**", "/webhook", "/booking",
-                                "/update-hotel", "/update-room", "/delete-room", "/ws/**", "/api/chat/**")
+                                "/update-hotel", "/update-room", "/delete-room", "/ws/**", "/api/chat/**",
+                                "/invoice"
+                        )
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(

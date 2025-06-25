@@ -857,7 +857,7 @@ Footer END -->
 <div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered modal-md">
 		<div class="modal-content">
-			<form th:action="@{/booking/{id}(id=${hotel.hotelId})}" onsubmit="return dateRange.value.trim() !== ''">
+			<form th:action="@{/booking/{id}(id=${hotel.hotelId})}" onsubmit="return this.dateRange.value.trim() ? true : (this.querySelector('#error').classList.remove('hidden'), false)">
 				<!-- Title -->
 				<div class="modal-header">
 					<h5 class="modal-title" id="bookingModalLabel">Chọn ngày đặt phòng</h5>
@@ -866,7 +866,7 @@ Footer END -->
 				<!-- Date Range -->
 				<div class="modal-body p-0">                
 					<!-- Check in -->
-					<div class="col-lg-10 mx-auto my-2">
+					<div class="col-10 mx-auto my-2">
 						<div class="d-flex mb-2">
 							<!-- Icon -->
 							<i class="bi bi-calendar fs-3 me-2 mt-2"></i>
@@ -880,6 +880,7 @@ Footer END -->
 				</div>
 				<!-- Button -->
 				<div class="modal-footer">
+					<div class="hidden" id="error" style="text-align:center; color:red;">Bạn phải chọn ngày đặt phòng</div>
 					<input type="submit" class="btn btn-sm btn-primary mb-0" value="Đặt Phòng">
 				</div>
 			</form>
@@ -890,7 +891,7 @@ Footer END -->
 <div class="modal fade" th:each="room: ${rooms}" th:id="'bookingModal' + ${room.roomId}" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered modal-md">
 		<div class="modal-content">
-			<form th:action="@{/booking/{id}(id=${hotel.hotelId})}" onsubmit="return dateRange.value.trim() !== ''">
+			<form th:action="@{/booking/{id}(id=${hotel.hotelId})}" onsubmit="return this.dateRange.value.trim() ? true : (this.querySelector('#error').classList.remove('hidden'), false)">
 				<!-- Title -->
 				<div class="modal-header">
 					<h5 class="modal-title" id="bookingModalLabel">Chọn ngày đặt phòng</h5>
@@ -925,6 +926,7 @@ Footer END -->
 				</div>
 				<!-- Button -->
 				<div class="modal-footer">
+					<div class="hidden" id="error" style="text-align:center; color:red;">Bạn phải chọn ngày đặt phòng</div>
 					<input type="submit" class="btn btn-sm btn-primary mb-0" value="Đặt Phòng">
 				</div>
 			</form>
