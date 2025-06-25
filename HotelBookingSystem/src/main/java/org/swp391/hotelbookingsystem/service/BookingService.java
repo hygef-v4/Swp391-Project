@@ -207,5 +207,13 @@ public class BookingService {
         return bookingRepo.countBookingsByRoomId(roomId);
     }
 
+    public List<Booking> getBookingsByHotelIdPaginated(int hotelId, int page, int size) {
+        int offset = page * size;
+        return bookingRepo.getBookingsByHotelIdPaginated(hotelId, offset, size);
+    }
+
+    public int countBookingsByHotelId(int hotelId) {
+        return bookingRepo.countBookingsByHotelId(hotelId);
+    }
 
 }
