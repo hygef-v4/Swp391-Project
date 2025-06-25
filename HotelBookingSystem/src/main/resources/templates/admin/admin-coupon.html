@@ -155,7 +155,7 @@
                                 <td th:text="${#temporals.format(coupon.validFrom, 'dd/MM/yyyy')}"></td>
                                 <td th:text="${#temporals.format(coupon.validUntil, 'dd/MM/yyyy')}"></td>
                                 <td>
-                                    <!-- ❌ Used-up: disable both -->
+                                    <!-- Used-up: disable both -->
                                     <th:block th:if="${coupon.usageLimit != null and coupon.usedCount >= coupon.usageLimit}">
                                         <button type="button" class="btn btn-sm btn-outline-secondary" disabled title="Mã đã dùng hết lượt">
                                             <i class="bi bi-pencil"></i>
@@ -165,7 +165,7 @@
                                         </button>
                                     </th:block>
 
-                                    <!-- ❌ Expired and used -->
+                                    <!-- Expired and used -->
                                     <th:block th:if="${coupon.validUntil.isBefore(T(java.time.LocalDate).now()) and coupon.usedCount > 0}">
                                         <button type="button" class="btn btn-sm btn-outline-secondary" disabled title="Không thể chỉnh sửa mã đã dùng và hết hạn">
                                             <i class="bi bi-pencil"></i>
@@ -175,7 +175,7 @@
                                         </button>
                                     </th:block>
 
-                                    <!-- ❌ Expired but unused (can delete only) -->
+                                    <!-- Expired but unused (can delete only) -->
                                     <th:block th:if="${coupon.validUntil.isBefore(T(java.time.LocalDate).now()) and coupon.usedCount == 0 and (coupon.usageLimit == null or coupon.usedCount < coupon.usageLimit)}">
                                         <button type="button" class="btn btn-sm btn-outline-secondary" disabled title="Mã đã hết hạn (chưa sử dụng)">
                                             <i class="bi bi-pencil"></i>
@@ -186,7 +186,7 @@
                                         </a>
                                     </th:block>
 
-                                    <!-- ✅ Valid and not used up -->
+                                    <!-- Valid and not used up -->
                                     <th:block th:if="${!coupon.validUntil.isBefore(T(java.time.LocalDate).now()) and (coupon.usageLimit == null or coupon.usedCount < coupon.usageLimit)}">
                                         <button type="button" class="btn btn-sm btn-outline-primary edit-btn" th:attr="data-id=${coupon.couponId}">
                                             <i class="bi bi-pencil"></i>
