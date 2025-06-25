@@ -53,7 +53,6 @@ public class AdminBookingController {
         model.addAttribute("viewMode", view);
         model.addAttribute("search", search);
 
-        // Statistics giữ nguyên
         model.addAttribute("totalBooked", bookingService.getTotalBooking("approved"));
         model.addAttribute("todayBooked", bookingService.getTodayBooking("approved"));
         model.addAttribute("totalCancelled", bookingService.getTotalBooking("cancelled"));
@@ -64,24 +63,6 @@ public class AdminBookingController {
         model.addAttribute("checkOutFuture", bookingService.getFutureCheckOut());
 
         return "admin/admin-booking-list";
-    }
-
-
-    @GetMapping("/admin/bookings/detail/{id}")
-    public String showBookingDetail(@PathVariable("id") int id, Model model) {
-        Booking booking = bookingService.findById(id);
-        if (booking == null) {
-            return "redirect:/admin-booking-list?error=notfound";
-        }
-        Hotel hotel = hotelService.getHotelById(booking.getHotelId());
-        User customer = userService.findUserById(booking.getCustomerId());
-        List<BookingUnit> bookingUnit = booking.getBookingUnits();
-
-        model.addAttribute("bookingUnit", bookingUnit);
-        model.addAttribute("hotel", hotel);
-        model.addAttribute("customer", customer);
-        model.addAttribute("booking", booking);
-        return "admin/admin-booking-detail";
     }
 
     @GetMapping("/admin/bookings")
@@ -108,6 +89,5 @@ public class AdminBookingController {
 
         return "admin/admin-booking-detail";
     }
-
 
 }

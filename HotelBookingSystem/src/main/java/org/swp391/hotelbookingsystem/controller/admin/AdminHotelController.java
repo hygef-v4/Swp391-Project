@@ -160,11 +160,17 @@ public class AdminHotelController {
                 }categories.get(index).getAmenities().add(amenity);
             }
 
+            int count = bookingService.countBookingsByRoomId(room.getRoomId());
+            room.setBookedCount(count);
             room.setCategories(categories);
-        }model.addAttribute("rooms", rooms);
+        }
+        model.addAttribute("rooms", rooms);
 
         int roomCount = rooms.stream().mapToInt(Room::getQuantity).sum();
         model.addAttribute("roomCount", roomCount);
+
+        int roomTypeCount = rooms.size();
+        model.addAttribute("roomTypeCount", roomTypeCount);
 
         int totalBookings = hotelService.countBookingsByHotelId(hotelId);
         model.addAttribute("totalBookings", totalBookings);
@@ -173,7 +179,6 @@ public class AdminHotelController {
         String encode = URLEncoder.encode(hotelName, StandardCharsets.UTF_8);
         String map = "https://www.google.com/maps/search/" + encode + "//@" + hotel.getLatitude() + "," + hotel.getLongitude() + ",17z";
         model.addAttribute("map", map);
-
         return "admin/admin-hotel-detail";
     }
 

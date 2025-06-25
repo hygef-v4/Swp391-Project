@@ -31,31 +31,36 @@ public class AdminAgentController {
     @GetMapping("/admin-agent-list")
     public String showAgentList(@RequestParam(defaultValue = "1") int page,
                                 @RequestParam(defaultValue = "8") int size,
-                                @RequestParam(required = false, defaultValue = "") String search,
+                                @RequestParam(defaultValue = "") String search,
+                                @RequestParam(defaultValue = "") String sort,
                                 Model model) {
 
         int offset = (page - 1) * size;
-        List<User> agentList = userService.getAgentsBySearchPaginated(search, offset, size);
+
+        List<User> agentList = userService.getAgentsSortedPaginated(search, sort, offset, size); // new method
         int totalItems = userService.countAgentsBySearch(search);
         int totalPages = (int) Math.ceil((double) totalItems / size);
 
-
-        // Map lưu số lượng hotel cho từng agent
         Map<Integer, Integer> hotelCountMap = new HashMap<>();
+        Map<Integer, Double> revenueMap = new HashMap<>();
         for (User agent : agentList) {
-            int count = hotelService.countHotelsByHostId(agent.getId());
-            hotelCountMap.put(agent.getId(), count);
+            hotelCountMap.put(agent.getId(), hotelService.countHotelsByHostId(agent.getId()));
+            revenueMap.put(agent.getId(), bookingService.getTotalRevenueByHostId(agent.getId()));
         }
 
+        model.addAttribute("totalAgent", userService.countAgent());
         model.addAttribute("agentList", agentList);
         model.addAttribute("hotelCountMap", hotelCountMap);
+        model.addAttribute("revenueMap", revenueMap);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("totalItems", totalItems);
         model.addAttribute("search", search);
+        model.addAttribute("sort", sort);
 
         return "admin/admin-agent-list";
     }
+
 
 
 
@@ -66,8 +71,9 @@ public class AdminAgentController {
         List<Hotel> hotelList = hotelService.getHotelsByHostId(agent.getId());
         int countHotel = hotelList.size();
         int totalBooking = bookingService.countBookingsByHostId(agent.getId());
+        double monthlyRevenue = bookingService.getMonthlyRevenueByHostId(agent.getId());
 
-
+        model.addAttribute("monthlyRevenue", monthlyRevenue);
         model.addAttribute("totalBooking", totalBooking);
         model.addAttribute("countHotel", countHotel);
         model.addAttribute("hotelList", hotelList);

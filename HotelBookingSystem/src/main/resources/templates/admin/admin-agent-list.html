@@ -24,9 +24,33 @@
 <!-- Theme CSS -->
 <link rel="stylesheet" th:href="@{/assets/css/style.css}" />
 <style>
-    .tab-content.hidden-before-js {
-    visibility: hidden;
-}
+    .text-truncate-ellipsis {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        display: block;
+        max-width: 100%;
+    }
+
+    .hover-card {
+        transition: all 0.3s ease;
+        cursor: pointer;
+        border-radius: 8px;
+    }
+
+    /* Light mode hover */
+    .hover-card:hover {
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        background-color: #f8f9fa;
+    }
+
+    /* Dark mode hover */
+    body.dark .hover-card:hover,
+    [data-bs-theme="dark"] .hover-card:hover {
+        background-color: #2a2a2a; /* nền xám đậm hơn */
+        box-shadow: 0 10px 20px rgba(255, 255, 255, 0.05); /* sáng nhẹ */
+    }
 </style>
 <!-- Dark mode -->
 <script>
@@ -116,6 +140,22 @@
                 </div>
             </div>
 
+            <div class="row g-4 g-xl-5 mb-5">
+                <div class="col-md-6 col-lg-4">
+                    <div class="card card-body border border-primary bg-primary bg-opacity-10 border-opacity-25 p-4 h-100 hover-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h2 class="mb-0 fw-bold" th:text="${totalAgent}">0</h2>
+                                <span class="mb-0 h6 fw-light">Tổng số đối tác</span>
+                            </div>
+                            <div class="icon-lg rounded-circle flex-shrink-0 bg-primary text-white d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                <i class="fas fa-handshake fa-lg"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Search and select START -->
             <div class="row g-3 align-items-center justify-content-between mb-5">
                 <!-- Search -->
@@ -130,12 +170,13 @@
 
                 <!-- Select option -->
                 <div class="col-md-3">
-                    <!-- Short by filter -->
-                    <form>
-                        <select class="form-select js-choice" aria-label=".form-select-sm">
-                            <option value="">Sắp xếp theo</option>
-                            <option>Mới nhất</option>
-                            <option>Cũ nhất</option>
+                    <!-- Sort by filter -->
+                    <form method="get" th:action="@{/admin-agent-list}">
+                        <input type="hidden" name="search" th:value="${search}">
+                        <select class="form-select js-choice" name="sort" onchange="this.form.submit()" aria-label=".form-select-sm">
+                            <option value="">Sắp xếp tự do</option>
+                            <option th:selected="${sort == 'hotel_desc'}" value="hotel_desc">Nhiều khách sạn nhất</option>
+                            <option th:selected="${sort == 'revenue_desc'}" value="revenue_desc">Doanh thu cao nhất</option>
                         </select>
                     </form>
                 </div>
@@ -146,15 +187,15 @@
             <div class="row g-4">
                 <!-- Card item -->
                 <div class="col-md-6 col-lg-4 col-xxl-3" th:each="agent : ${agentList}">
-                    <div class="card border h-100">
+                    <div class="card border h-100 hover-card">
                         <!-- Dropdown -->
                         <div class="dropdown position-absolute top-0 end-0 m-3">
                             <a href="#" class="btn btn-sm btn-light btn-round small mb-0" role="button" data-bs-toggle="dropdown">
                                 <i class="bi bi-three-dots fa-fw"></i>
                             </a>
                             <ul class="dropdown-menu dropdown-w-sm dropdown-menu-end min-w-auto shadow rounded">
-                                <li><a class="dropdown-item" href="#"><i class="bi bi-pencil-square fa-fw me-2"></i>Chỉnh sửa</a></li>
-                                <li><a class="dropdown-item" href="#"><i class="bi bi-trash fa-fw me-2"></i>Xoá</a></li>
+<!--                                <li><a class="dropdown-item" href="#"><i class="bi bi-pencil-square fa-fw me-2"></i>Chỉnh sửa</a></li>-->
+                                <li><a class="dropdown-item" href="#"><i class="bi bi-trash fa-fw me-2"></i>Xoá đối tác</a></li>
                             </ul>
                         </div>
 
@@ -164,11 +205,18 @@
                                 <img th:src="@{${agent.avatarUrl}}" class="avatar-img rounded-circle" alt="avatar">
                             </div>
                             <h5 class="mb-1" th:text="${agent.fullName}">Tên</h5>
-                            <div class="d-flex justify-content-between mt-3">
-                                <h6 class="mb-0 small">
-                                    <span class="fw-light">Tổng số khách sạn:</span> [[${hotelCountMap[agent.id]}]]
+                            <h6 class="mb-1 small text-start text-truncate-ellipsis">
+                                <i class="fa-solid fa-hotel me-1"></i>
+                                Số khách sạn: [[${hotelCountMap[agent.id]}]]
+                            </h6>
+                            <div class="d-flex justify-content-between align-items-center gap-3 mb-0">
+                                <h6 class="mb-0 small text-truncate-ellipsis">
+                                    <i class="fa-solid fa-money-bill-wave me-1"></i>
+                                    Doanh thu: [[${#numbers.formatDecimal(revenueMap[agent.id], 0, 'COMMA', 0, 'POINT')}]] ₫
                                 </h6>
-                                <h6 class="mb-0 small">4.5<i class="fa-solid fa-star text-warning ms-1"></i></h6> <!-- TODO: dynamic rating -->
+                                <h6 class="mb-0 small">
+                                    4.5<i class="fa-solid fa-star text-warning ms-1"></i>
+                                </h6>
                             </div>
                         </div>
 
@@ -189,7 +237,7 @@
                                 <!-- Previous -->
                                 <li th:if="${totalPages >= 2}" th:class="'page-item mb-0' + (${currentPage == 1} ? ' disabled' : '')">
                                     <a class="page-link"
-                                       th:href="@{'/admin-agent-list'(page=${currentPage - 1}, search=${search})}">
+                                       th:href="@{'/admin-agent-list'(page=${currentPage - 1}, search=${search}, sort=${sort})}">
                                         <i class="fa-solid fa-angle-left"></i>
                                     </a>
                                 </li>
@@ -197,13 +245,13 @@
                                 <!-- Page 1 -->
                                 <li th:if="${totalPages >= 1}" th:class="'page-item mb-0' + (${currentPage == 1} ? ' active disabled' : '')">
                                     <a class="page-link"
-                                       th:href="@{'/admin-agent-list'(page=1, search=${search})}">1</a>
+                                       th:href="@{'/admin-agent-list'(page=1, search=${search}, sort=${sort})}">1</a>
                                 </li>
 
                                 <!-- Page 2 -->
                                 <li th:if="${totalPages >= 2}" th:class="'page-item mb-0' + (${currentPage == 2} ? ' active disabled' : '')">
                                     <a class="page-link"
-                                       th:href="@{'/admin-agent-list'(page=2, search=${search})}">2</a>
+                                       th:href="@{'/admin-agent-list'(page=2, search=${search}, sort=${sort})}">2</a>
                                 </li>
 
                                 <!-- Left ellipsis -->
@@ -215,7 +263,7 @@
                                 <li th:if="${totalPages >= 4 and currentPage != 1 and currentPage - 1 != 1 and currentPage - 1 != 2}"
                                     class="page-item mb-0">
                                     <a class="page-link"
-                                       th:href="@{'/admin-agent-list'(page=${currentPage - 1}, search=${search})}"
+                                       th:href="@{'/admin-agent-list'(page=${currentPage - 1}, search=${search}, sort=${sort})}"
                                        th:text="${currentPage - 1}"></a>
                                 </li>
 
@@ -229,7 +277,7 @@
                                 <li th:if="${totalPages >= 4 and currentPage + 1 != 2 and currentPage + 1 != totalPages and currentPage != totalPages}"
                                     class="page-item mb-0">
                                     <a class="page-link"
-                                       th:href="@{'/admin-agent-list'(page=${currentPage + 1}, search=${search})}"
+                                       th:href="@{'/admin-agent-list'(page=${currentPage + 1}, search=${search}, sort=${sort})}"
                                        th:text="${currentPage + 1}"></a>
                                 </li>
 
@@ -242,14 +290,14 @@
                                 <li th:if="${totalPages >= 3}"
                                     th:class="'page-item mb-0' + (${currentPage == totalPages} ? ' active disabled' : '')">
                                     <a class="page-link"
-                                       th:href="@{'/admin-agent-list'(page=${totalPages}, search=${search})}"
+                                       th:href="@{'/admin-agent-list'(page=${totalPages}, search=${search}, sort=${sort})}"
                                        th:text="${totalPages}"></a>
                                 </li>
 
                                 <!-- Next -->
                                 <li th:if="${totalPages >= 2}" th:class="'page-item mb-0' + (${currentPage == totalPages} ? ' disabled' : '')">
                                     <a class="page-link"
-                                       th:href="@{'/admin-agent-list'(page=${currentPage + 1}, search=${search})}">
+                                       th:href="@{'/admin-agent-list'(page=${currentPage + 1}, search=${search}, sort=${sort})}">
                                         <i class="fa-solid fa-angle-right"></i>
                                     </a>
                                 </li>

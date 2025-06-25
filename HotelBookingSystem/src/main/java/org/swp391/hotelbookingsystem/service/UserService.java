@@ -44,8 +44,8 @@ public class UserService {
         return userRepo.countUsersByRoleAndSearch("HOTEL_OWNER", keyword);
     }
 
-    public List<User> getAllUsers() {
-        return userRepo.getAllUser();
+    public List<User> getAgentsSortedPaginated(String search, String sort, int offset, int size) {
+        return userRepo.findAgentsBySearchSorted(search, sort, offset, size);
     }
 
     public List<User> searchUsersByName(String search) {
@@ -60,15 +60,10 @@ public class UserService {
         }
     }
 
-    public void toggleUserStatus(Long userId) {
-        User user = userRepo.findUserById(userId.intValue());
-        if (user != null) {
-            boolean newStatus = !user.isActive();
-            userRepo.updateUserStatus(userId.intValue(), newStatus);
-        }
+    public int countAgent() {
+        return userRepo.countAgent();
     }
 
-    //  Update role to HOTEL_OWNER by user ID
     public void updateUserRoleToHost(int userId) {
         userRepo.updateUserRoleById(userId, "HOTEL_OWNER");
     }
@@ -84,24 +79,6 @@ public class UserService {
     public List<User> getTop5Users() {
         List<User> allUsers = userRepo.getAllUsersWithProfile();
         return allUsers.size() > 5 ? allUsers.subList(0, 5) : allUsers;
-    }
-
-    public Page<User> getUsersByRoleAndSearch(String role, String search, Pageable pageable) {
-        return userRepo.findByRoleAndSearch(role, search, pageable);
-    }
-
-    public Page<User> getUsersByRoleAndSearchAndStatus(String role, String search, String status, Pageable pageable) {
-        Boolean isActive = null;
-        if ("active".equalsIgnoreCase(status)) {
-            isActive = true;
-        } else if ("inactive".equalsIgnoreCase(status)) {
-            isActive = false;
-        }
-        return userRepo.findByRoleAndSearchAndStatus(role, search, isActive, pageable);
-    }
-
-    public long countUsersByStatus(boolean isActive) {
-        return userRepo.countByIsActive(isActive);
     }
 
     public void saveEmailOtpToken(String email, String otp) {
@@ -140,13 +117,11 @@ public class UserService {
         userRepo.updateUser(user);
     }
 
-    // Hàm cập nhật mật khẩu
     public void updateUserPassword(User sessionUser, String newPassword) {
         if (sessionUser == null) {
             throw new IllegalArgumentException("Người dùng không tồn tại.");
         }
 
-        // Mã hóa và cập nhật mật khẩu mới
         String encodedPassword = passwordEncoder.encode(newPassword);
         sessionUser.setPassword(encodedPassword);
         userRepo.updateUserPassword(sessionUser.getEmail(), encodedPassword);
@@ -154,38 +129,31 @@ public class UserService {
 
 
     public void validateUserProfile(String fullname, String phone, String dob, String bio) {
-        // Kiểm tra trường fullname
+
         if (fullname == null || fullname.isBlank()) {
             throw new IllegalArgumentException("Tên người dùng không được để trống.");
         }
 
-        // Validate số điện thoại (chỉ chấp nhận 10-15 ký tự số)
         if (!phone.matches("\\d{10,15}")) {
             throw new IllegalArgumentException("Số điện thoại không hợp lệ. Chỉ chấp nhận từ 10-15 chữ số.");
         }
 
-        // Kiểm tra ngày sinh
         if (dob == null || dob.isBlank()) {
             throw new IllegalArgumentException("Ngày sinh không được để trống.");
         }
 
         try {
-            // Chuyển chuỗi ngày sinh (dob) sang LocalDate
             java.time.LocalDate birthDate = java.time.LocalDate.parse(dob);
             java.time.LocalDate today = java.time.LocalDate.now();
 
-            // Kiểm tra xem ngày sinh có nằm trong tương lai không
             if (birthDate.isAfter(today)) {
                 throw new IllegalArgumentException("Ngày sinh không được nằm trong tương lai.");
             }
         } catch (java.time.format.DateTimeParseException e) {
-            // Bắt lỗi nếu ngày sinh không đúng định dạng
             throw new IllegalArgumentException("Ngày sinh không hợp lệ. Vui lòng nhập đúng định dạng mm/dd/yyyy.");
         }
 
-
-        // Kiểm tra thông tin giới thiệu
-        if ( bio.length() > 255) { // Không bắt buộc nhưng không được dài quá 255 ký tự
+        if ( bio.length() > 255) {
             throw new IllegalArgumentException("Thông tin giới thiệu không được dài quá 255 ký tự.");
         }
 

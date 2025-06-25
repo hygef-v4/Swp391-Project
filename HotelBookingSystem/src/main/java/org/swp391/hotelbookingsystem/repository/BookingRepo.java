@@ -1,5 +1,6 @@
 package org.swp391.hotelbookingsystem.repository;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -600,9 +601,13 @@ public class BookingRepo {
                 b.total_price,
                 b.created_at,
                 h.hotel_name,
-                h.hotel_image_url
+                h.hotel_image_url,
+                u.full_name AS customerName,
+                u.email AS customerEmail,
+                u.avatar_url AS customerAvatar
             FROM Bookings b
             JOIN Hotels h ON b.hotel_id = h.hotel_id
+            JOIN Users u on u.user_id = b.customer_id
             WHERE b.hotel_id = ?
         """;
 
@@ -620,28 +625,33 @@ public class BookingRepo {
                     .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
                     .hotelName(rs.getString("hotel_name"))
                     .imageUrl(rs.getString("hotel_image_url"))
+                    .customerName(rs.getString("customerName"))
+                    .customerEmail(rs.getString("customerEmail"))
+                    .customerAvatar(rs.getString("customerAvatar"))
                     .build();
 
             booking.setBookingUnits(findBookingUnitsByBookingId(bookingId));
-
+            booking.setStatus(booking.determineStatus());
+            booking.setTotalPrice(booking.calculateTotalPrice());
             return booking;
         }, hotelId);
     }
 
     public int getTotalBookingByStatus(String status) {
-        String sql = "SELECT COUNT(*) FROM BookingUnits WHERE status = ?";
-        Integer total = jdbcTemplate.queryForObject(sql, Integer.class, status);
-        return total != null ? total : 0;
+        List<Booking> bookings = findAll();
+        return (int) bookings.stream()
+                .filter(b -> status.equals(b.determineStatus()))
+                .count();
     }
 
     public int getTodayBookingByStatus(String status) {
-        String sql = """
-            SELECT COUNT(*) FROM BookingUnits bu
-            JOIN Bookings b ON bu.booking_id = b.booking_id
-            WHERE bu.status = ? AND CAST(b.created_at AS DATE) = CAST(GETDATE() AS DATE)
-        """;
-        Integer total = jdbcTemplate.queryForObject(sql, Integer.class, status);
-        return total != null ? total : 0;
+        LocalDate today = LocalDate.now();
+        List<Booking> bookings = findAll();
+
+        return (int) bookings.stream()
+                .filter(b -> b.getCreatedAt() != null && b.getCreatedAt().toLocalDate().isEqual(today))
+                .filter(b -> status.equals(b.determineStatus()))
+                .count();
     }
 
     public int getTodayCheckIn() {
@@ -698,11 +708,29 @@ public class BookingRepo {
         }
 
         if (keyword != null && !keyword.isBlank()) {
-            sql.append(" AND EXISTS (SELECT 1 FROM BookingUnits bu JOIN Rooms r ON bu.room_id = r.room_id WHERE bu.booking_id = b.booking_id AND (r.title LIKE ? OR h.hotel_name LIKE ?))");
             String likeKeyword = "%" + keyword + "%";
-            params.add(likeKeyword);
-            params.add(likeKeyword);
+
+            sql.append("""
+                AND (
+                    h.hotel_name LIKE ?
+                    OR EXISTS (
+                        SELECT 1 FROM BookingUnits bu
+                        JOIN Rooms r ON bu.room_id = r.room_id
+                        WHERE bu.booking_id = b.booking_id AND r.title LIKE ?
+                    )
+                    OR u.full_name LIKE ?
+                    OR CONVERT(VARCHAR, b.check_in, 23) LIKE ?
+                    OR CONVERT(VARCHAR, b.check_out, 23) LIKE ?
+                )
+            """);
+
+            params.add(likeKeyword); // hotel_name
+            params.add(likeKeyword); // room.title
+            params.add(likeKeyword); // user.full_name
+            params.add(likeKeyword); // check_in date as string
+            params.add(likeKeyword); // check_out date as string
         }
+
 
         sql.append(" ORDER BY b.created_at DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
         params.add(page * size);
@@ -728,7 +756,8 @@ public class BookingRepo {
                     .build();
 
             booking.setBookingUnits(findBookingUnitsByBookingId(bookingId));
-
+            booking.setStatus(booking.determineStatus());
+            booking.setTotalPrice(booking.calculateTotalPrice());
             return booking;
         }, params.toArray());
     }
@@ -1036,4 +1065,14 @@ public class BookingRepo {
         Integer count = jdbcTemplate.queryForObject(sql, params.toArray(), Integer.class);
         return count != null ? count : 0;
     }
+
+    public int countBookingsByRoomId(int roomId) {
+        String sql = """
+        SELECT COALESCE(SUM(quantity), 0)
+        FROM BookingUnits
+        WHERE room_id = ? AND status IN ('completed')
+    """;
+        return jdbcTemplate.queryForObject(sql, Integer.class, roomId);
+    }
+
 }

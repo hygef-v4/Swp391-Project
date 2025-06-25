@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <title>Quản lý mã giảm giá</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" th:href="@{/assets/images/favicon.ico}">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- CSS Plugins -->
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/vendor/font-awesome/css/all.min.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/vendor/bootstrap-icons/bootstrap-icons.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/style.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/vendor/flatpickr/css/flatpickr.min.css}">
+    <script>
+        const storedTheme = localStorage.getItem('theme')
+
+        const getPreferredTheme = () => {
+            if (storedTheme) {
+                return storedTheme
+            }
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        }
+
+        const setTheme = function (theme) {
+            if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.setAttribute('data-bs-theme', 'dark')
+            } else {
+                document.documentElement.setAttribute('data-bs-theme', theme)
+            }
+        }
+
+        setTheme(getPreferredTheme())
+
+        window.addEventListener('DOMContentLoaded', () => {
+            var el = document.querySelector('.theme-icon-active');
+            if(el != 'undefined' && el != null) {
+                const showActiveTheme = theme => {
+                    const activeThemeIcon = document.querySelector('.theme-icon-active use')
+                    const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+                    const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
+
+                    document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+                        element.classList.remove('active')
+                    })
+
+                    btnToActive.classList.add('active')
+                    activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+                }
+
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                    if (storedTheme !== 'light' || storedTheme !== 'dark') {
+                        setTheme(getPreferredTheme())
+                    }
+                })
+
+                showActiveTheme(getPreferredTheme())
+
+                document.querySelectorAll('[data-bs-theme-value]')
+                    .forEach(toggle => {
+                        toggle.addEventListener('click', () => {
+                            const theme = toggle.getAttribute('data-bs-theme-value')
+                            localStorage.setItem('theme', theme)
+                            setTheme(theme)
+                            showActiveTheme(theme)
+                        })
+                    })
+            }
+        })
+    </script>
+</head>
+<body>
+<main>
+    <div th:replace="~{common-admin/admin-sidebar :: admin_sidebar}"></div>
+    <div class="page-content">
+        <div th:replace="~{common-admin/admin-topbar :: admin_topbar}"></div>
+
+        <div class="container mt-4">
+            <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+            <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="mb-0">Danh sách mã giảm giá</h2>
+                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#createCouponModal">
+                    <i class="bi bi-plus-circle me-1"></i> Thêm mới
+                </button>
+            </div>
+
+            <!-- Filter and Search -->
+            <div class="row g-4 justify-content-between align-items-center mb-4">
+                <div class="col-lg-5">
+                    <ul class="nav nav-pills-shadow nav-responsive">
+                        <li class="nav-item">
+                            <a class="nav-link border rounded-pill mb-0 me-sm-2"
+                               th:classappend="${statusFilter} == null ? ' active' : ''"
+                               th:href="@{'/admin/coupons'(status=null, search=${search})}">Tất cả</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link border rounded-pill mb-0 me-sm-2"
+                               th:classappend="${statusFilter} == true ? ' active' : ''"
+                               th:href="@{'/admin/coupons'(status=true, search=${search})}">Hoạt động</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link border rounded-pill mb-0 me-sm-2"
+                               th:classappend="${statusFilter} == false ? ' active' : ''"
+                               th:href="@{'/admin/coupons'(status=false, search=${search})}">Không hoạt động</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-lg-6 col-xxl-5">
+                    <div class="d-sm-flex gap-4 justify-content-between justify-content-lg-end">
+                        <div class="col-md-8">
+                            <form class="rounded position-relative" th:action="@{/admin/coupons}" method="get">
+                                <input class="form-control bg-transparent" type="text" name="search" th:value="${search}" placeholder="Tìm kiếm">
+                                <input type="hidden" name="status" th:value="${statusFilter}">
+                                <button class="bg-transparent p-2 position-absolute top-50 end-0 translate-middle-y border-0 text-primary-hover text-reset" type="submit">
+                                    <i class="fas fa-search fs-6"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0" id="couponTable">
+                            <thead class="table-light">
+                            <tr class="text-center">
+                                <th>Mã</th>
+                                <th>Loại mã</th>
+                                <th>Giá trị</th>
+                                <th>Tổng số lượt dùng</th>
+                                <th>Đã dùng</th>
+                                <th>Đơn tối thiểu</th>
+                                <th>Hiệu lực</th>
+                                <th>Hết hạn</th>
+                                <th>Hành động</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="coupon : ${coupons}" class="text-center">
+                                <td th:text="${coupon.code}"></td>
+                                <td th:text="${coupon.type == 'percentage' ? 'Phần trăm' : 'Giá trị cố định'}"></td>
+                                <td th:text="${coupon.type == 'percentage' ? coupon.amount + '%' : coupon.amount + '₫'}"></td>
+                                <td th:text="${coupon.usageLimit != null ? coupon.usageLimit : '∞'}"></td>
+                                <td th:text="${coupon.usedCount != null ? coupon.usedCount : 0}"></td>
+                                <td th:text="${coupon.minTotalPrice != null ? coupon.minTotalPrice + '₫' : '0₫'}"></td>
+                                <td th:text="${#temporals.format(coupon.validFrom, 'dd/MM/yyyy')}"></td>
+                                <td th:text="${#temporals.format(coupon.validUntil, 'dd/MM/yyyy')}"></td>
+                                <td>
+                                    <!-- ❌ Used-up: disable both -->
+                                    <th:block th:if="${coupon.usageLimit != null and coupon.usedCount >= coupon.usageLimit}">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" disabled title="Mã đã dùng hết lượt">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary ms-1" disabled title="Không thể xóa mã đã dùng hết">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </th:block>
+
+                                    <!-- ❌ Expired and used -->
+                                    <th:block th:if="${coupon.validUntil.isBefore(T(java.time.LocalDate).now()) and coupon.usedCount > 0}">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" disabled title="Không thể chỉnh sửa mã đã dùng và hết hạn">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary ms-1" disabled title="Không thể xóa mã đã dùng">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </th:block>
+
+                                    <!-- ❌ Expired but unused (can delete only) -->
+                                    <th:block th:if="${coupon.validUntil.isBefore(T(java.time.LocalDate).now()) and coupon.usedCount == 0 and (coupon.usageLimit == null or coupon.usedCount < coupon.usageLimit)}">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" disabled title="Mã đã hết hạn (chưa sử dụng)">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <a th:href="@{'/admin/coupons/delete/' + ${coupon.couponId}}" class="btn btn-sm btn-outline-danger ms-1"
+                                           onclick="return confirm('Bạn có chắc muốn xóa mã này?')">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </th:block>
+
+                                    <!-- ✅ Valid and not used up -->
+                                    <th:block th:if="${!coupon.validUntil.isBefore(T(java.time.LocalDate).now()) and (coupon.usageLimit == null or coupon.usedCount < coupon.usageLimit)}">
+                                        <button type="button" class="btn btn-sm btn-outline-primary edit-btn" th:attr="data-id=${coupon.couponId}">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <a th:href="@{'/admin/coupons/delete/' + ${coupon.couponId}}" class="btn btn-sm btn-outline-danger ms-1"
+                                           onclick="return confirm('Bạn có chắc muốn xóa mã này?')">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </th:block>
+                                </td>
+
+                            </tr>
+                            </tbody>
+                        </table>
+                        <!-- Pagination -->
+                        <div class="row">
+                            <div class="d-sm-flex justify-content-sm-center align-items-sm-center mt-4">
+                                <nav class="mb-sm-0 d-flex justify-content-center" aria-label="navigation">
+                                    <ul class="pagination pagination-primary-soft pagination-sm mb-0">
+                                        <li th:if="${pagination >= 2}" th:class="'page-item mb-0' + (${page == 1} ? ' disabled' : '')">
+                                            <a class="page-link"
+                                               th:href="@{/admin/coupons(page=${page - 1}, search=${search}, status=${statusFilter})}">
+                                                <i class="fa-solid fa-angle-left"></i>
+                                            </a>
+                                        </li>
+
+                                        <li th:if="${pagination >= 1}" th:class="'page-item mb-0' + (${page == 1} ? ' active disabled' : '')">
+                                            <a class="page-link"
+                                               th:href="@{/admin/coupons(page=1, search=${search}, status=${statusFilter})}">1</a>
+                                        </li>
+
+                                        <li th:if="${pagination >= 2}" th:class="'page-item mb-0' + (${page == 2} ? ' active disabled' : '')">
+                                            <a class="page-link"
+                                               th:href="@{/admin/coupons(page=2, search=${search}, status=${statusFilter})}">2</a>
+                                        </li>
+
+                                        <li th:if="${pagination >= 5 and page - 2 > 2}" class="page-item mb-0 disabled">
+                                            <a class="page-link">...</a>
+                                        </li>
+
+                                        <li th:if="${pagination >= 4 and page != 1 and page - 1 != 1 and page - 1 != 2}" class="page-item mb-0">
+                                            <a class="page-link"
+                                               th:href="@{/admin/coupons(page=${page - 1}, search=${search}, status=${statusFilter})}"
+                                               th:text="${page - 1}"></a>
+                                        </li>
+
+                                        <li th:if="${pagination >= 4 and page != 1 and page != 2 and page != pagination}" class="page-item mb-0 active disabled">
+                                            <a class="page-link" th:text="${page}"></a>
+                                        </li>
+
+                                        <li th:if="${pagination >= 4 and page + 1 != 2 and page + 1 != pagination and page != pagination}" class="page-item mb-0">
+                                            <a class="page-link"
+                                               th:href="@{/admin/coupons(page=${page + 1}, search=${search}, status=${statusFilter})}"
+                                               th:text="${page + 1}"></a>
+                                        </li>
+
+                                        <li th:if="${pagination >= 4 and pagination > page + 2}" class="page-item mb-0 disabled">
+                                            <a class="page-link">...</a>
+                                        </li>
+
+                                        <li th:if="${pagination >= 3}" th:class="'page-item mb-0' + (${page == pagination} ? ' active disabled' : '')">
+                                            <a class="page-link"
+                                               th:href="@{/admin/coupons(page=${pagination}, search=${search}, status=${statusFilter})}"
+                                               th:text="${pagination}"></a>
+                                        </li>
+
+                                        <li th:if="${pagination >= 2}" th:class="'page-item mb-0' + (${page == pagination} ? ' disabled' : '')">
+                                            <a class="page-link"
+                                               th:href="@{/admin/coupons(page=${page + 1}, search=${search}, status=${statusFilter})}">
+                                                <i class="fa-solid fa-angle-right"></i>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Create Coupon Modal -->
+        <div class="modal fade" id="createCouponModal" tabindex="-1" aria-labelledby="createCouponModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
+                <div class="modal-content">
+                    <form th:action="@{/admin/coupons/create}" method="post">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Tạo mã giảm giá</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-2">
+                                <label for="code" class="form-label">Mã</label>
+                                <input type="text" class="form-control" id="code" name="code" required>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col">
+                                    <label for="type" class="form-label">Loại mã</label>
+                                    <select class="form-select" id="type" name="type" required>
+                                        <option value="percentage">Phần trăm</option>
+                                        <option value="fixed">Giá trị cố định</option>
+                                    </select>
+                                </div>
+                                <div class="col">
+                                    <label for="amount" class="form-label">Giá trị</label>
+                                    <input type="number" class="form-control" id="amount" name="amount" min="1"
+                                           required>
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col">
+                                    <label for="usageLimit" class="form-label">Số lượt sử dụng</label>
+                                    <input type="number" class="form-control" id="usageLimit" name="usageLimit" min="0">
+                                </div>
+                                <div class="col">
+                                    <label for="minTotalPrice" class="form-label">Đơn tối thiểu (₫)</label>
+                                    <input type="number" class="form-control" id="minTotalPrice" name="minTotalPrice"
+                                           min="0">
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col">
+                                    <label for="validFrom" class="form-label">Hiệu lực từ</label>
+                                    <input type="text" class="form-control" id="validFrom" name="validFrom" required>
+                                </div>
+                                <div class="col">
+                                    <label for="validUntil" class="form-label">Hết hạn đến</label>
+                                    <input type="text" class="form-control" id="validUntil" name="validUntil" required>
+                                </div>
+                            </div>
+                            <div class="form-check mt-3">
+                                <input class="form-check-input" type="checkbox" id="createActive" name="active" checked>
+                                <label class="form-check-label" for="createActive">
+                                    Đang hoạt động
+                                </label>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Tạo mới</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Coupon Modal -->
+        <div class="modal fade" id="editCouponModal" tabindex="-1" aria-labelledby="editCouponModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
+                <div class="modal-content">
+                    <form th:action="@{/admin/coupons/update}" method="post">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Chỉnh sửa mã</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <input type="hidden" id="editCouponId" name="couponId">
+                            <div class="mb-2">
+                                <label class="form-label">Mã</label>
+                                <input type="text" class="form-control" id="editCode" name="code" required>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col">
+                                    <label class="form-label">Loại mã</label>
+                                    <select class="form-select" id="editType" name="type" required>
+                                        <option value="percentage">Phần trăm</option>
+                                        <option value="fixed">Giá trị cố định</option>
+                                    </select>
+                                </div>
+                                <div class="col">
+                                    <label class="form-label">Giá trị</label>
+                                    <input type="number" class="form-control" id="editAmount" name="amount" min="1"
+                                           required>
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col">
+                                    <label class="form-label">Số lượt sử dụng</label>
+                                    <input type="number" class="form-control" id="editUsageLimit" name="usageLimit"
+                                           min="0">
+                                </div>
+                                <div class="col">
+                                    <label class="form-label">Đơn tối thiểu (₫)</label>
+                                    <input type="number" class="form-control" id="editMinTotalPrice"
+                                           name="minTotalPrice" min="0">
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col">
+                                    <label class="form-label">Hiệu lực từ</label>
+                                    <input type="text" class="form-control" id="editValidFrom" name="validFrom"
+                                           required>
+                                </div>
+                                <div class="col">
+                                    <label class="form-label">Hết hạn đến</label>
+                                    <input type="text" class="form-control" id="editValidUntil" name="validUntil"
+                                           required>
+                                </div>
+                            </div>
+                            <div class="form-check mt-3">
+                                <input class="form-check-input" type="checkbox" id="editActive" name="active">
+                                <label class="form-check-label" for="editActive">
+                                    Đang hoạt động
+                                </label>
+                            </div>
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</main>
+
+<!-- JavaScript Plugins -->
+<script th:src="@{/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/assets/vendor/flatpickr/js/flatpickr.min.js}"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
+<script th:src="@{/assets/js/functions.js}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        flatpickr("#validFrom", {dateFormat: "Y-m-d", locale: "vn"});
+        flatpickr("#validUntil", {dateFormat: "Y-m-d", locale: "vn"});
+        flatpickr("#editValidFrom", {dateFormat: "Y-m-d", locale: "vn"});
+        flatpickr("#editValidUntil", {dateFormat: "Y-m-d", locale: "vn"});
+
+        document.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const id = btn.getAttribute('data-id');
+                const res = await fetch(`/admin/coupons/${id}`);
+                const data = await res.json();
+
+                document.getElementById('editCouponId').value = data.couponId;
+                document.getElementById('editCode').value = data.code;
+                document.getElementById('editType').value = data.type;
+                document.getElementById('editAmount').value = data.amount;
+                document.getElementById('editUsageLimit').value = data.usageLimit ?? 0;
+                document.getElementById('editMinTotalPrice').value = data.minTotalPrice;
+                document.getElementById('editValidFrom')._flatpickr.setDate(data.validFrom);
+                document.getElementById('editValidUntil')._flatpickr.setDate(data.validUntil);
+                document.getElementById('editActive').checked = data.active;
+
+                new bootstrap.Modal(document.getElementById('editCouponModal')).show();
+            });
+        });
+    });
+</script>
+
+</body>
+</html>

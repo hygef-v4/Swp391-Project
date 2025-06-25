@@ -30,6 +30,11 @@ public class UserRepo {
         ));
     }
 
+    public int countAgent() {
+        String sql = "SELECT COUNT(*) FROM Users WHERE role = 'HOTEL_OWNER'";
+        return jdbc.queryForObject(sql, Integer.class);
+    }
+
     public void saveUser(User user) {
         String sql = "INSERT INTO Users (full_name,email, password_hash) VALUES (?, ?, ?)";
         jdbc.update(sql, user.getFullName(), user.getEmail(), user.getPassword());
@@ -80,7 +85,6 @@ public class UserRepo {
             return null;
         }
     }
-
 
     public void savePasswordResetToken(int userId, String token) {
         String sql = "INSERT INTO Tokens (user_id, token, expiry_date, token_type) VALUES (?, ?, DATEADD(MINUTE, 30, GETDATE()), 'reset password')";
@@ -423,7 +427,49 @@ public class UserRepo {
         }
     }
 
+    public List<User> findAgentsBySearchSorted(String search, String sort, int offset, int size) {
+        String baseSql = """
+        SELECT u.*, 
+               COUNT(DISTINCT h.hotel_id) AS hotel_count, 
+               ISNULL(SUM(b.total_price), 0) AS revenue
+        FROM Users u
+        LEFT JOIN Hotels h ON u.user_id = h.host_id
+        LEFT JOIN Bookings b ON h.hotel_id = b.hotel_id AND MONTH(b.check_in) = MONTH(GETDATE()) AND YEAR(b.check_in) = YEAR(GETDATE())
+        WHERE u.role = 'HOTEL_OWNER' AND u.full_name LIKE ?
+        GROUP BY\s
+          u.user_id, u.full_name, u.email, u.password_hash, u.phone,\s
+          u.role, u.is_active, u.date_of_birth, u.bio, u.gender,\s
+          u.avatar_url, u.is_flagged, u.flag_reason
+    """;
 
+        // Add ORDER BY
+        String orderByClause;
+        switch (sort) {
+            case "hotel_desc" -> orderByClause = "ORDER BY hotel_count DESC";
+            case "revenue_desc" -> orderByClause = "ORDER BY revenue DESC";
+            default -> orderByClause = "ORDER BY u.full_name ASC";
+        }
+
+        String pagination = " OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+        String finalSql = baseSql + " " + orderByClause + pagination;
+
+        String wildcard = "%" + search + "%";
+
+        return jdbc.query(finalSql, new Object[]{wildcard, offset, size}, (rs, rowNum) -> User.builder()
+                .id(rs.getInt("user_id"))
+                .fullName(rs.getString("full_name"))
+                .email(rs.getString("email"))
+                .password(rs.getString("password_hash"))
+                .phone(rs.getString("phone"))
+                .role(rs.getString("role"))
+                .active(rs.getBoolean("is_active"))
+                .dob(rs.getDate("date_of_birth"))
+                .bio(rs.getString("bio"))
+                .gender(rs.getString("gender"))
+                .avatarUrl(rs.getString("avatar_url"))
+                .build());
+    }
 
 }
 

@@ -24,10 +24,27 @@
     <!-- Theme CSS -->
     <link rel="stylesheet" th:href="@{/assets/css/style.css}" />
     <style>
-        .tab-content.hidden-before-js {
-            visibility: hidden;
+        .hover-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+
+        /* Light mode hover */
+        .hover-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            background-color: #f8f9fa;
+        }
+
+        /* Dark mode hover */
+        body.dark .hover-card:hover,
+        [data-bs-theme="dark"] .hover-card:hover {
+            background-color: #2a2a2a; /* nền xám đậm hơn */
+            box-shadow: 0 10px 20px rgba(255, 255, 255, 0.05); /* sáng nhẹ */
         }
     </style>
+
     <!-- Dark mode -->
     <script>
         const storedTheme = localStorage.getItem('theme')
@@ -109,7 +126,7 @@
             <div class="row g-4 mb-4">
                 <!-- Counter item -->
                 <div class="col-lg-4">
-                    <div class="card card-body border border-primary bg-primary bg-opacity-10 border-opacity-25 p-4 h-100">
+                    <div class="card card-body border border-primary bg-primary bg-opacity-10 border-opacity-25 p-4 h-100 hover-card">
                         <div class="d-flex justify-content-between align-items-center">
                             <!-- Digit -->
                             <div>
@@ -124,7 +141,7 @@
 
                 <!-- Counter item -->
                 <div class="col-lg-4">
-                    <div class="card card-body border border-warning bg-warning bg-opacity-10 border-opacity-25 p-4 h-100">
+                    <div class="card card-body border border-warning bg-warning bg-opacity-10 border-opacity-25 p-4 h-100 hover-card">
                         <div class="d-flex justify-content-between align-items-center">
                             <!-- Digit -->
                             <div>
@@ -139,12 +156,12 @@
 
                 <!-- Counter item -->
                 <div class="col-lg-4">
-                    <div class="card card-body border border-success bg-success bg-opacity-10 border-opacity-25 p-4 h-100">
+                    <div class="card card-body border border-success bg-success bg-opacity-10 border-opacity-25 p-4 h-100 hover-card">
                         <div class="d-flex justify-content-between align-items-center">
                             <!-- Digit -->
                             <div>
-                                <h3 class="mb-0 fw-bold">$2486.95</h3>
-                                <span class="mb-0 h6 fw-light">Earning this month</span>
+                                <h3 class="mb-0 fw-bold" th:text="${#numbers.formatDecimal(monthlyRevenue, 0, 'COMMA', 0, 'POINT')} + '₫'">Thu nhập</h3>
+                                <span class="mb-0 h6 fw-light">Thu nhập tháng này</span>
                             </div>
                             <!-- Icon -->
                             <div class="icon-lg rounded-circle flex-shrink-0 bg-success text-white mb-0"><i class="fa-solid fa-money-bill-trend-up fa-fw"></i></div>
@@ -157,7 +174,7 @@
             <div class="row g-4 mb-5">
                 <!-- Agent info START -->
                 <div class="col-md-4 col-xxl-3">
-                    <div class="card bg-light">
+                    <div class="card bg-light hover-card">
                         <div class="card-body text-center">
                             <!-- Avatar Image -->
                             <div class="avatar avatar-xl flex-shrink-0 mb-3">
@@ -200,7 +217,7 @@
 
                 <div class="col-md-8 col-xxl-9">
                     <!-- Personal info START -->
-                    <div class="card shadow">
+                    <div class="card shadow hover-card">
                         <!-- Card header -->
                         <div class="card-header border-bottom">
                             <h5 class="mb-0">Thông tin cá nhân</h5>
@@ -269,7 +286,7 @@
                 <!-- Hotel list -->
                 <div class="row g-4">
                         <div class="col-lg-6" th:each="hotel, stat : ${hotelList}" th:if="${hotelList != null and !hotelList.isEmpty()}">
-                        <div class="card shadow p-3 h-100" style="min-height: 180px; border-radius: 12px;">
+                        <div class="card shadow p-3 h-100 hover-card" style="min-height: 180px; border-radius: 12px;">
                             <div class="row g-4 align-items-stretch h-100">
                                 <!-- Card img -->
                                 <div class="col-sm-3 d-flex align-items-center">
