@@ -96,13 +96,19 @@
                 <div class="col-lg-5">
                     <ul class="nav nav-pills-shadow nav-responsive">
                         <li class="nav-item">
-                            <a class="nav-link border rounded-pill mb-0 me-sm-2" th:classappend="${statusFilter} == '' ? ' active'" th:href="@{'/admin/coupons'(status='', search=${search})}">Tất cả</a>
+                            <a class="nav-link border rounded-pill mb-0 me-sm-2"
+                               th:classappend="${statusFilter} == null ? ' active' : ''"
+                               th:href="@{'/admin/coupons'(status=null, search=${search})}">Tất cả</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link border rounded-pill mb-0 me-sm-2" th:classappend="${statusFilter} == 'active' ? ' active'" th:href="@{'/admin/coupons'(status='active', search=${search})}">Còn hạn</a>
+                            <a class="nav-link border rounded-pill mb-0 me-sm-2"
+                               th:classappend="${statusFilter} == true ? ' active' : ''"
+                               th:href="@{'/admin/coupons'(status=true, search=${search})}">Hoạt động</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link border rounded-pill mb-0 me-sm-2" th:classappend="${statusFilter} == 'expired' ? ' active'" th:href="@{'/admin/coupons'(status='expired', search=${search})}">Hết hạn</a>
+                            <a class="nav-link border rounded-pill mb-0 me-sm-2"
+                               th:classappend="${statusFilter} == false ? ' active' : ''"
+                               th:href="@{'/admin/coupons'(status=false, search=${search})}">Không hoạt động</a>
                         </li>
                     </ul>
                 </div>
@@ -149,7 +155,39 @@
                                 <td th:text="${#temporals.format(coupon.validFrom, 'dd/MM/yyyy')}"></td>
                                 <td th:text="${#temporals.format(coupon.validUntil, 'dd/MM/yyyy')}"></td>
                                 <td>
-                                    <th:block th:if="${coupon.validUntil.isAfter(T(java.time.LocalDate).now())}">
+                                    <!-- ❌ Used-up: disable both -->
+                                    <th:block th:if="${coupon.usageLimit != null and coupon.usedCount >= coupon.usageLimit}">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" disabled title="Mã đã dùng hết lượt">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary ms-1" disabled title="Không thể xóa mã đã dùng hết">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </th:block>
+
+                                    <!-- ❌ Expired and used -->
+                                    <th:block th:if="${coupon.validUntil.isBefore(T(java.time.LocalDate).now()) and coupon.usedCount > 0}">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" disabled title="Không thể chỉnh sửa mã đã dùng và hết hạn">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary ms-1" disabled title="Không thể xóa mã đã dùng">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </th:block>
+
+                                    <!-- ❌ Expired but unused (can delete only) -->
+                                    <th:block th:if="${coupon.validUntil.isBefore(T(java.time.LocalDate).now()) and coupon.usedCount == 0 and (coupon.usageLimit == null or coupon.usedCount < coupon.usageLimit)}">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" disabled title="Mã đã hết hạn (chưa sử dụng)">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <a th:href="@{'/admin/coupons/delete/' + ${coupon.couponId}}" class="btn btn-sm btn-outline-danger ms-1"
+                                           onclick="return confirm('Bạn có chắc muốn xóa mã này?')">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </th:block>
+
+                                    <!-- ✅ Valid and not used up -->
+                                    <th:block th:if="${!coupon.validUntil.isBefore(T(java.time.LocalDate).now()) and (coupon.usageLimit == null or coupon.usedCount < coupon.usageLimit)}">
                                         <button type="button" class="btn btn-sm btn-outline-primary edit-btn" th:attr="data-id=${coupon.couponId}">
                                             <i class="bi bi-pencil"></i>
                                         </button>
@@ -158,24 +196,8 @@
                                             <i class="bi bi-trash"></i>
                                         </a>
                                     </th:block>
-                                    <th:block th:if="${!coupon.validUntil.isAfter(T(java.time.LocalDate).now()) and coupon.usedCount == 0}">
-                                        <button type="button" class="btn btn-sm btn-outline-primary edit-btn" th:attr="data-id=${coupon.couponId}" title="Mã đã hết hạn (chưa sử dụng)">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-                                        <a th:href="@{'/admin/coupons/delete/' + ${coupon.couponId}}" class="btn btn-sm btn-outline-danger ms-1"
-                                           onclick="return confirm('Bạn có chắc muốn xóa mã này?')">
-                                            <i class="bi bi-trash"></i>
-                                        </a>
-                                    </th:block>
-                                    <th:block th:if="${!coupon.validUntil.isAfter(T(java.time.LocalDate).now()) and coupon.usedCount > 0}">
-                                        <button type="button" class="btn btn-sm btn-outline-secondary" disabled title="Không thể chỉnh sửa mã đã dùng và hết hạn">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-sm btn-outline-secondary ms-1" disabled title="Không thể xóa mã đã dùng">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </th:block>
                                 </td>
+
                             </tr>
                             </tbody>
                         </table>
@@ -183,15 +205,59 @@
                         <div class="row">
                             <div class="d-sm-flex justify-content-sm-center align-items-sm-center mt-4">
                                 <nav class="mb-sm-0 d-flex justify-content-center" aria-label="navigation">
-                                    <ul class="pagination pagination-sm pagination-primary-soft d-inline-block d-md-flex rounded mb-0">
-                                        <li th:if="${totalPages >= 2}" th:class="'page-item mb-0' + (${currentPage == 1} ? ' disabled' : '')">
-                                            <a class="page-link" th:href="@{'/admin/coupons'(page=${currentPage - 1}, status=${statusFilter}, search=${search})}"><i class="fa-solid fa-angle-left"></i></a>
+                                    <ul class="pagination pagination-primary-soft pagination-sm mb-0">
+                                        <li th:if="${pagination >= 2}" th:class="'page-item mb-0' + (${page == 1} ? ' disabled' : '')">
+                                            <a class="page-link"
+                                               th:href="@{/admin/coupons(page=${page - 1}, search=${search}, status=${statusFilter})}">
+                                                <i class="fa-solid fa-angle-left"></i>
+                                            </a>
                                         </li>
-                                        <li th:each="pageNum : ${#numbers.sequence(1, totalPages)}" th:class="'page-item mb-0' + (${pageNum == currentPage} ? ' active disabled' : '')">
-                                            <a class="page-link" th:href="@{'/admin/coupons'(page=${pageNum}, status=${statusFilter}, search=${search})}" th:text="${pageNum}"></a>
+
+                                        <li th:if="${pagination >= 1}" th:class="'page-item mb-0' + (${page == 1} ? ' active disabled' : '')">
+                                            <a class="page-link"
+                                               th:href="@{/admin/coupons(page=1, search=${search}, status=${statusFilter})}">1</a>
                                         </li>
-                                        <li th:if="${totalPages >= 2}" th:class="'page-item mb-0' + (${currentPage == totalPages} ? ' disabled' : '')">
-                                            <a class="page-link" th:href="@{'/admin/coupons'(page=${currentPage + 1}, status=${statusFilter}, search=${search})}"><i class="fa-solid fa-angle-right"></i></a>
+
+                                        <li th:if="${pagination >= 2}" th:class="'page-item mb-0' + (${page == 2} ? ' active disabled' : '')">
+                                            <a class="page-link"
+                                               th:href="@{/admin/coupons(page=2, search=${search}, status=${statusFilter})}">2</a>
+                                        </li>
+
+                                        <li th:if="${pagination >= 5 and page - 2 > 2}" class="page-item mb-0 disabled">
+                                            <a class="page-link">...</a>
+                                        </li>
+
+                                        <li th:if="${pagination >= 4 and page != 1 and page - 1 != 1 and page - 1 != 2}" class="page-item mb-0">
+                                            <a class="page-link"
+                                               th:href="@{/admin/coupons(page=${page - 1}, search=${search}, status=${statusFilter})}"
+                                               th:text="${page - 1}"></a>
+                                        </li>
+
+                                        <li th:if="${pagination >= 4 and page != 1 and page != 2 and page != pagination}" class="page-item mb-0 active disabled">
+                                            <a class="page-link" th:text="${page}"></a>
+                                        </li>
+
+                                        <li th:if="${pagination >= 4 and page + 1 != 2 and page + 1 != pagination and page != pagination}" class="page-item mb-0">
+                                            <a class="page-link"
+                                               th:href="@{/admin/coupons(page=${page + 1}, search=${search}, status=${statusFilter})}"
+                                               th:text="${page + 1}"></a>
+                                        </li>
+
+                                        <li th:if="${pagination >= 4 and pagination > page + 2}" class="page-item mb-0 disabled">
+                                            <a class="page-link">...</a>
+                                        </li>
+
+                                        <li th:if="${pagination >= 3}" th:class="'page-item mb-0' + (${page == pagination} ? ' active disabled' : '')">
+                                            <a class="page-link"
+                                               th:href="@{/admin/coupons(page=${pagination}, search=${search}, status=${statusFilter})}"
+                                               th:text="${pagination}"></a>
+                                        </li>
+
+                                        <li th:if="${pagination >= 2}" th:class="'page-item mb-0' + (${page == pagination} ? ' disabled' : '')">
+                                            <a class="page-link"
+                                               th:href="@{/admin/coupons(page=${page + 1}, search=${search}, status=${statusFilter})}">
+                                                <i class="fa-solid fa-angle-right"></i>
+                                            </a>
                                         </li>
                                     </ul>
                                 </nav>
@@ -251,6 +317,12 @@
                                     <label for="validUntil" class="form-label">Hết hạn đến</label>
                                     <input type="text" class="form-control" id="validUntil" name="validUntil" required>
                                 </div>
+                            </div>
+                            <div class="form-check mt-3">
+                                <input class="form-check-input" type="checkbox" id="createActive" name="active" checked>
+                                <label class="form-check-label" for="createActive">
+                                    Đang hoạt động
+                                </label>
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -315,6 +387,13 @@
                                            required>
                                 </div>
                             </div>
+                            <div class="form-check mt-3">
+                                <input class="form-check-input" type="checkbox" id="editActive" name="active">
+                                <label class="form-check-label" for="editActive">
+                                    Đang hoạt động
+                                </label>
+                            </div>
+
                         </div>
                         <div class="modal-footer">
                             <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
@@ -354,6 +433,7 @@
                 document.getElementById('editMinTotalPrice').value = data.minTotalPrice;
                 document.getElementById('editValidFrom')._flatpickr.setDate(data.validFrom);
                 document.getElementById('editValidUntil')._flatpickr.setDate(data.validUntil);
+                document.getElementById('editActive').checked = data.active;
 
                 new bootstrap.Modal(document.getElementById('editCouponModal')).show();
             });

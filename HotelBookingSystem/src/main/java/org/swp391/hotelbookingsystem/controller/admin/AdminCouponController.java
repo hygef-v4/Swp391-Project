@@ -22,14 +22,34 @@ public class AdminCouponController {
     }
 
     @GetMapping("/admin/coupons")
-    public String viewCoupons(@RequestParam(value = "search", required = false) String search, Model model) {
-        List<Coupon> coupons = (search == null || search.isEmpty())
-                ? couponService.getAllCoupons()
-                : couponService.searchCouponsByCode(search);
-        model.addAttribute("coupons", coupons);
-        model.addAttribute("search", search);
+    public String viewCoupons(@RequestParam(value = "search", required = false) String search,
+                              @RequestParam(value = "status", required = false) Boolean status,
+                              @RequestParam(value = "page", defaultValue = "1") int page,
+                              Model model) {
+        couponService.deactivateUsedUpCoupons();
+        couponService.deactivateExpiredCoupons();
+        String trimmedSearch = (search != null) ? search.trim().replaceAll("\\s+", " ") : null;
+
+        List<Coupon> filteredCoupons = couponService.getFilteredCoupons(status, trimmedSearch);
+
+        int pageSize = 10;
+        int totalCoupons = filteredCoupons.size();
+        int startIndex = (page - 1) * pageSize;
+        int endIndex = Math.min(startIndex + pageSize, totalCoupons);
+        List<Coupon> currentCoupons = (startIndex < totalCoupons) ? filteredCoupons.subList(startIndex, endIndex) : List.of();
+
+        model.addAttribute("search", trimmedSearch);
+        model.addAttribute("statusFilter", status);
+        model.addAttribute("coupons", currentCoupons);
+        model.addAttribute("page", page);
+        model.addAttribute("pagination", (int) Math.ceil((double) totalCoupons / pageSize));
+        model.addAttribute("startIndex", startIndex);
+        model.addAttribute("endIndex", endIndex);
+        model.addAttribute("totalCoupons", totalCoupons);
+
         return "admin/admin-coupon";
     }
+
 
     @PostMapping("/admin/coupons/create")
     public String createCoupon(@ModelAttribute Coupon coupon, RedirectAttributes redirectAttributes) {

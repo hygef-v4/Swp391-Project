@@ -1,4 +1,4 @@
-// --- CouponRepository.java
+// --- Updated CouponRepository.java ---
 package org.swp391.hotelbookingsystem.repository;
 
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import org.swp391.hotelbookingsystem.model.Coupon;
 
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -74,10 +75,40 @@ public class CouponRepository {
         String sql = "SELECT * FROM Coupons WHERE code LIKE ? ORDER BY coupon_id DESC";
         return jdbcTemplate.query(sql, COUPON_MAPPER, "%" + code + "%");
     }
+
     public boolean existsByCode(String code) {
         String sql = "SELECT COUNT(*) FROM Coupons WHERE code = ?";
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, code);
         return count != null && count > 0;
     }
+
+    public List<Coupon> getFilteredCoupons(Boolean isActive, String search) {
+        StringBuilder sql = new StringBuilder("SELECT * FROM Coupons WHERE 1=1");
+        List<Object> params = new ArrayList<>();
+
+        if (isActive != null) {
+            if (isActive) {
+                sql.append(" AND is_active = 1 AND valid_until >= CONVERT(date, GETDATE())");
+            } else {
+                sql.append(" AND (is_active = 0 OR valid_until < CONVERT(date, GETDATE()))");
+            }
+        }
+
+
+        if (search != null && !search.trim().isEmpty()) {
+            sql.append(" AND code LIKE ?");
+            params.add("%" + search.trim() + "%");
+        }
+
+        sql.append(" ORDER BY coupon_id DESC");
+        return jdbcTemplate.query(sql.toString(), params.toArray(), COUPON_MAPPER);
+    }
+
+    public void deactivateExpiredCoupons() {
+        String sql = "UPDATE Coupons SET is_active = 0 WHERE valid_until < CONVERT(date, GETDATE())";
+        jdbcTemplate.update(sql);
+    }
+
+
 
 }

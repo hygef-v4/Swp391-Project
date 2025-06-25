@@ -43,4 +43,22 @@ public class CouponService {
         return couponRepository.existsByCode(code);
     }
 
+    public List<Coupon> getFilteredCoupons(Boolean status, String search) {
+        return couponRepository.getFilteredCoupons(status, search);
+    }
+
+    public void deactivateExpiredCoupons() {
+        couponRepository.deactivateExpiredCoupons();
+    }
+
+    public void deactivateUsedUpCoupons() {
+        List<Coupon> allCoupons = couponRepository.getAllCoupons();
+        for (Coupon coupon : allCoupons) {
+            if (coupon.getUsageLimit() != null && coupon.getUsedCount() >= coupon.getUsageLimit() && coupon.isActive()) {
+                coupon.setActive(false);
+                couponRepository.updateCoupon(coupon); // or a lightweight status-only update query
+            }
+        }
+    }
+
 }
