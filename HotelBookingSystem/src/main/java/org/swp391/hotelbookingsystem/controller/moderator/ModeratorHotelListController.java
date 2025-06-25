@@ -48,6 +48,14 @@ public class ModeratorHotelListController {
         sortedHotels.addAll(activeHotels);
         sortedHotels.addAll(inactiveHotels);
 
+        // Lấy danh sách thành phố duy nhất và sắp xếp theo alphabet
+        List<String> cities = hotels.stream()
+            .map(Hotel::getCityName)
+            .filter(city -> city != null && !city.trim().isEmpty())
+            .distinct()
+            .sorted()
+            .toList();
+
         Map<Integer, User> hostMap = new HashMap<>();
         int pendingCount = pendingHotels.size();
         int approvedCount = activeHotels.size();
@@ -62,6 +70,7 @@ public class ModeratorHotelListController {
         }
 
         model.addAttribute("hotels", sortedHotels);
+        model.addAttribute("cities", cities);
         model.addAttribute("hostMap", hostMap);
         model.addAttribute("pendingCount", pendingCount);
         model.addAttribute("approvedCount", approvedCount);
