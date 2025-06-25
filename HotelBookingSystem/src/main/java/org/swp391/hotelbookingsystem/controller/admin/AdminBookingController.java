@@ -66,16 +66,24 @@ public class AdminBookingController {
     }
 
     @GetMapping("/admin/bookings")
-    public String showBookingsOfHotel(@RequestParam("hotelId") int hotelId, Model model) {
+    public String showBookingsOfHotel(@RequestParam("hotelId") int hotelId,
+                                      @RequestParam(defaultValue = "1") int page,
+                                      @RequestParam(defaultValue = "10") int size,
+                                      @RequestParam(required = false) String search,
+                                      Model model) {
+
         Hotel hotel = hotelService.getHotelById(hotelId);
         if (hotel == null) {
             return "redirect:/admin-booking-list?error=hotelNotFound";
         }
 
-        List<Booking> bookings = bookingService.getBookingsByHotelId(hotelId);
+        List<Booking> bookings = bookingService.getBookingsByHotelIdPaginated(hotelId, page - 1, size);
         if (bookings == null || bookings.isEmpty()) {
             return "redirect:/admin-booking-list?error=noBookingFound";
         }
+
+        int totalBookings = bookingService.countBookingsByHotelId(hotelId);
+        int totalBookingPages = (int) Math.ceil((double) totalBookings / size);
 
         Booking booking = bookings.get(bookings.size() - 1);
         User customer = userService.findUserById(booking.getCustomerId());
@@ -86,6 +94,10 @@ public class AdminBookingController {
         model.addAttribute("customer", customer);
         model.addAttribute("bookingUnit", bookingUnit);
         model.addAttribute("bookingList", bookings);
+
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalBookingPages", totalBookingPages);
+        model.addAttribute("hotelId", hotelId);
 
         return "admin/admin-booking-detail";
     }

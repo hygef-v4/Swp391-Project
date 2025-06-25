@@ -158,10 +158,18 @@ public class RoomRepository {
 
     public void deleteRoom(int roomId) {
         // Delete related data first (foreign key constraints)
+        
+        // 1. Delete only cancelled/rejected booking units that reference this room
+        String deleteBookingUnitsSql = "DELETE FROM BookingUnits WHERE room_id = ? AND status IN ('cancelled', 'rejected')";
+        jdbcTemplate.update(deleteBookingUnitsSql, roomId);
+        
+        // 2. Delete room amenities
         clearRoomAmenities(roomId);
+        
+        // 3. Delete room images
         clearRoomImages(roomId);
         
-        // Delete room itself
+        // 4. Delete room itself
         String sql = "DELETE FROM Rooms WHERE room_id = ?";
         jdbcTemplate.update(sql, roomId);
     }
@@ -200,6 +208,15 @@ public class RoomRepository {
     """;
         Integer result = jdbcTemplate.queryForObject(sql, Integer.class, hotelId);
         return result != null ? result : 0;
+    }
+
+    public boolean hasActiveBookingUnits(int roomId) {
+        String sql = """
+            SELECT COUNT(*) FROM BookingUnits 
+            WHERE room_id = ? AND status IN ('approved')
+        """;
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, roomId);
+        return count != null && count > 0;
     }
 
 }

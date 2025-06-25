@@ -192,10 +192,9 @@
                                 <div class="col-md-3">
                                     <select class="form-select" id="cityFilter">
                                         <option value="">Tất cả thành phố</option>
-                                        <option value="hcm">TP. Hồ Chí Minh</option>
-                                        <option value="hanoi">Hà Nội</option>
-                                        <option value="danang">Đà Nẵng</option>
-                                        <option value="phuquoc">Phú Quốc</option>
+                                        <option th:each="city : ${cities}" 
+                                                th:value="${#strings.toLowerCase(city).replace(' ', '').replace('.', '')}"
+                                                th:text="${city}">Tên thành phố</option>
                                     </select>
                                 </div>
 

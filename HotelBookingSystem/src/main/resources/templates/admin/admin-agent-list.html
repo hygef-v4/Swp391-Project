@@ -174,7 +174,7 @@
                     <form method="get" th:action="@{/admin-agent-list}">
                         <input type="hidden" name="search" th:value="${search}">
                         <select class="form-select js-choice" name="sort" onchange="this.form.submit()" aria-label=".form-select-sm">
-                            <option value="">Sắp xếp theo</option>
+                            <option value="">Sắp xếp tự do</option>
                             <option th:selected="${sort == 'hotel_desc'}" value="hotel_desc">Nhiều khách sạn nhất</option>
                             <option th:selected="${sort == 'revenue_desc'}" value="revenue_desc">Doanh thu cao nhất</option>
                         </select>
@@ -237,7 +237,7 @@
                                 <!-- Previous -->
                                 <li th:if="${totalPages >= 2}" th:class="'page-item mb-0' + (${currentPage == 1} ? ' disabled' : '')">
                                     <a class="page-link"
-                                       th:href="@{'/admin-agent-list'(page=${currentPage - 1}, search=${search})}">
+                                       th:href="@{'/admin-agent-list'(page=${currentPage - 1}, search=${search}, sort=${sort})}">
                                         <i class="fa-solid fa-angle-left"></i>
                                     </a>
                                 </li>
@@ -245,13 +245,13 @@
                                 <!-- Page 1 -->
                                 <li th:if="${totalPages >= 1}" th:class="'page-item mb-0' + (${currentPage == 1} ? ' active disabled' : '')">
                                     <a class="page-link"
-                                       th:href="@{'/admin-agent-list'(page=1, search=${search})}">1</a>
+                                       th:href="@{'/admin-agent-list'(page=1, search=${search}, sort=${sort})}">1</a>
                                 </li>
 
                                 <!-- Page 2 -->
                                 <li th:if="${totalPages >= 2}" th:class="'page-item mb-0' + (${currentPage == 2} ? ' active disabled' : '')">
                                     <a class="page-link"
-                                       th:href="@{'/admin-agent-list'(page=2, search=${search})}">2</a>
+                                       th:href="@{'/admin-agent-list'(page=2, search=${search}, sort=${sort})}">2</a>
                                 </li>
 
                                 <!-- Left ellipsis -->
@@ -263,7 +263,7 @@
                                 <li th:if="${totalPages >= 4 and currentPage != 1 and currentPage - 1 != 1 and currentPage - 1 != 2}"
                                     class="page-item mb-0">
                                     <a class="page-link"
-                                       th:href="@{'/admin-agent-list'(page=${currentPage - 1}, search=${search})}"
+                                       th:href="@{'/admin-agent-list'(page=${currentPage - 1}, search=${search}, sort=${sort})}"
                                        th:text="${currentPage - 1}"></a>
                                 </li>
 
@@ -277,7 +277,7 @@
                                 <li th:if="${totalPages >= 4 and currentPage + 1 != 2 and currentPage + 1 != totalPages and currentPage != totalPages}"
                                     class="page-item mb-0">
                                     <a class="page-link"
-                                       th:href="@{'/admin-agent-list'(page=${currentPage + 1}, search=${search})}"
+                                       th:href="@{'/admin-agent-list'(page=${currentPage + 1}, search=${search}, sort=${sort})}"
                                        th:text="${currentPage + 1}"></a>
                                 </li>
 
@@ -290,14 +290,14 @@
                                 <li th:if="${totalPages >= 3}"
                                     th:class="'page-item mb-0' + (${currentPage == totalPages} ? ' active disabled' : '')">
                                     <a class="page-link"
-                                       th:href="@{'/admin-agent-list'(page=${totalPages}, search=${search})}"
+                                       th:href="@{'/admin-agent-list'(page=${totalPages}, search=${search}, sort=${sort})}"
                                        th:text="${totalPages}"></a>
                                 </li>
 
                                 <!-- Next -->
                                 <li th:if="${totalPages >= 2}" th:class="'page-item mb-0' + (${currentPage == totalPages} ? ' disabled' : '')">
                                     <a class="page-link"
-                                       th:href="@{'/admin-agent-list'(page=${currentPage + 1}, search=${search})}">
+                                       th:href="@{'/admin-agent-list'(page=${currentPage + 1}, search=${search}, sort=${sort})}">
                                         <i class="fa-solid fa-angle-right"></i>
                                     </a>
                                 </li>

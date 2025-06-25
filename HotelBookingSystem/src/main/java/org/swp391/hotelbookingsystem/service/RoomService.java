@@ -111,4 +111,7 @@ public class RoomService {
         return roomRepository.getRoomById(roomId);
     }
 
+    public boolean hasActiveBookingUnits(int roomId) {
+        return roomRepository.hasActiveBookingUnits(roomId);
+    }
 }
