@@ -458,7 +458,7 @@ public class HostHotelController {
                 return response;
             }
 
-            // 4. Check if the room has active booking units (approved or completed)
+            // 4. Check if the room has active booking units (approved)
             try {
                 if (roomService.hasActiveBookingUnits(roomId)) {
                     response.put("success", false);

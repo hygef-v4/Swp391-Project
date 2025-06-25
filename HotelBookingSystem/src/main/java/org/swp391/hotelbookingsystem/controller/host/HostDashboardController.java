@@ -88,7 +88,7 @@ public class HostDashboardController {
         double totalRevenue = bookingService.getTotalRevenueByHostId(host.getId());
         model.addAttribute("totalRevenue", formatRevenue(totalRevenue));
         model.addAttribute("totalBookings", bookingService.countTotalBookingsByHostId(host.getId()));
-        model.addAttribute("completedBookings", bookingService.countCompletedBookingsByHostId(host.getId()));
+//        model.addAttribute("completedBookings", bookingService.countCompletedBookingsByHostId(host.getId()));
 
         double averageRating = reviewService.getAverageHotelRatingForHost(host.getId());
         model.addAttribute("averageRating", String.format("%.1f", averageRating));
