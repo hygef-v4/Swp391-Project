@@ -44,8 +44,8 @@ public class UserService {
         return userRepo.countUsersByRoleAndSearch("HOTEL_OWNER", keyword);
     }
 
-    public List<User> getAllUsers() {
-        return userRepo.getAllUser();
+    public List<User> getAgentsSortedPaginated(String search, String sort, int offset, int size) {
+        return userRepo.findAgentsBySearchSorted(search, sort, offset, size);
     }
 
     public List<User> searchUsersByName(String search) {

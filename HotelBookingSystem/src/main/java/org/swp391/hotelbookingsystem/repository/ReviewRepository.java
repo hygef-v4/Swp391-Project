@@ -177,50 +177,44 @@ public class ReviewRepository {
         """;
         return jdbcTemplate.query(query, REVIEW_MAPPER, hotelId);
     }
-    public double getAverageRating() {
-        String sql = "SELECT AVG(CAST(rating AS FLOAT)) FROM Reviews";
+    public double getAverageRatingThisYear() {
+        String sql = """
+        SELECT AVG(CAST(rating AS FLOAT)) 
+        FROM Reviews 
+        WHERE YEAR(created_at) = YEAR(GETDATE())
+    """;
         Double result = jdbcTemplate.queryForObject(sql, Double.class);
         return result != null ? result : 0.0;
-    }
-
-    public List<Review> getReviewsByStatus(String status, int offset, int limit) {
-        String condition = switch (status.toLowerCase()) {
-            case "published" -> "r.is_public = 1";
-            case "deleted" -> "r.is_public = 0";
-            default -> "1=1";
-        };
-
-        String sql = String.format("""
-    SELECT r.review_id, r.hotel_id, r.reviewer_id, r.rating, r.comment, r.is_public, r.created_at,
-           u.full_name, u.avatar_url,
-           h.hotel_name
-    FROM Reviews r
-    JOIN Users u ON r.reviewer_id = u.user_id
-    JOIN Hotels h ON r.hotel_id = h.hotel_id
-    WHERE %s
-    ORDER BY r.created_at DESC
-    OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
-""", condition);
-
-        return jdbcTemplate.query(sql, (rs, rowNum) -> Review.builder()
-                .reviewId(rs.getInt("review_id"))
-                .hotelId(rs.getInt("hotel_id"))
-                .reviewerId(rs.getInt("reviewer_id"))
-                .rating(rs.getInt("rating"))
-                .comment(rs.getString("comment"))
-                .isPublic(rs.getBoolean("is_public"))
-                .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
-                .fullName(rs.getString("full_name"))
-                .avatarUrl(rs.getString("avatar_url"))
-                .hotelName(rs.getString("hotel_name"))
-                .build(), offset, limit);
-
     }
 
     public int countAllReviews() {
         String sql = "SELECT COUNT(*) FROM Reviews WHERE is_public = 1";
         return jdbcTemplate.queryForObject(sql, Integer.class);
     }
+
+    public int countReviewsThisYear() {
+        String sql = """
+        SELECT COUNT(*) 
+        FROM Reviews 
+        WHERE is_public = 1 
+          AND YEAR(created_at) = YEAR(GETDATE())
+    """;
+        Integer result = jdbcTemplate.queryForObject(sql, Integer.class);
+        return result != null ? result : 0;
+    }
+
+    public int countReviewsLastYear() {
+        String sql = """
+        SELECT COUNT(*) 
+        FROM Reviews 
+        WHERE is_public = 1 
+          AND YEAR(created_at) = YEAR(GETDATE()) - 1
+    """;
+        Integer result = jdbcTemplate.queryForObject(sql, Integer.class);
+        return result != null ? result : 0;
+    }
+
+
 
     public List<Integer> getRatingDistribution() {
         String sql = """

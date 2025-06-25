@@ -110,4 +110,5 @@ public class RoomService {
     public Room getRoomById(int roomId) {
         return roomRepository.getRoomById(roomId);
     }
+
 }
