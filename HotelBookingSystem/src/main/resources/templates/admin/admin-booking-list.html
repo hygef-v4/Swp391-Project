@@ -84,6 +84,15 @@
             box-shadow: 0 10px 20px rgba(255, 255, 255, 0.05); /* sáng nhẹ */
         }
 
+        .hover-card:hover .card-body,
+        .hover-card:hover .card-footer {
+            background-color: inherit !important;
+        }
+
+        [data-bs-theme="dark"] .hover-card:hover .card-body,
+        [data-bs-theme="dark"] .hover-card:hover .card-footer {
+            background-color: inherit !important;
+        }
     </style>
     <!-- Dark mode -->
     <script>
@@ -167,7 +176,7 @@
             <div class="row">
                 <div class="col-12 mb-5">
                     <div class="d-sm-flex justify-content-start align-items-center">
-                        <h1 class="h3 mb-2 mb-sm-0">Danh sách đặt phòng</h1>
+                        <h1 class="h3 mb-2 mb-sm-0 hover-card">Danh sách đặt phòng</h1>
 <!--                        <div class="d-grid"><a href="#" class="btn btn-primary-soft mb-0"><i class="bi bi-plus-lg fa-fw"></i>Thêm yêu cầu đặt phòng</a></div>-->
                     </div>
                 </div>
@@ -307,7 +316,7 @@
             <div class="col-lg-6 col-xxl-5">
                     <div class="d-sm-flex gap-4 justify-content-between justify-content-lg-end">
                         <!-- Search -->
-                        <div class="col-md-8">
+                        <div class="col-md-8 hover-card">
                             <form class="rounded position-relative" th:action="@{/admin-booking-list}" method="get">
                                 <input class="form-control bg-transparent"
                                        type="text"
@@ -324,14 +333,14 @@
                         <!-- Tabs -->
                         <div class="d-flex justify-content-end mt-2 mt-sm-0">
                             <ul class="nav nav-pills nav-pills-dark" id="room-pills-tab" role="tablist">
-                                <li class="nav-item">
+                                <li class="nav-item hover-card">
                                     <a class="nav-link rounded-start rounded-0"
                                        th:classappend="${viewMode} == 'grid' ? ' active'"
                                        th:href="@{'/admin-booking-list'(page=1, status=${statusFilter}, view='grid', search=${search})}">
                                         <i class="bi fa-fw bi-grid-fill"></i>
                                     </a>
                                 </li>
-                                <li class="nav-item">
+                                <li class="nav-item hover-card">
                                     <a class="nav-link rounded-end rounded-0"
                                        th:classappend="${viewMode} == 'list' ? ' active'"
                                        th:href="@{'/admin-booking-list'(page=1, status=${statusFilter}, view='list', search=${search})}">
@@ -354,7 +363,7 @@
                     <div class="tab-pane fade show active" id="grid-tab-pane">
                     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xxl-5 g-4">
                         <div class="col" th:each="hotel : ${hotelList}">
-                            <div class="card shadow h-100">
+                            <div class="card shadow h-100 hover-card">
                                 <div class="position-relative hotel-image-wrapper">
                                     <img th:src="@{${hotel.hotelImageUrl}}" class="card-img-top hotel-image" alt="Hotel image" />
                                     <div class="card-img-overlay d-flex flex-column p-3">
@@ -414,7 +423,7 @@
                                 <nav class="mb-sm-0 d-flex justify-content-center" aria-label="navigation">
                                     <ul class="pagination pagination-sm pagination-primary-soft d-inline-block d-md-flex rounded mb-0">
                                         <!-- Previous -->
-                                        <li th:if="${totalHotelPages >= 2}" th:class="'page-item mb-0' + (${currentPage == 1} ? ' disabled' : '')">
+                                        <li th:if="${totalHotelPages >= 2}" th:class="'page-item mb-0 hover-card' + (${currentPage == 1} ? ' disabled' : '')">
                                             <a class="page-link"
                                                th:href="@{'/admin-booking-list'(page=${currentPage - 1}, status=${statusFilter}, view=${viewMode}, search=${search})}">
                                                 <i class="fa-solid fa-angle-left"></i>
@@ -422,25 +431,25 @@
                                         </li>
 
                                         <!-- Page 1 -->
-                                        <li th:if="${totalHotelPages >= 1}" th:class="'page-item mb-0' + (${currentPage == 1} ? ' active disabled' : '')">
+                                        <li th:if="${totalHotelPages >= 1}" th:class="'page-item mb-0 hover-card' + (${currentPage == 1} ? ' active disabled' : '')">
                                             <a class="page-link"
                                                th:href="@{'/admin-booking-list'(page=1, status=${statusFilter}, view=${viewMode}, search=${search})}">1</a>
                                         </li>
 
                                         <!-- Page 2 -->
-                                        <li th:if="${totalHotelPages >= 2}" th:class="'page-item mb-0' + (${currentPage == 2} ? ' active disabled' : '')">
+                                        <li th:if="${totalHotelPages >= 2}" th:class="'page-item mb-0 hover-card' + (${currentPage == 2} ? ' active disabled' : '')">
                                             <a class="page-link"
                                                th:href="@{'/admin-booking-list'(page=2, status=${statusFilter}, view=${viewMode}, search=${search})}">2</a>
                                         </li>
 
                                         <!-- Left ellipsis -->
-                                        <li th:if="${totalHotelPages >= 5 and currentPage - 2 > 2}" class="page-item mb-0 disabled">
+                                        <li th:if="${totalHotelPages >= 5 and currentPage - 2 > 2}" class="page-item mb-0 disabled hover-card">
                                             <a class="page-link">...</a>
                                         </li>
 
                                         <!-- Page -1 -->
                                         <li th:if="${totalHotelPages >= 4 and currentPage != 1 and currentPage - 1 != 1 and currentPage - 1 != 2}"
-                                            class="page-item mb-0">
+                                            class="page-item mb-0 hover-card">
                                             <a class="page-link"
                                                th:href="@{'/admin-booking-list'(page=${currentPage - 1}, status=${statusFilter}, view=${viewMode}, search=${search})}"
                                                th:text="${currentPage - 1}"></a>
@@ -448,33 +457,33 @@
 
                                         <!-- Current Page -->
                                         <li th:if="${totalHotelPages >= 4 and currentPage != 1 and currentPage != 2 and currentPage != totalHotelPages}"
-                                            class="page-item mb-0 active disabled">
+                                            class="page-item mb-0 active disabled hover-card">
                                             <a class="page-link" th:text="${currentPage}"></a>
                                         </li>
 
                                         <!-- Page +1 -->
                                         <li th:if="${totalHotelPages >= 4 and currentPage + 1 != 2 and currentPage + 1 != totalHotelPages and currentPage != totalHotelPages}"
-                                            class="page-item mb-0">
+                                            class="page-item mb-0 hover-card">
                                             <a class="page-link"
                                                th:href="@{'/admin-booking-list'(page=${currentPage + 1}, status=${statusFilter}, view=${viewMode}, search=${search})}"
                                                th:text="${currentPage + 1}"></a>
                                         </li>
 
                                         <!-- Right ellipsis -->
-                                        <li th:if="${totalHotelPages >= 4 and totalHotelPages > currentPage + 2}" class="page-item mb-0 disabled">
+                                        <li th:if="${totalHotelPages >= 4 and totalHotelPages > currentPage + 2}" class="page-item mb-0 disabled hover-card">
                                             <a class="page-link">...</a>
                                         </li>
 
                                         <!-- Last page -->
                                         <li th:if="${totalHotelPages >= 3}"
-                                            th:class="'page-item mb-0' + (${currentPage == totalHotelPages} ? ' active disabled' : '')">
+                                            th:class="'page-item mb-0 hover-card' + (${currentPage == totalHotelPages} ? ' active disabled' : '')">
                                             <a class="page-link"
                                                th:href="@{'/admin-booking-list'(page=${totalHotelPages}, status=${statusFilter}, view=${viewMode}, search=${search})}"
                                                th:text="${totalHotelPages}"></a>
                                         </li>
 
                                         <!-- Next -->
-                                        <li th:if="${totalHotelPages >= 2}" th:class="'page-item mb-0' + (${currentPage == totalHotelPages} ? ' disabled' : '')">
+                                        <li th:if="${totalHotelPages >= 2}" th:class="'page-item mb-0 hover-card' + (${currentPage == totalHotelPages} ? ' disabled' : '')">
                                             <a class="page-link"
                                                th:href="@{'/admin-booking-list'(page=${currentPage + 1}, status=${statusFilter}, view=${viewMode}, search=${search})}">
                                                 <i class="fa-solid fa-angle-right"></i>
@@ -497,7 +506,7 @@
                 <div class="card shadow">
                     <div class="card-body">
 
-                        <div class="bg-light rounded p-3 d-xxl-block">
+                        <div class="bg-light rounded p-3 d-xxl-block hover-card">
                             <div class="row row-cols-7 g-4">
                                 <div class="col"><h6 class="mb-0">Ảnh</h6></div>
                                 <div class="col"><h6 class="mb-0">Khách hàng</h6></div>
@@ -510,7 +519,7 @@
                         </div>
 
                         <!-- Each booking row -->
-                        <div class="row g-3 g-sm-4 align-items-center justify-content-center border-bottom px-2 py-4"
+                        <div class="row g-3 g-sm-4 align-items-center justify-content-center border-bottom px-2 py-4 hover-card"
                              th:each="booking : ${bookings}">
 
                             <!-- Room image -->
@@ -585,7 +594,7 @@
                                 <h6 class="text-primary mb-3"><i class="bi bi-info-circle"></i> Chi Tiết Phòng Đặt</h6>
                                 <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
                                     <div class="col" th:each="unit : ${booking.bookingUnits}">
-                                        <div class="card border shadow-sm h-100">
+                                        <div class="card border shadow-sm h-100 hover-card">
                                             <div class="card-body">
                                                 <div class="d-flex mb-2">
                                                     <img th:src="@{${unit.imageUrl}}" class="rounded me-3" style="width: 60px; height: 60px; object-fit: cover;" alt="room">
@@ -623,7 +632,7 @@
                                 <nav class="mb-sm-0 d-flex justify-content-center" aria-label="navigation">
                                     <ul class="pagination pagination-sm pagination-primary-soft d-inline-block d-md-flex rounded mb-0">
                                         <!-- Previous -->
-                                        <li th:if="${totalBookingPages >= 2}" th:class="'page-item mb-0' + (${currentPage == 1} ? ' disabled' : '')">
+                                        <li th:if="${totalBookingPages >= 2}" th:class="'page-item mb-0 hover-card' + (${currentPage == 1} ? ' disabled' : '')">
                                             <a class="page-link"
                                                th:href="@{'/admin-booking-list'(page=${currentPage - 1}, status=${statusFilter}, view=${viewMode}, search=${search})}">
                                                 <i class="fa-solid fa-angle-left"></i>
@@ -631,25 +640,25 @@
                                         </li>
 
                                         <!-- Page 1 -->
-                                        <li th:if="${totalBookingPages >= 1}" th:class="'page-item mb-0' + (${currentPage == 1} ? ' active disabled' : '')">
+                                        <li th:if="${totalBookingPages >= 1}" th:class="'page-item mb-0 hover-card' + (${currentPage == 1} ? ' active disabled' : '')">
                                             <a class="page-link"
                                                th:href="@{'/admin-booking-list'(page=1, status=${statusFilter}, view=${viewMode}, search=${search})}">1</a>
                                         </li>
 
                                         <!-- Page 2 -->
-                                        <li th:if="${totalBookingPages >= 2}" th:class="'page-item mb-0' + (${currentPage == 2} ? ' active disabled' : '')">
+                                        <li th:if="${totalBookingPages >= 2}" th:class="'page-item mb-0 hover-card' + (${currentPage == 2} ? ' active disabled' : '')">
                                             <a class="page-link"
                                                th:href="@{'/admin-booking-list'(page=2, status=${statusFilter}, view=${viewMode}, search=${search})}">2</a>
                                         </li>
 
                                         <!-- Left ellipsis -->
-                                        <li th:if="${totalBookingPages >= 5 and currentPage - 2 > 2}" class="page-item mb-0 disabled">
+                                        <li th:if="${totalBookingPages >= 5 and currentPage - 2 > 2}" class="page-item mb-0 hover-card disabled">
                                             <a class="page-link">...</a>
                                         </li>
 
                                         <!-- Page -1 -->
                                         <li th:if="${totalBookingPages >= 4 and currentPage != 1 and currentPage - 1 != 1 and currentPage - 1 != 2}"
-                                            class="page-item mb-0">
+                                            class="page-item hover-card mb-0">
                                             <a class="page-link"
                                                th:href="@{'/admin-booking-list'(page=${currentPage - 1}, status=${statusFilter}, view=${viewMode}, search=${search})}"
                                                th:text="${currentPage - 1}"></a>
@@ -657,33 +666,33 @@
 
                                         <!-- Current Page -->
                                         <li th:if="${totalBookingPages >= 4 and currentPage != 1 and currentPage != 2 and currentPage != totalBookingPages}"
-                                            class="page-item mb-0 active disabled">
+                                            class="page-item mb-0 active disabled hover-card">
                                             <a class="page-link" th:text="${currentPage}"></a>
                                         </li>
 
                                         <!-- Page +1 -->
                                         <li th:if="${totalBookingPages >= 4 and currentPage + 1 != 2 and currentPage + 1 != totalBookingPages and currentPage != totalBookingPages}"
-                                            class="page-item mb-0">
+                                            class="page-item mb-0 hover-card">
                                             <a class="page-link"
                                                th:href="@{'/admin-booking-list'(page=${currentPage + 1}, status=${statusFilter}, view=${viewMode}, search=${search})}"
                                                th:text="${currentPage + 1}"></a>
                                         </li>
 
                                         <!-- Right ellipsis -->
-                                        <li th:if="${totalBookingPages >= 4 and totalBookingPages > currentPage + 2}" class="page-item mb-0 disabled">
+                                        <li th:if="${totalBookingPages >= 4 and totalBookingPages > currentPage + 2}" class="page-item mb-0 disabled hover-card">
                                             <a class="page-link">...</a>
                                         </li>
 
                                         <!-- Last page -->
                                         <li th:if="${totalBookingPages >= 3}"
-                                            th:class="'page-item mb-0' + (${currentPage == totalBookingPages} ? ' active disabled' : '')">
+                                            th:class="'page-item mb-0 hover-card' + (${currentPage == totalBookingPages} ? ' active disabled' : '')">
                                             <a class="page-link"
                                                th:href="@{'/admin-booking-list'(page=${totalBookingPages}, status=${statusFilter}, view=${viewMode}, search=${search})}"
                                                th:text="${totalBookingPages}"></a>
                                         </li>
 
                                         <!-- Next -->
-                                        <li th:if="${totalBookingPages >= 2}" th:class="'page-item mb-0' + (${currentPage == totalBookingPages} ? ' disabled' : '')">
+                                        <li th:if="${totalBookingPages >= 2}" th:class="'page-item mb-0 hover-card' + (${currentPage == totalBookingPages} ? ' disabled' : '')">
                                             <a class="page-link"
                                                th:href="@{'/admin-booking-list'(page=${currentPage + 1}, status=${statusFilter}, view=${viewMode}, search=${search})}">
                                                 <i class="fa-solid fa-angle-right"></i>
