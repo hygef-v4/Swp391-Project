@@ -14,8 +14,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.swp391.hotelbookingsystem.model.Booking;
 import org.swp391.hotelbookingsystem.model.BookingUnit;
+import org.swp391.hotelbookingsystem.model.Hotel;
 import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.service.BookingService;
+import org.swp391.hotelbookingsystem.service.UserService;
+import org.swp391.hotelbookingsystem.service.HotelService;
 import org.swp391.hotelbookingsystem.service.VNPayService;
 
 import org.thymeleaf.spring6.SpringTemplateEngine;
@@ -32,6 +35,10 @@ import jakarta.servlet.http.HttpSession;
 public class PaymentController {
     @Autowired
     BookingService bookingService;
+    @Autowired
+    UserService userService;
+    @Autowired
+    HotelService hotelService;
     @Autowired
     VNPayService vnpayService;
     @Autowired
@@ -109,6 +116,14 @@ public class PaymentController {
     public void invoice(@RequestParam("id") int id, HttpServletResponse response) throws IOException{
         // 1. Load HTML template
         Context context = new Context();
+
+        Booking booking = bookingService.findById(id);
+        User user = userService.findUserById(booking.getCustomerId());
+        Hotel hotel = hotelService.getHotelById(booking.getHotelId());
+
+        context.setVariable("booking", booking);
+        context.setVariable("user", user);
+        context.setVariable("hotel", hotel);
         String html = templateEngine.process("pdf/pdf", context);
         
         // 2. Set response headers
