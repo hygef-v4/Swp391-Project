@@ -1,5 +1,6 @@
 package org.swp391.hotelbookingsystem.controller.admin;
 
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -79,6 +80,26 @@ public class AdminAgentController {
         model.addAttribute("hotelList", hotelList);
         model.addAttribute("agent", agent);
         return "admin/admin-agent-detail";
+    }
+
+    @GetMapping("/admin-agent-contact")
+    public String showAgentContact(@RequestParam("id") int agentId, Model model,
+                                   HttpSession session) {
+        User host = (User) session.getAttribute("user");
+        User agent = userService.findUserById(agentId);
+        model.addAttribute("customer", agent);
+        model.addAttribute("currentUserId", host.getId());
+        return "admin/admin-agent-contact";
+    }
+
+    @GetMapping("/agent-admin-contact")
+    public String showAdminContact(@RequestParam("id") int agentId, Model model,
+                                        HttpSession session) {
+        User host = (User) session.getAttribute("user");
+        User agent = userService.findUserById(12);
+        model.addAttribute("customer", agent);
+        model.addAttribute("currentUserId", host.getId());
+        return "admin/admin-agent-contact";
     }
 
 }

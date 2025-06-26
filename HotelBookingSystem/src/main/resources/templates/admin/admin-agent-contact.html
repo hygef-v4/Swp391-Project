@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" data-bs-theme="light">
+
+<head>
+    <title th:text="'Chi Tiết Đối Tác - ' + ${customer.fullName} + ' - Hamora'">Chi Tiết Khách Hàng - Hamora</title>
+
+    <!-- Meta Tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Liên hệ đối tác">
+    <meta name="_csrf" th:content="${_csrf?.token}" />
+    <meta name="_csrf_header" th:content="${_csrf?.headerName}" />
+
+    <!-- Dark mode script (for theme toggling) -->
+    <script>
+        const storedTheme = localStorage.getItem('theme')
+        const getPreferredTheme = () => {
+            if (storedTheme) { return storedTheme }
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        }
+        const setTheme = function (theme) {
+            if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.setAttribute('data-bs-theme', 'dark')
+            } else {
+                document.documentElement.setAttribute('data-bs-theme', theme)
+            }
+        }
+        setTheme(getPreferredTheme())
+        window.addEventListener('DOMContentLoaded', () => {
+            var el = document.querySelector('.theme-icon-active');
+            if (el != 'undefined' && el != null) {
+                const showActiveTheme = theme => {
+                    const activeThemeIcon = document.querySelector('.theme-icon-active use')
+                    const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+                    const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
+                    document.querySelectorAll('[data-bs-theme-value]').forEach(element => element.classList.remove('active'))
+                    btnToActive.classList.add('active')
+                    activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+                }
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                    if (storedTheme !== 'light' || storedTheme !== 'dark') { setTheme(getPreferredTheme()) }
+                })
+                showActiveTheme(getPreferredTheme())
+                document.querySelectorAll('[data-bs-theme-value]').forEach(toggle => {
+                    toggle.addEventListener('click', () => {
+                        const theme = toggle.getAttribute('data-bs-theme-value')
+                        localStorage.setItem('theme', theme)
+                        setTheme(theme)
+                        showActiveTheme(theme)
+                    })
+                })
+            }
+        })
+    </script>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="assets/images/favicon.ico">
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+
+    <!-- Plugins CSS -->
+    <link rel="stylesheet" type="text/css" href="assets/vendor/bootstrap-icons/bootstrap-icons.css">
+
+    <!-- Theme CSS -->
+    <link rel="stylesheet" type="text/css" href="assets/css/style.css">
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/assets/images/favicon.ico">
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Poppins:wght@400;500;700&amp;display=swap">
+
+    <!-- Flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+    <!-- Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <!-- Vietnamese Locale -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
+
+
+    <!-- Plugins CSS -->
+
+
+    <link rel="stylesheet" type="text/css" href="/assets/vendor/font-awesome/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="/assets/vendor/bootstrap-icons/bootstrap-icons.css">
+    <link rel="stylesheet" type="text/css" href="/assets/vendor/tiny-slider/tiny-slider.css">
+    <link rel="stylesheet" type="text/css" href="/assets/vendor/glightbox/css/glightbox.css">
+    <link rel="stylesheet" type="text/css" href="/assets/vendor/flatpickr/css/flatpickr.min.css">
+    <link rel="stylesheet" type="text/css" href="/assets/vendor/choices/css/choices.min.css">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+          integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer"/>
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"/>
+
+    <!-- Tiny Slider -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.9.4/tiny-slider.css"
+          integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer"/>
+
+    <!-- Glightbox -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css"/>
+
+    <!-- Flatpickr -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"/>
+
+    <!-- Choices.js -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css"/>
+
+
+    <!-- Theme CSS -->
+    <link rel="stylesheet" type="text/css" href="/assets/css/style.css">
+    <style>
+        /* --- Base Variables --- */
+        :root {
+            --primary-gradient: linear-gradient(100deg, #8b5cf6, #ec4899);
+            --border-radius-xl: 24px;
+            --border-radius-lg: 16px;
+        }
+
+        /* --- Light Mode --- */
+        [data-bs-theme="light"] {
+            --body-bg: #f8f9fa;
+            --card-bg: #ffffff;
+            --card-secondary-bg: #f8f9fa;
+            --border-color: #e5e7eb;
+            --text-primary: #111827;
+            --text-secondary: #4b5563;
+        }
+
+        /* --- Dark Mode --- */
+        [data-bs-theme="dark"] {
+            --body-bg: #121212;
+            --card-bg: #1e1e1e;
+            --card-secondary-bg: #2b2b2b;
+            --border-color: #3a3a40;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0b0;
+        }
+
+        body {
+            background-color: var(--body-bg);
+            color: var(--text-primary);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* Spacing and Layout */
+        main .container {
+            display: flex;
+            flex-direction: column;
+            gap: 2.5rem; /* Consistent vertical spacing between main sections */
+        }
+
+        /* Customer Profile Header */
+        .customer-profile-header {
+            background: var(--primary-gradient);
+            color: #ffffff;
+            border-radius: var(--border-radius-xl);
+            padding: 2rem;
+        }
+        .customer-avatar-lg { width: 100px; height: 100px; object-fit: cover; border-radius: 50%; border: 4px solid rgba(255, 255, 255, 0.4); }
+        .customer-profile-header h2 { font-size: 2.5rem; font-weight: 700; color: #ffffff; }
+        .customer-profile-header .contact-info { color: rgba(255, 255, 255, 0.9); display: flex; align-items: center; gap: 1rem; }
+        .btn-back { background-color: rgba(255, 255, 255, 0.2); color: #ffffff; border: none; padding: 10px 20px; border-radius: 50px; text-decoration: none; transition: background-color 0.2s ease; }
+        .btn-back:hover { background-color: rgba(255, 255, 255, 0.3); color: #ffffff; }
+
+        /* Chat Widget */
+        .chat-widget {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-xl);
+            display: flex; flex-direction: column;
+            overflow: hidden; height: 550px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .chat-widget-header { background: var(--primary-gradient); color: #ffffff; padding: 1rem 1.25rem; display: flex; align-items: center; justify-content: space-between; }
+        .chat-widget-header .status-badge { background-color: rgba(255, 255, 255, 0.9); color: #374151; padding: 4px 10px; font-size: 0.75rem; border-radius: 8px; font-weight: 600; border: 1px solid rgba(255, 255, 255, 0.8); }
+        .chat-header-avatar { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255, 255, 255, 0.3); }
+        .chat-messages { flex-grow: 1; padding: 1.25rem; overflow-y: auto; background-color: var(--card-secondary-bg); }
+        .message { display: flex; flex-direction: column; margin-bottom: 1rem; max-width: 80%; }
+        .message.sent { align-items: flex-end; margin-left: auto; }
+        .message.received { align-items: flex-start; flex-direction: row; align-items: flex-end; }
+        .message-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin: 0 8px; flex-shrink: 0; }
+        .message-content-wrapper { display: flex; flex-direction: column; }
+        .message-bubble { padding: 10px 16px; border-radius: 20px; line-height: 1.5; }
+        .message-time { font-size: 0.7rem; color: var(--text-secondary); margin-top: 4px; }
+        .message.received .message-bubble { background-color: var(--card-bg); border: 1px solid var(--border-color); border-bottom-left-radius: 4px; color: var(--text-primary); }
+        .message.sent .message-bubble { background: var(--primary-gradient); color: #ffffff; border-bottom-right-radius: 4px; }
+        .message.sent .message-bubble img { border: 2px solid rgba(255,255,255,0.3); }
+        .message.received .message-bubble img { border: 2px solid var(--border-color); }
+        .message-bubble img { display: block; }
+        /* Date separator */
+        .date-separator { text-align: center; margin: 1rem 0; }
+        .date-separator span { background-color: var(--card-secondary-bg); color: var(--text-secondary); padding: 4px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: 500; border: 1px solid var(--border-color); }
+
+        /* Image viewer modal */
+        .image-viewer-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); z-index: 9999; display: none; justify-content: center; align-items: center; }
+        .image-viewer-content { position: relative; width: 80vw; height: 80vh; display: flex; align-items: center; justify-content: center; }
+        .image-viewer-img { width: 100%; height: 100%; object-fit: contain; border-radius: 8px; }
+        .image-viewer-close { position: absolute; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.2); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .image-viewer-close:hover { background: rgba(255, 255, 255, 0.3); }
+        .image-viewer-nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255, 255, 255, 0.2); border: none; color: white; width: 50px; height: 50px; border-radius: 50%; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .image-viewer-nav:hover { background: rgba(255, 255, 255, 0.3); }
+        .image-viewer-nav.disabled { opacity: 0.3; cursor: not-allowed; }
+        .image-viewer-prev { left: 20px; }
+        .image-viewer-next { right: 20px; }
+        .image-viewer-counter { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0, 0, 0, 0.7); color: white; padding: 8px 16px; border-radius: 20px; font-size: 14px; }
+        /* Loading state */
+        .chat-loading { display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-secondary); }
+        .chat-loading i { font-size: 2rem; animation: spin 1s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .chat-input-area {
+            background-color: var(--card-bg); padding: 1rem 1.25rem; border-top: 1px solid var(--border-color); }
+        /* Preview image container */
+        #previewContainer { display:flex; align-items:center; gap:8px; margin-bottom:6px; flex-wrap:wrap; }
+        .preview-img-wrapper { position:relative; display:inline-block; }
+        .preview-img-wrapper img { max-width:80px; max-height:80px; border-radius:12px; }
+        .preview-img-wrapper button { position:absolute; top:-6px; right:-6px; background:#ef4444; border:none; color:#fff; width:20px; height:20px; border-radius:50%; font-size:12px; cursor:pointer; }
+        .chat-input-area .input-group { background-color: var(--card-secondary-bg); border-radius: 50px; padding: 4px; border: 1px solid var(--border-color); display: flex; align-items: center; gap: 4px; }
+        .chat-input-area .form-control { background-color: transparent; border: none; color: var(--text-primary); height: 44px; padding-left: 1rem; }
+        .chat-input-area .form-control:focus { box-shadow: none; }
+        .chat-input-area .form-control::placeholder { color: var(--text-secondary); }
+        .btn-send { background: var(--primary-gradient); border: none; color: white; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; flex-shrink: 0; transition: all 0.2s ease; }
+        .btn-send:hover { transform: scale(1.05); }
+
+        /* Booking History */
+        .section-header { margin-bottom: 1.5rem; }
+        .section-header h4 { font-weight: 600; font-size: 1.75rem; color: var(--text-primary); }
+        .booking-count-badge { background-color: var(--card-secondary-bg); color: var(--text-secondary); font-size: 0.8rem; font-weight: 500; padding: 6px 14px; border-radius: 50px; border: 1px solid var(--border-color); }
+        .booking-entry { background-color: var(--card-dark-bg); border-radius: var(--border-radius-xl); margin-bottom: 1.5rem; overflow: hidden; background-color: var(--card-bg); border: 1px solid var(--border-color); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
+        .booking-entry-header { background-color: var(--card-secondary-bg); padding: 1.25rem; color: var(--text-primary); }
+        .booking-entry-header h6 { color: var(--text-primary); font-weight: 700; }
+        .booking-entry-header small { color: var(--text-secondary); }
+        .booking-entry-header .booking-total-price { color: var(--text-secondary); }
+        .booking-entry-header strong { color: var(--text-primary); }
+        .booking-hotel-img { width: 60px; height: 60px; border-radius: var(--border-radius-lg); object-fit: cover; }
+
+        /* Custom tooltip for room names */
+        .room-name-tooltip {
+            position: relative;
+        }
+
+        .room-name-tooltip:hover::after {
+            content: attr(title);
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            background-color: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            white-space: nowrap;
+            z-index: 1000;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+            margin-bottom: 8px;
+            max-width: 450px;
+            word-wrap: break-word;
+            white-space: normal;
+            min-width: 200px;
+        }
+
+        .room-name-tooltip:hover::before {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            left: 20px;
+            border: 7px solid transparent;
+            border-top-color: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            margin-bottom: 1px;
+        }
+        .booking-entry-body { padding: 1.25rem; background-color: var(--card-bg); }
+        .booked-room-item { background-color: var(--card-secondary-bg); color: var(--text-primary); padding: 1rem; border-radius: var(--border-radius-lg); }
+        .booked-room-item h6 { color: var(--text-primary); font-weight: 600; }
+        .booked-room-item .fw-bold { color: var(--text-primary); font-weight: 700 !important; }
+        .booked-room-img { width: 80px; height: 60px; border-radius: 12px; object-fit: cover; }
+
+        /* Booking Unit Status Badges */
+        .unit-status-badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-block;
+            margin-left: 8px;
+        }
+        .status-approved { background-color: rgba(34, 197, 94, 0.15); color: #16a34a; border: 1px solid rgba(34, 197, 94, 0.3); }
+        .status-pending { background-color: rgba(251, 191, 36, 0.15); color: #d97706; border: 1px solid rgba(251, 191, 36, 0.3); }
+        .status-cancelled { background-color: rgba(239, 68, 68, 0.15); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .status-completed { background-color: rgba(59, 130, 246, 0.15); color: #2563eb; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .status-rejected { background-color: rgba(156, 163, 175, 0.15); color: #6b7280; border: 1px solid rgba(156, 163, 175, 0.3); }
+    </style>
+</head>
+
+<body>
+<div th:replace="~{common/header :: header}"></div>
+
+<!-- **************** MAIN CONTENT START **************** -->
+<main>
+    <section class="pt-4 pb-5">
+        <div class="container vstack gap-5">
+
+            <!-- Host Menu Fragment -->
+
+
+            <!-- Main Content: Profile Header + Details -->
+            <div>
+                <!-- Customer Profile Header -->
+                <div class="customer-profile-header">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="d-flex align-items-center gap-4">
+                            <img th:src="${customer.avatarUrl ?: 'https://ui-avatars.com/api/?name=' + customer.fullName + '&background=fff&color=8b5cf6&size=128&bold=true'}"
+                                 alt="Customer Avatar"
+                                 class="customer-avatar-lg">
+                            <div>
+                                <h2 class="mb-2" th:text="${customer.fullName}">Alice Nguyen</h2>
+                                <div class="contact-info">
+                                    <span th:text="${customer.email}">alice.nguyen@example.com</span>
+                                    <span th:if="${customer.phone}"><i class="bi bi-telephone-fill me-1"></i> <span th:text="${customer.phone}">0901234567</span></span>
+                                </div>
+                            </div>
+                        </div>
+                        <a th:if="${session.user.role == 'ADMIN'}" href="/admin-agent-list" class="btn btn-back">
+                            <i class="bi bi-arrow-left me-2"></i> Quay Lại
+                        </a>
+                        <a th:if="${session.user.role == 'HOTEL_OWNER'}" href="/home" class="btn btn-back">
+                            <i class="bi bi-arrow-left me-2"></i> Quay Lại
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Chat and Booking History Section -->
+                <div class="row g-4 g-lg-5 mt-4">
+                    <!-- Chat Column -->
+                    <div class="col-lg-12">
+                        <div class="chat-widget">
+                            <div class="chat-widget-header">
+                                <div class="d-flex align-items-center">
+                                    <img th:src="${customer.avatarUrl ?: 'https://ui-avatars.com/api/?name=' + customer.fullName + '&background=fff&color=8b5cf6&size=128&bold=true'}"
+                                         alt="Customer Avatar"
+                                         class="chat-header-avatar me-3">
+                                    <div>
+                                        <h6 class="mb-0 fw-bold text-white" th:text="${customer.fullName}">Alice Nguyen</h6>
+                                        <small class="text-white-50" id="chat-date"></small>
+                                    </div>
+                                </div>
+                                <span class="status-badge">Offline</span>
+                            </div>
+                            <div class="chat-messages" id="chatMessages">
+                                <!-- Messages will be loaded here dynamically -->
+                            </div>
+                            <div class="chat-input-area">
+                                <div id="previewContainer"></div>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="Nhập tin nhắn..." id="messageInput">
+                                    <button class="btn-send" type="button" onclick="document.getElementById('imageInput').click()" title="Gửi ảnh">
+                                        <i class="bi bi-image"></i>
+                                    </button>
+                                    <button class="btn-send" type="button" onclick="sendMessage()"><i class="bi bi-send-fill"></i></button>
+                                </div>
+                                <input type="file" id="imageInput" accept="image/*" style="display: none;">
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<div th:replace="~{common/footer :: footer}"></div>
+<!-- **************** MAIN CONTENT END **************** -->
+
+<!-- Image Viewer Modal -->
+<div id="imageViewerModal" class="image-viewer-modal">
+    <div class="image-viewer-content">
+        <img id="imageViewerImg" class="image-viewer-img" src="" alt="Image">
+        <button class="image-viewer-close" onclick="closeImageViewer()">×</button>
+        <button class="image-viewer-nav image-viewer-prev" onclick="showPrevImage()">‹</button>
+        <button class="image-viewer-nav image-viewer-next" onclick="showNextImage()">›</button>
+        <div class="image-viewer-counter" id="imageViewerCounter">1 / 1</div>
+    </div>
+</div>
+
+<!-- Core Bootstrap JS -->
+<script src="assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<!-- SockJS & STOMP -->
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<!-- Use stomp.js 2.3.3 from cdnjs which exposes global Stomp object -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js" crossorigin="anonymous"></script>
+
+<!-- Theme Functions -->
+<script src="assets/js/functions.js"></script>
+<!-- Page-specific script -->
+<script>
+    // Safely extract user IDs from Thymeleaf
+    let currentUserId, otherUserId, roomId;
+
+    try {
+        currentUserId = parseInt('[[${currentUserId}]]') || 0;
+        otherUserId = parseInt('[[${customer.id}]]') || 0;
+        roomId = [currentUserId, otherUserId].sort().join('-');
+
+        console.log('User IDs - currentUserId:', currentUserId, 'otherUserId:', otherUserId, 'roomId:', roomId);
+    } catch (error) {
+        console.error('Error parsing user IDs:', error);
+        currentUserId = 0;
+        otherUserId = 0;
+        roomId = '0-0';
+    }
+
+    let stompClient = null;
+    let isConnected = false;
+    let retryCount = 0;
+    const MAX_RETRY_COUNT = 10;
+    let heartbeatInterval = null;
+    let lastSeenTimestamp = null;
+
+    function updateConnectionStatus(connected) {
+        isConnected = connected;
+        const statusBadge = document.querySelector('.status-badge');
+        if (statusBadge && !connected) {
+            statusBadge.textContent = 'Offline';
+            statusBadge.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
+            statusBadge.style.color = '#374151';
+            statusBadge.style.border = '1px solid rgba(255, 255, 255, 0.8)';
+        }
+        if (connected) {
+            retryCount = 0; // Reset retry count on successful connection
+        }
+    }
+
+    function updateOtherUserStatus(presenceObj) {
+        // Handle status requests - respond if someone is asking for our status
+        if (presenceObj.type === 'status_request' && presenceObj.requestFor === currentUserId) {
+            // Respond with our current status
+            if (stompClient && stompClient.connected) {
+                const statusResponse = {
+                    userId: currentUserId,
+                    status: 'online',
+                    roomId: roomId,
+                    type: 'status_response',
+                    timestamp: new Date().toISOString()
+                };
+                stompClient.send(`/app/presence/${roomId}`, {}, JSON.stringify(statusResponse));
+            }
+            return;
+        }
+
+        // Only update status if it's about the other user (not current user)
+        if (presenceObj.userId === otherUserId) {
+            const statusBadge = document.querySelector('.status-badge');
+            const chatDateElement = document.getElementById('chat-date');
+
+            if (statusBadge) {
+                if (presenceObj.status === 'online') {
+                    statusBadge.textContent = 'Online';
+                    statusBadge.style.backgroundColor = 'rgba(34, 197, 94, 0.2)';
+                    statusBadge.style.color = '#22c55e';
+                    statusBadge.style.border = '1px solid rgba(34, 197, 94, 0.4)';
+                    lastSeenTimestamp = new Date().getTime();
+                    // Update chat date to show "Đang hoạt động" when user is online
+                    if (chatDateElement) {
+                        chatDateElement.textContent = 'Đang hoạt động';
+                    }
+                } else {
+                    statusBadge.textContent = 'Offline';
+                    statusBadge.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
+                    statusBadge.style.color = '#374151';
+                    statusBadge.style.border = '1px solid rgba(255, 255, 255, 0.8)';
+                    // Update last seen time when user goes offline
+                    if (presenceObj.timestamp) {
+                        lastSeenTimestamp = new Date(presenceObj.timestamp).getTime();
+                        updateLastSeenTime(presenceObj.timestamp);
+                    }
+                }
+            }
+        }
+    }
+
+    function startHeartbeat() {
+        // Clear existing heartbeat
+        if (heartbeatInterval) {
+            clearInterval(heartbeatInterval);
+        }
+
+        // Send heartbeat every 30 seconds
+        heartbeatInterval = setInterval(() => {
+            if (stompClient && stompClient.connected && !document.hidden) {
+                const heartbeat = {
+                    userId: currentUserId,
+                    status: 'online',
+                    roomId: roomId,
+                    timestamp: new Date().toISOString(),
+                    type: 'heartbeat'
+                };
+                stompClient.send(`/app/presence/${roomId}`, {}, JSON.stringify(heartbeat));
+            }
+        }, 30000); // 30 seconds
+
+        // Check if other user is still online (timeout after 60 seconds of no heartbeat)
+        setInterval(() => {
+            if (lastSeenTimestamp && (new Date().getTime() - lastSeenTimestamp) > 60000) {
+                const statusBadge = document.querySelector('.status-badge');
+                if (statusBadge && statusBadge.textContent === 'Online') {
+                    statusBadge.textContent = 'Offline';
+                    statusBadge.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
+                    statusBadge.style.color = '#374151';
+                    statusBadge.style.border = '1px solid rgba(255, 255, 255, 0.8)';
+                }
+            }
+        }, 10000); // Check every 10 seconds
+    }
+
+    function stopHeartbeat() {
+        if (heartbeatInterval) {
+            clearInterval(heartbeatInterval);
+            heartbeatInterval = null;
+        }
+    }
+
+    function connectChat() {
+        // Show loading state
+        const chatMessages = document.getElementById('chatMessages');
+        chatMessages.innerHTML = '<div class="chat-loading"><i class="bi bi-arrow-repeat"></i></div>';
+
+        console.log('Attempting to connect with currentUserId:', currentUserId, 'otherUserId:', otherUserId);
+
+        // Validate user IDs
+        if (!currentUserId || !otherUserId || currentUserId === 0 || otherUserId === 0) {
+            console.error('Invalid user IDs:', { currentUserId, otherUserId });
+            chatMessages.innerHTML = '<div class="text-center text-danger py-5">Lỗi: Không thể xác định người dùng. Vui lòng tải lại trang.</div>';
+            return;
+        }
+
+        const socket = new SockJS('/ws');
+        // Fallback if global Stomp variable is not present
+        const StompImpl = window.Stomp || window.StompJs || undefined;
+        if (!StompImpl) {
+            console.error('STOMP library not loaded');
+            chatMessages.innerHTML = '<div class="text-center text-danger py-5">Lỗi: Không thể tải thư viện STOMP.</div>';
+            return;
+        }
+        stompClient = StompImpl.over(socket);
+        stompClient.debug = function(str) { console.log('STOMP: ' + str); }; // Enable debug for troubleshooting
+
+        // Handle disconnection
+        socket.onclose = function() {
+            console.log('WebSocket disconnected');
+            updateConnectionStatus(false);
+            stopHeartbeat();
+            if (!document.hidden) { // Only reconnect if page is visible
+                setTimeout(connectChat, 3000);
+            }
+        };
+
+        // Get CSRF token if it exists
+        const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+
+        const headers = {};
+        if (csrfToken && csrfHeader) {
+            headers[csrfHeader] = csrfToken;
+            console.log('Adding CSRF token to connection');
+        }
+
+        stompClient.connect(headers, () => {
+            console.log('Connected to WebSocket successfully');
+            updateConnectionStatus(true);
+
+            // Subscribe to room topic for chat messages
+            console.log('Subscribing to topic:', `/topic/chat.${roomId}`);
+            stompClient.subscribe(`/topic/chat.${roomId}`, (message) => {
+                console.log('Received message:', message);
+                if (message && message.body) {
+                    try {
+                        const msgObj = JSON.parse(message.body);
+                        console.log('Parsed message:', msgObj);
+                        appendMessage(msgObj);
+                    } catch (e) {
+                        console.error('Error parsing message:', e, message.body);
+                    }
+                }
+            });
+
+            // Subscribe to presence topic for online/offline status
+            stompClient.subscribe(`/topic/presence.${roomId}`, (message) => {
+                console.log('Received presence update:', message);
+                if (message && message.body) {
+                    try {
+                        const presenceObj = JSON.parse(message.body);
+                        console.log('Parsed presence:', presenceObj);
+                        updateOtherUserStatus(presenceObj);
+                    } catch (e) {
+                        console.error('Error parsing presence:', e, message.body);
+                    }
+                }
+            });
+
+            // Send join presence notification
+            const joinPresence = {
+                userId: currentUserId,
+                status: 'online',
+                roomId: roomId,
+                timestamp: new Date().toISOString()
+            };
+            stompClient.send(`/app/presence/${roomId}`, {}, JSON.stringify(joinPresence));
+
+            // Request current status of other user
+            const statusRequest = {
+                userId: currentUserId,
+                requestFor: otherUserId,
+                roomId: roomId,
+                type: 'status_request',
+                timestamp: new Date().toISOString()
+            };
+            stompClient.send(`/app/presence/${roomId}`, {}, JSON.stringify(statusRequest));
+
+            // Start heartbeat to maintain presence
+            startHeartbeat();
+
+            // load history via REST
+            console.log('Loading chat history...');
+            const fetchHeaders = {
+                'Content-Type': 'application/json'
+            };
+            if (csrfToken && csrfHeader) {
+                fetchHeaders[csrfHeader] = csrfToken;
+            }
+
+            fetch(`/api/chat/history?user1=${currentUserId}&user2=${otherUserId}`, {
+                method: 'GET',
+                headers: fetchHeaders
+            })
+                .then(r => {
+                    console.log('Chat history response status:', r.status);
+                    if (!r.ok) {
+                        throw new Error(`HTTP ${r.status}: ${r.statusText}`);
+                    }
+                    return r.json();
+                })
+                .then(list => {
+                    console.log('Chat history loaded:', list);
+                    chatMessages.innerHTML = ''; // Clear loading state
+                    if (list.length === 0) {
+                        chatMessages.innerHTML = '<div class="text-center text-muted py-5">Chưa có tin nhắn nào. Hãy bắt đầu cuộc trò chuyện!</div>';
+                    } else {
+                        list.forEach(m => appendMessage(m));
+                    }
+                })
+                .catch(err => {
+                    console.error('Error loading chat history:', err);
+                    chatMessages.innerHTML = '<div class="text-center text-danger py-5">Không thể tải lịch sử tin nhắn: ' + err.message + '</div>';
+                });
+        }, (error) => {
+            console.error('WebSocket connection error:', error);
+            updateConnectionStatus(false);
+            retryCount++;
+
+            if (retryCount < MAX_RETRY_COUNT) {
+                chatMessages.innerHTML = `<div class="text-center text-danger py-5">Không thể kết nối. Đang thử lại... (${retryCount}/${MAX_RETRY_COUNT})</div>`;
+                setTimeout(connectChat, 5000); // Retry connection after 5 seconds
+            } else {
+                chatMessages.innerHTML = '<div class="text-center text-danger py-5">Không thể kết nối. Vui lòng tải lại trang.</div>';
+            }
+        });
+    }
+
+    let lastMessageDate = null;
+
+    function appendMessage(msg) {
+        const container = document.getElementById('chatMessages');
+        // Clear empty state if present
+        if (container.querySelector('.text-center')) {
+            container.innerHTML = '';
+        }
+
+        // Check if we need to add a date separator
+        const messageDate = new Date(msg.sentAt);
+        const messageDateString = messageDate.toDateString();
+
+        if (lastMessageDate !== messageDateString) {
+            const dateSeparator = document.createElement('div');
+            dateSeparator.className = 'date-separator';
+            dateSeparator.innerHTML = `<span>${formatDateSeparator(messageDate)}</span>`;
+            container.appendChild(dateSeparator);
+            lastMessageDate = messageDateString;
+        }
+
+        const isSent = msg.senderId === currentUserId;
+        const wrapper = document.createElement('div');
+        wrapper.className = 'message ' + (isSent ? 'sent' : 'received');
+
+        let content = '';
+        if (msg.messageType === 'IMAGE' && msg.imageUrl) {
+            content = `<img src="${msg.imageUrl}" style="max-width: 200px; max-height: 200px; border-radius: 12px; cursor: pointer;" onclick="openImageViewer('${msg.imageUrl}')">`;
+        } else if (msg.content) {
+            content = escapeHtml(msg.content);
+        }
+
+        // Only show avatar for received messages (from the customer)
+        const customerAvatar = '[[${customer.avatarUrl}]]' || 'https://ui-avatars.com/api/?name=[[${customer.fullName}]]&background=fff&color=8b5cf6&size=128&bold=true';
+
+        if (isSent) {
+            // Sent messages - no avatar
+            wrapper.innerHTML = `
+                <div class="message-content-wrapper">
+                    <div class="message-bubble">${content}</div>
+                    <div class="message-time">${formatTime(msg.sentAt)}</div>
+                </div>
+            `;
+        } else {
+            // Received messages - show customer avatar
+            wrapper.innerHTML = `
+                <img src="${customerAvatar}" alt="Customer Avatar" class="message-avatar">
+                <div class="message-content-wrapper">
+                    <div class="message-bubble">${content}</div>
+                    <div class="message-time">${formatTime(msg.sentAt)}</div>
+                </div>
+            `;
+        }
+
+        container.appendChild(wrapper);
+        container.scrollTop = container.scrollHeight;
+    }
+
+    function formatTime(dateString) {
+        if (!dateString) return new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+        const date = new Date(dateString);
+        return date.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+    }
+
+    function formatDateSeparator(date) {
+        const today = new Date();
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+
+        if (date.toDateString() === today.toDateString()) {
+            return 'Hôm nay';
+        } else if (date.toDateString() === yesterday.toDateString()) {
+            return 'Hôm qua';
+        } else {
+            const options = { weekday: 'short', day: 'numeric', month: 'numeric' };
+            return date.toLocaleDateString('vi-VN', options);
+        }
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // === Image selection & preview ===
+    let pendingImageFile = null;
+    const previewContainer = document.getElementById('previewContainer');
+
+    function clearPreview() {
+        pendingImageFile = null;
+        previewContainer.innerHTML = '';
+    }
+
+    document.getElementById('imageInput').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        pendingImageFile = file;
+        previewContainer.innerHTML = '';
+        const wrapper = document.createElement('div');
+        wrapper.className = 'preview-img-wrapper';
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(file);
+        const btn = document.createElement('button');
+        btn.innerHTML = '×';
+        btn.title = 'Xóa';
+        btn.onclick = clearPreview;
+        wrapper.appendChild(img);
+        wrapper.appendChild(btn);
+        previewContainer.appendChild(wrapper);
+        // Reset input to allow re-select same file later
+        e.target.value = '';
+    });
+
+    // Make sendMessage function global
+    window.sendMessage = async function() {
+        console.log('sendMessage function called');
+        const input = document.getElementById('messageInput');
+        const message = input.value.trim();
+
+        // Allow sending if there's either a message or an image
+        if (!message && !pendingImageFile) {
+            console.log('No message or image to send');
+            return; // Don't send if there's nothing to send
+        }
+
+        console.log('Attempting to send message:', message);
+        console.log('Connection status:', {
+            stompClient: !!stompClient,
+            connected: stompClient?.connected,
+            isConnected: isConnected
+        });
+
+        if (!stompClient || !stompClient.connected) {
+            console.error('WebSocket not connected');
+            alert('Không thể gửi tin nhắn. Đang kết nối lại...');
+            connectChat();
+            return;
+        }
+
+        async function uploadImageAndSend() {
+            // Upload image
+            const formData = new FormData();
+            formData.append('file', pendingImageFile);
+            const uploadHeaders = {};
+            const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+            if (csrfToken && csrfHeader) uploadHeaders[csrfHeader] = csrfToken;
+            try {
+                const res = await fetch('/api/chat/upload-image', { method:'POST', headers: uploadHeaders, body: formData });
+                const data = await res.json();
+                if (data.url) {
+                    const imgMsg = { senderId: currentUserId, receiverId: otherUserId, content:'', messageType:'IMAGE', imageUrl: data.url };
+                    stompClient.send(`/app/chat/${roomId}`, {}, JSON.stringify(imgMsg));
+                }
+            } catch(err){ console.error('Upload error',err); alert('Không thể tải ảnh.'); }
+            clearPreview();
+        }
+
+        // If there's an image pending, upload first
+        if (pendingImageFile) await uploadImageAndSend();
+
+        // Send text message if exists
+        if (message) {
+            const msg = { senderId: currentUserId, receiverId: otherUserId, content: message, messageType:'TEXT', sentAt:new Date().toISOString() };
+            console.log('Sending message:', msg);
+            try { stompClient.send(`/app/chat/${roomId}`, {}, JSON.stringify(msg)); } catch(err){ console.error('Send error',err); }
+        }
+
+        input.value=''; input.focus();
+    };
+
+    // Enter key to send message
+    document.getElementById('messageInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            window.sendMessage();
+        }
+    });
+
+    // Connect when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('DOM Content Loaded');
+        console.log('Functions available:', {
+            sendMessage: typeof window.sendMessage,
+            connectChat: typeof connectChat,
+            appendMessage: typeof appendMessage
+        });
+
+        // Set current date in chat header
+        updateChatDate();
+        connectChat();
+
+        // Update last seen time every minute
+        setInterval(() => {
+            const statusBadge = document.querySelector('.status-badge');
+            if (statusBadge && statusBadge.textContent === 'Offline' && lastSeenTimestamp) {
+                updateLastSeenTime(new Date(lastSeenTimestamp).toISOString());
+            }
+        }, 60000); // Update every minute
+    });
+
+    function updateChatDate() {
+        const chatDateElement = document.getElementById('chat-date');
+        if (chatDateElement) {
+            chatDateElement.textContent = 'Chưa có hoạt động';
+        }
+    }
+
+    function updateLastSeenTime(timestamp) {
+        const chatDateElement = document.getElementById('chat-date');
+        if (chatDateElement && timestamp) {
+            const lastSeenDate = new Date(timestamp);
+            const now = new Date();
+            const diffInMinutes = Math.floor((now - lastSeenDate) / (1000 * 60));
+
+            let lastSeenText;
+            if (diffInMinutes < 1) {
+                lastSeenText = 'Vừa mới hoạt động';
+            } else if (diffInMinutes < 60) {
+                lastSeenText = `Hoạt động ${diffInMinutes} phút trước`;
+            } else if (diffInMinutes < 1440) { // Less than 24 hours
+                const hours = Math.floor(diffInMinutes / 60);
+                lastSeenText = `Hoạt động ${hours} giờ trước`;
+            } else {
+                const options = {
+                    weekday: 'short',
+                    day: 'numeric',
+                    month: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                };
+                lastSeenText = `Hoạt động lúc ${lastSeenDate.toLocaleDateString('vi-VN', options)}`;
+            }
+
+            chatDateElement.textContent = lastSeenText;
+        }
+    }
+
+    // Send offline presence and disconnect on page unload
+    window.addEventListener('beforeunload', () => {
+        if (stompClient && stompClient.connected) {
+            // Send offline presence notification before disconnecting
+            const leavePresence = {
+                userId: currentUserId,
+                status: 'offline',
+                roomId: roomId,
+                timestamp: new Date().toISOString()
+            };
+            stompClient.send(`/app/presence/${roomId}`, {}, JSON.stringify(leavePresence));
+            stopHeartbeat();
+            stompClient.disconnect();
+        }
+    });
+
+    // Also handle page unload with pagehide (more reliable on mobile)
+    window.addEventListener('pagehide', () => {
+        if (stompClient && stompClient.connected) {
+            const leavePresence = {
+                userId: currentUserId,
+                status: 'offline',
+                roomId: roomId,
+                timestamp: new Date().toISOString()
+            };
+            stompClient.send(`/app/presence/${roomId}`, {}, JSON.stringify(leavePresence));
+            stopHeartbeat();
+            stompClient.disconnect();
+        }
+    });
+
+    // Also handle when page becomes hidden (user switches tabs, etc.)
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            // Send offline when page becomes hidden and stop heartbeat
+            if (stompClient && stompClient.connected) {
+                const hiddenPresence = {
+                    userId: currentUserId,
+                    status: 'offline',
+                    roomId: roomId,
+                    timestamp: new Date().toISOString()
+                };
+                stompClient.send(`/app/presence/${roomId}`, {}, JSON.stringify(hiddenPresence));
+            }
+            stopHeartbeat();
+        } else {
+            // Send online when page becomes visible and reconnect if needed
+            if (!isConnected) {
+                connectChat();
+            } else if (stompClient && stompClient.connected) {
+                const visiblePresence = {
+                    userId: currentUserId,
+                    status: 'online',
+                    roomId: roomId,
+                    timestamp: new Date().toISOString()
+                };
+                stompClient.send(`/app/presence/${roomId}`, {}, JSON.stringify(visiblePresence));
+                startHeartbeat();
+            }
+        }
+    });
+
+    // Image viewer functionality
+    let currentImages = [];
+    let currentImageIndex = 0;
+
+    function openImageViewer(imageUrl) {
+        // Collect all images from the chat
+        currentImages = [];
+        const chatImages = document.querySelectorAll('#chatMessages img[src*="http"]');
+        chatImages.forEach(img => {
+            if (img.src && !img.src.includes('ui-avatars.com')) {
+                currentImages.push(img.src);
+            }
+        });
+
+        // Find the index of the clicked image
+        currentImageIndex = currentImages.indexOf(imageUrl);
+        if (currentImageIndex === -1) {
+            currentImageIndex = 0;
+        }
+
+        showImageInViewer();
+        document.getElementById('imageViewerModal').style.display = 'flex';
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    }
+
+    function closeImageViewer() {
+        document.getElementById('imageViewerModal').style.display = 'none';
+        document.body.style.overflow = ''; // Restore scrolling
+    }
+
+    function showPrevImage() {
+        if (currentImageIndex > 0) {
+            currentImageIndex--;
+            showImageInViewer();
+        }
+    }
+
+    function showNextImage() {
+        if (currentImageIndex < currentImages.length - 1) {
+            currentImageIndex++;
+            showImageInViewer();
+        }
+    }
+
+    function showImageInViewer() {
+        const img = document.getElementById('imageViewerImg');
+        const counter = document.getElementById('imageViewerCounter');
+        const prevBtn = document.querySelector('.image-viewer-prev');
+        const nextBtn = document.querySelector('.image-viewer-next');
+
+        if (currentImages.length > 0) {
+            img.src = currentImages[currentImageIndex];
+            counter.textContent = `${currentImageIndex + 1} / ${currentImages.length}`;
+
+            // Update navigation button states
+            prevBtn.classList.toggle('disabled', currentImageIndex === 0);
+            nextBtn.classList.toggle('disabled', currentImageIndex === currentImages.length - 1);
+        }
+    }
+
+    // Close modal when clicking outside the image
+    document.getElementById('imageViewerModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeImageViewer();
+        }
+    });
+
+    // Keyboard navigation
+    document.addEventListener('keydown', function(e) {
+        const modal = document.getElementById('imageViewerModal');
+        if (modal.style.display === 'flex') {
+            switch(e.key) {
+                case 'Escape':
+                    closeImageViewer();
+                    break;
+                case 'ArrowLeft':
+                    showPrevImage();
+                    break;
+                case 'ArrowRight':
+                    showNextImage();
+                    break;
+            }
+        }
+    });
+</script>
+
+</body>
+</html>

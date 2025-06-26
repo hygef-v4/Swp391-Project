@@ -142,8 +142,16 @@ public class BookingService {
         return bookingRepo.findBookingsByStatusAndCustomerPaginated(customerId, "completed", "past", page, size);
     }
 
+    public List<Booking> getCheckinBookingsPaginated(int customerId, int page, int size) {
+        return bookingRepo.findBookingsByStatusAndCustomerPaginated(customerId, "check_in", null, page, size);
+    }
+
     public int getTotalPagesUpcoming(int customerId, int size) {
         int count = bookingRepo.countBookingsByStatusAndCustomer(customerId, "approved", "future");
+        return (int) Math.ceil((double) count / size);
+    }
+    public int getTotalPagesCheckin(int customerId, int size) {
+        int count = bookingRepo.countBookingsByStatusAndCustomer(customerId, "check_in", null);
         return (int) Math.ceil((double) count / size);
     }
 
@@ -159,6 +167,10 @@ public class BookingService {
 
     public int getTotalCompletedBookings(int customerId) {
         return bookingRepo.countBookingsByStatusAndCustomer(customerId, "completed", "past");
+    }
+
+    public int getTotalCheckinBookings(int customerId) {
+        return bookingRepo.countBookingsByStatusAndCustomer(customerId, "check_in", null);
     }
 
     public int getTotalUpcomingBookings(int customerId) {
@@ -215,5 +227,4 @@ public class BookingService {
     public int countBookingsByHotelId(int hotelId) {
         return bookingRepo.countBookingsByHotelId(hotelId);
     }
-
 }

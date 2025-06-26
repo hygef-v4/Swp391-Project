@@ -215,7 +215,8 @@ public class BookingRepo {
                     .build();
 
             booking.setBookingUnits(findBookingUnitsByBookingId(bookingId));
-
+            booking.setStatus(booking.determineStatus());
+            booking.setTotalPrice(booking.calculateTotalPrice());
             return booking;
         }, id);
     }
@@ -730,7 +731,6 @@ public class BookingRepo {
             params.add(likeKeyword); // check_in date as string
             params.add(likeKeyword); // check_out date as string
         }
-
 
         sql.append(" ORDER BY b.created_at DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
         params.add(page * size);
