@@ -329,6 +329,7 @@ Page banner START -->
 				<div class="col-sm-9">
 					<div class="card-body">
 						<!-- Title -->
+                        <a th:href="'/hotel-detail?hotelId=' + ${hotel.hotelId} + '&dateRange=' + ${dateRange} + '&guest=' + ${guests} + '&rooms=' + ${roomQuantity}"><h5><i class="bi bi-arrow-left"></i> Quay lại</h5></a>
 						<h1 class="m-0 h2 card-title">Đặt Phòng</h1>
 					</div>
 				</div>
@@ -518,7 +519,7 @@ Page content START -->
                                                             </div>                                                            
                                                             <div>
                                                                 <span>Còn: </span>
-                                                                <b th:class="'fw-bold mb-0 me-1' + ${room.quantity == 0 ? ' text-danger' : ''}" th:text="${room.quantity}"></b>
+                                                                <b th:class="'fw-bold mb-0 me-1' + ${room.quantity <= 0 ? ' text-danger' : ''}" th:text="${room.quantity}"></b>
                                                             </div>
                                                         </div>                 
 
@@ -588,7 +589,7 @@ Page content START -->
 
                                                         <div class="d-flex justify-content-end align-items-center">
                                                             <span>Số lượng: </span>
-                                                            <b th:class="'fw-bold mb-0 me-1' + ${room.quantity == 0 ? ' text-danger' : ''}" th:text="${room.quantity}"></b>
+                                                            <b th:class="'fw-bold mb-0 me-1' + ${room.quantity <= 0 ? ' text-danger' : ''}" th:text="${room.quantity}"></b>
                                                         </div>                 
 
                                                         <!-- Price and Button -->
@@ -600,7 +601,7 @@ Page content START -->
                                                             </div>
                                                             <!-- Price -->
                                                             <div class="mt-3 mt-sm-0">
-                                                                <a th:class="'btn btn-sm btn-primary mb-0' + ${room.quantity == 0 ? ' disabled' : ''}" th:onclick="'booking(' + ${room.roomId} + ')'">Chọn Phòng</a>    
+                                                                <a th:class="'btn btn-sm btn-primary mb-0' + ${room.quantity <= 0 ? ' disabled' : ''}" th:onclick="'booking(' + ${room.roomId} + ')'">Chọn Phòng</a>    
                                                             </div>                  
                                                         </div>
                                                     </div>

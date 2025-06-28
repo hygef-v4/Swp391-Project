@@ -236,9 +236,9 @@
                     <!-- Title -->
                     <h6 class="d-none d-xl-block mb-3">Kiểm tra phòng trống</h6>
 
-                    <!-- Booking from START -->
+                    <!-- Search with offcanvas START -->
                     <form th:action="@{/hotel-list}" method="GET"
-                          class="card shadow rounded-3 position-relative p-4 pe-md-5 pb-5 pb-md-4">
+                            class="card shadow rounded-3 position-relative p-4 pe-md-5 pb-5 pb-md-4">
                         <div class="row g-4 align-items-center">
                             <!-- Location -->
                             <div class="col-lg-4">
@@ -255,12 +255,8 @@
                                                     th:each="location : ${session.locations}"
                                                     th:value="${location.id}"
                                                     th:text="${location.cityName}"
-
                                             >
-
-
                                             </option>
-
                                         </select>
                                     </div>
                                 </div>
@@ -274,8 +270,7 @@
                                     <!-- Date input -->
                                     <div class="form-control-border form-control-transparent form-fs-md">
                                         <label class="form-label">Nhận phòng – Trả phòng</label>
-                                        <input type="text" class="form-control flatpickr" data-mode="range"
-                                               name="dateRange" placeholder="Chọn ngày">
+                                        <input type="text" class="form-control flatpickr" data-mode="range" name="dateRange" placeholder="Chọn ngày">
                                     </div>
                                 </div>
                             </div>
@@ -289,47 +284,24 @@
                                     <div class="w-100">
                                         <label class="form-label">Khách & Phòng</label>
                                         <div class="dropdown guest-selector me-2">
-                                            <input readonly type="text"
-                                                   class="form-guest-selector form-control selection-result"
-                                                   value="1 Khách 1 Phòng" data-bs-auto-close="outside"
-                                                   data-bs-toggle="dropdown">
+                                            <input readonly type="text" class="form-guest-selector form-control selection-result" value="1 Khách 1 Phòng" data-bs-auto-close="outside" data-bs-toggle="dropdown">
 
                                             <!-- dropdown items -->
                                             <ul class="dropdown-menu guest-selector-dropdown">
-                                                <!-- Adult -->
+                                                <!-- Guest -->
                                                 <li class="d-flex justify-content-between">
                                                     <div>
-                                                        <h6 class="mb-0">Người lớn</h6>
-                                                        <small>18 tuổi trở lên</small>
+                                                        <h6 class="mb-0">Khách</h6>
                                                     </div>
 
                                                     <div class="hstack gap-1 align-items-center">
-                                                        <button type="button"
-                                                                class="btn btn-link adult-remove p-0 mb-0"><i
-                                                                class="bi bi-dash-circle fs-5 fa-fw"></i></button>
-                                                        <h6 class="guest-selector-count mb-0 adults">1</h6>
-                                                        <button type="button" class="btn btn-link adult-add p-0 mb-0"><i
-                                                                class="bi bi-plus-circle fs-5 fa-fw"></i></button>
-                                                    </div>
-                                                </li>
-
-                                                <!-- Divider -->
-                                                <li class="dropdown-divider"></li>
-
-                                                <!-- Child -->
-                                                <li class="d-flex justify-content-between">
-                                                    <div>
-                                                        <h6 class="mb-0">Trẻ em </h6>
-                                                        <small>0-17 tuổi</small>
-                                                    </div>
-
-                                                    <div class="hstack gap-1 align-items-center">
-                                                        <button type="button"
-                                                                class="btn btn-link child-remove p-0 mb-0"><i
-                                                                class="bi bi-dash-circle fs-5 fa-fw"></i></button>
-                                                        <h6 class="guest-selector-count mb-0 child">0</h6>
-                                                        <button type="button" class="btn btn-link child-add p-0 mb-0"><i
-                                                                class="bi bi-plus-circle fs-5 fa-fw"></i></button>
+                                                        <button type="button" class="btn btn-link guest-remove p-0 mb-0 disabled">
+                                                            <i class="bi bi-dash-circle fs-5 fa-fw"></i>
+                                                        </button>
+                                                        <h6 class="guest-selector-count mb-0 guests">1</h6>
+                                                        <button type="button" class="btn btn-link guest-add p-0 mb-0">
+                                                            <i class="bi bi-plus-circle fs-5 fa-fw"></i>
+                                                        </button>
                                                     </div>
                                                 </li>
 
@@ -339,16 +311,17 @@
                                                 <!-- Rooms -->
                                                 <li class="d-flex justify-content-between">
                                                     <div>
-                                                        <h6 class="mb-0">Phòng </h6>
-                                                        <!-- <small>Tối đa 8 phòng</small> -->
+                                                        <h6 class="mb-0">Phòng</h6>
                                                     </div>
 
                                                     <div class="hstack gap-1 align-items-center">
-                                                        <button type="button" class="btn btn-link room-remove p-0 mb-0">
-                                                            <i class="bi bi-dash-circle fs-5 fa-fw"></i></button>
+                                                        <button type="button" class="btn btn-link room-remove p-0 mb-0 disabled">
+                                                            <i class="bi bi-dash-circle fs-5 fa-fw"></i>
+                                                        </button>
                                                         <h6 class="guest-selector-count mb-0 rooms">1</h6>
-                                                        <button type="button" class="btn btn-link room-add p-0 mb-0"><i
-                                                                class="bi bi-plus-circle fs-5 fa-fw"></i></button>
+                                                        <button type="button" class="btn btn-link room-add p-0 mb-0">
+                                                            <i class="bi bi-plus-circle fs-5 fa-fw"></i>
+                                                        </button>
                                                     </div>
                                                 </li>
                                             </ul>
@@ -358,10 +331,8 @@
                             </div>
                         </div>
 
-                        <!--                        hidden field for adults, children, and rooms-->
-
-                        <input type="hidden" name="adults" id="adultsInput" value="1">
-                        <input type="hidden" name="children" id="childrenInput" value="0">
+                        <!--Hidden field for guests and rooms-->
+                        <input type="hidden" name="guests" id="guestsInput" value="1">
                         <input type="hidden" name="rooms" id="roomsInput" value="1">
 
 
@@ -370,9 +341,9 @@
                             <button type="submit" class="icon-lg btn btn-round btn-primary mb-0">
                                 <i class="bi bi-search fa-fw"></i>
                             </button>
-                        </div>
+                        </div>			
                     </form>
-                    <!-- Booking from END -->
+                    <!-- Search with offcanvas END -->
                 </div>
             </div>
             <!-- Search END -->

@@ -5,6 +5,7 @@ import org.swp391.hotelbookingsystem.model.Hotel;
 import org.swp391.hotelbookingsystem.repository.HotelRepository;
 
 import java.time.LocalDateTime;
+import java.sql.Date;
 import java.util.List;
 
 @Service
@@ -28,8 +29,8 @@ public class HotelService {
         return hotelRepository.getTop8HighRatedHotels();
     }
 
-    public List<Hotel> getHotelsByLocation(int id, int maxGuests, int roomQuantity, String name, int min, int max, boolean star) {
-        return hotelRepository.getHotelsByLocation(id, maxGuests, roomQuantity, name, min, max, star);
+    public List<Hotel> getHotelsByLocation(int id, Date checkin, Date checkout, int maxGuests, int roomQuantity, String name, int min, int max, boolean star) {
+        return hotelRepository.getHotelsByLocation(id, checkin, checkout, maxGuests, roomQuantity, name, min, max, star);
     }
 
     public Hotel saveHotel(Hotel hotel) {

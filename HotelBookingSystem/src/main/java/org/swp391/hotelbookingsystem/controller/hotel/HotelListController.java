@@ -2,7 +2,8 @@ package org.swp391.hotelbookingsystem.controller.hotel;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import java.sql.Date;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,8 +11,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.swp391.hotelbookingsystem.model.Amenity;
-import org.swp391.hotelbookingsystem.model.AmenityCategory;
 import org.swp391.hotelbookingsystem.model.Hotel;
 import org.swp391.hotelbookingsystem.model.Location;
 import org.swp391.hotelbookingsystem.service.AmenityService;
@@ -32,8 +31,7 @@ public class HotelListController {
     public String hotelList(
         @RequestParam(value = "locationId", defaultValue = "-1") int locationId,
         @RequestParam(value = "dateRange", defaultValue = "") String dateRange,
-        @RequestParam(value = "adults", defaultValue = "1") int adults,
-        @RequestParam(value = "children", defaultValue = "0") int children,
+        @RequestParam(value = "guests", defaultValue = "1") int guests,
         @RequestParam(value = "rooms", defaultValue = "1") int rooms,
 
         @RequestParam(value = "name", defaultValue = "") String name,
@@ -55,9 +53,11 @@ public class HotelListController {
         model.addAttribute("locations", locations);
 
         model.addAttribute("dateRange", dateRange);
+        String[] date = dateRange.split(" => ");
+        Date checkin = !date[0].isBlank() ? Date.valueOf(date[0]) : null;
+        Date checkout = date.length >= 2 ? Date.valueOf(date[1]) : null;
 
-        model.addAttribute("adults", adults);
-        model.addAttribute("children", children);
+        model.addAttribute("guests", guests);
         model.addAttribute("rooms", rooms);
 
         int minPrice = Integer.parseInt(min.replace(",", ""));
@@ -67,7 +67,7 @@ public class HotelListController {
         model.addAttribute("min", minPrice/1000);
         model.addAttribute("max", maxPrice/1000);
 
-        List<Hotel> hotel = hotelService.getHotelsByLocation(locationId, (adults + children), rooms, name.trim(), minPrice, maxPrice, star);
+        List<Hotel> hotel = hotelService.getHotelsByLocation(locationId, checkin, checkout, guests, rooms, name.trim(), minPrice, maxPrice, star);
         int item = page * 12;
         
         List<Hotel> current;
@@ -82,8 +82,7 @@ public class HotelListController {
         String redirect = "";
         if(locationId != -1) redirect += "&locationId=" + locationId;
         if(!"".equals(dateRange)) redirect += "&dateRange=" + URLEncoder.encode(dateRange, StandardCharsets.UTF_8);
-        if(adults != 1) redirect += "&adults=" + adults;
-        if(children != 0) redirect += "&children=" + children;
+        if(guests != 1) redirect += "&guests=" + guests;
         if(rooms != 1) redirect += "&rooms=" + rooms;
         model.addAttribute("redirect", redirect);
 

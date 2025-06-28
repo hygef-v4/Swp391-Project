@@ -2,6 +2,8 @@ package org.swp391.hotelbookingsystem.controller.hotel;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.sql.Date;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,8 +45,7 @@ public class HotelDetailController {
         @RequestParam(value = "hotelId") int hotelId,
     
         @RequestParam(value = "dateRange", defaultValue = "") String dateRange,
-        @RequestParam(value = "adults", defaultValue = "1") int adults,
-        @RequestParam(value = "children", defaultValue = "0") int children,
+        @RequestParam(value = "guests", defaultValue = "1") int guests,
         @RequestParam(value = "rooms", defaultValue = "1") int roomQuantity,
         
         Model model, HttpSession session
@@ -53,9 +54,11 @@ public class HotelDetailController {
         model.addAttribute("locations", locations);
 
         model.addAttribute("dateRange", dateRange);
+        String[] date = dateRange.split(" => ");
+        Date checkin = !date[0].isBlank() ? Date.valueOf(date[0]) : null;
+        Date checkout = date.length > 1 ? Date.valueOf(date[1]) : checkin;
 
-        model.addAttribute("adults", adults);
-        model.addAttribute("children", children);
+        model.addAttribute("guests", guests);
         model.addAttribute("roomQuantity", roomQuantity);
 
         Hotel hotel = hotelService.getHotelById(hotelId);
@@ -70,8 +73,7 @@ public class HotelDetailController {
 
         String redirect = "";
         if(!"".equals(dateRange)) redirect += "&dateRange=" + URLEncoder.encode(dateRange, StandardCharsets.UTF_8);
-        if(adults != 1) redirect += "&adults=" + adults;
-        if(children != 0) redirect += "&children=" + children;
+        if(guests != 1) redirect += "&guests=" + guests;
         if(roomQuantity != 1) redirect += "&rooms=" + roomQuantity;
         model.addAttribute("redirect", redirect);
 
@@ -92,7 +94,7 @@ public class HotelDetailController {
             }
         }
         
-        List<Room> rooms = roomService.getRoomByHotelId(hotelId);
+        List<Room> rooms = roomService.getRoomsByIdAndDateRange(hotelId, checkin, checkout);
         for(Room room : rooms){
             room.setDescription("<li>Sức chứa: " + room.getMaxGuests() + " Người</li>" + room.getDescription());
 

@@ -2,6 +2,7 @@ package org.swp391.hotelbookingsystem.controller.booking;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -46,7 +47,10 @@ public class BookingController {
     @GetMapping("/booking/{id}")
     public String booking(
         @PathVariable(value = "id") int hotelId,
+
         @RequestParam(value = "dateRange") String dateRange,
+        @RequestParam(value = "guests") String guests,
+        @RequestParam(value = "rooms") String roomQuantity,
         
         Model model, HttpSession session
     ){
@@ -56,8 +60,19 @@ public class BookingController {
         Hotel hotel = hotelService.getHotelById(hotelId);
         hotel.setPolicy(hotel.getPolicy().replace("<li>", "<li class=\"list-group-item d-flex\"><i class=\"bi bi-arrow-right me-2\"></i>"));
         model.addAttribute("hotel", hotel);
+
+        model.addAttribute("dateRange", dateRange);
+        String[] date = dateRange.split(" => ");
+        Date checkin = !date[0].isBlank() ? Date.valueOf(date[0]) : null;
+        Date checkout = date.length > 1 ? Date.valueOf(date[1]) : checkin;
+
+        model.addAttribute("checkIn", date[0]);
+        model.addAttribute("checkOut", date.length > 1 ? date[1] : date[0]);
+
+        model.addAttribute("guests", guests);
+        model.addAttribute("roomQuantity", roomQuantity);
         
-        List<Room> rooms = roomService.getAvailableRoomsByHotelId(hotelId);
+        List<Room> rooms = roomService.getRoomsByIdAndDateRange(hotelId, checkin, checkout);
         for(Room room : rooms){
             room.setDescription("<li>Sức chứa: " + room.getMaxGuests() + " Người</li>" + room.getDescription());
 
@@ -81,10 +96,6 @@ public class BookingController {
         String encode = URLEncoder.encode(hotelName, StandardCharsets.UTF_8);
         String map = "https://www.google.com/maps/search/" + encode + "//@" + hotel.getLatitude() + "," + hotel.getLongitude() + ",17z";
         model.addAttribute("map", map);
-
-        String[] dates = dateRange.split(" => ");
-        model.addAttribute("checkIn", dates[0]);
-        model.addAttribute("checkOut", dates.length > 1 ? dates[1] : dates[0]);
 
         return "page/booking";
     }

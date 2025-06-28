@@ -123,7 +123,7 @@ Main Banner START -->
 				</div>
 			</div>
 
-			<!-- Booking from START -->
+			<!-- Search with offcanvas START -->
 			<form th:action="@{/hotel-list}" method="GET"
 					class="card shadow rounded-3 position-relative p-4 pe-md-5 pb-5 pb-md-4">
 				<div class="row g-4 align-items-center">
@@ -172,47 +172,24 @@ Main Banner START -->
 							<div class="w-100">
 								<label class="form-label">Khách & Phòng</label>
 								<div class="dropdown guest-selector me-2">
-									<input readonly type="text"
-										   class="form-guest-selector form-control selection-result"
-										   th:value="${adults+children} + ' Khách ' + ${rooms} + ' Phòng'" data-bs-auto-close="outside"
-										   data-bs-toggle="dropdown">
+									<input readonly type="text" class="form-guest-selector form-control selection-result" th:value="${guests} + ' Khách ' + ${rooms} + ' Phòng'" data-bs-auto-close="outside" data-bs-toggle="dropdown">
 
 									<!-- dropdown items -->
 									<ul class="dropdown-menu guest-selector-dropdown">
-										<!-- Adult -->
+										<!-- Guest -->
 										<li class="d-flex justify-content-between">
 											<div>
-												<h6 class="mb-0">Người lớn</h6>
-												<small>18 tuổi trở lên</small>
+												<h6 class="mb-0">Khách</h6>
 											</div>
 
 											<div class="hstack gap-1 align-items-center">
-												<button type="button"
-														class="btn btn-link adult-remove p-0 mb-0"><i
-														class="bi bi-dash-circle fs-5 fa-fw"></i></button>
-												<h6 class="guest-selector-count mb-0 adults" th:text="${adults}"></h6>
-												<button type="button" class="btn btn-link adult-add p-0 mb-0"><i
-														class="bi bi-plus-circle fs-5 fa-fw"></i></button>
-											</div>
-										</li>
-
-										<!-- Divider -->
-										<li class="dropdown-divider"></li>
-
-										<!-- Child -->
-										<li class="d-flex justify-content-between">
-											<div>
-												<h6 class="mb-0">Trẻ em </h6>
-												<small>0-17 tuổi</small>
-											</div>
-
-											<div class="hstack gap-1 align-items-center">
-												<button type="button"
-														class="btn btn-link child-remove p-0 mb-0"><i
-														class="bi bi-dash-circle fs-5 fa-fw"></i></button>
-												<h6 class="guest-selector-count mb-0 child" th:text="${children}"></h6>
-												<button type="button" class="btn btn-link child-add p-0 mb-0"><i
-														class="bi bi-plus-circle fs-5 fa-fw"></i></button>
+												<button type="button" th:class="'btn btn-link guest-remove p-0 mb-0' + ${guests == 1 ? ' disabled' : ''}">
+													<i class="bi bi-dash-circle fs-5 fa-fw"></i>
+												</button>
+												<h6 class="guest-selector-count mb-0 guests" th:text="${guests}"></h6>
+												<button type="button" th:class="'btn btn-link guest-add p-0 mb-0' + ${guests == 50 ? ' disabled' : ''}">
+													<i class="bi bi-plus-circle fs-5 fa-fw"></i>
+												</button>
 											</div>
 										</li>
 
@@ -222,16 +199,17 @@ Main Banner START -->
 										<!-- Rooms -->
 										<li class="d-flex justify-content-between">
 											<div>
-												<h6 class="mb-0">Phòng </h6>
-												<!-- <small>Tối đa 8 phòng</small> -->
+												<h6 class="mb-0">Phòng</h6>
 											</div>
 
 											<div class="hstack gap-1 align-items-center">
-												<button type="button" class="btn btn-link room-remove p-0 mb-0">
-													<i class="bi bi-dash-circle fs-5 fa-fw"></i></button>
+												<button type="button" th:class="'btn btn-link room-remove p-0 mb-0' + ${rooms == 1 ? ' disabled' : ''}">
+													<i class="bi bi-dash-circle fs-5 fa-fw"></i>
+												</button>
 												<h6 class="guest-selector-count mb-0 rooms" th:text="${rooms}"></h6>
-												<button type="button" class="btn btn-link room-add p-0 mb-0"><i
-														class="bi bi-plus-circle fs-5 fa-fw"></i></button>
+												<button type="button" th:class="'btn btn-link room-add p-0 mb-0' + ${rooms == 20 ? ' disabled' : ''}">
+													<i class="bi bi-plus-circle fs-5 fa-fw"></i>
+												</button>
 											</div>
 										</li>
 									</ul>
@@ -241,10 +219,8 @@ Main Banner START -->
 					</div>
 				</div>
 
-				<!--                        hidden field for adults, children, and rooms-->
-				
-				<input type="hidden" name="adults" id="adultsInput" th:value="${adults}">
-				<input type="hidden" name="children" id="childrenInput" th:value="${children}">
+				<!--Hidden field for guests and rooms-->
+				<input type="hidden" name="guests" id="guestsInput" th:value="${guests}">
 				<input type="hidden" name="rooms" id="roomsInput" th:value="${rooms}">
 
 
@@ -255,7 +231,7 @@ Main Banner START -->
 					</button>
 				</div>			
 			</form>
-			<!-- Booking from END -->
+			<!-- Search with offcanvas END -->
 		</div>
 	</div>
 </section>
@@ -298,8 +274,7 @@ Title and Tabs START -->
 				<form class="row g-4" action="/hotel-list" method="GET" id="filter">
 					<input type="hidden" name="locationId" th:value="${hamora.id}">
 					<input type="hidden" name="dateRange" th:value="${dateRange}">
-					<input type="hidden" name="adults" th:value="${adults}">
-					<input type="hidden" name="children" th:value="${children}">
+					<input type="hidden" name="guests" th:value="${guests}">
 					<input type="hidden" name="rooms" th:value="${rooms}">	
 
 					<!-- Input item -->

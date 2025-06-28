@@ -35,7 +35,6 @@ public class HomeController {
         List<Location> locations = locationService.getAllLocations();
         session.setAttribute(ConstantVariables.LOCATIONS, locations);
 
-
         // Fetch top 4 high-rated hotels and add to model
         List<Hotel> topHotels = hotelService.getTop8HighRatedHotels();
         model.addAttribute("topHotels", topHotels);

@@ -174,47 +174,46 @@ Search START -->
 		<button class="btn btn-primary d-sm-none w-100 mb-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasEditsearch" aria-controls="offcanvasEditsearch"><i class="bi bi-pencil-square me-2"></i>Edit Search</button>
 
 		<!-- Search with offcanvas START -->
-        <form th:action="@{/hotel-list}" method="GET"
-                class="card shadow rounded-3 position-relative p-4 pe-md-5 pb-5 pb-md-4">
-            <div class="row g-4 align-items-center">
-                <!-- Location -->
-                <div class="col-lg-4">
-                    <div class="form-control-border form-control-transparent form-fs-md d-flex">
-                        <!-- Icon -->
-                        <i class="bi bi-geo-alt fs-3 me-2 mt-2"></i>
-                        <!-- Select input -->
-                        <div class="flex-grow-1">
-                            <label class="form-label">Địa điểm</label>
-                            <select name="locationId" class="form-select js-choice"
-                                    data-search-enabled="true">
-                                <option value="-1">Tất cả mọi nơi</option>
-                                <option
-                                        th:each="location : ${locations}"
-                                        th:value="${location.id}"
-                                        th:text="${location.cityName}"
-                                        th:selected="${location.id == hotel.locationId}"
-                                >
-                                </option>
+		<form th:action="@{/hotel-list}" method="GET"
+				class="card shadow rounded-3 position-relative p-4 pe-md-5 pb-5 pb-md-4">
+			<div class="row g-4 align-items-center">
+				<!-- Location -->
+				<div class="col-lg-4">
+					<div class="form-control-border form-control-transparent form-fs-md d-flex">
+						<!-- Icon -->
+						<i class="bi bi-geo-alt fs-3 me-2 mt-2"></i>
+						<!-- Select input -->
+						<div class="flex-grow-1">
+							<label class="form-label">Địa điểm</label>
+							<select name="locationId" class="form-select js-choice"
+									data-search-enabled="true">
+								<option value="-1">Tất cả mọi nơi</option>
+								<option
+										th:each="location : ${locations}"
+										th:value="${location.id}"
+										th:text="${location.cityName}"
+										th:selected="${location.id == hotel.locationId}"
+								>
+								</option>
+							</select>
+						</div>
+					</div>
+				</div>
 
-                            </select>
-                        </div>
-                    </div>
-                </div>
+				<!-- Check in -->
+				<div class="col-lg-4">
+					<div class="d-flex">
+						<!-- Icon -->
+						<i class="bi bi-calendar fs-3 me-2 mt-2"></i>
+						<!-- Date input -->
+						<div class="form-control-border form-control-transparent form-fs-md">
+							<label class="form-label">Nhận phòng – Trả phòng</label>
+							<input type="text" th:value="${dateRange}" class="form-control flatpickr" data-mode="range" name="dateRange" placeholder="Chọn ngày">
+						</div>
+					</div>
+				</div>
 
-                <!-- Check in -->
-                <div class="col-lg-4">
-                    <div class="d-flex">
-                        <!-- Icon -->
-                        <i class="bi bi-calendar fs-3 me-2 mt-2"></i>
-                        <!-- Date input -->
-                        <div class="form-control-border form-control-transparent form-fs-md">
-                            <label class="form-label">Nhận phòng – Trả phòng</label>
-                            <input type="text" th:value="${dateRange}" class="form-control flatpickr" data-mode="range" name="dateRange" placeholder="Chọn ngày">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Guest -->
+				<!-- Guest -->
 				<div class="col-lg-4">
 					<div class="form-control-border form-control-transparent form-fs-md d-flex">
 						<!-- Icon -->
@@ -223,47 +222,24 @@ Search START -->
 						<div class="w-100">
 							<label class="form-label">Khách & Phòng</label>
 							<div class="dropdown guest-selector me-2">
-								<input readonly type="text"
-										class="form-guest-selector form-control selection-result"
-										th:value="${adults+children} + ' Khách ' + ${roomQuantity} + ' Phòng'" data-bs-auto-close="outside"
-										data-bs-toggle="dropdown">
+								<input readonly type="text" class="form-guest-selector form-control selection-result" th:value="${guests} + ' Khách ' + ${roomQuantity} + ' Phòng'" data-bs-auto-close="outside" data-bs-toggle="dropdown">
 
 								<!-- dropdown items -->
 								<ul class="dropdown-menu guest-selector-dropdown">
-									<!-- Adult -->
+									<!-- Guest -->
 									<li class="d-flex justify-content-between">
 										<div>
-											<h6 class="mb-0">Người lớn</h6>
-											<small>18 tuổi trở lên</small>
+											<h6 class="mb-0">Khách</h6>
 										</div>
 
 										<div class="hstack gap-1 align-items-center">
-											<button type="button"
-													class="btn btn-link adult-remove p-0 mb-0"><i
-													class="bi bi-dash-circle fs-5 fa-fw"></i></button>
-											<h6 class="guest-selector-count mb-0 adults" th:text="${adults}"></h6>
-											<button type="button" class="btn btn-link adult-add p-0 mb-0"><i
-													class="bi bi-plus-circle fs-5 fa-fw"></i></button>
-										</div>
-									</li>
-
-									<!-- Divider -->
-									<li class="dropdown-divider"></li>
-
-									<!-- Child -->
-									<li class="d-flex justify-content-between">
-										<div>
-											<h6 class="mb-0">Trẻ em </h6>
-											<small>0-17 tuổi</small>
-										</div>
-
-										<div class="hstack gap-1 align-items-center">
-											<button type="button"
-													class="btn btn-link child-remove p-0 mb-0"><i
-													class="bi bi-dash-circle fs-5 fa-fw"></i></button>
-											<h6 class="guest-selector-count mb-0 child" th:text="${children}"></h6>
-											<button type="button" class="btn btn-link child-add p-0 mb-0"><i
-													class="bi bi-plus-circle fs-5 fa-fw"></i></button>
+											<button type="button" th:class="'btn btn-link guest-remove p-0 mb-0' + ${guests == 1 ? ' disabled' : ''}">
+												<i class="bi bi-dash-circle fs-5 fa-fw"></i>
+											</button>
+											<h6 class="guest-selector-count mb-0 guests" th:text="${guests}"></h6>
+											<button type="button" th:class="'btn btn-link guest-add p-0 mb-0' + ${guests == 50 ? ' disabled' : ''}">
+												<i class="bi bi-plus-circle fs-5 fa-fw"></i>
+											</button>
 										</div>
 									</li>
 
@@ -273,16 +249,17 @@ Search START -->
 									<!-- Rooms -->
 									<li class="d-flex justify-content-between">
 										<div>
-											<h6 class="mb-0">Phòng </h6>
-											<!-- <small>Tối đa 8 phòng</small> -->
+											<h6 class="mb-0">Phòng</h6>
 										</div>
 
 										<div class="hstack gap-1 align-items-center">
-											<button type="button" class="btn btn-link room-remove p-0 mb-0">
-												<i class="bi bi-dash-circle fs-5 fa-fw"></i></button>
+											<button type="button" th:class="'btn btn-link room-remove p-0 mb-0' + ${roomQuantity == 1 ? ' disabled' : ''}">
+												<i class="bi bi-dash-circle fs-5 fa-fw"></i>
+											</button>
 											<h6 class="guest-selector-count mb-0 rooms" th:text="${roomQuantity}"></h6>
-											<button type="button" class="btn btn-link room-add p-0 mb-0"><i
-													class="bi bi-plus-circle fs-5 fa-fw"></i></button>
+											<button type="button" th:class="'btn btn-link room-add p-0 mb-0' + ${roomQuantity == 20 ? ' disabled' : ''}">
+												<i class="bi bi-plus-circle fs-5 fa-fw"></i>
+											</button>
 										</div>
 									</li>
 								</ul>
@@ -292,19 +269,18 @@ Search START -->
 				</div>
 			</div>
 
-			<!--                        hidden field for adults, children, and rooms-->
-
-			<input type="hidden" name="adults" id="adultsInput" th:value="${adults}">
-			<input type="hidden" name="children" id="childrenInput" th:value="${children}">
+			<!--Hidden field for guests and rooms-->
+			<input type="hidden" name="guests" id="guestsInput" th:value="${guests}">
 			<input type="hidden" name="rooms" id="roomsInput" th:value="${roomQuantity}">
 
-            <!-- Button -->
-            <div class="btn-position-md-middle">
-                <button type="submit" class="icon-lg btn btn-round btn-primary mb-0">
-                    <i class="bi bi-search fa-fw"></i>
-                </button>
-            </div>
-        </form>
+
+			<!-- Button -->
+			<div class="btn-position-md-middle">
+				<button type="submit" class="icon-lg btn btn-round btn-primary mb-0">
+					<i class="bi bi-search fa-fw"></i>
+				</button>
+			</div>			
+		</form>
 		<!-- Search with offcanvas END -->
 	</div>
 </section>
@@ -547,7 +523,7 @@ About hotel START -->
 
 												<div class="d-flex justify-content-end align-items-center">
 													<span>Số lượng: </span>
-													<b th:class="'fw-bold mb-0 me-1' + ${room.quantity == 0 ? ' text-danger' : ''}" th:text="${room.quantity}"></b>
+													<b th:class="'fw-bold mb-0 me-1' + ${room.quantity <= 0 ? ' text-danger' : ''}" th:text="${room.quantity}"></b>
 												</div>                 
 
 												<!-- Price and Button -->
@@ -559,7 +535,7 @@ About hotel START -->
 													</div>
 													<!-- Price -->
 													<div class="mt-3 mt-sm-0">
-														<a th:class="'btn btn-sm btn-primary mb-0' + ${room.quantity == 0 ? ' disabled' : ''}" data-bs-toggle="modal" th:data-bs-target="'#bookingModal' + ${room.roomId}">Đặt Phòng</a>    
+														<a th:class="'btn btn-sm btn-primary mb-0' + ${room.quantity <= 0 ? ' disabled' : ''}" data-bs-toggle="modal" th:data-bs-target="'#bookingModal' + ${room.roomId}">Đặt Phòng</a>    
 													</div>                  
 												</div>
 											</div>
@@ -828,7 +804,7 @@ Footer END -->
 
 							<div class="d-flex justify-content-end align-items-center">
 								<span>Số lượng: </span>
-								<b th:class="'fw-bold mb-0 me-1' + ${room.quantity == 0 ? ' text-danger' : ''}" th:text="${room.quantity}"></b>
+								<b th:class="'fw-bold mb-0 me-1' + ${room.quantity <= 0 ? ' text-danger' : ''}" th:text="${room.quantity}"></b>
 							</div>    
 
 							<div class="d-sm-flex justify-content-sm-between align-items-center mt-2 mb-0">
@@ -839,7 +815,7 @@ Footer END -->
 								</div>
 								<!-- Price -->
 								<div class="mt-3 mt-sm-0">
-									<a href="" th:class="'btn btn-sm btn-primary mb-0' + ${room.quantity == 0 ? ' disabled' : ''}" data-bs-toggle="modal" th:data-bs-target="'#bookingModal' + ${room.roomId}">Chọn Phòng</a>    
+									<a href="" th:class="'btn btn-sm btn-primary mb-0' + ${room.quantity <= 0 ? ' disabled' : ''}" data-bs-toggle="modal" th:data-bs-target="'#bookingModal' + ${room.roomId}">Chọn Phòng</a>    
 								</div>                  
 							</div>
 						</div> <!-- Row END -->
@@ -874,6 +850,8 @@ Footer END -->
 							<div class="form-control-border form-control-transparent form-fs-md">
 								<label class="form-label">Nhận phòng – Trả phòng</label>
 								<input type="text" th:value="${dateRange}" class="form-control flatpickr" data-mode="range" name="dateRange" placeholder="Chọn ngày" required="true">
+								<input type="hidden" th:value="${guests}" name="guests">
+								<input type="hidden" th:value="${roomQuantity}" name="rooms">
 							</div>
 						</div>
 					</div>                                                          
@@ -908,7 +886,9 @@ Footer END -->
 							<div class="form-control-border form-control-transparent form-fs-md">
 								<label class="form-label">Nhận phòng – Trả phòng</label>
 								<input type="hidden" name="roomId" th:value="${room.roomId}">
-								<input type="text" th:value="${dateRange}" class="form-control flatpickr" data-mode="range" name="dateRange" placeholder="Chọn ngày" required>
+								<input type="text" th:value="${dateRange}" class="form-control flatpickr" data-mode="range" name="dateRange" placeholder="Chọn ngày" required>'
+								<input type="hidden" th:value="${guests}" name="guests">
+								<input type="hidden" th:value="${roomQuantity}" name="rooms">
 							</div>
 						</div>
 

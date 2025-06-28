@@ -1,5 +1,6 @@
 package org.swp391.hotelbookingsystem.repository;
 
+import java.sql.Date;
 import java.util.List;
 
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -52,6 +53,39 @@ public class RoomRepository {
         jdbcTemplate.update(sql, roomId, amenityId);
     }
 
+    public List<Room> getRoomsByIdAndDateRange(int id, Date checkin, Date checkout){
+        String sql = """
+                    WITH BookedRooms AS (
+                        SELECT 
+                            bu.room_id,
+                            SUM(bu.quantity) AS booked_quantity
+                        FROM BookingUnits bu
+                        JOIN Bookings b ON b.booking_id = bu.booking_id
+                        WHERE bu.status IN ('approved', 'check_in')
+                            AND b.check_out >= ? AND b.check_in <= ?
+                        GROUP BY bu.room_id
+                    )
+                    SELECT 
+                        Rooms.room_id AS roomId,
+                        hotel_id AS hotelId,
+                        title,
+                        description,
+                        price,
+                        max_guests AS maxGuests,
+                        room_type_id AS roomTypeId,
+                        status,
+                        quantity - ISNULL(booked_quantity, 0) AS quantity
+                    FROM Rooms 
+                    LEFT JOIN BookedRooms ON Rooms.room_id = BookedRooms.room_id
+                    WHERE hotel_id = ?
+                """;
+        return jdbcTemplate.query(sql, ps -> {
+            ps.setDate(1, checkin);
+            ps.setDate(2, checkout);
+            ps.setInt(3, id);
+        }, ROOM_MAPPER);
+    }
+
     public List<Room> getRoomsByHotelId(int hotelId) {
         String sql = """
                     SELECT 
@@ -66,24 +100,6 @@ public class RoomRepository {
                         quantity - ISNULL((SELECT SUM(quantity) FROM BookingUnits WHERE room_id = Rooms.room_id AND status LIKE 'approved'), 0) AS quantity
                     FROM Rooms
                     WHERE hotel_id = ?
-                """;
-        return jdbcTemplate.query(sql, ROOM_MAPPER, hotelId);
-    }
-
-    public List<Room> getAvailableRoomsByHotelId(int hotelId) {
-        String sql = """
-                    SELECT 
-                        room_id AS roomId,
-                        hotel_id AS hotelId,
-                        title,
-                        description,
-                        price,
-                        max_guests AS maxGuests,
-                        room_type_id AS roomTypeId,
-                        status,
-                        quantity - ISNULL((SELECT SUM(quantity) FROM BookingUnits WHERE room_id = Rooms.room_id AND status LIKE 'approved'), 0) AS quantity
-                    FROM Rooms
-                    WHERE hotel_id = ? AND quantity > 0
                 """;
         return jdbcTemplate.query(sql, ROOM_MAPPER, hotelId);
     }
