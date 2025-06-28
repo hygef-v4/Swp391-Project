@@ -329,7 +329,7 @@ Page banner START -->
 				<div class="col-sm-9">
 					<div class="card-body">
 						<!-- Title -->
-                        <a th:href="'/hotel-detail?hotelId=' + ${hotel.hotelId} + '&dateRange=' + ${dateRange} + '&guest=' + ${guests} + '&rooms=' + ${roomQuantity}"><h5><i class="bi bi-arrow-left"></i> Quay lại</h5></a>
+                        <a th:href="'/hotel-detail?hotelId=' + ${hotel.hotelId} + '&dateRange=' + ${dateRange} + '&guest=' + ${guests} + '&rooms=' + ${roomQuantity}"><h5 style="color: rgba(var(--bs-link-color-rgb), var(--bs-link-opacity, 1))"><i class="bi bi-arrow-left"></i> Quay lại</h5></a>
 						<h1 class="m-0 h2 card-title">Đặt Phòng</h1>
 					</div>
 				</div>
@@ -657,6 +657,10 @@ Page content START -->
                                         <span class="h5 mb-0">Thành tiền</span>
                                         <span class="h5 mb-0"><span id="paidPrice">0</span>₫</span>
                                         <input class="h5 mb-0" type="hidden" name="totalPrice" value="0" id="paidInput"/>
+
+                                        <input type="hidden" name="dateRange" th:value="${dateRange}">
+                                        <input type="hidden" name="guests" th:value="${guests}">
+                                        <input type="hidden" name="rooms" th:value="${roomQuantity}">
                                     </div>
                                 </div>
 

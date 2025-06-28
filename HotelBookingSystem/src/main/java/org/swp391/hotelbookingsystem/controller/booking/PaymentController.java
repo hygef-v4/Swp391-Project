@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -46,8 +47,18 @@ public class PaymentController {
 
     @GetMapping("/payment")
     public String payment(
+        @RequestParam(value = "hotelId") int hotelId,
+        @RequestParam(value = "dateRange") String dateRange,
+        @RequestParam(value = "guests") String guests,
+        @RequestParam(value = "rooms") String rooms,
+
         HttpSession session, Model model
     ){
+        model.addAttribute("hotelId", hotelId);
+        model.addAttribute("dateRange", dateRange);
+        model.addAttribute("guests", guests);
+        model.addAttribute("rooms", rooms);
+
         Booking booking = (Booking) session.getAttribute("booking");
         if(booking == null) {
             return "redirect:/login";

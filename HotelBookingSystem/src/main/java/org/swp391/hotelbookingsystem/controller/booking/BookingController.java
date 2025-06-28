@@ -113,6 +113,10 @@ public class BookingController {
         @RequestParam(value = "price") List<Double> price,
         @RequestParam(value = "quantity") List<Integer> quantity,
 
+        @RequestParam(value = "dateRange") String dateRange,
+        @RequestParam(value = "guests") String guests,
+        @RequestParam(value = "rooms") String rooms,
+
         Model model, HttpSession session
     ){
         User user = (User) session.getAttribute("user");
@@ -148,6 +152,12 @@ public class BookingController {
 
         session.setAttribute("booking", booking);
 
-        return "redirect:/payment";
+        try{
+            System.out.println();
+        }catch(Exception e){
+            return "redirect:/booking/" + hotelId + "&dateRange=" + dateRange + "&guests=" + guests + "&rooms=" + rooms;
+        }
+
+        return "redirect:/payment?hotelId=" + hotelId + "&dateRange=" + dateRange + "&guests=" + guests + "&rooms=" + rooms;
     }
 }
