@@ -1,5 +1,6 @@
 package org.swp391.hotelbookingsystem.controller.auth;
 
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -15,10 +16,21 @@ public class LoginController {
 
     @GetMapping("/logout")
     public String logout(HttpServletRequest request, HttpServletResponse response) {
-        HttpSession session = request.getSession();
+        HttpSession session = request.getSession(false);
         if (session != null) {
             session.invalidate();
         }
+
+        Cookie cookie = new Cookie("JSESSIONID", null);
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+
+        Cookie rememberMe = new Cookie("remember-me", null);
+        rememberMe.setPath("/");
+        rememberMe.setMaxAge(0);
+        response.addCookie(rememberMe);
+
         return "redirect:/login";
     }
 
