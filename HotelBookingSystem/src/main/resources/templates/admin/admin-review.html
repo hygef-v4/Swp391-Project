@@ -43,6 +43,16 @@
             background-color: #2a2a2a; /* nền xám đậm hơn */
             box-shadow: 0 10px 20px rgba(255, 255, 255, 0.05); /* sáng nhẹ */
         }
+
+        .hover-card:hover .card-body,
+        .hover-card:hover .card-footer {
+            background-color: inherit !important;
+        }
+
+        [data-bs-theme="dark"] .hover-card:hover .card-body,
+        [data-bs-theme="dark"] .hover-card:hover .card-footer {
+            background-color: inherit !important;
+        }
     </style>
     <!-- Dark mode -->
     <script>
@@ -244,7 +254,7 @@
             <div class="vstack gap-4 mt-5">
                 <div th:each="review : ${reviewList}">
                     <!-- Review item -->
-                    <div class="row g-3 g-lg-4 p-3 rounded"
+                    <div class="row g-3 g-lg-4 p-3 rounded hover-card"
                          th:classappend="${review != null and !review.isPublic} ? ' bg-dark bg-opacity-10 border border-danger' : ''">
                         <div class="col-md-4 col-xxl-3">
                         <div class="d-flex align-items-center">
@@ -338,7 +348,7 @@
                             <ul class="pagination pagination-sm pagination-primary-soft d-inline-block d-md-flex rounded mb-0">
 
                                 <!-- Previous -->
-                                <li th:if="${totalPages >= 2}" th:class="'page-item mb-0' + (${page == 1} ? ' disabled' : '')">
+                                <li th:if="${totalPages >= 2}" th:class="'page-item mb-0 hover-card' + (${page == 1} ? ' disabled' : '')">
                                     <a class="page-link"
                                        th:href="@{'/admin-review'(page=${page - 1}, filter=${filter}, hotelName=${selectedHotelName})}">
                                         <i class="fa-solid fa-angle-left"></i>
@@ -346,55 +356,55 @@
                                 </li>
 
                                 <!-- Page 1 -->
-                                <li th:if="${totalPages >= 1}" th:class="'page-item mb-0' + (${page == 1} ? ' active disabled' : '')">
+                                <li th:if="${totalPages >= 1}" th:class="'page-item mb-0 hover-card' + (${page == 1} ? ' active disabled' : '')">
                                     <a class="page-link"
                                        th:href="@{'/admin-review'(page=1, filter=${filter}, hotelName=${selectedHotelName})}">1</a>
                                 </li>
 
                                 <!-- Page 2 -->
-                                <li th:if="${totalPages >= 2}" th:class="'page-item mb-0' + (${page == 2} ? ' active disabled' : '')">
+                                <li th:if="${totalPages >= 2}" th:class="'page-item mb-0 hover-card' + (${page == 2} ? ' active disabled' : '')">
                                     <a class="page-link"
                                        th:href="@{'/admin-review'(page=2, filter=${filter}, hotelName=${selectedHotelName})}">2</a>
                                 </li>
 
                                 <!-- Left ellipsis -->
-                                <li th:if="${totalPages >= 5 and page - 2 > 2}" class="page-item mb-0 disabled">
+                                <li th:if="${totalPages >= 5 and page - 2 > 2}" class="page-item mb-0 disabled hover-card">
                                     <a class="page-link">...</a>
                                 </li>
 
                                 <!-- Page -1 -->
-                                <li th:if="${totalPages >= 4 and page != 1 and page - 1 != 1 and page - 1 != 2}" class="page-item mb-0">
+                                <li th:if="${totalPages >= 4 and page != 1 and page - 1 != 1 and page - 1 != 2}" class="page-item hover-card mb-0">
                                     <a class="page-link"
                                        th:href="@{'/admin-review'(page=${page - 1}, filter=${filter}, hotelName=${selectedHotelName})}"
                                        th:text="${page - 1}"></a>
                                 </li>
 
                                 <!-- Current Page -->
-                                <li th:if="${totalPages >= 4 and page != 1 and page != 2 and page != totalPages}" class="page-item mb-0 active disabled">
+                                <li th:if="${totalPages >= 4 and page != 1 and page != 2 and page != totalPages}" class="page-item hover-card mb-0 active disabled">
                                     <a class="page-link" th:text="${page}"></a>
                                 </li>
 
                                 <!-- Page +1 -->
-                                <li th:if="${totalPages >= 4 and page + 1 != 2 and page + 1 != totalPages and page != totalPages}" class="page-item mb-0">
+                                <li th:if="${totalPages >= 4 and page + 1 != 2 and page + 1 != totalPages and page != totalPages}" class="page-item hover-card mb-0">
                                     <a class="page-link"
                                        th:href="@{'/admin-review'(page=${page + 1}, filter=${filter}, hotelName=${selectedHotelName})}"
                                        th:text="${page + 1}"></a>
                                 </li>
 
                                 <!-- Right ellipsis -->
-                                <li th:if="${totalPages >= 4 and totalPages > page + 2}" class="page-item mb-0 disabled">
+                                <li th:if="${totalPages >= 4 and totalPages > page + 2}" class="page-item mb-0 disabled hover-card">
                                     <a class="page-link">...</a>
                                 </li>
 
                                 <!-- Last Page -->
-                                <li th:if="${totalPages >= 3}" th:class="'page-item mb-0' + (${page == totalPages} ? ' active disabled' : '')">
+                                <li th:if="${totalPages >= 3}" th:class="'page-item mb-0 hover-card' + (${page == totalPages} ? ' active disabled' : '')">
                                     <a class="page-link"
                                        th:href="@{'/admin-review'(page=${totalPages}, filter=${filter}, hotelName=${selectedHotelName})}"
                                        th:text="${totalPages}"></a>
                                 </li>
 
                                 <!-- Next -->
-                                <li th:if="${totalPages >= 2}" th:class="'page-item mb-0' + (${page == totalPages} ? ' disabled' : '')">
+                                <li th:if="${totalPages >= 2}" th:class="'page-item mb-0 hover-card' + (${page == totalPages} ? ' disabled' : '')">
                                     <a class="page-link"
                                        th:href="@{'/admin-review'(page=${page + 1}, filter=${filter}, hotelName=${selectedHotelName})}">
                                         <i class="fa-solid fa-angle-right"></i>

@@ -51,6 +51,16 @@
         background-color: #2a2a2a; /* nền xám đậm hơn */
         box-shadow: 0 10px 20px rgba(255, 255, 255, 0.05); /* sáng nhẹ */
     }
+
+    .hover-card:hover .card-body,
+    .hover-card:hover .card-footer {
+        background-color: inherit !important;
+    }
+
+    [data-bs-theme="dark"] .hover-card:hover .card-body,
+    [data-bs-theme="dark"] .hover-card:hover .card-footer {
+        background-color: inherit !important;
+    }
 </style>
 <!-- Dark mode -->
 <script>
@@ -210,7 +220,7 @@
                                 Số khách sạn: [[${hotelCountMap[agent.id]}]]
                             </h6>
                             <div class="d-flex justify-content-between align-items-center gap-3 mb-0">
-                                <h6 class="mb-0 small text-truncate-ellipsis">
+                                <h6 class="mb-0 small text-truncate-ellipsis" th:title="${#numbers.formatDecimal(revenueMap[agent.id], 0, 'COMMA', 0, 'POINT') + '₫'}" style="max-width: 160px">
                                     <i class="fa-solid fa-money-bill-wave me-1"></i>
                                     Doanh thu: [[${#numbers.formatDecimal(revenueMap[agent.id], 0, 'COMMA', 0, 'POINT')}]] ₫
                                 </h6>
@@ -223,7 +233,7 @@
                         <!-- Footer -->
                         <div class="card-footer d-flex gap-3 align-items-center">
                             <a th:href="@{/admin-agent-detail(id=${agent.id})}" class="btn btn-sm btn-primary-soft mb-0 w-100">Xem chi tiết</a>
-                            <a href="#" class="btn btn-sm btn-light flex-shrink-0 mb-0"><i class="bi bi-envelope"></i></a>
+                            <a th:href="@{/admin-agent-contact(id=${agent.id})}" class="btn btn-sm btn-light flex-shrink-0 mb-0"><i class="bi bi-envelope"></i></a>
                         </div>
                     </div>
                 </div>
@@ -235,7 +245,7 @@
                         <nav class="mb-sm-0 d-flex justify-content-center" aria-label="navigation">
                             <ul class="pagination pagination-sm pagination-primary-soft d-inline-block d-md-flex rounded mb-0">
                                 <!-- Previous -->
-                                <li th:if="${totalPages >= 2}" th:class="'page-item mb-0' + (${currentPage == 1} ? ' disabled' : '')">
+                                <li th:if="${totalPages >= 2}" th:class="'page-item mb-0 hover-card' + (${currentPage == 1} ? ' disabled' : '')">
                                     <a class="page-link"
                                        th:href="@{'/admin-agent-list'(page=${currentPage - 1}, search=${search}, sort=${sort})}">
                                         <i class="fa-solid fa-angle-left"></i>
@@ -243,25 +253,25 @@
                                 </li>
 
                                 <!-- Page 1 -->
-                                <li th:if="${totalPages >= 1}" th:class="'page-item mb-0' + (${currentPage == 1} ? ' active disabled' : '')">
+                                <li th:if="${totalPages >= 1}" th:class="'page-item mb-0 hover-card' + (${currentPage == 1} ? ' active disabled' : '')">
                                     <a class="page-link"
                                        th:href="@{'/admin-agent-list'(page=1, search=${search}, sort=${sort})}">1</a>
                                 </li>
 
                                 <!-- Page 2 -->
-                                <li th:if="${totalPages >= 2}" th:class="'page-item mb-0' + (${currentPage == 2} ? ' active disabled' : '')">
+                                <li th:if="${totalPages >= 2}" th:class="'page-item mb-0 hover-card' + (${currentPage == 2} ? ' active disabled' : '')">
                                     <a class="page-link"
                                        th:href="@{'/admin-agent-list'(page=2, search=${search}, sort=${sort})}">2</a>
                                 </li>
 
                                 <!-- Left ellipsis -->
-                                <li th:if="${totalPages >= 5 and currentPage - 2 > 2}" class="page-item mb-0 disabled">
+                                <li th:if="${totalPages >= 5 and currentPage - 2 > 2}" class="page-item mb-0 disabled hover-card">
                                     <a class="page-link">...</a>
                                 </li>
 
                                 <!-- Page -1 -->
                                 <li th:if="${totalPages >= 4 and currentPage != 1 and currentPage - 1 != 1 and currentPage - 1 != 2}"
-                                    class="page-item mb-0">
+                                    class="page-item mb-0 hover-card">
                                     <a class="page-link"
                                        th:href="@{'/admin-agent-list'(page=${currentPage - 1}, search=${search}, sort=${sort})}"
                                        th:text="${currentPage - 1}"></a>
@@ -269,33 +279,33 @@
 
                                 <!-- Current Page -->
                                 <li th:if="${totalPages >= 4 and currentPage != 1 and currentPage != 2 and currentPage != totalPages}"
-                                    class="page-item mb-0 active disabled">
+                                    class="page-item mb-0 active disabled hover-card">
                                     <a class="page-link" th:text="${currentPage}"></a>
                                 </li>
 
                                 <!-- Page +1 -->
                                 <li th:if="${totalPages >= 4 and currentPage + 1 != 2 and currentPage + 1 != totalPages and currentPage != totalPages}"
-                                    class="page-item mb-0">
+                                    class="page-item mb-0 hover-card">
                                     <a class="page-link"
                                        th:href="@{'/admin-agent-list'(page=${currentPage + 1}, search=${search}, sort=${sort})}"
                                        th:text="${currentPage + 1}"></a>
                                 </li>
 
                                 <!-- Right ellipsis -->
-                                <li th:if="${totalPages >= 4 and totalPages > currentPage + 2}" class="page-item mb-0 disabled">
+                                <li th:if="${totalPages >= 4 and totalPages > currentPage + 2}" class="page-item mb-0 disabled hover-card">
                                     <a class="page-link">...</a>
                                 </li>
 
                                 <!-- Last page -->
                                 <li th:if="${totalPages >= 3}"
-                                    th:class="'page-item mb-0' + (${currentPage == totalPages} ? ' active disabled' : '')">
+                                    th:class="'page-item mb-0 hover-card' + (${currentPage == totalPages} ? ' active disabled' : '')">
                                     <a class="page-link"
                                        th:href="@{'/admin-agent-list'(page=${totalPages}, search=${search}, sort=${sort})}"
                                        th:text="${totalPages}"></a>
                                 </li>
 
                                 <!-- Next -->
-                                <li th:if="${totalPages >= 2}" th:class="'page-item mb-0' + (${currentPage == totalPages} ? ' disabled' : '')">
+                                <li th:if="${totalPages >= 2}" th:class="'page-item mb-0 hover-card' + (${currentPage == totalPages} ? ' disabled' : '')">
                                     <a class="page-link"
                                        th:href="@{'/admin-agent-list'(page=${currentPage + 1}, search=${search}, sort=${sort})}">
                                         <i class="fa-solid fa-angle-right"></i>
