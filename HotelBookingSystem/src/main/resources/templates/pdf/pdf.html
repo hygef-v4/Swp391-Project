@@ -31,13 +31,13 @@ Main content START -->
 
 				<div class="card shadow">
 					<!-- Image -->
-					<img class="rounded-top" th:src="${hotel.imageUrl}"></img>
+					<img class="rounded-top" th:src="${booking.imageUrl}"></img>
 
 					<!-- Card body -->
 					<div class="card-body text-center p-4">
 						<!-- Title -->
 						<h1 class="card-title fs-3" th:text="${hotel.hotelName}"></h1>
-						<hr>
+						<hr></hr>
 
 						<!-- List -->
 						<div class="row justify-content-between text-start mb-4">
@@ -45,7 +45,7 @@ Main content START -->
 								<h3>Thông tin Khách hàng</h3>
 								<ul class="list-group list-group-borderless">
 									<li class="list-group-item d-sm-flex justify-content-between align-items-center">
-										<img class="avatar-img rounded-circle" src="${customer.avatarUrl}">
+										<img class="avatar-img rounded-circle" th:src="${user.avatarUrl}"></img>
 										<span class="mb-0"><i class="bi bi-vr fa-fw me-2"></i>Customer Name:</span>
 										<span class="h6 fw-normal mb-0" th:text="${user.fullName}"></span>
 									</li>

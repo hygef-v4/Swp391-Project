@@ -171,13 +171,13 @@ Page content START -->
                                                 <div class="accordion-body">
                                                     <div class="card card-body border align-items-center text-center mt-4">
                                                         <!-- Image -->
-                                                        <img src="assets/images/element/paypal.svg" class="h-70px mb-3" alt="">
+                                                        <img src="assets/images/VNPay.svg" class="h-70px mb-3" alt="">
                                                         <p class="mb-3">Nhấn nút dưới để chuyển tới trang thanh toán của <span>VNPay</span></p>
 
                                                         <input type="hidden" name="amount" th:value="${booking.totalPrice.longValue()}">
                                                         <input type="hidden" name="orderInfo" value="Payment for booking">
                                                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                                                        <input type="submit" class="btn btn-success mb-0 w-100" th:value="'Pay' + ${#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 0, 'POINT') + '₫'}"/>
+                                                        <input type="submit" class="btn btn-success mb-0 w-100" th:value="'Thanh toán ' + ${#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 0, 'POINT') + '₫'}"/>
                                                     </div>
                                                 </div>
 											</form>

@@ -90,8 +90,10 @@ public class PaymentController {
             Booking booking = (Booking) session.getAttribute("booking");
             if(booking == null) return "redirect:/";
 
-            // int id = bookingService.saveBooking(booking);
-            // session.setAttribute("booking", null);
+            int id = bookingService.saveBooking(booking);
+            booking.setBookingId(id);
+
+            session.setAttribute("booking", null);
             model.addAttribute("booking", booking);
 
             return "page/bookingSuccess";
@@ -114,6 +116,7 @@ public class PaymentController {
     @PostMapping("/invoice")
     @ResponseBody
     public void invoice(@RequestParam("id") int id, HttpServletResponse response) throws IOException{
+        System.out.println("BookingId:" + id);
         // 1. Load HTML template
         Context context = new Context();
 
@@ -125,7 +128,7 @@ public class PaymentController {
         context.setVariable("user", user);
         context.setVariable("hotel", hotel);
         String html = templateEngine.process("pdf/pdf", context);
-        
+
         // 2. Set response headers
         response.setContentType("application/pdf");
         response.setHeader("Content-Disposition", "attachment; filename=booking.pdf");
