@@ -20,7 +20,7 @@ COPY src src
 RUN ./mvnw clean package -DskipTests
 
 # Expose the port your app runs on (will be mapped to 9090 externally)
-EXPOSE 8386
+EXPOSE 8080
 
 # Run the jar file
 CMD ["java", "-jar", "target/HotelBookingSystem-0.0.1-SNAPSHOT.jar"] 
