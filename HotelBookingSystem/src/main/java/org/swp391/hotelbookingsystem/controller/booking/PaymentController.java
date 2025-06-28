@@ -82,9 +82,18 @@ public class PaymentController {
     }
 
     @PostMapping("/create-payment")
-    public String createPayment(@RequestParam("amount") long amount, @RequestParam("orderInfo") String orderInfo, HttpServletRequest request){
+    public String createPayment(
+        @RequestParam("amount") long amount, 
+        @RequestParam("orderInfo") String orderInfo,
+
+        @RequestParam(value = "dateRange") String dateRange,
+        @RequestParam(value = "guests") String guests,
+        @RequestParam(value = "rooms") String rooms,
+        
+        HttpServletRequest request
+    ){
         try{
-            String returnUrl = "/booking-success";
+            String returnUrl = "/booking-success?dateRange=" + dateRange + "&guests=" + guests + "&rooms=" + rooms;
             String paymentUrl = vnpayService.createPayment(amount, orderInfo, returnUrl, request);
             return "redirect:" + paymentUrl;
         }catch(Exception e){
@@ -93,10 +102,16 @@ public class PaymentController {
     }
 
     @GetMapping("/booking-success")
-    public String returnPayment(HttpServletRequest request, HttpSession session, Model model){
+    public String returnPayment(
+        @RequestParam(value = "dateRange") String dateRange,
+        @RequestParam(value = "guests") String guests,
+        @RequestParam(value = "rooms") String rooms,
+
+        HttpServletRequest request, HttpSession session, Model model
+    ){
         try{
             // boolean paymentStatus = vnpayService.returnPayment(request);
-            // if(!paymentStatus) return "redirect:/booking-error";
+            // if(!paymentStatus) return "redirect:/booking-error?dateRange=" + dateRange + "&guests=" + guests + "&rooms=" + rooms;
 
             Booking booking = (Booking) session.getAttribute("booking");
             if(booking == null) return "redirect:/";
@@ -107,6 +122,10 @@ public class PaymentController {
             session.setAttribute("booking", null);
             model.addAttribute("booking", booking);
 
+            model.addAttribute("dateRange", dateRange);
+            model.addAttribute("guests", guests);
+            model.addAttribute("rooms", rooms);
+
             return "page/bookingSuccess";
         }catch(Exception e){
             return "redirect:/error";
@@ -114,12 +133,22 @@ public class PaymentController {
     }
 
     @GetMapping("/booking-error")
-    public String getMethodName(HttpSession session, Model model){
+    public String getMethodName(
+        @RequestParam(value = "dateRange") String dateRange,
+        @RequestParam(value = "guests") String guests,
+        @RequestParam(value = "rooms") String rooms,    
+
+        HttpSession session, Model model
+    ){
         Booking booking = (Booking) session.getAttribute("booking");
         if(booking == null) return "redirect:/";
 
         session.setAttribute("booking", null);
         model.addAttribute("id", booking.getHotelId());
+
+        model.addAttribute("dateRange", dateRange);
+        model.addAttribute("guests", guests);
+        model.addAttribute("rooms", rooms);
 
         return "page/bookingError";
     }

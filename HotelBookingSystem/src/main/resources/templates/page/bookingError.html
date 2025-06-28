@@ -113,7 +113,7 @@ Main banner START -->
                 <!-- Button -->
                 <div class="d-sm-flex justify-content-sm-start d-grid">
                     <!-- Return button -->
-                    <a th:href="'hotel-detail?hotelId=' + ${id}" class="btn btn-primary mb-0"><i class="bi bi-arrow-left me-2"></i>Quay lại đặt phòng</a>
+                    <a th:href="'/booking/' + ${id} + '?dateRange=' + ${dateRange} + '&guests=' + ${guests} + '&rooms=' + ${roomQuantity}" class="btn btn-primary mb-0"><i class="bi bi-arrow-left me-2"></i>Quay lại đặt phòng</a>
                 </div>
 			</div>
 		</div>
