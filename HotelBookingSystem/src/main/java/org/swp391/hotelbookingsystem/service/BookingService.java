@@ -22,6 +22,18 @@ public class BookingService {
         bookingRepo.updateStatus(bookingUnit.getBookingUnitId(), status);
     }
 
+    public int pendingBooking(Booking booking){
+        return bookingRepo.pendingBooking(booking);
+    }
+
+    public void approveBooking(int id){
+        bookingRepo.approveBookingUnit(id);
+    }
+
+    public void deletePendingBooking(int id){
+        bookingRepo.deletePendingBooking(id);
+    }
+
     public int saveBooking(Booking booking){
         return bookingRepo.saveBooking(booking);
     }

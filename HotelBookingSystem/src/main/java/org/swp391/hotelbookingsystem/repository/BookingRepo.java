@@ -125,6 +125,27 @@ public class BookingRepo {
         }, bookingUnitId);
     }
 
+    public void pendingBookingUnit(int id, BookingUnit bookingUnit){
+        String sql = """
+            INSERT INTO BookingUnits (booking_id, room_id, quantity, price, status, refund_amount)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """;
+
+        jdbcTemplate.update(sql,
+            id,
+            bookingUnit.getRoomId(),
+            bookingUnit.getQuantity(),
+            bookingUnit.getPrice(),
+            "pending",
+            (Object) bookingUnit.getRefundAmount()
+        );
+    }
+
+    public void approveBookingUnit(int id){
+        String sql = "UPDATE BookingUnits SET status = 'approved' WHERE booking_id = ?";
+        jdbcTemplate.update(sql, id);
+    }
+
     public void saveBookingUnit(int id, BookingUnit bookingUnit){
         String sql = """
             INSERT INTO BookingUnits (booking_id, room_id, quantity, price, refund_amount)
@@ -216,9 +237,35 @@ public class BookingRepo {
 
             booking.setBookingUnits(findBookingUnitsByBookingId(bookingId));
             booking.setStatus(booking.determineStatus());
-            booking.setTotalPrice(booking.calculateTotalPrice());
             return booking;
         }, id);
+    }
+
+    public int pendingBooking(Booking booking){
+        String sql = """
+            INSERT INTO Bookings (hotel_id, customer_id, coupon_id, check_in, check_out, total_price)
+            OUTPUT inserted.booking_id
+            VALUES (?, ?, ?, ?, ?, ?)
+        """;
+        int id = jdbcTemplate.queryForObject(sql, Integer.class, 
+            booking.getHotelId(),
+            booking.getCustomerId(),
+            booking.getCouponId(),
+            booking.getCheckIn(),
+            booking.getCheckOut(),
+            booking.getTotalPrice()
+        );
+
+        for(BookingUnit bookingUnit : booking.getBookingUnits()){
+            pendingBookingUnit(id, bookingUnit);
+        }
+
+        return id;
+    }
+
+    public void deletePendingBooking(int id){
+        String sql = "DELETE FROM Booking WHERE booking_id = ?";
+        jdbcTemplate.update(sql, id);
     }
 
     // 3. Tạo booking mới
@@ -1133,5 +1180,5 @@ public class BookingRepo {
         return jdbcTemplate.queryForObject(sql, Integer.class, hotelId);
     }
 
-
+    
 }

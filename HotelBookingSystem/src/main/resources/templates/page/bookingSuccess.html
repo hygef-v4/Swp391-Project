@@ -72,7 +72,7 @@
 	</script>
 
 	<!-- Favicon -->
-	<link rel="shortcut icon" href="assets/images/favicon.ico">
+	<link rel="shortcut icon" href="/assets/images/favicon.ico">
 
 	<!-- Google Font -->
 	<link rel="preconnect" href="https://fonts.googleapis.com/">
@@ -80,12 +80,12 @@
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Poppins:wght@400;500;700&amp;display=swap">
 
 	<!-- Plugins CSS -->
-	<link rel="stylesheet" type="text/css" href="assets/vendor/font-awesome/css/all.min.css">
-	<link rel="stylesheet" type="text/css" href="assets/vendor/bootstrap-icons/bootstrap-icons.css">
-	<link rel="stylesheet" type="text/css" href="assets/vendor/glightbox/css/glightbox.css">
+	<link rel="stylesheet" type="text/css" href="/assets/vendor/font-awesome/css/all.min.css">
+	<link rel="stylesheet" type="text/css" href="/assets/vendor/bootstrap-icons/bootstrap-icons.css">
+	<link rel="stylesheet" type="text/css" href="/assets/vendor/glightbox/css/glightbox.css">
 
 	<!-- Theme CSS -->
-	<link rel="stylesheet" type="text/css" href="assets/css/style.css">
+	<link rel="stylesheet" type="text/css" href="/assets/css/style.css">
 
 </head>
 
@@ -161,7 +161,7 @@ Main content START -->
 							<!-- History button -->
 							<a href="/bookingHistory" class="btn btn-light mb-0 me-2"><i class="bi bi-journal-text me-2"></i>Xem lịch sử đặt phòng</a>
 							<!-- Return button -->
-							<a th:href="'hotel-detail?hotelId=' + ${booking.hotelId} + '&dateRange=' + ${dateRange} + '&guest=' + ${guests} + '&rooms=' + ${rooms}" class="btn btn-primary mb-0">Tiếp tục đặt phòng<i class="bi bi-arrow-right ms-2"></i></a>
+							<a th:href="'/hotel-detail?hotelId=' + ${booking.hotelId} + '&dateRange=' + ${dateRange} + '&guest=' + ${guests} + '&rooms=' + ${rooms}" class="btn btn-primary mb-0">Tiếp tục đặt phòng<i class="bi bi-arrow-right ms-2"></i></a>
 						</div>
 					</div>
 				</div>
@@ -185,10 +185,10 @@ Footer END -->
 <div class="back-top"></div>
 
 <!-- Bootstrap JS -->
-<script src="assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
 <!-- Vendors -->
-<script src="assets/vendor/glightbox/js/glightbox.js"></script>
+<script src="/assets/vendor/glightbox/js/glightbox.js"></script>
 <script>
 	function downloadPDF(el) {
 		const id = el.dataset.id;
@@ -211,7 +211,7 @@ Footer END -->
 
 
 <!-- ThemeFunctions -->
-<script src="assets/js/functions.js"></script>
+<script src="/assets/js/functions.js"></script>
 
 </body>
 

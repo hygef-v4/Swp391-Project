@@ -25,6 +25,7 @@ import org.swp391.hotelbookingsystem.model.Hotel;
 import org.swp391.hotelbookingsystem.model.Room;
 import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.service.AmenityService;
+import org.swp391.hotelbookingsystem.service.BookingService;
 import org.swp391.hotelbookingsystem.service.HotelService;
 import org.swp391.hotelbookingsystem.service.LocationService;
 import org.swp391.hotelbookingsystem.service.RoomService;
@@ -35,6 +36,8 @@ import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class BookingController {
+    @Autowired
+    BookingService bookingService;
     @Autowired
     LocationService locationService;
     @Autowired
@@ -150,7 +153,7 @@ public class BookingController {
             bookingUnits.add(bookingUnit);
         }booking.setBookingUnits(bookingUnits);
 
-        session.setAttribute("booking", booking);
+        int id = bookingService.pendingBooking(booking);
 
         try{
             System.out.println();
@@ -158,6 +161,6 @@ public class BookingController {
             return "redirect:/booking/" + hotelId + "&dateRange=" + dateRange + "&guests=" + guests + "&rooms=" + rooms;
         }
 
-        return "redirect:/payment?hotelId=" + hotelId + "&dateRange=" + dateRange + "&guests=" + guests + "&rooms=" + rooms;
+        return "redirect:/payment/" + id + "?hotelId=" + hotelId + "&dateRange=" + dateRange + "&guests=" + guests + "&rooms=" + rooms;
     }
 }
