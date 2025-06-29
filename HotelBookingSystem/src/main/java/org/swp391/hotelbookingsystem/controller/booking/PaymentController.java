@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.time.format.DateTimeFormatter;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -155,17 +156,24 @@ public class PaymentController {
 
     @PostMapping("/invoice")
     public void invoice(@RequestParam("id") int id, HttpServletResponse response) throws IOException{
-        System.out.println("BookingId:" + id);
         // 1. Load HTML template
         Context context = new Context();
 
         Booking booking = bookingService.findById(id);
+        System.out.println("Booking Image:" + booking.getImageUrl());
+        System.out.println("Booking Unit Image:" + booking.getBookingUnits().get(0).getImageUrl());
         User user = userService.findUserById(booking.getCustomerId());
         Hotel hotel = hotelService.getHotelById(booking.getHotelId());
 
         context.setVariable("booking", booking);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        context.setVariable("checkIn", booking.getCheckIn().format(formatter));
+        context.setVariable("checkOut", booking.getCheckIn().format(formatter));
+
         context.setVariable("user", user);
         context.setVariable("hotel", hotel);
+
         String html = templateEngine.process("pdf/pdf", context);
 
         // 2. Set response headers
@@ -177,7 +185,7 @@ public class PaymentController {
             PdfRendererBuilder builder = new PdfRendererBuilder();
             builder.useFastMode();
             builder.withHtmlContent(html, new File("src/main/resources/static/").toURI().toString());
-            builder.useFont(new File("src/main/resources/static/font/DejaVuSans.ttf"), "DejaVu Sans");
+            builder.useFont(new File("src/main/resources/static/assets/font/DejaVuSans.ttf"), "DejaVu Sans");
             builder.toStream(os);
             builder.run();
         }
