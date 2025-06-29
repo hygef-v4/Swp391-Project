@@ -14,6 +14,7 @@ import org.swp391.hotelbookingsystem.service.UserService;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 @Controller
 public class AdminAgentController {
@@ -62,9 +63,6 @@ public class AdminAgentController {
         return "admin/admin-agent-list";
     }
 
-
-
-
     @GetMapping("/admin-agent-detail")
     public String showAgentDetail(@RequestParam("id") int agentId, Model model) {
         User agent = userService.findUserById(agentId);
@@ -94,10 +92,17 @@ public class AdminAgentController {
 
     @GetMapping("/agent-admin-contact")
     public String showAdminContact(@RequestParam("id") int agentId, Model model,
-                                        HttpSession session) {
+                                   HttpSession session) {
         User host = (User) session.getAttribute("user");
-        User agent = userService.findUserById(12);
-        model.addAttribute("customer", agent);
+        List<User> admins = userService.getUsersByRole("ADMIN");
+
+        if (admins.isEmpty()) {
+            throw new IllegalStateException("Không tìm thấy admin nào để liên hệ.");
+        }
+
+        User randomAdmin = admins.get(new Random().nextInt(admins.size()));
+
+        model.addAttribute("customer", randomAdmin);
         model.addAttribute("currentUserId", host.getId());
         return "admin/admin-agent-contact";
     }
