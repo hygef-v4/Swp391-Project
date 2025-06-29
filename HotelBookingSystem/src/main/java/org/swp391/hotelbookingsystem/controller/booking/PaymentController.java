@@ -111,8 +111,8 @@ public class PaymentController {
         HttpServletRequest request, HttpSession session, Model model
     ){
         try{
-            // boolean paymentStatus = vnpayService.returnPayment(request);
-            // if(!paymentStatus) return "redirect:/booking-error?dateRange=" + dateRange + "&guests=" + guests + "&rooms=" + rooms;
+            boolean paymentStatus = vnpayService.returnPayment(request);
+            if(!paymentStatus) return "redirect:/booking-error?dateRange=" + dateRange + "&guests=" + guests + "&rooms=" + rooms;
 
             Booking booking = (Booking) session.getAttribute("booking");
             if(booking == null) return "redirect:/";

@@ -55,7 +55,7 @@ public class HotelListController {
         model.addAttribute("dateRange", dateRange);
         String[] date = dateRange.split(" => ");
         Date checkin = !date[0].isBlank() ? Date.valueOf(date[0]) : null;
-        Date checkout = date.length >= 2 ? Date.valueOf(date[1]) : null;
+        Date checkout = date.length >= 2 ? Date.valueOf(date[1]) : checkin;
 
         model.addAttribute("guests", guests);
         model.addAttribute("rooms", rooms);
