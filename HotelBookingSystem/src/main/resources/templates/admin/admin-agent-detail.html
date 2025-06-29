@@ -24,10 +24,37 @@
     <!-- Theme CSS -->
     <link rel="stylesheet" th:href="@{/assets/css/style.css}" />
     <style>
-        .tab-content.hidden-before-js {
-            visibility: hidden;
+        .hover-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+
+        /* Light mode hover */
+        .hover-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            background-color: #f8f9fa;
+        }
+
+        /* Dark mode hover */
+        body.dark .hover-card:hover,
+        [data-bs-theme="dark"] .hover-card:hover {
+            background-color: #2a2a2a; /* nền xám đậm hơn */
+            box-shadow: 0 10px 20px rgba(255, 255, 255, 0.05); /* sáng nhẹ */
+        }
+
+        .hover-card:hover .card-body,
+        .hover-card:hover .card-footer {
+            background-color: inherit !important;
+        }
+
+        [data-bs-theme="dark"] .hover-card:hover .card-body,
+        [data-bs-theme="dark"] .hover-card:hover .card-footer {
+            background-color: inherit !important;
         }
     </style>
+
     <!-- Dark mode -->
     <script>
         const storedTheme = localStorage.getItem('theme')
@@ -109,7 +136,7 @@
             <div class="row g-4 mb-4">
                 <!-- Counter item -->
                 <div class="col-lg-4">
-                    <div class="card card-body border border-primary bg-primary bg-opacity-10 border-opacity-25 p-4 h-100">
+                    <div class="card card-body border border-primary bg-primary bg-opacity-10 border-opacity-25 p-4 h-100 hover-card">
                         <div class="d-flex justify-content-between align-items-center">
                             <!-- Digit -->
                             <div>
@@ -124,7 +151,7 @@
 
                 <!-- Counter item -->
                 <div class="col-lg-4">
-                    <div class="card card-body border border-warning bg-warning bg-opacity-10 border-opacity-25 p-4 h-100">
+                    <div class="card card-body border border-warning bg-warning bg-opacity-10 border-opacity-25 p-4 h-100 hover-card">
                         <div class="d-flex justify-content-between align-items-center">
                             <!-- Digit -->
                             <div>
@@ -139,12 +166,12 @@
 
                 <!-- Counter item -->
                 <div class="col-lg-4">
-                    <div class="card card-body border border-success bg-success bg-opacity-10 border-opacity-25 p-4 h-100">
+                    <div class="card card-body border border-success bg-success bg-opacity-10 border-opacity-25 p-4 h-100 hover-card">
                         <div class="d-flex justify-content-between align-items-center">
                             <!-- Digit -->
                             <div>
-                                <h3 class="mb-0 fw-bold">$2486.95</h3>
-                                <span class="mb-0 h6 fw-light">Earning this month</span>
+                                <h3 class="mb-0 fw-bold" th:text="${#numbers.formatDecimal(monthlyRevenue, 0, 'COMMA', 0, 'POINT')} + '₫'">Thu nhập</h3>
+                                <span class="mb-0 h6 fw-light">Thu nhập tháng này</span>
                             </div>
                             <!-- Icon -->
                             <div class="icon-lg rounded-circle flex-shrink-0 bg-success text-white mb-0"><i class="fa-solid fa-money-bill-trend-up fa-fw"></i></div>
@@ -157,19 +184,7 @@
             <div class="row g-4 mb-5">
                 <!-- Agent info START -->
                 <div class="col-md-4 col-xxl-3">
-                    <div class="card bg-light">
-<!--                        &lt;!&ndash; Dropdown button &ndash;&gt;-->
-<!--                        <div class="dropdown position-absolute top-0 end-0 m-3">-->
-<!--                            <a href="#" class="btn btn-sm btn-white btn-round lh-lg mb-0" role="button" id="dropdownShare1" data-bs-toggle="dropdown" aria-expanded="false">-->
-<!--                                <i class="bi bi-three-dots fa-fw"></i>-->
-<!--                            </a>-->
-<!--                            &lt;!&ndash; dropdown button &ndash;&gt;-->
-<!--                            <ul class="dropdown-menu dropdown-w-sm dropdown-menu-end min-w-auto shadow rounded" aria-labelledby="dropdownShare1">-->
-<!--                                <li><a class="dropdown-item" href="#"><i class="bi bi-pencil-square fa-fw me-2"></i>Edit</a></li>-->
-<!--                                <li><a class="dropdown-item" href="#"><i class="bi bi-trash fa-fw me-2"></i>Remove</a></li>-->
-<!--                            </ul>-->
-<!--                        </div>-->
-                        <!-- Card body -->
+                    <div class="card bg-light hover-card">
                         <div class="card-body text-center">
                             <!-- Avatar Image -->
                             <div class="avatar avatar-xl flex-shrink-0 mb-3">
@@ -201,7 +216,7 @@
                             <div class="d-flex align-items-center mb-3">
                                 <div class="icon-md bg-mode h6 mb-0 rounded-circle flex-shrink-0"><i class="bi bi-telephone-fill"></i></div>
                                 <div class="ms-2">
-                                    <small>Phone</small>
+                                    <small>Số điện thoại</small>
                                     <h6 class="fw-normal small mb-0"><a href="#" th:text="${agent.phone}">Số điện thoại</a></h6>
                                 </div>
                             </div>
@@ -212,7 +227,7 @@
 
                 <div class="col-md-8 col-xxl-9">
                     <!-- Personal info START -->
-                    <div class="card shadow">
+                    <div class="card shadow hover-card">
                         <!-- Card header -->
                         <div class="card-header border-bottom">
                             <h5 class="mb-0">Thông tin cá nhân</h5>
@@ -281,7 +296,7 @@
                 <!-- Hotel list -->
                 <div class="row g-4">
                         <div class="col-lg-6" th:each="hotel, stat : ${hotelList}" th:if="${hotelList != null and !hotelList.isEmpty()}">
-                        <div class="card shadow p-3 h-100" style="min-height: 180px; border-radius: 12px;">
+                        <div class="card shadow p-3 h-100 hover-card" style="min-height: 180px; border-radius: 12px;">
                             <div class="row g-4 align-items-stretch h-100">
                                 <!-- Card img -->
                                 <div class="col-sm-3 d-flex align-items-center">
@@ -302,16 +317,16 @@
                                             </a>
                                             <ul class="dropdown-menu dropdown-menu-end shadow rounded"
                                                 th:aria-labelledby="'dropdownAction' + ${stat.index}">
-                                                <li><a class="dropdown-item" href="#"><i class="bi bi-info-circle me-1"></i>Report</a></li>
-                                                <li><a class="dropdown-item" href="#"><i class="bi bi-slash-circle me-1"></i>Disable</a></li>
+                                                <li><a class="dropdown-item" href="#"><i class="bi bi-info-circle me-1"></i>Báo cáo</a></li>
+                                                <li><a class="dropdown-item" href="#"><i class="bi bi-slash-circle me-1"></i>Vô hiệu hoá</a></li>
                                             </ul>
                                         </div>
 
                                         <!-- Title & Address -->
-                                        <h5 class="card-title mb-1" th:text="${hotel.hotelName}">Hotel Name</h5>
+                                        <h5 class="card-title mb-1" th:text="${hotel.hotelName}">Tên khách sạn</h5>
                                         <small class="text-light">
                                             <i class="bi bi-geo-alt me-2"></i>
-                                            <span th:text="${hotel.address}">Hotel address</span>
+                                            <span th:text="${hotel.address}">Địa chỉ khách sạn</span>
                                         </small>
 
                                         <!-- Price & View -->
@@ -322,7 +337,7 @@
                                             </div>
                                             <a th:href="@{/hotel-detail(hotelId=${hotel.hotelId})}"
                                                class="btn btn-sm btn-primary">
-                                                <i class="bi bi-eye me-1"></i>View
+                                                <i class="bi bi-eye me-1"></i>Xem chi tiết
                                             </a>
                                         </div>
 

@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.repository.UserRepo;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -42,8 +44,8 @@ public class UserService {
         return userRepo.countUsersByRoleAndSearch("HOTEL_OWNER", keyword);
     }
 
-    public List<User> getAllUsers() {
-        return userRepo.getAllUser();
+    public List<User> getAgentsSortedPaginated(String search, String sort, int offset, int size) {
+        return userRepo.findAgentsBySearchSorted(search, sort, offset, size);
     }
 
     public List<User> searchUsersByName(String search) {
@@ -58,7 +60,10 @@ public class UserService {
         }
     }
 
-    //  Update role to HOTEL_OWNER by user ID
+    public int countAgent() {
+        return userRepo.countAgent();
+    }
+
     public void updateUserRoleToHost(int userId) {
         userRepo.updateUserRoleById(userId, "HOTEL_OWNER");
     }
@@ -112,13 +117,11 @@ public class UserService {
         userRepo.updateUser(user);
     }
 
-    // Hàm cập nhật mật khẩu
     public void updateUserPassword(User sessionUser, String newPassword) {
         if (sessionUser == null) {
             throw new IllegalArgumentException("Người dùng không tồn tại.");
         }
 
-        // Mã hóa và cập nhật mật khẩu mới
         String encodedPassword = passwordEncoder.encode(newPassword);
         sessionUser.setPassword(encodedPassword);
         userRepo.updateUserPassword(sessionUser.getEmail(), encodedPassword);
@@ -126,38 +129,31 @@ public class UserService {
 
 
     public void validateUserProfile(String fullname, String phone, String dob, String bio) {
-        // Kiểm tra trường fullname
+
         if (fullname == null || fullname.isBlank()) {
             throw new IllegalArgumentException("Tên người dùng không được để trống.");
         }
 
-        // Validate số điện thoại (chỉ chấp nhận 10-15 ký tự số)
         if (!phone.matches("\\d{10,15}")) {
             throw new IllegalArgumentException("Số điện thoại không hợp lệ. Chỉ chấp nhận từ 10-15 chữ số.");
         }
 
-        // Kiểm tra ngày sinh
         if (dob == null || dob.isBlank()) {
             throw new IllegalArgumentException("Ngày sinh không được để trống.");
         }
 
         try {
-            // Chuyển chuỗi ngày sinh (dob) sang LocalDate
             java.time.LocalDate birthDate = java.time.LocalDate.parse(dob);
             java.time.LocalDate today = java.time.LocalDate.now();
 
-            // Kiểm tra xem ngày sinh có nằm trong tương lai không
             if (birthDate.isAfter(today)) {
                 throw new IllegalArgumentException("Ngày sinh không được nằm trong tương lai.");
             }
         } catch (java.time.format.DateTimeParseException e) {
-            // Bắt lỗi nếu ngày sinh không đúng định dạng
             throw new IllegalArgumentException("Ngày sinh không hợp lệ. Vui lòng nhập đúng định dạng mm/dd/yyyy.");
         }
 
-
-        // Kiểm tra thông tin giới thiệu
-        if ( bio.length() > 255) { // Không bắt buộc nhưng không được dài quá 255 ký tự
+        if ( bio.length() > 255) {
             throw new IllegalArgumentException("Thông tin giới thiệu không được dài quá 255 ký tự.");
         }
 
@@ -195,4 +191,21 @@ public class UserService {
     public void deleteEmailOtp(String email) {
         userRepo.deleteEmailOtp(email);
     }
+
+    // Thêm method để tính tổng số người dùng
+    public int getTotalUsers() {
+        List<User> allUsers = userRepo.getAllUser();
+        return allUsers != null ? allUsers.size() : 0;
+    }
+
+    public void flagUser(int userId, String reason) {
+        if (reason == null) {
+            userRepo.flagUserById(userId, null); // truyền null để huỷ flag
+        } else {
+            userRepo.flagUserById(userId, reason);
+        }
+    }
+
 }
+
+

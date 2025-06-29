@@ -2,7 +2,6 @@ package org.swp391.hotelbookingsystem.controller.host;
 
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -13,7 +12,6 @@ import org.swp391.hotelbookingsystem.service.EmailService;
 import org.swp391.hotelbookingsystem.service.HotelService;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Controller
 @RequestMapping("/host")

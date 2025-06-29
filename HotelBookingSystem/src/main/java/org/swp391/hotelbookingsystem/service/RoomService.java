@@ -99,4 +99,17 @@ public class RoomService {
     public int countBookedRoomsByHostId(int hostId) {
         return roomRepository.countBookedRoomsByHostId(hostId);
     }
+
+    public int countAvailableRoomsByHotelId(int hotelId) {
+        return roomRepository.countAvailableRoomsByHotelId(hotelId);
+    }
+
+
+    public Room getRoomById(int roomId) {
+        return roomRepository.getRoomById(roomId);
+    }
+
+    public boolean hasActiveBookingUnits(int roomId) {
+        return roomRepository.hasActiveBookingUnits(roomId);
+    }
 }

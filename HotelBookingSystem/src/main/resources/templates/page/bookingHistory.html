@@ -117,26 +117,41 @@
                         <!-- Card body START -->
                         <div class="card-body p-0">
 
-                            <!-- Tabs -->
+                            <!-- Tabs controlled by URL parameter "tab" -->
                             <ul class="nav nav-tabs nav-bottom-line nav-responsive nav-justified">
                                 <li class="nav-item">
-                                    <a class="nav-link mb-0 active" data-bs-toggle="tab" href="#tab-1"><i class="bi bi-briefcase-fill fa-fw me-1"></i>Sắp tới</a>
+                                    <a class="nav-link mb-0"
+                                       th:classappend="${tab} == 'upcoming' ? ' active' : ''"
+                                       th:href="@{'/bookingHistory'(tab='upcoming')}">
+                                        <i class="bi bi-briefcase-fill fa-fw me-1"></i>Sắp tới
+                                    </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link mb-0" data-bs-toggle="tab" href="#tab-2"><i class="bi bi-x-octagon fa-fw me-1"></i>Đã huỷ</a>
+                                    <a class="nav-link mb-0"
+                                       th:classappend="${tab} == 'checkin' ? ' active' : ''"
+                                       th:href="@{'/bookingHistory'(tab='checkin')}">
+                                        <i class="bi bi-door-open-fill fa-fw me-1"></i>Đã nhận phòng
+                                    </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link mb-0" data-bs-toggle="tab" href="#tab-3"><i class="bi bi-patch-check fa-fw me-1"></i>Đã hoàn thành</a>
+                                    <a class="nav-link mb-0"
+                                       th:classappend="${tab} == 'cancelled' ? ' active' : ''"
+                                       th:href="@{'/bookingHistory'(tab='cancelled')}">
+                                        <i class="bi bi-x-octagon fa-fw me-1"></i>Đã huỷ
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link mb-0"
+                                       th:classappend="${tab} == 'completed' ? ' active' : ''"
+                                       th:href="@{'/bookingHistory'(tab='completed')}">
+                                        <i class="bi bi-patch-check fa-fw me-1"></i>Đã hoàn thành
+                                    </a>
                                 </li>
                             </ul>
-
                             <!-- Tabs content START -->
-                            <div class="tab-content p-2 p-sm-4" id="nav-tabContent">
-
-                                <!-- Tab content item START -->
-                                <div class="tab-pane fade show active" id="tab-1">
-                                    <h6>Sắp tới (<span th:text="${upcomingBookings.size()}"></span>)</h6>
-
+                            <div class="tab-content p-2 p-sm-4">
+                                <div class="tab-pane fade" th:classappend="${tab} == 'upcoming' ? ' show active' : ''" id="tab-1">
+                                    <h6>Sắp tới (<span th:text="${totalUpcomingBookings}"></span>)</h6>
                                     <div th:each="booking : ${upcomingBookings}" class="card border mb-4">
                                         <div class="card-header border-bottom d-md-flex justify-content-md-between align-items-center">
                                             <div class="d-flex align-items-center">
@@ -145,20 +160,6 @@
                                                 </div>
                                                 <div class="ms-2">
                                                     <h6 class="card-title mb-0"><span th:text="${booking.hotelName}"></span></h6>
-                                                    <!-- <ul class="nav nav-divider small">
-                                                        <li class="nav-item">Loại phòng: <span th:text="${booking.roomName}"></span></li>
-                                                        <li class="nav-item">
-                                                            Trạng thái:
-                                                            <span th:switch="${booking.status}">
-                                                                <span th:case="'approved'">Đã xác nhận</span>
-                                                                <span th:case="'pending'">Chờ xác nhận</span>
-                                                                <span th:case="'cancelled'">Đã hủy</span>
-                                                                <span th:case="'completed'">Đã hoàn thành</span>
-                                                                <span th:case="'rejected'">Đã từ chối</span>
-                                                                <span th:case="*">Không xác định</span>
-                                                            </span>
-                                                        </li>
-                                                    </ul> -->
                                                 </div>
                                             </div>
                                             <div class="mt-2 mt-md-0">
@@ -182,12 +183,205 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <!-- Pagination for Upcoming -->
+                                    <div class="row">
+                                        <div class="d-sm-flex justify-content-sm-center align-items-sm-center mt-4">
+                                            <nav class="mb-sm-0 d-flex justify-content-center" aria-label="navigation">
+                                                <ul class="pagination pagination-sm pagination-primary-soft d-inline-block d-md-flex rounded mb-0">
+
+                                                    <!-- Previous -->
+                                                    <li th:if="${totalPagesUpcoming >= 2}" th:class="'page-item mb-0' + (${currentPageUpcoming == 1} ? ' disabled' : '')">
+                                                        <a class="page-link"
+                                                           th:href="@{'/bookingHistory'(tab='upcoming', pageUpcoming=${currentPageUpcoming - 1})}">
+                                                            <i class="fa-solid fa-angle-left"></i>
+                                                        </a>
+                                                    </li>
+
+                                                    <!-- Page 1 -->
+                                                    <li th:if="${totalPagesUpcoming >= 1}" th:class="'page-item mb-0' + (${currentPageUpcoming == 1} ? ' active disabled' : '')">
+                                                        <a class="page-link"
+                                                           th:href="@{'/bookingHistory'(tab='upcoming', pageUpcoming=1)}">1</a>
+                                                    </li>
+
+                                                    <!-- Page 2 -->
+                                                    <li th:if="${totalPagesUpcoming >= 2}" th:class="'page-item mb-0' + (${currentPageUpcoming == 2} ? ' active disabled' : '')">
+                                                        <a class="page-link"
+                                                           th:href="@{'/bookingHistory'(tab='upcoming', pageUpcoming=2)}">2</a>
+                                                    </li>
+
+                                                    <!-- Left ellipsis -->
+                                                    <li th:if="${totalPagesUpcoming >= 5 and currentPageUpcoming - 2 > 2}" class="page-item mb-0 disabled">
+                                                        <a class="page-link">...</a>
+                                                    </li>
+
+                                                    <!-- Page -1 -->
+                                                    <li th:if="${totalPagesUpcoming >= 4 and currentPageUpcoming != 1 and currentPageUpcoming - 1 != 1 and currentPageUpcoming - 1 != 2}"
+                                                        class="page-item mb-0">
+                                                        <a class="page-link"
+                                                           th:href="@{'/bookingHistory'(tab='upcoming', pageUpcoming=${currentPageUpcoming - 1})}"
+                                                           th:text="${currentPageUpcoming - 1}"></a>
+                                                    </li>
+
+                                                    <!-- Current Page -->
+                                                    <li th:if="${totalPagesUpcoming >= 4 and currentPageUpcoming != 1 and currentPageUpcoming != 2 and currentPageUpcoming != totalPagesUpcoming}"
+                                                        class="page-item mb-0 active disabled">
+                                                        <a class="page-link" th:text="${currentPageUpcoming}"></a>
+                                                    </li>
+
+                                                    <!-- Page +1 -->
+                                                    <li th:if="${totalPagesUpcoming >= 4 and currentPageUpcoming + 1 != 2 and currentPageUpcoming + 1 != totalPagesUpcoming and currentPageUpcoming != totalPagesUpcoming}"
+                                                        class="page-item mb-0">
+                                                        <a class="page-link"
+                                                           th:href="@{'/bookingHistory'(tab='upcoming', pageUpcoming=${currentPageUpcoming + 1})}"
+                                                           th:text="${currentPageUpcoming + 1}"></a>
+                                                    </li>
+
+                                                    <!-- Right ellipsis -->
+                                                    <li th:if="${totalPagesUpcoming >= 4 and totalPagesUpcoming > currentPageUpcoming + 2}" class="page-item mb-0 disabled">
+                                                        <a class="page-link">...</a>
+                                                    </li>
+
+                                                    <!-- Last page -->
+                                                    <li th:if="${totalPagesUpcoming >= 3}"
+                                                        th:class="'page-item mb-0' + (${currentPageUpcoming == totalPagesUpcoming} ? ' active disabled' : '')">
+                                                        <a class="page-link"
+                                                           th:href="@{'/bookingHistory'(tab='upcoming', pageUpcoming=${totalPagesUpcoming})}"
+                                                           th:text="${totalPagesUpcoming}"></a>
+                                                    </li>
+
+                                                    <!-- Next -->
+                                                    <li th:if="${totalPagesUpcoming >= 2}" th:class="'page-item mb-0' + (${currentPageUpcoming == totalPagesUpcoming} ? ' disabled' : '')">
+                                                        <a class="page-link"
+                                                           th:href="@{'/bookingHistory'(tab='upcoming', pageUpcoming=${currentPageUpcoming + 1})}">
+                                                            <i class="fa-solid fa-angle-right"></i>
+                                                        </a>
+                                                    </li>
+
+                                                </ul>
+                                            </nav>
+                                        </div>
+                                    </div>
                                 </div>
-                                <!-- Tabs content item END -->
+                                    <!-- Tabs content item END -->
+                                <!-- Tab content item START -->
+                                <div class="tab-pane fade" th:classappend="${tab} == 'checkin' ? ' show active' : ''" id="tab-2">
+                                    <h6>Đã nhận phòng (<span th:text="${totalCheckinBookings}"></span>)</h6>
+                                    <div th:each="booking : ${checkinBookings}" class="card border mb-4">
+                                        <div class="card-header border-bottom d-md-flex justify-content-md-between align-items-center">
+                                            <div class="d-flex align-items-center">
+                                                <div class="icon-lg bg-light rounded-circle flex-shrink-0 overflow-hidden" style="width: 50px; height: 50px;">
+                                                    <img th:src="${booking.imageUrl}" alt="Room Image" style="width: 100%; height: 100%; object-fit: cover;">
+                                                </div>
+                                                <div class="ms-2">
+                                                    <h6 class="card-title mb-0"><span th:text="${booking.hotelName}"></span></h6>
+                                                </div>
+                                            </div>
+                                            <div class="mt-2 mt-md-0">
+                                                <a th:href="@{'/booking-detail/' + ${booking.bookingId} + '?checkin=true'}" class="btn btn-primary-soft mb-0">Xem chi tiết</a>
+                                            </div>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row g-3">
+                                                <div class="col-sm-6 col-md-4">
+                                                    <span>Ngày nhận phòng</span>
+                                                    <h6 class="mb-0" th:text="${#temporals.format(booking.checkIn, 'EEE dd MMM yyyy')}"></h6>
+                                                </div>
+                                                <div class="col-sm-6 col-md-4">
+                                                    <span>Ngày trả phòng</span>
+                                                    <h6 class="mb-0" th:text="${#temporals.format(booking.checkOut, 'EEE dd MMM yyyy')}"></h6>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <span>Tổng tiền</span>
+                                                    <h6 class="mb-0" th:text="${#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 0, 'POINT')} + '₫'"></h6>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Pagination for Checkin -->
+                                    <div class="row">
+                                        <div class="d-sm-flex justify-content-sm-center align-items-sm-center mt-4">
+                                            <nav class="mb-sm-0 d-flex justify-content-center" aria-label="navigation">
+                                                <ul class="pagination pagination-sm pagination-primary-soft d-inline-block d-md-flex rounded mb-0">
+
+                                                    <!-- Previous -->
+                                                    <li th:if="${totalPagesCheckin >= 2}" th:class="'page-item mb-0' + (${currentPageCheckin == 1} ? ' disabled' : '')">
+                                                        <a class="page-link"
+                                                           th:href="@{'/bookingHistory'(tab='checkin', pageCheckin=${currentPageCheckin - 1})}">
+                                                            <i class="fa-solid fa-angle-left"></i>
+                                                        </a>
+                                                    </li>
+
+                                                    <!-- Page 1 -->
+                                                    <li th:if="${totalPagesCheckin >= 1}" th:class="'page-item mb-0' + (${currentPageCheckin == 1} ? ' active disabled' : '')">
+                                                        <a class="page-link"
+                                                           th:href="@{'/bookingHistory'(tab='checkin', pageCheckin=1)}">1</a>
+                                                    </li>
+
+                                                    <!-- Page 2 -->
+                                                    <li th:if="${totalPagesCheckin >= 2}" th:class="'page-item mb-0' + (${currentPageCheckin == 2} ? ' active disabled' : '')">
+                                                        <a class="page-link"
+                                                           th:href="@{'/bookingHistory'(tab='checkin', pageCheckin=2)}">2</a>
+                                                    </li>
+
+                                                    <!-- Left ellipsis -->
+                                                    <li th:if="${totalPagesCheckin >= 5 and currentPageCheckin - 2 > 2}" class="page-item mb-0 disabled">
+                                                        <a class="page-link">...</a>
+                                                    </li>
+
+                                                    <!-- Page -1 -->
+                                                    <li th:if="${totalPagesCheckin >= 4 and currentPageCheckin != 1 and currentPageCheckin - 1 != 1 and currentPageCheckin - 1 != 2}"
+                                                        class="page-item mb-0">
+                                                        <a class="page-link"
+                                                           th:href="@{'/bookingHistory'(tab='checkin', pageCheckin=${currentPageCheckin - 1})}"
+                                                           th:text="${currentPageCheckin - 1}"></a>
+                                                    </li>
+
+                                                    <!-- Current Page -->
+                                                    <li th:if="${totalPagesCheckin >= 4 and currentPageCheckin != 1 and currentPageCheckin != 2 and currentPageCheckin != totalPagesCheckin}"
+                                                        class="page-item mb-0 active disabled">
+                                                        <a class="page-link" th:text="${currentPageCheckin}"></a>
+                                                    </li>
+
+                                                    <!-- Page +1 -->
+                                                    <li th:if="${totalPagesCheckin >= 4 and currentPageCheckin + 1 != 2 and currentPageCheckin + 1 != totalPagesCheckin and currentPageCheckin != totalPagesCheckin}"
+                                                        class="page-item mb-0">
+                                                        <a class="page-link"
+                                                           th:href="@{'/bookingHistory'(tab='checkin', pageCheckin=${currentPageCheckin + 1})}"
+                                                           th:text="${currentPageCheckin + 1}"></a>
+                                                    </li>
+
+                                                    <!-- Right ellipsis -->
+                                                    <li th:if="${totalPagesCheckin >= 4 and totalPagesCheckin > currentPageCheckin + 2}" class="page-item mb-0 disabled">
+                                                        <a class="page-link">...</a>
+                                                    </li>
+
+                                                    <!-- Last page -->
+                                                    <li th:if="${totalPagesCheckin >= 3}"
+                                                        th:class="'page-item mb-0' + (${currentPageCheckin == totalPagesCheckin} ? ' active disabled' : '')">
+                                                        <a class="page-link"
+                                                           th:href="@{'/bookingHistory'(tab='checkin', pageCheckin=${totalPagesCheckin})}"
+                                                           th:text="${totalPagesCheckin}"></a>
+                                                    </li>
+
+                                                    <!-- Next -->
+                                                    <li th:if="${totalPagesCheckin >= 2}" th:class="'page-item mb-0' + (${currentPageCheckin == totalPagesCheckin} ? ' disabled' : '')">
+                                                        <a class="page-link"
+                                                           th:href="@{'/bookingHistory'(tab='checkin', pageCheckin=${currentPageCheckin + 1})}">
+                                                            <i class="fa-solid fa-angle-right"></i>
+                                                        </a>
+                                                    </li>
+
+                                                </ul>
+                                            </nav>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Tab content item END -->
 
                                 <!-- Tab content item START -->
-                                <div class="tab-pane fade" id="tab-2">
-                                    <h6>Đã huỷ (<span th:text="${cancelledBookings.size()}"></span>)</h6>
+                                <div class="tab-pane fade" th:classappend="${tab} == 'cancelled' ? ' show active' : ''" id="tab-3">
+                                    <h6>Đã huỷ (<span th:text="${totalCancelledBookings}"></span>)</h6>
 
                                     <div th:each="booking : ${cancelledBookings}" class="card border mb-4">
                                         <div class="card-header border-bottom d-md-flex justify-content-md-between align-items-center">
@@ -197,20 +391,6 @@
                                                 </div>
                                                 <div class="ms-2">
                                                     <h6 class="card-title mb-0"><span th:text="${booking.hotelName}"></span></h6>
-                                                    <!-- <ul class="nav nav-divider small">
-                                                        <li class="nav-item">Loại phòng: <span th:text="${booking.roomName}"></span></li>
-                                                        <li class="nav-item">
-                                                            Trạng thái:
-                                                            <span th:switch="${booking.status}">
-                                                                <span th:case="'approved'">Đã xác nhận</span>
-                                                                <span th:case="'pending'">Chờ xác nhận</span>
-                                                                <span th:case="'cancelled'">Đã hủy</span>
-                                                                <span th:case="'completed'">Đã hoàn thành</span>
-                                                                <span th:case="'rejected'">Đã từ chối</span>
-                                                                <span th:case="*">Không xác định</span>
-                                                            </span>
-                                                        </li>
-                                                    </ul> -->
                                                 </div>
                                             </div>
                                             <div class="mt-2 mt-md-0">
@@ -234,13 +414,90 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <!-- Pagination for Cancelled -->
+                                    <div class="row">
+                                        <div class="d-sm-flex justify-content-sm-center align-items-sm-center mt-4">
+                                            <nav class="mb-sm-0 d-flex justify-content-center" aria-label="navigation">
+                                                <ul class="pagination pagination-sm pagination-primary-soft d-inline-block d-md-flex rounded mb-0">
+
+                                                    <!-- Previous -->
+                                                    <li th:if="${totalPagesCancelled >= 2}" th:class="'page-item mb-0' + (${currentPageCancelled == 1} ? ' disabled' : '')">
+                                                        <a class="page-link"
+                                                           th:href="@{'/bookingHistory'(tab='cancelled', pageCancelled=${currentPageCancelled - 1})}">
+                                                            <i class="fa-solid fa-angle-left"></i>
+                                                        </a>
+                                                    </li>
+
+                                                    <!-- Page 1 -->
+                                                    <li th:if="${totalPagesCancelled >= 1}" th:class="'page-item mb-0' + (${currentPageCancelled == 1} ? ' active disabled' : '')">
+                                                        <a class="page-link"
+                                                           th:href="@{'/bookingHistory'(tab='cancelled', pageCancelled=1)}">1</a>
+                                                    </li>
+
+                                                    <!-- Page 2 -->
+                                                    <li th:if="${totalPagesCancelled >= 2}" th:class="'page-item mb-0' + (${currentPageCancelled == 2} ? ' active disabled' : '')">
+                                                        <a class="page-link"
+                                                           th:href="@{'/bookingHistory'(tab='cancelled', pageCancelled=2)}">2</a>
+                                                    </li>
+
+                                                    <!-- Left ellipsis -->
+                                                    <li th:if="${totalPagesCancelled >= 5 and currentPageCancelled - 2 > 2}" class="page-item mb-0 disabled">
+                                                        <a class="page-link">...</a>
+                                                    </li>
+
+                                                    <!-- Page -1 -->
+                                                    <li th:if="${totalPagesCancelled >= 4 and currentPageCancelled != 1 and currentPageCancelled - 1 != 1 and currentPageCancelled - 1 != 2}"
+                                                        class="page-item mb-0">
+                                                        <a class="page-link"
+                                                           th:href="@{'/bookingHistory'(tab='cancelled', pageCancelled=${currentPageCancelled - 1})}"
+                                                           th:text="${currentPageCancelled - 1}"></a>
+                                                    </li>
+
+                                                    <!-- Current Page -->
+                                                    <li th:if="${totalPagesCancelled >= 4 and currentPageCancelled != 1 and currentPageCancelled != 2 and currentPageCancelled != totalPagesCancelled}"
+                                                        class="page-item mb-0 active disabled">
+                                                        <a class="page-link" th:text="${currentPageCancelled}"></a>
+                                                    </li>
+
+                                                    <!-- Page +1 -->
+                                                    <li th:if="${totalPagesCancelled >= 4 and currentPageCancelled + 1 != 2 and currentPageCancelled + 1 != totalPagesCancelled and currentPageCancelled != totalPagesCancelled}"
+                                                        class="page-item mb-0">
+                                                        <a class="page-link"
+                                                           th:href="@{'/bookingHistory'(tab='cancelled', pageCancelled=${currentPageCancelled + 1})}"
+                                                           th:text="${currentPageCancelled + 1}"></a>
+                                                    </li>
+
+                                                    <!-- Right ellipsis -->
+                                                    <li th:if="${totalPagesCancelled >= 4 and totalPagesCancelled > currentPageCancelled + 2}" class="page-item mb-0 disabled">
+                                                        <a class="page-link">...</a>
+                                                    </li>
+
+                                                    <!-- Last page -->
+                                                    <li th:if="${totalPagesCancelled >= 3}"
+                                                        th:class="'page-item mb-0' + (${currentPageCancelled == totalPagesCancelled} ? ' active disabled' : '')">
+                                                        <a class="page-link"
+                                                           th:href="@{'/bookingHistory'(tab='cancelled', pageCancelled=${totalPagesCancelled})}"
+                                                           th:text="${totalPagesCancelled}"></a>
+                                                    </li>
+
+                                                    <!-- Next -->
+                                                    <li th:if="${totalPagesCancelled >= 2}" th:class="'page-item mb-0' + (${currentPageCancelled == totalPagesCancelled} ? ' disabled' : '')">
+                                                        <a class="page-link"
+                                                           th:href="@{'/bookingHistory'(tab='cancelled', pageCancelled=${currentPageCancelled + 1})}">
+                                                            <i class="fa-solid fa-angle-right"></i>
+                                                        </a>
+                                                    </li>
+
+                                                </ul>
+                                            </nav>
+                                        </div>
+                                    </div>
                                 </div>
                                 <!-- Tabs content item END -->
 
                                 <!-- Tab content item START -->
-                                <div class="tab-pane fade" id="tab-3">
-                                    <h6>Đã hoàn thành (<span th:text="${completedBookings.size()}"></span>)</h6>
-
+                                <div class="tab-pane fade" th:classappend="${tab} == 'completed' ? ' show active' : ''" id="tab-4">
+                                    <h6>Đã hoàn thành (<span th:text="${totalCompletedBookings}"></span>)</h6>
                                     <div th:each="booking : ${completedBookings}" class="card border mb-4">
                                         <div class="card-header border-bottom d-md-flex justify-content-md-between align-items-center">
                                             <div class="d-flex align-items-center">
@@ -270,6 +527,84 @@
                                                     <h6 class="mb-0" th:text="${#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 0, 'POINT')} + '₫'"></h6>
                                                 </div>
                                             </div>
+                                        </div>
+                                    </div>
+                                    <!-- Pagination for Completed -->
+                                    <div class="row">
+                                        <div class="d-sm-flex justify-content-sm-center align-items-sm-center mt-4">
+                                            <nav class="mb-sm-0 d-flex justify-content-center" aria-label="navigation">
+                                                <ul class="pagination pagination-sm pagination-primary-soft d-inline-block d-md-flex rounded mb-0">
+
+                                                    <!-- Previous -->
+                                                    <li th:if="${totalPagesCompleted >= 2}" th:class="'page-item mb-0' + (${currentPageCompleted == 1} ? ' disabled' : '')">
+                                                        <a class="page-link"
+                                                           th:href="@{'/bookingHistory'(tab='completed', pageCompleted=${currentPageCompleted - 1})}">
+                                                            <i class="fa-solid fa-angle-left"></i>
+                                                        </a>
+                                                    </li>
+
+                                                    <!-- Page 1 -->
+                                                    <li th:if="${totalPagesCompleted >= 1}" th:class="'page-item mb-0' + (${currentPageCompleted == 1} ? ' active disabled' : '')">
+                                                        <a class="page-link"
+                                                           th:href="@{'/bookingHistory'(tab='completed', pageCompleted=1)}">1</a>
+                                                    </li>
+
+                                                    <!-- Page 2 -->
+                                                    <li th:if="${totalPagesCompleted >= 2}" th:class="'page-item mb-0' + (${currentPageCompleted == 2} ? ' active disabled' : '')">
+                                                        <a class="page-link"
+                                                           th:href="@{'/bookingHistory'(tab='completed', pageCompleted=2)}">2</a>
+                                                    </li>
+
+                                                    <!-- Left ellipsis -->
+                                                    <li th:if="${totalPagesCompleted >= 5 and currentPageCompleted - 2 > 2}" class="page-item mb-0 disabled">
+                                                        <a class="page-link">...</a>
+                                                    </li>
+
+                                                    <!-- Page -1 -->
+                                                    <li th:if="${totalPagesCompleted >= 4 and currentPageCompleted != 1 and currentPageCompleted - 1 != 1 and currentPageCompleted - 1 != 2}"
+                                                        class="page-item mb-0">
+                                                        <a class="page-link"
+                                                           th:href="@{'/bookingHistory'(tab='completed', pageCompleted=${currentPageCompleted - 1})}"
+                                                           th:text="${currentPageCompleted - 1}"></a>
+                                                    </li>
+
+                                                    <!-- Current Page -->
+                                                    <li th:if="${totalPagesCompleted >= 4 and currentPageCompleted != 1 and currentPageCompleted != 2 and currentPageCompleted != totalPagesCompleted}"
+                                                        class="page-item mb-0 active disabled">
+                                                        <a class="page-link" th:text="${currentPageCompleted}"></a>
+                                                    </li>
+
+                                                    <!-- Page +1 -->
+                                                    <li th:if="${totalPagesCompleted >= 4 and currentPageCompleted + 1 != 2 and currentPageCompleted + 1 != totalPagesCompleted and currentPageCompleted != totalPagesCompleted}"
+                                                        class="page-item mb-0">
+                                                        <a class="page-link"
+                                                           th:href="@{'/bookingHistory'(tab='completed', pageCompleted=${currentPageCompleted + 1})}"
+                                                           th:text="${currentPageCompleted + 1}"></a>
+                                                    </li>
+
+                                                    <!-- Right ellipsis -->
+                                                    <li th:if="${totalPagesCompleted >= 4 and totalPagesCompleted > currentPageCompleted + 2}" class="page-item mb-0 disabled">
+                                                        <a class="page-link">...</a>
+                                                    </li>
+
+                                                    <!-- Last page -->
+                                                    <li th:if="${totalPagesCompleted >= 3}"
+                                                        th:class="'page-item mb-0' + (${currentPageCompleted == totalPagesCompleted} ? ' active disabled' : '')">
+                                                        <a class="page-link"
+                                                           th:href="@{'/bookingHistory'(tab='completed', pageCompleted=${totalPagesCompleted})}"
+                                                           th:text="${totalPagesCompleted}"></a>
+                                                    </li>
+
+                                                    <!-- Next -->
+                                                    <li th:if="${totalPagesCompleted >= 2}" th:class="'page-item mb-0' + (${currentPageCompleted == totalPagesCompleted} ? ' disabled' : '')">
+                                                        <a class="page-link"
+                                                           th:href="@{'/bookingHistory'(tab='completed', pageCompleted=${currentPageCompleted + 1})}">
+                                                            <i class="fa-solid fa-angle-right"></i>
+                                                        </a>
+                                                    </li>
+
+                                                </ul>
+                                            </nav>
                                         </div>
                                     </div>
                                 </div>

@@ -13,20 +13,34 @@ public class BookingStatusScheduler {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    @Scheduled(cron = "0 * * * * *")
-    public void autoCompleteBookings() {
-        String sql = """
+    @Scheduled(cron = "0 * * * * *") // Mỗi phút
+    public void autoUpdateBookingStatuses() {
+        // 1. Cập nhật từ approved -> check_in nếu đang trong khoảng thời gian check-in
+        String updateCheckInSql = """
+            UPDATE BU
+            SET BU.status = 'check_in'
+            FROM BookingUnits BU
+            JOIN Bookings B ON BU.booking_id = B.booking_id
+            WHERE B.check_in <= GETDATE()
+              AND B.check_out >= GETDATE() 
+              AND BU.status = 'approved';
+        """;
+
+        // 2. Cập nhật từ approved|check_in -> completed nếu check_out < hôm nay
+        String updateCompletedSql = """
             UPDATE BU
             SET BU.status = 'completed'
             FROM BookingUnits BU
             JOIN Bookings B ON BU.booking_id = B.booking_id
-            WHERE B.check_out < GETDATE()
-              AND BU.status = 'approved';
+            WHERE B.check_out < GETDATE() 
+              AND BU.status IN ('approved', 'check_in');
         """;
 
-        int updated = jdbcTemplate.update(sql);
-        if(updated > 0) {
-            System.out.println("Auto-completed " + updated + " bookings.");
+        int checkInUpdated = jdbcTemplate.update(updateCheckInSql);
+        int completedUpdated = jdbcTemplate.update(updateCompletedSql);
+
+        if (checkInUpdated > 0 || completedUpdated > 0) {
+            System.out.printf("Booking status updated: %d to check_in, %d to completed%n", checkInUpdated, completedUpdated);
         }
     }
 }

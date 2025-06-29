@@ -24,8 +24,60 @@
     <!-- Theme CSS -->
     <link rel="stylesheet" th:href="@{/assets/css/style.css}" />
     <style>
-        .tab-content.hidden-before-js {
-            visibility: hidden;
+        .badge {
+            display: inline-block;
+            font-size: 0.875rem;
+            border-radius: 999px;
+        }
+
+        .bg-soft-primary {
+            background-color: rgba(0, 123, 255, 0.1);
+        }
+
+        .bg-soft-success {
+            background-color: rgba(40, 167, 69, 0.1);
+        }
+
+        .bg-soft-info {
+            background-color: rgba(23, 162, 184, 0.1);
+        }
+
+        .bg-soft-warning {
+            background-color: rgba(255, 193, 7, 0.1);
+        }
+
+        .bg-soft-danger {
+            background-color: rgba(220, 53, 69, 0.1);
+        }
+
+        .hover-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+
+        /* Light mode hover */
+        .hover-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            background-color: #f8f9fa;
+        }
+
+        /* Dark mode hover */
+        body.dark .hover-card:hover,
+        [data-bs-theme="dark"] .hover-card:hover {
+            background-color: #2a2a2a; /* nền xám đậm hơn */
+            box-shadow: 0 10px 20px rgba(255, 255, 255, 0.05); /* sáng nhẹ */
+        }
+
+        .hover-card:hover .card-body,
+        .hover-card:hover .card-footer {
+            background-color: inherit !important;
+        }
+
+        [data-bs-theme="dark"] .hover-card:hover .card-body,
+        [data-bs-theme="dark"] .hover-card:hover .card-footer {
+            background-color: inherit !important;
         }
     </style>
     <!-- Dark mode -->
@@ -109,220 +161,64 @@
             <!-- Title -->
             <div class="row">
                 <div class="col-12 mb-4 mb-sm-5">
-                    <div class="d-sm-flex justify-content-between align-items-center">
-                        <h1 class="h3 mb-2 mb-sm-0" th:text="${booking.hotelName}">Tên khách sạn</h1>
-                        <span class="badge bg-primary" th:text="${booking.status}">Trạng thái</span>
-                        <a href="#" class="btn btn-primary-soft text-nowrap mb-0"><i class="bi bi-pencil-square fa-fw"></i> Edit Room</a>
+                    <div class="d-sm-flex justify-content-start align-items-center">
+<!--                        <h1 class="h3 mb-2 mb-sm-0" th:text="${booking.hotelName}">Tên khách sạn</h1>-->
+                        <h1 class="h3 mb-2 mb-sm-0">Chi tiết đặt phòng</h1>
+<!--                        <a href="#" class="btn btn-primary-soft text-nowrap mb-0"><i class="bi bi-pencil-square fa-fw"></i> Edit Room</a>-->
                     </div>
                 </div>
             </div>
-
-
-            <!-- Thông tin đặt phòng -->
-            <div class="row g-4">
-                <div class="col-md-6">
-                    <img class="img-fluid rounded" th:src="@{${booking.imageUrl}}" alt="Hình ảnh khách sạn">
-                </div>
-                <div class="col-md-6">
-                    <h5>Khách hàng</h5>
-                    <div class="d-flex align-items-center mb-3">
-                        <img class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover" th:src="@{${booking.customerAvatar}}" alt="Avatar">
-                        <div>
-                            <strong th:text="${booking.customerName}">Tên khách</strong><br/>
-                            <small th:text="${booking.customerEmail}">Email</small>
-                        </div>
-                    </div>
-
-                    <p><strong>Check-in:</strong> <span th:text="${#temporals.format(booking.checkIn, 'dd/MM/yyyy HH:mm')}"></span></p>
-                    <p><strong>Check-out:</strong> <span th:text="${#temporals.format(booking.checkOut, 'dd/MM/yyyy HH:mm')}"></span></p>
-                    <p><strong>Ngày đặt:</strong> <span th:text="${#temporals.format(booking.createdAt, 'dd/MM/yyyy HH:mm')}"></span></p>
-                    <p><strong>Tổng tiền:</strong> <span class="text-success fw-bold" th:text="${#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 2, 'POINT')} + '₫'"></span></p>
-                    <p th:if="${booking.couponId != null}"><strong>Mã giảm giá:</strong> <span th:text="'Coupon #' + ${booking.couponId}"></span></p>
-                </div>
-            </div>
-
-            <!-- Chi tiết các phòng đã đặt -->
-            <h4 class="mt-5">Chi tiết các phòng</h4>
-            <div class="table-responsive">
-                <table class="table table-bordered">
-                    <thead class="table-light">
-                    <tr>
-                        <th>Phòng</th>
-                        <th>Ảnh</th>
-                        <th>Giá</th>
-                        <th>Số lượng</th>
-                        <th>Trạng thái</th>
-                        <th>Hoàn tiền</th>
-                        <th>Hành động</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="unit : ${booking.bookingUnits}">
-                        <td th:text="${unit.roomName}">Phòng ABC</td>
-                        <td><img th:src="@{${unit.imageUrl}}" alt="Ảnh phòng" style="width: 80px; height: 60px; object-fit: cover;"></td>
-                        <td th:text="${#numbers.formatDecimal(unit.price, 0, 'COMMA', 2, 'POINT')} + '₫'"></td>
-                        <td th:text="${unit.quantity}">1</td>
-                        <td>
-                <span class="badge"
-                      th:classappend="
-                        ${unit.status} == 'cancelled' ? ' bg-danger' :
-                        (${unit.status} == 'completed' ? ' bg-success' :
-                        (${unit.status} == 'pending' ? ' bg-warning text-dark' : ' bg-secondary'))"
-                      th:text="${unit.status}">Status</span>
-                        </td>
-                        <td th:text="${unit.refundAmount != null ? (#numbers.formatDecimal(unit.refundAmount, 0, 'COMMA', 2, 'POINT') + '₫') : 'Không'}"></td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-danger" th:if="${unit.cancelable}">Huỷ phòng</button>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <br>
 
             <!-- Booking detail START -->
             <div class="row g-4 g-xl-5">
                 <!-- Image -->
                 <div class="col-xxl-6">
-                    <div class="row g-2 g-sm-4">
-                        <div class="col-6">
-                            <a data-glightbox data-gallery="gallery" href="assets/images/category/hotel/4by3/02.jpg">
-                                <img class="img-fluid rounded" th:src="@{${booking.imageUrl}}" alt="Hình ảnh khách sạn">
-                                <div class="card card-element-hover card-overlay-hover overflow-hidden">
-                                    <!-- Image -->
-                                    <img src="assets/images/category/hotel/4by3/02.jpg" class="rounded-3" alt="">
-                                    <!-- Full screen button -->
-                                    <div class="hover-element w-100 h-100">
-                                        <i class="bi bi-fullscreen fs-6 text-white position-absolute top-50 start-50 translate-middle bg-dark rounded-1 p-2 lh-1"></i>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="col-6">
-                            <a data-glightbox data-gallery="gallery" href="assets/images/category/hotel/4by3/03.jpg">
-                                <div class="card card-element-hover card-overlay-hover overflow-hidden">
-                                    <!-- Image -->
-                                    <img src="assets/images/category/hotel/4by3/03.jpg" class="rounded-3" alt="">
-                                    <!-- Full screen button -->
-                                    <div class="hover-element w-100 h-100">
-                                        <i class="bi bi-fullscreen fs-6 text-white position-absolute top-50 start-50 translate-middle bg-dark rounded-1 p-2 lh-1"></i>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="col-6">
-                            <a data-glightbox data-gallery="gallery" href="assets/images/category/hotel/4by3/04.jpg">
-                                <div class="card card-element-hover card-overlay-hover overflow-hidden">
-                                    <!-- Image -->
-                                    <img src="assets/images/category/hotel/4by3/04.jpg" class="rounded-3" alt="">
-                                    <!-- Full screen button -->
-                                    <div class="hover-element w-100 h-100">
-                                        <i class="bi bi-fullscreen fs-6 text-white position-absolute top-50 start-50 translate-middle bg-dark rounded-1 p-2 lh-1"></i>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="col-6">
-                            <a data-glightbox data-gallery="gallery" href="assets/images/category/hotel/4by3/05.jpg">
-                                <div class="card card-element-hover card-overlay-hover overflow-hidden">
-                                    <!-- Image -->
-                                    <img src="assets/images/category/hotel/4by3/05.jpg" class="rounded-3" alt="">
-                                    <!-- Full screen button -->
-                                    <div class="hover-element w-100 h-100">
-                                        <i class="bi bi-fullscreen fs-6 text-white position-absolute top-50 start-50 translate-middle bg-dark rounded-1 p-2 lh-1"></i>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
+                    <img class="img-fluid rounded hover-card" th:src="@{${booking.imageUrl}}" alt="Hình ảnh khách sạn">
                 </div>
 
                 <!-- Content -->
                 <div class="col-xxl-6">
-                    <h4><span class="fw-light">Hotel: </span>Courtyard by Marriott New York</h4>
-                    <p class="fw-bold"><i class="bi bi-geo-alt me-2"></i>5855 W Century Blvd, Los Angeles - 90045 </p>
-
-                    <p class="mb-4">Tolerably behavior may admit daughters offending her ask own. Praise effect wishes to change way and any wanted. Lively use looked latter regard had. Does he part last</p>
-
-                    <!-- Feature -->
-                    <div class="row g-4">
-                        <div class="col-sm-6 col-md-4">
-                            <div class="d-flex align-items-center">
-                                <div class="icon-lg bg-primary bg-opacity-10 text-primary rounded-2"><i class="fa-solid fa-bed"></i></div>
-                                <div class="ms-2">
-                                    <small>Type</small>
-                                    <h6 class="mb-0 mt-1">King Suit</h6>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-sm-6 col-md-4">
-                            <div class="d-flex align-items-center">
-                                <div class="icon-lg bg-primary bg-opacity-10 text-primary rounded-2"><i class="fa-solid fa-arrow-right-arrow-left"></i></div>
-                                <div class="ms-2">
-                                    <small>Side</small>
-                                    <h6 class="mb-0 mt-1">Left Side</h6>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-sm-6 col-md-4">
-                            <div class="d-flex align-items-center">
-                                <div class="icon-lg bg-primary bg-opacity-10 text-primary rounded-2"><i class="fa-solid fa-stairs"></i></div>
-                                <div class="ms-2">
-                                    <small>Floor</small>
-                                    <h6 class="mb-0 mt-1">3rd Floor (T5)</h6>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-sm-6 col-md-4">
-                            <div class="d-flex align-items-center">
-                                <div class="icon-lg bg-primary bg-opacity-10 text-primary rounded-2"><i class="fa-solid fa-mountain-sun"></i></div>
-                                <div class="ms-2">
-                                    <small>View</small>
-                                    <h6 class="mb-0 mt-1">Sea View</h6>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-sm-6 col-md-4">
-                            <div class="d-flex align-items-center">
-                                <div class="icon-lg bg-primary bg-opacity-10 text-primary rounded-2"><i class="fa-regular fa-clone"></i></div>
-                                <div class="ms-2">
-                                    <small>Size</small>
-                                    <h6 class="mb-0 mt-1">250 Sqft</h6>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <h4 th:text="${booking.hotelName}"><span class="fw-light">Khách sạn: </span>Tên khách sạn</h4>
+                    <p class="fw-bold">
+                        <i class="bi bi-geo-alt me-2"></i>
+                        <span th:text="${hotel.cityName}">Địa điểm</span>
+                    </p>
+                    <p class="mb-4">
+                        <span th:if="${#strings.length(hotel.description) > 300}">
+                            <span id="shortDesc">
+                                <span th:utext="${#strings.substring(hotel.description, 0, 300)}">Mô tả rút gọn</span>...
+                            </span>
+                            <span id="fullDesc" class="d-none" th:utext="${hotel.description}">Mô tả đầy đủ</span>
+                            <a href="javascript:void(0)" class="text-primary fw-semibold ms-1" id="toggleDesc">Xem thêm</a>
+                        </span>
+                        <span th:unless="${#strings.length(hotel.description) > 300}" th:utext="${hotel.description}">Mô tả đầy đủ</span>
+                    </p>
 
                     <!-- Booking info -->
-                    <div class="bg-light border border-secondary border-opacity-25 p-3 rounded d-inline-block mt-4">
-                        <h6 class="small">Current Reservation:</h6>
+                    <div class="bg-light border border-secondary border-opacity-25 p-3 rounded d-inline-block mt-4 hover-card">
+                        <h6 class="small">Đặt phòng hiện tại:</h6>
                         <!-- Avatar -->
                         <div class="d-sm-flex align-items-center">
                             <!-- Avatar -->
                             <div class="avatar avatar-xs flex-shrink-0">
-                                <img class="avatar-img rounded-circle" src="assets/images/avatar/09.jpg" alt="avatar">
+                                <img class="avatar-img rounded-circle" th:src="@{${customer.avatarUrl}}" alt="avatar">
                             </div>
                             <!-- Info -->
-                            <h6 class="mb-0 ms-2">Lori Stevens</h6>
+                            <h6 class="mb-0 ms-2" th:text="${customer.fullName}">Tên khách hàng</h6>
                         </div>
                         <!-- Info -->
                         <div class="hstack gap-4 gap-md-5 flex-wrap mt-2">
                             <div>
-                                <small>Check-in:</small>
-                                <h6 class="fw-normal mb-0">18 Dec 2022 9:00AM</h6>
+                                <small>Nhận phòng:</small>
+                                <h6 class="fw-normal mb-0" th:text="${#temporals.format(booking.checkIn, 'dd/MM/yyyy HH:mm')}">Ngày nhận phòng</h6>
                             </div>
                             <div>
-                                <small>Check-out:</small>
-                                <h6 class="fw-normal mb-0">22 Dec 2022 8:00PM</h6>
+                                <small>Trả phòng:</small>
+                                <h6 class="fw-normal mb-0" th:text="${#temporals.format(booking.checkOut, 'dd/MM/yyyy HH:mm')}">Ngày trả phòng</h6>
                             </div>
                             <div>
-                                <small>Total Amount:</small>
-                                <h6 class="text-success mb-0">$1528</h6>
+                                <small>Tổng tiền:</small>
+                                <h6 class="text-success mb-0" th:text="${#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</h6>
                             </div>
                         </div>
                     </div>
@@ -334,7 +230,7 @@
             <div class="card shadow mt-5">
                 <!-- Card header START -->
                 <div class="card-header border-bottom">
-                    <h5 class="card-header-title">Bookings</h5>
+                    <h5 class="card-header-title">Lịch sử đặt phòng</h5>
                 </div>
                 <!-- Card header END -->
 
@@ -345,7 +241,7 @@
                         <!-- Search -->
                         <div class="col-md-8">
                             <form class="rounded position-relative">
-                                <input class="form-control pe-5" type="search" placeholder="Search" aria-label="Search">
+                                <input class="form-control pe-5" type="search" placeholder="Tìm kiếm" aria-label="Search">
                                 <button class="btn border-0 px-3 py-0 position-absolute top-50 end-0 translate-middle-y" type="submit"><i class="fas fa-search fs-6"></i></button>
                             </form>
                         </div>
@@ -355,10 +251,9 @@
                             <!-- Short by filter -->
                             <form>
                                 <select class="form-select js-choice" aria-label=".form-select-sm">
-                                    <option value="">Sort by</option>
-                                    <option>Free</option>
-                                    <option>Newest</option>
-                                    <option>Oldest</option>
+                                    <option value="">Sắp xếp theo</option>
+                                    <option>Mới nhất</option>
+                                    <option>Cũ nhất</option>
                                 </select>
                             </form>
                         </div>
@@ -366,406 +261,206 @@
                     <!-- Search and select END -->
 
                     <!-- Table head -->
-                    <div class="bg-light rounded p-3 d-none d-lg-block">
+                    <div class="bg-light rounded p-3 d-none d-lg-block hover-card">
                         <div class="row row-cols-7 g-4">
-                            <div class="col"><h6 class="mb-0">Booked by</h6></div>
-                            <div class="col"><h6 class="mb-0">Check-in</h6></div>
-                            <div class="col"><h6 class="mb-0">Check-out</h6></div>
-                            <div class="col"><h6 class="mb-0">Guest</h6></div>
-                            <div class="col"><h6 class="mb-0">Amount</h6></div>
-                            <div class="col"><h6 class="mb-0">Payment</h6></div>
-                            <div class="col"><h6 class="mb-0">Action</h6></div>
+                            <div class="col"><h6 class="mb-0">Ảnh</h6></div>
+                            <div class="col"><h6 class="mb-0">Khách hàng</h6></div>
+                            <div class="col"><h6 class="mb-0">Tên khách sạn</h6></div>
+                            <div class="col"><h6 class="mb-0">Nhận/trả phòng</h6></div>
+                            <div class="col"><h6 class="mb-0">Giá</h6></div>
+                            <div class="col"><h6 class="mb-0">Trạng thái</h6></div>
+                            <div class="col"><h6 class="mb-0">Hành động</h6></div>
                         </div>
                     </div>
 
-                    <!-- Table data -->
-                    <div class="row row-cols-xl-7 align-items-lg-center border-bottom g-4 px-2 py-4">
-                        <!-- Data item -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Booked by:</small>
-                            <div class="d-flex align-items-center">
-                                <!-- Avatar -->
-                                <div class="avatar avatar-xs flex-shrink-0">
-                                    <img class="avatar-img rounded-circle" src="assets/images/avatar/09.jpg" alt="avatar">
-                                </div>
-                                <!-- Info -->
-                                <div class="ms-2">
-                                    <h6 class="mb-0 fw-light">Lori Stevens</h6>
+                    <!-- Booking LIST VIEW for this hotel -->
+                    <div class="mt-4" th:each="booking : ${bookingList}">
+                        <div class="row g-3 g-sm-4 align-items-center justify-content-center border-bottom px-2 py-4 hover-card">
+
+                            <!-- Room image -->
+                            <div class="col">
+                                <img th:src="@{${booking.imageUrl}}"
+                                     alt="Room image"
+                                     class="rounded"
+                                     style="width: 80px; height: 60px; object-fit: cover;">
+                            </div>
+
+                            <!-- Customer info with avatar -->
+                            <div class="col d-flex align-items-center gap-2">
+                                <img th:src="@{${booking.customerAvatar}}"
+                                     alt="Avatar"
+                                     class="rounded-circle"
+                                     style="width: 40px; height: 40px; object-fit: cover;">
+                                <div>
+                                    <h6 class="mb-0 text-truncate"
+                                        th:text="${booking.customerName}"
+                                        style="max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                    </h6>
+                                    <small th:text="${booking.customerEmail}"
+                                           class="text-muted d-block text-truncate"
+                                           style="font-size: 0.85rem; max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                    </small>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Data item -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Check-in:</small>
-                            <h6 class="mb-0 fw-normal">18 Dec 2022</h6>
-                        </div>
+                            <!-- Room name -->
+                            <div class="col two-line-ellipsis" th:title="${booking.hotelName}">
+                                <h6 class="mb-0" th:text="${booking.hotelName}"
+                                    style="white-space: normal; word-break: break-word;">
+                                    Loại phòng
+                                </h6>
+                            </div>
 
-                        <!-- Data item -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Check-out:</small>
-                            <h6 class="mb-0 fw-normal">22 Dec 2022</h6>
-                        </div>
+                            <!-- Check-in/out -->
+                            <div class="col">
+                                <small th:text="'Nhận: ' + ${#temporals.format(booking.checkIn, 'yyyy-MM-dd')}"></small><br/>
+                                <small th:text="'Trả: ' + ${#temporals.format(booking.checkOut, 'yyyy-MM-dd')}"></small>
+                            </div>
 
-                        <!-- Data item -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Guests:</small>
-                            <h6 class="mb-0 fw-normal">04</h6>
-                        </div>
+                            <!-- Amount -->
+                            <div class="col">
+                                <span class="text-success fw-bold" th:text="${#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 0, 'POINT')} + '₫'">Giá</span>
+                            </div>
 
-                        <!-- Data item -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Amount:</small>
-                            <h6 class="text-success mb-0">$1025</h6>
-                        </div>
-
-                        <!-- Data item -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Payment:</small>
-                            <div class="badge bg-success bg-opacity-10 text-success">Full payment</div>
-                        </div>
-
-                        <!-- Data item -->
-                        <div class="col"><a href="#" class="btn btn-sm btn-light mb-0">View</a></div>
-                    </div>
-
-                    <!-- Table data -->
-                    <div class="row row-cols-xl-7 align-items-lg-center border-bottom g-4 px-2 py-4">
-                        <!-- Data item -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Booked by:</small>
-                            <div class="d-flex align-items-center">
-                                <!-- Avatar -->
-                                <div class="avatar avatar-xs flex-shrink-0">
-                                    <img class="avatar-img rounded-circle" src="assets/images/avatar/02.jpg" alt="avatar">
-                                </div>
-                                <!-- Info -->
-                                <div class="ms-2">
-                                    <h6 class="mb-0 fw-light">Billy Vasquez</h6>
+                            <!-- Booking status -->
+                            <div class="col">
+                                <div th:switch="${booking.status}">
+                                    <span th:case="'approved'" class="badge rounded-pill bg-soft-primary text-primary fw-semibold px-3 py-1">Đã xác nhận</span>
+                                    <span th:case="'check_in'" class="badge rounded-pill bg-soft-info text-info fw-semibold px-3 py-1">Nhận phòng</span>
+                                    <span th:case="'cancelled'" class="badge rounded-pill bg-soft-warning text-warning fw-semibold px-3 py-1">Đã hủy</span>
+                                    <span th:case="'completed'" class="badge rounded-pill bg-soft-success text-success fw-semibold px-3 py-1">Đã hoàn thành</span>
+                                    <span th:case="'rejected'" class="badge rounded-pill bg-soft-danger text-danger fw-semibold px-3 py-1">Đã bị từ chối</span>
+                                    <span th:case="*" class="badge rounded-pill bg-secondary text-light fw-semibold px-3 py-1">Không xác định</span>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Data item -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Check-in:</small>
-                            <h6 class="mb-0 fw-normal">23 Dec 2022</h6>
-                        </div>
-
-                        <!-- Data item -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Check-out:</small>
-                            <h6 class="mb-0 fw-normal">26 Dec 2022</h6>
-                        </div>
-
-                        <!-- Data item -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Guests:</small>
-                            <h6 class="mb-0 fw-normal">03</h6>
-                        </div>
-
-                        <!-- Data item -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Amount:</small>
-                            <h6 class="text-success mb-0">$847</h6>
-                        </div>
-
-                        <!-- Data item -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Payment:</small>
-                            <div class="badge bg-info bg-opacity-10 text-info">Half payment</div>
-                        </div>
-
-                        <!-- Data item -->
-                        <div class="col"><a href="#" class="btn btn-sm btn-light mb-0">View</a></div>
-                    </div>
-
-                    <!-- Table data -->
-                    <div class="row row-cols-xl-7 align-items-lg-center border-bottom g-4">
-                        <div class="bg-light px-2 py-4 text-center">
-                            <h6 class="mb-0">Booking Available (27 Dec to 1 Jan)</h6>
-                        </div>
-                    </div>
-
-                    <!-- Table data -->
-                    <div class="row row-cols-xl-7 align-items-lg-center border-bottom g-4 px-2 py-4">
-                        <!-- Data item -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Booked by:</small>
-                            <div class="d-flex align-items-center">
-                                <!-- Avatar -->
-                                <div class="avatar avatar-xs flex-shrink-0">
-                                    <img class="avatar-img rounded-circle" src="assets/images/avatar/01.jpg" alt="avatar">
-                                </div>
-                                <!-- Info -->
-                                <div class="ms-2">
-                                    <h6 class="mb-0 fw-light">Carolyn Ortiz</h6>
-                                </div>
+                            <!-- Toggle detail -->
+                            <div class="col">
+                                <button class="btn btn-sm btn-light"
+                                        type="button"
+                                        data-bs-toggle="collapse"
+                                        th:attr="data-bs-target='#bookingDetail__' + ${booking.bookingId}">
+                                    Xem chi tiết
+                                </button>
                             </div>
-                        </div>
 
-                        <!-- Data item -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Check-in:</small>
-                            <h6 class="mb-0 fw-normal">2 Jan 2022</h6>
+                            <!-- Collapsible Booking Units -->
+                            <div class="collapse px-4 pb-4" th:id="'bookingDetail__' + ${booking.bookingId}">
+                                <div class="border-top pt-3">
+                                    <h6 class="text-primary mb-3"><i class="bi bi-info-circle"></i> Chi Tiết Phòng Đặt</h6>
+                                    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+                                        <div class="col" th:each="unit : ${booking.bookingUnits}">
+                                            <div class="card border shadow-sm h-100 hover-card">
+                                                <div class="card-body">
+                                                    <div class="d-flex mb-2">
+                                                        <img th:src="@{${unit.imageUrl}}" class="rounded me-3"
+                                                             style="width: 60px; height: 60px; object-fit: cover;" alt="room">
+                                                        <div>
+                                                            <h6 class="mb-0 text-truncate"
+                                                                th:text="${unit.roomName}"
+                                                                style="max-width: 200px;">Tên phòng</h6>
+                                                            <small th:text="'Số lượng: ' + ${unit.quantity}"></small>
+                                                            <div th:switch="${unit.status}">
+                                                                <span th:case="'approved'" class="badge rounded-pill bg-soft-primary text-primary fw-semibold px-3 py-1">Đã xác nhận</span>
+                                                                <span th:case="'check_in'" class="badge rounded-pill bg-soft-info text-info fw-semibold px-3 py-1">Nhận phòng</span>
+                                                                <span th:case="'cancelled'" class="badge rounded-pill bg-soft-warning text-warning fw-semibold px-3 py-1">Đã hủy</span>
+                                                                <span th:case="'completed'" class="badge rounded-pill bg-soft-success text-success fw-semibold px-3 py-1">Hoàn thành</span>
+                                                                <span th:case="'rejected'" class="badge rounded-pill bg-soft-danger text-danger fw-semibold px-3 py-1">Từ chối</span>
+                                                                <span th:case="*" class="badge rounded-pill bg-secondary text-light fw-semibold px-3 py-1">Không xác định</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <p class="mb-1" th:text="'Giá 1 phòng: ' + ${#numbers.formatDecimal(unit.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></p>
+                                                    <p class="mb-1 text-success" th:text="'Tổng tiền: ' + ${#numbers.formatDecimal(unit.price * unit.quantity, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div> <!-- End collapse -->
                         </div>
-
-                        <!-- Data item -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Check-out:</small>
-                            <h6 class="mb-0 fw-normal">5 Jan 2022</h6>
-                        </div>
-
-                        <!-- Data item -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Guests:</small>
-                            <h6 class="mb-0 fw-normal">02</h6>
-                        </div>
-
-                        <!-- Data item -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Amount:</small>
-                            <h6 class="text-success mb-0">$900</h6>
-                        </div>
-
-                        <!-- Data item -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Payment:</small>
-                            <div class="badge bg-orange bg-opacity-10 text-orange">On Property</div>
-                        </div>
-
-                        <!-- Data item -->
-                        <div class="col"><a href="#" class="btn btn-sm btn-light mb-0">View</a></div>
                     </div>
-
-                    <!-- Table data -->
-                    <div class="row row-cols-xl-7 align-items-lg-center border-bottom g-4 px-2 py-4">
-                        <!-- Data item -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Booked by:</small>
-                            <div class="d-flex align-items-center">
-                                <!-- Avatar -->
-                                <div class="avatar avatar-xs flex-shrink-0">
-                                    <img class="avatar-img rounded-circle" src="assets/images/avatar/03.jpg" alt="avatar">
-                                </div>
-                                <!-- Info -->
-                                <div class="ms-2">
-                                    <h6 class="mb-0 fw-light">Louis Ferguson</h6>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Data item -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Check-in:</small>
-                            <h6 class="mb-0 fw-normal">6 Jan 2022</h6>
-                        </div>
-
-                        <!-- Data item -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Check-out:</small>
-                            <h6 class="mb-0 fw-normal">10 Jan 2022</h6>
-                        </div>
-
-                        <!-- Data item -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Guests:</small>
-                            <h6 class="mb-0 fw-normal">05</h6>
-                        </div>
-
-                        <!-- Data item -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Amount:</small>
-                            <h6 class="text-success mb-0">$1458</h6>
-                        </div>
-
-                        <!-- Data item -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Payment:</small>
-                            <div class="badge bg-success bg-opacity-10 text-success">Full payment</div>
-                        </div>
-
-                        <!-- Data item -->
-                        <div class="col"><a href="#" class="btn btn-sm btn-light mb-0">View</a></div>
-                    </div>
-
-                    <!-- Table data -->
-                    <div class="row row-cols-xl-7 align-items-lg-center border-bottom g-4 px-2 py-4">
-                        <!-- Data item -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Booked by:</small>
-                            <div class="d-flex align-items-center">
-                                <!-- Avatar -->
-                                <div class="avatar avatar-xs flex-shrink-0">
-                                    <img class="avatar-img rounded-circle" src="assets/images/avatar/04.jpg" alt="avatar">
-                                </div>
-                                <!-- Info -->
-                                <div class="ms-2">
-                                    <h6 class="mb-0 fw-light">Dennis Barrett</h6>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Data item -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Check-in:</small>
-                            <h6 class="mb-0 fw-normal">11 Jan 2022</h6>
-                        </div>
-
-                        <!-- Data item -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Check-out:</small>
-                            <h6 class="mb-0 fw-normal">14 Jan 2022</h6>
-                        </div>
-
-                        <!-- Data item -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Guests:</small>
-                            <h6 class="mb-0 fw-normal">02</h6>
-                        </div>
-
-                        <!-- Data item -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Amount:</small>
-                            <h6 class="text-success mb-0">$879</h6>
-                        </div>
-
-                        <!-- Data item -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Payment:</small>
-                            <div class="badge bg-info bg-opacity-10 text-info">Half payment</div>
-                        </div>
-
-                        <!-- Data item -->
-                        <div class="col"><a href="#" class="btn btn-sm btn-light mb-0">View</a></div>
-                    </div>
-
-                    <!-- Table data -->
-                    <div class="row row-cols-xl-7 align-items-lg-center border-bottom g-4 px-2 py-4">
-                        <!-- Data item -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Booked by:</small>
-                            <div class="d-flex align-items-center">
-                                <!-- Avatar -->
-                                <div class="avatar avatar-xs flex-shrink-0">
-                                    <img class="avatar-img rounded-circle" src="assets/images/avatar/05.jpg" alt="avatar">
-                                </div>
-                                <!-- Info -->
-                                <div class="ms-2">
-                                    <h6 class="mb-0 fw-light">Frances Guerrero</h6>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Data item -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Check-in:</small>
-                            <h6 class="mb-0 fw-normal">15 Jan 2022</h6>
-                        </div>
-
-                        <!-- Data item -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Check-out:</small>
-                            <h6 class="mb-0 fw-normal">19 Jan 2022</h6>
-                        </div>
-
-                        <!-- Data item -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Guests:</small>
-                            <h6 class="mb-0 fw-normal">04</h6>
-                        </div>
-
-                        <!-- Data item -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Amount:</small>
-                            <h6 class="text-success mb-0">$1254</h6>
-                        </div>
-
-                        <!-- Data item -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Payment:</small>
-                            <div class="badge bg-success bg-opacity-10 text-success">Full payment</div>
-                        </div>
-
-                        <!-- Data item -->
-                        <div class="col"><a href="#" class="btn btn-sm btn-light mb-0">View</a></div>
-                    </div>
-
-                    <!-- Table data -->
-                    <div class="row row-cols-xl-7 align-items-lg-center border-bottom g-4 px-2 py-4">
-                        <!-- Data item -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Booked by:</small>
-                            <div class="d-flex align-items-center">
-                                <!-- Avatar -->
-                                <div class="avatar avatar-xs flex-shrink-0">
-                                    <img class="avatar-img rounded-circle" src="assets/images/avatar/06.jpg" alt="avatar">
-                                </div>
-                                <!-- Info -->
-                                <div class="ms-2">
-                                    <h6 class="mb-0 fw-light">Carolyn Ortiz</h6>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Data item -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Check-in:</small>
-                            <h6 class="mb-0 fw-normal">20 Jan 2022</h6>
-                        </div>
-
-                        <!-- Data item -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Check-out:</small>
-                            <h6 class="mb-0 fw-normal">25 Jan 2022</h6>
-                        </div>
-
-                        <!-- Data item -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Guests:</small>
-                            <h6 class="mb-0 fw-normal">03</h6>
-                        </div>
-
-                        <!-- Data item -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Amount:</small>
-                            <h6 class="text-success mb-0">$1080</h6>
-                        </div>
-
-                        <!-- Data item -->
-                        <div class="col">
-                            <small class="d-block d-lg-none">Payment:</small>
-                            <div class="badge bg-success bg-opacity-10 text-success">Full payment</div>
-                        </div>
-
-                        <!-- Data item -->
-                        <div class="col"><a href="#" class="btn btn-sm btn-light mb-0">View</a></div>
-                    </div>
-                </div>
-                <!-- Card body END -->
+                    <!-- Card body END -->
 
                 <!-- Card footer START -->
                 <div class="card-footer pt-0">
-                    <!-- Pagination and content -->
-                    <div class="d-sm-flex justify-content-sm-between align-items-sm-center">
-                        <!-- Content -->
-                        <p class="mb-sm-0 text-center text-sm-start">Showing 1 to 8 of 20 entries</p>
-                        <!-- Pagination -->
-                        <nav class="mb-sm-0 d-flex justify-content-center" aria-label="navigation">
-                            <ul class="pagination pagination-sm pagination-primary-soft mb-0">
-                                <li class="page-item disabled">
-                                    <a class="page-link" href="#" tabindex="-1">Prev</a>
-                                </li>
-                                <li class="page-item"><a class="page-link" href="#">1</a></li>
-                                <li class="page-item active"><a class="page-link" href="#">2</a></li>
-                                <li class="page-item disabled"><a class="page-link" href="#">..</a></li>
-                                <li class="page-item"><a class="page-link" href="#">15</a></li>
-                                <li class="page-item">
-                                    <a class="page-link" href="#">Next</a>
-                                </li>
-                            </ul>
-                        </nav>
+                    <!-- Pagination -->
+                    <div class="row">
+                        <div class="d-sm-flex justify-content-sm-center align-items-sm-center mt-4">
+                            <nav class="mb-sm-0 d-flex justify-content-center" aria-label="navigation">
+                                <ul class="pagination pagination-sm pagination-primary-soft d-inline-block d-md-flex rounded mb-0">
+                                    <!-- Previous -->
+                                    <li th:if="${totalBookingPages >= 2}" th:class="'page-item mb-0 hover-card' + (${currentPage == 1} ? ' disabled' : '')">
+                                        <a class="page-link"
+                                           th:href="@{'/admin/bookings'(hotelId=${hotelId}, page=${currentPage - 1})}">
+                                            <i class="fa-solid fa-angle-left"></i>
+                                        </a>
+                                    </li>
+
+                                    <!-- Page 1 -->
+                                    <li th:if="${totalBookingPages >= 1}" th:class="'page-item mb-0 hover-card' + (${currentPage == 1} ? ' active disabled' : '')">
+                                        <a class="page-link"
+                                           th:href="@{'/admin/bookings'(page=1, hotelId=${hotelId})}">1</a>
+                                    </li>
+
+                                    <!-- Page 2 -->
+                                    <li th:if="${totalBookingPages >= 2}" th:class="'page-item mb-0 hover-card' + (${currentPage == 2} ? ' active disabled' : '')">
+                                        <a class="page-link"
+                                           th:href="@{'/admin/bookings'(page=2, hotelId=${hotelId})}">2</a>
+                                    </li>
+
+                                    <!-- Left ellipsis -->
+                                    <li th:if="${totalBookingPages >= 5 and currentPage - 2 > 2}" class="page-item hover-card mb-0 disabled">
+                                        <a class="page-link">...</a>
+                                    </li>
+
+                                    <!-- Page -1 -->
+                                    <li th:if="${totalBookingPages >= 4 and currentPage != 1 and currentPage - 1 != 1 and currentPage - 1 != 2}"
+                                        class="page-item mb-0 hover-card">
+                                        <a class="page-link"
+                                           th:href="@{'/admin/bookings'(page=${currentPage - 1}, hotelId=${hotelId})}"
+                                           th:text="${currentPage - 1}"></a>
+                                    </li>
+
+                                    <!-- Current Page -->
+                                    <li th:if="${totalBookingPages >= 4 and currentPage != 1 and currentPage != 2 and currentPage != totalBookingPages}"
+                                        class="page-item mb-0 active disabled hover-card">
+                                        <a class="page-link" th:text="${currentPage}"></a>
+                                    </li>
+
+                                    <!-- Page +1 -->
+                                    <li th:if="${totalBookingPages >= 4 and currentPage + 1 != 2 and currentPage + 1 != totalBookingPages and currentPage != totalBookingPages}"
+                                        class="page-item mb-0 hover-card">
+                                        <a class="page-link"
+                                           th:href="@{'/admin/bookings'(page=${currentPage + 1}, hotelId=${hotelId})}"
+                                           th:text="${currentPage + 1}"></a>
+                                    </li>
+
+                                    <!-- Right ellipsis -->
+                                    <li th:if="${totalBookingPages >= 4 and totalBookingPages > currentPage + 2}" class="page-item mb-0 disabled hover-card">
+                                        <a class="page-link">...</a>
+                                    </li>
+
+                                    <!-- Last page -->
+                                    <li th:if="${totalBookingPages >= 3}"
+                                        th:class="'page-item mb-0 hover-card' + (${currentPage == totalBookingPages} ? ' active disabled' : '')">
+                                        <a class="page-link"
+                                           th:href="@{'/admin/bookings'(page=${totalBookingPages}, hotelId=${hotelId})}"
+                                           th:text="${totalBookingPages}"></a>
+                                    </li>
+
+                                    <!-- Next -->
+                                    <li th:if="${totalBookingPages >= 2}" th:class="'page-item mb-0 hover-card' + (${currentPage == totalBookingPages} ? ' disabled' : '')">
+                                        <a class="page-link"
+                                           th:href="@{'/admin/bookings'(page=${currentPage + 1}, hotelId=${hotelId})}">
+                                            <i class="fa-solid fa-angle-right"></i>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
                     </div>
+                    <!-- Pagination end-->
                 </div>
                 <!-- Card footer END -->
             </div>
@@ -781,5 +476,25 @@
 <script th:src="@{/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
 <script th:src="@{/assets/vendor/overlay-scrollbar/js/overlayscrollbars.min.js}"></script>
 <script th:src="@{/assets/js/functions.js}"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const toggleLink = document.getElementById("toggleDesc");
+        const shortDesc = document.getElementById("shortDesc");
+        const fullDesc = document.getElementById("fullDesc");
+
+        toggleLink.addEventListener("click", function () {
+            const isCollapsed = fullDesc.classList.contains("d-none");
+            if (isCollapsed) {
+                shortDesc.classList.add("d-none");
+                fullDesc.classList.remove("d-none");
+                toggleLink.innerText = "Thu gọn";
+            } else {
+                shortDesc.classList.remove("d-none");
+                fullDesc.classList.add("d-none");
+                toggleLink.innerText = "Xem thêm";
+            }
+        });
+    });
+</script>
 </body>
 </html>

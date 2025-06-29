@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <title th:text="${hotel.hotelName}">Chi tiết khách sạn</title>
+
+    <!-- Meta Tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="author" content="StackBros">
+    <meta name="description" content="Booking - Multipurpose Online Booking Theme">
+
+    <!-- Dark mode -->
+    <script>
+        const storedTheme = localStorage.getItem('theme')
+
+        const getPreferredTheme = () => {
+            if (storedTheme) {
+                return storedTheme
+            }
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        }
+
+        const setTheme = function (theme) {
+            if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.setAttribute('data-bs-theme', 'dark')
+            } else {
+                document.documentElement.setAttribute('data-bs-theme', theme)
+            }
+        }
+
+        setTheme(getPreferredTheme())
+
+        window.addEventListener('DOMContentLoaded', () => {
+            var el = document.querySelector('.theme-icon-active');
+            if (el != 'undefined' && el != null) {
+                const showActiveTheme = theme => {
+                    const activeThemeIcon = document.querySelector('.theme-icon-active use')
+                    const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+                    const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
+
+                    document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+                        element.classList.remove('active')
+                    })
+
+                    btnToActive.classList.add('active')
+                    activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+                }
+
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                    if (storedTheme !== 'light' || storedTheme !== 'dark') {
+                        setTheme(getPreferredTheme())
+                    }
+                })
+
+                showActiveTheme(getPreferredTheme())
+
+                document.querySelectorAll('[data-bs-theme-value]')
+                    .forEach(toggle => {
+                        toggle.addEventListener('click', () => {
+                            const theme = toggle.getAttribute('data-bs-theme-value')
+                            localStorage.setItem('theme', theme)
+                            setTheme(theme)
+                            showActiveTheme(theme)
+                        })
+                    })
+
+            }
+        })
+
+    </script>
+    <!-- Favicon -->
+    <link rel="shortcut icon" th:href="@{/assets/images/favicon.ico}">
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Poppins:wght@300;400;500;600;700&amp;display=swap"
+          rel="stylesheet">
+
+    <!-- Plugins CSS -->
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/vendor/font-awesome/css/all.min.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/vendor/bootstrap-icons/bootstrap-icons.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/vendor/glightbox/css/glightbox.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/vendor/flatpickr/css/flatpickr.min.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/vendor/choices/css/choices.min.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/vendor/tiny-slider/tiny-slider.css}">
+
+    <!-- Theme CSS -->
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/style.css}">
+
+</head>
+<body>
+
+
+<!-- **************** MAIN CONTENT START **************** -->
+<main>
+    <!-- Sidebar START -->
+    <div th:replace="~{common-admin/admin-sidebar :: admin_sidebar}"></div>
+    <!-- Sidebar END -->
+    <div class="page-content">
+        <!-- Header START -->
+        <div th:replace="~{common-admin/admin-topbar :: admin_topbar}"></div>
+        <!-- Header END -->
+
+        <!-- =======================
+        Main Title START -->
+        <div class="container mt-3">
+            <!-- Thông báo thành công -->
+            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Thành công!</strong> <span th:text="${successMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <!-- Thông báo lỗi -->
+            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Lỗi!</strong> <span th:text="${errorMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+
+        <section class="py-0 pt-sm-5">
+            <div class="container position-relative">
+                <!-- Title and button START -->
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <!-- Meta -->
+                        <div class="d-lg-flex justify-content-lg-between mb-1">
+                            <!-- Title -->
+                            <div class="mb-2 mb-lg-0">
+                                <h1 class="fs-2" th:text="${hotel.hotelName}"></h1>
+                                <!-- Location -->
+                                <p class="fw-bold mb-0"><i class="bi bi-geo-alt me-2"></i>
+                                    <span th:text="${hotel.address + ', ' + hotel.cityName}"></span>
+                                    <a onclick="initMap()" class="ms-2 text-decoration-underline"
+                                       style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#mapmodal">
+                                        <i class="bi bi-eye-fill me-1"></i>Xem Bản Đồ
+                                    </a>
+                                </p>
+                            </div>
+
+                            <!-- Buttons -->
+                            <ul class="list-inline text-end">
+                                <li class="list-inline-item" th:if="${hotel.status != 'banned'}">
+                                    <button class="btn btn-sm btn-danger" data-bs-toggle="modal"
+                                            data-bs-target="#banHotelModal">
+                                        <i class="bi bi-slash-circle me-1"></i> Cấm
+                                    </button>
+                                </li>
+
+                                <!-- Show Unban button if hotel is already banned -->
+                                <li class="list-inline-item" th:if="${hotel.status == 'banned'}">
+                                    <form th:action="@{'/admin/hotel/unban/' + ${hotel.hotelId}}" method="post"
+                                          style="display:inline;">
+                                        <button type="submit" class="btn btn-sm btn-success">
+                                            <i class="bi bi-arrow-clockwise me-1"></i> Khôi phục
+                                        </button>
+                                    </form>
+                                </li>
+
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Title and button END -->
+            </div>
+        </section>
+        <!-- =======================
+        Main Title END -->
+
+        <!-- =======================
+        Image gallery START -->
+        <section class="card-grid pt-0">
+            <div class="container">
+                <div th:if="${!hotel.hotelImageUrl.isEmpty()}" class="row g-2">
+                    <!-- Image -->
+                    <div th:class="${rooms != null && rooms.size() > 0 && rooms.get(0).getImages() != null && !rooms.get(0).getImages().isEmpty() && !rooms.get(0).getImages().get(0).isEmpty()} ? 'col-md-6' : 'col-md-12'">
+                        <a data-glightbox="type: image" data-gallery="gallery" th:href="${hotel.hotelImageUrl}">
+                            <div class="card card-grid-lg card-element-hover card-overlay-hover overflow-hidden"
+                                 th:style="'background-image:url(' + ${hotel.hotelImageUrl} + '); background-position: center left; background-size: cover;'">
+                                <!-- Card hover element -->
+                                <div class="hover-element position-absolute w-100 h-100">
+                                    <i class="bi bi-fullscreen fs-6 text-white position-absolute top-50 start-50 translate-middle bg-dark rounded-1 p-2 lh-1"></i>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div th:if="${rooms != null && rooms.size() > 0 && rooms.get(0).getImages() != null && !rooms.get(0).getImages().isEmpty() && !rooms.get(0).getImages().get(0).isEmpty()}"
+                         class="col-md-6">
+                        <a th:if="${rooms.size() == 1 || !(rooms.get(1).getImages() != null && !rooms.get(1).getImages().isEmpty() && !rooms.get(1).getImages().get(0).isEmpty())}"
+                           data-glightbox="type: image" data-gallery="gallery"
+                           th:href="${rooms.get(0).getImages().get(0)}">
+                            <div class="card card-grid-lg card-element-hover card-overlay-hover overflow-hidden"
+                                 th:style="'background-image:url(' + ${rooms.get(0).getImages().get(0)} + '); background-position: center left; background-size: cover;'">
+                                <!-- Card hover element -->
+                                <div class="hover-element position-absolute w-100 h-100">
+                                    <i class="bi bi-fullscreen fs-6 text-white position-absolute top-50 start-50 translate-middle bg-dark rounded-1 p-2 lh-1"></i>
+                                </div>
+                            </div>
+                        </a>
+                        <!-- Card item START -->
+                        <div th:if="${rooms.size() > 1 && rooms.get(1).getImages() != null && !rooms.get(1).getImages().isEmpty() && !rooms.get(1).getImages().get(0).isEmpty()}"
+                             class="row g-2">
+                            <!-- Image -->
+                            <div class="col-12">
+                                <a data-glightbox="type: image" data-gallery="gallery"
+                                   th:href="${rooms.get(0).getImages().get(0)}">
+                                    <div class="card card-grid-sm card-element-hover card-overlay-hover overflow-hidden"
+                                         th:style="'background-image:url(' + ${rooms.get(0).getImages().get(0)} + '); background-position: center left; background-size: cover;'">
+                                        <!-- Card hover element -->
+                                        <div class="hover-element position-absolute w-100 h-100">
+                                            <i class="bi bi-fullscreen fs-6 text-white position-absolute top-50 start-50 translate-middle bg-dark rounded-1 p-2 lh-1"></i>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+
+                            <!-- Image -->
+                            <div th:class="${rooms.size() > 2 && rooms.get(2).getImages() != null && !rooms.get(2).getImages().isEmpty() && !rooms.get(2).getImages().get(0).isEmpty()} ? 'col-md-6' : 'col-md-12'">
+                                <a data-glightbox="type: image" data-gallery="gallery"
+                                   th:href="${rooms.get(1).getImages().get(0)}">
+                                    <div class="card card-grid-sm card-element-hover card-overlay-hover overflow-hidden"
+                                         th:style="'background-image:url(' + ${rooms.get(1).getImages().get(0)} + '); background-position: center left; background-size: cover;'">
+                                        <!-- Card hover element -->
+                                        <div class="hover-element position-absolute w-100 h-100">
+                                            <i class="bi bi-fullscreen fs-6 text-white position-absolute top-50 start-50 translate-middle bg-dark rounded-1 p-2 lh-1"></i>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+
+                            <!-- Images -->
+                            <div th:if="${rooms.size() > 2 && rooms.get(2).getImages() != null && !rooms.get(2).getImages().isEmpty() && !rooms.get(2).getImages().get(0).isEmpty()}"
+                                 class="col-md-6">
+                                <div class="card card-grid-sm overflow-hidden"
+                                     th:style="'background-image:url(' + ${rooms.get(2).getImages().get(0)} + '); background-position: center left; background-size: cover;'">
+                                    <!-- Popup Images -->
+                                    <a data-glightbox="type: image" data-gallery="gallery"
+                                       th:href="${rooms.get(2).getImages().get(0)}"
+                                       class="stretched-link z-index-9"></a>
+                                    <a th:each="room, i: ${rooms}"
+                                       th:if="${i.index >= 3 && room.getImages() != null && !room.getImages().isEmpty() && !room.getImages().get(0).isEmpty()}"
+                                       data-glightbox="type: image" data-gallery="gallery"
+                                       th:href="${room.getImages().get(0)}"></a>
+
+                                    <!-- Background overlay -->
+                                    <div class="bg-overlay bg-dark opacity-7"></div>
+
+                                    <!-- Overlay text -->
+                                    <div class="card-img-overlay d-flex h-100 w-100">
+                                        <h6 class="card-title m-auto fw-light text-decoration-underline"><a href="#"
+                                                                                                            class="text-white">View
+                                            all</a></h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Card item END -->
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- =======================
+        Image gallery END -->
+
+        <!-- =======================
+        About hotel START -->
+        <div class="container my-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Thông tin quản lý khách sạn</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-2">
+                        <div class="col-md-4"><strong>ID khách sạn:</strong> <span th:text="${hotel.hotelId}"></span>
+                        </div>
+                        <div class="col-md-4"><strong>Chủ sở hữu (User ID):</strong> <span
+                                th:text="${hotel.hostId}"></span></div>
+                        <div class="col-md-4"><strong>Trạng thái hiện tại:</strong> <span
+                                th:text="${hotel.status}"></span></div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-md-4"><strong>Số loại phòng:</strong> <span th:text="${roomTypeCount}"></span>
+                        </div>
+                        <div class="col-md-4"><strong>Tổng số phòng:</strong> <span th:text="${roomCount}"></span></div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-md-4"><strong>Tổng lượt đặt phòng:</strong> <span
+                                th:text="${totalBookings}"></span></div>
+                        <div class="col-md-4"><strong>Xếp hạng trung bình:</strong> <span
+                                th:text="${hotel.rating}"></span> ⭐
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-12">
+                            <a class="btn btn-outline-secondary btn-sm"
+                               th:href="@{/admin-agent-detail(id=${hotel.hostId})}">
+                                Xem chi tiết chủ khách sạn
+                            </a>
+                            <a class="btn btn-outline-primary btn-sm ms-2"
+                               th:href="@{'/admin/booking/list?hotelId=' + ${hotel.hotelId}}">
+                                Xem lịch sử đặt phòng
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <section class="pt-0">
+            <div class="container" data-sticky-container>
+                <div class="row g-4 g-xl-5">
+                    <!-- Content START -->
+                    <div class="col-xl-7 order-1">
+                        <div class="vstack gap-5">
+
+                            <!-- About hotel START -->
+                            <div class="card bg-transparent">
+                                <div class="card-header border-bottom bg-transparent px-0 pt-0">
+                                    <h3 class="mb-0">Giới thiệu về khách sạn</h3>
+                                </div>
+                                <div class="card-body pt-4 p-0">
+                                    <p style="display: inline;" class="mb-3" th:utext="${short}"></p>
+                                    <p class="my-3 collapse collapse-inline" id="collapseContent" th:utext="${long}"></p>
+                                    <a class="p-0 mb-4 mt-2 btn-more d-flex align-items-center collapsed"
+                                       data-bs-toggle="collapse" href="#collapseContent" role="button"
+                                       aria-expanded="false" aria-controls="collapseContent" th:if="${!long.isEmpty()}">
+                                        <span class="see-more ms-1">Xem thêm</span><span class="see-less ms-1">Ẩn bớt</span>
+                                        <i class="fa-solid fa-angle-down ms-2"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <!-- About hotel END -->
+
+                            <!-- Hotel Policies START -->
+                            <div class="card bg-transparent">
+                                <div class="card-header border-bottom bg-transparent px-0 pt-0">
+                                    <h3 class="mb-0">Chính sách khách sạn</h3>
+                                </div>
+                                <div class="card-body pt-4 p-0">
+                                    <ul class="list-group list-group-borderless mb-2" th:utext="${hotel.policy}"></ul>
+                                </div>
+                            </div>
+                            <!-- Hotel Policies END -->
+
+                        </div>
+                    </div>
+                    <!-- Content END -->
+                    <div class="col-xl-5 d-none d-xl-block"></div>
+                    <!-- Room Statistics Table START (full-width) -->
+                    <div class="col-12">
+                        <div class="card bg-transparent" id="room-options">
+                            <div class="card-header border-bottom bg-transparent px-0 pt-0">
+                                <h3 class="mb-0">Thống kê loại phòng</h3>
+                            </div>
+
+                            <div class="card-body pt-4 p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle text-center">
+                                        <thead class="table-light">
+                                        <tr>
+                                            <th>Ảnh</th>
+                                            <th>Loại phòng</th>
+                                            <th>Số lượng</th>
+                                            <th>Sức chứa</th>
+                                            <th>Giá tiền</th>
+                                            <th>Số lượng đặt thành công</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr th:each="room : ${rooms}">
+                                            <td>
+                                                <a href="#" data-bs-toggle="modal" th:data-bs-target="'#roomDetail' + ${room.roomId}">
+                                                    <img th:src="${room.images[0]}" alt="Room Image"
+                                                         class="img-thumbnail" style="width: 80px; height: auto;">
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <a href="#" th:text="${room.title}" data-bs-toggle="modal"
+                                                   th:data-bs-target="'#roomDetail' + ${room.roomId}"></a>
+                                            </td>
+                                            <td>
+                                <span th:class="${room.quantity == 0} ? 'text-danger fw-bold' : 'fw-bold'"
+                                      th:text="${room.quantity}"></span>
+                                            </td>
+                                            <td><span th:text="${room.maxGuests} + ' Người'"></span></td>
+                                            <td><span th:text="${#numbers.formatDecimal(room.price, 0, 'COMMA', 0, 'POINT')} + '₫'"></span></td>
+                                            <td><span th:text="${room.bookedCount} + ' Lượt'"></span></td>
+
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Room Statistics Table END -->
+                </div>
+
+
+            </div> <!-- Row END -->
+        </section>
+        <!-- =======================
+        About hotel END -->
+    </div>
+</main>
+<!-- **************** MAIN CONTENT END **************** -->
+
+<!-- Map modal START -->
+<div class="modal fade" id="mapmodal" tabindex="-1" aria-labelledby="mapmodalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <!-- Title -->
+            <div class="modal-header">
+                <h5 class="modal-title" id="mapmodalLabel">Xem vị trí khách sạn</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <!-- Map -->
+            <div class="modal-body p-0" id="map" style="height: 400px;border:0;"></div>
+            <!-- Button -->
+            <div class="modal-footer">
+                <a th:href="${map}" target="_blank">
+                    <button type="button" class="btn btn-sm btn-primary mb-0"><i
+                            class="bi fa-fw bi-pin-map-fill me-2"></i>Mở Google Map
+                    </button>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Map modal END -->
+
+<!-- Room modal START -->
+<div class="modal fade" th:each="room: ${rooms}" th:id="'roomDetail' + ${room.roomId}" tabindex="-1" aria-labelledby="roomDetailLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content p-0">
+
+            <!-- Title -->
+            <div class="modal-header p-3">
+                <h5 class="modal-title mb-0" id="roomDetailLabel">Chi tiết</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body p-0">
+
+                <!-- Card START -->
+                <div class="card bg-transparent p-3">
+                    <!-- Slider START -->
+                    <div class="tiny-slider arrow-round arrow-dark overflow-hidden rounded-2">
+                        <div class="tiny-slider-inner rounded-2 overflow-hidden" data-autoplay="true" data-arrow="true" data-dots="false" data-items="1">
+                            <!-- Image item -->
+                            <div th:each="image: ${room.images}"> <img th:src="${image}" class="rounded-2 img-fluid d-block mx-auto" style="max-height: 300px;" th:alt="${room.title}"></div>
+                        </div>
+                    </div>
+                    <!-- Slider END -->
+
+                    <!-- Card header -->
+                    <div class="card-header bg-transparent pb-0">
+                        <h5 class="card-title mb-0" th:text="${room.title}"></h5>
+                        <hr>
+                    </div>
+
+                    <!-- Card body START -->
+                    <div class="card-body pt-0">
+                        <!-- Content -->
+                        <ul class="list-group list-group-borderless mt-0 mb-2 room-description" th:utext="${room.description}"></ul>
+
+                        <div class="row">
+                            <h5 class="mb-0">Cơ sở vật chất</h5>
+                            <hr>
+
+                            <!-- List -->
+                            <div class="col-md-12" th:each="category: ${room.categories}">
+                                <h6 class="card-title mb-0" th:text="${category.name}"></h6>
+
+                                <!-- List -->
+                                <div style="column-count: 2; column-gap: 1.5rem;">
+                                    <ul class="list-group list-group-borderless mt-2 mb-2">
+                                        <li class="list-group-item d-flex mb-0" th:each="amenity: ${category.amenities}">
+                                            <i class="fa-solid fa-thumbtack text-danger me-2"></i>
+                                            <span class="h6 fw-light mb-0" th:text="${amenity.name}"></span>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <hr>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mt-2 mb-0">
+                                <!-- Price -->
+                                <div class="d-flex align-items-center">
+                                    <h5 class="fw-bold mb-0 me-1" th:text="${#numbers.formatDecimal(room.price, 0, 'COMMA', 0, 'POINT')} + '₫'"></h5>
+                                    <span class="mb-0 text-muted">/Ngày</span>
+                                </div>
+
+                                <!-- Quantity -->
+                                <div class="d-flex align-items-center">
+                                    <span class="text-muted me-1">Số lượng:</span>
+                                    <b th:class="'fw-bold mb-0' + (${room.quantity == 0} ? ' text-danger' : '')"
+                                       th:text="${room.quantity}"></b>
+                                </div>
+                            </div>
+
+                        </div> <!-- Row END -->
+                    </div>
+                    <!-- Card body END -->
+                </div>
+                <!-- Card END -->
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Room modal END -->
+
+<div class="modal fade" th:each="room: ${rooms}" th:id="'bookingModal' + ${room.roomId}" tabindex="-1"
+     aria-labelledby="bookingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content">
+            <form th:action="@{/booking/{id}(id=${hotel.hotelId})}" onsubmit="return dateRange.value.trim() !== ''">
+                <!-- Title -->
+                <div class="modal-header">
+                    <h5 class="modal-title" id="bookingModalLabel">Chọn ngày đặt phòng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <!-- Date Range -->
+                <div class="modal-body p-0">
+                    <!-- Check in -->
+                    <div class="col-lg-10 mx-auto my-2">
+                        <div class="d-flex">
+                            <!-- Icon -->
+                            <i class="bi bi-calendar fs-3 me-2 mt-2"></i>
+                            <!-- Date input -->
+                            <div class="form-control-border form-control-transparent form-fs-md">
+                                <label class="form-label">Nhận phòng – Trả phòng</label>
+                                <input type="hidden" name="roomId" th:value="${room.roomId}">
+                                <input type="text" th:value="${dateRange}" class="form-control flatpickr"
+                                       data-mode="range" name="dateRange" placeholder="Chọn ngày" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Button -->
+                <div class="modal-footer">
+                    <input type="submit" class="btn btn-sm btn-primary mb-0" value="Đặt Phòng">
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- Bookinng modal END -->
+
+<!-- Modal for banning hotel -->
+<div class="modal fade" id="banHotelModal" tabindex="-1" aria-labelledby="banHotelModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form th:action="@{'/admin/hotel/ban/' + ${hotel.hotelId}}" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="banHotelModalLabel">Điền lý do cấm</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="reason" class="form-label">Lý do</label>
+                        <textarea class="form-control" id="reason" name="reason" rows="4" required></textarea>
+                    </div>
+                    <div class="alert alert-warning">
+                        Hành động này sẽ cấm khách sạn và thêm thông báo hệ thống cho chủ sở hữu.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-danger">Xác nhận</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for banning room -->
+<div class="modal fade" id="banRoomModal" tabindex="-1" aria-labelledby="banRoomModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form th:action="@{'/admin/room/ban'}" method="post">
+                <input type="hidden" name="roomId" id="banRoomId">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="banRoomModalLabel">Điền lý do cấm phòng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="banReason" class="form-label">Lý do</label>
+                        <textarea class="form-control" name="reason" id="banReason" rows="4" required></textarea>
+                    </div>
+                    <div class="alert alert-warning">
+                        Hành động này sẽ cấm phòng và gửi thông báo đến chủ khách sạn.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-danger">Xác nhận</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- Back to top -->
+<div class="back-top"></div>
+<!-- Bootstrap JS -->
+<script th:src="@{/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+
+<!-- Vendors -->
+<script th:src="@{/assets/vendor/glightbox/js/glightbox.js}"></script>
+<script th:src="@{/assets/vendor/flatpickr/js/flatpickr.min.js}"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
+<script th:src="@{/assets/vendor/choices/js/choices.min.js}"></script>
+<script th:src="@{/assets/vendor/tiny-slider/tiny-slider.js}"></script>
+<script th:src="@{/assets/vendor/sticky-js/sticky.min.js}"></script>
+<script src="https://cdn.jsdelivr.net/gh/somanchiu/Keyless-Google-Maps-API@v7.0/mapsJavaScriptAPI.js" async
+        defer></script>
+
+<script th:inline="javascript">
+    var map;
+
+    var lat = /*[[${hotel.latitude}]]*/ 0;
+    var lng = /*[[${hotel.longitude}]]*/ 0;
+
+    function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+            center: {lat: lat, lng: lng},
+            zoom: 19
+        });
+    }
+</script>
+<!-- Sorting & Searching Scripts -->
+<script>
+    function sortTable(colIndex) {
+        const table = document.getElementById("roomTable");
+        const tbody = table.tBodies[0];
+        const rows = Array.from(tbody.rows);
+        const asc = table.getAttribute("data-sort-asc") !== "true";
+        rows.sort((a, b) => {
+            const aText = a.cells[colIndex].textContent.trim();
+            const bText = b.cells[colIndex].textContent.trim();
+            const aNum = parseFloat(aText.replace(/[^\d.-]/g, ''));
+            const bNum = parseFloat(bText.replace(/[^\d.-]/g, ''));
+            return asc ? (aNum - bNum || aText.localeCompare(bText)) : (bNum - aNum || bText.localeCompare(aText));
+        });
+        rows.forEach(row => tbody.appendChild(row));
+        table.setAttribute("data-sort-asc", asc);
+    }
+
+    document.getElementById("searchRoomInput").addEventListener("keyup", function () {
+        const keyword = this.value.toLowerCase();
+        const rows = document.querySelectorAll("#roomTable tbody tr");
+        rows.forEach(row => {
+            row.style.display = Array.from(row.cells).some(cell =>
+                cell.textContent.toLowerCase().includes(keyword)
+            ) ? "" : "none";
+        });
+    });
+</script>
+
+<!-- ThemeFunctions -->
+<script th:src="@{/assets/js/functions.js}"></script>
+</body>
+</html>

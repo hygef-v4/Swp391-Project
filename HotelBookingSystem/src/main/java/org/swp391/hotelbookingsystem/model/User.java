@@ -20,6 +20,8 @@ public class User {
     private String avatarUrl;
     private String bio;
     private Date dob;
+    private boolean isFlagged = false;
+    private String flagReason;
 
     public User(String email, String password) {
         this.email = email;
