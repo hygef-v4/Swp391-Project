@@ -457,38 +457,53 @@
         }
 
         function showUserDetail(userId) {
-            const user = users.find(u => u.id === userId);
-            if (user) {
-                document.getElementById('detail-avatar').src = user.avatarUrl || '/assets/images/avatar/01.jpg';
-                document.getElementById('detail-fullName').textContent = user.fullName || 'N/A';
-                document.getElementById('detail-email').textContent = user.email;
-                document.getElementById('detail-phone').textContent = user.phone || 'Chưa cập nhật';
-                document.getElementById('detail-role').textContent = getRoleDisplayName(user.role);
-                if (user.flagged) {
-                    document.getElementById('detail-status').innerHTML = '<span class="badge bg-danger"><i class="bi bi-flag-fill me-1"></i>Bị flagged</span>';
-                } else {
-                    document.getElementById('detail-status').innerHTML = user.active
-                        ? '<span class="badge bg-success">Hoạt động</span>'
-                        : '<span class="badge bg-warning">Bị khóa</span>';
+            fetch(`/moderator-user-list/api/moderator/users/${userId}/details`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
                 }
-                document.getElementById('detail-gender').textContent = user.gender || 'Chưa cập nhật';
-                document.getElementById('detail-dob').textContent = user.dob || 'Chưa cập nhật';
-                document.getElementById('detail-bio').textContent = user.bio || 'Chưa có thông tin';
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const user = data.user;
+                    document.getElementById('detail-avatar').src = user.avatarUrl || '/assets/images/avatar/01.jpg';
+                    document.getElementById('detail-fullName').textContent = user.fullName || 'N/A';
+                    document.getElementById('detail-email').textContent = user.email;
+                    document.getElementById('detail-phone').textContent = user.phone || 'Chưa cập nhật';
+                    document.getElementById('detail-role').textContent = getRoleDisplayName(user.role);
+                    if (user.flagged) {
+                        document.getElementById('detail-status').innerHTML = '<span class="badge bg-danger"><i class="bi bi-flag-fill me-1"></i>Bị flagged</span>';
+                    } else {
+                        document.getElementById('detail-status').innerHTML = user.active
+                            ? '<span class="badge bg-success">Hoạt động</span>'
+                            : '<span class="badge bg-warning">Bị khóa</span>';
+                    }
+                    document.getElementById('detail-gender').textContent = user.gender || 'Chưa cập nhật';
+                    document.getElementById('detail-dob').textContent = user.dob || 'Chưa cập nhật';
+                    document.getElementById('detail-bio').textContent = user.bio || 'Chưa có thông tin';
 
-                // Hiển thị thông tin flagged nếu có
-                const flagContainer = document.getElementById('flag-info-container');
-                const flaggedBadge = document.getElementById('detail-flagged-badge');
-                if (user.flagged && user.flagReason) {
-                    document.getElementById('detail-flag-reason').textContent = user.flagReason;
-                    flagContainer.style.display = 'block';
-                    flaggedBadge.style.display = 'block';
+                    // Hiển thị thông tin flagged nếu có
+                    const flagContainer = document.getElementById('flag-info-container');
+                    const flaggedBadge = document.getElementById('detail-flagged-badge');
+                    if (user.flagged && user.flagReason) {
+                        document.getElementById('detail-flag-reason').textContent = user.flagReason;
+                        flagContainer.style.display = 'block';
+                        flaggedBadge.style.display = 'block';
+                    } else {
+                        flagContainer.style.display = 'none';
+                        flaggedBadge.style.display = 'none';
+                    }
+
+                    userDetailModal.show();
                 } else {
-                    flagContainer.style.display = 'none';
-                    flaggedBadge.style.display = 'none';
+                    showToast('Lỗi', data.message || 'Không thể tải thông tin người dùng', true);
                 }
-
-                userDetailModal.show();
-            }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Lỗi', 'Có lỗi xảy ra khi tải thông tin người dùng', true);
+            });
         }
 
         function showFlagModal(userId, userName) {
@@ -614,7 +629,7 @@
             const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
             const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
 
-            fetch(`/moderator-user-list/flag/${currentUserIdToFlag}`, {
+            fetch(`/moderator-user-list/api/moderator/users/${currentUserIdToFlag}/flag`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -622,14 +637,14 @@
                 },
                 body: JSON.stringify({ reason: reason })
             })
-                .then(response => response.text())
+                .then(response => response.json())
                 .then(data => {
-                    if (data === 'User flagged successfully.') {
-                        showToast('Thành công', 'Đã báo cáo người dùng thành công!');
+                    if (data.success) {
+                        showToast('Thành công', data.message);
                         flagUserModal.hide();
                         window.location.reload();
                     } else {
-                        showToast('Lỗi', 'Có lỗi xảy ra khi báo cáo người dùng', true);
+                        showToast('Lỗi', data.message || 'Có lỗi xảy ra khi báo cáo người dùng', true);
                     }
                 })
                 .catch(error => {
@@ -642,20 +657,20 @@
             // Get CSRF token
             const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
             const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-            fetch(`/moderator-user-list/unflag/${userId}`, {
+            fetch(`/moderator-user-list/api/moderator/users/${userId}/unflag`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     [csrfHeader]: csrfToken
                 }
             })
-            .then(response => response.text())
+            .then(response => response.json())
             .then(data => {
-                if (data === 'User unflagged successfully.') {
-                    showToast('Thành công', 'Đã huỷ flagged người dùng!');
+                if (data.success) {
+                    showToast('Thành công', data.message);
                     window.location.reload();
                 } else {
-                    showToast('Lỗi', 'Có lỗi xảy ra khi huỷ flagged', true);
+                    showToast('Lỗi', data.message || 'Có lỗi xảy ra khi huỷ flagged', true);
                 }
             })
             .catch(error => {
