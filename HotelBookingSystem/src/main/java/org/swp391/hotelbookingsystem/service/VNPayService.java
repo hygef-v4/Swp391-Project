@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.swp391.hotelbookingsystem.config.VNPayConfig;
 
@@ -21,6 +22,9 @@ import jakarta.servlet.http.HttpServletRequest;
 
 @Service
 public class VNPayService {
+    @Autowired
+    VNPayConfig vnPayConfig;
+
     public String createPayment(long total, String orderInfo, String url, HttpServletRequest request) throws UnsupportedEncodingException{
         StringBuilder hashData = new StringBuilder();
         StringBuilder query = new StringBuilder();
@@ -34,7 +38,7 @@ public class VNPayService {
         String txnRef = VNPayConfig.getRandomNumber(8);
         String orderType = "other";
         String locale = "vn";
-        String returnUrl = VNPayConfig.vnp_ReturnUrl + url;
+        String returnUrl = vnPayConfig.vnp_ReturnUrl + url;
         String ipAddr = VNPayConfig.getIpAddress(request);
 
         Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
@@ -86,7 +90,7 @@ public class VNPayService {
         String payUrl = VNPayConfig.vnp_PayUrl;
         String secretKey = VNPayConfig.vnp_HashSecret;
         String secureHash = VNPayConfig.hmacSHA512(secretKey, hashData.toString());
-        System.out.println(query);
+
         query.append("&vnp_SecureHash=");
         query.append(secureHash);
         return payUrl + "?" + query;
@@ -95,10 +99,10 @@ public class VNPayService {
     public boolean returnPayment(HttpServletRequest request) throws UnsupportedEncodingException{
         Map<String, String> fields = new HashMap();
         for (Enumeration params = request.getParameterNames(); params.hasMoreElements();) {
-            String fieldName = URLEncoder.encode((String) params.nextElement(), StandardCharsets.US_ASCII.toString());
-            String fieldValue = URLEncoder.encode(request.getParameter(fieldName), StandardCharsets.US_ASCII.toString());
-            if ((fieldValue != null) && (!fieldValue.isEmpty())) {
-                fields.put(fieldName, fieldValue);
+            String fieldKey = URLEncoder.encode((String) params.nextElement(), StandardCharsets.US_ASCII.toString());
+            String fieldValue = URLEncoder.encode(request.getParameter(fieldKey), StandardCharsets.US_ASCII.toString());
+            if ((fieldKey.startsWith("vnp_")) && (fieldValue != null) && (!fieldValue.isEmpty())) {
+                fields.put(fieldKey, fieldValue);
             }
         }
 

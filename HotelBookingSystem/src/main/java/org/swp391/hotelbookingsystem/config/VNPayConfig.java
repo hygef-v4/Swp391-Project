@@ -22,7 +22,8 @@ import jakarta.servlet.http.HttpServletRequest;
 @Component
 public class VNPayConfig {
     public static String vnp_PayUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-    public static String vnp_ReturnUrl = "http://localhost:8386";
+    @Value("${app.base-url}")
+    public String vnp_ReturnUrl;
     public static String vnp_TmnCode = "DIAKJRAJ";
     public static String vnp_HashSecret = "7ZXBXLVLJIILITFSX7T91BK11CA7XQ9W";
     public static String vnp_ApiUrl = "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction";
@@ -81,7 +82,6 @@ public class VNPayConfig {
                 sb.append("&");
             }
         }
-        System.out.println(sb);
         return hmacSHA512(vnp_HashSecret,sb.toString());
     }
     
