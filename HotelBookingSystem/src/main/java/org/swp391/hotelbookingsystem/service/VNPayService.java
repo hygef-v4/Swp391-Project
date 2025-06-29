@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.swp391.hotelbookingsystem.config.VNPayConfig;
 
@@ -22,10 +21,6 @@ import jakarta.servlet.http.HttpServletRequest;
 
 @Service
 public class VNPayService {
-    
-    @Autowired
-    private VNPayConfig vnPayConfig;
-    
     public String createPayment(long total, String orderInfo, String url, HttpServletRequest request) throws UnsupportedEncodingException{
         StringBuilder hashData = new StringBuilder();
         StringBuilder query = new StringBuilder();
@@ -39,7 +34,7 @@ public class VNPayService {
         String txnRef = VNPayConfig.getRandomNumber(8);
         String orderType = "other";
         String locale = "vn";
-        String returnUrl = vnPayConfig.getVnpReturnUrl() + url;
+        String returnUrl = VNPayConfig.vnp_ReturnUrl + url;
         String ipAddr = VNPayConfig.getIpAddress(request);
 
         Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
@@ -91,7 +86,7 @@ public class VNPayService {
         String payUrl = VNPayConfig.vnp_PayUrl;
         String secretKey = VNPayConfig.vnp_HashSecret;
         String secureHash = VNPayConfig.hmacSHA512(secretKey, hashData.toString());
-
+        System.out.println(query);
         query.append("&vnp_SecureHash=");
         query.append(secureHash);
         return payUrl + "?" + query;
