@@ -6,7 +6,7 @@
 	<title>PDF</title>
 	<style>
 		body {
-			font-family: "Poppins", sans-serif;
+			font-family: "DejaVuSans", sans-serif;
 		}
 
 		img {
@@ -63,14 +63,14 @@
 		<img th:src="${booking.imageUrl}"></img>
 	</div>
 
-	<h2 class="title" th:text="hotel.hotelName"></h2>
+	<h2 class="title" th:text="${hotel.hotelName}"></h2>
 	<h6 class="title" th:text="${hotel.address + ', ' + hotel.cityName}"></h6>
 	<div class="row">
 		<div class="col"><b>Người Đặt Phòng: </b><span th:text="${user.fullName}"></span></div>
 		<div class="col"><b>Mã Đặt Phòng: </b><span th:text="${booking.bookingId}"></span></div>
-		<div class="col"><b>Email: </b><span th:text="${user.email}"></span>/div>
+		<div class="col"><b>Email: </b><span th:text="${user.email}"></span></div>
 		<div class="col"><b>Số Điện Thoại: </b><span th:text="${user.phone}"></span></div>
-		<div class="col"><b>Ngày Đặt Phòng: </b><span th:text="${booking.createAt}"></span></div>
+		<div class="col"><b>Ngày Đặt Phòng: </b><span th:text="${booking.createdAt}"></span></div>
 		<div class="col"><b>Thành Tiền: </b><span th:text="${booking.totalPrice}"></span></div>
 	</div>
 
@@ -89,7 +89,7 @@
 	<div>
 		<div class="row" th:each="unit: ${booking.bookingUnits}">
 			<div class="room-image">
-				<img src="${unit.imageUrl}">
+				<img src="${unit.imageUrl}"></img>
 			</div>
 			<div class="col">
 				<ul>

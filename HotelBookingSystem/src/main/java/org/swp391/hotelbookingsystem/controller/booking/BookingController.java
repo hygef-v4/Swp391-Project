@@ -49,8 +49,8 @@ public class BookingController {
         @PathVariable(value = "id") int hotelId,
 
         @RequestParam(value = "dateRange") String dateRange,
-        @RequestParam(value = "guests") String guests,
-        @RequestParam(value = "rooms") String roomQuantity,
+        @RequestParam(value = "guests") int guests,
+        @RequestParam(value = "rooms") int roomQuantity,    
         
         Model model, HttpSession session
     ){
@@ -114,8 +114,8 @@ public class BookingController {
         @RequestParam(value = "quantity") List<Integer> quantity,
 
         @RequestParam(value = "dateRange") String dateRange,
-        @RequestParam(value = "guests") String guests,
-        @RequestParam(value = "rooms") String rooms,
+        @RequestParam(value = "guests") int guests,
+        @RequestParam(value = "rooms") int rooms,    
 
         Model model, HttpSession session
     ){
