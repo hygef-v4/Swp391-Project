@@ -341,8 +341,8 @@ Main Title START -->
 							</a>
 							<!-- dropdown button -->
 							<ul class="dropdown-menu dropdown-menu-end min-w-auto shadow rounded" aria-labelledby="dropdownShare">
-								<li><a class="dropdown-item" th:href="'https://www.facebook.com/sharer/sharer.php?u=localhost:8386/hotel-detail?hotelId=' + ${hotel.hotelId}" target="_blank"><i class="fab fa-facebook-square me-2"></i>Facebook</a></li>
-								<li><a class="dropdown-item" th:href="'https://twitter.com/intent/tweet?url=localhost:8386/hotel-detail?hotelId=' + ${hotel.hotelId}" target="_blank"><i class="fab fa-twitter-square me-2"></i>Twitter</a></li>
+								<li><a class="dropdown-item" th:href="'https://www.facebook.com/sharer/sharer.php?u=' + ${baseUrl} + '/hotel-detail?hotelId=' + ${hotel.hotelId}" target="_blank"><i class="fab fa-facebook-square me-2"></i>Facebook</a></li>
+								<li><a class="dropdown-item" th:href="'https://twitter.com/intent/tweet?url=' + ${baseUrl} + '/hotel-detail?hotelId=' + ${hotel.hotelId}" target="_blank"><i class="fab fa-twitter-square me-2"></i>Twitter</a></li>
 								<li><a class="dropdown-item" th:href="'hotel-detail?hotelId=' + ${hotel.hotelId}" onclick="event.preventDefault();navigator.clipboard.writeText(this.href)"><i class="fa-solid fa-copy me-2"></i>Copy link</a></li>
 							</ul>
 						</li>

@@ -21,9 +21,7 @@ public class EmailService {
         this.templateEngine = templateEngine;
     }
 
-    public void sendResetPasswordEmail(String to, String token) throws MessagingException {
-        String resetLink = "http://localhost:8386/resetPassword?token=" + token;
-
+    public void sendResetPasswordEmail(String to, String resetLink) throws MessagingException {
         Context context = new Context();
         context.setVariable("resetLink", resetLink);
         String htmlContent = templateEngine.process("email/resetPasswordEmail", context);
