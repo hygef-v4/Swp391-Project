@@ -116,7 +116,7 @@ public class PaymentController {
         @RequestParam(value = "guests") int guests,
         @RequestParam(value = "rooms") int rooms,    
 
-        HttpServletRequest request, Model model
+        HttpServletRequest request, HttpSession session, Model model
     ){
         try{
             boolean paymentStatus = vnpayService.returnPayment(request);
@@ -124,6 +124,11 @@ public class PaymentController {
 
             Booking booking = bookingService.findById(id);
             if(booking == null) return "redirect:/";
+
+            User user = (User) session.getAttribute("user");
+            if(user == null || user.getId() != booking.getCustomerId()) {
+                return "redirect:/login";
+            }
 
             bookingService.approveBooking(id);
             model.addAttribute("booking", booking);
@@ -173,6 +178,7 @@ public class PaymentController {
         context.setVariable("booking", booking);
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        context.setVariable("createdAt", booking.getCreatedAt().format(formatter));
         context.setVariable("checkIn", booking.getCheckIn().format(formatter));
         context.setVariable("checkOut", booking.getCheckIn().format(formatter));
 
