@@ -151,12 +151,17 @@ public class PaymentController {
         @RequestParam(value = "guests") int guests,
         @RequestParam(value = "rooms") int rooms,    
 
-        Model model
+        HttpSession session, Model model
     ){
         Booking booking = bookingService.findById(id);
         if(booking == null) return "redirect:/";
 
-        bookingService.deletePendingBooking(id);
+        User user = (User) session.getAttribute("user");
+        if(user == null || user.getId() != booking.getCustomerId()) {
+            return "redirect:/login";
+        }
+
+        bookingService.deletePendingBooking(id, user.getId());
         model.addAttribute("id", booking.getHotelId());
 
         model.addAttribute("dateRange", dateRange);

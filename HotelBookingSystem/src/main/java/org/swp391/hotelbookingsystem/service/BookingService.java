@@ -30,8 +30,10 @@ public class BookingService {
         bookingRepo.approveBookingUnit(id);
     }
 
-    public void deletePendingBooking(int id){
-        bookingRepo.deletePendingBooking(id);
+    public void deletePendingBooking(int id, int userId){
+        if(bookingRepo.idPending(id, userId)){
+            bookingRepo.deletePendingBooking(id);
+        }
     }
 
     public int saveBooking(Booking booking){

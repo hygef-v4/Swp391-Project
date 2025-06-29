@@ -263,8 +263,13 @@ public class BookingRepo {
         return id;
     }
 
+    public boolean idPending(int id, int userId){
+        String sql = "SELECT 1 FROM Bookings WHERE booking_id = ? AND customer_id = ?";
+        return !jdbcTemplate.query(sql,(rs, rowNum) -> rs.getInt(1), id, userId).isEmpty();
+    }
+
     public void deletePendingBooking(int id){
-        String sql = "DELETE FROM Booking WHERE booking_id = ?";
+        String sql = "DELETE FROM Bookings WHERE booking_id = ?";
         jdbcTemplate.update(sql, id);
     }
 
