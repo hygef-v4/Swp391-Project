@@ -120,8 +120,13 @@
 
             if(roomId){
                 const room = document.getElementById('booked' + roomId);
-                room.querySelector(".bookedQuantity").value = amount;
-                booking(roomId);
+
+                if(room.querySelector(".bookedQuantity").max > 0){
+                    room.querySelector(".bookedQuantity").value = amount;
+                    booking(roomId);
+                }else{
+                    alert("Đã hết phòng, vui lòng chọn phòng khác");
+                }
             }scroll("hotel");
         });
 
