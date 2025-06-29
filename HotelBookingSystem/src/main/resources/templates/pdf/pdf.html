@@ -7,7 +7,7 @@
 	<style>
 		@font-face {
 			font-family: 'DejaVu Sans';
-			src: url('font/DejaVuSans.ttf') format('truetype');
+			src: url('assets/font/DejaVuSans.ttf') format('truetype');
 		}
 
 		body {
@@ -100,7 +100,7 @@
 				<ul>
 					<h3 th:text="${unit.roomName}"></h3>
 					<li><b>Số Khách Tối Đa: </b><span th:text="${unit.roomCapacity}"></span></li>
-					<li><b>Giá Phòng: </b><span th:text="${unit.price}"></span></li>
+					<li><b>Giá Phòng: </b><span th:text="${#numbers.formatDecimal(unit.price, 0, 'COMMA', 0, 'POINT')}"></span>₫</li>
 					<li><b>Số Lượng: </b><span th:text="${unit.quantity}"></span></li>					
 				</ul>
 			</div>

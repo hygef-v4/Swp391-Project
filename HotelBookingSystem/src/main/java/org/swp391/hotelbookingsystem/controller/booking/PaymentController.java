@@ -160,8 +160,6 @@ public class PaymentController {
         Context context = new Context();
 
         Booking booking = bookingService.findById(id);
-        System.out.println("Booking Image:" + booking.getImageUrl());
-        System.out.println("Booking Unit Image:" + booking.getBookingUnits().get(0).getImageUrl());
         User user = userService.findUserById(booking.getCustomerId());
         Hotel hotel = hotelService.getHotelById(booking.getHotelId());
 
