@@ -1,23 +1,38 @@
 package org.swp391.hotelbookingsystem.config;
 
-import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.stereotype.Component;
-
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @Component
 public class VNPayConfig {
     public static String vnp_PayUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-    public static String vnp_ReturnUrl = "http://localhost:8386";
+    
+    @Value("${app.base-url}")
+    private String baseUrl;
+    
     public static String vnp_TmnCode = "DIAKJRAJ";
     public static String vnp_HashSecret = "7ZXBXLVLJIILITFSX7T91BK11CA7XQ9W";
     public static String vnp_ApiUrl = "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction";
+
+    public String getVnpReturnUrl() {
+        return baseUrl;
+    }
 
     public static String md5(String message) {
         String digest = null;

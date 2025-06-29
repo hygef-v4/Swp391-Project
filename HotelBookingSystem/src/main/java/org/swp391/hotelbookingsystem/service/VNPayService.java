@@ -1,17 +1,31 @@
 package org.swp391.hotelbookingsystem.service;
 
-import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.stereotype.Service;
-import org.swp391.hotelbookingsystem.config.VNPayConfig;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.swp391.hotelbookingsystem.config.VNPayConfig;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @Service
 public class VNPayService {
+    
+    @Autowired
+    private VNPayConfig vnPayConfig;
+    
     public String createPayment(long total, String orderInfo, String url, HttpServletRequest request) throws UnsupportedEncodingException{
         StringBuilder hashData = new StringBuilder();
         StringBuilder query = new StringBuilder();
@@ -25,7 +39,7 @@ public class VNPayService {
         String txnRef = VNPayConfig.getRandomNumber(8);
         String orderType = "other";
         String locale = "vn";
-        String returnUrl = VNPayConfig.vnp_ReturnUrl + url;
+        String returnUrl = vnPayConfig.getVnpReturnUrl() + url;
         String ipAddr = VNPayConfig.getIpAddress(request);
 
         Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
