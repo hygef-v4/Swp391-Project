@@ -710,28 +710,51 @@ public class BookingRepo {
     }
 
     public int getTodayCheckIn() {
-        String sql = "SELECT COUNT(*) FROM Bookings WHERE CAST(check_in AS DATE) = CAST(GETDATE() AS DATE)";
-        Integer total = jdbcTemplate.queryForObject(sql, Integer.class);
-        return total != null ? total : 0;
+        LocalDate today = LocalDate.now();
+        List<Booking> bookings = findAll();
+
+        return (int) bookings.stream()
+                .filter(b -> b.getCheckIn() != null && b.getCheckIn().toLocalDate().isEqual(today))
+                .filter(b -> {
+                    String status = b.determineStatus();
+                    return "check_in".equals(status) || "approved".equals(status);
+                })
+                .count();
     }
 
     public int getFutureCheckIn() {
-        String sql = "SELECT COUNT(*) FROM Bookings WHERE check_in > GETDATE()";
-        Integer total = jdbcTemplate.queryForObject(sql, Integer.class);
-        return total != null ? total : 0;
+        LocalDate today = LocalDate.now();
+        List<Booking> bookings = findAll();
+
+        return (int) bookings.stream()
+                .filter(b -> b.getCheckIn() != null && b.getCheckIn().toLocalDate().isAfter(today))
+                .filter(b -> "approved".equals(b.determineStatus()))
+                .count();
     }
 
     public int getTodayCheckOut() {
-        String sql = "SELECT COUNT(*) FROM Bookings WHERE CAST(check_out AS DATE) = CAST(GETDATE() AS DATE)";
-        Integer total = jdbcTemplate.queryForObject(sql, Integer.class);
-        return total != null ? total : 0;
+        LocalDate today = LocalDate.now();
+        List<Booking> bookings = findAll();
+
+        return (int) bookings.stream()
+                .filter(b -> b.getCheckOut() != null && b.getCheckOut().toLocalDate().isEqual(today))
+                .filter(b -> {
+                    String status = b.determineStatus();
+                    return "completed".equals(status) || "check_in".equals(status);
+                })
+                .count();
     }
 
     public int getFutureCheckOut() {
-        String sql = "SELECT COUNT(*) FROM Bookings WHERE check_out > GETDATE()";
-        Integer total = jdbcTemplate.queryForObject(sql, Integer.class);
-        return total != null ? total : 0;
+        LocalDate today = LocalDate.now();
+        List<Booking> bookings = findAll();
+
+        return (int) bookings.stream()
+                .filter(b -> b.getCheckOut() != null && b.getCheckOut().toLocalDate().isAfter(today))
+                .filter(b -> "check_in".equals(b.determineStatus()))
+                .count();
     }
+
 
     public List<Booking> findBookingsByStatusAndKeywordPaginated(String status, String keyword, int page, int size) {
         StringBuilder sql = new StringBuilder("""
@@ -1179,6 +1202,63 @@ public class BookingRepo {
             return bookings;
         }, hotelId, offset, size);
     }
+
+    public List<Booking> getBookingsByHotelIdOrderByDate(int hotelId) {
+        String sql = """
+        SELECT 
+            b.booking_id,
+            b.hotel_id,
+            b.customer_id,
+            b.coupon_id,
+            b.check_in,
+            b.check_out,
+            b.total_price,
+            b.created_at,
+            u.full_name AS customerName,
+            u.email AS customerEmail,
+            u.avatar_url AS customerAvatar,
+            h.hotel_name,
+            h.hotel_image_url
+        FROM Bookings b
+        JOIN Users u ON u.user_id = b.customer_id
+        JOIN Hotels h ON h.hotel_id = b.hotel_id
+        WHERE b.hotel_id = ?
+        ORDER BY b.created_at DESC
+    """;
+
+        return jdbcTemplate.query(sql, rs -> {
+            List<Booking> bookings = new ArrayList<>();
+
+            while (rs.next()) {
+                int bookingId = rs.getInt("booking_id");
+
+                Booking booking = Booking.builder()
+                        .bookingId(bookingId)
+                        .hotelId(rs.getInt("hotel_id"))
+                        .customerId(rs.getInt("customer_id"))
+                        .couponId((Integer) rs.getObject("coupon_id"))
+                        .checkIn(rs.getTimestamp("check_in").toLocalDateTime())
+                        .checkOut(rs.getTimestamp("check_out").toLocalDateTime())
+                        .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
+                        .totalPrice(rs.getDouble("total_price"))
+                        .hotelName(rs.getString("hotel_name"))
+                        .imageUrl(rs.getString("hotel_image_url"))
+                        .customerName(rs.getString("customerName"))
+                        .customerEmail(rs.getString("customerEmail"))
+                        .customerAvatar(rs.getString("customerAvatar"))
+                        .build();
+
+                booking.setBookingUnits(findBookingUnitsByBookingId(bookingId));
+                booking.setStatus(booking.determineStatus());
+                booking.setTotalPrice(booking.calculateTotalPrice());
+
+                bookings.add(booking);
+            }
+
+            return bookings;
+        }, hotelId);
+    }
+
 
     public int countBookingsByHotelId(int hotelId) {
         String sql = "SELECT COUNT(*) FROM Bookings WHERE hotel_id = ?";

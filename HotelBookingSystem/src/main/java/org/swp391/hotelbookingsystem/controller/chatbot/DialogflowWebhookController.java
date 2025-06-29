@@ -95,6 +95,6 @@
      private int mapLocationToId(String locationName) {
          if (locationName.toLowerCase().contains("hà nội")) return 1;
          if (locationName.toLowerCase().contains("sài gòn")) return 2;
-         return 0; // unknown
+         return 0;
      }
  }

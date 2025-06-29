@@ -144,6 +144,7 @@ public class BookingService {
     public List<Booking> getBookingsByHotelId(int hotelId) {
         return bookingRepo.findByHotelId(hotelId);
     }
+
     public List<Booking> getUpcomingBookingsPaginated(int customerId, int page, int size) {
         return bookingRepo.findBookingsByStatusAndCustomerPaginated(customerId, "approved", "future", page, size);
     }
@@ -236,6 +237,10 @@ public class BookingService {
     public List<Booking> getBookingsByHotelIdPaginated(int hotelId, int page, int size) {
         int offset = page * size;
         return bookingRepo.getBookingsByHotelIdPaginated(hotelId, offset, size);
+    }
+
+    public List<Booking> getBookingsByHotelIdOrderByDate(int hotelId) {
+        return bookingRepo.getBookingsByHotelIdOrderByDate(hotelId);
     }
 
     public int countBookingsByHotelId(int hotelId) {
