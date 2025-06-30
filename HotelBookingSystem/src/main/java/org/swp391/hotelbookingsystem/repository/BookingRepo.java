@@ -125,6 +125,27 @@ public class BookingRepo {
         }, bookingUnitId);
     }
 
+    public void pendingBookingUnit(int id, BookingUnit bookingUnit){
+        String sql = """
+            INSERT INTO BookingUnits (booking_id, room_id, quantity, price, status, refund_amount)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """;
+
+        jdbcTemplate.update(sql,
+            id,
+            bookingUnit.getRoomId(),
+            bookingUnit.getQuantity(),
+            bookingUnit.getPrice(),
+            "pending",
+            (Object) bookingUnit.getRefundAmount()
+        );
+    }
+
+    public void approveBookingUnit(int id){
+        String sql = "UPDATE BookingUnits SET status = 'approved' WHERE booking_id = ?";
+        jdbcTemplate.update(sql, id);
+    }
+
     public void saveBookingUnit(int id, BookingUnit bookingUnit){
         String sql = """
             INSERT INTO BookingUnits (booking_id, room_id, quantity, price, refund_amount)
@@ -216,9 +237,50 @@ public class BookingRepo {
 
             booking.setBookingUnits(findBookingUnitsByBookingId(bookingId));
             booking.setStatus(booking.determineStatus());
-            booking.setTotalPrice(booking.calculateTotalPrice());
             return booking;
         }, id);
+    }
+
+    public int pendingBooking(Booking booking){
+        String sql = """
+            INSERT INTO Bookings (hotel_id, customer_id, coupon_id, check_in, check_out, total_price)
+            OUTPUT inserted.booking_id
+            VALUES (?, ?, ?, ?, ?, ?)
+        """;
+        int id = jdbcTemplate.queryForObject(sql, Integer.class, 
+            booking.getHotelId(),
+            booking.getCustomerId(),
+            booking.getCouponId(),
+            booking.getCheckIn(),
+            booking.getCheckOut(),
+            booking.getTotalPrice()
+        );
+
+        for(BookingUnit bookingUnit : booking.getBookingUnits()){
+            pendingBookingUnit(id, bookingUnit);
+        }
+
+        return id;
+    }
+
+    public boolean isPending(int id, int userId){
+        String sql = "SELECT 1 FROM Bookings WHERE booking_id = ? AND customer_id = ?";
+        return !jdbcTemplate.query(sql,(rs, rowNum) -> rs.getInt(1), id, userId).isEmpty();
+    }
+
+    public List<Integer> isPendingOverTIme(){
+        String sql = """
+            SELECT DISTINCT b.booking_id FROM Bookings b
+            JOIN BookingUnits bu ON bu.booking_id = b.booking_id
+            WHERE bu.status = 'pending' AND DATEDIFF(MINUTE, b.created_at, GETDATE()) > 30
+        """;
+
+        return jdbcTemplate.query(sql,(rs, rowNum) -> rs.getInt("booking_id"));
+    }
+
+    public void deletePendingBooking(int id){
+        String sql = "DELETE FROM Bookings WHERE booking_id = ?";
+        jdbcTemplate.update(sql, id);
     }
 
     // 3. Tạo booking mới
@@ -1213,5 +1275,30 @@ public class BookingRepo {
         return jdbcTemplate.queryForObject(sql, Integer.class, hotelId);
     }
 
+    public int autoUpdateCheckin(){
+        String sql = """
+            UPDATE BU
+            SET BU.status = 'check_in'
+            FROM BookingUnits BU
+            JOIN Bookings B ON BU.booking_id = B.booking_id
+            WHERE B.check_in <= CAST(GETDATE() AS DATE)
+              AND B.check_out >= CAST(GETDATE() AS DATE)
+              AND BU.status = 'approved';
+        """;
 
+        return jdbcTemplate.update(sql);
+    }
+
+    public int autoUpdateCompleted(){
+        String sql = """
+            UPDATE BU
+            SET BU.status = 'completed'
+            FROM BookingUnits BU
+            JOIN Bookings B ON BU.booking_id = B.booking_id
+            WHERE B.check_out < CAST(GETDATE() AS DATE)
+              AND BU.status = 'check_in';
+        """;
+
+        return jdbcTemplate.update(sql);
+    }
 }

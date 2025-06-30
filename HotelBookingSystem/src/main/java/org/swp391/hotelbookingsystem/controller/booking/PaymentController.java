@@ -46,8 +46,10 @@ public class PaymentController {
     @Autowired
     SpringTemplateEngine templateEngine;
 
-    @GetMapping("/payment")
+    @GetMapping("/payment/{id}")
     public String payment(
+        @PathVariable(value = "id") int id,
+
         @RequestParam(value = "hotelId") int hotelId,
         @RequestParam(value = "dateRange") String dateRange,
         @RequestParam(value = "guests") int guests,
@@ -55,14 +57,15 @@ public class PaymentController {
 
         HttpSession session, Model model
     ){
+        model.addAttribute("id", id);
         model.addAttribute("hotelId", hotelId);
         model.addAttribute("dateRange", dateRange);
         model.addAttribute("guests", guests);
         model.addAttribute("rooms", rooms);
 
-        Booking booking = (Booking) session.getAttribute("booking");
+        Booking booking = bookingService.findById(id);
         if(booking == null) {
-            return "redirect:/login";
+            return "redirect:/";
         }
 
         User user = (User) session.getAttribute("user");
@@ -73,7 +76,7 @@ public class PaymentController {
         double price = 0;
         for(BookingUnit bookingUnit : booking.getBookingUnits()) {
             price += bookingUnit.getPrice() * bookingUnit.getQuantity();
-        }double discount = booking.getTotalPrice() - price;
+        }double discount = price - booking.getTotalPrice();
 
         model.addAttribute("booking", booking);
         model.addAttribute("price", price);
@@ -84,6 +87,8 @@ public class PaymentController {
 
     @PostMapping("/create-payment")
     public String createPayment(
+        @RequestParam("id") int id,
+
         @RequestParam("amount") long amount, 
         @RequestParam("orderInfo") String orderInfo,
 
@@ -94,7 +99,7 @@ public class PaymentController {
         HttpServletRequest request
     ){
         try{
-            String returnUrl = "/booking-success?dateRange=" + dateRange + "&guests=" + guests + "&rooms=" + rooms;
+            String returnUrl = "/booking-success/" + id + "?dateRange=" + dateRange + "&guests=" + guests + "&rooms=" + rooms;
             String paymentUrl = vnpayService.createPayment(amount, orderInfo, returnUrl, request);
             return "redirect:" + paymentUrl;
         }catch(Exception e){
@@ -102,8 +107,10 @@ public class PaymentController {
         }
     }
 
-    @GetMapping("/booking-success")
+    @GetMapping("/booking-success/{id}")
     public String returnPayment(
+        @PathVariable(value = "id") int id,
+
         @RequestParam(value = "dateRange") String dateRange,
         @RequestParam(value = "guests") int guests,
         @RequestParam(value = "rooms") int rooms,    
@@ -112,15 +119,17 @@ public class PaymentController {
     ){
         try{
             boolean paymentStatus = vnpayService.returnPayment(request);
-            if(!paymentStatus) return "redirect:/booking-error?dateRange=" + dateRange + "&guests=" + guests + "&rooms=" + rooms;
+            if(!paymentStatus) return "redirect:/booking-error/" + id + "?dateRange=" + dateRange + "&guests=" + guests + "&rooms=" + rooms;
 
-            Booking booking = (Booking) session.getAttribute("booking");
+            Booking booking = bookingService.findById(id);
             if(booking == null) return "redirect:/";
 
-            int id = bookingService.saveBooking(booking);
-            booking.setBookingId(id);
+            User user = (User) session.getAttribute("user");
+            if(user == null || user.getId() != booking.getCustomerId()) {
+                return "redirect:/login";
+            }
 
-            session.setAttribute("booking", null);
+            bookingService.approveBooking(id);
             model.addAttribute("booking", booking);
 
             model.addAttribute("dateRange", dateRange);
@@ -133,18 +142,25 @@ public class PaymentController {
         }
     }
 
-    @GetMapping("/booking-error")
+    @GetMapping("/booking-error/{id}")
     public String getMethodName(
+        @PathVariable(value = "id") int id,
+
         @RequestParam(value = "dateRange") String dateRange,
         @RequestParam(value = "guests") int guests,
         @RequestParam(value = "rooms") int rooms,    
 
         HttpSession session, Model model
     ){
-        Booking booking = (Booking) session.getAttribute("booking");
+        Booking booking = bookingService.findById(id);
         if(booking == null) return "redirect:/";
 
-        session.setAttribute("booking", null);
+        User user = (User) session.getAttribute("user");
+        if(user == null || user.getId() != booking.getCustomerId()) {
+            return "redirect:/login";
+        }
+
+        bookingService.deletePendingBooking(id, user.getId());
         model.addAttribute("id", booking.getHotelId());
 
         model.addAttribute("dateRange", dateRange);
@@ -166,6 +182,7 @@ public class PaymentController {
         context.setVariable("booking", booking);
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        context.setVariable("createdAt", booking.getCreatedAt().format(formatter));
         context.setVariable("checkIn", booking.getCheckIn().format(formatter));
         context.setVariable("checkOut", booking.getCheckIn().format(formatter));
 

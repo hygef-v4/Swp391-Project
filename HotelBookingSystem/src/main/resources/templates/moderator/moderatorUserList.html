@@ -488,6 +488,8 @@
                 }
 
                 userDetailModal.show();
+            } else {
+                showToast('Lỗi', 'Không tìm thấy thông tin người dùng', true);
             }
         }
 
@@ -614,7 +616,7 @@
             const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
             const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
 
-            fetch(`/moderator-user-list/flag/${currentUserIdToFlag}`, {
+            fetch(`/moderator-user-list/api/moderator/users/${currentUserIdToFlag}/flag`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -622,14 +624,14 @@
                 },
                 body: JSON.stringify({ reason: reason })
             })
-                .then(response => response.text())
+                .then(response => response.json())
                 .then(data => {
-                    if (data === 'User flagged successfully.') {
-                        showToast('Thành công', 'Đã báo cáo người dùng thành công!');
+                    if (data.success) {
+                        showToast('Thành công', data.message);
                         flagUserModal.hide();
                         window.location.reload();
                     } else {
-                        showToast('Lỗi', 'Có lỗi xảy ra khi báo cáo người dùng', true);
+                        showToast('Lỗi', data.message || 'Có lỗi xảy ra khi báo cáo người dùng', true);
                     }
                 })
                 .catch(error => {
@@ -642,20 +644,20 @@
             // Get CSRF token
             const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
             const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-            fetch(`/moderator-user-list/unflag/${userId}`, {
+            fetch(`/moderator-user-list/api/moderator/users/${userId}/unflag`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     [csrfHeader]: csrfToken
                 }
             })
-            .then(response => response.text())
+            .then(response => response.json())
             .then(data => {
-                if (data === 'User unflagged successfully.') {
-                    showToast('Thành công', 'Đã huỷ flagged người dùng!');
+                if (data.success) {
+                    showToast('Thành công', data.message);
                     window.location.reload();
                 } else {
-                    showToast('Lỗi', 'Có lỗi xảy ra khi huỷ flagged', true);
+                    showToast('Lỗi', data.message || 'Có lỗi xảy ra khi huỷ flagged', true);
                 }
             })
             .catch(error => {
