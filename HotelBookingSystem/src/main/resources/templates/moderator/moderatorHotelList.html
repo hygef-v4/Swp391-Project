@@ -397,13 +397,13 @@
         const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
         const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
 
-        let currentHotelId = null;
-        const PAGE_SIZE = 6;
+        const itemsPerPage = 6;
         let currentPage = 1;
-
+        
         // Biến lưu hotelId và action đang thao tác
         let pendingActionHotelId = null;
         let pendingActionType = null;
+        
         // Khởi tạo modal
         const actionConfirmModal = new bootstrap.Modal(document.getElementById('confirm-action-modal'));
         const confirmActionMessage = document.getElementById('confirm-action-message');
@@ -464,7 +464,7 @@
         }
 
         function renderPagination(filteredHotels) {
-            const totalPages = Math.ceil(filteredHotels.length / PAGE_SIZE) || 1;
+            const totalPages = Math.ceil(filteredHotels.length / itemsPerPage) || 1;
             const pagination = document.querySelector('.pagination');
             if (!pagination) return;
 
@@ -501,8 +501,8 @@
             hotelCards.forEach(card => card.style.display = 'none');
 
             // Hiển thị các hotel thuộc trang hiện tại
-            const start = (currentPage - 1) * PAGE_SIZE;
-            const end = start + PAGE_SIZE;
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
             filteredHotels.slice(start, end).forEach(card => card.style.display = 'block');
 
             renderPagination(filteredHotels);

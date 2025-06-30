@@ -735,7 +735,13 @@
     const rejectModal = new bootstrap.Modal(document.getElementById('reject-modal'));
     const notificationToast = new bootstrap.Toast(document.getElementById('notificationToast'));
 
-    let currentHotelId = null;
+    // Lấy CSRF token và header
+    const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+    // Biến lưu hotelId và action đang thao tác
+    let pendingActionHotelId = null;
+    let pendingActionType = null;
 
     // --- Toast Notification Handler ---
     function showToast(title, body, isSuccess) {
@@ -921,8 +927,6 @@
 
     // --- Modal chi tiết khách sạn dùng lại logic từ hotel list ---
     const hotelDetailsModal = new bootstrap.Modal(document.getElementById('hotel-details-modal'));
-    const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
 
     window.viewHotelDetails = function (hotelId) {
       fetch(`/moderator-hotel-list/api/moderator/hotels/${hotelId}/details`, {
