@@ -311,8 +311,16 @@
             </div>
             <div class="modal-body">
                 <p>Vui lòng cung cấp lý do báo cáo người dùng <strong id="flag-user-name"></strong>:</p>
-                <textarea id="flag-reason" class="form-control" rows="3" placeholder="Ví dụ: Lạm dụng hệ thống, bình luận không phù hợp..."></textarea>
-                <div class="text-danger mt-2 d-none" id="reason-error">Vui lòng nhập lý do.</div>
+                <div class="form-group">
+                    <textarea id="flag-reason" class="form-control" rows="3" 
+                            placeholder="Ví dụ: Lạm dụng hệ thống, bình luận không phù hợp..."
+                            maxlength="200"></textarea>
+                    <div class="d-flex justify-content-between mt-1">
+                        <small class="text-muted">Tối thiểu 10 ký tự</small>
+                        <small class="text-muted"><span id="char-count">0</span>/200</small>
+                    </div>
+                    <div class="alert alert-danger mt-2 d-none" id="reason-error"></div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
@@ -601,16 +609,22 @@
             }
         });
 
+        // Add character counter for flag reason
+        const flagReasonTextarea = document.getElementById('flag-reason');
+        const charCount = document.getElementById('char-count');
+        const confirmFlagBtn = document.getElementById('confirm-flag-btn');
+        
+        flagReasonTextarea.addEventListener('input', function() {
+            const currentLength = this.value.length;
+            charCount.textContent = currentLength;
+            
+            // Enable/disable submit button based on length
+            confirmFlagBtn.disabled = currentLength < 10;
+        });
+
         document.getElementById('confirm-flag-btn').addEventListener('click', function() {
             const reason = document.getElementById('flag-reason').value.trim();
             const errorElement = document.getElementById('reason-error');
-
-            if (!reason) {
-                errorElement.classList.remove('d-none');
-                return;
-            }
-
-            errorElement.classList.add('d-none');
 
             // Get CSRF token
             const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
@@ -624,23 +638,25 @@
                 },
                 body: JSON.stringify({ reason: reason })
             })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        localStorage.setItem('notification', JSON.stringify({
-                            title: 'Thành công',
-                            message: 'Đã báo cáo người dùng thành công',
-                            type: 'success'
-                        }));
-                        window.location.reload();
-                    } else {
-                        showToast('Lỗi', data.message || 'Có lỗi xảy ra khi báo cáo người dùng', true);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast('Lỗi', 'Có lỗi xảy ra khi báo cáo người dùng', true);
-                });
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    localStorage.setItem('notification', JSON.stringify({
+                        title: 'Thành công',
+                        message: 'Đã báo cáo người dùng thành công',
+                        type: 'success'
+                    }));
+                    window.location.reload();
+                } else {
+                    errorElement.textContent = data.message;
+                    errorElement.classList.remove('d-none');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                errorElement.textContent = 'Có lỗi xảy ra khi báo cáo người dùng';
+                errorElement.classList.remove('d-none');
+            });
         });
 
         function unflagUser(userId) {
