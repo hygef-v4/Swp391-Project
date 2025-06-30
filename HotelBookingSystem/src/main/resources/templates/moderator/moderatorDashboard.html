@@ -600,28 +600,28 @@
       <!-- Phần báo cáo KẾT THÚC -->
 
       <!-- Biểu đồ hoạt động BẮT ĐẦU -->
-<!--      <div class="row g-4 mt-4">-->
-<!--        <div class="col-12">-->
-<!--          <div class="card shadow">-->
-<!--            <div class="card-header d-flex justify-content-between align-items-center">-->
-<!--              <h5 class="card-header-title mb-0">Tổng Quan Hoạt Động Quản Trị</h5>-->
-<!--              <div class="dropdown">-->
-<!--                <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">-->
-<!--                  7 ngày qua-->
-<!--                </button>-->
-<!--                <ul class="dropdown-menu">-->
-<!--                  <li><a class="dropdown-item" href="#">7 ngày qua</a></li>-->
-<!--                  <li><a class="dropdown-item" href="#">30 ngày qua</a></li>-->
-<!--                  <li><a class="dropdown-item" href="#">3 tháng qua</a></li>-->
-<!--                </ul>-->
-<!--              </div>-->
-<!--            </div>-->
-<!--            <div class="card-body">-->
-<!--              <div id="activityChart" style="height: 350px;"></div>-->
-<!--            </div>-->
-<!--          </div>-->
-<!--        </div>-->
-<!--      </div>-->
+      <div class="row g-4 mt-4">
+        <div class="col-12">
+          <div class="card shadow">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h5 class="card-header-title mb-0">Tổng Quan Hoạt Động Quản Trị</h5>
+              <div class="dropdown">
+                <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                  7 ngày qua
+                </button>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="#">7 ngày qua</a></li>
+                  <li><a class="dropdown-item" href="#">30 ngày qua</a></li>
+                  <li><a class="dropdown-item" href="#">3 tháng qua</a></li>
+                </ul>
+              </div>
+            </div>
+            <div class="card-body">
+              <div id="activityChart" style="height: 350px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
       <!-- Biểu đồ hoạt động KẾT THÚC -->
 
     </div>
@@ -637,11 +637,11 @@
 <div class="position-fixed top-0 end-0 p-3" style="z-index: 1055">
   <div id="notificationToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
     <div class="toast-header">
-      <strong class="me-auto" id="toast-title">Notification</strong>
+      <strong class="me-auto" id="toast-title">Thông báo</strong>
       <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
     </div>
     <div class="toast-body" id="toast-body">
-      <!-- Notification content -->
+      <!-- Nội dung thông báo -->
     </div>
   </div>
 </div>
@@ -651,15 +651,15 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="approveModalLabel">Confirm Approval</h5>
+        <h5 class="modal-title" id="approveModalLabel">Xác Nhận Phê Duyệt</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        Are you sure you want to approve the hotel <strong id="approve-hotel-name"></strong>?
+        Bạn có chắc chắn muốn phê duyệt khách sạn <strong id="approve-hotel-name"></strong>?
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-success" id="confirm-approve-btn">Approve</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+        <button type="button" class="btn btn-success" id="confirm-approve-btn">Phê Duyệt</button>
       </div>
     </div>
   </div>
@@ -670,15 +670,15 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="rejectModalLabel">Confirm Rejection</h5>
+        <h5 class="modal-title" id="rejectModalLabel">Xác Nhận Từ Chối</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        Are you sure you want to reject the hotel <strong id="reject-hotel-name"></strong>?
+        Bạn có chắc chắn muốn từ chối khách sạn <strong id="reject-hotel-name"></strong>?
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-danger" id="confirm-reject-btn">Reject</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+        <button type="button" class="btn btn-danger" id="confirm-reject-btn">Từ Chối</button>
       </div>
     </div>
   </div>
@@ -787,12 +787,12 @@
                   if (ok) {
                     window.location.href = '/moderator-dashboard';
                   } else {
-                    showToast('Error', data.message || 'Could not approve the hotel.', false);
+                    showToast('Lỗi', data.message || 'Không thể phê duyệt khách sạn.', false);
                   }
                 })
                 .catch(error => {
                   console.error('Error:', error);
-                  showToast('Error', 'An unexpected error occurred.', false);
+                  showToast('Lỗi', 'Đã xảy ra lỗi không mong muốn.', false);
                 })
                 .finally(() => {
                   approveModal.hide();
@@ -816,12 +816,12 @@
                   if (ok) {
                     window.location.href = '/moderator-dashboard';
                   } else {
-                    showToast('Error', data.message || 'Could not reject the hotel.', false);
+                    showToast('Lỗi', data.message || 'Không thể từ chối khách sạn.', false);
                   }
                 })
                 .catch(error => {
                   console.error('Error:', error);
-                  showToast('Error', 'An unexpected error occurred.', false);
+                  showToast('Lỗi', 'Đã xảy ra lỗi không mong muốn.', false);
                 })
                 .finally(() => {
                   rejectModal.hide();
@@ -840,7 +840,7 @@
           hotelRow.remove();
           const tableBody = hotelRow.parentNode;
           if (tableBody && tableBody.children.length === 0) {
-            const placeholder = `<tr id="empty-placeholder"><td colspan="4" class="text-center">No more pending hotels.</td></tr>`;
+            const placeholder = `<tr id="empty-placeholder"><td colspan="4" class="text-center">Không còn khách sạn chờ duyệt.</td></tr>`;
             tableBody.innerHTML = placeholder;
           }
         }, 500);
