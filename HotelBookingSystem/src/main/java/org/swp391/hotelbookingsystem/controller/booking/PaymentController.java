@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.time.format.DateTimeFormatter;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -49,8 +50,8 @@ public class PaymentController {
     public String payment(
         @RequestParam(value = "hotelId") int hotelId,
         @RequestParam(value = "dateRange") String dateRange,
-        @RequestParam(value = "guests") String guests,
-        @RequestParam(value = "rooms") String rooms,
+        @RequestParam(value = "guests") int guests,
+        @RequestParam(value = "rooms") int rooms,
 
         HttpSession session, Model model
     ){
@@ -87,8 +88,8 @@ public class PaymentController {
         @RequestParam("orderInfo") String orderInfo,
 
         @RequestParam(value = "dateRange") String dateRange,
-        @RequestParam(value = "guests") String guests,
-        @RequestParam(value = "rooms") String rooms,
+        @RequestParam(value = "guests") int guests,
+        @RequestParam(value = "rooms") int rooms,
         
         HttpServletRequest request
     ){
@@ -104,8 +105,8 @@ public class PaymentController {
     @GetMapping("/booking-success")
     public String returnPayment(
         @RequestParam(value = "dateRange") String dateRange,
-        @RequestParam(value = "guests") String guests,
-        @RequestParam(value = "rooms") String rooms,
+        @RequestParam(value = "guests") int guests,
+        @RequestParam(value = "rooms") int rooms,    
 
         HttpServletRequest request, HttpSession session, Model model
     ){
@@ -135,8 +136,8 @@ public class PaymentController {
     @GetMapping("/booking-error")
     public String getMethodName(
         @RequestParam(value = "dateRange") String dateRange,
-        @RequestParam(value = "guests") String guests,
-        @RequestParam(value = "rooms") String rooms,    
+        @RequestParam(value = "guests") int guests,
+        @RequestParam(value = "rooms") int rooms,    
 
         HttpSession session, Model model
     ){
@@ -154,9 +155,7 @@ public class PaymentController {
     }
 
     @PostMapping("/invoice")
-    @ResponseBody
     public void invoice(@RequestParam("id") int id, HttpServletResponse response) throws IOException{
-        System.out.println("BookingId:" + id);
         // 1. Load HTML template
         Context context = new Context();
 
@@ -165,8 +164,14 @@ public class PaymentController {
         Hotel hotel = hotelService.getHotelById(booking.getHotelId());
 
         context.setVariable("booking", booking);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        context.setVariable("checkIn", booking.getCheckIn().format(formatter));
+        context.setVariable("checkOut", booking.getCheckIn().format(formatter));
+
         context.setVariable("user", user);
         context.setVariable("hotel", hotel);
+
         String html = templateEngine.process("pdf/pdf", context);
 
         // 2. Set response headers
@@ -178,6 +183,7 @@ public class PaymentController {
             PdfRendererBuilder builder = new PdfRendererBuilder();
             builder.useFastMode();
             builder.withHtmlContent(html, new File("src/main/resources/static/").toURI().toString());
+            builder.useFont(new File("src/main/resources/static/assets/font/DejaVuSans.ttf"), "DejaVu Sans");
             builder.toStream(os);
             builder.run();
         }
