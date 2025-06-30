@@ -225,7 +225,8 @@
                                     Doanh thu: [[${#numbers.formatDecimal(revenueMap[agent.id], 0, 'COMMA', 0, 'POINT')}]] ₫
                                 </h6>
                                 <h6 class="mb-0 small">
-                                    4.5<i class="fa-solid fa-star text-warning ms-1"></i>
+                                    [[${#numbers.formatDecimal(avgRatingMap[agent.id], 1, 'COMMA', 1, 'POINT')}]]
+                                    <i class="fa-solid fa-star text-warning ms-1"></i>
                                 </h6>
                             </div>
                         </div>

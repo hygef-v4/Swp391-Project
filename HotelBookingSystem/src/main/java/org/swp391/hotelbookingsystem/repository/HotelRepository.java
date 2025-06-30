@@ -318,6 +318,16 @@ public class HotelRepository {
         return jdbcTemplate.query(sql, new Object[]{hostId}, HOTEL_MAPPER);
     }
 
+    public Double findAverageRatingByHostId(int hostId) {
+        String sql = """
+                SELECT CASE WHEN COUNT(*) = 0 THEN NULL
+                            ELSE SUM(h.rating) / COUNT(*) END AS averageRating
+                FROM Hotels h
+                WHERE h.host_id = ?
+            """;
+        return jdbcTemplate.queryForObject(sql, new Object[]{hostId}, Double.class);
+    }
+
 
     public void deleteHotelById(int hotelId) {
         String sql = "DELETE FROM Hotels WHERE hotel_id = ?";
