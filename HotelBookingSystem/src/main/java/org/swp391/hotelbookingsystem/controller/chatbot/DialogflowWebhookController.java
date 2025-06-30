@@ -43,8 +43,8 @@
 
              // Trích thông tin
              String location = parameters.get("location").toString();
-             String checkin = parameters.getOrDefault("checkin-date", "").toString();
-             String checkout = parameters.getOrDefault("checkout-date", "").toString();
+             String checkin = parameters.getOrDefault("checkin-date", "").toString().split("T")[0];
+             String checkout = parameters.getOrDefault("checkout-date", "").toString().split("T")[0];
 
              String adultsRaw = parameters.getOrDefault("adults", "1").toString();
              String childrenRaw = parameters.getOrDefault("children", "").toString();
