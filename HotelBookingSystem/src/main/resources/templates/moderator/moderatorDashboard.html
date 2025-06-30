@@ -600,28 +600,28 @@
       <!-- Phần báo cáo KẾT THÚC -->
 
       <!-- Biểu đồ hoạt động BẮT ĐẦU -->
-      <div class="row g-4 mt-4">
-        <div class="col-12">
-          <div class="card shadow">
-            <div class="card-header d-flex justify-content-between align-items-center">
-              <h5 class="card-header-title mb-0">Tổng Quan Hoạt Động Quản Trị</h5>
-              <div class="dropdown">
-                <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                  7 ngày qua
-                </button>
-                <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" href="#">7 ngày qua</a></li>
-                  <li><a class="dropdown-item" href="#">30 ngày qua</a></li>
-                  <li><a class="dropdown-item" href="#">3 tháng qua</a></li>
-                </ul>
-              </div>
-            </div>
-            <div class="card-body">
-              <div id="activityChart" style="height: 350px;"></div>
-            </div>
-          </div>
-        </div>
-      </div>
+<!--      <div class="row g-4 mt-4">-->
+<!--        <div class="col-12">-->
+<!--          <div class="card shadow">-->
+<!--            <div class="card-header d-flex justify-content-between align-items-center">-->
+<!--              <h5 class="card-header-title mb-0">Tổng Quan Hoạt Động Quản Trị</h5>-->
+<!--              <div class="dropdown">-->
+<!--                <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">-->
+<!--                  7 ngày qua-->
+<!--                </button>-->
+<!--                <ul class="dropdown-menu">-->
+<!--                  <li><a class="dropdown-item" href="#">7 ngày qua</a></li>-->
+<!--                  <li><a class="dropdown-item" href="#">30 ngày qua</a></li>-->
+<!--                  <li><a class="dropdown-item" href="#">3 tháng qua</a></li>-->
+<!--                </ul>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--            <div class="card-body">-->
+<!--              <div id="activityChart" style="height: 350px;"></div>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </div>-->
       <!-- Biểu đồ hoạt động KẾT THÚC -->
 
     </div>
@@ -785,7 +785,12 @@
                 .then(response => response.json().then(data => ({ ok: response.ok, data })))
                 .then(({ ok, data }) => {
                   if (ok) {
-                    window.location.href = '/moderator-dashboard';
+                    localStorage.setItem('notification', JSON.stringify({
+                      title: 'Thành công',
+                      message: 'Đã phê duyệt khách sạn thành công',
+                      type: 'success'
+                    }));
+                    window.location.reload();
                   } else {
                     showToast('Lỗi', data.message || 'Không thể phê duyệt khách sạn.', false);
                   }
@@ -814,7 +819,12 @@
                 .then(response => response.json().then(data => ({ ok: response.ok, data })))
                 .then(({ ok, data }) => {
                   if (ok) {
-                    window.location.href = '/moderator-dashboard';
+                    localStorage.setItem('notification', JSON.stringify({
+                      title: 'Thành công',
+                      message: 'Đã từ chối khách sạn thành công',
+                      type: 'success'
+                    }));
+                    window.location.reload();
                   } else {
                     showToast('Lỗi', data.message || 'Không thể từ chối khách sạn.', false);
                   }
@@ -829,6 +839,33 @@
                 });
       }
     });
+
+    // Thêm hàm kiểm tra và hiển thị thông báo sau khi tải trang
+    function checkAndShowNotification() {
+      const notification = localStorage.getItem('notification');
+      if (notification) {
+        const { title, message, type } = JSON.parse(notification);
+        const toastHeader = document.querySelector('#notificationToast .toast-header');
+        
+        if (type === 'success') {
+          toastHeader.classList.remove('bg-danger', 'text-white');
+          toastHeader.classList.add('bg-success', 'text-white');
+        } else {
+          toastHeader.classList.remove('bg-success', 'text-white');
+          toastHeader.classList.add('bg-danger', 'text-white');
+        }
+        
+        document.getElementById('toast-title').textContent = title;
+        document.getElementById('toast-body').textContent = message;
+        notificationToast.show();
+        
+        // Xóa thông báo sau khi đã hiển thị
+        localStorage.removeItem('notification');
+      }
+    }
+
+    // Gọi hàm kiểm tra thông báo khi trang được tải
+    checkAndShowNotification();
 
     // --- UI Update ---
     function updateUIAfterAction(hotelId) {

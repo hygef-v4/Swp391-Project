@@ -627,8 +627,11 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        showToast('Thành công', data.message);
-                        flagUserModal.hide();
+                        localStorage.setItem('notification', JSON.stringify({
+                            title: 'Thành công',
+                            message: 'Đã báo cáo người dùng thành công',
+                            type: 'success'
+                        }));
                         window.location.reload();
                     } else {
                         showToast('Lỗi', data.message || 'Có lỗi xảy ra khi báo cáo người dùng', true);
@@ -654,15 +657,19 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    showToast('Thành công', data.message);
+                    localStorage.setItem('notification', JSON.stringify({
+                        title: 'Thành công',
+                        message: 'Đã huỷ báo cáo người dùng thành công',
+                        type: 'success'
+                    }));
                     window.location.reload();
                 } else {
-                    showToast('Lỗi', data.message || 'Có lỗi xảy ra khi huỷ flagged', true);
+                    showToast('Lỗi', data.message || 'Có lỗi xảy ra khi huỷ báo cáo', true);
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                showToast('Lỗi', 'Có lỗi xảy ra khi huỷ flagged', true);
+                showToast('Lỗi', 'Có lỗi xảy ra khi huỷ báo cáo', true);
             });
         }
 
@@ -679,6 +686,33 @@
                 bootstrap.Modal.getInstance(document.getElementById('confirm-unflag-modal')).hide();
             }
         });
+
+        // Thêm hàm kiểm tra và hiển thị thông báo sau khi tải trang
+        function checkAndShowNotification() {
+            const notification = localStorage.getItem('notification');
+            if (notification) {
+                const { title, message, type } = JSON.parse(notification);
+                const toastHeader = document.querySelector('#notificationToast .toast-header');
+                
+                if (type === 'success') {
+                    toastHeader.classList.remove('bg-danger', 'text-white');
+                    toastHeader.classList.add('bg-success', 'text-white');
+                } else {
+                    toastHeader.classList.remove('bg-success', 'text-white');
+                    toastHeader.classList.add('bg-danger', 'text-white');
+                }
+                
+                document.getElementById('toast-title').textContent = title;
+                document.getElementById('toast-body').textContent = message;
+                notificationToast.show();
+                
+                // Xóa thông báo sau khi đã hiển thị
+                localStorage.removeItem('notification');
+            }
+        }
+
+        // Gọi hàm kiểm tra thông báo khi trang được tải
+        checkAndShowNotification();
 
         // Make functions global for onclick handlers
         window.showUserDetail = showUserDetail;

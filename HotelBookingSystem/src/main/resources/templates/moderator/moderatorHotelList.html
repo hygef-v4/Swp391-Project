@@ -662,7 +662,24 @@
                         'Content-Type': 'application/json',
                         [csrfHeader]: csrfToken
                     }
-                }).then(() => window.location.reload());
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        localStorage.setItem('notification', JSON.stringify({
+                            title: 'Thành công',
+                            message: pendingActionType === 'approve' ? 'Đã phê duyệt khách sạn thành công' : 'Đã phê duyệt lại khách sạn thành công',
+                            type: 'success'
+                        }));
+                        window.location.reload();
+                    } else {
+                        showToast('Lỗi', data.message || 'Không thể phê duyệt khách sạn', false);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Lỗi', 'Đã xảy ra lỗi không mong muốn', false);
+                });
             } else if (pendingActionType === 'reject') {
                 fetch(`/moderator-hotel-list/api/moderator/hotels/${pendingActionHotelId}/reject`, {
                     method: 'POST',
@@ -671,7 +688,24 @@
                         [csrfHeader]: csrfToken
                     },
                     body: JSON.stringify({ reason: 'Từ chối bởi quản trị viên' })
-                }).then(() => window.location.reload());
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        localStorage.setItem('notification', JSON.stringify({
+                            title: 'Thành công',
+                            message: 'Đã từ chối khách sạn thành công',
+                            type: 'success'
+                        }));
+                        window.location.reload();
+                    } else {
+                        showToast('Lỗi', data.message || 'Không thể từ chối khách sạn', false);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Lỗi', 'Đã xảy ra lỗi không mong muốn', false);
+                });
             } else if (pendingActionType === 'revoke') {
                 fetch(`/moderator-hotel-list/api/moderator/hotels/${pendingActionHotelId}/reject`, {
                     method: 'POST',
@@ -680,12 +714,56 @@
                         [csrfHeader]: csrfToken
                     },
                     body: JSON.stringify({ reason: 'Thu hồi phê duyệt' })
-                }).then(() => window.location.reload());
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        localStorage.setItem('notification', JSON.stringify({
+                            title: 'Thành công',
+                            message: 'Đã thu hồi phê duyệt khách sạn thành công',
+                            type: 'success'
+                        }));
+                        window.location.reload();
+                    } else {
+                        showToast('Lỗi', data.message || 'Không thể thu hồi phê duyệt khách sạn', false);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Lỗi', 'Đã xảy ra lỗi không mong muốn', false);
+                });
             }
             actionConfirmModal.hide();
             pendingActionHotelId = null;
             pendingActionType = null;
         });
+
+        // Thêm hàm kiểm tra và hiển thị thông báo sau khi tải trang
+        function checkAndShowNotification() {
+            const notification = localStorage.getItem('notification');
+            if (notification) {
+                const { title, message, type } = JSON.parse(notification);
+                const toastHeader = document.querySelector('#notificationToast .toast-header');
+                
+                if (type === 'success') {
+                    toastHeader.classList.remove('bg-danger', 'text-white');
+                    toastHeader.classList.add('bg-success', 'text-white');
+                } else {
+                    toastHeader.classList.remove('bg-success', 'text-white');
+                    toastHeader.classList.add('bg-danger', 'text-white');
+                }
+                
+                document.getElementById('toast-title').textContent = title;
+                document.getElementById('toast-body').textContent = message;
+                notificationToast.show();
+                
+                // Xóa thông báo sau khi đã hiển thị
+                localStorage.removeItem('notification');
+            }
+        }
+
+        // Gọi hàm kiểm tra thông báo khi trang được tải
+        checkAndShowNotification();
     });
 </script>
 
