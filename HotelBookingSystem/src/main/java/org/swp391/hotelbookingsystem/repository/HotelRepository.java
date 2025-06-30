@@ -165,7 +165,7 @@ public class HotelRepository {
                         AND MIN(r.price) >= ? AND MIN(r.price) <= ?
                 """;
         String order = " ORDER BY h.rating " + (star ? "ASC" : "DESC");
-System.out.println(checkin + " " + checkout);
+
         return jdbcTemplate.query(query+order, ps -> {
             ps.setDate(1, checkin != null ? checkin : new Date(System.currentTimeMillis()));
             ps.setDate(2, checkout != null ? checkout : new Date(System.currentTimeMillis()));
