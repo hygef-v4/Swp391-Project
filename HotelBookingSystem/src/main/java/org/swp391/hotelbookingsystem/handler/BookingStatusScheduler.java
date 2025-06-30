@@ -1,16 +1,30 @@
 package org.swp391.hotelbookingsystem.handler;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.swp391.hotelbookingsystem.repository.BookingRepo;
 
 @Component
 public class BookingStatusScheduler {
+    @Autowired
+    private BookingRepo bookingRepo;
 
     private final JdbcTemplate jdbcTemplate;
 
     public BookingStatusScheduler(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
+    }
+
+    @Scheduled(cron = "0 * * * * *")
+    public void deletePending(){
+        List<Integer> id = bookingRepo.isPendingOverTIme();
+        for(int i : id){
+            bookingRepo.deletePendingBooking(i);
+        }
     }
 
     @Scheduled(cron = "0 * * * * *") // Mỗi phút
@@ -21,8 +35,8 @@ public class BookingStatusScheduler {
             SET BU.status = 'check_in'
             FROM BookingUnits BU
             JOIN Bookings B ON BU.booking_id = B.booking_id
-            WHERE B.check_in <= GETDATE()
-              AND B.check_out >= GETDATE() 
+            WHERE B.check_in <= CAST(GETDATE() AS DATE)
+              AND B.check_out >= CAST(GETDATE() AS DATE)
               AND BU.status = 'approved';
         """;
 
@@ -32,8 +46,8 @@ public class BookingStatusScheduler {
             SET BU.status = 'completed'
             FROM BookingUnits BU
             JOIN Bookings B ON BU.booking_id = B.booking_id
-            WHERE B.check_out < GETDATE() 
-              AND BU.status IN ('approved', 'check_in');
+            WHERE B.check_out < CAST(GETDATE() AS DATE)
+              AND BU.status = 'check_in';
         """;
 
         int checkInUpdated = jdbcTemplate.update(updateCheckInSql);

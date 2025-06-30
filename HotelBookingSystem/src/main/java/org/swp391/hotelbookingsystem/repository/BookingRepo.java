@@ -263,9 +263,19 @@ public class BookingRepo {
         return id;
     }
 
-    public boolean idPending(int id, int userId){
+    public boolean isPending(int id, int userId){
         String sql = "SELECT 1 FROM Bookings WHERE booking_id = ? AND customer_id = ?";
         return !jdbcTemplate.query(sql,(rs, rowNum) -> rs.getInt(1), id, userId).isEmpty();
+    }
+
+    public List<Integer> isPendingOverTIme(){
+        String sql = """
+            SELECT DISTINCT b.booking_id FROM Bookings b
+            JOIN BookingUnits bu ON bu.booking_id = b.booking_id
+            WHERE bu.status = 'pending' AND DATEDIFF(MINUTE, b.created_at, GETDATE()) > 30
+        """;
+
+        return jdbcTemplate.query(sql,(rs, rowNum) -> rs.getInt("booking_id"));
     }
 
     public void deletePendingBooking(int id){
