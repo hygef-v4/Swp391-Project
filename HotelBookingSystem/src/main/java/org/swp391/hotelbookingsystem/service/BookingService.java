@@ -31,7 +31,7 @@ public class BookingService {
     }
 
     public void deletePendingBooking(int id, int userId){
-        if(bookingRepo.idPending(id, userId)){
+        if(bookingRepo.isPending(id, userId)){
             bookingRepo.deletePendingBooking(id);
         }
     }

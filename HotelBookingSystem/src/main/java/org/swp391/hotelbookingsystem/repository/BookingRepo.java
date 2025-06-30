@@ -263,9 +263,19 @@ public class BookingRepo {
         return id;
     }
 
-    public boolean idPending(int id, int userId){
+    public boolean isPending(int id, int userId){
         String sql = "SELECT 1 FROM Bookings WHERE booking_id = ? AND customer_id = ?";
         return !jdbcTemplate.query(sql,(rs, rowNum) -> rs.getInt(1), id, userId).isEmpty();
+    }
+
+    public List<Integer> isPendingOverTIme(){
+        String sql = """
+            SELECT DISTINCT b.booking_id FROM Bookings b
+            JOIN BookingUnits bu ON bu.booking_id = b.booking_id
+            WHERE bu.status = 'pending' AND DATEDIFF(MINUTE, b.created_at, GETDATE()) > 30
+        """;
+
+        return jdbcTemplate.query(sql,(rs, rowNum) -> rs.getInt("booking_id"));
     }
 
     public void deletePendingBooking(int id){
@@ -1265,5 +1275,30 @@ public class BookingRepo {
         return jdbcTemplate.queryForObject(sql, Integer.class, hotelId);
     }
 
-    
+    public int autoUpdateCheckin(){
+        String sql = """
+            UPDATE BU
+            SET BU.status = 'check_in'
+            FROM BookingUnits BU
+            JOIN Bookings B ON BU.booking_id = B.booking_id
+            WHERE B.check_in <= CAST(GETDATE() AS DATE)
+              AND B.check_out >= CAST(GETDATE() AS DATE)
+              AND BU.status = 'approved';
+        """;
+
+        return jdbcTemplate.update(sql);
+    }
+
+    public int autoUpdateCompleted(){
+        String sql = """
+            UPDATE BU
+            SET BU.status = 'completed'
+            FROM BookingUnits BU
+            JOIN Bookings B ON BU.booking_id = B.booking_id
+            WHERE B.check_out < CAST(GETDATE() AS DATE)
+              AND BU.status = 'check_in';
+        """;
+
+        return jdbcTemplate.update(sql);
+    }
 }

@@ -74,7 +74,6 @@ public class PaymentController {
         }
 
         double price = 0;
-        System.out.println(booking.getTotalPrice());
         for(BookingUnit bookingUnit : booking.getBookingUnits()) {
             price += bookingUnit.getPrice() * bookingUnit.getQuantity();
         }double discount = price - booking.getTotalPrice();

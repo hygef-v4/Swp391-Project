@@ -53,9 +53,10 @@ public class HotelListController {
         model.addAttribute("locations", locations);
 
         model.addAttribute("dateRange", dateRange);
+        dateRange.replace("_to_", " => ");
         String[] date = dateRange.split(" => ");
-        Date checkin = !date[0].isBlank() ? Date.valueOf(date[0]) : null;
-        Date checkout = date.length >= 2 ? Date.valueOf(date[1]) : checkin;
+        Date checkin = !date[0].isBlank() ? Date.valueOf(date[0].split("T")[0]) : null;
+        Date checkout = date.length >= 2 ? Date.valueOf(date[1].split("T")[0]) : checkin;
 
         model.addAttribute("guests", guests);
         model.addAttribute("rooms", rooms);
