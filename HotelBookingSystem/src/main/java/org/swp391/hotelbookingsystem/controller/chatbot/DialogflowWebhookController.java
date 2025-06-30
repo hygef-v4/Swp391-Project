@@ -59,7 +59,7 @@
              int locationId = mapLocationToId(location);
 
              // Build URL
-             String url = String.format("http://localhost:8386/hotel-list?locationId=%d&dateRange=%s_to_%s&adults=%d&children=%d&rooms=%d",
+             String url = String.format("http://localhost:8386/hotel-list?locationId=%d&dateRange=%s => %s&adults=%d&children=%d&rooms=%d",
                      locationId, checkin, checkout, adults, children, rooms);
 
              String softPrompt = String.format("Người dùng đang tìm khách sạn ở %s từ %s đến %s cho %d người lớn và %d trẻ em. Viết câu phản hồi lịch sự, mời họ bấm nút để xem danh sách.",
