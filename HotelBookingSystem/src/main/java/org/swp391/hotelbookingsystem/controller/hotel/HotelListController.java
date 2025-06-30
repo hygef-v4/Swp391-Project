@@ -52,7 +52,7 @@ public class HotelListController {
         List<Location> locations = locationService.getAllLocations();
         model.addAttribute("locations", locations);
 
-        String[] date = dateRange.replace("_to_", " => ").split(" => ");
+        String[] date = dateRange.split(" => ");
         Date checkin = !date[0].isBlank() ? Date.valueOf(date[0]) : null;
         Date checkout = date.length >= 2 ? Date.valueOf(date[1]) : checkin;
 
