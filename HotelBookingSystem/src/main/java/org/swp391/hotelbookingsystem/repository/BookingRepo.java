@@ -1275,5 +1275,30 @@ public class BookingRepo {
         return jdbcTemplate.queryForObject(sql, Integer.class, hotelId);
     }
 
-    
+    public int autoUpdateCheckin(){
+        String sql = """
+            UPDATE BU
+            SET BU.status = 'check_in'
+            FROM BookingUnits BU
+            JOIN Bookings B ON BU.booking_id = B.booking_id
+            WHERE B.check_in <= CAST(GETDATE() AS DATE)
+              AND B.check_out >= CAST(GETDATE() AS DATE)
+              AND BU.status = 'approved';
+        """;
+
+        return jdbcTemplate.update(sql);
+    }
+
+    public int autoUpdateCompleted(){
+        String sql = """
+            UPDATE BU
+            SET BU.status = 'completed'
+            FROM BookingUnits BU
+            JOIN Bookings B ON BU.booking_id = B.booking_id
+            WHERE B.check_out < CAST(GETDATE() AS DATE)
+              AND BU.status = 'check_in';
+        """;
+
+        return jdbcTemplate.update(sql);
+    }
 }
