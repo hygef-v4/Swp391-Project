@@ -154,9 +154,9 @@
                                 <td th:text="${coupon.minTotalPrice != null ? coupon.minTotalPrice + '₫' : '0₫'}"></td>
                                 <td th:text="${#temporals.format(coupon.validFrom, 'dd/MM/yyyy')}"></td>
                                 <td th:text="${#temporals.format(coupon.validUntil, 'dd/MM/yyyy')}"></td>
-                                <td>
-                                    <!-- Used-up: disable both -->
-                                    <th:block th:if="${coupon.usageLimit != null and coupon.usedCount >= coupon.usageLimit}">
+                                <td th:switch="${true}">
+                                    <!-- Case 1: Used up -->
+                                    <th:block th:case="${coupon.usageLimit != null and coupon.usedCount >= coupon.usageLimit}">
                                         <button type="button" class="btn btn-sm btn-outline-secondary" disabled title="Mã đã dùng hết lượt">
                                             <i class="bi bi-pencil"></i>
                                         </button>
@@ -165,8 +165,8 @@
                                         </button>
                                     </th:block>
 
-                                    <!-- Expired and used -->
-                                    <th:block th:if="${coupon.validUntil.isBefore(T(java.time.LocalDate).now()) and coupon.usedCount > 0}">
+                                    <!-- Case 2: Expired and used -->
+                                    <th:block th:case="${coupon.validUntil.isBefore(T(java.time.LocalDate).now()) and coupon.usedCount > 0}">
                                         <button type="button" class="btn btn-sm btn-outline-secondary" disabled title="Không thể chỉnh sửa mã đã dùng và hết hạn">
                                             <i class="bi bi-pencil"></i>
                                         </button>
@@ -175,8 +175,8 @@
                                         </button>
                                     </th:block>
 
-                                    <!-- Expired but unused (can delete only) -->
-                                    <th:block th:if="${coupon.validUntil.isBefore(T(java.time.LocalDate).now()) and coupon.usedCount == 0 and (coupon.usageLimit == null or coupon.usedCount < coupon.usageLimit)}">
+                                    <!-- Case 3: Expired but unused -->
+                                    <th:block th:case="${coupon.validUntil.isBefore(T(java.time.LocalDate).now()) and coupon.usedCount == 0}">
                                         <button type="button" class="btn btn-sm btn-outline-secondary" disabled title="Mã đã hết hạn (chưa sử dụng)">
                                             <i class="bi bi-pencil"></i>
                                         </button>
@@ -186,8 +186,8 @@
                                         </a>
                                     </th:block>
 
-                                    <!-- Valid and not used up -->
-                                    <th:block th:if="${!coupon.validUntil.isBefore(T(java.time.LocalDate).now()) and (coupon.usageLimit == null or coupon.usedCount < coupon.usageLimit)}">
+                                    <!-- Case 4: Valid and usable -->
+                                    <th:block th:case="*">
                                         <button type="button" class="btn btn-sm btn-outline-primary edit-btn" th:attr="data-id=${coupon.couponId}">
                                             <i class="bi bi-pencil"></i>
                                         </button>

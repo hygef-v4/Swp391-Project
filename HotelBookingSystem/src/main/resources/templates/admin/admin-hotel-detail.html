@@ -276,8 +276,17 @@
                         </div>
                         <div class="col-md-4"><strong>Chủ sở hữu (User ID):</strong> <span
                                 th:text="${hotel.hostId}"></span></div>
-                        <div class="col-md-4"><strong>Trạng thái hiện tại:</strong> <span
-                                th:text="${hotel.status}"></span></div>
+                        <div class="col-md-4">
+                            <strong>Trạng thái hiện tại:</strong>
+                            <span th:switch="${hotel.status}">
+                                <span th:case="'pending'" class="badge bg-warning text-dark">Chờ duyệt</span>
+                                <span th:case="'active'" class="badge bg-success">Đang hoạt động</span>
+                                <span th:case="'inactive'" class="badge bg-secondary">Không hoạt động</span>
+                                <span th:case="'banned'" class="badge bg-danger">Đã bị cấm</span>
+                                <span th:case="*">Không xác định</span>
+                            </span>
+                        </div>
+
                     </div>
                     <div class="row mb-2">
                         <div class="col-md-4"><strong>Số loại phòng:</strong> <span th:text="${roomTypeCount}"></span>
@@ -320,11 +329,13 @@
                                 </div>
                                 <div class="card-body pt-4 p-0">
                                     <p style="display: inline;" class="mb-3" th:utext="${short}"></p>
-                                    <p class="my-3 collapse collapse-inline" id="collapseContent" th:utext="${long}"></p>
+                                    <p class="my-3 collapse collapse-inline" id="collapseContent"
+                                       th:utext="${long}"></p>
                                     <a class="p-0 mb-4 mt-2 btn-more d-flex align-items-center collapsed"
                                        data-bs-toggle="collapse" href="#collapseContent" role="button"
                                        aria-expanded="false" aria-controls="collapseContent" th:if="${!long.isEmpty()}">
-                                        <span class="see-more ms-1">Xem thêm</span><span class="see-less ms-1">Ẩn bớt</span>
+                                        <span class="see-more ms-1">Xem thêm</span><span
+                                            class="see-less ms-1">Ẩn bớt</span>
                                         <i class="fa-solid fa-angle-down ms-2"></i>
                                     </a>
                                 </div>
@@ -363,18 +374,22 @@
                                             <th>Số lượng</th>
                                             <th>Sức chứa</th>
                                             <th>Giá tiền</th>
+                                            <th>Trạng thái</th>
                                             <th>Số lượng đặt thành công</th>
                                         </tr>
                                         </thead>
                                         <tbody>
                                         <tr th:each="room : ${rooms}">
                                             <td>
-                                                <a href="#" data-bs-toggle="modal" th:data-bs-target="'#roomDetail' + ${room.roomId}">
-                                                    <th:block th:if="${room.images != null and #lists.size(room.images) > 0}">
+                                                <a href="#" data-bs-toggle="modal"
+                                                   th:data-bs-target="'#roomDetail' + ${room.roomId}">
+                                                    <th:block
+                                                            th:if="${room.images != null and #lists.size(room.images) > 0}">
                                                         <img th:src="${room.images[0]}" alt="Room Image"
                                                              class="img-thumbnail" style="width: 80px; height: auto;">
                                                     </th:block>
-                                                    <th:block th:unless="${room.images != null and #lists.size(room.images) > 0}">
+                                                    <th:block
+                                                            th:unless="${room.images != null and #lists.size(room.images) > 0}">
                                                         <span>No image</span>
                                                     </th:block>
                                                 </a>
@@ -389,7 +404,16 @@
                                       th:text="${room.quantity}"></span>
                                             </td>
                                             <td><span th:text="${room.maxGuests} + ' Người'"></span></td>
-                                            <td><span th:text="${#numbers.formatDecimal(room.price, 0, 'COMMA', 0, 'POINT')} + '₫'"></span></td>
+                                            <td><span
+                                                    th:text="${#numbers.formatDecimal(room.price, 0, 'COMMA', 0, 'POINT')} + '₫'"></span>
+                                            </td>
+                                            <td th:switch="${room.status}">
+                                                <span th:case="'active'" class="badge bg-success">Còn trống</span>
+                                                <span th:case="'inactive'"
+                                                      class="badge bg-secondary">Không có sẵn</span>
+                                                <span th:case="'booked'" class="badge bg-warning">Đang được đặt</span>
+                                                <span th:case="*">Không xác định</span>
+                                            </td>
                                             <td><span th:text="${room.bookedCount} + ' Lượt'"></span></td>
 
                                         </tr>
@@ -436,7 +460,8 @@
 <!-- Map modal END -->
 
 <!-- Room modal START -->
-<div class="modal fade" th:each="room: ${rooms}" th:id="'roomDetail' + ${room.roomId}" tabindex="-1" aria-labelledby="roomDetailLabel" aria-hidden="true">
+<div class="modal fade" th:each="room: ${rooms}" th:id="'roomDetail' + ${room.roomId}" tabindex="-1"
+     aria-labelledby="roomDetailLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content p-0">
 
@@ -453,9 +478,13 @@
                 <div class="card bg-transparent p-3">
                     <!-- Slider START -->
                     <div class="tiny-slider arrow-round arrow-dark overflow-hidden rounded-2">
-                        <div class="tiny-slider-inner rounded-2 overflow-hidden" data-autoplay="true" data-arrow="true" data-dots="false" data-items="1">
+                        <div class="tiny-slider-inner rounded-2 overflow-hidden" data-autoplay="true" data-arrow="true"
+                             data-dots="false" data-items="1">
                             <!-- Image item -->
-                            <div th:each="image: ${room.images}"> <img th:src="${image}" class="rounded-2 img-fluid d-block mx-auto" style="max-height: 300px;" th:alt="${room.title}"></div>
+                            <div th:each="image: ${room.images}"><img th:src="${image}"
+                                                                      class="rounded-2 img-fluid d-block mx-auto"
+                                                                      style="max-height: 300px;" th:alt="${room.title}">
+                            </div>
                         </div>
                     </div>
                     <!-- Slider END -->
@@ -469,7 +498,8 @@
                     <!-- Card body START -->
                     <div class="card-body pt-0">
                         <!-- Content -->
-                        <ul class="list-group list-group-borderless mt-0 mb-2 room-description" th:utext="${room.description}"></ul>
+                        <ul class="list-group list-group-borderless mt-0 mb-2 room-description"
+                            th:utext="${room.description}"></ul>
 
                         <div class="row">
                             <h5 class="mb-0">Cơ sở vật chất</h5>
@@ -482,7 +512,8 @@
                                 <!-- List -->
                                 <div style="column-count: 2; column-gap: 1.5rem;">
                                     <ul class="list-group list-group-borderless mt-2 mb-2">
-                                        <li class="list-group-item d-flex mb-0" th:each="amenity: ${category.amenities}">
+                                        <li class="list-group-item d-flex mb-0"
+                                            th:each="amenity: ${category.amenities}">
                                             <i class="fa-solid fa-thumbtack text-danger me-2"></i>
                                             <span class="h6 fw-light mb-0" th:text="${amenity.name}"></span>
                                         </li>
@@ -495,7 +526,8 @@
                             <div class="d-flex justify-content-between align-items-center mt-2 mb-0">
                                 <!-- Price -->
                                 <div class="d-flex align-items-center">
-                                    <h5 class="fw-bold mb-0 me-1" th:text="${#numbers.formatDecimal(room.price, 0, 'COMMA', 0, 'POINT')} + '₫'"></h5>
+                                    <h5 class="fw-bold mb-0 me-1"
+                                        th:text="${#numbers.formatDecimal(room.price, 0, 'COMMA', 0, 'POINT')} + '₫'"></h5>
                                     <span class="mb-0 text-muted">/Ngày</span>
                                 </div>
 
