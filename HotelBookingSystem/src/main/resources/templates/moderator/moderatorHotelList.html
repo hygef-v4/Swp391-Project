@@ -341,9 +341,7 @@
             <strong class="me-auto" id="toast-title">Notification</strong>
             <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
-        <div class="toast-body" id="toast-body">
-            <!-- Notification content -->
-        </div>
+        <div class="toast-body" id="toast-body"></div>
     </div>
 </div>
 
@@ -409,24 +407,34 @@
         const confirmActionMessage = document.getElementById('confirm-action-message');
         const confirmActionBtn = document.getElementById('confirm-action-btn');
 
-        // --- Toast Notification Handler ---
-        function showToast(title, body, isSuccess) {
+        function showToast(title, message, type = 'success') {
             const toastTitle = document.getElementById('toast-title');
             const toastBody = document.getElementById('toast-body');
             const toastHeader = document.querySelector('#notificationToast .toast-header');
+            const toast = document.getElementById('notificationToast');
 
-            toastTitle.textContent = title;
-            toastBody.textContent = body;
+            // Reset all possible classes
+            toastHeader.classList.remove('bg-success', 'bg-danger', 'text-white');
+            toast.classList.remove('text-bg-danger', 'text-bg-success');
 
-            if (isSuccess) {
-                toastHeader.classList.remove('bg-danger', 'text-white');
+            // Set new class based on type
+            if (type === 'success') {
                 toastHeader.classList.add('bg-success', 'text-white');
+                toast.classList.add('text-bg-success');
             } else {
-                toastHeader.classList.remove('bg-success', 'text-white');
                 toastHeader.classList.add('bg-danger', 'text-white');
+                toast.classList.add('text-bg-danger');
             }
 
+            toastTitle.textContent = title;
+            toastBody.textContent = message;
+
             notificationToast.show();
+
+            // Auto-hide sau 4 giây
+            setTimeout(() => {
+                notificationToast.hide();
+            }, 4000);
         }
 
         function normalizeCity(str) {
@@ -666,11 +674,7 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        localStorage.setItem('notification', JSON.stringify({
-                            title: 'Thành công',
-                            message: pendingActionType === 'approve' ? 'Đã phê duyệt khách sạn thành công' : 'Đã phê duyệt lại khách sạn thành công',
-                            type: 'success'
-                        }));
+                        showToast('Thành công', pendingActionType === 'approve' ? 'Đã phê duyệt khách sạn thành công' : 'Đã phê duyệt lại khách sạn thành công');
                         window.location.reload();
                     } else {
                         showToast('Lỗi', data.message || 'Không thể phê duyệt khách sạn', false);
@@ -692,11 +696,7 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        localStorage.setItem('notification', JSON.stringify({
-                            title: 'Thành công',
-                            message: 'Đã từ chối khách sạn thành công',
-                            type: 'success'
-                        }));
+                        showToast('Thành công', 'Đã từ chối khách sạn thành công');
                         window.location.reload();
                     } else {
                         showToast('Lỗi', data.message || 'Không thể từ chối khách sạn', false);
@@ -718,11 +718,7 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        localStorage.setItem('notification', JSON.stringify({
-                            title: 'Thành công',
-                            message: 'Đã thu hồi phê duyệt khách sạn thành công',
-                            type: 'success'
-                        }));
+                        showToast('Thành công', 'Đã thu hồi phê duyệt khách sạn thành công');
                         window.location.reload();
                     } else {
                         showToast('Lỗi', data.message || 'Không thể thu hồi phê duyệt khách sạn', false);
@@ -738,26 +734,11 @@
             pendingActionType = null;
         });
 
-        // Thêm hàm kiểm tra và hiển thị thông báo sau khi tải trang
         function checkAndShowNotification() {
             const notification = localStorage.getItem('notification');
             if (notification) {
                 const { title, message, type } = JSON.parse(notification);
-                const toastHeader = document.querySelector('#notificationToast .toast-header');
-                
-                if (type === 'success') {
-                    toastHeader.classList.remove('bg-danger', 'text-white');
-                    toastHeader.classList.add('bg-success', 'text-white');
-                } else {
-                    toastHeader.classList.remove('bg-success', 'text-white');
-                    toastHeader.classList.add('bg-danger', 'text-white');
-                }
-                
-                document.getElementById('toast-title').textContent = title;
-                document.getElementById('toast-body').textContent = message;
-                notificationToast.show();
-                
-                // Xóa thông báo sau khi đã hiển thị
+                showToast(title, message, type === 'success' ? 'success' : 'error');
                 localStorage.removeItem('notification');
             }
         }

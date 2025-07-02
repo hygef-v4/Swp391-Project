@@ -640,9 +640,7 @@
       <strong class="me-auto" id="toast-title">Thông báo</strong>
       <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
     </div>
-    <div class="toast-body" id="toast-body">
-      <!-- Nội dung thông báo -->
-    </div>
+    <div class="toast-body" id="toast-body"></div>
   </div>
 </div>
 
@@ -744,23 +742,34 @@
     let pendingActionType = null;
 
     // --- Toast Notification Handler ---
-    function showToast(title, body, isSuccess) {
+    function showToast(title, message, type = 'success') {
       const toastTitle = document.getElementById('toast-title');
       const toastBody = document.getElementById('toast-body');
       const toastHeader = document.querySelector('#notificationToast .toast-header');
+      const toast = document.getElementById('notificationToast');
 
-      toastTitle.textContent = title;
-      toastBody.textContent = body;
+      // Reset all possible classes
+      toastHeader.classList.remove('bg-success', 'bg-danger', 'text-white');
+      toast.classList.remove('text-bg-danger', 'text-bg-success');
 
-      if (isSuccess) {
-        toastHeader.classList.remove('bg-danger', 'text-white');
+      // Set new class based on type
+      if (type === 'success') {
         toastHeader.classList.add('bg-success', 'text-white');
+        toast.classList.add('text-bg-success');
       } else {
-        toastHeader.classList.remove('bg-success', 'text-white');
         toastHeader.classList.add('bg-danger', 'text-white');
+        toast.classList.add('text-bg-danger');
       }
 
+      toastTitle.textContent = title;
+      toastBody.textContent = message;
+
       notificationToast.show();
+
+      // Auto-hide sau 4 giây
+      setTimeout(() => {
+        notificationToast.hide();
+      }, 4000);
     }
 
     // --- Modal Opening ---
@@ -851,21 +860,7 @@
       const notification = localStorage.getItem('notification');
       if (notification) {
         const { title, message, type } = JSON.parse(notification);
-        const toastHeader = document.querySelector('#notificationToast .toast-header');
-        
-        if (type === 'success') {
-          toastHeader.classList.remove('bg-danger', 'text-white');
-          toastHeader.classList.add('bg-success', 'text-white');
-        } else {
-          toastHeader.classList.remove('bg-success', 'text-white');
-          toastHeader.classList.add('bg-danger', 'text-white');
-        }
-        
-        document.getElementById('toast-title').textContent = title;
-        document.getElementById('toast-body').textContent = message;
-        notificationToast.show();
-        
-        // Xóa thông báo sau khi đã hiển thị
+        showToast(title, message, type === 'success' ? 'success' : 'error');
         localStorage.removeItem('notification');
       }
     }

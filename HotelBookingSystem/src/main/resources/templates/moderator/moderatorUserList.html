@@ -611,17 +611,34 @@
             displayPagination();
         }
 
-        function showToast(title, message, isError = false) {
-            document.getElementById('toast-title').textContent = title;
-            document.getElementById('toast-body').textContent = message;
+        function showToast(title, message, type = 'success') {
+            const toastTitle = document.getElementById('toast-title');
+            const toastBody = document.getElementById('toast-body');
+            const toastHeader = document.querySelector('#notificationToast .toast-header');
+            const toast = document.getElementById('notificationToast');
 
-            if (isError) {
-                document.getElementById('notificationToast').classList.add('text-bg-danger');
+            // Reset all possible classes
+            toastHeader.classList.remove('bg-success', 'bg-danger', 'text-white');
+            toast.classList.remove('text-bg-danger', 'text-bg-success');
+
+            // Set new class based on type
+            if (type === 'success') {
+                toastHeader.classList.add('bg-success', 'text-white');
+                toast.classList.add('text-bg-success');
             } else {
-                document.getElementById('notificationToast').classList.remove('text-bg-danger');
+                toastHeader.classList.add('bg-danger', 'text-white');
+                toast.classList.add('text-bg-danger');
             }
 
+            toastTitle.textContent = title;
+            toastBody.textContent = message;
+
             notificationToast.show();
+
+            // Auto-hide sau 4 giây
+            setTimeout(() => {
+                notificationToast.hide();
+            }, 4000);
         }
 
         // Event listeners
@@ -726,26 +743,11 @@
             }
         });
 
-        // Thêm hàm kiểm tra và hiển thị thông báo sau khi tải trang
         function checkAndShowNotification() {
             const notification = localStorage.getItem('notification');
             if (notification) {
                 const { title, message, type } = JSON.parse(notification);
-                const toastHeader = document.querySelector('#notificationToast .toast-header');
-                
-                if (type === 'success') {
-                    toastHeader.classList.remove('bg-danger', 'text-white');
-                    toastHeader.classList.add('bg-success', 'text-white');
-                } else {
-                    toastHeader.classList.remove('bg-success', 'text-white');
-                    toastHeader.classList.add('bg-danger', 'text-white');
-                }
-                
-                document.getElementById('toast-title').textContent = title;
-                document.getElementById('toast-body').textContent = message;
-                notificationToast.show();
-                
-                // Xóa thông báo sau khi đã hiển thị
+                showToast(title, message, type === 'success' ? 'success' : 'error');
                 localStorage.removeItem('notification');
             }
         }
