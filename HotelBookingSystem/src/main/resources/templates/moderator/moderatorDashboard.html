@@ -637,12 +637,10 @@
 <div class="position-fixed top-0 end-0 p-3" style="z-index: 1055">
   <div id="notificationToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
     <div class="toast-header">
-      <strong class="me-auto" id="toast-title">Notification</strong>
+      <strong class="me-auto" id="toast-title">Thông báo</strong>
       <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
     </div>
-    <div class="toast-body" id="toast-body">
-      <!-- Notification content -->
-    </div>
+    <div class="toast-body" id="toast-body"></div>
   </div>
 </div>
 
@@ -651,15 +649,15 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="approveModalLabel">Confirm Approval</h5>
+        <h5 class="modal-title" id="approveModalLabel">Xác Nhận Phê Duyệt</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        Are you sure you want to approve the hotel <strong id="approve-hotel-name"></strong>?
+        Bạn có chắc chắn muốn phê duyệt khách sạn <strong id="approve-hotel-name"></strong>?
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-success" id="confirm-approve-btn">Approve</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+        <button type="button" class="btn btn-success" id="confirm-approve-btn">Phê Duyệt</button>
       </div>
     </div>
   </div>
@@ -670,15 +668,15 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="rejectModalLabel">Confirm Rejection</h5>
+        <h5 class="modal-title" id="rejectModalLabel">Xác Nhận Từ Chối</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        Are you sure you want to reject the hotel <strong id="reject-hotel-name"></strong>?
+        Bạn có chắc chắn muốn từ chối khách sạn <strong id="reject-hotel-name"></strong>?
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-danger" id="confirm-reject-btn">Reject</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+        <button type="button" class="btn btn-danger" id="confirm-reject-btn">Từ Chối</button>
       </div>
     </div>
   </div>
@@ -735,26 +733,43 @@
     const rejectModal = new bootstrap.Modal(document.getElementById('reject-modal'));
     const notificationToast = new bootstrap.Toast(document.getElementById('notificationToast'));
 
-    let currentHotelId = null;
+    // Lấy CSRF token và header
+    const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+    // Biến lưu hotelId và action đang thao tác
+    let pendingActionHotelId = null;
+    let pendingActionType = null;
 
     // --- Toast Notification Handler ---
-    function showToast(title, body, isSuccess) {
+    function showToast(title, message, type = 'success') {
       const toastTitle = document.getElementById('toast-title');
       const toastBody = document.getElementById('toast-body');
       const toastHeader = document.querySelector('#notificationToast .toast-header');
+      const toast = document.getElementById('notificationToast');
 
-      toastTitle.textContent = title;
-      toastBody.textContent = body;
+      // Reset all possible classes
+      toastHeader.classList.remove('bg-success', 'bg-danger', 'text-white');
+      toast.classList.remove('text-bg-danger', 'text-bg-success');
 
-      if (isSuccess) {
-        toastHeader.classList.remove('bg-danger', 'text-white');
+      // Set new class based on type
+      if (type === 'success') {
         toastHeader.classList.add('bg-success', 'text-white');
+        toast.classList.add('text-bg-success');
       } else {
-        toastHeader.classList.remove('bg-success', 'text-white');
         toastHeader.classList.add('bg-danger', 'text-white');
+        toast.classList.add('text-bg-danger');
       }
 
+      toastTitle.textContent = title;
+      toastBody.textContent = message;
+
       notificationToast.show();
+
+      // Auto-hide sau 4 giây
+      setTimeout(() => {
+        notificationToast.hide();
+      }, 4000);
     }
 
     // --- Modal Opening ---
@@ -785,14 +800,19 @@
                 .then(response => response.json().then(data => ({ ok: response.ok, data })))
                 .then(({ ok, data }) => {
                   if (ok) {
-                    window.location.href = '/moderator-dashboard';
+                    localStorage.setItem('notification', JSON.stringify({
+                      title: 'Thành công',
+                      message: 'Đã phê duyệt khách sạn thành công',
+                      type: 'success'
+                    }));
+                    window.location.reload();
                   } else {
-                    showToast('Error', data.message || 'Could not approve the hotel.', false);
+                    showToast('Lỗi', data.message || 'Không thể phê duyệt khách sạn.', false);
                   }
                 })
                 .catch(error => {
                   console.error('Error:', error);
-                  showToast('Error', 'An unexpected error occurred.', false);
+                  showToast('Lỗi', 'Đã xảy ra lỗi không mong muốn.', false);
                 })
                 .finally(() => {
                   approveModal.hide();
@@ -814,14 +834,19 @@
                 .then(response => response.json().then(data => ({ ok: response.ok, data })))
                 .then(({ ok, data }) => {
                   if (ok) {
-                    window.location.href = '/moderator-dashboard';
+                    localStorage.setItem('notification', JSON.stringify({
+                      title: 'Thành công',
+                      message: 'Đã từ chối khách sạn thành công',
+                      type: 'success'
+                    }));
+                    window.location.reload();
                   } else {
-                    showToast('Error', data.message || 'Could not reject the hotel.', false);
+                    showToast('Lỗi', data.message || 'Không thể từ chối khách sạn.', false);
                   }
                 })
                 .catch(error => {
                   console.error('Error:', error);
-                  showToast('Error', 'An unexpected error occurred.', false);
+                  showToast('Lỗi', 'Đã xảy ra lỗi không mong muốn.', false);
                 })
                 .finally(() => {
                   rejectModal.hide();
@@ -829,6 +854,19 @@
                 });
       }
     });
+
+    // Thêm hàm kiểm tra và hiển thị thông báo sau khi tải trang
+    function checkAndShowNotification() {
+      const notification = localStorage.getItem('notification');
+      if (notification) {
+        const { title, message, type } = JSON.parse(notification);
+        showToast(title, message, type === 'success' ? 'success' : 'error');
+        localStorage.removeItem('notification');
+      }
+    }
+
+    // Gọi hàm kiểm tra thông báo khi trang được tải
+    checkAndShowNotification();
 
     // --- UI Update ---
     function updateUIAfterAction(hotelId) {
@@ -840,7 +878,7 @@
           hotelRow.remove();
           const tableBody = hotelRow.parentNode;
           if (tableBody && tableBody.children.length === 0) {
-            const placeholder = `<tr id="empty-placeholder"><td colspan="4" class="text-center">No more pending hotels.</td></tr>`;
+            const placeholder = `<tr id="empty-placeholder"><td colspan="4" class="text-center">Không còn khách sạn chờ duyệt.</td></tr>`;
             tableBody.innerHTML = placeholder;
           }
         }, 500);
@@ -884,8 +922,6 @@
 
     // --- Modal chi tiết khách sạn dùng lại logic từ hotel list ---
     const hotelDetailsModal = new bootstrap.Modal(document.getElementById('hotel-details-modal'));
-    const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
 
     window.viewHotelDetails = function (hotelId) {
       fetch(`/moderator-hotel-list/api/moderator/hotels/${hotelId}/details`, {
