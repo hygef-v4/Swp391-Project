@@ -64,12 +64,26 @@ public class HostRegisterController {
     }
 
     @GetMapping("/register-host")
-    public String showRegisterHostPage(Model model, HttpSession session) {
+    public String showRegisterHostPage(Model model, HttpSession session,
+            @RequestParam(required = false) String hotelName,
+            @RequestParam(required = false) String hotelDescription,
+            @RequestParam(required = false) String hotelAddress,
+            @RequestParam(required = false) Integer hotelLocation,
+            @RequestParam(required = false) String hotelLocationText,
+            @RequestParam(required = false) String hotelLatitude,
+            @RequestParam(required = false) String hotelLongitude,
+            @RequestParam(required = false) String hotelPolicies,
+            @RequestParam(required = false) String roomTitle,
+            @RequestParam(required = false) Integer roomMaxGuests,
+            @RequestParam(required = false) Integer roomQuantity,
+            @RequestParam(required = false) Float roomPrice,
+            @RequestParam(required = false) String roomDescription,
+            @RequestParam(required = false) List<Integer> selectedAmenities) {
+        
         session.setAttribute(ConstantVariables.LOCATIONS, locationService.getAllLocations());
 
         //  Get amenities with joined category
         List<Amenity> amenities = amenityService.getAllAmenitiesWithCategory();
-
 
         //  Group by category name instead of ID
         Map<String, List<Amenity>> groupedAmenities = new LinkedHashMap<>();  // use LinkedHashMap to maintain insertion order
@@ -82,6 +96,23 @@ public class HostRegisterController {
         }
 
         model.addAttribute("groupedAmenities", groupedAmenities);
+        
+        // Add draft data to model if present
+        if (hotelName != null) model.addAttribute("hotelName", hotelName);
+        if (hotelDescription != null) model.addAttribute("hotelDescription", hotelDescription);
+        if (hotelAddress != null) model.addAttribute("hotelAddress", hotelAddress);
+        if (hotelLocation != null) model.addAttribute("hotelLocation", hotelLocation);
+        if (hotelLocationText != null) model.addAttribute("hotelLocationText", hotelLocationText);
+        if (hotelLatitude != null) model.addAttribute("hotelLatitude", hotelLatitude);
+        if (hotelLongitude != null) model.addAttribute("hotelLongitude", hotelLongitude);
+        if (hotelPolicies != null) model.addAttribute("hotelPolicies", hotelPolicies);
+        if (roomTitle != null) model.addAttribute("roomTitle", roomTitle);
+        if (roomMaxGuests != null) model.addAttribute("roomMaxGuests", roomMaxGuests);
+        if (roomQuantity != null) model.addAttribute("roomQuantity", roomQuantity);
+        if (roomPrice != null) model.addAttribute("roomPrice", roomPrice);
+        if (roomDescription != null) model.addAttribute("roomDescription", roomDescription);
+        if (selectedAmenities != null) model.addAttribute("selectedAmenities", selectedAmenities);
+        
         return "page/register-host";
     }
 
