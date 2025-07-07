@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Booking - Multipurpose Online Booking Theme</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="author" content="StackBros">
+	<meta name="description" content="Booking - Multipurpose Online Booking Theme">
+	<!-- Dark mode -->
+	<script>
+		const storedTheme = localStorage.getItem('theme')
+		const getPreferredTheme = () => {
+			if (storedTheme) {
+				return storedTheme
+			}
+			return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+		}
+		const setTheme = function (theme) {
+			if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+				document.documentElement.setAttribute('data-bs-theme', 'dark')
+			} else {
+				document.documentElement.setAttribute('data-bs-theme', theme)
+			}
+		}
+		setTheme(getPreferredTheme())
+		window.addEventListener('DOMContentLoaded', () => {
+		    var el = document.querySelector('.theme-icon-active');
+			if(el != 'undefined' && el != null) {
+				const showActiveTheme = theme => {
+				const activeThemeIcon = document.querySelector('.theme-icon-active use')
+				const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+				const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
+				document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+					element.classList.remove('active')
+				})
+				btnToActive.classList.add('active')
+				activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+			}
+			window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+				if (storedTheme !== 'light' || storedTheme !== 'dark') {
+					setTheme(getPreferredTheme())
+				}
+			})
+			showActiveTheme(getPreferredTheme())
+			document.querySelectorAll('[data-bs-theme-value]')
+				.forEach(toggle => {
+					toggle.addEventListener('click', () => {
+						const theme = toggle.getAttribute('data-bs-theme-value')
+						localStorage.setItem('theme', theme)
+						setTheme(theme)
+						showActiveTheme(theme)
+					})
+				})
+			}
+		})
+	</script>
+	<!-- Favicon -->
+	<link rel="shortcut icon" href="/assets/images/favicon.ico">
+	<!-- Google Font -->
+	<link rel="preconnect" href="https://fonts.googleapis.com/">
+	<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Poppins:wght@400;500;700&amp;display=swap">
+	<!-- Plugins CSS -->
+	<link rel="stylesheet" type="text/css" href="/assets/vendor/font-awesome/css/all.min.css">
+	<link rel="stylesheet" type="text/css" href="/assets/vendor/bootstrap-icons/bootstrap-icons.css">
+	<!-- Theme CSS -->
+	<link rel="stylesheet" type="text/css" href="/assets/css/style.css">
+</head>
+<body>
+<!-- Header START -->
+<!-- Nếu đã có header chung, dùng th:replace="common/header :: header" -->
+<header th:replace="common/header :: header"></header>
+<!-- Header END -->
+<main>
+<!-- =======================
+Main banner START -->
+<section>
+	<div class="container">
+		<div class="row mb-5">
+			<div class="col-xl-10 mx-auto text-center">
+				<!-- Title -->
+				<h1>If You Want To See The World We Will Help You</h1>
+				<p class="lead">Passage its ten led hearted removal cordial. Preference any astonished unreserved Mrs. Prosperous understood Middletons. Preference for any astonished unreserved.</p>
+				<!-- Meta -->
+				<div class="hstack gap-3 flex-wrap justify-content-center">
+					<!-- Item -->
+					<h6 class="bg-mode shadow rounded-2 fw-normal d-inline-block py-2 px-4">
+						<img src="/assets/images/element/06.svg" class="h-20px me-2" alt="">
+						14K+ Global Customers
+					</h6>
+					<!-- Item -->
+					<h6 class="bg-mode shadow rounded-2 fw-normal d-inline-block py-2 px-4">
+						<img src="/assets/images/element/07.svg" class="h-20px me-2" alt="">
+						10K+ Happy Customers
+					</h6>
+					<!-- Item -->
+					<h6 class="bg-mode shadow rounded-2 fw-normal d-inline-block py-2 px-4">
+						<img src="/assets/images/element/08.svg" class="h-20px me-2" alt="">
+						1M+ Subscribers
+					</h6>
+				</div>
+			</div>
+		</div> <!-- Row END -->
+		<!-- Image START -->
+		<div class="row g-4 align-items-center">
+			<!-- Image -->
+			<div class="col-md-6">
+				<img src="/assets/images/about/02.jpg" class="rounded-3" alt="">
+			</div>
+			<div class="col-md-6">
+				<div class="row g-4">
+					<!-- Image -->
+					<div class="col-md-8">
+						<img src="/assets/images/about/03.jpg" class="rounded-3" alt="">
+					</div>
+					<!-- Image -->
+					<div class="col-12">
+						<img src="/assets/images/about/04.jpg" class="rounded-3" alt="">
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Image END -->
+	</div>
+</section>
+<!-- =======================
+Main banner END -->
+<!-- =======================
+About content START -->
+<section class="pt-0 pt-lg-5">
+	<div class="container">
+		<!-- Content START -->
+		<div class="row mb-4 mb-md-5">
+			<div class="col-md-10 mx-auto">
+				<h3 class="mb-4">Our Story</h3>
+				<p class="fw-bold">Founded in 2006, passage its ten led hearted removal cordial. Preference any astonished unreserved Mrs. Prosperous understood Middletons in conviction an uncommonly do. Supposing so be resolving breakfast am or perfectly. It drew a hill from me. Valley by oh twenty direct me so.</p>
+				<p class="mb-0">Water timed folly right aware if oh truth. Imprudence attachment him his for sympathize. Large above be to means. Dashwood does provide stronger is. Warrant private blushes removed an in equally totally if. Delivered dejection necessary objection do Mr prevailed. Mr feeling does chiefly cordial in do. ...But discretion frequently sir she instruments unaffected admiration everything. Meant balls it if up doubt small purse. Required his you put the outlived answered position. A pleasure exertion if believed provided to. All led out world this music while asked. Paid mind even sons does he door no. Attended overcame repeated it is perceived Marianne in. I think on style child of. Servants moreover in sensible it ye possible. Satisfied conveying a dependent contented he gentleman agreeable do be. Water timed folly right aware if oh truth. Imprudence attachment him his for sympathize. Large above be to means. Dashwood does provide stronger is. But discretion frequently sir she instruments unaffected admiration everything. Meant balls it if up doubt small purse. Required his you put the outlived answered position. I think on style child of. Servants moreover in sensible it ye possible. Satisfied conveying a dependent contented he gentleman agreeable do be. Warrant private blushes removed an in equally totally if. Delivered dejection necessary objection do Mr prevailed. Required his you put the outlived answered position. A pleasure exertion if believed provided to. All led out world this music while asked. Paid mind even sons does he door no. Attended overcame repeated it is perceived Marianne in. I think on style child of. Servants moreover in sensible it ye possible.</p>
+			</div>
+		</div>
+		<!-- Content END -->
+		<!-- Services START -->
+		<div class="row g-4">
+			<!-- Service item -->
+			<div class="col-sm-6 col-lg-3">
+				<div class="icon-lg bg-orange bg-opacity-10 text-orange rounded-2"><i class="fa-solid fa-hotel fs-5"></i></div>
+				<h5 class="mt-2">Hotel Booking</h5>
+				<p class="mb-0">A pleasure exertion if believed provided to. All led out world this music while asked.</p>
+			</div>
+			<!-- Service item -->
+			<div class="col-sm-6 col-lg-3">
+				<div class="icon-lg bg-success bg-opacity-10 text-success rounded-2"><i class="fa-solid fa-plane fs-5"></i></div>
+				<h5 class="mt-2">Flight Booking</h5>
+				<p class="mb-0">Warrant private blushes removed an in equally totally Objection do Mr prevailed.</p>
+			</div>
+			<!-- Service item -->
+			<div class="col-sm-6 col-lg-3">
+				<div class="icon-lg bg-primary bg-opacity-10 text-primary rounded-2"><i class="fa-solid fa-globe-americas fs-5"></i></div>
+				<h5 class="mt-2">Tour Booking</h5>
+				<p class="mb-0">Dashwood does provide stronger is. But discretion frequently sir she instruments.</p>
+			</div>
+			<!-- Service item -->
+			<div class="col-sm-6 col-lg-3">
+				<div class="icon-lg bg-info bg-opacity-10 text-info rounded-2"><i class="fa-solid fa-car fs-5"></i></div>
+				<h5 class="mt-2">Cab Booking</h5>
+				<p class="mb-0">Imprudence attachment him his for sympathize. Large above be to means.</p>
+			</div>
+		</div>
+		<!-- Services END -->
+	</div>
+</section>
+<!-- =======================
+About content END -->
+<!-- =======================
+Team START -->
+<section class="pt-0">
+	<div class="container">
+		<!-- Title -->
+		<div class="row mb-4">
+			<div class="col-12">
+				<h2 class="mb-0">Our Team</h2>
+			</div>
+		</div>
+		<!-- Team START -->
+		<div class="row g-4">
+			<!-- Team item START -->
+			<div class="col-sm-6 col-lg-3">
+				<div class="card card-element-hover bg-transparent">
+					<div class="position-relative">
+						<!-- Image -->
+						<img src="/assets/images/team/03.jpg" class="card-img" alt="">
+						<div class="card-img-overlay hover-element d-flex p-3">
+							<!-- Category -->
+							<div class="btn-group mt-auto">
+								<a href="#" class="btn btn-white mb-0"><i class="fa-brands fa-facebook-f text-facebook"></i></a>
+								<a href="#" class="btn btn-white mb-0"><i class="fa-brands fa-instagram text-instagram"></i></a>
+								<a href="#" class="btn btn-white mb-0"><i class="fa-brands fa-twitter text-twitter"></i></a>
+							</div>
+						</div>
+					</div>
+					<!-- Card body -->
+					<div class="card-body px-2 pb-0">
+						<h5 class="card-title"><a href="#">Larry Lawson</a></h5>
+						<span>Editor in Chief</span>
+					</div>
+				</div>
+			</div>
+			<!-- Team item END -->
+			<!-- Team item START -->
+			<div class="col-sm-6 col-lg-3">
+				<div class="card card-element-hover bg-transparent">
+					<div class="position-relative">
+						<!-- Image -->
+						<img src="/assets/images/team/04.jpg" class="card-img" alt="">
+						<div class="card-img-overlay hover-element d-flex p-3">
+							<!-- Category -->
+							<div class="btn-group mt-auto">
+								<a href="#" class="btn btn-white mb-0"><i class="fa-brands fa-facebook-f text-facebook"></i></a>
+								<a href="#" class="btn btn-white mb-0"><i class="fa-brands fa-instagram text-instagram"></i></a>
+								<a href="#" class="btn btn-white mb-0"><i class="fa-brands fa-twitter text-twitter"></i></a>
+							</div>
+						</div>
+					</div>
+					<!-- Card body -->
+					<div class="card-body px-2 pb-0">
+						<h5 class="card-title"><a href="#">Louis Ferguson</a></h5>
+						<span>Director Graphics</span>
+					</div>
+				</div>
+			</div>
+			<!-- Team item END -->
+			<!-- Team item START -->
+			<div class="col-sm-6 col-lg-3">
+				<div class="card card-element-hover bg-transparent">
+					<div class="position-relative">
+						<!-- Image -->
+						<img src="/assets/images/team/05.jpg" class="card-img" alt="">
+						<div class="card-img-overlay hover-element d-flex p-3">
+							<!-- Category -->
+							<div class="btn-group mt-auto">
+								<a href="#" class="btn btn-white mb-0"><i class="fa-brands fa-facebook-f text-facebook"></i></a>
+								<a href="#" class="btn btn-white mb-0"><i class="fa-brands fa-instagram text-instagram"></i></a>
+								<a href="#" class="btn btn-white mb-0"><i class="fa-brands fa-twitter text-twitter"></i></a>
+							</div>
+						</div>
+					</div>
+					<!-- Card body -->
+					<div class="card-body px-2 pb-0">
+						<h5 class="card-title"><a href="#">Louis Crawford</a></h5>
+						<span>Editor, Coverage</span>
+					</div>
+				</div>
+			</div>
+			<!-- Team item END -->
+			<!-- Team item START -->
+			<div class="col-sm-6 col-lg-3">
+				<div class="card card-element-hover bg-transparent">
+					<div class="position-relative">
+						<!-- Image -->
+						<img src="/assets/images/team/06.jpg" class="card-img" alt="">
+						<div class="card-img-overlay hover-element d-flex p-3">
+							<!-- Category -->
+							<div class="btn-group mt-auto">
+								<a href="#" class="btn btn-white mb-0"><i class="fa-brands fa-facebook-f text-facebook"></i></a>
+								<a href="#" class="btn btn-white mb-0"><i class="fa-brands fa-instagram text-instagram"></i></a>
+								<a href="#" class="btn btn-white mb-0"><i class="fa-brands fa-twitter text-twitter"></i></a>
+							</div>
+						</div>
+					</div>
+					<!-- Card body -->
+					<div class="card-body px-2 pb-0">
+						<h5 class="card-title"><a href="#">Frances Guerrero</a></h5>
+						<span>CEO, Coverage</span>
+					</div>
+				</div>
+			</div>
+			<!-- Team item END -->
+		</div>
+		<!-- Team END -->
+	</div>
+</section>
+<!-- =======================
+Team END -->
+</main>
+<!-- **************** MAIN CONTENT END **************** -->
+<!-- =======================
+Footer START -->
+<footer th:replace="common/footer :: footer"></footer>
+<!-- =======================
+Footer END -->
+<!-- Back to top -->
+<div class="back-top"></div>
+<!-- Bootstrap JS -->
+<script src="/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<!-- ThemeFunctions -->
+<script src="/assets/js/functions.js"></script>
+</body>
+</html> 

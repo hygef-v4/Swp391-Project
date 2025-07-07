@@ -50,17 +50,55 @@ public class ModeratorUserListController {
         Map<String, Object> response = new HashMap<>();
         try {
             String reason = payload.get("reason");
+            
+            // Validate input
             if (reason == null || reason.trim().isEmpty()) {
                 response.put("success", false);
-                response.put("message", "Lý do flagged là bắt buộc");
+                response.put("message", "Vui lòng nhập lý do báo cáo");
                 return response;
             }
+
+            reason = reason.trim();
+            if (reason.length() < 10) {
+                response.put("success", false);
+                response.put("message", "Lý do báo cáo phải có ít nhất 10 ký tự");
+                return response;
+            }
+
+            if (reason.length() > 200) {
+                response.put("success", false);
+                response.put("message", "Lý do báo cáo không được vượt quá 200 ký tự");
+                return response;
+            }
+
+            // Validate business rules
+            User user = userService.findUserById(userId);
+            if (user == null) {
+                response.put("success", false);
+                response.put("message", "Không tìm thấy người dùng");
+                return response;
+            }
+
+            if (Boolean.TRUE.equals(user.isFlagged())) {
+                response.put("success", false);
+                response.put("message", "Người dùng này đã bị báo cáo trước đó");
+                return response;
+            }
+
+            if ("ADMIN".equals(user.getRole()) || "MODERATOR".equals(user.getRole())) {
+                response.put("success", false);
+                response.put("message", "Không thể báo cáo Admin hoặc Moderator");
+                return response;
+            }
+
+            // Process flag
             userService.flagUser(userId, reason);
             response.put("success", true);
-            response.put("message", "Đã flag người dùng thành công");
+            response.put("message", "Đã báo cáo người dùng thành công");
+            
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "Có lỗi xảy ra khi flag người dùng");
+            response.put("message", "Có lỗi xảy ra khi báo cáo người dùng");
         }
         return response;
     }
