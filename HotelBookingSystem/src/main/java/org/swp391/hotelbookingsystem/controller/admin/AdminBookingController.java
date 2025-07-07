@@ -71,11 +71,13 @@ public class AdminBookingController {
 
         Hotel hotel = hotelService.getHotelById(hotelId);
         if (hotel == null) {
+            model.addAttribute("error", "hotelNotFound");
             return "redirect:/admin-booking-list?error=hotelNotFound";
         }
 
         List<Booking> bookings = bookingService.getBookingsByHotelIdPaginated(hotelId, page - 1, size);
         if (bookings == null || bookings.isEmpty()) {
+            model.addAttribute("error", "noBookingFound");
             return "redirect:/admin-booking-list?error=noBookingFound";
         }
 

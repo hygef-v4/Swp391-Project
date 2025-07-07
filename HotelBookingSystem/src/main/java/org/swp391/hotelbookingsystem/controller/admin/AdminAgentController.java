@@ -14,6 +14,7 @@ import org.swp391.hotelbookingsystem.service.UserService;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 @Controller
 public class AdminAgentController {
@@ -44,11 +45,15 @@ public class AdminAgentController {
 
         Map<Integer, Integer> hotelCountMap = new HashMap<>();
         Map<Integer, Double> revenueMap = new HashMap<>();
+        Map<Integer, Double> avgRatingMap = new HashMap<>();
         for (User agent : agentList) {
             hotelCountMap.put(agent.getId(), hotelService.countHotelsByHostId(agent.getId()));
             revenueMap.put(agent.getId(), bookingService.getTotalRevenueByHostId(agent.getId()));
+            double avgRating = hotelService.getAverageRatingByHotelId(agent.getId());
+            avgRatingMap.put(agent.getId(), avgRating);
         }
 
+        model.addAttribute("avgRatingMap", avgRatingMap);
         model.addAttribute("totalAgent", userService.countAgent());
         model.addAttribute("agentList", agentList);
         model.addAttribute("hotelCountMap", hotelCountMap);
@@ -62,9 +67,6 @@ public class AdminAgentController {
         return "admin/admin-agent-list";
     }
 
-
-
-
     @GetMapping("/admin-agent-detail")
     public String showAgentDetail(@RequestParam("id") int agentId, Model model) {
         User agent = userService.findUserById(agentId);
@@ -73,7 +75,9 @@ public class AdminAgentController {
         int countHotel = hotelList.size();
         int totalBooking = bookingService.countBookingsByHostId(agent.getId());
         double monthlyRevenue = bookingService.getMonthlyRevenueByHostId(agent.getId());
+        double avgRating = hotelService.getAverageRatingByHotelId(agent.getId());
 
+        model.addAttribute("avgRating", avgRating);
         model.addAttribute("monthlyRevenue", monthlyRevenue);
         model.addAttribute("totalBooking", totalBooking);
         model.addAttribute("countHotel", countHotel);
@@ -94,10 +98,17 @@ public class AdminAgentController {
 
     @GetMapping("/agent-admin-contact")
     public String showAdminContact(@RequestParam("id") int agentId, Model model,
-                                        HttpSession session) {
+                                   HttpSession session) {
         User host = (User) session.getAttribute("user");
-        User agent = userService.findUserById(12);
-        model.addAttribute("customer", agent);
+        List<User> admins = userService.getUsersByRole("ADMIN");
+
+        if (admins.isEmpty()) {
+            throw new IllegalStateException("Không tìm thấy admin nào để liên hệ.");
+        }
+
+        User randomAdmin = admins.get(new Random().nextInt(admins.size()));
+
+        model.addAttribute("customer", randomAdmin);
         model.addAttribute("currentUserId", host.getId());
         return "admin/admin-agent-contact";
     }

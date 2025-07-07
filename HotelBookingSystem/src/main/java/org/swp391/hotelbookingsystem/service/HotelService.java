@@ -135,6 +135,14 @@ public class HotelService {
         return true;
     }
 
+    public Double getAverageRatingByHotelId(int hotelId) {
+        Double avgRating = hotelRepository.findAverageRatingByHostId(hotelId);
+        if (avgRating == null) {
+            return 0.0;
+        }
+        return Math.round(avgRating * 10.0) / 10.0;
+    }
+
     public int countBookingsByHotelId(int hotelId) {
         return hotelRepository.countBookingsByHotelId(hotelId);
 
