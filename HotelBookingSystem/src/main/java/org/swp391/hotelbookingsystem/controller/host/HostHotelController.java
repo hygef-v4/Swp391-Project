@@ -18,23 +18,18 @@ import org.swp391.hotelbookingsystem.constant.ConstantVariables;
 import org.swp391.hotelbookingsystem.model.Amenity;
 import org.swp391.hotelbookingsystem.model.Hotel;
 import org.swp391.hotelbookingsystem.model.Room;
-import org.swp391.hotelbookingsystem.model.RoomTypes;
 import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.service.AmenityService;
 import org.swp391.hotelbookingsystem.service.CloudinaryService;
 import org.swp391.hotelbookingsystem.service.HotelService;
 import org.swp391.hotelbookingsystem.service.LocationService;
 import org.swp391.hotelbookingsystem.service.RoomService;
-import org.swp391.hotelbookingsystem.service.RoomTypeService;
 import org.swp391.hotelbookingsystem.service.UserService;
 
 import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class HostHotelController {
-
-    final
-    RoomTypeService roomTypeService;
 
     final
     LocationService locationService;
@@ -53,8 +48,7 @@ public class HostHotelController {
     final
     UserService userService;
 
-    public HostHotelController(RoomTypeService roomTypeService, LocationService locationService, AmenityService amenityService, CloudinaryService cloudinaryService, RoomService roomService, HotelService hotelService, UserService userService) {
-        this.roomTypeService = roomTypeService;
+    public HostHotelController(LocationService locationService, AmenityService amenityService, CloudinaryService cloudinaryService, RoomService roomService, HotelService hotelService, UserService userService) {
         this.locationService = locationService;
         this.amenityService = amenityService;
         this.cloudinaryService = cloudinaryService;
@@ -80,7 +74,6 @@ public class HostHotelController {
     // đang để chung với register-host, có thể tách ra
     @GetMapping("/add-hotel")
     public String showAddListingPage(Model model, HttpSession session) {
-        session.setAttribute(ConstantVariables.ROOM_TYPES, roomTypeService.getAllRoomTypes());
         session.setAttribute(ConstantVariables.LOCATIONS, locationService.getAllLocations());
 
         //  Get amenities with joined category
@@ -118,7 +111,6 @@ public class HostHotelController {
         model.addAttribute("hotelId", hotelId);
 
 
-        session.setAttribute(ConstantVariables.ROOM_TYPES, roomTypeService.getAllRoomTypes());
         session.setAttribute(ConstantVariables.LOCATIONS, locationService.getAllLocations());
 
         // Get amenities with joined category
@@ -153,20 +145,8 @@ public class HostHotelController {
         // Get hotel details and rooms
         List<Room> rooms = roomService.getRoomByHotelId(hotelId);
         
-        // Populate room type names and amenities for each room
+        // Populate amenities for each room
         for (Room room : rooms) {
-            // Get room type name
-            if (room.getRoomTypeId() > 0) {
-                try {
-                    RoomTypes roomType = roomTypeService.getRoomTypeById(room.getRoomTypeId());
-                    if (roomType != null) {
-                        room.setRoomType(roomType.getName());
-                    }
-                } catch (Exception e) {
-                    room.setRoomType("Unknown");
-                }
-            }
-            
             // Get room amenities
             List<Amenity> roomAmenities = amenityService.getRoomAmenities(room.getRoomId());
             room.setAmenities(roomAmenities);
@@ -183,7 +163,6 @@ public class HostHotelController {
         model.addAttribute("hotel", hotel);
         model.addAttribute("rooms", rooms);
         model.addAttribute("groupedAmenities", groupedAmenities);
-        model.addAttribute("roomTypes", roomTypeService.getAllRoomTypes());
         model.addAttribute("locations", locationService.getAllLocations());
 
         return "host/host-manage-hotel";
@@ -193,7 +172,6 @@ public class HostHotelController {
     @PostMapping("/add-room")
     public String handleAddRoom(
             @RequestParam("hotelId") int hotelId,
-            @RequestParam("roomTypeId") int roomTypeId,
             @RequestParam("roomTitle") String roomTitle,
             @RequestParam("roomMaxGuests") int roomMaxGuests,
             @RequestParam("roomQuantity") int roomQuantity,
@@ -218,12 +196,12 @@ public class HostHotelController {
                 }
             }
 
-            // Build and save room
+            // Build and save room - set default room type ID to 1 for backward compatibility
             Room room = Room.builder()
                     .hotelId(hotelId)
                     .title(roomTitle)
                     .description(roomDescription)
-                    .roomTypeId(roomTypeId)
+                    .roomTypeId(1) // Default room type
                     .maxGuests(roomMaxGuests)
                     .quantity(roomQuantity)
                     .price(roomPrice)
@@ -343,7 +321,6 @@ public class HostHotelController {
             @RequestParam("roomId") int roomId,
             @RequestParam("hotelId") int hotelId,
             @RequestParam("roomTitle") String roomTitle,
-            @RequestParam("roomTypeId") int roomTypeId,
             @RequestParam("maxGuests") int maxGuests,
             @RequestParam("quantity") int quantity,
             @RequestParam("price") float price,
@@ -382,13 +359,13 @@ public class HostHotelController {
                 }
             }
 
-            // Update room
+            // Update room - keep existing room type or default to 1
             Room updatedRoom = Room.builder()
                     .roomId(roomId)
                     .hotelId(hotelId)
                     .title(roomTitle)
                     .description(description)
-                    .roomTypeId(roomTypeId)
+                    .roomTypeId(1) // Default room type
                     .maxGuests(maxGuests)
                     .quantity(quantity)
                     .price(price)

@@ -1,7 +1,11 @@
 package org.swp391.hotelbookingsystem.controller.host;
 
-import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -17,19 +21,17 @@ import org.swp391.hotelbookingsystem.model.Amenity;
 import org.swp391.hotelbookingsystem.model.Hotel;
 import org.swp391.hotelbookingsystem.model.Room;
 import org.swp391.hotelbookingsystem.model.User;
-import org.swp391.hotelbookingsystem.service.*;
+import org.swp391.hotelbookingsystem.service.AmenityService;
+import org.swp391.hotelbookingsystem.service.CloudinaryService;
+import org.swp391.hotelbookingsystem.service.HotelService;
+import org.swp391.hotelbookingsystem.service.LocationService;
+import org.swp391.hotelbookingsystem.service.RoomService;
+import org.swp391.hotelbookingsystem.service.UserService;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class HostRegisterController {
-    final
-    RoomTypeService roomTypeService;
-
     final
     LocationService locationService;
 
@@ -47,8 +49,7 @@ public class HostRegisterController {
     final
     UserService userService;
 
-    public HostRegisterController(RoomTypeService roomTypeService, LocationService locationService, AmenityService amenityService, CloudinaryService cloudinaryService, RoomService roomService, HotelService hotelService, UserService userService) {
-        this.roomTypeService = roomTypeService;
+    public HostRegisterController(LocationService locationService, AmenityService amenityService, CloudinaryService cloudinaryService, RoomService roomService, HotelService hotelService, UserService userService) {
         this.locationService = locationService;
         this.amenityService = amenityService;
         this.cloudinaryService = cloudinaryService;
@@ -64,7 +65,6 @@ public class HostRegisterController {
 
     @GetMapping("/register-host")
     public String showRegisterHostPage(Model model, HttpSession session) {
-        session.setAttribute(ConstantVariables.ROOM_TYPES, roomTypeService.getAllRoomTypes());
         session.setAttribute(ConstantVariables.LOCATIONS, locationService.getAllLocations());
 
         //  Get amenities with joined category
@@ -96,7 +96,6 @@ public class HostRegisterController {
             @RequestParam("hotelLongitude") String longitudeStr,
             @RequestParam("hotelPolicies") String hotelPolicies,
 
-            @RequestParam("roomTypeId") int roomTypeId,
             @RequestParam("roomTitle") String roomTitle,
             @RequestParam("roomMaxGuests") int roomMaxGuests,
             @RequestParam("roomQuantity") int roomQuantity,
@@ -168,12 +167,12 @@ public class HostRegisterController {
             }
 
 
-            // room
+            // room - set default room type ID to 1 for backward compatibility
             Room room = Room.builder()
                     .hotelId(savedHotel.getHotelId())
                     .title(roomTitle)
                     .description(roomDescription)
-                    .roomTypeId(roomTypeId)
+                    .roomTypeId(1) // Default room type
                     .maxGuests(roomMaxGuests)
                     .quantity(roomQuantity)
                     .price(roomPrice)

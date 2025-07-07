@@ -581,20 +581,7 @@
                                     </div>
                                     <div class="card-body">
                                         <div class="row g-3">
-                                            <div class="col-md-6">
-                                                <label for="roomCategory" class="form-label">Loại phòng (Hạng phòng)
-                                                    *</label>
-                                                <select name="roomTypeId" required class="form-select js-choice"
-                                                        id="roomCategory">
-                                                    <option value="">Chọn loại phòng</option>
-                                                    <option th:each="type : ${session.roomTypes}"
-                                                            th:value="${type.roomTypeId}"
-                                                            th:text="${type.name}"
-                                                    >
-                                                    </option>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-6">
+                                            <div class="col-12">
                                                 <label class="form-label">Tên/Tiêu đề phòng *</label>
                                                 <input type="text" class="form-control" required
                                                        placeholder="Ví dụ: Phòng Standard giường đôi hướng phố"
@@ -1597,7 +1584,6 @@ updateInputFiles() - Syncs file list with actual form input for submission-->
                     { id: 'hotelLocation', label: 'Khu vực/Địa điểm' },
                     { id: 'hotelLatitudeManual', label: 'Vĩ độ' },
                     { id: 'hotelLongitudeManual', label: 'Kinh độ' },
-                    { id: 'roomCategory', label: 'Loại phòng' },
                     { id: 'roomTitle', label: 'Tên phòng' },
                     { id: 'roomMaxGuests', label: 'Số khách tối đa' },
                     { id: 'roomQuantity', label: 'Số lượng phòng' },
@@ -1610,14 +1596,7 @@ updateInputFiles() - Syncs file list with actual form input for submission-->
                 criticalFields.forEach(function(fieldInfo) {
                     const element = document.getElementById(fieldInfo.id);
                     if (element) {
-                        if (element.tagName === 'SELECT') {
-                            if (element.value === '' || element.value === null) {
-                                emptyRequiredFields.push(fieldInfo.label);
-                                showFieldError(element, `Vui lòng chọn ${fieldInfo.label}`);
-                                allFieldsValid = false;
-                                if (!firstInvalidElement) firstInvalidElement = element;
-                            }
-                        } else if (element.type === 'text' || element.type === 'number' || element.tagName === 'TEXTAREA') {
+                        if (element.type === 'text' || element.type === 'number' || element.tagName === 'TEXTAREA') {
                             if (element.value.trim() === '') {
                                 emptyRequiredFields.push(fieldInfo.label);
                                 showFieldError(element, `${fieldInfo.label} là bắt buộc`);
@@ -1625,6 +1604,13 @@ updateInputFiles() - Syncs file list with actual form input for submission-->
                                 if (!firstInvalidElement) firstInvalidElement = element;
                             } else if (!validateField(element)) {
                                 invalidFields.push(fieldInfo.label);
+                                allFieldsValid = false;
+                                if (!firstInvalidElement) firstInvalidElement = element;
+                            }
+                        } else if (element.tagName === 'SELECT') {
+                            if (element.value === '' || element.value === null) {
+                                emptyRequiredFields.push(fieldInfo.label);
+                                showFieldError(element, `Vui lòng chọn ${fieldInfo.label}`);
                                 allFieldsValid = false;
                                 if (!firstInvalidElement) firstInvalidElement = element;
                             }
@@ -1895,10 +1881,9 @@ updateInputFiles() - Syncs file list with actual form input for submission-->
                     );
                 }
 
-            } else if (stepNumber === 2) {
+            } else             if (stepNumber === 2) {
                 // Step 2 validation
                 const step2Fields = [
-                    { id: 'roomCategory', label: 'Loại phòng' },
                     { id: 'roomTitle', label: 'Tên phòng' },
                     { id: 'roomMaxGuests', label: 'Số khách tối đa' },
                     { id: 'roomQuantity', label: 'Số lượng phòng' },

@@ -592,10 +592,6 @@ About hotel START -->
                                                     
                                                                                         <div class="room-info-grid">
                                         <div>
-                                            <small class="text-muted">Loại phòng:</small>
-                                            <p class="mb-0 fw-bold" th:text="${room.roomType}"></p>
-                                        </div>
-                                        <div>
                                             <small class="text-muted">Sức chứa:</small>
                                             <p class="mb-0"><span th:text="${room.maxGuests}"></span> khách</p>
                                         </div>
@@ -626,22 +622,10 @@ About hotel START -->
                                                 <div class="edit-mode">
                                                     <form th:id="'roomEditForm-' + ${room.roomId}" method="post" enctype="multipart/form-data">
                                                         <div class="row g-3">
-                                                            <div class="col-md-6">
+                                                            <div class="col-12">
                                                                 <div class="form-floating">
                                                                     <input type="text" class="form-control" th:id="'roomTitle-' + ${room.roomId}" th:value="${room.title}" required>
                                                                     <label th:for="'roomTitle-' + ${room.roomId}">Tên phòng</label>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-md-6">
-                                                                <div class="form-floating">
-                                                                    <select class="form-select" th:id="'roomType-' + ${room.roomId}" required>
-                                                                        <option value="">Chọn loại phòng</option>
-                                                                        <option th:each="roomType : ${roomTypes}" 
-                                                                                th:value="${roomType.roomTypeId}" 
-                                                                                th:text="${roomType.name}"
-                                                                                th:selected="${roomType.roomTypeId == room.roomTypeId}"></option>
-                                                                    </select>
-                                                                    <label th:for="'roomType-' + ${room.roomId}"></label>
                                                                 </div>
                                                             </div>
                                                             <div class="col-md-4">
@@ -775,7 +759,7 @@ About hotel START -->
                             <div class="col-6">
                                 <div class="bg-light p-3 rounded text-center">
                                     <h5 class="mb-0" th:text="${rooms.size()}"></h5>
-                                    <small class="text-muted">Số loại phòng</small>
+                                    <small class="text-muted">Số phòng đã tạo</small>
                                 </div>
                             </div>
                             <div class="col-6">
@@ -1668,7 +1652,6 @@ About hotel END -->
     function saveRoomInfo(roomId) {
         // Get form fields
         const roomTitleField = document.getElementById('roomTitle-' + roomId);
-        const roomTypeField = document.getElementById('roomType-' + roomId);
         const maxGuestsField = document.getElementById('maxGuests-' + roomId);
         const quantityField = document.getElementById('quantity-' + roomId);
         const priceField = document.getElementById('price-' + roomId);
@@ -1684,10 +1667,6 @@ About hotel END -->
                 requiredMessage: 'Tên phòng là bắt buộc',
                 minLengthMessage: 'Tên phòng phải có ít nhất 3 ký tự',
                 maxLengthMessage: 'Tên phòng không được vượt quá 100 ký tự'
-            }),
-            validateField(roomTypeField, {
-                required: true,
-                requiredMessage: 'Vui lòng chọn loại phòng'
             }),
             validateField(maxGuestsField, {
                 required: true,
@@ -1750,7 +1729,6 @@ About hotel END -->
         formData.append('roomId', roomId);
         formData.append('hotelId', hotelId);
         formData.append('roomTitle', roomTitleField.value.trim());
-        formData.append('roomTypeId', roomTypeField.value);
         formData.append('maxGuests', maxGuestsField.value);
         formData.append('quantity', quantityField.value);
         formData.append('price', priceField.value);
@@ -2359,10 +2337,7 @@ About hotel END -->
                     minLengthMessage: 'Tên phòng phải có ít nhất 3 ký tự',
                     maxLengthMessage: 'Tên phòng không được vượt quá 100 ký tự'
                 },
-                'roomType': {
-                    required: true,
-                    requiredMessage: 'Vui lòng chọn loại phòng'
-                },
+
                 'maxGuests': {
                     required: true,
                     type: 'number',
@@ -2397,7 +2372,7 @@ About hotel END -->
             };
 
             // Find all room input fields and add validation
-            document.querySelectorAll('[id*="roomTitle-"], [id*="roomType-"], [id*="maxGuests-"], [id*="quantity-"], [id*="price-"], [id*="roomDescription-"]').forEach(field => {
+            document.querySelectorAll('[id*="roomTitle-"], [id*="maxGuests-"], [id*="quantity-"], [id*="price-"], [id*="roomDescription-"]').forEach(field => {
                 Object.keys(roomValidationRules).forEach(fieldType => {
                     if (field.id.includes(fieldType + '-')) {
                         const rules = roomValidationRules[fieldType];
