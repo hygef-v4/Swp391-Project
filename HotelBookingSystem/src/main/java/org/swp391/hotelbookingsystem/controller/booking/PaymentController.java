@@ -78,6 +78,7 @@ public class PaymentController {
             price += bookingUnit.getPrice() * bookingUnit.getQuantity();
         }double discount = price - booking.getTotalPrice();
 
+        model.addAttribute("id", id);
         model.addAttribute("booking", booking);
         model.addAttribute("price", price);
         model.addAttribute("discount", discount);
