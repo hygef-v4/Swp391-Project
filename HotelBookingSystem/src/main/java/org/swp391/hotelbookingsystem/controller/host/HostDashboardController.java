@@ -22,7 +22,6 @@ import org.swp391.hotelbookingsystem.service.HotelService;
 import org.swp391.hotelbookingsystem.service.LocationService;
 import org.swp391.hotelbookingsystem.service.ReviewService;
 import org.swp391.hotelbookingsystem.service.RoomService;
-import org.swp391.hotelbookingsystem.service.RoomTypeService;
 import org.swp391.hotelbookingsystem.service.UserService;
 
 import jakarta.servlet.http.HttpSession;
@@ -30,9 +29,6 @@ import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class HostDashboardController {
-
-    final
-    RoomTypeService roomTypeService;
 
     final
     LocationService locationService;
@@ -57,8 +53,7 @@ public class HostDashboardController {
     final
     ReviewService reviewService;
 
-    public HostDashboardController(RoomTypeService roomTypeService, LocationService locationService, AmenityService amenityService, CloudinaryService cloudinaryService, RoomService roomService, HotelService hotelService, UserService userService, BookingService bookingService, ReviewService reviewService) {
-        this.roomTypeService = roomTypeService;
+    public HostDashboardController(LocationService locationService, AmenityService amenityService, CloudinaryService cloudinaryService, RoomService roomService, HotelService hotelService, UserService userService, BookingService bookingService, ReviewService reviewService) {
         this.locationService = locationService;
         this.amenityService = amenityService;
         this.cloudinaryService = cloudinaryService;

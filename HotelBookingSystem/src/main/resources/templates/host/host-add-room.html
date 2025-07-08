@@ -504,14 +504,6 @@
                                     <div class="row g-3">
                                         <div class="col-md-6">
                                             <label for="roomCategory" class="form-label">Loại phòng (Hạng phòng) *</label>
-                                            <select name="roomTypeId" required class="form-select js-choice"
-                                                    id="roomCategory">
-                                                <option value="">Chọn loại phòng</option>
-                                                <option th:each="type : ${session.roomTypes}"
-                                                        th:value="${type.roomTypeId}"
-                                                        th:text="${type.name}">
-                                                </option>
-                                            </select>
                                         </div>
                                         <div class="col-md-6">
                                             <label for="roomTitle" class="form-label">Tên/Tiêu đề phòng *</label>
