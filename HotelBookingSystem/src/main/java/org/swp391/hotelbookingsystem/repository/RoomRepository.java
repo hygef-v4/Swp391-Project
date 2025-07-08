@@ -26,7 +26,7 @@ public class RoomRepository {
 
     public int insertRoom(Room room) {
         String sql = """
-                    INSERT INTO Rooms (hotel_id, title, description, price, max_guests, room_type_id, quantity, status)
+                    INSERT INTO Rooms (hotel_id, title, description, price, max_guests, quantity, status)
                     OUTPUT INSERTED.room_id
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """;
@@ -37,7 +37,6 @@ public class RoomRepository {
                 room.getDescription(),
                 room.getPrice(),
                 room.getMaxGuests(),
-                room.getRoomTypeId(),
                 room.getQuantity(),
                 room.getStatus() != null ? room.getStatus() : "active"
         );
@@ -72,7 +71,6 @@ public class RoomRepository {
                         description,
                         price,
                         max_guests AS maxGuests,
-                        room_type_id AS roomTypeId,
                         status,
                         quantity - ISNULL(booked_quantity, 0) AS quantity
                     FROM Rooms 
@@ -95,7 +93,6 @@ public class RoomRepository {
                         description,
                         price,
                         max_guests AS maxGuests,
-                        room_type_id AS roomTypeId,
                         status,
                         quantity - ISNULL((SELECT SUM(quantity) FROM BookingUnits WHERE room_id = Rooms.room_id AND status LIKE 'approved'), 0) AS quantity
                     FROM Rooms
@@ -145,7 +142,6 @@ public class RoomRepository {
                     description = ?, 
                     price = ?, 
                     max_guests = ?, 
-                    room_type_id = ?, 
                     quantity = ?, 
                     status = ?
                 WHERE room_id = ?
@@ -155,7 +151,6 @@ public class RoomRepository {
                 room.getDescription(),
                 room.getPrice(),
                 room.getMaxGuests(),
-                room.getRoomTypeId(),
                 room.getQuantity(),
                 room.getStatus(),
                 room.getRoomId()
@@ -199,7 +194,6 @@ public class RoomRepository {
             description,
             price,
             max_guests AS maxGuests,
-            room_type_id AS roomTypeId,
             status,
             quantity
         FROM Rooms

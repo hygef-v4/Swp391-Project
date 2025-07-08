@@ -582,19 +582,6 @@
                                     <div class="card-body">
                                         <div class="row g-3">
                                             <div class="col-md-6">
-                                                <label for="roomCategory" class="form-label">Loại phòng (Hạng phòng)
-                                                    *</label>
-                                                <select name="roomTypeId" required class="form-select js-choice"
-                                                        id="roomCategory">
-                                                    <option value="">Chọn loại phòng</option>
-                                                    <option th:each="type : ${session.roomTypes}"
-                                                            th:value="${type.roomTypeId}"
-                                                            th:text="${type.name}"
-                                                    >
-                                                    </option>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-6">
                                                 <label class="form-label">Tên/Tiêu đề phòng *</label>
                                                 <input type="text" class="form-control" required
                                                        placeholder="Ví dụ: Phòng Standard giường đôi hướng phố"
@@ -1309,10 +1296,6 @@ updateInputFiles() - Syncs file list with actual form input for submission-->
                 isNumber: true,
                 range: [-180, 180],
                 message: 'Kinh độ phải là số từ -180 đến 180'
-            },
-            'roomTypeId': {
-                required: true,
-                message: 'Vui lòng chọn loại phòng'
             },
             'roomTitle': {
                 required: true,
