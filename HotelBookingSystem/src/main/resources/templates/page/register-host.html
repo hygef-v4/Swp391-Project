@@ -392,6 +392,23 @@
     Steps START -->
     <section>
         <div class="container">
+            <!-- Draft Management Section -->
+            <div id="draftManagementSection" class="row mb-4" style="display: none;">
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-info text-white">
+                            <h6 class="mb-0"><i class="bi bi-save me-2"></i>Nháp đã lưu</h6>
+                        </div>
+                        <div class="card-body">
+                            <p class="small text-muted mb-3">Bạn có thể tiếp tục từ các bản nháp đã lưu trước đó:</p>
+                            <div id="draftList" class="row g-2">
+                                <!-- Drafts will be loaded here by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <div id="hostStepper" class="bs-stepper stepper-outline">
                 <!-- Step Buttons START -->
                 <div class="bs-stepper-header" role="tablist">
@@ -453,14 +470,14 @@
                                             <label class="form-label">Tên khách sạn của bạn *</label>
                                             <input required class="form-control" type="text"
                                                    placeholder="Ví dụ: Khách Sạn Sen Vàng" id="hotelName"
-                                                   name="hotelName">
+                                                   name="hotelName" th:value="${hotelName}">
 
                                         </div>
                                         <div class="col-12 mb-3">
                                             <label for="hotelDescription" class="form-label">Mô tả về khách sạn của bạn
                                                 *</label>
                                             <textarea required id="hotelDescription" name="hotelDescription" class="form-control"
-                                                      rows="5"></textarea>
+                                                      rows="5" th:text="${hotelDescription}"></textarea>
 
                                         </div>
                                         <div class="col-12">
@@ -507,7 +524,7 @@
                                                 <label class="form-label" for="hotelAddress">Địa chỉ khách sạn *</label>
                                                 <input required class="form-control" type="text"
                                                        placeholder="Ví dụ: 123 Đường ABC, Phường XYZ, Quận 1"
-                                                       name="hotelAddress" id="hotelAddress">
+                                                       name="hotelAddress" id="hotelAddress" th:value="${hotelAddress}">
                                                 <small>Địa chỉ chính xác sẽ giúp khách hàng tìm thấy bạn. Nhập địa chỉ
                                                     có thể giúp định vị bản đồ.</small>
                                             </div>
@@ -520,7 +537,8 @@
                                                     <!--/* Iterate over locations from the model */-->
                                                     <th:block th:each="location : ${session.locations}">
                                                         <option th:value="${location.id}"
-                                                                th:text="${location.cityName}">Location Name
+                                                                th:text="${location.cityName}"
+                                                                th:selected="${location.id == hotelLocation}">Location Name
                                                         </option>
                                                     </th:block>
                                                 </select>
@@ -543,13 +561,15 @@
                                                 <label for="hotelLatitudeManual" class="form-label">Vĩ độ
                                                     (Latitude)</label>
                                                 <input type="text" class="form-control" id="hotelLatitudeManual"
-                                                       required name="hotelLatitude" placeholder="Ví dụ: 21.028511">
+                                                       required name="hotelLatitude" placeholder="Ví dụ: 21.028511"
+                                                       th:value="${hotelLatitude}">
                                             </div>
                                             <div class="col-md-6 mt-2">
                                                 <label for="hotelLongitudeManual" class="form-label">Kinh độ
                                                     (Longitude)</label>
                                                 <input type="text" class="form-control" id="hotelLongitudeManual"
-                                                       required name="hotelLongitude" placeholder="Ví dụ: 105.854167">
+                                                       required name="hotelLongitude" placeholder="Ví dụ: 105.854167"
+                                                       th:value="${hotelLongitude}">
                                             </div>
                                             <div class="col-12">
                                                 <small class="form-text text-muted">
@@ -560,7 +580,10 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="text-end">
+                                <div class="d-flex justify-content-between">
+                                    <button type="button" class="btn btn-outline-info" onclick="showSaveDraftModal()">
+                                        <i class="bi bi-save me-1"></i>Lưu nháp
+                                    </button>
                                     <button class="btn btn-primary next-btn mb-0">Tiếp Theo</button>
                                 </div>
                             </div>
@@ -581,36 +604,35 @@
                                     </div>
                                     <div class="card-body">
                                         <div class="row g-3">
-                                            <div class="col-md-6">
+                                            <div class="col-12">
                                                 <label class="form-label">Tên/Tiêu đề phòng *</label>
                                                 <input type="text" class="form-control" required
                                                        placeholder="Ví dụ: Phòng Standard giường đôi hướng phố"
-                                                       name="roomTitle" id="roomTitle">
+                                                       name="roomTitle" id="roomTitle" th:value="${roomTitle}">
                                             </div>
                                             <div class="col-md-6">
                                                 <label class="form-label">Số khách tối đa / phòng *</label>
                                                 <input name="roomMaxGuests" type="number" class="form-control" required
                                                        placeholder="Số lượng khách"
-                                                       min="1" id="roomMaxGuests">
+                                                       min="1" id="roomMaxGuests" th:value="${roomMaxGuests}">
                                             </div>
                                             <div class="col-md-6">
                                                 <label class="form-label">Số lượng phòng loại này *</label>
                                                 <input type="number" class="form-control" placeholder="Số lượng" min="1" required
-                                                       name="roomQuantity" id="roomQuantity">
+                                                       name="roomQuantity" id="roomQuantity" th:value="${roomQuantity}">
                                             </div>
                                             <div class="col-md-6">
                                                 <label class="form-label">Giá mỗi đêm (VND) *</label>
                                                 <input type="number" class="form-control" placeholder="Giá phòng" required
-                                                       name="roomPrice" min="0" id="roomPrice">
+                                                       name="roomPrice" min="0" id="roomPrice" th:value="${roomPrice}">
                                             </div>
                                             <div class="col-12">
                                                 <label class="form-label" for="roomDescription">Mô tả chi tiết về loại
                                                     phòng này *</label>
                                                 <textarea id="roomDescription" name="roomDescription"
                                                           class="form-control" rows="5" required
-                                                          placeholder="Mô tả về kích thước phòng, loại giường, tầm nhìn, và các đặc điểm nổi bật khác.">
-</textarea>
-
+                                                          placeholder="Mô tả về kích thước phòng, loại giường, tầm nhìn, và các đặc điểm nổi bật khác."
+                                                          th:text="${roomDescription}"></textarea>
                                             </div>
 
                                         </div>
@@ -636,7 +658,8 @@
                                                                type="checkbox"
                                                                th:id="'amenity-' + ${amenity.amenityId}"
                                                                th:name="amenities"
-                                                               th:value="${amenity.amenityId}"/>
+                                                               th:value="${amenity.amenityId}"
+                                                               th:checked="${selectedAmenities != null and selectedAmenities.contains(amenity.amenityId)}"/>
                                                         <label class="form-check-label"
                                                                th:for="'amenity-' + ${amenity.amenityId}"
                                                                th:text="${amenity.name}"></label>
@@ -679,7 +702,12 @@
                             </div>
                             <div class="hstack gap-2 flex-wrap justify-content-between">
                                 <button class="btn btn-secondary prev-btn mb-0">Trước</button>
-                                <button class="btn btn-primary next-btn mb-0">Tiếp Theo</button>
+                                <div class="hstack gap-2">
+                                    <button type="button" class="btn btn-outline-info" onclick="showSaveDraftModal()">
+                                        <i class="bi bi-save me-1"></i>Lưu nháp
+                                    </button>
+                                    <button class="btn btn-primary next-btn mb-0">Tiếp Theo</button>
+                                </div>
                             </div>
                         </div>
                         <!-- Step 2 content END -->
@@ -701,7 +729,7 @@
                                             sách hút thuốc, vật nuôi, hủy phòng...) *</label>
                                         <textarea name="hotelPolicies" class="form-control" rows="5"
                                                   placeholder="Ví dụ: Giờ nhận phòng: 14:00, Giờ trả phòng: 12:00. Không hút thuốc trong phòng. Cho phép vật nuôi nhỏ với phụ phí..."
-                                                  id="hotelPolicies" required></textarea>
+                                                  id="hotelPolicies" required th:text="${hotelPolicies}"></textarea>
                                     </div>
                                 </div>
 
@@ -769,7 +797,12 @@
 
                                 <div class="hstack gap-2 flex-wrap justify-content-between">
                                     <button class="btn btn-secondary prev-btn mb-0">Trước</button>
-                                    <button type="submit" class="btn btn-success mb-0">Gửi Đăng Ký Khách Sạn</button>
+                                    <div class="hstack gap-2">
+                                        <button type="button" class="btn btn-outline-info" onclick="showSaveDraftModal()">
+                                            <i class="bi bi-save me-1"></i>Lưu nháp
+                                        </button>
+                                        <button type="submit" class="btn btn-success mb-0">Gửi Đăng Ký Khách Sạn</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -786,6 +819,38 @@
 
 </main>
 <!-- **************** MAIN CONTENT END **************** -->
+
+<!-- Save Draft Modal -->
+<div class="modal fade" id="saveDraftModal" tabindex="-1" aria-labelledby="saveDraftModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="saveDraftModalLabel">
+                    <i class="bi bi-save me-2"></i>Lưu nháp
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="draftNameInput" class="form-label">Tên cho bản nháp của bạn *</label>
+                    <input type="text" class="form-control" id="draftNameInput" 
+                           placeholder="Ví dụ: Khách sạn biển Nha Trang" required>
+                    <small class="text-muted">Đặt tên giúp bạn dễ nhận biết bản nháp này sau này</small>
+                </div>
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>Lưu ý:</strong> Nháp sẽ được lưu trên trình duyệt này. Thông tin sẽ được bảo toàn cho đến khi bạn xóa dữ liệu trình duyệt.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-info" onclick="saveDraftToLocalStorage()">
+                    <i class="bi bi-save me-1"></i>Lưu nháp
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- =======================
 Footer START -->
@@ -848,6 +913,9 @@ renderPreviews() - Creates thumbnail previews with delete buttons
 updateInputFiles() - Syncs file list with actual form input for submission-->
 
 <script>
+    // Global variable to hold Choices.js instances, making them accessible to other scripts
+    var choicesInstances = {};
+
     // Global variables to track dropzone uploads - make them truly global
     var hotelImageUploaded = false;
     var roomImagesCount = 0;
@@ -863,13 +931,66 @@ updateInputFiles() - Syncs file list with actual form input for submission-->
                 animation: true
             });
         }
-
+        
+        // Check if we have draft images in sessionStorage
+        const draftImagesStr = sessionStorage.getItem('draftImages');
+        if (draftImagesStr) {
+            try {
+                const draftImages = JSON.parse(draftImagesStr);
+                
+                // Load hotel image
+                if (draftImages.hotelImage) {
+                    setTimeout(() => {
+                        const file = dataURLtoFile(draftImages.hotelImage, 'hotel_image_from_draft.png');
+                        if (file && typeof handleFile === 'function') {
+                            handleFile(file);
+                        }
+                    }, 500);
+                }
+                
+                // Load room images
+                if (draftImages.roomImages && Array.isArray(draftImages.roomImages) && draftImages.roomImages.length > 0) {
+                    setTimeout(() => {
+                        const files = draftImages.roomImages.map((dataUrl, index) => {
+                            return dataURLtoFile(dataUrl, `room_image_from_draft_${index}.png`);
+                        }).filter(file => file !== null);
+                        
+                        if (files.length > 0 && typeof addFiles === 'function') {
+                            addFiles(files);
+                        }
+                    }, 700);
+                }
+                
+                // Clear from sessionStorage after loading
+                sessionStorage.removeItem('draftImages');
+            } catch (e) {
+                console.error('Error loading draft images:', e);
+            }
+        }
+        
+        // Check if we have draft coordinates from server and update map
+        const latInput = document.getElementById('hotelLatitudeManual');
+        const lngInput = document.getElementById('hotelLongitudeManual');
+        if (latInput && lngInput && latInput.value && lngInput.value) {
+            setTimeout(() => {
+                if (typeof map !== 'undefined' && map && typeof marker !== 'undefined' && marker) {
+                    const lat = parseFloat(latInput.value);
+                    const lng = parseFloat(lngInput.value);
+                    if (!isNaN(lat) && !isNaN(lng)) {
+                        map.setView([lat, lng], 15);
+                        marker.setLatLng([lat, lng]);
+                        console.log('Updated map with draft coordinates:', lat, lng);
+                    }
+                }
+            }, 1000); // Wait for map initialization
+        }
 
         // Initialize Choices.js
         var choiceElements = document.querySelectorAll('.js-choice');
         choiceElements.forEach(function (el) {
             const enableSearch = el.id === 'hotelLocation';
-            new Choices(el, {
+            // Store the instance in our global object to be accessed later
+            choicesInstances[el.id] = new Choices(el, {
                 searchEnabled: enableSearch,
                 itemSelectText: 'Nhấn để chọn',
             });
@@ -1252,16 +1373,38 @@ updateInputFiles() - Syncs file list with actual form input for submission-->
             }, duration);
         }
 
-        function showErrorNotification(title, message) {
-            showNotification('error', title, message);
+        function showErrorNotification(title, message = '') {
+            const notification = document.getElementById('notification');
+            const notificationTitle = document.getElementById('notificationTitle');
+            const notificationMessage = document.getElementById('notificationMessage');
+            
+            notificationTitle.textContent = title;
+            notificationMessage.textContent = message;
+            
+            notification.className = 'notification error show';
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 5000);
         }
 
         function showSuccessNotification(title, message) {
             showNotification('success', title, message);
         }
 
-        function showWarningNotification(title, message) {
-            showNotification('warning', title, message);
+        function showWarningNotification(title, message = '') {
+            const notification = document.getElementById('notification');
+            const notificationTitle = document.getElementById('notificationTitle');
+            const notificationMessage = document.getElementById('notificationMessage');
+            
+            notificationTitle.textContent = title;
+            notificationMessage.textContent = message;
+            
+            notification.className = 'notification warning show';
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 5000);
         }
 
         // Validation rules and messages
@@ -1580,7 +1723,6 @@ updateInputFiles() - Syncs file list with actual form input for submission-->
                     { id: 'hotelLocation', label: 'Khu vực/Địa điểm' },
                     { id: 'hotelLatitudeManual', label: 'Vĩ độ' },
                     { id: 'hotelLongitudeManual', label: 'Kinh độ' },
-                    { id: 'roomCategory', label: 'Loại phòng' },
                     { id: 'roomTitle', label: 'Tên phòng' },
                     { id: 'roomMaxGuests', label: 'Số khách tối đa' },
                     { id: 'roomQuantity', label: 'Số lượng phòng' },
@@ -1593,14 +1735,7 @@ updateInputFiles() - Syncs file list with actual form input for submission-->
                 criticalFields.forEach(function(fieldInfo) {
                     const element = document.getElementById(fieldInfo.id);
                     if (element) {
-                        if (element.tagName === 'SELECT') {
-                            if (element.value === '' || element.value === null) {
-                                emptyRequiredFields.push(fieldInfo.label);
-                                showFieldError(element, `Vui lòng chọn ${fieldInfo.label}`);
-                                allFieldsValid = false;
-                                if (!firstInvalidElement) firstInvalidElement = element;
-                            }
-                        } else if (element.type === 'text' || element.type === 'number' || element.tagName === 'TEXTAREA') {
+                        if (element.type === 'text' || element.type === 'number' || element.tagName === 'TEXTAREA') {
                             if (element.value.trim() === '') {
                                 emptyRequiredFields.push(fieldInfo.label);
                                 showFieldError(element, `${fieldInfo.label} là bắt buộc`);
@@ -1608,6 +1743,13 @@ updateInputFiles() - Syncs file list with actual form input for submission-->
                                 if (!firstInvalidElement) firstInvalidElement = element;
                             } else if (!validateField(element)) {
                                 invalidFields.push(fieldInfo.label);
+                                allFieldsValid = false;
+                                if (!firstInvalidElement) firstInvalidElement = element;
+                            }
+                        } else if (element.tagName === 'SELECT') {
+                            if (element.value === '' || element.value === null) {
+                                emptyRequiredFields.push(fieldInfo.label);
+                                showFieldError(element, `Vui lòng chọn ${fieldInfo.label}`);
                                 allFieldsValid = false;
                                 if (!firstInvalidElement) firstInvalidElement = element;
                             }
@@ -1878,10 +2020,9 @@ updateInputFiles() - Syncs file list with actual form input for submission-->
                     );
                 }
 
-            } else if (stepNumber === 2) {
+            } else             if (stepNumber === 2) {
                 // Step 2 validation
                 const step2Fields = [
-                    { id: 'roomCategory', label: 'Loại phòng' },
                     { id: 'roomTitle', label: 'Tên phòng' },
                     { id: 'roomMaxGuests', label: 'Số khách tối đa' },
                     { id: 'roomQuantity', label: 'Số lượng phòng' },
@@ -2077,7 +2218,99 @@ updateInputFiles() - Syncs file list with actual form input for submission-->
                 }
             }, true); // Use capture phase to run before the main validation
         }
+
+        // --- Draft Management Initialization ---
+        loadDraftsList();
+
+        // Auto-load draft from URL parameter if it exists
+        const urlParams = new URLSearchParams(window.location.search);
+        const loadDraftId = urlParams.get('loadDraft');
+        if (loadDraftId) {
+            // A small timeout ensures Choices.js and other components are fully rendered
+            setTimeout(() => {
+                loadDraftFromLocalStorage(loadDraftId);
+            }, 100);
+        }
     });
+
+    // Notification System (Moved to Global Scope)
+    function showNotification(type, title, message, duration = 5000) {
+        const container = document.getElementById('notificationContainer');
+
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+
+        notification.innerHTML = `
+                <div class="notification-content">
+                    <div class="notification-title">${title}</div>
+                    <div class="notification-message">${message}</div>
+                </div>
+                <button class="notification-close" onclick="this.parentElement.remove()">×</button>
+            `;
+
+        container.appendChild(notification);
+
+        // Trigger animation
+        setTimeout(() => {
+            notification.classList.add('show');
+        }, 100);
+
+        // Auto remove after duration
+        setTimeout(() => {
+            if (notification.parentElement) {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    if (notification.parentElement) {
+                        notification.remove();
+                    }
+                }, 300);
+            }
+        }, duration);
+    }
+
+    function showErrorNotification(title, message = '') {
+        const notification = document.getElementById('notification');
+        const notificationTitle = document.getElementById('notificationTitle');
+        const notificationMessage = document.getElementById('notificationMessage');
+        
+        notificationTitle.textContent = title;
+        notificationMessage.textContent = message;
+        
+        notification.className = 'notification error show';
+        
+        setTimeout(() => {
+            notification.classList.remove('show');
+        }, 5000);
+    }
+
+    function showSuccessNotification(title, message) {
+        showNotification('success', title, message);
+    }
+
+        function showWarningNotification(title, message = '') {
+        const notification = document.getElementById('notification');
+        const notificationTitle = document.getElementById('notificationTitle');
+        const notificationMessage = document.getElementById('notificationMessage');
+        
+        notificationTitle.textContent = title;
+        notificationMessage.textContent = message;
+        
+        notification.className = 'notification warning show';
+        
+        setTimeout(() => {
+            notification.classList.remove('show');
+        }, 5000);
+    }
+    
+    // Helper function to get the selected location text
+    function getSelectedLocationText() {
+        const selectElement = document.getElementById('hotelLocation');
+        if (selectElement && selectElement.value) {
+            const selectedOption = selectElement.options[selectElement.selectedIndex];
+            return selectedOption ? selectedOption.text : '';
+        }
+        return '';
+    }
 </script>
 
 <!--hotel image upload-->
@@ -2273,6 +2506,316 @@ updateInputFiles() - Syncs file list with actual form input for submission-->
         const dt = new DataTransfer();
         fileList.forEach(file => dt.items.add(file));
         fileInputRoom.files = dt.files;
+    }
+</script>
+
+<!-- LocalStorage Draft Management JavaScript -->
+<script>
+    // Helper function to read a file as a Data URL (Base64)
+    function readFileAsDataURL(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = (error) => reject(error);
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // Helper function to convert Data URL back to a File object
+    function dataURLtoFile(dataurl, filename) {
+        try {
+            var arr = dataurl.split(','),
+                mimeMatch = arr[0].match(/:(.*?);/);
+            
+            if (!mimeMatch) {
+                console.error("Invalid data URL format");
+                return null;
+            }
+            
+            var mime = mimeMatch[1],
+                bstr = atob(arr[arr.length - 1]), // Use arr.length - 1 to be safe
+                n = bstr.length,
+                u8arr = new Uint8Array(n);
+                
+            while(n--){
+                u8arr[n] = bstr.charCodeAt(n);
+            }
+            
+            return new File([u8arr], filename, {type:mime});
+        } catch (e) {
+            console.error("Error converting data URL to file:", e);
+            return null;
+        }
+    }
+
+    // Draft management constants
+    const DRAFT_STORAGE_KEY = 'hotelRegistrationDrafts';
+    const MAX_DRAFTS = 3; // Limit to prevent localStorage bloat
+    
+    // Initialize draft system on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        loadDraftsList();
+        
+        // Auto-load draft from URL parameter if exists
+        const urlParams = new URLSearchParams(window.location.search);
+        const loadDraftId = urlParams.get('loadDraft');
+        if (loadDraftId) {
+            loadDraftFromLocalStorage(loadDraftId);
+        }
+    });
+    
+    // Show save draft modal
+    function showSaveDraftModal() {
+        console.log('showSaveDraftModal called'); // Debug log
+        const modal = new bootstrap.Modal(document.getElementById('saveDraftModal'));
+        modal.show();
+        
+        // Generate default name with timestamp
+        const now = new Date();
+        const defaultName = `Nháp khách sạn ${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()} ${now.getHours()}:${now.getMinutes()}`;
+        document.getElementById('draftNameInput').value = defaultName;
+        console.log('Modal should be showing now'); // Debug log
+    }
+    
+    // Save draft to localStorage
+    async function saveDraftToLocalStorage() {
+        console.log('saveDraftToLocalStorage called'); // Debug log
+        const draftName = document.getElementById('draftNameInput').value.trim();
+        console.log('Draft name:', draftName); // Debug log
+        
+        if (!draftName) {
+            console.log('No draft name provided'); // Debug log
+            showErrorNotification('Thiếu thông tin!', 'Vui lòng nhập tên cho bản nháp');
+            return;
+        }
+        
+        // Collect all form data
+        const draftData = {
+            id: Date.now().toString(), // Simple ID based on timestamp
+            name: draftName,
+            timestamp: new Date().toISOString(),
+            data: {
+                // Hotel information
+                hotelName: document.getElementById('hotelName').value,
+                hotelDescription: document.getElementById('hotelDescription').value,
+                hotelAddress: document.getElementById('hotelAddress').value,
+                hotelLocation: document.getElementById('hotelLocation').value, // This gets the selected value
+                hotelLocationText: getSelectedLocationText(), // Store the text as well for restoration
+                hotelLatitude: document.getElementById('hotelLatitudeManual').value,
+                hotelLongitude: document.getElementById('hotelLongitudeManual').value,
+                hotelPolicies: document.getElementById('hotelPolicies').value,
+                
+                // Room information
+                roomTitle: document.getElementById('roomTitle').value,
+                roomMaxGuests: document.getElementById('roomMaxGuests').value,
+                roomQuantity: document.getElementById('roomQuantity').value,
+                roomPrice: document.getElementById('roomPrice').value,
+                roomDescription: document.getElementById('roomDescription').value,
+                
+                // Amenities (selected checkboxes)
+                amenities: Array.from(document.querySelectorAll('input[name="amenities"]:checked')).map(cb => cb.value),
+                
+                // Image data will be populated asynchronously
+                hotelImage: null,
+                roomImages: []
+            }
+        };
+        
+        // Handle hotel image
+        const hotelImageFile = document.getElementById('hotelImageUpload').files[0];
+        if (hotelImageFile) {
+            try {
+                draftData.data.hotelImage = await readFileAsDataURL(hotelImageFile);
+            } catch (e) {
+                console.error("Error reading hotel image file:", e);
+            }
+        }
+
+        // Handle room images (using the global fileList from the room image script)
+        if (typeof fileList !== 'undefined' && fileList.length > 0) {
+            try {
+                draftData.data.roomImages = await Promise.all(fileList.map(file => readFileAsDataURL(file)));
+            } catch (e) {
+                console.error("Error reading room image files:", e);
+            }
+        }
+        
+        // Get existing drafts
+        const existingDrafts = getDraftsFromStorage();
+        
+        // Check if we're at max capacity and remove oldest if needed
+        if (existingDrafts.length >= MAX_DRAFTS) {
+            existingDrafts.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+            existingDrafts.splice(0, existingDrafts.length - MAX_DRAFTS + 1);
+        }
+        
+        // Add new draft
+        existingDrafts.push(draftData);
+        
+        // Save to localStorage
+        try {
+            localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(existingDrafts));
+            
+            showSuccessNotification('Lưu nháp thành công!', `Đã lưu nháp "${draftName}" vào bộ nhớ trình duyệt`);
+            
+            // Close modal and refresh draft list
+            const modal = bootstrap.Modal.getInstance(document.getElementById('saveDraftModal'));
+            modal.hide();
+            
+            loadDraftsList();
+            
+        } catch (error) {
+            console.error('Error saving draft:', error);
+            showErrorNotification('Lỗi lưu nháp!', 'Không thể lưu nháp. Có thể bộ nhớ trình duyệt đã đầy.');
+        }
+    }
+    
+    // Get drafts from localStorage
+    function getDraftsFromStorage() {
+        try {
+            const drafts = localStorage.getItem(DRAFT_STORAGE_KEY);
+            return drafts ? JSON.parse(drafts) : [];
+        } catch (error) {
+            console.error('Error reading drafts from storage:', error);
+            return [];
+        }
+    }
+    
+    // Load and display drafts list
+    function loadDraftsList() {
+        const drafts = getDraftsFromStorage();
+        const draftList = document.getElementById('draftList');
+        const draftSection = document.getElementById('draftManagementSection');
+        
+        if (drafts.length === 0) {
+            draftSection.style.display = 'none';
+            return;
+        }
+        
+        // Show draft section
+        draftSection.style.display = 'block';
+        
+        // Sort drafts by timestamp (newest first)
+        drafts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        
+        // Generate HTML for drafts
+        draftList.innerHTML = drafts.map(draft => `
+            <div class="col-md-6 col-lg-4">
+                <div class="card border">
+                    <div class="card-body p-3">
+                        <h6 class="card-title text-truncate" title="${draft.name}">${draft.name}</h6>
+                        <p class="card-text small text-muted mb-2">
+                            <i class="bi bi-clock me-1"></i>
+                            ${new Date(draft.timestamp).toLocaleString('vi-VN')}
+                        </p>
+                        <div class="small text-muted mb-2">
+                            <div class="text-truncate">
+                                <i class="bi bi-building me-1"></i>
+                                ${draft.data.hotelName || 'Chưa nhập tên khách sạn'}
+                            </div>
+                            <div class="text-truncate">
+                                <i class="bi bi-door-open me-1"></i>
+                                ${draft.data.roomTitle || 'Chưa nhập tên phòng'}
+                            </div>
+                        </div>
+                        <div class="d-flex gap-1">
+                            <button type="button" class="btn btn-sm btn-outline-primary flex-fill" 
+                                    onclick="loadDraftFromLocalStorage('${draft.id}')">
+                                <i class="bi bi-play me-1"></i>Tiếp tục
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-danger" 
+                                    onclick="deleteDraftFromLocalStorage('${draft.id}')">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    // Load draft data into form
+    function loadDraftFromLocalStorage(draftId) {
+        console.log('Loading draft:', draftId);
+        const drafts = getDraftsFromStorage();
+        const draft = drafts.find(d => d.id === draftId);
+        
+        if (!draft) {
+            showErrorNotification('Lỗi tải nháp!', 'Không tìm thấy bản nháp này');
+            return;
+        }
+        
+        const data = draft.data;
+        console.log('Draft data:', data);
+        
+        // Build URL with all draft data as parameters
+        const params = new URLSearchParams();
+        
+        // Add all non-image data
+        if (data.hotelName) params.append('hotelName', data.hotelName);
+        if (data.hotelDescription) params.append('hotelDescription', data.hotelDescription);
+        if (data.hotelAddress) params.append('hotelAddress', data.hotelAddress);
+        if (data.hotelLocation) params.append('hotelLocation', data.hotelLocation);
+        if (data.hotelLocationText) params.append('hotelLocationText', data.hotelLocationText);
+        if (data.hotelLatitude) params.append('hotelLatitude', data.hotelLatitude);
+        if (data.hotelLongitude) params.append('hotelLongitude', data.hotelLongitude);
+        if (data.hotelPolicies) params.append('hotelPolicies', data.hotelPolicies);
+        if (data.roomTitle) params.append('roomTitle', data.roomTitle);
+        if (data.roomMaxGuests) params.append('roomMaxGuests', data.roomMaxGuests);
+        if (data.roomQuantity) params.append('roomQuantity', data.roomQuantity);
+        if (data.roomPrice) params.append('roomPrice', data.roomPrice);
+        if (data.roomDescription) params.append('roomDescription', data.roomDescription);
+        
+        // Add amenities
+        if (data.amenities && Array.isArray(data.amenities)) {
+            data.amenities.forEach(amenityId => {
+                params.append('selectedAmenities', amenityId);
+            });
+        }
+        
+        // Store images in sessionStorage for retrieval after reload
+        if (data.hotelImage || (data.roomImages && data.roomImages.length > 0)) {
+            const imageData = {
+                hotelImage: data.hotelImage,
+                roomImages: data.roomImages
+            };
+            sessionStorage.setItem('draftImages', JSON.stringify(imageData));
+        }
+        
+        // Show loading message
+        showSuccessNotification('Đang tải nháp...', 'Trang sẽ được tải lại với dữ liệu từ nháp.');
+        
+        // Redirect to the same page with parameters
+        setTimeout(() => {
+            window.location.href = '/register-host?' + params.toString();
+        }, 500);
+    }
+    
+    // Delete draft from localStorage
+    function deleteDraftFromLocalStorage(draftId) {
+        try {
+            const drafts = getDraftsFromStorage();
+            const draftToDelete = drafts.find(d => d.id === draftId);
+            const updatedDrafts = drafts.filter(d => d.id !== draftId);
+            
+            localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(updatedDrafts));
+            
+            showSuccessNotification('Xóa nháp thành công!', `Đã xóa nháp "${draftToDelete ? draftToDelete.name : 'không xác định'}"`);
+            loadDraftsList();
+            
+        } catch (error) {
+            console.error('Error deleting draft:', error);
+            showErrorNotification('Lỗi xóa nháp!', 'Không thể xóa nháp');
+        }
+    }
+    
+    // Clear all drafts (utility function)
+    function clearAllDrafts() {
+        if (confirm('Bạn có chắc chắn muốn xóa TẤT CẢ bản nháp đã lưu?')) {
+            localStorage.removeItem(DRAFT_STORAGE_KEY);
+            loadDraftsList();
+            showSuccessNotification('Xóa tất cả nháp!', 'Đã xóa tất cả bản nháp đã lưu');
+        }
     }
 </script>
 

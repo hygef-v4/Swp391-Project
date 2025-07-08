@@ -622,7 +622,7 @@ About hotel START -->
                                                 <div class="edit-mode">
                                                     <form th:id="'roomEditForm-' + ${room.roomId}" method="post" enctype="multipart/form-data">
                                                         <div class="row g-3">
-                                                            <div class="col-md-6">
+                                                            <div class="col-12">
                                                                 <div class="form-floating">
                                                                     <input type="text" class="form-control" th:id="'roomTitle-' + ${room.roomId}" th:value="${room.title}" required>
                                                                     <label th:for="'roomTitle-' + ${room.roomId}">Tên phòng</label>
@@ -759,7 +759,7 @@ About hotel START -->
                             <div class="col-6">
                                 <div class="bg-light p-3 rounded text-center">
                                     <h5 class="mb-0" th:text="${rooms.size()}"></h5>
-                                    <small class="text-muted">Số loại phòng</small>
+                                    <small class="text-muted">Số phòng đã tạo</small>
                                 </div>
                             </div>
                             <div class="col-6">

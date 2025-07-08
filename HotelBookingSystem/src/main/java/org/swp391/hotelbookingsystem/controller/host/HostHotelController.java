@@ -146,7 +146,6 @@ public class HostHotelController {
         
         // Populate amenities for each room
         for (Room room : rooms) {
-            
             // Get room amenities
             List<Amenity> roomAmenities = amenityService.getRoomAmenities(room.getRoomId());
             room.setAmenities(roomAmenities);
@@ -196,7 +195,7 @@ public class HostHotelController {
                 }
             }
 
-            // Build and save room
+            // Build and save room - set default room type ID to 1 for backward compatibility
             Room room = Room.builder()
                     .hotelId(hotelId)
                     .title(roomTitle)
@@ -358,7 +357,7 @@ public class HostHotelController {
                 }
             }
 
-            // Update room
+            // Update room - keep existing room type or default to 1
             Room updatedRoom = Room.builder()
                     .roomId(roomId)
                     .hotelId(hotelId)
