@@ -13,6 +13,21 @@
 	<meta name="_csrf" th:content="${_csrf.token}"/>
 	<meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 
+	<meta property="og:title" th:content="${hotel.hotelName}"/>
+	<meta property="og:description" th:content="'Đặt phòng tại ' + ${hotel.hotelName} + ' trên Hamora Platform'"/>
+	<meta property="og:url" th:content="${@environment.getProperty('app.base-url')} + '/hotel-detail?hotelId=' + ${hotel.hotelId}"/>
+	<meta property="og:image" th:content="${hotel.hotelImageUrl}"/>
+	<meta property="og:type" content="website"/>
+	<meta property="og:site_name" content="Hamora Platform"/>
+	<meta property="og:locale" content="vi_VN"/>
+
+	<meta name="twitter:card" content="summary_large_image"/>
+	<meta name="twitter:site" content="@HamoraPlatform"/>
+	<meta name="twitter:creator" content="@HamoraPlatform"/>
+	<meta name="twitter:title" th:content="${hotel.hotelName}"/>
+	<meta name="twitter:description" th:content="'Đặt phòng tại ' + ${hotel.hotelName} + ' trên Hamora Platform'"/>
+	<meta name="twitter:image" th:content="${hotel.hotelImageUrl}"/>
+
 	<!-- Dark mode -->
 	<script>
 		const storedTheme = localStorage.getItem('theme')
@@ -341,8 +356,8 @@ Main Title START -->
 							</a>
 							<!-- dropdown button -->
 							<ul class="dropdown-menu dropdown-menu-end min-w-auto shadow rounded" aria-labelledby="dropdownShare">
-								<li><a class="dropdown-item" th:href="'https://www.facebook.com/sharer/sharer.php?u=' + ${baseUrl} + '/hotel-detail?hotelId=' + ${hotel.hotelId}" target="_blank"><i class="fab fa-facebook-square me-2"></i>Facebook</a></li>
-								<li><a class="dropdown-item" th:href="'https://twitter.com/intent/tweet?url=' + ${baseUrl} + '/hotel-detail?hotelId=' + ${hotel.hotelId}" target="_blank"><i class="fab fa-twitter-square me-2"></i>Twitter</a></li>
+								<li><a class="dropdown-item" th:href="'https://www.facebook.com/sharer/sharer.php?u=' + ${@environment.getProperty('app.base-url')} + '/hotel-detail?hotelId=' + ${hotel.hotelId}" target="_blank"><i class="fab fa-facebook-square me-2"></i>Facebook</a></li>
+								<li><a class="dropdown-item" th:href="'https://twitter.com/intent/tweet?url=' + ${@environment.getProperty('app.base-url')} + '/hotel-detail?hotelId=' + ${hotel.hotelId}" target="_blank"><i class="fab fa-twitter-square me-2"></i>Twitter</a></li>
 								<li><a class="dropdown-item" th:href="'hotel-detail?hotelId=' + ${hotel.hotelId}" onclick="event.preventDefault();navigator.clipboard.writeText(this.href)"><i class="fa-solid fa-copy me-2"></i>Copy link</a></li>
 							</ul>
 						</li>
@@ -886,7 +901,7 @@ Footer END -->
 							<div class="form-control-border form-control-transparent form-fs-md">
 								<label class="form-label">Nhận phòng – Trả phòng</label>
 								<input type="hidden" name="roomId" th:value="${room.roomId}">
-								<input type="text" th:value="${dateRange}" class="form-control flatpickr" data-mode="range" name="dateRange" placeholder="Chọn ngày" required>'
+								<input type="text" th:value="${dateRange}" class="form-control flatpickr" data-mode="range" name="dateRange" placeholder="Chọn ngày" required>
 								<input type="hidden" th:value="${guests}" name="guests">
 								<input type="hidden" th:value="${roomQuantity}" name="rooms">
 							</div>
