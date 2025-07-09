@@ -131,7 +131,7 @@ public class HostDashboardController {
             }
 
             // Validate status
-            if (!List.of("approved", "completed", "cancelled", "rejected").contains(status.toLowerCase())) {
+            if (!List.of("approved", "completed", "cancelled", "rejected", "check_in").contains(status.toLowerCase())) {
                 response.put("success", false);
                 response.put("message", "Trạng thái không hợp lệ");
                 return response;

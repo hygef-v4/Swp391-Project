@@ -54,7 +54,7 @@ public class HostCustomerController {
                             .filter(u -> u.getPrice() != null && u.getPrice() > 0)
                             .filter(u -> {
                                 String unitStatus = (u.getStatus() != null) ? u.getStatus().toLowerCase() : "";
-                                return "approved".equals(unitStatus) || "completed".equals(unitStatus);
+                                return "approved".equals(unitStatus) || "completed".equals(unitStatus) || "check_in".equals(unitStatus);
                             })
                             .mapToDouble(u -> {
                                 int qty = u.getQuantity() <= 0 ? 1 : u.getQuantity();
@@ -182,18 +182,15 @@ public class HostCustomerController {
 
             // Calculate total price and status for each booking
             for (Booking booking : customerBookings) {
+                // Calculate total price and status for each booking
                 if (booking.getBookingUnits() != null && !booking.getBookingUnits().isEmpty()) {
-                    // Calculate total price - only count approved and completed booking units
                     double sum = booking.getBookingUnits().stream()
                             .filter(u -> u.getPrice() != null && u.getPrice() > 0)
                             .filter(u -> {
                                 String unitStatus = (u.getStatus() != null) ? u.getStatus().toLowerCase() : "";
-                                return "approved".equals(unitStatus) || "completed".equals(unitStatus);
+                                return "approved".equals(unitStatus) || "completed".equals(unitStatus) || "check_in".equals(unitStatus);
                             })
-                            .mapToDouble(u -> {
-                                int qty = u.getQuantity() <= 0 ? 1 : u.getQuantity();
-                                return u.getPrice() * qty;
-                            })
+                            .mapToDouble(u -> u.getPrice() * (u.getQuantity() == 0 ? 1 : u.getQuantity()))
                             .sum();
                     booking.setTotalPrice(sum);
                     

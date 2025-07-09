@@ -186,7 +186,7 @@ public class CustomerHostController {
                             .filter(u -> u.getPrice() != null && u.getPrice() > 0)
                             .filter(u -> {
                                 String unitStatus = (u.getStatus() != null) ? u.getStatus().toLowerCase() : "";
-                                return "approved".equals(unitStatus) || "completed".equals(unitStatus);
+                                return "approved".equals(unitStatus) || "completed".equals(unitStatus) || "check_in".equals(unitStatus);
                             })
                             .mapToDouble(u -> u.getPrice() * (u.getQuantity() == 0 ? 1 : u.getQuantity()))
                             .sum();
