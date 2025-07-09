@@ -60,7 +60,7 @@ public class RoomRepository {
                             SUM(bu.quantity) AS booked_quantity
                         FROM BookingUnits bu
                         JOIN Bookings b ON b.booking_id = bu.booking_id
-                        WHERE bu.status IN ('approved', 'check_in')
+                        WHERE bu.status IN ('pending', 'approved', 'check_in')
                             AND b.check_out >= ? AND b.check_in <= ?
                         GROUP BY bu.room_id
                     )
@@ -94,7 +94,7 @@ public class RoomRepository {
                         price,
                         max_guests AS maxGuests,
                         status,
-                        quantity - ISNULL((SELECT SUM(quantity) FROM BookingUnits WHERE room_id = Rooms.room_id AND status LIKE 'approved'), 0) AS quantity
+                        quantity - ISNULL((SELECT SUM(quantity) FROM BookingUnits WHERE room_id = Rooms.room_id AND status IN ('pending', 'approved', 'check_in')), 0) AS quantity
                     FROM Rooms
                     WHERE hotel_id = ?
                 """;
