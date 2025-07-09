@@ -1,8 +1,8 @@
 package org.swp391.hotelbookingsystem.repository;
 
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.sql.Date;
 import java.util.List;
 
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -303,6 +303,7 @@ public class HotelRepository {
                            h.latitude,
                            h.longitude,
                            h.policy,
+                           h.status,
                            MIN(r.price) AS minPrice,
                            l.city_name AS cityName
                     FROM Hotels h
@@ -311,7 +312,7 @@ public class HotelRepository {
                     WHERE h.host_id = ?
                     GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
                              h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude,
-                             h.policy, l.city_name
+                             h.policy, h.status, l.city_name
                     ORDER BY h.hotel_id DESC
                 """;
 
