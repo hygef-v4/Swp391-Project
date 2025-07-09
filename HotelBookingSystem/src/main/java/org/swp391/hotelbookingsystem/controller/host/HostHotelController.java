@@ -16,10 +16,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.swp391.hotelbookingsystem.constant.ConstantVariables;
 import org.swp391.hotelbookingsystem.model.Amenity;
+import org.swp391.hotelbookingsystem.model.CancellationPolicy;
 import org.swp391.hotelbookingsystem.model.Hotel;
 import org.swp391.hotelbookingsystem.model.Room;
 import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.service.AmenityService;
+import org.swp391.hotelbookingsystem.service.CancellationPolicyService;
 import org.swp391.hotelbookingsystem.service.CloudinaryService;
 import org.swp391.hotelbookingsystem.service.HotelService;
 import org.swp391.hotelbookingsystem.service.LocationService;
@@ -48,13 +50,16 @@ public class HostHotelController {
     final
     UserService userService;
 
-    public HostHotelController(LocationService locationService, AmenityService amenityService, CloudinaryService cloudinaryService, RoomService roomService, HotelService hotelService, UserService userService) {
+    final CancellationPolicyService cancellationPolicyService;
+
+    public HostHotelController(LocationService locationService, AmenityService amenityService, CloudinaryService cloudinaryService, RoomService roomService, HotelService hotelService, UserService userService, CancellationPolicyService cancellationPolicyService) {
         this.locationService = locationService;
         this.amenityService = amenityService;
         this.cloudinaryService = cloudinaryService;
         this.roomService = roomService;
         this.hotelService = hotelService;
         this.userService = userService;
+        this.cancellationPolicyService = cancellationPolicyService;
     }
 
     @GetMapping("/host-listing")
@@ -158,11 +163,15 @@ public class HostHotelController {
             String categoryName = amenity.getCategory().getName();
             groupedAmenities.computeIfAbsent(categoryName, k -> new ArrayList<>()).add(amenity);
         }
+
+        // Get cancellation policy for the hotel
+        CancellationPolicy cancellationPolicy = cancellationPolicyService.getCancellationPolicyByHotelId(hotelId);
         
         model.addAttribute("hotel", hotel);
         model.addAttribute("rooms", rooms);
         model.addAttribute("groupedAmenities", groupedAmenities);
         model.addAttribute("locations", locationService.getAllLocations());
+        model.addAttribute("cancellationPolicy", cancellationPolicy);
 
         return "host/host-manage-hotel";
     }
@@ -473,5 +482,58 @@ public class HostHotelController {
         return response;
     }
 
+    @PostMapping("/update-cancellation-policy")
+    @ResponseBody
+    public Map<String, Object> updateCancellationPolicy(
+            @RequestParam("hotelId") int hotelId,
+            @RequestParam("partialRefundDays") int partialRefundDays,
+            @RequestParam("partialRefundPercent") int partialRefundPercent,
+            @RequestParam("noRefundWithinDays") int noRefundWithinDays,
+            HttpSession session
+    ) {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            User host = (User) session.getAttribute("user");
+            if (host == null || !host.getRole().equalsIgnoreCase("HOTEL_OWNER")) {
+                response.put("success", false);
+                response.put("message", "Không có quyền truy cập");
+                return response;
+            }
+
+            Hotel hotel = hotelService.getHotelById(hotelId);
+            if (hotel == null || hotel.getHostId() != host.getId()) {
+                response.put("success", false);
+                response.put("message", "Không có quyền chỉnh sửa chính sách của khách sạn này");
+                return response;
+            }
+
+            // Create and validate cancellation policy
+            CancellationPolicy policy = CancellationPolicy.builder()
+                    .hotelId(hotelId)
+                    .partialRefundDays(partialRefundDays)
+                    .partialRefundPercent(partialRefundPercent)
+                    .noRefundWithinDays(noRefundWithinDays)
+                    .build();
+
+            if (!cancellationPolicyService.validatePolicy(policy)) {
+                response.put("success", false);
+                response.put("message", "Chính sách hủy phòng không hợp lệ. Vui lòng kiểm tra lại các giá trị.");
+                return response;
+            }
+
+            // Save or update the policy
+            cancellationPolicyService.saveCancellationPolicy(policy);
+
+            response.put("success", true);
+            response.put("message", "Cập nhật chính sách hủy phòng thành công");
+            
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Lỗi khi cập nhật chính sách: " + e.getMessage());
+        }
+        
+        return response;
+    }
 
 }

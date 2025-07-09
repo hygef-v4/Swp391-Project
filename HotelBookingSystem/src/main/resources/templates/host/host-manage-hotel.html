@@ -461,6 +461,108 @@ About hotel START -->
                     </div>
                     <!-- Hotel Policies END -->
 
+                    <!-- Cancellation Policy START -->
+                    <div class="card bg-transparent card-editable" id="cancellation-policy">
+                        <!-- Card header -->
+                        <div class="card-header border-bottom bg-transparent px-0 pt-0">
+                            <h3 class="mb-0">Chính sách hủy phòng & hoàn tiền</h3>
+                        </div>
+
+                        <!-- Card body START -->
+                        <div class="card-body pt-4 p-0">
+                            <div class="view-mode">
+                                <div th:if="${cancellationPolicy != null}">
+                                    <div class="row g-3">
+                                        <div class="col-md-4">
+                                            <div class="bg-light p-3 rounded text-center">
+                                                <h5 class="text-primary mb-1" th:text="${cancellationPolicy.partialRefundDays}">7</h5>
+                                                <small class="text-muted">Ngày hoàn tiền một phần</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="bg-light p-3 rounded text-center">
+                                                <h5 class="text-success mb-1">
+                                                    <span th:text="${cancellationPolicy.partialRefundPercent}">50</span>%
+                                                </h5>
+                                                <small class="text-muted">Phần trăm hoàn tiền</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="bg-light p-3 rounded text-center">
+                                                <h5 class="text-warning mb-1" th:text="${cancellationPolicy.noRefundWithinDays}">1</h5>
+                                                <small class="text-muted">Ngày không hoàn tiền</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="alert alert-info">
+                                                <i class="bi bi-info-circle me-2"></i>
+                                                <strong>Chính sách hoàn tiền:</strong> 
+                                                Khách hàng hủy phòng trước <span th:text="${cancellationPolicy.partialRefundDays}">7</span> ngày 
+                                                sẽ được hoàn <span th:text="${cancellationPolicy.partialRefundPercent}">50</span>% tiền. 
+                                                Hủy trong vòng <span th:text="${cancellationPolicy.noRefundWithinDays}">1</span> ngày 
+                                                trước check-in sẽ không được hoàn tiền.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div th:if="${cancellationPolicy == null}">
+                                    <div class="alert alert-warning">
+                                        <i class="bi bi-exclamation-triangle me-2"></i>
+                                        Chưa thiết lập chính sách hủy phòng. Nhấn nút chỉnh sửa để thiết lập.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="edit-mode">
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <div class="form-floating">
+                                            <input type="number" class="form-control" id="partialRefundDaysEdit" 
+                                                   min="1" max="365" th:value="${cancellationPolicy?.partialRefundDays ?: 7}" required>
+                                            <label for="partialRefundDaysEdit">Số ngày hoàn tiền một phần</label>
+                                        </div>
+                                        <small class="text-muted">Từ 1 đến 365 ngày</small>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-floating">
+                                            <input type="number" class="form-control" id="partialRefundPercentEdit" 
+                                                   min="10" max="100" step="5" th:value="${cancellationPolicy?.partialRefundPercent ?: 50}" required>
+                                            <label for="partialRefundPercentEdit">Phần trăm hoàn tiền (%)</label>
+                                        </div>
+                                        <small class="text-muted">Từ 10% đến 100%</small>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-floating">
+                                            <input type="number" class="form-control" id="noRefundWithinDaysEdit" 
+                                                   min="0" max="365" th:value="${cancellationPolicy?.noRefundWithinDays ?: 1}" required>
+                                            <label for="noRefundWithinDaysEdit">Số ngày không hoàn tiền</label>
+                                        </div>
+                                        <small class="text-muted">Từ 0 đến 365 ngày</small>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="alert alert-info" id="policyPreview">
+                                            <i class="bi bi-info-circle me-2"></i>
+                                            <strong>Xem trước:</strong> 
+                                            <span id="previewText">Khách hàng hủy phòng trước 7 ngày sẽ được hoàn 50% tiền. Hủy trong vòng 1 ngày trước check-in sẽ không được hoàn tiền.</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex gap-2 mt-3">
+                                    <button class="btn btn-success btn-sm" onclick="saveCancellationPolicy()">
+                                        <i class="bi bi-check-circle me-1"></i>Lưu chính sách
+                                    </button>
+                                    <button class="btn btn-secondary btn-sm" onclick="toggleEditMode('cancellation-policy')">
+                                        <i class="bi bi-x-circle me-1"></i>Hủy
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn btn-outline-primary btn-sm edit-btn" onclick="toggleEditMode('cancellation-policy')">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <!-- Card body END -->
+                    </div>
+                    <!-- Cancellation Policy END -->
+
                     <!-- Hotel Location START -->
                     <div class="card bg-transparent card-editable" id="hotel-location">
                         <!-- Card header -->
@@ -1649,6 +1751,80 @@ About hotel END -->
         });
     }
 
+    // Cancellation Policy Functions
+    function updateCancellationPreview() {
+        const partialDays = document.getElementById('partialRefundDaysEdit').value || 7;
+        const refundPercent = document.getElementById('partialRefundPercentEdit').value || 50;
+        const noDays = document.getElementById('noRefundWithinDaysEdit').value || 1;
+        
+        const previewText = `Khách hàng hủy phòng trước ${partialDays} ngày sẽ được hoàn ${refundPercent}% tiền. Hủy trong vòng ${noDays} ngày trước check-in sẽ không được hoàn tiền.`;
+        document.getElementById('previewText').textContent = previewText;
+    }
+
+    function saveCancellationPolicy() {
+        const partialDays = document.getElementById('partialRefundDaysEdit').value;
+        const refundPercent = document.getElementById('partialRefundPercentEdit').value;
+        const noDays = document.getElementById('noRefundWithinDaysEdit').value;
+
+        // Validate inputs
+        if (!partialDays || !refundPercent || noDays === '') {
+            showNotification('Vui lòng điền đầy đủ thông tin chính sách', 'error');
+            return;
+        }
+
+        const partialDaysNum = parseInt(partialDays);
+        const refundPercentNum = parseInt(refundPercent);
+        const noDaysNum = parseInt(noDays);
+
+        // Validate ranges
+        if (partialDaysNum < 1 || partialDaysNum > 365) {
+            showNotification('Số ngày hoàn tiền một phần phải từ 1 đến 365', 'error');
+            return;
+        }
+
+        if (refundPercentNum < 10 || refundPercentNum > 100) {
+            showNotification('Phần trăm hoàn tiền phải từ 10% đến 100%', 'error');
+            return;
+        }
+
+        if (noDaysNum < 0 || noDaysNum > 365) {
+            showNotification('Số ngày không hoàn tiền phải từ 0 đến 365', 'error');
+            return;
+        }
+
+        // Validate logic
+        if (noDaysNum > partialDaysNum) {
+            showNotification('Số ngày không hoàn tiền phải nhỏ hơn hoặc bằng số ngày hoàn tiền một phần', 'error');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('hotelId', hotelId);
+        formData.append('partialRefundDays', partialDaysNum);
+        formData.append('partialRefundPercent', refundPercentNum);
+        formData.append('noRefundWithinDays', noDaysNum);
+
+        fetch('/update-cancellation-policy', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification(data.message);
+                toggleEditMode('cancellation-policy');
+                // Reload page to show updated policy
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showNotification(data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Có lỗi xảy ra khi lưu chính sách hủy phòng', 'error');
+        });
+    }
+
     function saveRoomInfo(roomId) {
         // Get form fields
         const roomTitleField = document.getElementById('roomTitle-' + roomId);
@@ -2759,6 +2935,21 @@ About hotel END -->
 
         // Setup hotel image preview - use existing simple method
         setupImagePreview('hotelImageEdit', 'hotelImagePreview');
+
+        // Setup cancellation policy event listeners
+        const cancellationInputs = ['partialRefundDaysEdit', 'partialRefundPercentEdit', 'noRefundWithinDaysEdit'];
+        cancellationInputs.forEach(inputId => {
+            const input = document.getElementById(inputId);
+            if (input) {
+                input.addEventListener('input', updateCancellationPreview);
+                input.addEventListener('change', updateCancellationPreview);
+            }
+        });
+
+        // Initialize cancellation preview
+        if (document.getElementById('partialRefundDaysEdit')) {
+            updateCancellationPreview();
+        }
     });
 
     // Simple image preview function for hotel image only
