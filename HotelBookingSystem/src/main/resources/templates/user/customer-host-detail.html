@@ -383,11 +383,11 @@
                                 <div class="row mb-3">
                                     <div class="col-6">
                                         <small class="text-secondary">Ngày nhận phòng</small>
-                                        <p class="mb-0 fw-bold" th:text="${#temporals.format(booking.checkIn, 'dd-MM-yyyy HH:mm')}">01-04-2025 00:00</p>
+                                        <p class="mb-0 fw-bold" th:text="${#temporals.format(booking.checkIn, 'dd-MM-yyyy')}">01-04-2025</p>
                                     </div>
                                     <div class="col-6">
                                         <small class="text-secondary">Ngày trả phòng</small>
-                                        <p class="mb-0 fw-bold" th:text="${#temporals.format(booking.checkOut, 'dd-MM-yyyy HH:mm')}">05-04-2025 00:00</p>
+                                        <p class="mb-0 fw-bold" th:text="${#temporals.format(booking.checkOut, 'dd-MM-yyyy')}">05-04-2025</p>
                                     </div>
                                 </div>
                                 <h6 class="fw-bold">Phòng đã đặt:</h6>
