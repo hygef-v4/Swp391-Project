@@ -35,10 +35,10 @@ public class HotelListController {
         @RequestParam(value = "rooms", defaultValue = "1") int rooms,
 
         @RequestParam(value = "name", defaultValue = "") String name,
-        @RequestParam(value = "min", defaultValue = "200,000") String min,
-        @RequestParam(value = "max", defaultValue = "1,500,000") String max,
+        @RequestParam(value = "min", defaultValue = "500,000") String min,
+        @RequestParam(value = "max", defaultValue = "2,000,000") String max,
 
-        @RequestParam(value = "star", defaultValue = "false") boolean star,
+        @RequestParam(value = "price", defaultValue = "true") boolean price,
 
         @RequestParam(value = "page", defaultValue = "1") int page,
         Model model
@@ -67,7 +67,7 @@ public class HotelListController {
         model.addAttribute("min", minPrice/1000);
         model.addAttribute("max", maxPrice/1000);
 
-        List<Hotel> hotel = hotelService.getHotelsByLocation(locationId, checkin, checkout, guests, rooms, name.trim(), minPrice, maxPrice, star);
+        List<Hotel> hotel = hotelService.getHotelsByLocation(locationId, checkin, checkout, guests, rooms, name.trim(), minPrice, maxPrice, price);
         int item = page * 12;
         
         List<Hotel> current;
@@ -89,11 +89,11 @@ public class HotelListController {
         String request = "";
         request += redirect;
         if(!"".equals(name)) request += "&name=" + name;
-        if(!"200,000".equals(min)) request += "&min=" + min;
-        if(!"15,000,000".equals(max)) request += "&max=" + max;
+        if(!"500,000".equals(min)) request += "&min=" + min;
+        if(!"2,000,000".equals(max)) request += "&max=" + max;
         model.addAttribute("request", request);
 
-        model.addAttribute("star", star);
+        model.addAttribute("price", price);
 
         return "page/hotelList";
     }

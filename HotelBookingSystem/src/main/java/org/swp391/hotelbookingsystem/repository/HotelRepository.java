@@ -124,7 +124,7 @@ public class HotelRepository {
         return jdbcTemplate.query(SELECT_TOP_8_HOTELS, HOTEL_MAPPER);
     }
 
-    public List<Hotel> getHotelsByLocation(int locationId, Date checkin, Date checkout, int maxGuests, int roomQuantity, String name, int min, int max, boolean star) {
+    public List<Hotel> getHotelsByLocation(int locationId, Date checkin, Date checkout, int maxGuests, int roomQuantity, String name, int min, int max, boolean price) {
         String query = """
                     WITH BookedRooms AS (
                         SELECT 
@@ -164,7 +164,7 @@ public class HotelRepository {
                         AND SUM(r.quantity - ISNULL(br.booked_quantity, 0)) >= ?
                         AND MIN(r.price) >= ? AND MIN(r.price) <= ?
                 """;
-        String order = " ORDER BY h.rating " + (star ? "ASC" : "DESC");
+        String order = " ORDER BY minPrice " + (price ? "ASC" : "DESC") + ", h.rating DESC";
 
         return jdbcTemplate.query(query+order, ps -> {
             ps.setDate(1, checkin != null ? checkin : new Date(System.currentTimeMillis()));
