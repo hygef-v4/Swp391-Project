@@ -4,6 +4,7 @@ import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -90,13 +91,44 @@ public class HostDashboardController {
 
 
         // For recent bookings table with calculated statuses
-        List<Booking> bookings = bookingService.getBookingsByHostId(host.getId());
+        List<Booking> allBookings = bookingService.getBookingsByHostId(host.getId());
         
-        // Calculate overall status for each booking
-        for (Booking booking : bookings) {
-            String overallStatus = bookingService.calculateBookingStatus(booking.getBookingUnits());
-            booking.setStatus(overallStatus);
-        }
+        // Filter out bookings with only pending booking units and calculate status
+        List<Booking> bookings = allBookings.stream()
+                .filter(booking -> {
+                    if (booking.getBookingUnits() == null || booking.getBookingUnits().isEmpty()) {
+                        return false;
+                    }
+                    
+                    // Check if booking has at least one non-pending booking unit
+                    boolean hasNonPendingUnit = booking.getBookingUnits().stream()
+                            .anyMatch(unit -> {
+                                String unitStatus = (unit.getStatus() != null) ? unit.getStatus().toLowerCase() : "";
+                                return !"pending".equals(unitStatus);
+                            });
+                    
+                    if (hasNonPendingUnit) {
+                        // Filter out pending booking units for this booking
+                        List<BookingUnit> nonPendingUnits = booking.getBookingUnits().stream()
+                                .filter(unit -> {
+                                    String unitStatus = (unit.getStatus() != null) ? unit.getStatus().toLowerCase() : "";
+                                    return !"pending".equals(unitStatus);
+                                })
+                                .collect(Collectors.toList());
+                        
+                        // Set the filtered booking units
+                        booking.setBookingUnits(nonPendingUnits);
+                        
+                        // Calculate overall status based on non-pending units
+                        String overallStatus = bookingService.calculateBookingStatus(nonPendingUnits);
+                        booking.setStatus(overallStatus);
+                        
+                        return true;
+                    }
+                    
+                    return false; // Hide bookings with only pending units
+                })
+                .collect(Collectors.toList());
         
         model.addAttribute("bookings", bookings);
 

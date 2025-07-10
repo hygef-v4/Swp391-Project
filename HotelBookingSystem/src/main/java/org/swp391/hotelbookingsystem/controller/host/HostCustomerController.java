@@ -226,6 +226,15 @@ public class HostCustomerController {
                 }
             }
 
+            // Filter out bookings that have no valid booking units after removing pending ones
+            allCustomerBookings = allCustomerBookings.stream()
+                    .filter(booking -> {
+                        return booking.getBookingUnits() != null && 
+                               !booking.getBookingUnits().isEmpty() && 
+                               !"no_valid_units".equals(booking.getStatus());
+                    })
+                    .collect(Collectors.toList());
+
             // Check if customer has at least one approved/completed/check_in booking - block access if only pending
             boolean hasValidBooking = allCustomerBookings.stream()
                     .anyMatch(booking -> {
