@@ -1,5 +1,9 @@
 package org.swp391.hotelbookingsystem.service;
 
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.swp391.hotelbookingsystem.repository.NotificationRepository;
 
@@ -7,13 +11,159 @@ import org.swp391.hotelbookingsystem.repository.NotificationRepository;
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
-    public NotificationService(NotificationRepository notificationRepository) {
+    public NotificationService(NotificationRepository notificationRepository, SimpMessagingTemplate messagingTemplate) {
         this.notificationRepository = notificationRepository;
+        this.messagingTemplate = messagingTemplate;
     }
 
+    // Basic notification (backward compatibility)
     public void notifyUser(int userId, String message) {
-        int notificationId = notificationRepository.createNotification(message, false);
-        notificationRepository.assignNotificationToUser(userId, notificationId);
+        createNotification(userId, "Thông báo", message, "system", "normal", null, null, null);
+    }
+
+    // Enhanced notification method
+    public void createNotification(int userId, String title, String message, String type, 
+                                 String priority, String actionUrl, String icon, Map<String, Object> metadata) {
+        try {
+            // Create notification in database
+            int notificationId = notificationRepository.createNotification(title, message, type, priority, actionUrl, icon, metadata, false);
+            notificationRepository.assignNotificationToUser(userId, notificationId);
+            
+            // Send real-time notification via WebSocket
+            sendRealTimeNotification(userId, notificationId, title, message, type, priority, actionUrl, icon);
+            
+        } catch (Exception e) {
+            System.err.println("Error creating notification: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    // Specific notification types for hotel booking system
+    public void notifyBookingConfirmation(int userId, String bookingId, String hotelName) {
+        String title = "Đặt phòng thành công! 🎉";
+        String message = "Bạn đã đặt thành công phòng tại " + hotelName + ". Mã đặt phòng: " + bookingId;
+        String actionUrl = "/bookingDetail?bookingId=" + bookingId;
+        createNotification(userId, title, message, "booking", "high", actionUrl, "bi-calendar-check", 
+                         Map.of("bookingId", bookingId, "hotelName", hotelName));
+    }
+
+    public void notifyNewMessage(int userId, String senderName, int senderId) {
+        String title = "Tin nhắn mới 💬";
+        String message = senderName + " đã gửi tin nhắn cho bạn";
+        String actionUrl = "/chat?userId=" + senderId;
+        createNotification(userId, title, message, "chat", "normal", actionUrl, "bi-chat-dots",
+                         Map.of("senderId", senderId, "senderName", senderName));
+    }
+
+    public void notifyPaymentSuccess(int userId, String bookingId, double amount) {
+        String title = "Thanh toán thành công ✅";
+        String message = "Thanh toán " + String.format("%,.0f", amount) + "₫ cho đơn đặt phòng " + bookingId + " đã hoàn tất";
+        String actionUrl = "/bookingDetail?bookingId=" + bookingId;
+        createNotification(userId, title, message, "payment", "high", actionUrl, "bi-credit-card",
+                         Map.of("bookingId", bookingId, "amount", amount));
+    }
+
+    public void notifyHotelApproval(int userId, String hotelName) {
+        String title = "Khách sạn được phê duyệt 🏨";
+        String message = "Khách sạn \"" + hotelName + "\" đã được phê duyệt và có thể nhận khách";
+        String actionUrl = "/manage-hotel";
+        createNotification(userId, title, message, "hotel", "high", actionUrl, "bi-building",
+                         Map.of("hotelName", hotelName));
+    }
+
+    public void notifyPromotion(int userId, String promoTitle, String discount) {
+        String title = "Ưu đãi đặc biệt! 🎁";
+        String message = promoTitle + " - Giảm " + discount;
+        String actionUrl = "/hotel-list";
+        createNotification(userId, title, message, "promotion", "normal", actionUrl, "bi-gift",
+                         Map.of("discount", discount));
+    }
+
+    // Get user notifications with pagination
+    public List<Map<String, Object>> getUserNotifications(int userId, int page, int size) {
+        return notificationRepository.getUserNotifications(userId, page, size);
+    }
+
+    // Get user notifications with filtering and pagination
+    public Map<String, Object> getUserNotificationsFiltered(int userId, int page, int size, String type, Boolean unread) {
+        List<Map<String, Object>> notifications = notificationRepository.getUserNotificationsFiltered(userId, page, size, type, unread);
+        int totalElements = notificationRepository.getNotificationCount(userId, type, unread);
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+        
+        return Map.of(
+            "content", notifications,
+            "number", page,
+            "size", size,
+            "totalElements", totalElements,
+            "totalPages", totalPages,
+            "first", page == 0,
+            "last", page >= totalPages - 1
+        );
+    }
+
+    // Get unread count
+    public int getUnreadCount(int userId) {
+        return notificationRepository.getUnreadCount(userId);
+    }
+
+    // Mark notification as read
+    public void markAsRead(int userId, int notificationId) {
+        notificationRepository.markAsRead(userId, notificationId);
+        
+        // Send real-time update for unread count
+        int newUnreadCount = getUnreadCount(userId);
+        messagingTemplate.convertAndSend("/topic/notifications." + userId, 
+                         Map.of("type", "unread_count_update", "count", newUnreadCount));
+    }
+
+    // Mark all as read
+    public void markAllAsRead(int userId) {
+        notificationRepository.markAllAsRead(userId);
+        
+        // Send real-time update
+        messagingTemplate.convertAndSend("/topic/notifications." + userId,
+                         Map.of("type", "unread_count_update", "count", 0));
+    }
+
+    // Delete a notification for a user
+    public void deleteNotification(int userId, int notificationId) {
+        notificationRepository.deleteUserNotification(userId, notificationId);
+        // Send real-time update for counts and possibly UI removal
+        int newUnread = getUnreadCount(userId);
+        messagingTemplate.convertAndSend("/topic/notifications." + userId,
+                Map.of("type", "notification_deleted", "id", notificationId));
+        messagingTemplate.convertAndSend("/topic/notifications." + userId,
+                Map.of("type", "unread_count_update", "count", newUnread));
+    }
+
+    // Send real-time notification via WebSocket
+    private void sendRealTimeNotification(int userId, int notificationId, String title, String message, 
+                                        String type, String priority, String actionUrl, String icon) {
+        try {
+            Map<String, Object> notification = Map.of(
+                "id", notificationId,
+                "title", title,
+                "message", message,
+                "type", type,
+                "priority", priority,
+                "actionUrl", actionUrl != null ? actionUrl : "",
+                "icon", icon != null ? icon : "bi-bell",
+                "timestamp", System.currentTimeMillis()
+            );
+            
+            // Send to specific user
+            messagingTemplate.convertAndSend("/topic/notifications." + userId, 
+                                           Map.of("type", "new_notification", "notification", notification));
+            
+            // Update unread count
+            int unreadCount = getUnreadCount(userId);
+            messagingTemplate.convertAndSend("/topic/notifications." + userId,
+                                           Map.of("type", "unread_count_update", "count", unreadCount));
+            
+        } catch (Exception e) {
+            System.err.println("Error sending real-time notification: " + e.getMessage());
+        }
     }
 }
