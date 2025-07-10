@@ -125,10 +125,31 @@ public class ReviewRepository {
             SELECT * FROM Reviews
             WHERE hotel_id = ? AND reviewer_id = ?        
         """;
-        return jdbcTemplate.query(query, ps -> {
+        return !jdbcTemplate.query(query, ps -> {
             ps.setInt(1, hotelId);
             ps.setInt(2, userId);
         }, REVIEW_MAPPER).isEmpty();
+    }
+
+    public Review getReview(int hotelId, int userId){
+        String query = """
+            SELECT
+            r.review_id AS reviewId,
+            r.hotel_id AS hotelId,
+            r.reviewer_id AS reviewerId,
+            r.rating,
+            r.comment,
+            r.is_public AS isPublic,
+            r.created_at AS createdAt,
+            u.full_name AS fullName,
+            u.avatar_url AS avatarUrl,
+            u.bio,
+            u.date_of_birth AS dob
+        FROM Reviews r
+        JOIN Users u ON r.reviewer_id = u.user_id
+        WHERE r.is_public = 1 AND r.hotel_id = ? AND r.reviewer_id = ?
+        """;
+        return jdbcTemplate.queryForObject(query, REVIEW_MAPPER, hotelId, userId);
     }
 
     public int addReview(Review review){
@@ -174,6 +195,7 @@ public class ReviewRepository {
         FROM Reviews r
         JOIN Users u ON r.reviewer_id = u.user_id
         WHERE r.is_public = 1 AND r.hotel_id = ?
+        ORDER BY r.created_at DESC
         """;
         return jdbcTemplate.query(query, REVIEW_MAPPER, hotelId);
     }

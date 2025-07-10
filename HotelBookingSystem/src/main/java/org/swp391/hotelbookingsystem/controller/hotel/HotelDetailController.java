@@ -65,11 +65,17 @@ public class HotelDetailController {
         hotel.setPolicy(hotel.getPolicy().replace("<li>", "<li class=\"list-group-item d-flex\"><i class=\"bi bi-arrow-right me-2\"></i>"));
         model.addAttribute("hotel", hotel);
 
-        User user = (User) session.getAttribute("user");
         boolean favorite = false;
+        Review review = null;
+
+        User user = (User) session.getAttribute("user");
         if (user != null) {
             favorite = hotelService.isFavoriteHotel(user.getId(), hotelId);
-        }model.addAttribute("favorite", favorite);
+            review = reviewService.getReview(hotelId, user.getId());
+        }
+        
+        model.addAttribute("favorite", favorite);
+        model.addAttribute("review", review);
 
         String redirect = "";
         if(!"".equals(dateRange)) redirect += "&dateRange=" + URLEncoder.encode(dateRange, StandardCharsets.UTF_8);
@@ -113,11 +119,6 @@ public class HotelDetailController {
 
             room.setCategories(categories);
         }model.addAttribute("rooms", rooms);
-
-        if(user != null){
-            boolean commented = reviewService.checkReview(hotelId, user.getId());
-            model.addAttribute("comment", commented);
-        }
 
         List<Review> comments = reviewService.getHotelReview(hotelId);
         model.addAttribute("comments", comments);

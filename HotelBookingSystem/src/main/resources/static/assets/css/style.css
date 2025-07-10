@@ -22496,6 +22496,26 @@ html[dir=rtl] .choices__input {
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08);
 }
 
+.comment {
+  height: 90px;
+  overflow-y: auto;
+  border: 1px solid var(--bs-secondary);
+  border-radius: 8px;
+  padding: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--bs-primary) transparent;
+  word-break: break-word;
+}
+
+.comment::-webkit-scrollbar {
+  width: 6px;
+}
+
+.comment::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 8px;
+}
+
 /* Responsive adjustments for testimonial images */
 @media (max-width: 768px) {
     .testimonial-customer-image {

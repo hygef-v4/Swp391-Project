@@ -133,12 +133,12 @@
 								<div>
 									<h6 class="me-3 mb-0">${response.fullName}</h6>
 									<ul class="nav nav-divider small mb-2">
-										<li class="nav-item">${response.createdAt.toLocaleString()}</li>
+										<li class="nav-item">${new Date(response.createdAt).toLocaleDateString('vi-VN')}</li>
 									</ul>
 								</div>
 								<div class="icon-md rounded text-bg-warning fs-6">${response.rating}</div>
 							</div>
-							<p class="mb-0">${response.comment}</p>
+							<p class="mb-0 comment">${response.comment}</p>
 						</div>
 					</div>
 					<hr>
@@ -598,28 +598,45 @@ About hotel START -->
 										<!-- Progress-bar START -->
 										<div th:class="${hotel.rating == 0 ? 'col-md-12' : 'col-md-8'}">
 											<div class="card-body p-0">
-												<div th:if="${session.user != null}" class="row gx-3 g-2 align-items-center">
+												<div th:if="${session.user != null && review == null}" class="row gx-3 g-2 align-items-center">
 													<!-- Leave review START -->
-														<input type="hidden" name="hotelId" th:value="${hotel.hotelId}">
+													<input type="hidden" name="hotelId" th:value="${hotel.hotelId}">
+													<!-- Rating -->
+													<div class="form-control-bg-light mb-3">
+														<select name="rating" class="form-select js-choice">
+															<option value="5" selected="">★★★★★ (5/5)</option>
+															<option value="4">★★★★☆ (4/5)</option>
+															<option value="3">★★★☆☆ (3/5)</option>
+															<option value="2">★★☆☆☆ (2/5)</option>
+															<option value="1">★☆☆☆☆ (1/5)</option>
+														</select>
+													</div>
+													<!-- Message -->
+													<div class="form-control-bg-light mb-3">
+														<textarea name="comment" class="form-control" placeholder="Đánh giá về khách sạn" rows="3"></textarea>
+													</div>
+													<!-- Button -->
+													<button onclick="review()" type="button" class="btn btn-lg btn-primary mb-0">Gửi<i class="bi fa-fw bi-arrow-right ms-2"></i></button>
+													<!-- Leave review END -->
+												</div>
+												<div th:if="${session.user != null && review != null}" class="row gx-3 g-2 align-items-center">
+													<!-- Text -->
+													<div class="w-100">
 														<!-- Rating -->
 														<div class="form-control-bg-light mb-3">
-															<select name="rating" class="form-select js-choice">
-																<option value="5" selected="">★★★★★ (5/5)</option>
-																<option value="4">★★★★☆ (4/5)</option>
-																<option value="3">★★★☆☆ (3/5)</option>
-																<option value="2">★★☆☆☆ (2/5)</option>
-																<option value="1">★☆☆☆☆ (1/5)</option>
-															</select>
+															<p value="5" th:if="${review.rating == 5}">★★★★★ (5/5)</p>
+															<p value="4" th:if="${review.rating == 4}">★★★★☆ (4/5)</p>
+															<p value="3" th:if="${review.rating == 3}">★★★☆☆ (3/5)</p>
+															<p value="2" th:if="${review.rating == 2}">★★☆☆☆ (2/5)</p>
+															<p value="1" th:if="${review.rating == 1}">★☆☆☆☆ (1/5)</p>
 														</div>
-														<!-- Message -->
-														<div class="form-control-bg-light mb-3">
-															<textarea name="comment" class="form-control" id="exampleFormControlTextarea1" placeholder="Đánh giá về khách sạn" rows="3"></textarea>
-														</div> 
-														<!-- Button -->
-														<button onclick="review()" type="button" class="btn btn-lg btn-primary mb-0">Gửi<i class="bi fa-fw bi-arrow-right ms-2"></i></button>
-													<!-- Leave review END -->
-												</div> 
-												<div th:unless="${session.user != null}">
+														
+														<p class="mb-0 comment" th:text="${review.comment}"></p>
+													</div>
+													<!-- Button -->
+													<button type="button" class="btn btn-lg btn-primary mb-0">Gửi<i class="bi fa-fw bi-arrow-right ms-2"></i></button>
+												</div>
+												<div th:if="${session.user == null}">
 													<a href="/login" class="text-center">Đăng nhập hoặc đăng ký tài khoản để bình luận</a>
 												</div>
 												<!-- Row END -->
@@ -632,7 +649,7 @@ About hotel START -->
 							<!-- Progress bar and rating END -->
 
 							<!-- Review item START -->
-							<div id="comment">
+							<div id="comment" style="max-width: 100%;">
 								<div th:each="comment : ${comments}">
 									<div class="d-md-flex my-4">
 										<!-- Avatar -->
@@ -646,16 +663,15 @@ About hotel START -->
 													<h6 class="me-3 mb-0" th:text="${comment.fullName}"></h6>
 													<!-- Info -->
 													<ul class="nav nav-divider small mb-2">
-														<li class="nav-item" th:text="${comment.createdAt}"></li>
+														<li class="nav-item" th:text="${comment.createdAt.format(T(java.time.format.DateTimeFormatter).ofPattern('dd/MM/yyyy'))}"></li>
 													</ul>
 												</div>
 												<!-- Review star -->
 												<div class="icon-md rounded text-bg-warning fs-6" th:text="${comment.rating}"></div>
 											</div>
 											
-											<p class="mb-0" th:text="${comment.comment}"></p>
+											<p class="mb-0 comment" th:text="${comment.comment}"></p>
 										</div>
-										
 									</div>
 
 									<!-- Divider -->
