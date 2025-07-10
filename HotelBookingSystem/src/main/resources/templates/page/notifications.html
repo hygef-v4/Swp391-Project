@@ -203,9 +203,12 @@
                             <h1 class="h3 mb-0">Thông báo của tôi</h1>
                             <p class="mb-0 text-muted">Quản lý tất cả thông báo của bạn</p>
                         </div>
-                        <button id="markAllReadBtn" class="btn btn-outline-primary" type="button" style="z-index: 999; position: relative;" onclick="markAllAsRead(); return false;">
-                            <i class="bi bi-check-all"></i> Đánh dấu đã đọc tất cả
-                        </button>
+                        <div class="btn-group" role="group" aria-label="Notification actions">
+                            <button id="markAllReadBtn" class="btn btn-outline-primary btn-sm" type="button" onclick="markAllAsRead(); return false;">
+                                <i class="bi bi-check-all"></i> Đánh dấu đã đọc tất cả
+                            </button>
+                            <button id="deleteAllBtn" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i> Xóa tất cả</button>
+                        </div>
                     </div>
 
                     <!-- Filter tabs -->
@@ -802,16 +805,27 @@ function connectWebSocket() {
             console.log('Connected to WebSocket for notifications');
             
             stompClient.subscribe(`/topic/notifications.${currentUserId}`, function(message) {
-                const notification = JSON.parse(message.body);
-                console.log('Received notification:', notification);
-                
-                // Show toast for new notification
-                showToast(notification.title, 'info');
-                
-                // Refresh notifications if on first page of all notifications
-                if (currentPage === 1 && currentFilter === 'all') {
-                    loadNotifications();
-                } else {
+                const data = JSON.parse(message.body);
+                console.log('Received notification:', data);
+
+                if (data.type === 'new_notification') {
+                    const n = data.notification;
+                    showToast(n.title, 'info');
+
+                    // Always reload notifications list so it reflects merged update
+                    if (currentPage === 1 && currentFilter === 'all') {
+                        loadNotifications();
+                    } else {
+                        // Still update counts so badge reflects unread
+                        updateCounts();
+                    }
+                } else if (data.type === 'unread_count_update') {
+                    updateCounts();
+                } else if (data.type === 'notification_deleted') {
+                    // If a notification was deleted, refresh list if we are on first page
+                    if (currentPage === 1 && currentFilter === 'all') {
+                        loadNotifications();
+                    }
                     updateCounts();
                 }
             });
@@ -852,6 +866,19 @@ async function deleteNotification(notificationId) {
         showToast('Không thể xóa thông báo. Vui lòng thử lại.', 'error');
     }
 }
+
+async function deleteAllNotifications() {
+    try {
+        const response = await fetch('/api/notifications/delete-all', {method:'DELETE'});
+        if(!response.ok) throw new Error('HTTP '+response.status);
+        currentPage = 1;
+        await loadNotifications();
+        await updateAllCounts();
+        showToast('Đã xóa tất cả thông báo', 'success');
+    } catch (e) { console.error(e); showToast('Không thể xóa tất cả', 'error'); }
+}
+
+document.getElementById('deleteAllBtn')?.addEventListener('click', deleteAllNotifications);
 </script>
 
 <!-- Load WebSocket libraries asynchronously -->

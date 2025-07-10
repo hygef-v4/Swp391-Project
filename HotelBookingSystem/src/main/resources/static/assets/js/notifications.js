@@ -112,9 +112,20 @@
                 client.subscribe(`/topic/notifications.${currentUserId}`, msg => {
                     const data = JSON.parse(msg.body);
                     if (data.type === 'new_notification') {
-                        notifications.unshift(data.notification);
+                        const incomingId = data.notification.notification_id || data.notification.id;
+                        const idx = notifications.findIndex(n => (n.notification_id||n.id) === incomingId);
+                        if (idx !== -1) {
+                            // Replace existing and move to top
+                            notifications.splice(idx, 1);
+                        } else {
+                            // Increase unread count only if completely new
+                            updateUnread((parseInt(qs('#notificationBadge')?.textContent)||0)+1);
+                        }
+                        notifications.unshift({
+                            ...data.notification,
+                            notification_id: incomingId // ensure property present
+                        });
                         renderList();
-                        updateUnread((parseInt(qs('#notificationBadge')?.textContent)||0)+1);
                     }
                     if (data.type === 'notification_deleted') {
                         const idx = notifications.findIndex(n=>n.notification_id===data.id);

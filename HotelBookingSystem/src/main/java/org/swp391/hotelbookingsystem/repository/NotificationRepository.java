@@ -100,6 +100,19 @@ public class NotificationRepository {
         }
     }
 
+    // Delete all notifications for a specific user
+    public void deleteAllNotificationsForUser(int userId) {
+        // Delete all user-notification relations
+        String sql = "DELETE FROM UserNotifications WHERE user_id = ?";
+        jdbcTemplate.update(sql, userId);
+        // Optional: clean orphan notifications
+        try {
+            jdbcTemplate.update("DELETE FROM Notifications WHERE notification_id NOT IN (SELECT notification_id FROM UserNotifications)");
+        } catch (Exception e) {
+            // Ignore cleanup errors
+        }
+    }
+
     // Get notifications by type for user
     public List<Map<String, Object>> getNotificationsByType(int userId, String type, int limit) {
         String sql = """
@@ -185,5 +198,48 @@ public class NotificationRepository {
     public int deleteExpiredNotifications() {
         String sql = "DELETE FROM Notifications WHERE expires_at IS NOT NULL AND expires_at < GETDATE()";
         return jdbcTemplate.update(sql);
+    }
+
+    // Find existing chat notification between two users
+    public Integer findExistingChatNotification(int receiverId, int senderId) {
+        // We store metadata as plain key=value pairs string: {senderId=123, senderName=...}
+        String sql = """
+            SELECT TOP 1 n.notification_id
+            FROM Notifications n
+            INNER JOIN UserNotifications un ON n.notification_id = un.notification_id
+            WHERE un.user_id = ? 
+              AND n.notification_type = 'chat'
+              AND n.metadata LIKE ?
+            ORDER BY n.created_at DESC
+            """;
+
+        String likePattern = "%senderId=" + senderId + "%"; // Matches senderId=123 inside metadata string
+
+        try {
+            return jdbcTemplate.queryForObject(sql, Integer.class, receiverId, likePattern);
+        } catch (Exception e) {
+            // No existing notification found
+            return null;
+        }
+    }
+
+    // Update existing notification with new message content
+    public void updateNotification(int notificationId, String title, String message, String actionUrl, Map<String, Object> metadata) {
+        String sql = """
+            UPDATE Notifications 
+            SET title = ?, message = ?, action_url = ?, metadata = ?, created_at = GETDATE()
+            WHERE notification_id = ?
+            """;
+        
+        String metadataJson = metadata != null ? metadata.toString() : null;
+        jdbcTemplate.update(sql, title, message, actionUrl, metadataJson, notificationId);
+        
+        // Also update the UserNotifications timestamp and reset read status
+        String userNotifSql = """
+            UPDATE UserNotifications 
+            SET is_read = 0, read_at = NULL, created_at = GETDATE()
+            WHERE notification_id = ?
+            """;
+        jdbcTemplate.update(userNotifSql, notificationId);
     }
 }

@@ -57,6 +57,49 @@ public class NotificationService {
                          Map.of("senderId", senderId, "senderName", senderName));
     }
 
+    // Enhanced chat notification with merging capability
+    public void createOrUpdateChatNotification(int receiverId, String senderName, int senderId, 
+                                             String lastMessage, String actionUrl) {
+        try {
+            // Check if there's an existing unread chat notification from this sender
+            Integer existingNotificationId = notificationRepository.findExistingChatNotification(
+                receiverId, senderId);
+            
+            String title = "Tin nhân mới 💬";
+            String message = senderName + " đã gửi tin nhân: " + 
+                            (lastMessage.length() > 50 ? lastMessage.substring(0, 50) + "..." : lastMessage);
+            
+            Map<String, Object> metadata = Map.of(
+                "senderId", senderId,
+                "senderName", senderName,
+                "lastMessage", lastMessage
+            );
+            
+            if (existingNotificationId != null) {
+                // Update existing notification with new message content
+                notificationRepository.updateNotification(existingNotificationId, title, message, actionUrl, metadata);
+                
+                // Send real-time notification via WebSocket for the updated notification
+                sendRealTimeNotification(receiverId, existingNotificationId, title, message, 
+                                       "chat", "normal", actionUrl, "bi-chat-dots");
+                
+            } else {
+                // Create new notification
+                int notificationId = notificationRepository.createNotification(title, message, "chat", "normal", 
+                                                                             actionUrl, "bi-chat-dots", metadata, false);
+                notificationRepository.assignNotificationToUser(receiverId, notificationId);
+                
+                // Send real-time notification via WebSocket
+                sendRealTimeNotification(receiverId, notificationId, title, message, 
+                                       "chat", "normal", actionUrl, "bi-chat-dots");
+            }
+            
+        } catch (Exception e) {
+            System.err.println("Error creating/updating chat notification: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
     public void notifyPaymentSuccess(int userId, String bookingId, double amount) {
         String title = "Thanh toán thành công ✅";
         String message = "Thanh toán " + String.format("%,.0f", amount) + "₫ cho đơn đặt phòng " + bookingId + " đã hoàn tất";
@@ -138,19 +181,27 @@ public class NotificationService {
                 Map.of("type", "unread_count_update", "count", newUnread));
     }
 
+    // Delete all notifications for user
+    public void deleteAllNotifications(int userId) {
+        notificationRepository.deleteAllNotificationsForUser(userId);
+        // Notify via websocket
+        messagingTemplate.convertAndSend("/topic/notifications." + userId,
+                Map.of("type", "unread_count_update", "count", 0));
+    }
+
     // Send real-time notification via WebSocket
     private void sendRealTimeNotification(int userId, int notificationId, String title, String message, 
                                         String type, String priority, String actionUrl, String icon) {
         try {
             Map<String, Object> notification = Map.of(
-                "id", notificationId,
+                "notification_id", notificationId,
                 "title", title,
                 "message", message,
-                "type", type,
+                "notification_type", type,
                 "priority", priority,
-                "actionUrl", actionUrl != null ? actionUrl : "",
+                "action_url", actionUrl != null ? actionUrl : "",
                 "icon", icon != null ? icon : "bi-bell",
-                "timestamp", System.currentTimeMillis()
+                "created_at", System.currentTimeMillis()
             );
             
             // Send to specific user
