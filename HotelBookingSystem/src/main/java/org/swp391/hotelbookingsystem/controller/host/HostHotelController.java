@@ -25,6 +25,7 @@ import org.swp391.hotelbookingsystem.service.CancellationPolicyService;
 import org.swp391.hotelbookingsystem.service.CloudinaryService;
 import org.swp391.hotelbookingsystem.service.HotelService;
 import org.swp391.hotelbookingsystem.service.LocationService;
+import org.swp391.hotelbookingsystem.service.NotificationService;
 import org.swp391.hotelbookingsystem.service.RoomService;
 import org.swp391.hotelbookingsystem.service.UserService;
 
@@ -49,10 +50,11 @@ public class HostHotelController {
 
     final
     UserService userService;
+    final NotificationService notificationService;
 
     final CancellationPolicyService cancellationPolicyService;
 
-    public HostHotelController(LocationService locationService, AmenityService amenityService, CloudinaryService cloudinaryService, RoomService roomService, HotelService hotelService, UserService userService, CancellationPolicyService cancellationPolicyService) {
+    public HostHotelController(LocationService locationService, AmenityService amenityService, CloudinaryService cloudinaryService, RoomService roomService, HotelService hotelService, UserService userService, CancellationPolicyService cancellationPolicyService, NotificationService notificationService) {
         this.locationService = locationService;
         this.amenityService = amenityService;
         this.cloudinaryService = cloudinaryService;
@@ -60,6 +62,7 @@ public class HostHotelController {
         this.hotelService = hotelService;
         this.userService = userService;
         this.cancellationPolicyService = cancellationPolicyService;
+        this.notificationService = notificationService;
     }
 
     @GetMapping("/host-listing")
@@ -216,6 +219,12 @@ public class HostHotelController {
                     .build();
 
             roomService.saveRoom(room, amenityIds, roomImageUrls);
+
+            // Send notification to host
+            User host = (User) session.getAttribute("user");
+            if(host != null) {
+                notificationService.notifyRoomAdded(host.getId(), roomTitle, hotelId);
+            }
 
             return "redirect:/host-listing"; // or /host-dashboard if preferred
         } catch (Exception e) {

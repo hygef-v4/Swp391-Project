@@ -18,6 +18,7 @@ import org.swp391.hotelbookingsystem.model.Hotel;
 import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.service.BookingService;
 import org.swp391.hotelbookingsystem.service.HotelService;
+import org.swp391.hotelbookingsystem.service.NotificationService;
 import org.swp391.hotelbookingsystem.service.UserService;
 import org.swp391.hotelbookingsystem.service.VNPayService;
 import org.thymeleaf.context.Context;
@@ -40,7 +41,7 @@ public class PaymentController {
     @Autowired
     VNPayService vnpayService;
     @Autowired
-    org.swp391.hotelbookingsystem.service.NotificationService notificationService;
+    NotificationService notificationService;
     @Autowired
     SpringTemplateEngine templateEngine;
 

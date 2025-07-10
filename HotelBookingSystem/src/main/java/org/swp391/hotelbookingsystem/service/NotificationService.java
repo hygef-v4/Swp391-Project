@@ -124,6 +124,27 @@ public class NotificationService {
                          Map.of("discount", discount));
     }
 
+    public void notifyHotelAdded(int userId, String hotelName, int hotelId) {
+        String title = "Tạo khách sạn thành công 🏨";
+        String message = "Bạn đã tạo khách sạn \"" + hotelName + "\" thành công.";
+        String actionUrl = "/manage-hotel?hotelId=" + hotelId;
+        createNotification(userId, title, message, "hotel", "normal", actionUrl, "bi-building", Map.of("hotelId", hotelId, "hotelName", hotelName));
+    }
+
+    public void notifyRoomAdded(int userId, String roomTitle, int hotelId) {
+        String title = "Thêm phòng mới thành công 🛏️";
+        String message = "Bạn đã thêm phòng \"" + roomTitle + "\" thành công.";
+        String actionUrl = "/manage-hotel?hotelId=" + hotelId;
+        createNotification(userId, title, message, "hotel", "normal", actionUrl, "bi-door-open", Map.of("hotelId", hotelId, "roomTitle", roomTitle));
+    }
+
+    public void notifyHostRegistrationSuccess(int userId) {
+        String title = "Đăng ký chủ khách sạn thành công 🏨";
+        String message = "Chúc mừng! Bạn đã trở thành chủ khách sạn. Hãy tạo khách sạn đầu tiên của bạn.";
+        String actionUrl = "/host-dashboard";
+        createNotification(userId, title, message, "system", "high", actionUrl, "bi-award", null);
+    }
+
     // Get user notifications with pagination
     public List<Map<String, Object>> getUserNotifications(int userId, int page, int size) {
         return notificationRepository.getUserNotifications(userId, page, size);
