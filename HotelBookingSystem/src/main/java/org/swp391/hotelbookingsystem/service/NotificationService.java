@@ -103,7 +103,7 @@ public class NotificationService {
     public void notifyPaymentSuccess(int userId, String bookingId, double amount) {
         String title = "Thanh toán thành công ✅";
         String message = "Thanh toán " + String.format("%,.0f", amount) + "₫ cho đơn đặt phòng " + bookingId + " đã hoàn tất";
-        String actionUrl = "/bookingDetail?bookingId=" + bookingId;
+        String actionUrl = "/bookingHistory";
         createNotification(userId, title, message, "payment", "high", actionUrl, "bi-credit-card",
                          Map.of("bookingId", bookingId, "amount", amount));
     }
