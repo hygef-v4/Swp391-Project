@@ -391,9 +391,9 @@ public class HostHotelController {
         return response;
     }
 
-    @PostMapping("/delete-room")
+    @PostMapping("/deactivate-room")
     @ResponseBody
-    public Map<String, Object> deleteRoom(
+    public Map<String, Object> deactivateRoom(
             @RequestParam("roomId") int roomId,
             @RequestParam("hotelId") int hotelId,
             HttpSession session
@@ -415,7 +415,7 @@ public class HostHotelController {
                 hotel = hotelService.getHotelById(hotelId);
                 if (hotel == null || hotel.getHostId() != host.getId()) {
                     response.put("success", false);
-                    response.put("message", "Không có quyền xóa phòng này");
+                    response.put("message", "Không có quyền vô hiệu hóa phòng này");
                     return response;
                 }
             } catch (Exception e) {
@@ -425,13 +425,17 @@ public class HostHotelController {
                 return response;
             }
 
-            // 3. Check if this is the last room in the hotel
+            // 3. Check if this would leave no active rooms in the hotel
             List<Room> currentRooms;
             try {
                 currentRooms = roomService.getRoomsByHotelId(hotelId);
-                if (currentRooms.size() <= 1) {
+                long activeRooms = currentRooms.stream()
+                        .filter(room -> "active".equals(room.getStatus()))
+                        .count();
+                
+                if (activeRooms <= 1) {
                     response.put("success", false);
-                    response.put("message", "Không thể xóa phòng cuối cùng. Khách sạn phải có ít nhất 1 phòng.");
+                    response.put("message", "Không thể vô hiệu hóa phòng cuối cùng đang hoạt động. Khách sạn phải có ít nhất 1 phòng hoạt động.");
                     return response;
                 }
             } catch (Exception e) {
@@ -445,7 +449,7 @@ public class HostHotelController {
             try {
                 if (roomService.hasActiveBookingUnits(roomId)) {
                     response.put("success", false);
-                    response.put("message", "Không thể xóa phòng này vì có khách đang đặt phòng.");
+                    response.put("message", "Không thể vô hiệu hóa phòng này vì có khách đang đặt phòng.");
                     return response;
                 }
             } catch (Exception e) {
@@ -455,28 +459,89 @@ public class HostHotelController {
                 return response;
             }
 
-            // 5. Actually delete the room
+            // 5. Deactivate the room
             try {
-                roomService.deleteRoom(roomId);
-                System.out.println("Successfully deleted room " + roomId);
+                roomService.deactivateRoom(roomId);
+                System.out.println("Successfully deactivated room " + roomId);
             } catch (Exception e) {
-                System.err.println("Error deleting room " + roomId + ": " + e.getMessage());
+                System.err.println("Error deactivating room " + roomId + ": " + e.getMessage());
                 e.printStackTrace();
                 response.put("success", false);
-                response.put("message", "Lỗi khi xóa phòng: " + e.getMessage());
+                response.put("message", "Lỗi khi vô hiệu hóa phòng: " + e.getMessage());
                 return response;
             }
 
             // 6. Success response
             response.put("success", true);
-            response.put("message", "Xóa phòng thành công");
+            response.put("message", "Vô hiệu hóa phòng thành công");
             
         } catch (Exception e) {
             // Catch any unexpected errors
-            System.err.println("Unexpected error in deleteRoom for roomId " + roomId + ": " + e.getMessage());
+            System.err.println("Unexpected error in deactivateRoom for roomId " + roomId + ": " + e.getMessage());
             e.printStackTrace();
             response.put("success", false);
-            response.put("message", "Lỗi không mong muốn khi xóa phòng");
+            response.put("message", "Lỗi không mong muốn khi vô hiệu hóa phòng");
+        }
+        
+        return response;
+    }
+
+    @PostMapping("/activate-room")
+    @ResponseBody
+    public Map<String, Object> activateRoom(
+            @RequestParam("roomId") int roomId,
+            @RequestParam("hotelId") int hotelId,
+            HttpSession session
+    ) {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            // 1. Authentication and authorization check
+            User host = (User) session.getAttribute("user");
+            if (host == null || !host.getRole().equalsIgnoreCase("HOTEL_OWNER")) {
+                response.put("success", false);
+                response.put("message", "Không có quyền truy cập");
+                return response;
+            }
+
+            // 2. Hotel ownership verification
+            Hotel hotel;
+            try {
+                hotel = hotelService.getHotelById(hotelId);
+                if (hotel == null || hotel.getHostId() != host.getId()) {
+                    response.put("success", false);
+                    response.put("message", "Không có quyền kích hoạt phòng này");
+                    return response;
+                }
+            } catch (Exception e) {
+                System.err.println("Error fetching hotel data for hotelId " + hotelId + ": " + e.getMessage());
+                response.put("success", false);
+                response.put("message", "Lỗi khi kiểm tra thông tin khách sạn");
+                return response;
+            }
+
+            // 3. Activate the room
+            try {
+                roomService.activateRoom(roomId);
+                System.out.println("Successfully activated room " + roomId);
+            } catch (Exception e) {
+                System.err.println("Error activating room " + roomId + ": " + e.getMessage());
+                e.printStackTrace();
+                response.put("success", false);
+                response.put("message", "Lỗi khi kích hoạt phòng: " + e.getMessage());
+                return response;
+            }
+
+            // 4. Success response
+            response.put("success", true);
+            response.put("message", "Kích hoạt phòng thành công");
+            
+        } catch (Exception e) {
+            // Catch any unexpected errors
+            System.err.println("Unexpected error in activateRoom for roomId " + roomId + ": " + e.getMessage());
+            e.printStackTrace();
+            response.put("success", false);
+            response.put("message", "Lỗi không mong muốn khi kích hoạt phòng");
         }
         
         return response;
