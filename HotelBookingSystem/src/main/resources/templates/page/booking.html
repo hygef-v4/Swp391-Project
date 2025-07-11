@@ -127,7 +127,27 @@
                 }else{
                     alert("Đã hết phòng, vui lòng chọn phòng khác");
                 }
-            }scroll("hotel");
+            }
+            
+            const hotelId = document.getElementById('hotelId').value;
+            const cookie = document.cookie.match(new RegExp("(^| )booking" + hotelId + "=([^;]+)"));
+            if(cookie && cookie[2]){
+                const bookingData = JSON.parse(decodeURIComponent(cookie[2]));
+                bookingData.forEach(item => {
+                    const id = item.roomId;
+                    const quantity = item.quantity;
+                    const room = document.getElementById('booked' + id);
+
+                    if(id != roomId){
+                        if(room.querySelector(".bookedQuantity").max > 0){
+                            room.querySelector(".bookedQuantity").value = quantity;
+                            booking(id);
+                        }else{
+                            alert("Đã hết phòng, vui lòng chọn phòng khác");
+                        }
+                    }
+                });
+            }
         });
 
         function updatePaid(t, d){
@@ -636,7 +656,7 @@ Page content START -->
                                 <!-- card header -->
                                 <div class="card-header border-bottom">
                                     <h5 class="card-title mb-0">Hóa đơn</h5>
-                                    <input type="hidden" name="hotelId" th:value="${hotel.hotelId}">
+                                    <input type="hidden" name="hotelId" th:value="${hotel.hotelId}" id="hotelId">
                                     <input type="hidden" name="checkIn" th:value="${checkIn}">
                                     <input type="hidden" name="checkOut" th:value="${checkOut}">
                                 </div>
@@ -778,7 +798,7 @@ Footer END -->
 			position: {lat: lat, lng: lng},
 			map: map,
 			icon: {
-                url: 'https://maps.gstatic.com/mapfiles/api-3/images/spotlight-poi2_hdpi.png',
+                url: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
                 scaledSize: new google.maps.Size(14, 22)
             }
 		});

@@ -60,10 +60,10 @@ public class PaymentController {
         model.addAttribute("dateRange", dateRange);
         model.addAttribute("guests", guests);
         model.addAttribute("rooms", rooms);
-
+        
         Booking booking = bookingService.findById(id);
         if(booking == null) {
-            return "redirect:/";
+            return "redirect:/booking/" + hotelId + "?dateRange=" + dateRange + "&guests=" + guests + "&rooms=" + rooms;
         }
 
         User user = (User) session.getAttribute("user");

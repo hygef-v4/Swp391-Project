@@ -107,7 +107,6 @@ public class RoomRepository {
         return jdbcTemplate.queryForObject(COUNT_ROOMS, Integer.class);
     }
 
-
     public int getTotalRoomsByHostId(int hostId) {
         String sql = """
                 SELECT SUM(r.quantity)

@@ -31,7 +31,11 @@ import org.swp391.hotelbookingsystem.service.LocationService;
 import org.swp391.hotelbookingsystem.service.RoomService;
 import org.swp391.hotelbookingsystem.service.VNPayService;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
@@ -131,7 +135,7 @@ public class BookingController {
         @RequestParam(value = "guests") int guests,
         @RequestParam(value = "rooms") int rooms,    
 
-        Model model, HttpSession session
+        Model model, HttpSession session, HttpServletResponse response
     ){
         User user = (User) session.getAttribute("user");
         if(user == null) {
@@ -152,8 +156,10 @@ public class BookingController {
             .createdAt(LocalDateTime.now())
             .couponId(couponId)
             .build();
-
+            
+        List<String> json = new ArrayList<>();
         List<BookingUnit> bookingUnits = new ArrayList<>();
+
         for(int i = 0; i < roomId.size(); i++){
             BookingUnit bookingUnit = BookingUnit.builder()
                 .roomId(roomId.get(i))
@@ -162,16 +168,20 @@ public class BookingController {
                 .quantity(quantity.get(i))
                 .build();
             bookingUnits.add(bookingUnit);
+
+            json.add(String.format("{\"roomId\":\"%d\",\"quantity\":%d}", roomId.get(i), quantity.get(i)));
         }booking.setBookingUnits(bookingUnits);
 
-        int id = bookingService.pendingBooking(booking);
+        Cookie cookie = new Cookie("booking" + hotelId, URLEncoder.encode("[" + String.join(",", json) + "]", StandardCharsets.UTF_8));
+        cookie.setPath("/");
+        cookie.setMaxAge(60 * 30);
+        response.addCookie(cookie);
 
-        try{
-            System.out.println();
-        }catch(Exception e){
+        if(!bookingService.checkQuantity(booking)){
             return "redirect:/booking/" + hotelId + "&dateRange=" + dateRange + "&guests=" + guests + "&rooms=" + rooms;
         }
-
+        
+        int id = bookingService.pendingBooking(booking);
         return "redirect:/payment/" + id + "?hotelId=" + hotelId + "&dateRange=" + dateRange + "&guests=" + guests + "&rooms=" + rooms;
     }
 }
