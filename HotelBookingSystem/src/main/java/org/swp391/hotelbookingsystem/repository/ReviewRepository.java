@@ -103,7 +103,7 @@ public class ReviewRepository {
             FROM Reviews r
             JOIN Users u ON r.reviewer_id = u.user_id
             WHERE r.is_public = 1 AND r.rating >= 4
-            ORDER BY r.rating DESC, r.created_at DESC
+            ORDER BY r.rating DESC
         """;
         return jdbcTemplate.query(sql, (rs, rowNum) ->
                 Review.builder()
