@@ -461,6 +461,108 @@ About hotel START -->
                     </div>
                     <!-- Hotel Policies END -->
 
+                    <!-- Cancellation Policy START -->
+                    <div class="card bg-transparent card-editable" id="cancellation-policy">
+                        <!-- Card header -->
+                        <div class="card-header border-bottom bg-transparent px-0 pt-0">
+                            <h3 class="mb-0">Chính sách hủy phòng & hoàn tiền</h3>
+                        </div>
+
+                        <!-- Card body START -->
+                        <div class="card-body pt-4 p-0">
+                            <div class="view-mode">
+                                <div th:if="${cancellationPolicy != null}">
+                                    <div class="row g-3">
+                                        <div class="col-md-4">
+                                            <div class="bg-light p-3 rounded text-center">
+                                                <h5 class="text-primary mb-1" th:text="${cancellationPolicy.partialRefundDays}">7</h5>
+                                                <small class="text-muted">Ngày hoàn tiền một phần</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="bg-light p-3 rounded text-center">
+                                                <h5 class="text-success mb-1">
+                                                    <span th:text="${cancellationPolicy.partialRefundPercent}">50</span>%
+                                                </h5>
+                                                <small class="text-muted">Phần trăm hoàn tiền</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="bg-light p-3 rounded text-center">
+                                                <h5 class="text-warning mb-1" th:text="${cancellationPolicy.noRefundWithinDays}">1</h5>
+                                                <small class="text-muted">Ngày không hoàn tiền</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="alert alert-info">
+                                                <i class="bi bi-info-circle me-2"></i>
+                                                <strong>Chính sách hoàn tiền:</strong> 
+                                                Khách hàng hủy phòng trước <span th:text="${cancellationPolicy.partialRefundDays}">7</span> ngày 
+                                                sẽ được hoàn <span th:text="${cancellationPolicy.partialRefundPercent}">50</span>% tiền. 
+                                                Hủy trong vòng <span th:text="${cancellationPolicy.noRefundWithinDays}">1</span> ngày 
+                                                trước check-in sẽ không được hoàn tiền.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div th:if="${cancellationPolicy == null}">
+                                    <div class="alert alert-warning">
+                                        <i class="bi bi-exclamation-triangle me-2"></i>
+                                        Chưa thiết lập chính sách hủy phòng. Nhấn nút chỉnh sửa để thiết lập.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="edit-mode">
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <div class="form-floating">
+                                            <input type="number" class="form-control" id="partialRefundDaysEdit" 
+                                                   min="1" max="365" th:value="${cancellationPolicy?.partialRefundDays ?: 7}" required>
+                                            <label for="partialRefundDaysEdit">Số ngày hoàn tiền một phần</label>
+                                        </div>
+                                        <small class="text-muted">Từ 1 đến 365 ngày</small>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-floating">
+                                            <input type="number" class="form-control" id="partialRefundPercentEdit" 
+                                                   min="10" max="100" step="5" th:value="${cancellationPolicy?.partialRefundPercent ?: 50}" required>
+                                            <label for="partialRefundPercentEdit">Phần trăm hoàn tiền (%)</label>
+                                        </div>
+                                        <small class="text-muted">Từ 10% đến 100%</small>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-floating">
+                                            <input type="number" class="form-control" id="noRefundWithinDaysEdit" 
+                                                   min="0" max="365" th:value="${cancellationPolicy?.noRefundWithinDays ?: 1}" required>
+                                            <label for="noRefundWithinDaysEdit">Số ngày không hoàn tiền</label>
+                                        </div>
+                                        <small class="text-muted">Từ 0 đến 365 ngày</small>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="alert alert-info" id="policyPreview">
+                                            <i class="bi bi-info-circle me-2"></i>
+                                            <strong>Xem trước:</strong> 
+                                            <span id="previewText">Khách hàng hủy phòng trước 7 ngày sẽ được hoàn 50% tiền. Hủy trong vòng 1 ngày trước check-in sẽ không được hoàn tiền.</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex gap-2 mt-3">
+                                    <button class="btn btn-success btn-sm" onclick="saveCancellationPolicy()">
+                                        <i class="bi bi-check-circle me-1"></i>Lưu chính sách
+                                    </button>
+                                    <button class="btn btn-secondary btn-sm" onclick="toggleEditMode('cancellation-policy')">
+                                        <i class="bi bi-x-circle me-1"></i>Hủy
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn btn-outline-primary btn-sm edit-btn" onclick="toggleEditMode('cancellation-policy')">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <!-- Card body END -->
+                    </div>
+                    <!-- Cancellation Policy END -->
+
                     <!-- Hotel Location START -->
                     <div class="card bg-transparent card-editable" id="hotel-location">
                         <!-- Card header -->
@@ -705,12 +807,18 @@ About hotel START -->
                                                             <button class="btn btn-outline-primary btn-sm" th:onclick="'toggleEditMode(\'room-' + ${room.roomId} + '\')'">
                                                                 <i class="bi bi-pencil me-1"></i>Chỉnh sửa
                                                             </button>
-                                                            <button class="btn btn-outline-danger btn-sm" 
-                                                                    th:onclick="'deleteRoom(' + ${room.roomId} + ')'"
-                                                                    th:disabled="${rooms.size() <= 1}"
-                                                                    th:title="${rooms.size() <= 1 ? 'Không thể xóa phòng cuối cùng' : 'Xóa phòng'}">
-                                                                <i class="bi bi-trash me-1"></i>
-                                                                <span th:text="${rooms.size() <= 1 ? 'Không thể xóa' : 'Xóa'}"></span>
+                                                            <!-- Conditional button based on room status -->
+                                                            <button th:if="${room.status == 'active'}" 
+                                                                    class="btn btn-outline-warning btn-sm deactivate-room-btn" 
+                                                                    th:onclick="'deactivateRoom(' + ${room.roomId} + ')'"
+                                                                    th:data-room-id="${room.roomId}">
+                                                                <i class="bi bi-slash-circle me-1"></i>
+                                                                <span>Vô hiệu hóa</span>
+                                                            </button>
+                                                            <button th:if="${room.status == 'inactive'}" 
+                                                                    class="btn btn-outline-success btn-sm" 
+                                                                    th:onclick="'activateRoom(' + ${room.roomId} + ')'">
+                                                                <i class="bi bi-check-circle me-1"></i>Kích hoạt
                                                             </button>
                                                         </div>
                                                     </div>
@@ -1649,6 +1757,80 @@ About hotel END -->
         });
     }
 
+    // Cancellation Policy Functions
+    function updateCancellationPreview() {
+        const partialDays = document.getElementById('partialRefundDaysEdit').value || 7;
+        const refundPercent = document.getElementById('partialRefundPercentEdit').value || 50;
+        const noDays = document.getElementById('noRefundWithinDaysEdit').value || 1;
+        
+        const previewText = `Khách hàng hủy phòng trước ${partialDays} ngày sẽ được hoàn ${refundPercent}% tiền. Hủy trong vòng ${noDays} ngày trước check-in sẽ không được hoàn tiền.`;
+        document.getElementById('previewText').textContent = previewText;
+    }
+
+    function saveCancellationPolicy() {
+        const partialDays = document.getElementById('partialRefundDaysEdit').value;
+        const refundPercent = document.getElementById('partialRefundPercentEdit').value;
+        const noDays = document.getElementById('noRefundWithinDaysEdit').value;
+
+        // Validate inputs
+        if (!partialDays || !refundPercent || noDays === '') {
+            showNotification('Vui lòng điền đầy đủ thông tin chính sách', 'error');
+            return;
+        }
+
+        const partialDaysNum = parseInt(partialDays);
+        const refundPercentNum = parseInt(refundPercent);
+        const noDaysNum = parseInt(noDays);
+
+        // Validate ranges
+        if (partialDaysNum < 1 || partialDaysNum > 365) {
+            showNotification('Số ngày hoàn tiền một phần phải từ 1 đến 365', 'error');
+            return;
+        }
+
+        if (refundPercentNum < 10 || refundPercentNum > 100) {
+            showNotification('Phần trăm hoàn tiền phải từ 10% đến 100%', 'error');
+            return;
+        }
+
+        if (noDaysNum < 0 || noDaysNum > 365) {
+            showNotification('Số ngày không hoàn tiền phải từ 0 đến 365', 'error');
+            return;
+        }
+
+        // Validate logic
+        if (noDaysNum > partialDaysNum) {
+            showNotification('Số ngày không hoàn tiền phải nhỏ hơn hoặc bằng số ngày hoàn tiền một phần', 'error');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('hotelId', hotelId);
+        formData.append('partialRefundDays', partialDaysNum);
+        formData.append('partialRefundPercent', refundPercentNum);
+        formData.append('noRefundWithinDays', noDaysNum);
+
+        fetch('/update-cancellation-policy', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification(data.message);
+                toggleEditMode('cancellation-policy');
+                // Reload page to show updated policy
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showNotification(data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Có lỗi xảy ra khi lưu chính sách hủy phòng', 'error');
+        });
+    }
+
     function saveRoomInfo(roomId) {
         // Get form fields
         const roomTitleField = document.getElementById('roomTitle-' + roomId);
@@ -1767,41 +1949,35 @@ About hotel END -->
         });
     }
 
-    function deleteRoom(roomId) {
-        // Check if this is the last room
-        const currentRooms = document.querySelectorAll('[id^="room-"]');
-        if (currentRooms.length <= 1) {
-            showNotification('Không thể xóa phòng cuối cùng. Khách sạn phải có ít nhất 1 phòng.', 'warning');
-            return;
-        }
+    function deactivateRoom(roomId) {
+        // Check if this is the last active room
+        const activeRooms = document.querySelectorAll('[id^="room-"]').length; // This is a simple check, more complex logic handled server-side
         
-        if (confirm('Bạn có chắc chắn muốn xóa phòng này? Hành động này không thể hoàn tác.')) {
+        if (confirm('Bạn có chắc chắn muốn vô hiệu hóa phòng này? Phòng sẽ không hiển thị cho khách hàng nhưng dữ liệu vẫn được giữ lại.')) {
             const formData = new FormData();
             formData.append('roomId', roomId);
             formData.append('hotelId', hotelId);
 
-            fetch('/delete-room', {
+            fetch('/deactivate-room', {
                 method: 'POST',
                 body: formData
             })
             .then(response => response.json())
             .then(data => {
-                console.log('Delete room response:', data);
+                console.log('Deactivate room response:', data);
                 if (data.success) {
                     showNotification(data.message);
                     
                     try {
-                        // Remove room element from DOM
-                        document.getElementById('room-' + roomId).remove();
+                        // Update room status in DOM
+                        updateRoomButtonStatus(roomId, 'inactive');
                         
-                        // Update delete buttons for remaining rooms
-                        updateDeleteButtons();
+                        // Update deactivate buttons for remaining active rooms
+                        updateRoomActionButtons();
                         
-                        // Update statistics
-                        updateRoomStatistics();
                     } catch (uiError) {
-                        console.error('UI update error after successful deletion:', uiError);
-                        // Don't show error notification since deletion was successful
+                        console.error('UI update error after successful deactivation:', uiError);
+                        // Don't show error notification since deactivation was successful
                     }
                 } else {
                     showNotification(data.message, 'error');
@@ -1809,31 +1985,97 @@ About hotel END -->
             })
             .catch(error => {
                 console.error('Error:', error);
-                showNotification('Có lỗi xảy ra khi xóa phòng', 'error');
+                showNotification('Có lỗi xảy ra khi vô hiệu hóa phòng', 'error');
             });
         }
     }
 
-    // Update delete buttons based on room count
-    function updateDeleteButtons() {
-        const currentRooms = document.querySelectorAll('[id^="room-"]');
-        const deleteButtons = document.querySelectorAll('.btn-outline-danger');
+    function activateRoom(roomId) {
+        if (confirm('Bạn có chắc chắn muốn kích hoạt lại phòng này? Phòng sẽ hiển thị cho khách hàng đặt phòng.')) {
+            const formData = new FormData();
+            formData.append('roomId', roomId);
+            formData.append('hotelId', hotelId);
+
+            fetch('/activate-room', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Activate room response:', data);
+                if (data.success) {
+                    showNotification(data.message);
+                    
+                    try {
+                        // Update room status in DOM
+                        updateRoomButtonStatus(roomId, 'active');
+                        
+                        // Update room action buttons
+                        updateRoomActionButtons();
+                        
+                    } catch (uiError) {
+                        console.error('UI update error after successful activation:', uiError);
+                        // Don't show error notification since activation was successful
+                    }
+                } else {
+                    showNotification(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Có lỗi xảy ra khi kích hoạt phòng', 'error');
+            });
+        }
+    }
+
+    // Update room button status based on new status
+    function updateRoomButtonStatus(roomId, newStatus) {
+        const roomElement = document.getElementById('room-' + roomId);
+        if (!roomElement) return;
         
-        deleteButtons.forEach(button => {
-            if (currentRooms.length <= 1) {
-                button.disabled = true;
-                button.title = 'Không thể xóa phòng cuối cùng';
-                const buttonText = button.querySelector('span') || button;
-                if (buttonText.tagName === 'SPAN') {
-                    buttonText.textContent = 'Không thể xóa';
-                }
-            } else {
-                button.disabled = false;
-                button.title = 'Xóa phòng';
-                const buttonText = button.querySelector('span') || button;
-                if (buttonText.tagName === 'SPAN') {
-                    buttonText.textContent = 'Xóa';
-                }
+        const buttonContainer = roomElement.querySelector('.view-mode .d-flex.gap-2');
+        if (!buttonContainer) return;
+        
+        // Remove existing status button
+        const existingStatusButton = buttonContainer.querySelector('.deactivate-room-btn, .btn-outline-success');
+        if (existingStatusButton) {
+            existingStatusButton.remove();
+        }
+        
+        // Add new status button
+        const editButton = buttonContainer.querySelector('.btn-outline-primary');
+        if (editButton && newStatus) {
+            let newButton;
+            if (newStatus === 'active') {
+                newButton = document.createElement('button');
+                newButton.className = 'btn btn-outline-warning btn-sm deactivate-room-btn';
+                newButton.setAttribute('onclick', 'deactivateRoom(' + roomId + ')');
+                newButton.setAttribute('data-room-id', roomId);
+                newButton.innerHTML = '<i class="bi bi-slash-circle me-1"></i><span>Vô hiệu hóa</span>';
+            } else if (newStatus === 'inactive') {
+                newButton = document.createElement('button');
+                newButton.className = 'btn btn-outline-success btn-sm';
+                newButton.setAttribute('onclick', 'activateRoom(' + roomId + ')');
+                newButton.innerHTML = '<i class="bi bi-check-circle me-1"></i>Kích hoạt';
+            }
+            
+            if (newButton) {
+                editButton.parentNode.insertBefore(newButton, editButton.nextSibling);
+            }
+        }
+    }
+
+    // Update room action buttons based on current state
+    function updateRoomActionButtons() {
+        // Just ensure all deactivate buttons are enabled and have correct text
+        const deactivateButtons = document.querySelectorAll('.deactivate-room-btn');
+        
+        deactivateButtons.forEach(button => {
+            button.disabled = false;
+            button.title = 'Vô hiệu hóa phòng';
+            const buttonText = button.querySelector('span');
+            if (buttonText) {
+                buttonText.textContent = 'Vô hiệu hóa';
             }
         });
     }
@@ -2693,8 +2935,8 @@ About hotel END -->
             }
         });
         
-        // Initialize delete button states
-        updateDeleteButtons();
+        // Initialize room action button states
+        updateRoomActionButtons();
         
         // Initialize view map
         setTimeout(() => initializeViewMap(), 100);
@@ -2759,6 +3001,21 @@ About hotel END -->
 
         // Setup hotel image preview - use existing simple method
         setupImagePreview('hotelImageEdit', 'hotelImagePreview');
+
+        // Setup cancellation policy event listeners
+        const cancellationInputs = ['partialRefundDaysEdit', 'partialRefundPercentEdit', 'noRefundWithinDaysEdit'];
+        cancellationInputs.forEach(inputId => {
+            const input = document.getElementById(inputId);
+            if (input) {
+                input.addEventListener('input', updateCancellationPreview);
+                input.addEventListener('change', updateCancellationPreview);
+            }
+        });
+
+        // Initialize cancellation preview
+        if (document.getElementById('partialRefundDaysEdit')) {
+            updateCancellationPreview();
+        }
     });
 
     // Simple image preview function for hotel image only

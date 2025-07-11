@@ -18,10 +18,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.swp391.hotelbookingsystem.constant.ConstantVariables;
 import org.swp391.hotelbookingsystem.model.Amenity;
+import org.swp391.hotelbookingsystem.model.CancellationPolicy;
 import org.swp391.hotelbookingsystem.model.Hotel;
 import org.swp391.hotelbookingsystem.model.Room;
 import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.service.AmenityService;
+import org.swp391.hotelbookingsystem.service.CancellationPolicyService;
 import org.swp391.hotelbookingsystem.service.CloudinaryService;
 import org.swp391.hotelbookingsystem.service.HotelService;
 import org.swp391.hotelbookingsystem.service.LocationService;
@@ -32,30 +34,24 @@ import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class HostRegisterController {
-    final
-    LocationService locationService;
+    final LocationService locationService;
+    final AmenityService amenityService;
+    final CloudinaryService cloudinaryService;
+    final RoomService roomService;
+    final HotelService hotelService;
+    final UserService userService;
+    final CancellationPolicyService cancellationPolicyService;
 
-    final
-    AmenityService amenityService;
-
-    final
-    CloudinaryService cloudinaryService;
-
-    final
-    RoomService roomService;
-    final
-    HotelService hotelService;
-
-    final
-    UserService userService;
-
-    public HostRegisterController(LocationService locationService, AmenityService amenityService, CloudinaryService cloudinaryService, RoomService roomService, HotelService hotelService, UserService userService) {
+    public HostRegisterController(LocationService locationService, AmenityService amenityService, 
+            CloudinaryService cloudinaryService, RoomService roomService, HotelService hotelService, 
+            UserService userService, CancellationPolicyService cancellationPolicyService) {
         this.locationService = locationService;
         this.amenityService = amenityService;
         this.cloudinaryService = cloudinaryService;
         this.roomService = roomService;
         this.hotelService = hotelService;
         this.userService = userService;
+        this.cancellationPolicyService = cancellationPolicyService;
     }
 
     @GetMapping("/host-intro")
@@ -78,7 +74,10 @@ public class HostRegisterController {
             @RequestParam(required = false) Integer roomQuantity,
             @RequestParam(required = false) Float roomPrice,
             @RequestParam(required = false) String roomDescription,
-            @RequestParam(required = false) List<Integer> selectedAmenities) {
+            @RequestParam(required = false) List<Integer> selectedAmenities,
+            @RequestParam(required = false) Integer partialRefundDays,
+            @RequestParam(required = false) Integer partialRefundPercent,
+            @RequestParam(required = false) Integer noRefundWithinDays) {
         
         session.setAttribute(ConstantVariables.LOCATIONS, locationService.getAllLocations());
 
@@ -113,6 +112,11 @@ public class HostRegisterController {
         if (roomDescription != null) model.addAttribute("roomDescription", roomDescription);
         if (selectedAmenities != null) model.addAttribute("selectedAmenities", selectedAmenities);
         
+        // Add cancellation policy draft data
+        if (partialRefundDays != null) model.addAttribute("partialRefundDays", partialRefundDays);
+        if (partialRefundPercent != null) model.addAttribute("partialRefundPercent", partialRefundPercent);
+        if (noRefundWithinDays != null) model.addAttribute("noRefundWithinDays", noRefundWithinDays);
+        
         return "page/register-host";
     }
 
@@ -136,6 +140,11 @@ public class HostRegisterController {
 
             @RequestParam("roomImageFiles") MultipartFile[] roomImageFiles,
 
+            // Cancellation policy parameters
+            @RequestParam("partialRefundDays") int partialRefundDays,
+            @RequestParam("partialRefundPercent") int partialRefundPercent,
+            @RequestParam("noRefundWithinDays") int noRefundWithinDays,
+
             HttpSession session,
             Model model
     ) {
@@ -158,7 +167,17 @@ public class HostRegisterController {
                 SecurityContextHolder.getContext().setAuthentication(newAuth);   //  Replace the current authentication in the Spring Security context to avoid user re-login
             }
 
+            // Validate cancellation policy data
+            CancellationPolicy cancellationPolicy = CancellationPolicy.builder()
+                    .partialRefundDays(partialRefundDays)
+                    .partialRefundPercent(partialRefundPercent)
+                    .noRefundWithinDays(noRefundWithinDays)
+                    .build();
 
+            if (!cancellationPolicyService.validatePolicy(cancellationPolicy)) {
+                model.addAttribute("error", "Chính sách hủy phòng không hợp lệ. Vui lòng kiểm tra lại các giá trị đã nhập.");
+                return "page/register-host";
+            }
 
             // Validate & upload hotel image
             if (hotelImage.isEmpty() || hotelImage.getContentType() == null || !hotelImage.getContentType().startsWith("image/")) {
@@ -185,6 +204,10 @@ public class HostRegisterController {
 
 
             Hotel savedHotel = hotelService.saveHotel(hotel);
+
+            // Save cancellation policy for the hotel
+            cancellationPolicy.setHotelId(savedHotel.getHotelId());
+            cancellationPolicyService.saveCancellationPolicy(cancellationPolicy);
 
             // Upload room images
             List<String> roomImageUrls = new ArrayList<>();

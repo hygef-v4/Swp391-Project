@@ -919,7 +919,7 @@ public class BookingRepo {
             JOIN Bookings b ON bu.booking_id = b.booking_id
             JOIN Hotels h ON b.hotel_id = h.hotel_id
             WHERE h.host_id = ?
-            AND bu.status IN ('approved', 'completed')
+            AND bu.status IN ('approved', 'completed', 'check_in')
         """;
         Double revenue = jdbcTemplate.queryForObject(sql, Double.class, hostId);
         return revenue != null ? revenue : 0.0;

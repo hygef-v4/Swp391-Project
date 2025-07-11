@@ -28,7 +28,7 @@ public class RoomRepository {
         String sql = """
                     INSERT INTO Rooms (hotel_id, title, description, price, max_guests, quantity, status)
                     OUTPUT INSERTED.room_id
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
                 """;
 
         return jdbcTemplate.queryForObject(sql, Integer.class,

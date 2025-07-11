@@ -733,6 +733,61 @@
                                     </div>
                                 </div>
 
+                                <!-- Cancellation & Refund Policy -->
+                                <div class="card shadow">
+                                    <div class="card-header border-bottom">
+                                        <h5 class="mb-0">Chính Sách Hủy Phòng & Hoàn Tiền</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <p class="text-muted mb-4">Thiết lập chính sách hoàn tiền khi khách hàng hủy đặt phòng. Chính sách này sẽ giúp khách hàng hiểu rõ điều kiện hoàn tiền.</p>
+                                        
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label">Số ngày trước check-in để được hoàn tiền một phần *</label>
+                                                <div class="input-group">
+                                                    <input type="number" class="form-control" name="partialRefundDays" 
+                                                           id="partialRefundDays" min="1" max="365" value="7" required
+                                                           th:value="${partialRefundDays != null ? partialRefundDays : 7}">
+                                                    <span class="input-group-text">ngày</span>
+                                                </div>
+                                                <small class="text-muted">Khách hàng hủy phòng trước số ngày này sẽ được hoàn tiền một phần</small>
+                                            </div>
+                                            
+                                            <div class="col-md-6">
+                                                <label class="form-label">Phần trăm hoàn tiền *</label>
+                                                <div class="input-group">
+                                                    <input type="number" class="form-control" name="partialRefundPercent" 
+                                                           id="partialRefundPercent" min="10" max="100" value="50" required
+                                                           th:value="${partialRefundPercent != null ? partialRefundPercent : 50}">
+                                                    <span class="input-group-text">%</span>
+                                                </div>
+                                                <small class="text-muted">Phần trăm tiền được hoàn lại khi hủy trong thời gian cho phép</small>
+                                            </div>
+                                            
+                                            <div class="col-md-6">
+                                                <label class="form-label">Số ngày trước check-in không được hoàn tiền *</label>
+                                                <div class="input-group">
+                                                    <input type="number" class="form-control" name="noRefundWithinDays" 
+                                                           id="noRefundWithinDays" min="0" max="365" value="1" required
+                                                           th:value="${noRefundWithinDays != null ? noRefundWithinDays : 1}">
+                                                    <span class="input-group-text">ngày</span>
+                                                </div>
+                                                <small class="text-muted">Khách hàng hủy phòng trong khoảng thời gian này sẽ không được hoàn tiền</small>
+                                            </div>
+                                            
+                                            <div class="col-12">
+                                                <div class="alert alert-info">
+                                                    <i class="bi bi-info-circle me-2"></i>
+                                                    <strong>Ví dụ:</strong> Với cài đặt <span id="exampleDays">7 ngày - 50% - 1 ngày</span>, 
+                                                    khách hàng hủy phòng trước <span id="examplePartialDays">7</span> ngày sẽ được hoàn 
+                                                    <span id="examplePercent">50%</span> tiền, còn hủy trong vòng <span id="exampleNoDays">1</span> ngày 
+                                                    trước check-in sẽ không được hoàn tiền.
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
 
                                 <!-- Summary Review -->
                                 <div class="card shadow">
@@ -759,10 +814,13 @@
                                             </li>
                                             <li class="list-group-item"><strong>Loại phòng cơ bản:</strong> <span
                                                     id="summaryRoomTitle">[Sẽ hiển thị ở đây]</span></li>
-                                            <li class="list-group-item"><strong>Giá phòng cơ bản:</strong> <span
-                                                    id="summaryRoomPrice">[Sẽ hiển thị ở đây]</span> VND
-                                            </li>
-                                        </ul>
+                                                                        <li class="list-group-item"><strong>Giá phòng cơ bản:</strong> <span
+                                    id="summaryRoomPrice">[Sẽ hiển thị ở đây]</span> VND
+                            </li>
+                            <li class="list-group-item"><strong>Chính sách hoàn tiền:</strong> <span
+                                    id="summaryCancellationPolicy">[Sẽ hiển thị ở đây]</span>
+                            </li>
+                        </ul>
                                     </div>
                                 </div>
 
@@ -920,6 +978,18 @@ updateInputFiles() - Syncs file list with actual form input for submission-->
     var hotelImageUploaded = false;
     var roomImagesCount = 0;
 
+    // Function to update cancellation policy example
+    function updateCancellationExample() {
+        const partialDays = document.getElementById('partialRefundDays').value || 7;
+        const refundPercent = document.getElementById('partialRefundPercent').value || 50;
+        const noDays = document.getElementById('noRefundWithinDays').value || 1;
+        
+        document.getElementById('exampleDays').textContent = partialDays + ' ngày - ' + refundPercent + '% - ' + noDays + ' ngày';
+        document.getElementById('examplePartialDays').textContent = partialDays;
+        document.getElementById('examplePercent').textContent = refundPercent + '%';
+        document.getElementById('exampleNoDays').textContent = noDays;
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         var stepperEl = document.querySelector('#hostStepper');
         var stepper;
@@ -998,6 +1068,19 @@ updateInputFiles() - Syncs file list with actual form input for submission-->
         // Finds all selects with .js-choice
         // Enables search only for #hotelLocation
         //   Adds placeholder text "Nhấn để chọn"
+
+        // Add event listeners for cancellation policy fields
+        const policyFields = ['partialRefundDays', 'partialRefundPercent', 'noRefundWithinDays'];
+        policyFields.forEach(function(fieldId) {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.addEventListener('input', updateCancellationExample);
+                field.addEventListener('change', updateCancellationExample);
+            }
+        });
+        
+        // Initialize the example display
+        updateCancellationExample();
 
         // --- Leaflet Map Integration ---
         var map;
@@ -1242,6 +1325,13 @@ updateInputFiles() - Syncs file list with actual form input for submission-->
             document.getElementById('summaryLongitude').textContent = hotelLngInput?.value || '[Chưa chọn]';
             document.getElementById('summaryRoomTitle').textContent = document.getElementById('roomTitle')?.value || '[Chưa nhập]';
             document.getElementById('summaryRoomPrice').textContent = document.getElementById('roomPrice')?.value || '[Chưa nhập]';
+            
+            // Update cancellation policy summary
+            const partialDays = document.getElementById('partialRefundDays')?.value || '7';
+            const refundPercent = document.getElementById('partialRefundPercent')?.value || '50';
+            const noDays = document.getElementById('noRefundWithinDays')?.value || '1';
+            const policyText = `Hoàn ${refundPercent}% nếu hủy trước ${partialDays} ngày, không hoàn tiền trong ${noDays} ngày cuối`;
+            document.getElementById('summaryCancellationPolicy').textContent = policyText;
         }
 
         // --- Enhanced Form Validation Logic ---
@@ -1941,6 +2031,8 @@ updateInputFiles() - Syncs file list with actual form input for submission-->
                         currentStepValid = validateCurrentStepFields(1);
                     } else if (currentStep.id === 'step-hotel-2') {
                         currentStepValid = validateCurrentStepFields(2);
+                    } else if (currentStep.id === 'step-hotel-3') {
+                        currentStepValid = validateCurrentStepFields(3);
                     }
                 }
 
@@ -1954,6 +2046,8 @@ updateInputFiles() - Syncs file list with actual form input for submission-->
                         markStepAsCompleted(1);
                     } else if (currentStep.id === 'step-hotel-2') {
                         markStepAsCompleted(2);
+                    } else if (currentStep.id === 'step-hotel-3') {
+                        markStepAsCompleted(3);
                     }
                 }
 
@@ -2081,6 +2175,88 @@ updateInputFiles() - Syncs file list with actual form input for submission-->
                 if (!isValid) {
                     showErrorNotification(
                         'Bước 2 chưa hoàn tất!',
+                        `Vui lòng hoàn thành các thông tin sau: ${emptyFields.join(', ')}.`,
+                        8000
+                    );
+                }
+            } else if (stepNumber === 3) {
+                // Step 3 validation - Policies and cancellation policy
+                const step3Fields = [
+                    { id: 'hotelPolicies', label: 'Nội quy khách sạn' },
+                    { id: 'partialRefundDays', label: 'Số ngày hoàn tiền một phần' },
+                    { id: 'partialRefundPercent', label: 'Phần trăm hoàn tiền' },
+                    { id: 'noRefundWithinDays', label: 'Số ngày không hoàn tiền' }
+                ];
+
+                step3Fields.forEach(function(fieldInfo) {
+                    const element = document.getElementById(fieldInfo.id);
+                    if (element) {
+                        if (element.value.trim() === '') {
+                            emptyFields.push(fieldInfo.label);
+                            showFieldError(element, `${fieldInfo.label} là bắt buộc`);
+                            isValid = false;
+                            if (!firstInvalidElement) firstInvalidElement = element;
+                        } else if (!validateField(element)) {
+                            isValid = false;
+                            if (!firstInvalidElement) firstInvalidElement = element;
+                        }
+                    }
+                });
+
+                // Validate cancellation policy logic
+                const partialDays = parseInt(document.getElementById('partialRefundDays').value) || 0;
+                const refundPercent = parseInt(document.getElementById('partialRefundPercent').value) || 0;
+                const noDays = parseInt(document.getElementById('noRefundWithinDays').value) || 0;
+
+                if (partialDays < 1 || partialDays > 365) {
+                    emptyFields.push('Số ngày hoàn tiền một phần (1-365 ngày)');
+                    showFieldError(document.getElementById('partialRefundDays'), 'Số ngày phải từ 1 đến 365');
+                    isValid = false;
+                    if (!firstInvalidElement) firstInvalidElement = document.getElementById('partialRefundDays');
+                }
+
+                if (refundPercent < 10 || refundPercent > 100) {
+                    emptyFields.push('Phần trăm hoàn tiền (10-100%)');
+                    showFieldError(document.getElementById('partialRefundPercent'), 'Phần trăm hoàn tiền phải từ 10% đến 100%');
+                    isValid = false;
+                    if (!firstInvalidElement) firstInvalidElement = document.getElementById('partialRefundPercent');
+                }
+
+                if (noDays < 0 || noDays > 365) {
+                    emptyFields.push('Số ngày không hoàn tiền (0-365 ngày)');
+                    showFieldError(document.getElementById('noRefundWithinDays'), 'Số ngày phải từ 0 đến 365');
+                    isValid = false;
+                    if (!firstInvalidElement) firstInvalidElement = document.getElementById('noRefundWithinDays');
+                }
+
+                if (noDays > partialDays) {
+                    emptyFields.push('Logic chính sách hoàn tiền');
+                    showFieldError(document.getElementById('noRefundWithinDays'), 'Số ngày không hoàn tiền phải nhỏ hơn hoặc bằng số ngày hoàn tiền một phần');
+                    isValid = false;
+                    if (!firstInvalidElement) firstInvalidElement = document.getElementById('noRefundWithinDays');
+                }
+
+                // Check required checkboxes
+                const agreeTerms = document.getElementById('agreeTerms');
+                const hostCommitment = document.getElementById('hostCommitment');
+                
+                if (!agreeTerms.checked) {
+                    emptyFields.push('Đồng ý điều khoản dịch vụ');
+                    showFieldError(agreeTerms.parentNode, 'Vui lòng đồng ý với điều khoản dịch vụ');
+                    isValid = false;
+                    if (!firstInvalidElement) firstInvalidElement = agreeTerms;
+                }
+
+                if (!hostCommitment.checked) {
+                    emptyFields.push('Cam kết chủ khách sạn');
+                    showFieldError(hostCommitment.parentNode, 'Vui lòng xác nhận cam kết chủ khách sạn');
+                    isValid = false;
+                    if (!firstInvalidElement) firstInvalidElement = hostCommitment;
+                }
+
+                if (!isValid) {
+                    showErrorNotification(
+                        'Bước 3 chưa hoàn tất!',
                         `Vui lòng hoàn thành các thông tin sau: ${emptyFields.join(', ')}.`,
                         8000
                     );
@@ -2612,6 +2788,11 @@ updateInputFiles() - Syncs file list with actual form input for submission-->
                 roomPrice: document.getElementById('roomPrice').value,
                 roomDescription: document.getElementById('roomDescription').value,
                 
+                // Cancellation policy
+                partialRefundDays: document.getElementById('partialRefundDays').value,
+                partialRefundPercent: document.getElementById('partialRefundPercent').value,
+                noRefundWithinDays: document.getElementById('noRefundWithinDays').value,
+                
                 // Amenities (selected checkboxes)
                 amenities: Array.from(document.querySelectorAll('input[name="amenities"]:checked')).map(cb => cb.value),
                 
@@ -2717,6 +2898,10 @@ updateInputFiles() - Syncs file list with actual form input for submission-->
                                 <i class="bi bi-door-open me-1"></i>
                                 ${draft.data.roomTitle || 'Chưa nhập tên phòng'}
                             </div>
+                            <div class="text-truncate">
+                                <i class="bi bi-arrow-clockwise me-1"></i>
+                                Hoàn tiền: ${draft.data.partialRefundDays || 7} ngày - ${draft.data.partialRefundPercent || 50}%
+                            </div>
                         </div>
                         <div class="d-flex gap-1">
                             <button type="button" class="btn btn-sm btn-outline-primary flex-fill" 
@@ -2765,6 +2950,11 @@ updateInputFiles() - Syncs file list with actual form input for submission-->
         if (data.roomQuantity) params.append('roomQuantity', data.roomQuantity);
         if (data.roomPrice) params.append('roomPrice', data.roomPrice);
         if (data.roomDescription) params.append('roomDescription', data.roomDescription);
+        
+        // Add cancellation policy data
+        if (data.partialRefundDays) params.append('partialRefundDays', data.partialRefundDays);
+        if (data.partialRefundPercent) params.append('partialRefundPercent', data.partialRefundPercent);
+        if (data.noRefundWithinDays) params.append('noRefundWithinDays', data.noRefundWithinDays);
         
         // Add amenities
         if (data.amenities && Array.isArray(data.amenities)) {

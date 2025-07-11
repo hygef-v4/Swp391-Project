@@ -112,4 +112,20 @@ public class RoomService {
     public boolean hasActiveBookingUnits(int roomId) {
         return roomRepository.hasActiveBookingUnits(roomId);
     }
+
+    public void updateRoomStatus(int roomId, String status) {
+        Room room = roomRepository.getRoomById(roomId);
+        if (room != null) {
+            room.setStatus(status);
+            roomRepository.updateRoom(room);
+        }
+    }
+
+    public void deactivateRoom(int roomId) {
+        updateRoomStatus(roomId, "inactive");
+    }
+
+    public void activateRoom(int roomId) {
+        updateRoomStatus(roomId, "active");
+    }
 }
