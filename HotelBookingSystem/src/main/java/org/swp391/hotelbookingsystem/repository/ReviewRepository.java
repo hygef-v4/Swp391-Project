@@ -157,6 +157,16 @@ public class ReviewRepository {
         return jdbcTemplate.queryForObject(query, Integer.class, review.getHotelId(), review.getReviewerId(), review.getRating(), review.getComment());
     }
 
+    public int editReview(Review review){
+        String query = "UPDATE Reviews SET rating = ?, comment = ? OUTPUT inserted.review_id WHERE hotel_id = ? AND reviewer_id = ?";
+        return jdbcTemplate.queryForObject(query, Integer.class, review.getRating(), review.getComment(), review.getHotelId(), review.getReviewerId());
+    }
+
+    public int deleteReview(int hotelId, int userId){
+        String query = "DELETE FROM Reviews OUTPUT deleted.review_id WHERE hotel_id = ? AND reviewer_id = ?";
+        return jdbcTemplate.queryForObject(query, Integer.class, hotelId, userId);
+    }
+
     public Review getReviewById(int id){
         String query = """
             SELECT
