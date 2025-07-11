@@ -39,6 +39,10 @@ public class BookingService {
         return bookingRepo.pendingBooking(booking);
     }
 
+    public int remainPendingTime(int bookingId){
+        return bookingRepo.remainPendingTime(bookingId);
+    }
+
     public void approveBooking(int id){
         bookingRepo.approveBookingUnit(id);
     }

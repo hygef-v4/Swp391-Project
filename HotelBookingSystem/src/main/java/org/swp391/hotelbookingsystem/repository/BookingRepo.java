@@ -286,6 +286,15 @@ public class BookingRepo {
         return id;
     }
 
+    public int remainPendingTime(int bookingId){
+        String sql = """
+            SELECT DATEDIFF(SECOND, created_at, GETDATE()) FROM Bookings
+            WHERE booking_id = ?
+        """;
+
+        return jdbcTemplate.queryForObject(sql, Integer.class, bookingId);
+    }
+
     public boolean isPending(int id, int userId){
         String sql = "SELECT 1 FROM Bookings WHERE booking_id = ? AND customer_id = ?";
         return !jdbcTemplate.query(sql,(rs, rowNum) -> rs.getInt(1), id, userId).isEmpty();

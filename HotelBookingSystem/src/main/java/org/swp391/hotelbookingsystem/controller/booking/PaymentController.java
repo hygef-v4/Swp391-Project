@@ -81,6 +81,12 @@ public class PaymentController {
         model.addAttribute("price", price);
         model.addAttribute("discount", discount);
 
+        int remainTime = (60 * 15) - bookingService.remainPendingTime(id);
+        if(remainTime <= 0) remainTime = 0;
+        
+        model.addAttribute("remainMinute", String.format("%02d", remainTime / 60));
+        model.addAttribute("remainSecond", String.format("%02d", remainTime % 60));
+
         return "page/payment";
     }
 

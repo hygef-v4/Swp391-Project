@@ -123,7 +123,7 @@
 
                 if(room.querySelector(".bookedQuantity").max > 0){
                     room.querySelector(".bookedQuantity").value = amount;
-                    booking(roomId);
+                    booking(roomId, false);
                 }else{
                     alert("Đã hết phòng, vui lòng chọn phòng khác");
                 }
@@ -141,7 +141,7 @@
                     if(id != roomId){
                         if(room.querySelector(".bookedQuantity").max > 0){
                             room.querySelector(".bookedQuantity").value = quantity;
-                            booking(id);
+                            booking(id, false);
                         }else{
                             alert("Đã hết phòng, vui lòng chọn phòng khác");
                         }
@@ -270,14 +270,14 @@
     </script>
 
     <script>
-        function scroll(id){
+        function scrollToId(id){
             const e = document.getElementById(id);
             if(e) e.scrollIntoView({behavior: 'smooth'});
         }
     </script>
 
     <script>
-        function booking(id){
+        function booking(id, scroll = true){
             const bookedContent = document.getElementById('bookedContent').firstElementChild;
             const bookedRoom = document.getElementById('booked' + id);
             const moreRoom = document.getElementById('more' + id);
@@ -294,7 +294,7 @@
             moreRoom.classList.add('hidden');
 
             addTotalPrice(id);
-            scroll('booked' + id);
+            if(scroll) scrollToId('booked' + id);
         }
 
         function less(id){
