@@ -647,7 +647,7 @@ About hotel START -->
 
 					<!-- Customer Review START -->
 					
-					<div class="card bg-transparent">
+					<div class="card bg-transparent" id="hotel-reviews">
 						<!-- Card header -->
 						<div class="card-header border-bottom bg-transparent px-0 pt-0">
 							<h3 class="card-title mb-0">Đánh Giá</h3>
@@ -806,6 +806,15 @@ About hotel START -->
 								<span>Giá chỉ từ</span>
 								<h4 class="card-title mb-0" th:text="${#numbers.formatDecimal(hotel.minPrice, 0, 'COMMA', 0, 'POINT')} + '₫'"></h4>
 							</div>
+
+							<!-- Heart icon -->
+							<div class="list-inline-item">
+								<form th:action="${(favorite ? 'remove-favorite' : '/add-favorite') + '?hotelId=' + hotel.hotelId + '&detail=true' + redirect}" method="post" style="display: inline;">
+									<button type="submit" class="btn btn-sm btn-light px-2">
+										<i th:class="'fa-solid fa-fw fa-heart' + ${favorite ? ' text-danger' : ''}"></i>
+									</button>
+								</form>
+							</div>
 						</div>		
 
 						<!-- Rating -->
@@ -823,6 +832,10 @@ About hotel START -->
 						<!-- Button -->
 						<div class="d-grid">
 							<a href="#room-options" class="btn btn-lg btn-primary-soft mb-0">Xem <span th:text="${rooms.size()}"></span> lựa chọn phòng</a>
+						</div>
+
+						<div class="d-grid mt-2">
+							<a href="#hotel-reviews" class="btn btn-lg btn-secondary-soft mb-0">Đánh giá khách sạn</a>
 						</div>
 					</div>
 					<!-- Book now END -->
