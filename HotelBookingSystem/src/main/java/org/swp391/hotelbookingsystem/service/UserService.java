@@ -9,6 +9,8 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.swp391.hotelbookingsystem.service.ReportService;
+import org.swp391.hotelbookingsystem.model.Report;
 
 @Service
 public class UserService {
@@ -17,11 +19,14 @@ public class UserService {
 
     private final PasswordEncoder passwordEncoder;
 
+    private final ReportService reportService;
+
 
     @Autowired
-    public UserService(UserRepo userRepo, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepo userRepo, PasswordEncoder passwordEncoder, ReportService reportService) {
         this.userRepo = userRepo;
         this.passwordEncoder = passwordEncoder;
+        this.reportService = reportService;
     }
 
     public void updateUserRole(int userId, String newRole) {
@@ -198,12 +203,21 @@ public class UserService {
         return allUsers != null ? allUsers.size() : 0;
     }
 
-    public void flagUser(int userId, String reason) {
-        if (reason == null) {
-            userRepo.flagUserById(userId, null); // truyền null để huỷ flag
-        } else {
-            userRepo.flagUserById(userId, reason);
-        }
+    // New: Check if user is flagged (pending report)
+    public boolean isUserFlagged(int userId) {
+        return reportService.isUserFlagged(userId);
+    }
+    // New: Get latest pending report for user
+    public Report getLatestPendingReport(int userId) {
+        return reportService.getLatestPendingReport(userId);
+    }
+    // New: Flag user
+    public void flagUser(int reporterId, int reportedUserId, String reason) {
+        reportService.flagUser(reporterId, reportedUserId, reason);
+    }
+    // New: Unflag user
+    public void unflagUser(int userId) {
+        reportService.unflagUser(userId);
     }
 
 }
