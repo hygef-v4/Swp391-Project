@@ -157,6 +157,7 @@ public class HotelRepository {
                     LEFT JOIN BookedRooms br ON r.room_id = br.room_id
                     WHERE (h.location_id = ? OR ? = -1) 
                         AND h.hotel_name like ?
+                        AND h.status = 'active'
                     GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
                         h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude,
                         l.city_name

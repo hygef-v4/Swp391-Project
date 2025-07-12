@@ -77,6 +77,16 @@ public class HotelDetailController {
         model.addAttribute("favorite", favorite);
         model.addAttribute("review", review);
 
+        if(!hotel.getStatus().equals("active")){
+            if(hotel.getStatus().equals("inactive")){
+                model.addAttribute("banMessage", "Khách sạn này hiện không hoạt động, tạm thời không thể đặt phòng!");
+            }else if(hotel.getStatus().equals("banned")){
+                model.addAttribute("banMessage", "Khách sạn này đã bị khóa, tạm thời không thể đặt phòng!");
+            }else{
+                return "redirect:/hotel-list?location=" + hotel.getLocationId() + "&dateRange=" + dateRange + "&guests=" + guests + "&rooms=" + roomQuantity;
+            }
+        }
+
         String redirect = "";
         if(!"".equals(dateRange)) redirect += "&dateRange=" + URLEncoder.encode(dateRange, StandardCharsets.UTF_8);
         if(guests != 1) redirect += "&guests=" + guests;

@@ -398,6 +398,11 @@ Main Title START -->
 			<strong>Lỗi!</strong> <span th:text="${errorMessage}"></span>
 			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 		</div>
+
+		<div th:if="${banMessage}" class="alert alert-danger alert-dismissible show" role="alert">
+			<span th:text="${banMessage}"></span>
+			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		</div>
 	</div>
 
 	<section class="py-0 pt-sm-5">
@@ -581,7 +586,7 @@ About hotel START -->
 						<div class="card-header border-bottom bg-transparent px-0 pt-0">
 							<div class="d-sm-flex justify-content-sm-between align-items-center">
 								<h3 class="mb-2 mb-sm-0">Lựa Chọn Phòng</h3>
-								<a th:class="'btn btn-sm btn-primary mb-0' + ${rooms == null || rooms.size() == 0 ? ' disabled' : ''}" data-bs-toggle="modal" data-bs-target="#bookingModal">Chọn Phòng</a>  
+								<a th:class="'btn btn-sm btn-primary mb-0' + ${(rooms == null || rooms.size() == 0 || banMessage != null) ? ' disabled' : ''}" data-bs-toggle="modal" data-bs-target="#bookingModal">Chọn Phòng</a>  
 							</div>
 						</div>
 
@@ -632,7 +637,7 @@ About hotel START -->
 													</div>
 													<!-- Price -->
 													<div class="mt-3 mt-sm-0">
-														<a th:class="'btn btn-sm btn-primary mb-0' + ${room.quantity <= 0 ? ' disabled' : ''}" data-bs-toggle="modal" th:data-bs-target="'#bookingModal' + ${room.roomId}">Đặt Phòng</a>    
+														<a th:class="'btn btn-sm btn-primary mb-0' + ${(room.quantity <= 0 || banMessage != null) ? ' disabled' : ''}" data-bs-toggle="modal" th:data-bs-target="'#bookingModal' + ${room.roomId}">Đặt Phòng</a>    
 													</div>                  
 												</div>
 											</div>
