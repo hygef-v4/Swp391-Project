@@ -502,18 +502,7 @@
                                 </div>
                                 <div class="card-body">
                                     <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <label for="roomCategory" class="form-label">Loại phòng (Hạng phòng) *</label>
-                                            <select name="roomTypeId" required class="form-select js-choice"
-                                                    id="roomCategory">
-                                                <option value="">Chọn loại phòng</option>
-                                                <option th:each="type : ${session.roomTypes}"
-                                                        th:value="${type.roomTypeId}"
-                                                        th:text="${type.name}">
-                                                </option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-6">
+                                        <div class="col-12">
                                             <label for="roomTitle" class="form-label">Tên/Tiêu đề phòng *</label>
                                             <input type="text" class="form-control"
                                                    placeholder="Ví dụ: Phòng Standard giường đôi hướng phố"
@@ -925,7 +914,6 @@ Footer END -->
 
         // Define all required fields
         const requiredFields = [
-            { id: 'roomCategory', name: 'Loại phòng', type: 'select' },
             { id: 'roomTitle', name: 'Tên phòng', type: 'text' },
             { id: 'roomMaxGuests', name: 'Số khách tối đa', type: 'number' },
             { id: 'roomQuantity', name: 'Số lượng phòng', type: 'number' },

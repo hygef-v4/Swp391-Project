@@ -55,10 +55,21 @@ public class BookingController {
         @RequestParam(value = "guests") int guests,
         @RequestParam(value = "rooms") int roomQuantity,    
         
+        @RequestParam(value = "bookingId", required = false) Integer bookingId, 
         Model model, HttpSession session
     ){
         User user = (User) session.getAttribute("user");
-        model.addAttribute("user", user);
+        if(user == null) {
+            return "redirect:/login";
+        }model.addAttribute("user", user);
+
+        if(bookingId != null){
+            try{
+                Booking booking = bookingService.findById(bookingId);
+                if(booking == null) return "redirect:/";
+                else bookingService.deletePendingBooking(bookingId, user.getId());
+            }catch(Exception e){}
+        }
 
         Hotel hotel = hotelService.getHotelById(hotelId);
         hotel.setPolicy(hotel.getPolicy().replace("<li>", "<li class=\"list-group-item d-flex\"><i class=\"bi bi-arrow-right me-2\"></i>"));

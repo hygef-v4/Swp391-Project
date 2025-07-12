@@ -27,10 +27,22 @@ public class ReviewService {
         return reviewRepository.checkReview(hotelId, userId);
     }
 
-    public int addReview(Review review){
-        if(reviewRepository.checkReview(review.getHotelId(), review.getReviewerId())) 
+    public Review getReview(int hotelId, int userId){
+        if(reviewRepository.checkReview(hotelId, userId))
+            return reviewRepository.getReview(hotelId, userId);
+        else return null;
+    }
+
+    public int review(Review review){
+        if(!reviewRepository.checkReview(review.getHotelId(), review.getReviewerId())) 
             return reviewRepository.addReview(review);
-        return 0;        
+        return reviewRepository.editReview(review);
+    }
+
+    public int deleteReview(int hotelId, int userId){
+        if(reviewRepository.checkReview(hotelId, userId))
+            return reviewRepository.deleteReview(hotelId, userId);
+        return 0;
     }
 
     public Review getReviewById(int id){

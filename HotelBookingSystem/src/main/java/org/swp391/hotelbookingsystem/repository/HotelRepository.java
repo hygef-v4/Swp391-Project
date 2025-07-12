@@ -1,8 +1,8 @@
 package org.swp391.hotelbookingsystem.repository;
 
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.sql.Date;
 import java.util.List;
 
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -124,7 +124,7 @@ public class HotelRepository {
         return jdbcTemplate.query(SELECT_TOP_8_HOTELS, HOTEL_MAPPER);
     }
 
-    public List<Hotel> getHotelsByLocation(int locationId, Date checkin, Date checkout, int maxGuests, int roomQuantity, String name, int min, int max, boolean star) {
+    public List<Hotel> getHotelsByLocation(int locationId, Date checkin, Date checkout, int maxGuests, int roomQuantity, String name, int min, int max, boolean price) {
         String query = """
                     WITH BookedRooms AS (
                         SELECT 
@@ -164,7 +164,7 @@ public class HotelRepository {
                         AND SUM(r.quantity - ISNULL(br.booked_quantity, 0)) >= ?
                         AND MIN(r.price) >= ? AND MIN(r.price) <= ?
                 """;
-        String order = " ORDER BY h.rating " + (star ? "ASC" : "DESC");
+        String order = " ORDER BY minPrice " + (price ? "ASC" : "DESC") + ", h.rating DESC";
 
         return jdbcTemplate.query(query+order, ps -> {
             ps.setDate(1, checkin != null ? checkin : new Date(System.currentTimeMillis()));
@@ -303,6 +303,7 @@ public class HotelRepository {
                            h.latitude,
                            h.longitude,
                            h.policy,
+                           h.status,
                            MIN(r.price) AS minPrice,
                            l.city_name AS cityName
                     FROM Hotels h
@@ -311,7 +312,7 @@ public class HotelRepository {
                     WHERE h.host_id = ?
                     GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
                              h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude,
-                             h.policy, l.city_name
+                             h.policy, h.status, l.city_name
                     ORDER BY h.hotel_id DESC
                 """;
 

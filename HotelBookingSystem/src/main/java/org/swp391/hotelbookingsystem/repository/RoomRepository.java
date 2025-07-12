@@ -26,9 +26,9 @@ public class RoomRepository {
 
     public int insertRoom(Room room) {
         String sql = """
-                    INSERT INTO Rooms (hotel_id, title, description, price, max_guests, room_type_id, quantity, status)
+                    INSERT INTO Rooms (hotel_id, title, description, price, max_guests, quantity, status)
                     OUTPUT INSERTED.room_id
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
                 """;
 
         return jdbcTemplate.queryForObject(sql, Integer.class,
@@ -37,7 +37,6 @@ public class RoomRepository {
                 room.getDescription(),
                 room.getPrice(),
                 room.getMaxGuests(),
-                room.getRoomTypeId(),
                 room.getQuantity(),
                 room.getStatus() != null ? room.getStatus() : "active"
         );
@@ -61,7 +60,7 @@ public class RoomRepository {
                             SUM(bu.quantity) AS booked_quantity
                         FROM BookingUnits bu
                         JOIN Bookings b ON b.booking_id = bu.booking_id
-                        WHERE bu.status IN ('approved', 'check_in')
+                        WHERE bu.status IN ('pending', 'approved', 'check_in')
                             AND b.check_out >= ? AND b.check_in <= ?
                         GROUP BY bu.room_id
                     )
@@ -72,7 +71,6 @@ public class RoomRepository {
                         description,
                         price,
                         max_guests AS maxGuests,
-                        room_type_id AS roomTypeId,
                         status,
                         quantity - ISNULL(booked_quantity, 0) AS quantity
                     FROM Rooms 
@@ -95,9 +93,8 @@ public class RoomRepository {
                         description,
                         price,
                         max_guests AS maxGuests,
-                        room_type_id AS roomTypeId,
                         status,
-                        quantity - ISNULL((SELECT SUM(quantity) FROM BookingUnits WHERE room_id = Rooms.room_id AND status LIKE 'approved'), 0) AS quantity
+                        quantity - ISNULL((SELECT SUM(quantity) FROM BookingUnits WHERE room_id = Rooms.room_id AND status IN ('pending', 'approved', 'check_in')), 0) AS quantity
                     FROM Rooms
                     WHERE hotel_id = ?
                 """;
@@ -145,7 +142,6 @@ public class RoomRepository {
                     description = ?, 
                     price = ?, 
                     max_guests = ?, 
-                    room_type_id = ?, 
                     quantity = ?, 
                     status = ?
                 WHERE room_id = ?
@@ -155,7 +151,6 @@ public class RoomRepository {
                 room.getDescription(),
                 room.getPrice(),
                 room.getMaxGuests(),
-                room.getRoomTypeId(),
                 room.getQuantity(),
                 room.getStatus(),
                 room.getRoomId()
@@ -199,7 +194,6 @@ public class RoomRepository {
             description,
             price,
             max_guests AS maxGuests,
-            room_type_id AS roomTypeId,
             status,
             quantity
         FROM Rooms

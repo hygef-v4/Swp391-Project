@@ -200,6 +200,15 @@
   }
 }
 
+::-webkit-scrollbar{width:8px}
+::-webkit-scrollbar-thumb{height:50px;background-color:var(--bs-primary)}
+::-webkit-scrollbar-track{background:transparent;border-radius:3px}
+
+html, body {
+  scrollbar-width: thin;
+  scrollbar-color: var(--bs-primary) transparent;
+}
+
 body {
   margin: 0;
   font-family: var(--bs-body-font-family);
@@ -209,6 +218,8 @@ body {
   color: var(--bs-body-color);
   text-align: var(--bs-body-text-align);
   background-color: var(--bs-body-bg);
+  scrollbar-width: thin;
+  scrollbar-color: var(--bs-primary) transparent;
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
@@ -22494,6 +22505,15 @@ html[dir=rtl] .choices__input {
     background-color: var(--bs-light);
     padding: 1rem;
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08);
+}
+
+.comment {
+  height: 90px;
+  overflow-y: auto;
+  word-break: break-word;
+  border: 1px solid var(--bs-secondary-border-subtle);
+  border-radius: 8px;
+  padding: 8px;
 }
 
 /* Responsive adjustments for testimonial images */

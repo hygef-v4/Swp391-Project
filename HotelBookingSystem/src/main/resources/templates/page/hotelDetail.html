@@ -13,6 +13,21 @@
 	<meta name="_csrf" th:content="${_csrf.token}"/>
 	<meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 
+	<meta property="og:title" th:content="${hotel.hotelName}"/>
+	<meta property="og:description" th:content="'Đặt phòng tại ' + ${hotel.hotelName} + ' trên Hamora Platform'"/>
+	<meta property="og:url" th:content="${@environment.getProperty('app.base-url')} + '/hotel-detail?hotelId=' + ${hotel.hotelId}"/>
+	<meta property="og:image" th:content="${hotel.hotelImageUrl}"/>
+	<meta property="og:type" content="website"/>
+	<meta property="og:site_name" content="Hamora Platform"/>
+	<meta property="og:locale" content="vi_VN"/>
+
+	<meta name="twitter:card" content="summary_large_image"/>
+	<meta name="twitter:site" content="@HamoraPlatform"/>
+	<meta name="twitter:creator" content="@HamoraPlatform"/>
+	<meta name="twitter:title" th:content="${hotel.hotelName}"/>
+	<meta name="twitter:description" th:content="'Đặt phòng tại ' + ${hotel.hotelName} + ' trên Hamora Platform'"/>
+	<meta name="twitter:image" th:content="${hotel.hotelImageUrl}"/>
+
 	<!-- Dark mode -->
 	<script>
 		const storedTheme = localStorage.getItem('theme')
@@ -83,6 +98,22 @@
 				icon.className = "fa-solid fa-check-circle text-success me-2";
 				li.insertBefore(icon, li.firstChild);
 			})
+
+			var element = document.querySelector('.js-choice-review');
+
+			var removeItemBtn = element.getAttribute('data-remove-item-button') == 'true' ? true : false;
+			var placeHolder = element.getAttribute('data-placeholder') ? element.getAttribute('data-placeholder') : '';
+			var placeHolderVal = element.getAttribute('data-placeholder-value') ? element.getAttribute('data-placeholder-value') : '';
+			var maxItemCount = element.getAttribute('data-max-item-count') ? element.getAttribute('data-max-item-count') : 3;
+			var searchEnabled = element.getAttribute('data-search-enabled') == 'true' ? true : false;
+
+			choices = new Choices(element, {
+				removeItemButton: removeItemBtn,
+				placeholder: placeHolder,
+				placeholderValue: placeHolderVal,
+				maxItemCount: maxItemCount,
+				searchEnabled: searchEnabled
+			});
 		});
 	</script>
 
@@ -90,6 +121,14 @@
 		async function review() {
 			const form = document.getElementById('review');
 			const formData = new FormData(form);
+
+			if(!formData.get('comment').trim()) {
+				alert("Vui lòng nhập bình luận.");
+				return;
+			}
+
+			let chat = document.getElementById("reviewChat");
+			let box = document.getElementById("reviewBox");
 
 			// Lấy CSRF từ meta tag
 			const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
@@ -103,38 +142,94 @@
 				body: formData
 			});
 
-			form.reset();
+			let date = box.querySelector("#reviewDate");
+			let rating = box.querySelector("#reviewRating");
+			let review = box.querySelector("#reviewComment");
+			let add = true;
+
+			if(date.textContent == "") date.textContent = new Date().toLocaleDateString('vi-VN');
+			else add = false;
+			rating.textContent = formData.get('rating');
+			review.textContent = formData.get('comment');
+
+			chat.classList.add("d-none");
+			box.classList.remove("d-none");
 
 			let response = await request.json();
 			
-			let review = `	
-				<div>
-					<div class="d-md-flex my-4">
-						<div class="avatar avatar-lg me-3 flex-shrink-0">
-							<img class="avatar-img rounded-circle" src="${response.avatarUrl ? response.avatarUrl : '/assets/images/avatar/avatar.jpg'}" alt="${response.fullName}">
-						</div>
-						<div class="w-100">
-							<div class="d-flex justify-content-between mt-1 mt-md-0">
-								<div>
-									<h6 class="me-3 mb-0">${response.fullName}</h6>
-									<ul class="nav nav-divider small mb-2">
-										<li class="nav-item">${response.createdAt.toLocaleString()}</li>
-									</ul>
-								</div>
-								<div class="icon-md rounded text-bg-warning fs-6">${response.rating}</div>
+			if(add){
+				let r = `
+					<div id="review${response.reviewId}">
+						<div class="d-md-flex my-4">
+							<div class="avatar avatar-lg me-3 flex-shrink-0">
+								<img class="avatar-img rounded-circle" src="${response.avatarUrl ? response.avatarUrl : '/assets/images/avatar/avatar.jpg'}" alt="${response.fullName}">
 							</div>
-							<p class="mb-0">${response.comment}</p>
+							<div class="w-100">
+								<div class="d-flex justify-content-between mt-1 mt-md-0">
+									<div>
+										<h6 class="me-3 mb-0">${response.fullName}</h6>
+										<ul class="nav nav-divider small mb-2">
+											<li class="nav-item">${new Date(response.createdAt).toLocaleDateString('vi-VN')}</li>
+										</ul>
+									</div>
+									<div class="icon-md rounded text-bg-warning fs-6 rating">${response.rating}</div>
+								</div>
+								<p class="mb-0 comment">${response.comment}</p>
+							</div>
 						</div>
+						<hr>
 					</div>
-					<hr>
-				</div>
-			`;
-			
-			let comment = document.getElementById("comment");
-			comment.innerHTML = review + comment.innerHTML;
+				`;
+				
+				let comment = document.getElementById("comment");
+				comment.innerHTML = r + comment.innerHTML;
+			}else{
+				let r = document.querySelector("#review" + response.reviewId);
+				if(r) {
+					r.querySelector(".rating").textContent = response.rating;
+					r.querySelector(".comment").textContent = response.comment;
+				}
+			}
+		}
+
+		async function editReview() {
+			let chat = document.getElementById("reviewChat");
+			let box = document.getElementById("reviewBox");
+
+			chat.classList.remove("d-none");
+			box.classList.add("d-none");
+		}
+
+		async function deleteReview() {
+			const form = document.getElementById('review');
+			const formData = new FormData(form);
+
+			let chat = document.getElementById("reviewChat");
+			let box = document.getElementById("reviewBox");
+
+			// Lấy CSRF từ meta tag
+			const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+			const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+			let request = await fetch('/deleteReview', {
+				method: 'POST',
+				headers: {
+					[csrfHeader]: csrfToken
+				},
+				body: formData
+			});
+
+			box.querySelector("#reviewDate").textContent = "";
+			choices.setChoiceByValue('5');
+			form.elements['comment'].value = "";
+
+			chat.classList.remove("d-none");
+			box.classList.add("d-none");
+
+			let review = await request.text()
+			document.querySelector("#review" + review)?.remove();
 		}
 	</script>
-
 
 	<!-- Favicon -->
 	<link rel="shortcut icon" href="assets/images/favicon.ico">
@@ -341,8 +436,8 @@ Main Title START -->
 							</a>
 							<!-- dropdown button -->
 							<ul class="dropdown-menu dropdown-menu-end min-w-auto shadow rounded" aria-labelledby="dropdownShare">
-								<li><a class="dropdown-item" th:href="'https://www.facebook.com/sharer/sharer.php?u=' + ${baseUrl} + '/hotel-detail?hotelId=' + ${hotel.hotelId}" target="_blank"><i class="fab fa-facebook-square me-2"></i>Facebook</a></li>
-								<li><a class="dropdown-item" th:href="'https://twitter.com/intent/tweet?url=' + ${baseUrl} + '/hotel-detail?hotelId=' + ${hotel.hotelId}" target="_blank"><i class="fab fa-twitter-square me-2"></i>Twitter</a></li>
+								<li><a class="dropdown-item" th:href="'https://www.facebook.com/sharer/sharer.php?u=' + ${@environment.getProperty('app.base-url')} + '/hotel-detail?hotelId=' + ${hotel.hotelId}" target="_blank"><i class="fab fa-facebook-square me-2"></i>Facebook</a></li>
+								<li><a class="dropdown-item" th:href="'https://twitter.com/intent/tweet?url=' + ${@environment.getProperty('app.base-url')} + '/hotel-detail?hotelId=' + ${hotel.hotelId}" target="_blank"><i class="fab fa-twitter-square me-2"></i>Twitter</a></li>
 								<li><a class="dropdown-item" th:href="'hotel-detail?hotelId=' + ${hotel.hotelId}" onclick="event.preventDefault();navigator.clipboard.writeText(this.href)"><i class="fa-solid fa-copy me-2"></i>Copy link</a></li>
 							</ul>
 						</li>
@@ -551,8 +646,7 @@ About hotel START -->
 					<!-- Room END -->
 
 					<!-- Customer Review START -->
-					
-					<div class="card bg-transparent">
+					<div class="card bg-transparent" id="hotel-reviews">
 						<!-- Card header -->
 						<div class="card-header border-bottom bg-transparent px-0 pt-0">
 							<h3 class="card-title mb-0">Đánh Giá</h3>
@@ -583,27 +677,55 @@ About hotel START -->
 										<!-- Progress-bar START -->
 										<div th:class="${hotel.rating == 0 ? 'col-md-12' : 'col-md-8'}">
 											<div class="card-body p-0">
-												<div th:if="${session.user != null}" class="row gx-3 g-2 align-items-center">
-													<!-- Leave review START -->
+												<div th:if="${session.user != null}">
+													<div id="reviewChat" th:class="'row gx-3 g-2 align-items-center' + ${review != null ? ' d-none' : ''}">
+														<!-- Leave review START -->
 														<input type="hidden" name="hotelId" th:value="${hotel.hotelId}">
+														<input type="hidden" name="userId" th:value="${session.user.id}">
 														<!-- Rating -->
 														<div class="form-control-bg-light mb-3">
-															<select name="rating" class="form-select js-choice">
-																<option value="5" selected="">★★★★★ (5/5)</option>
-																<option value="4">★★★★☆ (4/5)</option>
-																<option value="3">★★★☆☆ (3/5)</option>
-																<option value="2">★★☆☆☆ (2/5)</option>
-																<option value="1">★☆☆☆☆ (1/5)</option>
+															<select name="rating" class="form-select js-choice-review">
+																<option value="5" th:selected="${review != null ? (review.rating == 5 ? 'true' : 'false') : 'true'}">★★★★★ (5/5)</option>
+																<option value="4" th:selected="${review != null ? (review.rating == 4 ? 'true' : 'false') : 'false'}">★★★★☆ (4/5)</option>
+																<option value="3" th:selected="${review != null ? (review.rating == 3 ? 'true' : 'false') : 'false'}">★★★☆☆ (3/5)</option>
+																<option value="2" th:selected="${review != null ? (review.rating == 2 ? 'true' : 'false') : 'false'}">★★☆☆☆ (2/5)</option>
+																<option value="1" th:selected="${review != null ? (review.rating == 1 ? 'true' : 'false') : 'false'}">★☆☆☆☆ (1/5)</option>
 															</select>
 														</div>
 														<!-- Message -->
 														<div class="form-control-bg-light mb-3">
-															<textarea name="comment" class="form-control" id="exampleFormControlTextarea1" placeholder="Đánh giá về khách sạn" rows="3"></textarea>
-														</div> 
+															<textarea name="comment" class="form-control" placeholder="Đánh giá về khách sạn" rows="3" th:text="${review != null ? review.comment : ''}"></textarea>
+														</div>
 														<!-- Button -->
 														<button onclick="review()" type="button" class="btn btn-lg btn-primary mb-0">Gửi<i class="bi fa-fw bi-arrow-right ms-2"></i></button>
-													<!-- Leave review END -->
-												</div> 
+														<!-- Leave review END -->
+													</div>
+													<div id="reviewBox" th:class="'row gx-3 g-2 align-items-center' + ${review == null ? ' d-none' : ''}">
+														<!-- Text -->
+														<div class="w-100">
+															<!-- Rating -->
+															<div class="form-control-bg-light mb-3 d-flex justify-content-between">
+																<div>
+																	<h6 id="reviewName" class="me-3" th:text="${session.user.fullName}"></h6>
+																	<!-- Info -->
+																	<ul class="nav nav-divider small">
+																		<li id="reviewDate" class="nav-item" th:text="${review == null ? '' : review.createdAt.format(T(java.time.format.DateTimeFormatter).ofPattern('dd/MM/yyyy'))}"></li>
+																	</ul>
+																</div>
+																<!-- Review star -->
+																<div id="reviewRating" class="icon-md rounded text-bg-warning fs-6" th:text="${review == null ? '' : review.rating}"></div>
+															</div>
+															
+															<p id="reviewComment" class="mb-3 comment" th:text="${review == null ? '' : review.comment}"></p>
+
+															<!-- Button -->
+															<div class="form-control-bg-light mb-3 d-flex justify-content-center row">
+																<button onclick="deleteReview()" type="button" class="btn btn-lg btn-danger mb-0 col-5 me-3">Xóa</button>
+																<button onclick="editReview()" type="button" class="btn btn-lg btn-primary mb-0 col-5">Chỉnh Sửa</button>
+															</div>
+														</div>
+													</div>
+												</div>
 												<div th:unless="${session.user != null}">
 													<a href="/login" class="text-center">Đăng nhập hoặc đăng ký tài khoản để bình luận</a>
 												</div>
@@ -617,8 +739,8 @@ About hotel START -->
 							<!-- Progress bar and rating END -->
 
 							<!-- Review item START -->
-							<div id="comment">
-								<div th:each="comment : ${comments}">
+							<div id="comment" style="max-width: 100%;">
+								<div th:each="comment : ${comments}" th:id="'review' + ${comment.reviewId}">
 									<div class="d-md-flex my-4">
 										<!-- Avatar -->
 										<div class="avatar avatar-lg me-3 flex-shrink-0">
@@ -631,16 +753,15 @@ About hotel START -->
 													<h6 class="me-3 mb-0" th:text="${comment.fullName}"></h6>
 													<!-- Info -->
 													<ul class="nav nav-divider small mb-2">
-														<li class="nav-item" th:text="${comment.createdAt}"></li>
+														<li class="nav-item" th:text="${comment.createdAt.format(T(java.time.format.DateTimeFormatter).ofPattern('dd/MM/yyyy'))}"></li>
 													</ul>
 												</div>
 												<!-- Review star -->
-												<div class="icon-md rounded text-bg-warning fs-6" th:text="${comment.rating}"></div>
+												<div class="icon-md rounded text-bg-warning fs-6 rating" th:text="${comment.rating}"></div>
 											</div>
 											
-											<p class="mb-0" th:text="${comment.comment}"></p>
+											<p class="mb-0 comment" th:text="${comment.comment}"></p>
 										</div>
-										
 									</div>
 
 									<!-- Divider -->
@@ -684,6 +805,15 @@ About hotel START -->
 								<span>Giá chỉ từ</span>
 								<h4 class="card-title mb-0" th:text="${#numbers.formatDecimal(hotel.minPrice, 0, 'COMMA', 0, 'POINT')} + '₫'"></h4>
 							</div>
+
+							<!-- Heart icon -->
+							<div class="list-inline-item">
+								<form th:action="${(favorite ? 'remove-favorite' : '/add-favorite') + '?hotelId=' + hotel.hotelId + '&detail=true' + redirect}" method="post" style="display: inline;">
+									<button type="submit" class="btn btn-sm btn-light px-2">
+										<i th:class="'fa-solid fa-fw fa-heart' + ${favorite ? ' text-danger' : ''}"></i>
+									</button>
+								</form>
+							</div>
 						</div>		
 
 						<!-- Rating -->
@@ -701,6 +831,10 @@ About hotel START -->
 						<!-- Button -->
 						<div class="d-grid">
 							<a href="#room-options" class="btn btn-lg btn-primary-soft mb-0">Xem <span th:text="${rooms.size()}"></span> lựa chọn phòng</a>
+						</div>
+
+						<div class="d-grid mt-2">
+							<a href="#hotel-reviews" class="btn btn-lg btn-secondary-soft mb-0">Đánh giá khách sạn</a>
 						</div>
 					</div>
 					<!-- Book now END -->
@@ -886,7 +1020,7 @@ Footer END -->
 							<div class="form-control-border form-control-transparent form-fs-md">
 								<label class="form-label">Nhận phòng – Trả phòng</label>
 								<input type="hidden" name="roomId" th:value="${room.roomId}">
-								<input type="text" th:value="${dateRange}" class="form-control flatpickr" data-mode="range" name="dateRange" placeholder="Chọn ngày" required>'
+								<input type="text" th:value="${dateRange}" class="form-control flatpickr" data-mode="range" name="dateRange" placeholder="Chọn ngày" required>
 								<input type="hidden" th:value="${guests}" name="guests">
 								<input type="hidden" th:value="${roomQuantity}" name="rooms">
 							</div>

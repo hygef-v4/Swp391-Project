@@ -743,6 +743,8 @@
                 return 'bg-success bg-opacity-10 text-success';
             case 'approved':
                 return 'bg-info bg-opacity-10 text-info';
+            case 'check_in':
+                return 'bg-primary bg-opacity-10 text-primary';
             case 'rejected':
                 return 'bg-danger bg-opacity-10 text-danger';
             case 'cancelled':
@@ -761,6 +763,8 @@
                 return 'Hoàn thành';
             case 'approved':
                 return 'Đã phê duyệt';
+            case 'check_in':
+                return 'Đã nhận phòng';
             case 'rejected':
                 return 'Đã từ chối';
             case 'cancelled':
@@ -790,7 +794,7 @@
         // Only count approved and completed booking units, exclude rejected and cancelled
         const totalPriceRaw = units.reduce((sum, u) => {
             const status = (u.status || '').toLowerCase();
-            if (status === 'approved' || status === 'completed') {
+            if (status === 'approved' || status === 'completed' || status === 'check_in') {
                 return sum + ((u.price || 0) * (u.quantity || 1));
             }
             return sum;
@@ -814,7 +818,7 @@
             bookingStatus: booking.status || 'unknown',
             bookingUnits: units.map(unit => {
                 const status = (unit.status || '').toLowerCase();
-                const isCountedInTotal = status === 'approved' || status === 'completed';
+                const isCountedInTotal = status === 'approved' || status === 'completed' || status === 'check_in';
                 return {
                     unitId: unit.bookingUnitId,
                     roomName: unit.roomName || 'Không có tên',
@@ -1456,9 +1460,9 @@
                                             </div>
                                             <div class="mb-2">
                                                 <small class="text-muted d-block">Giá 1 phòng: ${unit.unitPrice}</small>
-                                                <small class="fw-bold ${unit.isCountedInTotal ? 'text-success' : 'text-muted text-decoration-line-through'}">
+                                                <small class="fw-bold ${unit.isCountedInTotal ? 'text-success' : 'text-muted'}">
                                                     Tổng tiền: ${unit.totalUnitPrice}
-                                                    ${unit.isCountedInTotal ? '' : '<i class="bi bi-exclamation-triangle ms-1" title="Không tính vào tổng do trạng thái"></i>'}
+
                                                 </small>
                                             </div>
                                             <div class="d-flex justify-content-between align-items-center">
@@ -1470,7 +1474,9 @@
                                                         </button>
                                                         <ul class="dropdown-menu dropdown-menu-end">
                                                             <li><a class="dropdown-item" href="#" onclick="updateBookingUnitStatus(${unit.unitId}, 'approved')">Phê duyệt</a></li>
+                                                            <li><a class="dropdown-item" href="#" onclick="updateBookingUnitStatus(${unit.unitId}, 'check_in')">Check-in</a></li>
                                                             <li><a class="dropdown-item" href="#" onclick="updateBookingUnitStatus(${unit.unitId}, 'completed')">Hoàn thành</a></li>
+                                                            <li><hr class="dropdown-divider"></li>
                                                             <li><a class="dropdown-item" href="#" onclick="updateBookingUnitStatus(${unit.unitId}, 'cancelled')">Hủy</a></li>
                                                             <li><a class="dropdown-item" href="#" onclick="updateBookingUnitStatus(${unit.unitId}, 'rejected')">Từ chối</a></li>
                                                         </ul>
@@ -1518,6 +1524,7 @@
             switch (status ? status.toLowerCase() : '') {
                 case 'completed': return 'bg-success bg-opacity-10 text-success';
                 case 'approved': return 'bg-info bg-opacity-10 text-info';
+                case 'check_in': return 'bg-primary bg-opacity-10 text-primary';
                 case 'rejected': return 'bg-danger bg-opacity-10 text-danger';
                 case 'cancelled': return 'bg-warning bg-opacity-10 text-warning';
                 case 'mixed': return 'bg-purple bg-opacity-10 text-purple';
@@ -1529,6 +1536,7 @@
             switch (status ? status.toLowerCase() : '') {
                 case 'completed': return 'Hoàn thành';
                 case 'approved': return 'Đã phê duyệt';
+                case 'check_in': return 'Đã nhận phòng';
                 case 'rejected': return 'Đã từ chối';
                 case 'cancelled': return 'Đã hủy';
                 case 'mixed': return 'Hỗn hợp';

@@ -103,7 +103,7 @@ public class ReviewRepository {
             FROM Reviews r
             JOIN Users u ON r.reviewer_id = u.user_id
             WHERE r.is_public = 1 AND r.rating >= 4
-            ORDER BY r.rating DESC, r.created_at DESC
+            ORDER BY r.rating DESC
         """;
         return jdbcTemplate.query(sql, (rs, rowNum) ->
                 Review.builder()
@@ -125,15 +125,46 @@ public class ReviewRepository {
             SELECT * FROM Reviews
             WHERE hotel_id = ? AND reviewer_id = ?        
         """;
-        return jdbcTemplate.query(query, ps -> {
+        return !jdbcTemplate.query(query, ps -> {
             ps.setInt(1, hotelId);
             ps.setInt(2, userId);
         }, REVIEW_MAPPER).isEmpty();
     }
 
+    public Review getReview(int hotelId, int userId){
+        String query = """
+            SELECT
+            r.review_id AS reviewId,
+            r.hotel_id AS hotelId,
+            r.reviewer_id AS reviewerId,
+            r.rating,
+            r.comment,
+            r.is_public AS isPublic,
+            r.created_at AS createdAt,
+            u.full_name AS fullName,
+            u.avatar_url AS avatarUrl,
+            u.bio,
+            u.date_of_birth AS dob
+        FROM Reviews r
+        JOIN Users u ON r.reviewer_id = u.user_id
+        WHERE r.is_public = 1 AND r.hotel_id = ? AND r.reviewer_id = ?
+        """;
+        return jdbcTemplate.queryForObject(query, REVIEW_MAPPER, hotelId, userId);
+    }
+
     public int addReview(Review review){
         String query = "INSERT INTO Reviews (hotel_id, reviewer_id, rating, comment) OUTPUT inserted.review_id VALUES (?, ?, ?, ?)";
         return jdbcTemplate.queryForObject(query, Integer.class, review.getHotelId(), review.getReviewerId(), review.getRating(), review.getComment());
+    }
+
+    public int editReview(Review review){
+        String query = "UPDATE Reviews SET rating = ?, comment = ? OUTPUT inserted.review_id WHERE hotel_id = ? AND reviewer_id = ?";
+        return jdbcTemplate.queryForObject(query, Integer.class, review.getRating(), review.getComment(), review.getHotelId(), review.getReviewerId());
+    }
+
+    public int deleteReview(int hotelId, int userId){
+        String query = "DELETE FROM Reviews OUTPUT deleted.review_id WHERE hotel_id = ? AND reviewer_id = ?";
+        return jdbcTemplate.queryForObject(query, Integer.class, hotelId, userId);
     }
 
     public Review getReviewById(int id){
@@ -174,6 +205,7 @@ public class ReviewRepository {
         FROM Reviews r
         JOIN Users u ON r.reviewer_id = u.user_id
         WHERE r.is_public = 1 AND r.hotel_id = ?
+        ORDER BY r.created_at DESC
         """;
         return jdbcTemplate.query(query, REVIEW_MAPPER, hotelId);
     }

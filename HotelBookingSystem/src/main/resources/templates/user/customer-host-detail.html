@@ -266,6 +266,7 @@
         .status-pending { background-color: rgba(251, 191, 36, 0.15); color: #d97706; border: 1px solid rgba(251, 191, 36, 0.3); }
         .status-cancelled { background-color: rgba(239, 68, 68, 0.15); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.3); }
         .status-completed { background-color: rgba(59, 130, 246, 0.15); color: #2563eb; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .status-check_in { background-color: rgba(139, 92, 246, 0.15); color: #7c3aed; border: 1px solid rgba(139, 92, 246, 0.3); }
         .status-rejected { background-color: rgba(156, 163, 175, 0.15); color: #6b7280; border: 1px solid rgba(156, 163, 175, 0.3); }
     </style>
 </head>
@@ -383,11 +384,11 @@
                                 <div class="row mb-3">
                                     <div class="col-6">
                                         <small class="text-secondary">Ngày nhận phòng</small>
-                                        <p class="mb-0 fw-bold" th:text="${#temporals.format(booking.checkIn, 'dd-MM-yyyy HH:mm')}">01-04-2025 00:00</p>
+                                        <p class="mb-0 fw-bold" th:text="${#temporals.format(booking.checkIn, 'dd-MM-yyyy')}">01-04-2025</p>
                                     </div>
                                     <div class="col-6">
                                         <small class="text-secondary">Ngày trả phòng</small>
-                                        <p class="mb-0 fw-bold" th:text="${#temporals.format(booking.checkOut, 'dd-MM-yyyy HH:mm')}">05-04-2025 00:00</p>
+                                        <p class="mb-0 fw-bold" th:text="${#temporals.format(booking.checkOut, 'dd-MM-yyyy')}">05-04-2025</p>
                                     </div>
                                 </div>
                                 <h6 class="fw-bold">Phòng đã đặt:</h6>
@@ -414,16 +415,17 @@
                                                                unit.status == 'pending' ? 'Chờ duyệt' : 
                                                                unit.status == 'cancelled' ? 'Đã hủy' : 
                                                                unit.status == 'completed' ? 'Hoàn thành' : 
+                                                               unit.status == 'check_in' ? 'Đã nhận phòng' : 
                                                                unit.status == 'rejected' ? 'Từ chối' : unit.status}">Đã duyệt</span>
                                             </div>
                                             <div class="text-end">
                                                 <div class="fw-bold" th:text="${#numbers.formatDecimal(unit.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">700,000 ₫</div>
-                                                <small th:if="${unit.quantity > 1}" 
-                                                       th:class="${(unit.status == 'approved' or unit.status == 'completed') ? 'text-success fw-bold' : 'text-muted text-decoration-line-through'}"
+                                                <small th:if="${unit.quantity > 1}"
+                                                       th:class="${(unit.status == 'approved' or unit.status == 'completed' or unit.status == 'check_in') ? 'text-success fw-bold' : 'text-muted text-decoration-line-through'}"
                                                        th:text="'(' + ${#numbers.formatDecimal(unit.price * unit.quantity, 0, 'COMMA', 0, 'POINT')} + ' ₫ tổng)'">700,000 ₫ tổng</small>
-                                                <small th:if="${unit.quantity <= 1 and (unit.status != 'approved' and unit.status != 'completed')}" 
+                                                <small th:if="${unit.quantity <= 1 and (unit.status != 'approved' and unit.status != 'completed' and unit.status != 'check_in')}" 
                                                        class="text-muted">
-                                                    <i class="bi bi-exclamation-triangle me-1" title="Không tính vào tổng do trạng thái"></i>Không tính vào tổng
+<!--                                                    <i class="bi bi-exclamation-triangle me-1" title="Không tính vào tổng do trạng thái"></i>Không tính vào tổng-->
                                                 </small>
                                             </div>
                                         </div>

@@ -34,7 +34,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf
                         .ignoringRequestMatchers("/api/files/**", "/webhook", "/booking",
-                                "/update-hotel", "/update-room", "/delete-room", "/ws/**", "/api/chat/**",
+                                "/update-hotel", "/update-room", "/delete-room", "/deactivate-room", "/activate-room", "/update-cancellation-policy", "/ws/**", "/api/chat/**",
                                 "/invoice"
                         )
                 )
@@ -54,9 +54,9 @@ public class SecurityConfig {
                                 new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
                                 new WebExpressionAuthorizationManager("hasAnyRole('ADMIN')")
                         ))
-                        .requestMatchers("/host-dashboard","/add-hotel","/add-room","/request-delete-hotel",
-                                "/manage-hotel","/update-hotel","/update-room","/delete-room",
-                                "/host-customers","/host-customer-detail").access(AuthorizationManagers.allOf(
+                        .requestMatchers("/host-dashboard","/add-hotel","/add-room","/host/request-deactivate-hotel",
+                                "/host/confirm-deactivate-hotel","/host/activate-hotel","/manage-hotel","/update-hotel","/update-room","/delete-room",
+                                "/deactivate-room","/activate-room","/update-cancellation-policy","/host-customers","/host-customer-detail").access(AuthorizationManagers.allOf(
                                 new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
                                 new WebExpressionAuthorizationManager("hasAnyRole('HOTEL_OWNER', 'ADMIN')")
                         ))
