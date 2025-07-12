@@ -6,6 +6,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.swp391.hotelbookingsystem.service.UserService;
 import org.swp391.hotelbookingsystem.service.HotelService;
+import org.swp391.hotelbookingsystem.model.Report;
+import org.swp391.hotelbookingsystem.service.ReportService;
 
 @Controller
 public class ModeratorDashboardController {
@@ -15,6 +17,9 @@ public class ModeratorDashboardController {
 
     @Autowired
     private HotelService hotelService;
+
+    @Autowired
+    private ReportService reportService;
 
     @GetMapping("/moderator-dashboard")
     public String getDashboard(Model model) {
@@ -27,12 +32,29 @@ public class ModeratorDashboardController {
             int totalHotels = hotelService.getTotalHotels();
             model.addAttribute("totalHotels", totalHotels);
 
-            // Lấy số lượng người dùng bị flagged
-            long flaggedUsers = userService.getAllUsersWithProfile().stream().filter(u -> Boolean.TRUE.equals(u.isFlagged())).count();
-            model.addAttribute("flaggedUsers", flaggedUsers);
+            // Lấy danh sách report pending
+            java.util.List<Report> pendingReports = reportService.getAllPendingReports();
+            java.util.Set<Integer> flaggedUserIds = new java.util.HashSet<>();
+            java.util.Map<Integer, String> flagReasons = new java.util.HashMap<>();
+            for (Report r : pendingReports) {
+                flaggedUserIds.add(r.getReportedUserId());
+                flagReasons.put(r.getReportedUserId(), r.getReason());
+            }
+            java.util.List<org.swp391.hotelbookingsystem.model.User> allUsers = userService.getAllUsersWithProfile();
+            java.util.List<org.swp391.hotelbookingsystem.model.User> flaggedUsersList = new java.util.ArrayList<>();
+            for (org.swp391.hotelbookingsystem.model.User u : allUsers) {
+                if (flaggedUserIds.contains(u.getId())) {
+                    u.setFlagged(true);
+                    u.setFlagReason(flagReasons.get(u.getId()));
+                    flaggedUsersList.add(u);
+                }
+            }
+            model.addAttribute("flaggedUsers", flaggedUsersList.size());
+            model.addAttribute("flaggedUsersList", flaggedUsersList);
+            model.addAttribute("flaggedUsersListLimited", flaggedUsersList.size() > 4 ? flaggedUsersList.subList(0, 4) : flaggedUsersList);
 
             // Lấy tổng số người dùng hoạt động (không bị flagged)
-            long activeUsers = userService.getAllUsersWithProfile().stream().filter(u -> u.isActive() && !Boolean.TRUE.equals(u.isFlagged())).count();
+            long activeUsers = allUsers.stream().filter(u -> u.isActive() && !flaggedUserIds.contains(u.getId())).count();
             model.addAttribute("activeUsers", activeUsers);
 
             // Lấy danh sách khách sạn chờ duyệt
@@ -51,13 +73,6 @@ public class ModeratorDashboardController {
                 }
             }
             model.addAttribute("hostMap", hostMap);
-
-            // Lấy danh sách tối đa 10 người dùng bị flagged
-            java.util.List<org.swp391.hotelbookingsystem.model.User> flaggedUsersList = userService.getAllUsersWithProfile().stream()
-                .filter(u -> Boolean.TRUE.equals(u.isFlagged()))
-                .toList();
-            model.addAttribute("flaggedUsersList", flaggedUsersList);
-            model.addAttribute("flaggedUsersListLimited", flaggedUsersList.size() > 4 ? flaggedUsersList.subList(0, 4) : flaggedUsersList);
         } catch (Exception e) {
             // Xử lý lỗi và set giá trị mặc định
             model.addAttribute("totalUsers", 0);

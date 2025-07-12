@@ -171,9 +171,7 @@ public class UserRepo {
                    u.avatar_url AS avatarUrl,
                    u.bio,
                    u.gender,
-                   u.date_of_birth,
-                   u.is_flagged,
-                   u.flag_reason
+                   u.date_of_birth
             FROM Users u
             """;
 
@@ -194,8 +192,7 @@ public class UserRepo {
             user.setBio(rs.getString("bio"));
             user.setGender(rs.getString("gender"));
             user.setDob(rs.getDate("date_of_birth"));
-            user.setFlagged(rs.getBoolean("is_flagged"));
-            user.setFlagReason(rs.getString("flag_reason"));
+            // Không set isFlagged/flagReason nữa
             return user;
         });
     }
@@ -417,15 +414,8 @@ public class UserRepo {
         return jdbc.queryForObject(sql, Long.class, isActive);
     }
 
-    public void flagUserById(int userId, String reason) {
-        if (reason == null) {
-            String sql = "UPDATE Users SET is_flagged = 0, flag_reason = NULL WHERE user_id = ?";
-            jdbc.update(sql, userId);
-        } else {
-            String sql = "UPDATE Users SET is_flagged = 1, flag_reason = ? WHERE user_id = ?";
-            jdbc.update(sql, reason, userId);
-        }
-    }
+    // Xoá flagUserById vì đã chuyển sang bảng Reports
+    // public void flagUserById(int userId, String reason) { ... }
 
     public List<User> findAgentsBySearchSorted(String search, String sort, int offset, int size) {
         String baseSql = """
