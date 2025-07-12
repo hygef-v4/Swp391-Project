@@ -17,15 +17,14 @@ import org.swp391.hotelbookingsystem.model.BookingUnit;
 import org.swp391.hotelbookingsystem.model.Hotel;
 import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.service.BookingService;
-import org.swp391.hotelbookingsystem.service.UserService;
 import org.swp391.hotelbookingsystem.service.HotelService;
+import org.swp391.hotelbookingsystem.service.NotificationService;
+import org.swp391.hotelbookingsystem.service.UserService;
 import org.swp391.hotelbookingsystem.service.VNPayService;
-
+import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
-
-import org.thymeleaf.context.Context;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -41,6 +40,8 @@ public class PaymentController {
     HotelService hotelService;
     @Autowired
     VNPayService vnpayService;
+    @Autowired
+    NotificationService notificationService;
     @Autowired
     SpringTemplateEngine templateEngine;
 
@@ -129,6 +130,9 @@ public class PaymentController {
             }
 
             bookingService.approveBooking(id);
+            // Real-time notification to customer
+            notificationService.notifyPaymentSuccess(user.getId(), String.valueOf(id), booking.getTotalPrice());
+
             model.addAttribute("booking", booking);
 
             model.addAttribute("dateRange", dateRange);
