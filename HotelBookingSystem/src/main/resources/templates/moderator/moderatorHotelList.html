@@ -341,9 +341,7 @@
             <strong class="me-auto" id="toast-title">Notification</strong>
             <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
-        <div class="toast-body" id="toast-body">
-            <!-- Notification content -->
-        </div>
+        <div class="toast-body" id="toast-body"></div>
     </div>
 </div>
 
@@ -397,36 +395,46 @@
         const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
         const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
 
-        let currentHotelId = null;
-        const PAGE_SIZE = 6;
+        const itemsPerPage = 6;
         let currentPage = 1;
-
+        
         // Biến lưu hotelId và action đang thao tác
         let pendingActionHotelId = null;
         let pendingActionType = null;
+        
         // Khởi tạo modal
         const actionConfirmModal = new bootstrap.Modal(document.getElementById('confirm-action-modal'));
         const confirmActionMessage = document.getElementById('confirm-action-message');
         const confirmActionBtn = document.getElementById('confirm-action-btn');
 
-        // --- Toast Notification Handler ---
-        function showToast(title, body, isSuccess) {
+        function showToast(title, message, type = 'success') {
             const toastTitle = document.getElementById('toast-title');
             const toastBody = document.getElementById('toast-body');
             const toastHeader = document.querySelector('#notificationToast .toast-header');
+            const toast = document.getElementById('notificationToast');
 
-            toastTitle.textContent = title;
-            toastBody.textContent = body;
+            // Reset all possible classes
+            toastHeader.classList.remove('bg-success', 'bg-danger', 'text-white');
+            toast.classList.remove('text-bg-danger', 'text-bg-success');
 
-            if (isSuccess) {
-                toastHeader.classList.remove('bg-danger', 'text-white');
+            // Set new class based on type
+            if (type === 'success') {
                 toastHeader.classList.add('bg-success', 'text-white');
+                toast.classList.add('text-bg-success');
             } else {
-                toastHeader.classList.remove('bg-success', 'text-white');
                 toastHeader.classList.add('bg-danger', 'text-white');
+                toast.classList.add('text-bg-danger');
             }
 
+            toastTitle.textContent = title;
+            toastBody.textContent = message;
+
             notificationToast.show();
+
+            // Auto-hide sau 4 giây
+            setTimeout(() => {
+                notificationToast.hide();
+            }, 4000);
         }
 
         function normalizeCity(str) {
@@ -464,7 +472,7 @@
         }
 
         function renderPagination(filteredHotels) {
-            const totalPages = Math.ceil(filteredHotels.length / PAGE_SIZE) || 1;
+            const totalPages = Math.ceil(filteredHotels.length / itemsPerPage) || 1;
             const pagination = document.querySelector('.pagination');
             if (!pagination) return;
 
@@ -501,8 +509,8 @@
             hotelCards.forEach(card => card.style.display = 'none');
 
             // Hiển thị các hotel thuộc trang hiện tại
-            const start = (currentPage - 1) * PAGE_SIZE;
-            const end = start + PAGE_SIZE;
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
             filteredHotels.slice(start, end).forEach(card => card.style.display = 'block');
 
             renderPagination(filteredHotels);
@@ -662,7 +670,20 @@
                         'Content-Type': 'application/json',
                         [csrfHeader]: csrfToken
                     }
-                }).then(() => window.location.reload());
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('Thành công', pendingActionType === 'approve' ? 'Đã phê duyệt khách sạn thành công' : 'Đã phê duyệt lại khách sạn thành công');
+                        window.location.reload();
+                    } else {
+                        showToast('Lỗi', data.message || 'Không thể phê duyệt khách sạn', false);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Lỗi', 'Đã xảy ra lỗi không mong muốn', false);
+                });
             } else if (pendingActionType === 'reject') {
                 fetch(`/moderator-hotel-list/api/moderator/hotels/${pendingActionHotelId}/reject`, {
                     method: 'POST',
@@ -671,7 +692,20 @@
                         [csrfHeader]: csrfToken
                     },
                     body: JSON.stringify({ reason: 'Từ chối bởi quản trị viên' })
-                }).then(() => window.location.reload());
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('Thành công', 'Đã từ chối khách sạn thành công');
+                        window.location.reload();
+                    } else {
+                        showToast('Lỗi', data.message || 'Không thể từ chối khách sạn', false);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Lỗi', 'Đã xảy ra lỗi không mong muốn', false);
+                });
             } else if (pendingActionType === 'revoke') {
                 fetch(`/moderator-hotel-list/api/moderator/hotels/${pendingActionHotelId}/reject`, {
                     method: 'POST',
@@ -680,12 +714,37 @@
                         [csrfHeader]: csrfToken
                     },
                     body: JSON.stringify({ reason: 'Thu hồi phê duyệt' })
-                }).then(() => window.location.reload());
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('Thành công', 'Đã thu hồi phê duyệt khách sạn thành công');
+                        window.location.reload();
+                    } else {
+                        showToast('Lỗi', data.message || 'Không thể thu hồi phê duyệt khách sạn', false);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Lỗi', 'Đã xảy ra lỗi không mong muốn', false);
+                });
             }
             actionConfirmModal.hide();
             pendingActionHotelId = null;
             pendingActionType = null;
         });
+
+        function checkAndShowNotification() {
+            const notification = localStorage.getItem('notification');
+            if (notification) {
+                const { title, message, type } = JSON.parse(notification);
+                showToast(title, message, type === 'success' ? 'success' : 'error');
+                localStorage.removeItem('notification');
+            }
+        }
+
+        // Gọi hàm kiểm tra thông báo khi trang được tải
+        checkAndShowNotification();
     });
 </script>
 

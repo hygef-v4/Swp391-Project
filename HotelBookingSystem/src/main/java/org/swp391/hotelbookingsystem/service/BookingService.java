@@ -1,5 +1,6 @@
 package org.swp391.hotelbookingsystem.service;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -18,16 +19,50 @@ public class BookingService {
         this.bookingRepo = bookingRepo;
     }
 
-    public void updateStatus(BookingUnit bookingUnit, String status) {
+    public int bookedRoom(int roomId, LocalDateTime checkIn, LocalDateTime checkOut){
+        return bookingRepo.bookedRoom(roomId, checkIn, checkOut);
+    }
+
+    public boolean checkQuantity(Booking booking){
+        for(BookingUnit bookingUnit : booking.getBookingUnits()){
+            if(bookingRepo.bookedRoom(bookingUnit.getRoomId(), booking.getCheckIn(), booking.getCheckOut()) <= 0){
+                return false;
+            }
+        }return true;
+    }
+
+    public void updateStatus(BookingUnit bookingUnit, String status){
         bookingRepo.updateStatus(bookingUnit.getBookingUnitId(), status);
     }
 
-    public void saveBooking(Booking booking){
-        bookingRepo.saveBooking(booking);
+    public int pendingBooking(Booking booking){
+        return bookingRepo.pendingBooking(booking);
     }
 
-    public Booking findById(int id) {
-        return bookingRepo.findById(id);
+    public int remainPendingTime(int bookingId){
+        return bookingRepo.remainPendingTime(bookingId);
+    }
+
+    public void approveBooking(int id){
+        bookingRepo.approveBookingUnit(id);
+    }
+
+    public void deletePendingBooking(int id, int userId){
+        if(bookingRepo.isPending(id, userId)){
+            bookingRepo.deletePendingBooking(id);
+        }
+    }
+
+    public int saveBooking(Booking booking){
+        return bookingRepo.saveBooking(booking);
+    }
+
+    public Booking findById(int id){
+        try{
+            return bookingRepo.findById(id);
+        }catch(Exception e){
+            return null;
+        }
     }
 
     public Booking findBooking(int id) {
@@ -130,6 +165,7 @@ public class BookingService {
     public List<Booking> getBookingsByHotelId(int hotelId) {
         return bookingRepo.findByHotelId(hotelId);
     }
+
     public List<Booking> getUpcomingBookingsPaginated(int customerId, int page, int size) {
         return bookingRepo.findBookingsByStatusAndCustomerPaginated(customerId, "approved", "future", page, size);
     }
@@ -142,8 +178,16 @@ public class BookingService {
         return bookingRepo.findBookingsByStatusAndCustomerPaginated(customerId, "completed", "past", page, size);
     }
 
+    public List<Booking> getCheckinBookingsPaginated(int customerId, int page, int size) {
+        return bookingRepo.findBookingsByStatusAndCustomerPaginated(customerId, "check_in", null, page, size);
+    }
+
     public int getTotalPagesUpcoming(int customerId, int size) {
         int count = bookingRepo.countBookingsByStatusAndCustomer(customerId, "approved", "future");
+        return (int) Math.ceil((double) count / size);
+    }
+    public int getTotalPagesCheckin(int customerId, int size) {
+        int count = bookingRepo.countBookingsByStatusAndCustomer(customerId, "check_in", null);
         return (int) Math.ceil((double) count / size);
     }
 
@@ -159,6 +203,10 @@ public class BookingService {
 
     public int getTotalCompletedBookings(int customerId) {
         return bookingRepo.countBookingsByStatusAndCustomer(customerId, "completed", "past");
+    }
+
+    public int getTotalCheckinBookings(int customerId) {
+        return bookingRepo.countBookingsByStatusAndCustomer(customerId, "check_in", null);
     }
 
     public int getTotalUpcomingBookings(int customerId) {
@@ -212,8 +260,11 @@ public class BookingService {
         return bookingRepo.getBookingsByHotelIdPaginated(hotelId, offset, size);
     }
 
+    public List<Booking> getBookingsByHotelIdOrderByDate(int hotelId) {
+        return bookingRepo.getBookingsByHotelIdOrderByDate(hotelId);
+    }
+
     public int countBookingsByHotelId(int hotelId) {
         return bookingRepo.countBookingsByHotelId(hotelId);
     }
-
 }

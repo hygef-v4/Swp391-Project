@@ -38,8 +38,16 @@ public class ForgotPassWordController {
         String token = java.util.UUID.randomUUID().toString();
         userService.savePasswordResetToken(user.getId(), token);
 
+        // Build dynamic base URL using request
+        String appUrl = request.getRequestURL()
+                .toString()
+                .replace(request.getRequestURI(), "");
+
+        // Construct reset link with token
+        String resetLink = appUrl + "/resetPassword?token=" + token;
+
         try {
-            emailService.sendResetPasswordEmail(email, token);
+            emailService.sendResetPasswordEmail(email, resetLink);
         } catch (jakarta.mail.MessagingException e) {
             return "redirect:/forgotPassword?mailerror";
         }

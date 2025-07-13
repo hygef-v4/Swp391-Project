@@ -13,6 +13,21 @@
 	<meta name="_csrf" th:content="${_csrf.token}"/>
 	<meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 
+	<meta property="og:title" th:content="${hotel.hotelName}"/>
+	<meta property="og:description" th:content="'Đặt phòng tại ' + ${hotel.hotelName} + ' trên Hamora Platform'"/>
+	<meta property="og:url" th:content="${@environment.getProperty('app.base-url')} + '/hotel-detail?hotelId=' + ${hotel.hotelId}"/>
+	<meta property="og:image" th:content="${hotel.hotelImageUrl}"/>
+	<meta property="og:type" content="website"/>
+	<meta property="og:site_name" content="Hamora Platform"/>
+	<meta property="og:locale" content="vi_VN"/>
+
+	<meta name="twitter:card" content="summary_large_image"/>
+	<meta name="twitter:site" content="@HamoraPlatform"/>
+	<meta name="twitter:creator" content="@HamoraPlatform"/>
+	<meta name="twitter:title" th:content="${hotel.hotelName}"/>
+	<meta name="twitter:description" th:content="'Đặt phòng tại ' + ${hotel.hotelName} + ' trên Hamora Platform'"/>
+	<meta name="twitter:image" th:content="${hotel.hotelImageUrl}"/>
+
 	<!-- Dark mode -->
 	<script>
 		const storedTheme = localStorage.getItem('theme')
@@ -74,6 +89,8 @@
 	</script>
 
 	<script>
+		let choices;
+
 		document.addEventListener("DOMContentLoaded", function(){
 			const items = document.querySelectorAll(".room-description li");
 			items.forEach(li => {
@@ -83,13 +100,41 @@
 				icon.className = "fa-solid fa-check-circle text-success me-2";
 				li.insertBefore(icon, li.firstChild);
 			})
+
+			var element = document.querySelector('.js-choice-review');
+
+			var removeItemBtn = element.getAttribute('data-remove-item-button') == 'true' ? true : false;
+			var placeHolder = element.getAttribute('data-placeholder') ? element.getAttribute('data-placeholder') : '';
+			var placeHolderVal = element.getAttribute('data-placeholder-value') ? element.getAttribute('data-placeholder-value') : '';
+			var maxItemCount = element.getAttribute('data-max-item-count') ? element.getAttribute('data-max-item-count') : 3;
+			var searchEnabled = element.getAttribute('data-search-enabled') == 'true' ? true : false;
+
+			choices = new Choices(element, {
+				removeItemButton: removeItemBtn,
+				placeholder: placeHolder,
+				placeholderValue: placeHolderVal,
+				maxItemCount: maxItemCount,
+				searchEnabled: searchEnabled
+			});
 		});
 	</script>
 
 	<script>
-		async function review() {
+		async function review(add = true){
 			const form = document.getElementById('review');
 			const formData = new FormData(form);
+
+			const comment = formData.get('comment').trim();
+			if(!comment) {
+				alert("Vui lòng nhập bình luận.");
+				return;
+			}if(/<.*?>/.test(comment)){
+				alert("Không thể gửi tin nhắn");
+				return;
+			}
+
+			let chat = document.getElementById("reviewChat");
+			let box = document.getElementById("reviewBox");
 
 			// Lấy CSRF từ meta tag
 			const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
@@ -103,38 +148,236 @@
 				body: formData
 			});
 
-			form.reset();
+			let date = box.querySelector("#reviewDate");
+			let rating = box.querySelector("#reviewRating");
+			let review = box.querySelector("#reviewComment");
+
+			if(add) date.textContent = new Date().toLocaleDateString('vi-VN');
+			rating.textContent = formData.get('rating');
+			review.textContent = formData.get('comment');
+
+			chat.classList.add("d-none");
+			if(add){
+				document.getElementById("button").innerHTML = `
+					<div class="form-control-bg-light mb-3 w-100 d-flex justify-content-center row">
+						<button onclick="closeReview()" type="button" class="btn btn-lg btn-danger mb-0 col-5 me-3">Quay lại</button>
+						<button onclick="review(false)" type="button" class="btn btn-lg btn-primary mb-0 col-5">Sửa<i class="bi fa-fw bi-arrow-right ms-2"></i></button>
+					</div>
+				`;
+			}box.classList.remove("d-none");
 
 			let response = await request.json();
 			
-			let review = `	
-				<div>
-					<div class="d-md-flex my-4">
-						<div class="avatar avatar-lg me-3 flex-shrink-0">
-							<img class="avatar-img rounded-circle" src="${response.avatarUrl ? response.avatarUrl : '/assets/images/avatar/avatar.jpg'}" alt="${response.fullName}">
-						</div>
-						<div class="w-100">
-							<div class="d-flex justify-content-between mt-1 mt-md-0">
-								<div>
-									<h6 class="me-3 mb-0">${response.fullName}</h6>
-									<ul class="nav nav-divider small mb-2">
-										<li class="nav-item">${response.createdAt.toLocaleString()}</li>
-									</ul>
-								</div>
-								<div class="icon-md rounded text-bg-warning fs-6">${response.rating}</div>
+			if(add){
+				let r = `
+					<div id="review${response.reviewId}">
+						<div class="d-md-flex my-4">
+							<div class="avatar avatar-lg me-3 flex-shrink-0">
+								<img class="avatar-img rounded-circle" src="${response.avatarUrl ? response.avatarUrl : '/assets/images/avatar/avatar.jpg'}" alt="${response.fullName}">
 							</div>
-							<p class="mb-0">${response.comment}</p>
+							<div class="w-100">
+								<div class="d-flex justify-content-between mt-1 mt-md-0">
+									<div>
+										<h6 class="me-3 mb-0">${response.fullName}</h6>
+										<ul class="nav nav-divider small mb-2">
+											<li class="nav-item">${new Date(response.createdAt).toLocaleDateString('vi-VN')}</li>
+										</ul>
+									</div>
+									<div class="icon-md rounded text-bg-warning fs-6 rating">${response.rating}</div>
+								</div>
+								<p class="mb-0 comment">${response.comment}</p>
+								<div class="d-flex justify-content-end mt-2">
+									<div>
+										<a href="javascript:void(0)" class="text-secondary fw-bold hover-danger me-2" onclick="deleteReview()">Xóa</a>
+										<a href="javascript:void(0)" class="text-secondary fw-bold hover-primary me-2" onclick="editReview();scrollToId('review')">Chỉnh sửa</a>
+									</div>
+									<a href="javascript:void(0)" class="text-secondary fw-bold hover-primary" onclick="reply(${response.reviewId},${response.userId})">Trả lời</a>
+								</div>
+							</div>
+						</div>
+						<hr>
+					</div>
+				`;
+				
+				let comment = document.getElementById("comment");
+				comment.innerHTML = r + comment.innerHTML;
+			}else{
+				let r = document.querySelector("#review" + response.reviewId);
+				if(r) {
+					r.querySelector(".rating").textContent = response.rating;
+					r.querySelector(".comment").textContent = response.comment;
+				}
+			}
+		}
+
+		function closeReview(){
+			const form = document.getElementById('review');
+
+			let chat = document.getElementById("reviewChat");
+			let box = document.getElementById("reviewBox");
+
+			let rating = box.querySelector("#reviewRating");
+			let comment = box.querySelector("#reviewComment");
+
+			choices.setChoiceByValue(rating.textContent);
+			form.elements['comment'].value = comment.textContent;
+
+			chat.classList.add("d-none");
+			box.classList.remove("d-none");
+		}
+
+		async function editReview() {
+			let chat = document.getElementById("reviewChat");
+			let box = document.getElementById("reviewBox");
+
+			chat.classList.remove("d-none");
+			box.classList.add("d-none");
+		}
+
+		async function deleteReview() {
+			const form = document.getElementById('review');
+			const formData = new FormData(form);
+
+			let chat = document.getElementById("reviewChat");
+			let box = document.getElementById("reviewBox");
+
+			// Lấy CSRF từ meta tag
+			const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+			const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+			let request = await fetch('/deleteReview', {
+				method: 'POST',
+				headers: {
+					[csrfHeader]: csrfToken
+				},
+				body: formData
+			});
+
+			box.querySelector("#reviewDate").textContent = "";
+			choices.setChoiceByValue('5');
+			form.elements['comment'].value = "";
+
+			document.getElementById("button").innerHTML = `
+				<button onclick="review()" type="button" class="btn btn-lg btn-primary mb-0 w-100">Gửi<i class="bi fa-fw bi-arrow-right ms-2"></i></button>
+			`;
+
+			chat.classList.remove("d-none");
+			box.classList.add("d-none");
+
+			let response = await request.text()
+			document.querySelector("#review" + response)?.remove();
+		}
+
+		function reply(reviewId, userId){
+			let reply = document.getElementById("reply");
+			if(reply){
+				reply.remove();				
+				if(reply.elements["reviewId"].value == reviewId)
+					return;
+			}
+
+			let form =`
+				<form class="mb-5" id="reply">
+					<div class="d-md-flex mt-4">
+						<!-- Avatar -->
+						<div class="avatar avatar-lg me-3 flex-shrink-0">
+							<div class="avatar-img rounded-circle"></div>
+						</div>
+						<!-- Text -->
+						<div class="w-100">
+							<div class="row gx-3 g-2 align-items-center}">
+								<!-- Leave reply START -->
+								<input type="hidden" name="reviewId" value="${reviewId}">
+								<input type="hidden" name="userId" value="${userId}">
+								<!-- Message -->
+								<div class="form-control-bg-light mb-3">
+									<textarea name="comment" class="form-control" placeholder="Viết bình luận" rows="3"></textarea>
+								</div>
+								<!-- Button -->
+								<button onclick="addReply()" type="button" class="btn btn-lg btn-primary mb-0">Gửi<i class="bi fa-fw bi-arrow-right ms-2"></i></button>
+								<!-- Leave reply END -->
+							</div>
 						</div>
 					</div>
-					<hr>
+				</form>
+			`
+
+			let review = document.getElementById("review" + reviewId).querySelector(".reply");
+			review.innerHTML = form + review.innerHTML;
+		}
+
+		async function addReply(){
+			const form = document.getElementById('reply');
+			const formData = new FormData(form);
+
+			if(!formData.get('comment').trim()) {
+				alert("Vui lòng nhập bình luận.");
+				return;
+			}if(/<.*?>/.test(comment)){
+				alert("Không thể gửi tin nhắn");
+				return;
+			}
+
+			// Lấy CSRF từ meta tag
+			const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+			const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+			let request = await fetch('/addReply', {
+				method: 'POST',
+				headers: {
+					[csrfHeader]: csrfToken
+				},
+				body: formData
+			});
+
+			form.remove();
+
+			let response = await request.json();
+
+			let r = `
+				<div class="ps-2 ps-md-3 mb-2" id="reply${response.replyId}">
+					<div class="d-md-flex">
+						<img class="avatar avatar-sm rounded-circle me-3" src="${response.avatarUrl}" alt="avatar">
+						<div class="mt-2 mt-md-0 w-100">
+							<h6 class="mb-1">${response.fullName}</h6>
+							<ul class="nav nav-divider small mb-2">
+								<li class="nav-item">${new Date(response.createdAt).toLocaleDateString('vi-VN')}</li>
+							</ul>
+							<p class="mb-0 comment">${response.comment}</p>
+							<div class="d-flex justify-content-end mt-2">
+								<div>
+									<a href="javascript:void(0)" class="text-secondary fw-bold hover-danger me-2" onclick="deleteReply(${response.replyId})">Xóa</a>
+									<a href="javascript:void(0)" class="text-secondary fw-bold hover-primary me-2" onclick="reply(${response.reviewId},${response.userId});scrollToId(reply);">Chỉnh sửa</a>
+								</div>
+								<a href="javascript:void(0)" class="text-secondary fw-bold hover-primary" onclick="reply(${response.reviewId},${response.userId});scrollToId(reply);">Trả lời</a>
+							</div>
+						</div>
+					</div>
 				</div>
 			`;
-			
-			let comment = document.getElementById("comment");
-			comment.innerHTML = review + comment.innerHTML;
+
+			let review = document.getElementById("review" + form.elements["reviewId"].value).querySelector(".reply");
+			review.innerHTML = review.innerHTML + r;
+		}
+
+		async function deleteReply(replyId) {
+			// Lấy CSRF từ meta tag
+			const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+			const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+			let request = await fetch('/deleteReply', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded',
+					[csrfHeader]: csrfToken
+				},
+				body: "replyId=" + replyId
+			});
+
+			let response = await request.text()
+			document.querySelector("#reply" + response).remove();
 		}
 	</script>
-
 
 	<!-- Favicon -->
 	<link rel="shortcut icon" href="assets/images/favicon.ico">
@@ -174,47 +417,46 @@ Search START -->
 		<button class="btn btn-primary d-sm-none w-100 mb-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasEditsearch" aria-controls="offcanvasEditsearch"><i class="bi bi-pencil-square me-2"></i>Edit Search</button>
 
 		<!-- Search with offcanvas START -->
-        <form th:action="@{/hotel-list}" method="GET"
-                class="card shadow rounded-3 position-relative p-4 pe-md-5 pb-5 pb-md-4">
-            <div class="row g-4 align-items-center">
-                <!-- Location -->
-                <div class="col-lg-4">
-                    <div class="form-control-border form-control-transparent form-fs-md d-flex">
-                        <!-- Icon -->
-                        <i class="bi bi-geo-alt fs-3 me-2 mt-2"></i>
-                        <!-- Select input -->
-                        <div class="flex-grow-1">
-                            <label class="form-label">Địa điểm</label>
-                            <select name="locationId" class="form-select js-choice"
-                                    data-search-enabled="true">
-                                <option value="-1">Chọn địa điểm</option>
-                                <option
-                                        th:each="location : ${locations}"
-                                        th:value="${location.id}"
-                                        th:text="${location.cityName}"
-                                        th:selected="${location.id == hotel.locationId}"
-                                >
-                                </option>
+		<form th:action="@{/hotel-list}" method="GET"
+				class="card shadow rounded-3 position-relative p-4 pe-md-5 pb-5 pb-md-4">
+			<div class="row g-4 align-items-center">
+				<!-- Location -->
+				<div class="col-lg-4">
+					<div class="form-control-border form-control-transparent form-fs-md d-flex">
+						<!-- Icon -->
+						<i class="bi bi-geo-alt fs-3 me-2 mt-2"></i>
+						<!-- Select input -->
+						<div class="flex-grow-1">
+							<label class="form-label">Địa điểm</label>
+							<select name="locationId" class="form-select js-choice"
+									data-search-enabled="true">
+								<option value="-1">Tất cả mọi nơi</option>
+								<option
+										th:each="location : ${locations}"
+										th:value="${location.id}"
+										th:text="${location.cityName}"
+										th:selected="${location.id == hotel.locationId}"
+								>
+								</option>
+							</select>
+						</div>
+					</div>
+				</div>
 
-                            </select>
-                        </div>
-                    </div>
-                </div>
+				<!-- Check in -->
+				<div class="col-lg-4">
+					<div class="d-flex">
+						<!-- Icon -->
+						<i class="bi bi-calendar fs-3 me-2 mt-2"></i>
+						<!-- Date input -->
+						<div class="form-control-border form-control-transparent form-fs-md">
+							<label class="form-label">Nhận phòng – Trả phòng</label>
+							<input type="text" th:value="${dateRange}" class="form-control flatpickr" data-mode="range" name="dateRange" placeholder="Chọn ngày">
+						</div>
+					</div>
+				</div>
 
-                <!-- Check in -->
-                <div class="col-lg-4">
-                    <div class="d-flex">
-                        <!-- Icon -->
-                        <i class="bi bi-calendar fs-3 me-2 mt-2"></i>
-                        <!-- Date input -->
-                        <div class="form-control-border form-control-transparent form-fs-md">
-                            <label class="form-label">Nhận phòng – Trả phòng</label>
-                            <input type="text" th:value="${dateRange}" class="form-control flatpickr" data-mode="range" name="dateRange" placeholder="Chọn ngày">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Guest -->
+				<!-- Guest -->
 				<div class="col-lg-4">
 					<div class="form-control-border form-control-transparent form-fs-md d-flex">
 						<!-- Icon -->
@@ -223,47 +465,24 @@ Search START -->
 						<div class="w-100">
 							<label class="form-label">Khách & Phòng</label>
 							<div class="dropdown guest-selector me-2">
-								<input readonly type="text"
-										class="form-guest-selector form-control selection-result"
-										th:value="${adults+children} + ' Khách ' + ${roomQuantity} + ' Phòng'" data-bs-auto-close="outside"
-										data-bs-toggle="dropdown">
+								<input readonly type="text" class="form-guest-selector form-control selection-result" th:value="${guests} + ' Khách ' + ${roomQuantity} + ' Phòng'" data-bs-auto-close="outside" data-bs-toggle="dropdown">
 
 								<!-- dropdown items -->
 								<ul class="dropdown-menu guest-selector-dropdown">
-									<!-- Adult -->
+									<!-- Guest -->
 									<li class="d-flex justify-content-between">
 										<div>
-											<h6 class="mb-0">Người lớn</h6>
-											<small>18 tuổi trở lên</small>
+											<h6 class="mb-0">Khách</h6>
 										</div>
 
 										<div class="hstack gap-1 align-items-center">
-											<button type="button"
-													class="btn btn-link adult-remove p-0 mb-0"><i
-													class="bi bi-dash-circle fs-5 fa-fw"></i></button>
-											<h6 class="guest-selector-count mb-0 adults" th:text="${adults}"></h6>
-											<button type="button" class="btn btn-link adult-add p-0 mb-0"><i
-													class="bi bi-plus-circle fs-5 fa-fw"></i></button>
-										</div>
-									</li>
-
-									<!-- Divider -->
-									<li class="dropdown-divider"></li>
-
-									<!-- Child -->
-									<li class="d-flex justify-content-between">
-										<div>
-											<h6 class="mb-0">Trẻ em </h6>
-											<small>0-17 tuổi</small>
-										</div>
-
-										<div class="hstack gap-1 align-items-center">
-											<button type="button"
-													class="btn btn-link child-remove p-0 mb-0"><i
-													class="bi bi-dash-circle fs-5 fa-fw"></i></button>
-											<h6 class="guest-selector-count mb-0 child" th:text="${children}"></h6>
-											<button type="button" class="btn btn-link child-add p-0 mb-0"><i
-													class="bi bi-plus-circle fs-5 fa-fw"></i></button>
+											<button type="button" th:class="'btn btn-link guest-remove p-0 mb-0' + ${guests == 1 ? ' disabled' : ''}">
+												<i class="bi bi-dash-circle fs-5 fa-fw"></i>
+											</button>
+											<h6 class="guest-selector-count mb-0 guests" th:text="${guests}"></h6>
+											<button type="button" th:class="'btn btn-link guest-add p-0 mb-0' + ${guests == 50 ? ' disabled' : ''}">
+												<i class="bi bi-plus-circle fs-5 fa-fw"></i>
+											</button>
 										</div>
 									</li>
 
@@ -273,16 +492,17 @@ Search START -->
 									<!-- Rooms -->
 									<li class="d-flex justify-content-between">
 										<div>
-											<h6 class="mb-0">Phòng </h6>
-											<!-- <small>Tối đa 8 phòng</small> -->
+											<h6 class="mb-0">Phòng</h6>
 										</div>
 
 										<div class="hstack gap-1 align-items-center">
-											<button type="button" class="btn btn-link room-remove p-0 mb-0">
-												<i class="bi bi-dash-circle fs-5 fa-fw"></i></button>
+											<button type="button" th:class="'btn btn-link room-remove p-0 mb-0' + ${roomQuantity == 1 ? ' disabled' : ''}">
+												<i class="bi bi-dash-circle fs-5 fa-fw"></i>
+											</button>
 											<h6 class="guest-selector-count mb-0 rooms" th:text="${roomQuantity}"></h6>
-											<button type="button" class="btn btn-link room-add p-0 mb-0"><i
-													class="bi bi-plus-circle fs-5 fa-fw"></i></button>
+											<button type="button" th:class="'btn btn-link room-add p-0 mb-0' + ${roomQuantity == 20 ? ' disabled' : ''}">
+												<i class="bi bi-plus-circle fs-5 fa-fw"></i>
+											</button>
 										</div>
 									</li>
 								</ul>
@@ -292,19 +512,18 @@ Search START -->
 				</div>
 			</div>
 
-			<!--                        hidden field for adults, children, and rooms-->
-
-			<input type="hidden" name="adults" id="adultsInput" th:value="${adults}">
-			<input type="hidden" name="children" id="childrenInput" th:value="${children}">
+			<!--Hidden field for guests and rooms-->
+			<input type="hidden" name="guests" id="guestsInput" th:value="${guests}">
 			<input type="hidden" name="rooms" id="roomsInput" th:value="${roomQuantity}">
 
-            <!-- Button -->
-            <div class="btn-position-md-middle">
-                <button type="submit" class="icon-lg btn btn-round btn-primary mb-0">
-                    <i class="bi bi-search fa-fw"></i>
-                </button>
-            </div>
-        </form>
+
+			<!-- Button -->
+			<div class="btn-position-md-middle">
+				<button type="submit" class="icon-lg btn btn-round btn-primary mb-0">
+					<i class="bi bi-search fa-fw"></i>
+				</button>
+			</div>			
+		</form>
 		<!-- Search with offcanvas END -->
 	</div>
 </section>
@@ -323,6 +542,11 @@ Main Title START -->
 		<!-- Thông báo lỗi -->
 		<div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
 			<strong>Lỗi!</strong> <span th:text="${errorMessage}"></span>
+			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		</div>
+
+		<div th:if="${banMessage}" class="alert alert-danger alert-dismissible show" role="alert">
+			<span th:text="${banMessage}"></span>
 			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 		</div>
 	</div>
@@ -365,8 +589,8 @@ Main Title START -->
 							</a>
 							<!-- dropdown button -->
 							<ul class="dropdown-menu dropdown-menu-end min-w-auto shadow rounded" aria-labelledby="dropdownShare">
-								<li><a class="dropdown-item" th:href="'https://www.facebook.com/sharer/sharer.php?u=localhost:8386/hotel-detail?hotelId=' + ${hotel.hotelId}" target="_blank"><i class="fab fa-facebook-square me-2"></i>Facebook</a></li>
-								<li><a class="dropdown-item" th:href="'https://twitter.com/intent/tweet?url=localhost:8386/hotel-detail?hotelId=' + ${hotel.hotelId}" target="_blank"><i class="fab fa-twitter-square me-2"></i>Twitter</a></li>
+								<li><a class="dropdown-item" th:href="'https://www.facebook.com/sharer/sharer.php?u=' + ${@environment.getProperty('app.base-url')} + '/hotel-detail?hotelId=' + ${hotel.hotelId}" target="_blank"><i class="fab fa-facebook-square me-2"></i>Facebook</a></li>
+								<li><a class="dropdown-item" th:href="'https://twitter.com/intent/tweet?url=' + ${@environment.getProperty('app.base-url')} + '/hotel-detail?hotelId=' + ${hotel.hotelId}" target="_blank"><i class="fab fa-twitter-square me-2"></i>Twitter</a></li>
 								<li><a class="dropdown-item" th:href="'hotel-detail?hotelId=' + ${hotel.hotelId}" onclick="event.preventDefault();navigator.clipboard.writeText(this.href)"><i class="fa-solid fa-copy me-2"></i>Copy link</a></li>
 							</ul>
 						</li>
@@ -508,7 +732,7 @@ About hotel START -->
 						<div class="card-header border-bottom bg-transparent px-0 pt-0">
 							<div class="d-sm-flex justify-content-sm-between align-items-center">
 								<h3 class="mb-2 mb-sm-0">Lựa Chọn Phòng</h3>
-								<a th:class="'btn btn-sm btn-primary mb-0' + ${rooms == null || rooms.size() == 0 ? ' disabled' : ''}" data-bs-toggle="modal" data-bs-target="#bookingModal">Chọn Phòng</a>  
+								<a th:class="'btn btn-sm btn-primary mb-0' + ${(rooms == null || rooms.size() == 0 || banMessage != null) ? ' disabled' : ''}" data-bs-toggle="modal" data-bs-target="#bookingModal">Chọn Phòng</a>  
 							</div>
 						</div>
 
@@ -547,7 +771,7 @@ About hotel START -->
 
 												<div class="d-flex justify-content-end align-items-center">
 													<span>Số lượng: </span>
-													<b th:class="'fw-bold mb-0 me-1' + ${room.quantity == 0 ? ' text-danger' : ''}" th:text="${room.quantity}"></b>
+													<b th:class="'fw-bold mb-0 me-1' + ${room.quantity <= 0 ? ' text-danger' : ''}" th:text="${room.quantity}"></b>
 												</div>                 
 
 												<!-- Price and Button -->
@@ -559,7 +783,7 @@ About hotel START -->
 													</div>
 													<!-- Price -->
 													<div class="mt-3 mt-sm-0">
-														<a th:class="'btn btn-sm btn-primary mb-0' + ${room.quantity == 0 ? ' disabled' : ''}" data-bs-toggle="modal" th:data-bs-target="'#bookingModal' + ${room.roomId}">Đặt Phòng</a>    
+														<a th:class="'btn btn-sm btn-primary mb-0' + ${(room.quantity <= 0 || banMessage != null) ? ' disabled' : ''}" data-bs-toggle="modal" th:data-bs-target="'#bookingModal' + ${room.roomId}">Đặt Phòng</a>    
 													</div>                  
 												</div>
 											</div>
@@ -575,8 +799,7 @@ About hotel START -->
 					<!-- Room END -->
 
 					<!-- Customer Review START -->
-					
-					<div class="card bg-transparent">
+					<div class="card bg-transparent" id="hotel-reviews">
 						<!-- Card header -->
 						<div class="card-header border-bottom bg-transparent px-0 pt-0">
 							<h3 class="card-title mb-0">Đánh Giá</h3>
@@ -607,27 +830,61 @@ About hotel START -->
 										<!-- Progress-bar START -->
 										<div th:class="${hotel.rating == 0 ? 'col-md-12' : 'col-md-8'}">
 											<div class="card-body p-0">
-												<div th:if="${session.user != null}" class="row gx-3 g-2 align-items-center">
-													<!-- Leave review START -->
+												<div th:if="${session.user != null}">
+													<div id="reviewChat" th:class="'row gx-3 g-2 align-items-center' + ${review != null ? ' d-none' : ''}">
+														<!-- Leave review START -->
 														<input type="hidden" name="hotelId" th:value="${hotel.hotelId}">
+														<input type="hidden" name="userId" th:value="${session.user.id}">
 														<!-- Rating -->
 														<div class="form-control-bg-light mb-3">
-															<select name="rating" class="form-select js-choice">
-																<option value="5" selected="">★★★★★ (5/5)</option>
-																<option value="4">★★★★☆ (4/5)</option>
-																<option value="3">★★★☆☆ (3/5)</option>
-																<option value="2">★★☆☆☆ (2/5)</option>
-																<option value="1">★☆☆☆☆ (1/5)</option>
+															<select name="rating" class="form-select js-choice-review">
+																<option value="5" th:selected="${review != null ? (review.rating == 5 ? 'true' : 'false') : 'true'}">★★★★★ (5/5)</option>
+																<option value="4" th:selected="${review != null ? (review.rating == 4 ? 'true' : 'false') : 'false'}">★★★★☆ (4/5)</option>
+																<option value="3" th:selected="${review != null ? (review.rating == 3 ? 'true' : 'false') : 'false'}">★★★☆☆ (3/5)</option>
+																<option value="2" th:selected="${review != null ? (review.rating == 2 ? 'true' : 'false') : 'false'}">★★☆☆☆ (2/5)</option>
+																<option value="1" th:selected="${review != null ? (review.rating == 1 ? 'true' : 'false') : 'false'}">★☆☆☆☆ (1/5)</option>
 															</select>
 														</div>
 														<!-- Message -->
 														<div class="form-control-bg-light mb-3">
-															<textarea name="comment" class="form-control" id="exampleFormControlTextarea1" placeholder="Đánh giá về khách sạn" rows="3"></textarea>
-														</div> 
+															<textarea name="comment" class="form-control" placeholder="Đánh giá về khách sạn" rows="3" th:text="${review != null ? review.comment : ''}"></textarea>
+														</div>
 														<!-- Button -->
-														<button onclick="review()" type="button" class="btn btn-lg btn-primary mb-0">Gửi<i class="bi fa-fw bi-arrow-right ms-2"></i></button>
-													<!-- Leave review END -->
-												</div> 
+														<div id="button">
+															<button onclick="review(true)" type="button" class="btn btn-lg btn-primary mb-0 w-100" th:if="${review == null}">Gửi<i class="bi fa-fw bi-arrow-right ms-2"></i></button>
+															<div class="form-control-bg-light mb-3 w-100 d-flex justify-content-center row" th:unless="${review == null}">
+																<button onclick="closeReview()" type="button" class="btn btn-lg btn-danger mb-0 col-5 me-3">Quay lại</button>
+																<button onclick="review(false)" type="button" class="btn btn-lg btn-primary mb-0 col-5">Sửa<i class="bi fa-fw bi-arrow-right ms-2"></i></button>
+															</div>
+														</div>
+														<!-- Leave review END -->
+													</div>
+													<div id="reviewBox" th:class="'row gx-3 g-2 align-items-center' + ${review == null ? ' d-none' : ''}">
+														<!-- Text -->
+														<div class="w-100">
+															<!-- Rating -->
+															<div class="form-control-bg-light mb-3 d-flex justify-content-between">
+																<div>
+																	<h6 id="reviewName" class="me-3" th:text="${session.user.fullName}"></h6>
+																	<!-- Info -->
+																	<ul class="nav nav-divider small">
+																		<li id="reviewDate" class="nav-item" th:text="${review == null ? '' : review.createdAt.format(T(java.time.format.DateTimeFormatter).ofPattern('dd/MM/yyyy'))}"></li>
+																	</ul>
+																</div>
+																<!-- Review star -->
+																<div id="reviewRating" class="icon-md rounded text-bg-warning fs-6" th:text="${review == null ? '' : review.rating}"></div>
+															</div>
+															
+															<p id="reviewComment" class="mb-3 comment" th:text="${review == null ? '' : review.comment}"></p>
+
+															<!-- Button -->
+															<div class="form-control-bg-light mb-3 d-flex justify-content-center row">
+																<button onclick="deleteReview()" type="button" class="btn btn-lg btn-danger mb-0 col-5 me-3">Xóa</button>
+																<button onclick="editReview()" type="button" class="btn btn-lg btn-primary mb-0 col-5">Chỉnh sửa</button>
+															</div>
+														</div>
+													</div>
+												</div>
 												<div th:unless="${session.user != null}">
 													<a href="/login" class="text-center">Đăng nhập hoặc đăng ký tài khoản để bình luận</a>
 												</div>
@@ -641,9 +898,9 @@ About hotel START -->
 							<!-- Progress bar and rating END -->
 
 							<!-- Review item START -->
-							<div id="comment">
-								<div th:each="comment : ${comments}">
-									<div class="d-md-flex my-4">
+							<div id="comment" style="max-width: 100%;">
+								<div th:each="comment : ${comments}" th:id="'review' + ${comment.reviewId}">
+									<div class="d-md-flex mt-4">
 										<!-- Avatar -->
 										<div class="avatar avatar-lg me-3 flex-shrink-0">
 											<img class="avatar-img rounded-circle" th:src="${comment.avatarUrl != null ? comment.avatarUrl : '/assets/images/avatar/avatar.jpg'}" th:alt="${comment.fullName}">
@@ -655,35 +912,56 @@ About hotel START -->
 													<h6 class="me-3 mb-0" th:text="${comment.fullName}"></h6>
 													<!-- Info -->
 													<ul class="nav nav-divider small mb-2">
-														<li class="nav-item" th:text="${comment.createdAt}"></li>
+														<li class="nav-item" th:text="${comment.createdAt.format(T(java.time.format.DateTimeFormatter).ofPattern('dd/MM/yyyy'))}"></li>
 													</ul>
 												</div>
 												<!-- Review star -->
-												<div class="icon-md rounded text-bg-warning fs-6" th:text="${comment.rating}"></div>
+												<div class="icon-md rounded text-bg-warning fs-6 rating" th:text="${comment.rating}"></div>
 											</div>
 											
-											<p class="mb-0" th:text="${comment.comment}"></p>
+											<p class="mb-0 comment" th:text="${comment.comment}"></p>
+
+											<div class="d-flex justify-content-end mt-2" th:if="${session.user != null}">
+												<div th:if="${comment.userId == session.user.id}">
+													<a href="javascript:void(0)" class="text-secondary fw-bold hover-danger me-2" onclick="deleteReview()">Xóa</a>
+													<a href="javascript:void(0)" class="text-secondary fw-bold hover-primary me-2" onclick="editReview();scrollToId('review')">Chỉnh sửa</a>
+												</div>
+												<a href="javascript:void(0)" class="text-secondary fw-bold hover-primary" th:onclick="'reply(' + ${comment.reviewId} + ',' + ${session.user.id} + ')'">Trả lời</a>
+											</div>
 										</div>
-										
 									</div>
 
+									<!-- Child review START -->
+									<div class="reply">
+										<div class="ps-2 ps-md-3 mb-2" th:each="reply : ${comment.replies}" th:id="'reply' + ${reply.replyId}">
+											<div class="d-md-flex">
+												<img class="avatar avatar-sm rounded-circle me-3" th:src="${reply.avatarUrl != null ? reply.avatarUrl : '/assets/images/avatar/avatar.jpg'}" alt="avatar">
+												<div class="mt-2 mt-md-0 w-100">
+													<h6 class="mb-1" th:text="${reply.fullName}"></h6>
+													<ul class="nav nav-divider small mb-2">
+														<li class="nav-item" th:text="${reply.createdAt.format(T(java.time.format.DateTimeFormatter).ofPattern('dd/MM/yyyy'))}"></li>
+													</ul>
+
+													<p class="mb-0 comment" th:text="${reply.comment}"></p>
+													
+													<div class="d-flex justify-content-end mt-2" th:if="${session.user != null}">
+														<div th:if="${reply.userId == session.user.id}">
+															<a href="javascript:void(0)" class="text-secondary fw-bold hover-danger me-2" th:onclick="'deleteReply(' + ${reply.replyId} + ')'">Xóa</a>
+															<a href="javascript:void(0)" class="text-secondary fw-bold hover-primary me-2" th:onclick="'reply(' + ${comment.reviewId} + ',' + ${session.user.id} + ');scrollToId(reply);'">Chỉnh sửa</a>
+														</div>
+														<a href="javascript:void(0)" class="text-secondary fw-bold hover-primary" th:onclick="'reply(' + ${comment.reviewId} + ',' + ${session.user.id} + ');scrollToId(reply);'">Trả lời</a>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									<!-- Child review END -->
+									
 									<!-- Divider -->
 									<hr>
 								</div>
 							</div>
 							<!-- Review item END -->
-
-							<!-- Child review START -->
-							<!-- <div class="my-4 ps-2 ps-md-3">
-								<div class="d-md-flex p-3 bg-light rounded-3">
-									<img class="avatar avatar-sm rounded-circle me-3" src="assets/images/avatar/02.jpg" alt="avatar">
-									<div class="mt-2 mt-md-0">
-										<h6 class="mb-1">Manager</h6>
-										<p class="mb-0">But discretion frequently sir she instruments unaffected admiration everything. </p>
-									</div>
-								</div>
-							</div> -->
-							<!-- Child review END -->
 
 							<!-- Button -->
 							<!-- <div class="text-center">
@@ -708,6 +986,15 @@ About hotel START -->
 								<span>Giá chỉ từ</span>
 								<h4 class="card-title mb-0" th:text="${#numbers.formatDecimal(hotel.minPrice, 0, 'COMMA', 0, 'POINT')} + '₫'"></h4>
 							</div>
+
+							<!-- Heart icon -->
+							<div class="list-inline-item">
+								<form th:action="${(favorite ? 'remove-favorite' : '/add-favorite') + '?hotelId=' + hotel.hotelId + '&detail=true' + redirect}" method="post" style="display: inline;">
+									<button type="submit" class="btn btn-sm btn-light px-2">
+										<i th:class="'fa-solid fa-fw fa-heart' + ${favorite ? ' text-danger' : ''}"></i>
+									</button>
+								</form>
+							</div>
 						</div>		
 
 						<!-- Rating -->
@@ -725,6 +1012,10 @@ About hotel START -->
 						<!-- Button -->
 						<div class="d-grid">
 							<a href="#room-options" class="btn btn-lg btn-primary-soft mb-0">Xem <span th:text="${rooms.size()}"></span> lựa chọn phòng</a>
+						</div>
+
+						<div class="d-grid mt-2">
+							<a href="#hotel-reviews" class="btn btn-lg btn-secondary-soft mb-0">Đánh giá khách sạn</a>
 						</div>
 					</div>
 					<!-- Book now END -->
@@ -828,7 +1119,7 @@ Footer END -->
 
 							<div class="d-flex justify-content-end align-items-center">
 								<span>Số lượng: </span>
-								<b th:class="'fw-bold mb-0 me-1' + ${room.quantity == 0 ? ' text-danger' : ''}" th:text="${room.quantity}"></b>
+								<b th:class="'fw-bold mb-0 me-1' + ${room.quantity <= 0 ? ' text-danger' : ''}" th:text="${room.quantity}"></b>
 							</div>    
 
 							<div class="d-sm-flex justify-content-sm-between align-items-center mt-2 mb-0">
@@ -839,7 +1130,7 @@ Footer END -->
 								</div>
 								<!-- Price -->
 								<div class="mt-3 mt-sm-0">
-									<a href="" th:class="'btn btn-sm btn-primary mb-0' + ${room.quantity == 0 ? ' disabled' : ''}" data-bs-toggle="modal" th:data-bs-target="'#bookingModal' + ${room.roomId}">Chọn Phòng</a>    
+									<a href="" th:class="'btn btn-sm btn-primary mb-0' + ${room.quantity <= 0 ? ' disabled' : ''}" data-bs-toggle="modal" th:data-bs-target="'#bookingModal' + ${room.roomId}">Chọn Phòng</a>    
 								</div>                  
 							</div>
 						</div> <!-- Row END -->
@@ -857,7 +1148,7 @@ Footer END -->
 <div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered modal-md">
 		<div class="modal-content">
-			<form th:action="@{/booking/{id}(id=${hotel.hotelId})}" onsubmit="return dateRange.value.trim() !== ''">
+			<form th:action="@{/booking/{id}(id=${hotel.hotelId})}" onsubmit="return this.dateRange.value.trim() ? true : (this.querySelector('#error').classList.remove('hidden'), false)">
 				<!-- Title -->
 				<div class="modal-header">
 					<h5 class="modal-title" id="bookingModalLabel">Chọn ngày đặt phòng</h5>
@@ -866,7 +1157,7 @@ Footer END -->
 				<!-- Date Range -->
 				<div class="modal-body p-0">                
 					<!-- Check in -->
-					<div class="col-lg-10 mx-auto my-2">
+					<div class="col-10 mx-auto my-2">
 						<div class="d-flex mb-2">
 							<!-- Icon -->
 							<i class="bi bi-calendar fs-3 me-2 mt-2"></i>
@@ -874,12 +1165,15 @@ Footer END -->
 							<div class="form-control-border form-control-transparent form-fs-md">
 								<label class="form-label">Nhận phòng – Trả phòng</label>
 								<input type="text" th:value="${dateRange}" class="form-control flatpickr" data-mode="range" name="dateRange" placeholder="Chọn ngày" required="true">
+								<input type="hidden" th:value="${guests}" name="guests">
+								<input type="hidden" th:value="${roomQuantity}" name="rooms">
 							</div>
 						</div>
 					</div>                                                          
 				</div>
 				<!-- Button -->
 				<div class="modal-footer">
+					<div class="hidden" id="error" style="text-align:center; color:red;">Bạn phải chọn ngày đặt phòng</div>
 					<input type="submit" class="btn btn-sm btn-primary mb-0" value="Đặt Phòng">
 				</div>
 			</form>
@@ -890,7 +1184,7 @@ Footer END -->
 <div class="modal fade" th:each="room: ${rooms}" th:id="'bookingModal' + ${room.roomId}" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered modal-md">
 		<div class="modal-content">
-			<form th:action="@{/booking/{id}(id=${hotel.hotelId})}" onsubmit="return dateRange.value.trim() !== ''">
+			<form th:action="@{/booking/{id}(id=${hotel.hotelId})}" onsubmit="return this.dateRange.value.trim() ? true : (this.querySelector('#error').classList.remove('hidden'), false)">
 				<!-- Title -->
 				<div class="modal-header">
 					<h5 class="modal-title" id="bookingModalLabel">Chọn ngày đặt phòng</h5>
@@ -899,7 +1193,7 @@ Footer END -->
 				<!-- Date Range -->
 				<div class="modal-body p-0">                
 					<!-- Check in -->
-					<div class="col-md-10 mx-auto my-2">
+					<div class="col-10 mx-auto my-2">
 						<div class="d-flex mb-2">
 							<!-- Icon -->
 							<i class="bi bi-calendar fs-3 me-2 mt-2"></i>
@@ -908,6 +1202,8 @@ Footer END -->
 								<label class="form-label">Nhận phòng – Trả phòng</label>
 								<input type="hidden" name="roomId" th:value="${room.roomId}">
 								<input type="text" th:value="${dateRange}" class="form-control flatpickr" data-mode="range" name="dateRange" placeholder="Chọn ngày" required>
+								<input type="hidden" th:value="${guests}" name="guests">
+								<input type="hidden" th:value="${roomQuantity}" name="rooms">
 							</div>
 						</div>
 
@@ -925,6 +1221,7 @@ Footer END -->
 				</div>
 				<!-- Button -->
 				<div class="modal-footer">
+					<div class="hidden" id="error" style="text-align:center; color:red;">Bạn phải chọn ngày đặt phòng</div>
 					<input type="submit" class="btn btn-sm btn-primary mb-0" value="Đặt Phòng">
 				</div>
 			</form>
@@ -963,8 +1260,8 @@ Footer END -->
 			position: {lat: lat, lng: lng},
 			map: map,
 			icon: {
-                url: 'https://maps.gstatic.com/mapfiles/api-3/images/spotlight-poi2_hdpi.png',
-                scaledSize: new google.maps.Size(14, 22)
+                url: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+                scaledSize: new google.maps.Size(20, 30)
             }
 		});
 	}

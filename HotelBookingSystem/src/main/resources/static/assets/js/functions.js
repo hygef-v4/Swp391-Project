@@ -736,6 +736,16 @@ var e = {
                     inputs[handle].value = values[handle];
                 });
 
+                // Ép giá trị nhập vào không vượt quá min/max
+                imin.addEventListener('change', function () {
+                    let value = parseInt(this.value.replace(/,/g, '')) / 1000;
+                    slider.noUiSlider.set([value, null]);
+                });
+
+                imax.addEventListener('change', function () {
+                    let value = parseInt(this.value.replace(/,/g, '')) / 1000;
+                    slider.noUiSlider.set([null, value]);
+                });
             });
         }
     },
@@ -858,95 +868,73 @@ var e = {
     guestSelector: function () {
         if (e.isVariableDefined(e.select('.guest-selector'))) {
 
-            let adults = parseInt(document.getElementById('adultsInput').value);
-            let child = parseInt(document.getElementById('childrenInput').value);
+            let guests = parseInt(document.getElementById('guestsInput').value);
             let rooms = parseInt(document.getElementById('roomsInput').value);
-            let totalAdults = adults + child;
 
             let selectionResult = document.querySelector('.selection-result');
 
-            let adultValue = document.querySelector('.adults');
-            let adultAdd = document.querySelector('.adult-add');
-            let adultRemove = document.querySelector('.adult-remove');
-
-            let childValue = document.querySelector('.child');
-            let childAdd = document.querySelector('.child-add');
-            let childRemove = document.querySelector('.child-remove');
+            let guestValue = document.querySelector('.guests');
+            let guestAdd = document.querySelector('.guest-add');
+            let guestRemove = document.querySelector('.guest-remove');
 
             let roomValue = document.querySelector('.rooms');
             let roomAdd = document.querySelector('.room-add');
             let roomRemove = document.querySelector('.room-remove');
 
             function addElement(type) {
-                if (type == 'adult') {
-                    adults = adults < 50 ? adults + 1 : adults;
-                    totalAdults = adults + child;
+                if (type == 'guest') {
+                    if(guests == 1) guestRemove.classList.remove("disabled");
+                    guests = guests < 50 ? guests + 1 : guests;
+                    if(guests == 50) guestAdd.classList.add("disabled");
 
                     showElements();
-                } else if (type == 'child') {
-                    child = child < 50 ? child + 1 : child;
-                    totalAdults = adults + child;
-
-                    showElements();
-                } else if (type == 'room') {
+                }  else if (type == 'room') {
+                    if(rooms == 1) roomRemove.classList.remove("disabled");
                     rooms = rooms < 20 ? rooms + 1 : rooms;
+                    if(rooms == 20) roomAdd.classList.add("disabled");
 
                     showElements();
                 }
             }
 
             function showElements() {
-                adultValue.innerText = adults;
-                childValue.innerText = child;
+                guestValue.innerText = guests;
                 roomValue.innerText = rooms;
 
-                // 💡 Update hidden fields
-                let adultInput = document.getElementById('adultsInput')
-                if(adultInput != null) adultInput.value = adults;
-                let childrenInput = document.getElementById('childrenInput')
-                if(childrenInput != null) childrenInput.value = child;
+                let guestInput = document.getElementById('guestsInput')
+                if(guestInput != null) guestInput.value = guests;
                 let roomsInput = document.getElementById('roomsInput')
                 if(roomsInput != null) roomsInput.value = rooms;
 
                 let roomText = 'Phòng';
                 let guestText = 'Khách';
-                let resultText = totalAdults + ' ' + guestText + ' ' + rooms + ' ' + roomText;
+                let resultText = guests + ' ' + guestText + ' ' + rooms + ' ' + roomText;
                 selectionResult.setAttribute('value', resultText);
             }
 
 
             function removeElement(type) {
-                if (type == 'adult') {
-                    adults = adults > 1 ? adults - 1 : adults;
-                    totalAdults = adults + child;
-
-                    showElements();
-                } else if (type == 'child') {
-                    child = child > 0 ? child - 1 : child;
-                    totalAdults = adults + child;
+                if (type == 'guest') {
+                    if(guests == 50) guestAdd.classList.remove("disabled");
+                    guests = guests > 1 ? guests - 1 : guests;
+                    if(guests == 1) guestRemove.classList.add("disabled");
 
                     showElements();
                 } else if (type == 'room') {
+                    if(rooms == 20) roomAdd.classList.remove("disabled");
                     rooms = rooms > 1 ? rooms - 1 : rooms;
+                    if(rooms == 1) roomRemove.classList.add("disabled");
 
                     showElements();
                 }
             }
 
-            adultAdd.addEventListener('click', function () {
-                addElement('adult');
+            guestAdd.addEventListener('click', function () {
+                addElement('guest');
             });
 
-            adultRemove.addEventListener('click', function () {
-                removeElement('adult');
-            });
-
-            childAdd.addEventListener('click', function () {
-                addElement('child');
-            });
-
-            childRemove.addEventListener('click', function () {
-                removeElement('child');
+            guestRemove.addEventListener('click', function () {
+                removeElement('guest');
             });
 
             roomAdd.addEventListener('click', function () {
@@ -1193,3 +1181,11 @@ var e = {
 
 };
 e.init();
+
+function scrollToId(id){
+    const e = document.getElementById(id);
+    if(e){
+        const y = e.getBoundingClientRect().top + window.scrollY - 100;
+        window.scrollTo({top: y, behavior: 'smooth'});
+    }
+}

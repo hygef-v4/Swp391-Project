@@ -1,5 +1,6 @@
 package org.swp391.hotelbookingsystem.repository;
 
+import java.sql.Date;
 import java.util.List;
 
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -25,9 +26,9 @@ public class RoomRepository {
 
     public int insertRoom(Room room) {
         String sql = """
-                    INSERT INTO Rooms (hotel_id, title, description, price, max_guests, room_type_id, quantity, status)
+                    INSERT INTO Rooms (hotel_id, title, description, price, max_guests, quantity, status)
                     OUTPUT INSERTED.room_id
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
                 """;
 
         return jdbcTemplate.queryForObject(sql, Integer.class,
@@ -36,7 +37,6 @@ public class RoomRepository {
                 room.getDescription(),
                 room.getPrice(),
                 room.getMaxGuests(),
-                room.getRoomTypeId(),
                 room.getQuantity(),
                 room.getStatus() != null ? room.getStatus() : "active"
         );
@@ -52,6 +52,38 @@ public class RoomRepository {
         jdbcTemplate.update(sql, roomId, amenityId);
     }
 
+    public List<Room> getRoomsByIdAndDateRange(int id, Date checkin, Date checkout){
+        String sql = """
+                    WITH BookedRooms AS (
+                        SELECT 
+                            bu.room_id,
+                            SUM(bu.quantity) AS booked_quantity
+                        FROM BookingUnits bu
+                        JOIN Bookings b ON b.booking_id = bu.booking_id
+                        WHERE bu.status IN ('pending', 'approved', 'check_in')
+                            AND b.check_out >= ? AND b.check_in <= ?
+                        GROUP BY bu.room_id
+                    )
+                    SELECT 
+                        Rooms.room_id AS roomId,
+                        hotel_id AS hotelId,
+                        title,
+                        description,
+                        price,
+                        max_guests AS maxGuests,
+                        status,
+                        quantity - ISNULL(booked_quantity, 0) AS quantity
+                    FROM Rooms 
+                    LEFT JOIN BookedRooms ON Rooms.room_id = BookedRooms.room_id
+                    WHERE hotel_id = ?
+                """;
+        return jdbcTemplate.query(sql, ps -> {
+            ps.setDate(1, checkin != null ? checkin : new Date(System.currentTimeMillis()));
+            ps.setDate(2, checkout != null ? checkout : new Date(System.currentTimeMillis()));
+            ps.setInt(3, id);
+        }, ROOM_MAPPER);
+    }
+
     public List<Room> getRoomsByHotelId(int hotelId) {
         String sql = """
                     SELECT 
@@ -61,29 +93,10 @@ public class RoomRepository {
                         description,
                         price,
                         max_guests AS maxGuests,
-                        room_type_id AS roomTypeId,
                         status,
-                        quantity - ISNULL((SELECT SUM(quantity) FROM BookingUnits WHERE room_id = Rooms.room_id AND status LIKE 'approved'), 0) AS quantity
+                        quantity - ISNULL((SELECT SUM(quantity) FROM BookingUnits WHERE room_id = Rooms.room_id AND status IN ('pending', 'approved', 'check_in')), 0) AS quantity
                     FROM Rooms
                     WHERE hotel_id = ?
-                """;
-        return jdbcTemplate.query(sql, ROOM_MAPPER, hotelId);
-    }
-
-    public List<Room> getAvailableRoomsByHotelId(int hotelId) {
-        String sql = """
-                    SELECT 
-                        room_id AS roomId,
-                        hotel_id AS hotelId,
-                        title,
-                        description,
-                        price,
-                        max_guests AS maxGuests,
-                        room_type_id AS roomTypeId,
-                        status,
-                        quantity - ISNULL((SELECT SUM(quantity) FROM BookingUnits WHERE room_id = Rooms.room_id AND status LIKE 'approved'), 0) AS quantity
-                    FROM Rooms
-                    WHERE hotel_id = ? AND quantity > 0
                 """;
         return jdbcTemplate.query(sql, ROOM_MAPPER, hotelId);
     }
@@ -93,7 +106,6 @@ public class RoomRepository {
     public int countRooms() {
         return jdbcTemplate.queryForObject(COUNT_ROOMS, Integer.class);
     }
-
 
     public int getTotalRoomsByHostId(int hostId) {
         String sql = """
@@ -129,7 +141,6 @@ public class RoomRepository {
                     description = ?, 
                     price = ?, 
                     max_guests = ?, 
-                    room_type_id = ?, 
                     quantity = ?, 
                     status = ?
                 WHERE room_id = ?
@@ -139,7 +150,6 @@ public class RoomRepository {
                 room.getDescription(),
                 room.getPrice(),
                 room.getMaxGuests(),
-                room.getRoomTypeId(),
                 room.getQuantity(),
                 room.getStatus(),
                 room.getRoomId()
@@ -183,7 +193,6 @@ public class RoomRepository {
             description,
             price,
             max_guests AS maxGuests,
-            room_type_id AS roomTypeId,
             status,
             quantity
         FROM Rooms

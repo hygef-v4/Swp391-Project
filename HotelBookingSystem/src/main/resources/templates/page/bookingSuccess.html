@@ -72,7 +72,7 @@
 	</script>
 
 	<!-- Favicon -->
-	<link rel="shortcut icon" href="assets/images/favicon.ico">
+	<link rel="shortcut icon" href="/assets/images/favicon.ico">
 
 	<!-- Google Font -->
 	<link rel="preconnect" href="https://fonts.googleapis.com/">
@@ -80,16 +80,16 @@
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Poppins:wght@400;500;700&amp;display=swap">
 
 	<!-- Plugins CSS -->
-	<link rel="stylesheet" type="text/css" href="assets/vendor/font-awesome/css/all.min.css">
-	<link rel="stylesheet" type="text/css" href="assets/vendor/bootstrap-icons/bootstrap-icons.css">
-	<link rel="stylesheet" type="text/css" href="assets/vendor/glightbox/css/glightbox.css">
+	<link rel="stylesheet" type="text/css" href="/assets/vendor/font-awesome/css/all.min.css">
+	<link rel="stylesheet" type="text/css" href="/assets/vendor/bootstrap-icons/bootstrap-icons.css">
+	<link rel="stylesheet" type="text/css" href="/assets/vendor/glightbox/css/glightbox.css">
 
 	<!-- Theme CSS -->
-	<link rel="stylesheet" type="text/css" href="assets/css/style.css">
+	<link rel="stylesheet" type="text/css" href="/assets/css/style.css">
 
 </head>
 
-<body>
+<body onbeforeprint="window.scrollTo(0, 0)">
 
 <!-- Header START -->
 <div th:replace="~{common/header :: header}"></div>
@@ -144,7 +144,7 @@ Main content START -->
 									</li>
 									<li class="list-group-item d-sm-flex justify-content-between align-items-center">
 										<span class="mb-0"><i class="bi bi-currency-dollar fa-fw me-2"></i>Tổng tiền:</span>
-										<span class="h6 fw-normal mb-0" th:text="${booking.totalPrice}"></span>
+										<span class="h6 fw-normal mb-0" th:text="${#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 0, 'POINT') + '₫'}"></span>
 									</li>
 									<li class="list-group-item d-sm-flex justify-content-between align-items-center">
 										<span class="mb-0"><i class="bi bi-calendar fa-fw me-2"></i>Ngày trả phòng:</span>
@@ -157,13 +157,14 @@ Main content START -->
 						<!-- Button -->
 						<div class="d-sm-flex justify-content-sm-end d-grid">
 							<!-- Download button -->
+							<a class="btn btn-light mb-0 me-2" onclick="downloadPDF(this)" th:data-id="${booking.bookingId}"><i class="bi bi-file-pdf me-2"></i>Lưu thông tin đặt phòng</a>
+							<!-- History button -->
 							<a href="/bookingHistory" class="btn btn-light mb-0 me-2"><i class="bi bi-journal-text me-2"></i>Xem lịch sử đặt phòng</a>
 							<!-- Return button -->
-							<a th:href="'hotel-detail?hotelId=' + ${booking.hotelId}" class="btn btn-primary mb-0">Tiếp tục đặt phòng<i class="bi bi-arrow-right ms-2"></i></a>
+							<a th:href="'/hotel-detail?hotelId=' + ${booking.hotelId} + '&dateRange=' + ${dateRange} + '&guest=' + ${guests} + '&rooms=' + ${rooms}" class="btn btn-primary mb-0">Tiếp tục đặt phòng<i class="bi bi-arrow-right ms-2"></i></a>
 						</div>
 					</div>
 				</div>
-
 			</div>
 		</div>
 	</div>
@@ -184,13 +185,33 @@ Footer END -->
 <div class="back-top"></div>
 
 <!-- Bootstrap JS -->
-<script src="assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
 <!-- Vendors -->
-<script src="assets/vendor/glightbox/js/glightbox.js"></script>
+<script src="/assets/vendor/glightbox/js/glightbox.js"></script>
+<script>
+	function downloadPDF(el) {
+		const id = el.dataset.id;
+
+		fetch('/invoice?id=' + id, {
+			method: 'POST'
+		})
+		.then(res => res.blob())
+		.then(blob => {
+			const a = Object.assign(document.createElement('a'), {
+				href: URL.createObjectURL(blob),
+				download: 'booking.pdf'
+			});
+			a.click();
+			URL.revokeObjectURL(a.href);
+		})
+	}
+</script>
+
+
 
 <!-- ThemeFunctions -->
-<script src="assets/js/functions.js"></script>
+<script src="/assets/js/functions.js"></script>
 
 </body>
 

@@ -9,7 +9,10 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.swp391.hotelbookingsystem.dto.ChatMessage;
 import org.swp391.hotelbookingsystem.model.Message;
+import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.service.MessageService;
+import org.swp391.hotelbookingsystem.service.NotificationService;
+import org.swp391.hotelbookingsystem.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +24,8 @@ public class ChatController {
 
     private final SimpMessagingTemplate messagingTemplate;
     private final MessageService messageService;
+    private final NotificationService notificationService;
+    private final UserService userService;
 
     // client sends to /app/chat/{roomId}
     @MessageMapping("/chat/{roomId}")
@@ -51,6 +56,44 @@ public class ChatController {
             // send to topic
             messagingTemplate.convertAndSend("/topic/chat." + roomId, chatMessage);
             log.info("Message sent to topic: /topic/chat.{}", roomId);
+            
+            // Create notification for the receiver
+            try {
+                User sender = userService.findUserById(chatMessage.getSenderId());
+                User receiver = userService.findUserById(chatMessage.getReceiverId());
+                
+                if (sender != null && receiver != null) {
+                    String senderName = sender.getFullName();
+                    
+                    // Determine the correct action URL based on receiver's role
+                    String actionUrl;
+                    if (receiver.getRole().equals("HOST")) {
+                        // Host receives message from customer
+                        actionUrl = "/host-customer-detail?customerId=" + chatMessage.getSenderId();
+                    } else {
+                        // Customer receives message from host  
+                        actionUrl = "/customer-host-detail?hostId=" + chatMessage.getSenderId();
+                    }
+                    
+                    // Use enhanced notification method that merges notifications from same sender
+                    notificationService.createOrUpdateChatNotification(
+                        chatMessage.getReceiverId(),
+                        senderName,
+                        chatMessage.getSenderId(),
+                        chatMessage.getContent(),
+                        actionUrl
+                    );
+                    
+                    log.info("Chat notification created/updated for user {} from sender {}", 
+                            chatMessage.getReceiverId(), chatMessage.getSenderId());
+                } else {
+                    log.warn("Could not find sender {} or receiver {} for notification", 
+                            chatMessage.getSenderId(), chatMessage.getReceiverId());
+                }
+            } catch (Exception notificationError) {
+                log.error("Error creating/updating chat notification: {}", notificationError.getMessage(), notificationError);
+                // Don't fail the message sending if notification fails
+            }
             
         } catch (Exception e) {
             log.error("Error processing message for room {}: {}", roomId, e.getMessage(), e);

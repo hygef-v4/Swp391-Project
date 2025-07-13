@@ -3,6 +3,7 @@ package org.swp391.hotelbookingsystem.service;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.swp391.hotelbookingsystem.model.Reply;
 import org.swp391.hotelbookingsystem.model.Review;
 import org.swp391.hotelbookingsystem.repository.ReviewRepository;
 
@@ -27,10 +28,20 @@ public class ReviewService {
         return reviewRepository.checkReview(hotelId, userId);
     }
 
-    public int addReview(Review review){
-        if(reviewRepository.checkReview(review.getHotelId(), review.getReviewerId())) 
+    public Review getReview(int hotelId, int userId){
+        if(reviewRepository.checkReview(hotelId, userId))
+            return reviewRepository.getReview(hotelId, userId);
+        else return null;
+    }
+
+    public int review(Review review){
+        if(!reviewRepository.checkReview(review.getHotelId(), review.getReviewerId())) 
             return reviewRepository.addReview(review);
-        return 0;        
+        return reviewRepository.editReview(review);
+    }
+
+    public int deleteReview(int hotelId, int userId){
+        return reviewRepository.deleteReview(hotelId, userId);
     }
 
     public Review getReviewById(int id){
@@ -38,7 +49,23 @@ public class ReviewService {
     }
 
     public List<Review> getHotelReview(int hotelId){
-        return reviewRepository.getHotelReview(hotelId);
+        List<Review> reviews = reviewRepository.getHotelReview(hotelId);
+        for (Review r : reviews) {
+            List<Reply> replies = reviewRepository.getReviewReply(r.getReviewId());
+            r.setReplies(replies);
+        }return reviews;
+    }
+
+    public int addReply(Reply reply){
+        return reviewRepository.addReply(reply);
+    }
+
+    public int deleteReply(int replyId){
+        return reviewRepository.deleteReply(replyId);
+    }
+
+    public Reply getReplyById(int id){
+        return reviewRepository.getReplyById(id);
     }
 
     public List<Review> getTop5PublicPositiveReviews() {

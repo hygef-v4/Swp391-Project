@@ -3,7 +3,7 @@
 
 <!-- Mirrored from stackbros.in/bookinga/landing/hotel-booking.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:06:47 GMT -->
 <head>
-	<title>Booking</title>
+	<title>Đặt phòng</title>
 
 	<!-- Meta Tags -->
 	<meta charset="utf-8">
@@ -120,9 +120,34 @@
 
             if(roomId){
                 const room = document.getElementById('booked' + roomId);
-                room.querySelector(".bookedQuantity").value = amount;
-                booking(roomId);
-            }scroll("hotel");
+
+                if(room.querySelector(".bookedQuantity").max > 0){
+                    room.querySelector(".bookedQuantity").value = amount;
+                    booking(roomId, false);
+                }else{
+                    alert("Đã hết phòng, vui lòng chọn phòng khác");
+                }
+            }
+            
+            const hotelId = document.getElementById('hotelId').value;
+            const cookie = document.cookie.match(new RegExp("(^| )booking" + hotelId + "=([^;]+)"));
+            if(cookie && cookie[2]){
+                const bookingData = JSON.parse(decodeURIComponent(cookie[2]));
+                bookingData.forEach(item => {
+                    const id = item.roomId;
+                    const quantity = item.quantity;
+                    const room = document.getElementById('booked' + id);
+
+                    if(id != roomId){
+                        if(room.querySelector(".bookedQuantity").max > 0){
+                            room.querySelector(".bookedQuantity").value = quantity;
+                            booking(id, false);
+                        }else{
+                            alert("Đã hết phòng, vui lòng chọn phòng khác");
+                        }
+                    }
+                });
+            }
         });
 
         function updatePaid(t, d){
@@ -174,12 +199,12 @@
                         <input type="hidden" name="roomName" value="${title}">
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span class="h6 fw-light mb-0">Room Charges</span>
-                        <span class="fs-5 priceText">$${price.toLocaleString()}</span>
+                        <span class="h6 fw-light mb-0">Giá Phòng</span>
+                        <span class="fs-5 priceText">${price.toLocaleString()}₫</span>
                         <input type="hidden" name="price" value="${price}">
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span class="h6 fw-light mb-0">Amount</span>
+                        <span class="h6 fw-light mb-0">Số Lượng</span>
                         <span class="fs-5 quantityText">${quantity}</span>
                         <input class="quantityInput" type="hidden" name="quantity" value="${quantity}">
                     </li>
@@ -245,14 +270,7 @@
     </script>
 
     <script>
-        function scroll(id){
-            const e = document.getElementById(id);
-            if(e) e.scrollIntoView({behavior: 'smooth'});
-        }
-    </script>
-
-    <script>
-        function booking(id){
+        function booking(id, scroll = true){
             const bookedContent = document.getElementById('bookedContent').firstElementChild;
             const bookedRoom = document.getElementById('booked' + id);
             const moreRoom = document.getElementById('more' + id);
@@ -269,7 +287,7 @@
             moreRoom.classList.add('hidden');
 
             addTotalPrice(id);
-            scroll('booked' + id);
+            if(scroll) scrollToId('booked' + id);
         }
 
         function less(id){
@@ -329,7 +347,8 @@ Page banner START -->
 				<div class="col-sm-9">
 					<div class="card-body">
 						<!-- Title -->
-						<h1 class="m-0 h2 card-title">Hotel Booking</h1>
+                        <a th:href="'/hotel-detail?hotelId=' + ${hotel.hotelId} + '&dateRange=' + ${dateRange} + '&guest=' + ${guests} + '&rooms=' + ${roomQuantity}"><h5 style="color: rgba(var(--bs-link-color-rgb), var(--bs-link-opacity, 1))"><i class="bi bi-arrow-left"></i> Quay lại</h5></a>
+						<h1 class="m-0 h2 card-title">Đặt Phòng</h1>
 					</div>
 				</div>
 
@@ -411,7 +430,7 @@ Page content START -->
 						<!-- Card header -->
 						<div class="card-header p-4 border-bottom">
 							<!-- Title -->
-							<h3 class="mb-0"><i class="fa-solid fa-hotel me-2"></i>Hotel Information</h3>
+							<h3 class="mb-0"><i class="fa-solid fa-hotel me-2"></i>Thông tin khách sạn</h3>
 						</div>
 
 						<!-- Card body START -->
@@ -455,7 +474,7 @@ Page content START -->
 								<!-- Item -->
 								<div class="col-lg-6">
 									<div class="bg-light py-3 px-4 rounded-3">
-										<h6 class="fw-light small mb-1">Check in</h6>
+										<h6 class="fw-light small mb-1">Ngày nhận phòng</h6>
 										<input type="date" th:value="${checkIn}" class="form-control border-0 bg-transparent p-0 fw-semibold fs-5 mb-1" style="box-shadow: none;" id="checkin" readonly>
 									</div>
 								</div>
@@ -463,7 +482,7 @@ Page content START -->
 								<!-- Item -->
 								<div class="col-lg-6">
 									<div class="bg-light py-3 px-4 rounded-3">
-										<h6 class="fw-light small mb-1">Check out</h6>
+										<h6 class="fw-light small mb-1">Ngày trả Phòng</h6>
 										<input type="date" th:value="${checkOut}" class="form-control border-0 bg-transparent p-0 fw-semibold fs-5 mb-1" style="box-shadow: none;" id="checkout" readonly>
 									</div>
 								</div>
@@ -474,7 +493,7 @@ Page content START -->
 							<div class="card border mt-4">
 								<!-- Card header -->
 								<div class="card-header border-bottom d-md-flex justify-content-md-between align-items-center" data-bs-toggle="collapse" data-bs-target="#bookedContent" style="cursor: pointer;">
-									<h5 class="card-title mb-0">Booked room</h5>
+									<h5 class="card-title mb-0">Phòng được chọn</h5>
                                     <i class="bi bi-chevron-down toggle-arrow"></i>
 								</div>
 
@@ -518,7 +537,7 @@ Page content START -->
                                                             </div>                                                            
                                                             <div>
                                                                 <span>Còn: </span>
-                                                                <b th:class="'fw-bold mb-0 me-1' + ${room.quantity == 0 ? ' text-danger' : ''}" th:text="${room.quantity}"></b>
+                                                                <b th:class="'fw-bold mb-0 me-1' + ${room.quantity <= 0 ? ' text-danger' : ''}" th:text="${room.quantity}"></b>
                                                             </div>
                                                         </div>                 
 
@@ -549,7 +568,7 @@ Page content START -->
                             <div class="card border mt-4">
                                 <!-- Card header -->
                                 <div class="card-header border-bottom d-md-flex justify-content-md-between align-items-center" data-bs-toggle="collapse" data-bs-target="#moreContent" style="cursor: pointer;">
-                                    <h5 class="card-title mb-0">Choose more</h5>
+                                    <h5 class="card-title mb-0">Chọn Thêm phòng</h5>
                                     <i class="bi bi-chevron-down toggle-arrow"></i>
                                 </div>
 
@@ -588,7 +607,7 @@ Page content START -->
 
                                                         <div class="d-flex justify-content-end align-items-center">
                                                             <span>Số lượng: </span>
-                                                            <b th:class="'fw-bold mb-0 me-1' + ${room.quantity == 0 ? ' text-danger' : ''}" th:text="${room.quantity}"></b>
+                                                            <b th:class="'fw-bold mb-0 me-1' + ${room.quantity <= 0 ? ' text-danger' : ''}" th:text="${room.quantity}"></b>
                                                         </div>                 
 
                                                         <!-- Price and Button -->
@@ -600,7 +619,7 @@ Page content START -->
                                                             </div>
                                                             <!-- Price -->
                                                             <div class="mt-3 mt-sm-0">
-                                                                <a class="btn btn-sm btn-primary mb-0" th:onclick="'booking(' + ${room.roomId} + ')'">Chọn Phòng</a>    
+                                                                <a th:class="'btn btn-sm btn-primary mb-0' + ${room.quantity <= 0 ? ' disabled' : ''}" th:onclick="'booking(' + ${room.roomId} + ')'">Chọn Phòng</a>    
                                                             </div>                  
                                                         </div>
                                                     </div>
@@ -629,8 +648,8 @@ Page content START -->
                             <div class="card shadow rounded-2">
                                 <!-- card header -->
                                 <div class="card-header border-bottom">
-                                    <h5 class="card-title mb-0">Price Summary</h5>
-                                    <input type="hidden" name="hotelId" th:value="${hotel.hotelId}">
+                                    <h5 class="card-title mb-0">Hóa đơn</h5>
+                                    <input type="hidden" name="hotelId" th:value="${hotel.hotelId}" id="hotelId">
                                     <input type="hidden" name="checkIn" th:value="${checkIn}">
                                     <input type="hidden" name="checkOut" th:value="${checkOut}">
                                 </div>
@@ -640,12 +659,12 @@ Page content START -->
                                     <ul class="list-group list-group-borderless" id="booking-info"></ul>
                                     <ul class="list-group list-group-borderless">
                                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            <span class="h6 fw-light mb-0">Total Price</span>
-                                            <span class="fs-5">$<span id="totalPrice">0</span></span>
+                                            <span class="h6 fw-light mb-0">Tổng tiền</span>
+                                            <span class="fs-5"><span id="totalPrice">0</span>₫</span>
                                         </li>                                    
                                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            <span class="h6 fw-light mb-0">Total Discount</span>
-                                            <span class="fs-5 text-success">-$<span id="totalDiscount">0</span></span>
+                                            <span class="h6 fw-light mb-0">Ưu đãi</span>
+                                            <span class="fs-5 text-success">-<span id="totalDiscount">0</span>₫</span>
                                         </li>
                                     </ul>
                                 </div>
@@ -653,9 +672,13 @@ Page content START -->
                                 <!-- Card footer -->
                                 <div class="card-footer border-top">
                                     <div class="d-flex justify-content-between align-items-center">
-                                        <span class="h5 mb-0">Payable</span>
-                                        <span class="h5 mb-0">$<span id="paidPrice">0</span></span>
+                                        <span class="h5 mb-0">Thành tiền</span>
+                                        <span class="h5 mb-0"><span id="paidPrice">0</span>₫</span>
                                         <input class="h5 mb-0" type="hidden" name="totalPrice" value="0" id="paidInput"/>
+
+                                        <input type="hidden" name="dateRange" th:value="${dateRange}">
+                                        <input type="hidden" name="guests" th:value="${guests}">
+                                        <input type="hidden" name="rooms" th:value="${roomQuantity}">
                                     </div>
                                 </div>
 
@@ -675,7 +698,7 @@ Page content START -->
                                 <!-- Card header -->
                                 <div class="card-header border-bottom">
                                     <div class="cardt-title">
-                                        <h5 class="mb-0">Offer &amp; Discount</h5>
+                                        <h5 class="mb-0">Mã giảm giá</h5>
                                     </div>
                                 </div>
                                 <!-- Card body -->
@@ -693,8 +716,8 @@ Page content START -->
 
                                     <!-- Input group -->
                                     <div class="input-group mt-3">
-                                        <input class="form-control form-control" placeholder="Coupon code">
-                                        <button type="button" class="btn btn-primary">Apply</button>
+                                        <input class="form-control form-control" placeholder="Mã giảm giá">
+                                        <button type="button" class="btn btn-primary">Áp dụng</button>
                                     </div>
                                 </div>	
                             </div>
@@ -768,7 +791,7 @@ Footer END -->
 			position: {lat: lat, lng: lng},
 			map: map,
 			icon: {
-                url: 'https://maps.gstatic.com/mapfiles/api-3/images/spotlight-poi2_hdpi.png',
+                url: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
                 scaledSize: new google.maps.Size(14, 22)
             }
 		});

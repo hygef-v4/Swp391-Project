@@ -200,6 +200,15 @@
   }
 }
 
+::-webkit-scrollbar{width:8px}
+::-webkit-scrollbar-thumb{height:50px;background-color:var(--bs-primary)}
+::-webkit-scrollbar-track{background:transparent;border-radius:3px}
+
+html, body {
+  scrollbar-width: thin;
+  scrollbar-color: var(--bs-primary) transparent;
+}
+
 body {
   margin: 0;
   font-family: var(--bs-body-font-family);
@@ -209,6 +218,8 @@ body {
   color: var(--bs-body-color);
   text-align: var(--bs-body-text-align);
   background-color: var(--bs-body-bg);
+  scrollbar-width: thin;
+  scrollbar-color: var(--bs-primary) transparent;
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
@@ -22496,6 +22507,45 @@ html[dir=rtl] .choices__input {
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08);
 }
 
+.comment {
+  height: 90px;
+  overflow-y: auto;
+  word-break: break-word;
+  border: 1px solid var(--bs-secondary-border-subtle);
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.hover-primary:hover {
+  color: var(--bs-primary) !important;
+  transition: color 0.3s ease-in-out;
+}
+
+.hover-secondary:hover {
+  color: var(--bs-secondary) !important;
+  transition: color 0.3s ease-in-out;
+}
+
+.hover-success:hover {
+  color: var(--bs-success) !important;
+  transition: color 0.3s ease-in-out;
+}
+
+.hover-info:hover {
+  color: var(--bs-info) !important;
+  transition: color 0.3s ease-in-out;
+}
+
+.hover-warning:hover {
+  color: var(--bs-warning) !important;
+  transition: color 0.3s ease-in-out;
+}
+
+.hover-danger:hover {
+  color: var(--bs-danger) !important;
+  transition: color 0.3s ease-in-out;
+}
+
 /* Responsive adjustments for testimonial images */
 @media (max-width: 768px) {
     .testimonial-customer-image {
@@ -22509,4 +22559,149 @@ html[dir=rtl] .choices__input {
         height: 220px;
         max-width: 220px;
     }
+}
+
+/* ============================================
+   NOTIFICATION SYSTEM STYLES
+   ============================================ */
+
+/* Notification Bell Badge */
+.nav-notification {
+    position: relative;
+}
+
+.notif-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    width: 8px;
+    height: 8px;
+    background: var(--bs-danger);
+    border-radius: 50%;
+    display: none;
+}
+
+.notif-badge.show {
+    display: block;
+}
+
+/* Notification Dropdown Styles */
+.dropdown-menu-size-md {
+    min-width: 350px;
+    max-width: 400px;
+}
+
+/* Notification Items */
+.notif-unread {
+    background-color: var(--bs-primary-bg-subtle) !important;
+    border-left: 3px solid var(--bs-primary) !important;
+}
+
+.notif-unread:hover {
+    background-color: var(--bs-primary-border-subtle) !important;
+}
+
+.list-group-item-action:hover {
+    background-color: var(--bs-tertiary-bg);
+}
+
+/* Animation for notification badge */
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0.3; }
+}
+
+.animation-blink {
+    animation: blink 1.5s infinite;
+}
+
+/* Toast Notification Styles */
+.toast {
+    background: var(--bs-body-bg);
+    border: 1px solid var(--bs-border-color);
+    box-shadow: var(--bs-box-shadow);
+}
+
+.toast-header {
+    background: var(--bs-tertiary-bg);
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+/* Notification Icons */
+.notification-icon {
+    font-size: 1.2rem;
+    margin-right: 0.5rem;
+}
+
+.notification-icon.booking { color: var(--bs-success); }
+.notification-icon.message { color: var(--bs-info); }
+.notification-icon.payment { color: var(--bs-warning); }
+.notification-icon.hotel { color: var(--bs-primary); }
+.notification-icon.promotion { color: var(--bs-pink); }
+.notification-icon.system { color: var(--bs-secondary); }
+
+/* Dark Mode Adjustments */
+[data-bs-theme="dark"] .notif-unread {
+    background-color: rgba(81, 67, 217, 0.2) !important;
+    border-left-color: var(--bs-primary) !important;
+}
+
+[data-bs-theme="dark"] .toast {
+    background: var(--bs-dark);
+    border-color: var(--bs-border-color);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 576px) {
+    .dropdown-menu-size-md {
+        min-width: 300px;
+        max-width: 320px;
+    }
+}
+
+/* Loading Spinner */
+.notification-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+}
+
+/* Empty State */
+.notification-empty {
+    text-align: center;
+    padding: 2rem;
+    color: var(--bs-secondary-color);
+}
+
+/* Notification Count Badge in Header */
+#notificationBadge {
+    font-size: 0.7rem;
+    min-width: 1.2rem;
+    height: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Notification Time Formatting */
+.notification-time {
+    font-size: 0.8rem;
+    color: var(--bs-secondary-color);
+}
+
+/* Hover Effects */
+.nav-notification:hover {
+    transform: scale(1.05);
+    transition: transform 0.2s ease;
+}
+
+.list-group-item:hover .notification-time {
+    color: var(--bs-primary);
+}
+
+/* Mark as read button hover */
+#markAllReadBtn:hover {
+    color: var(--bs-primary) !important;
+    text-decoration: underline;
 }

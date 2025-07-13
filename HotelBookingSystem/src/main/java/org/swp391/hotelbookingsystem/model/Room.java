@@ -17,9 +17,6 @@ public class Room {
     private int maxGuests;
     private String status;
     private int quantity;
-    private int roomTypeId;
-
-    private String roomType;
 
     private List<String> images;
     private List<Amenity> amenities;

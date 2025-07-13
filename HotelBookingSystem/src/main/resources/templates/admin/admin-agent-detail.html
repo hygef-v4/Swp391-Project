@@ -43,6 +43,16 @@
             background-color: #2a2a2a; /* nền xám đậm hơn */
             box-shadow: 0 10px 20px rgba(255, 255, 255, 0.05); /* sáng nhẹ */
         }
+
+        .hover-card:hover .card-body,
+        .hover-card:hover .card-footer {
+            background-color: inherit !important;
+        }
+
+        [data-bs-theme="dark"] .hover-card:hover .card-body,
+        [data-bs-theme="dark"] .hover-card:hover .card-footer {
+            background-color: inherit !important;
+        }
     </style>
 
     <!-- Dark mode -->
@@ -182,12 +192,12 @@
                             </div>
                             <!-- Title -->
                             <h5 class="mb-2" th:text="${agent.fullName}">Tên mặc định</h5>
-                            <ul class="list-inline small mb-0">
-                                <li class="list-inline-item me-0"><i class="fa-solid fa-star text-warning"></i></li>
-                                <li class="list-inline-item me-0"><i class="fa-solid fa-star text-warning"></i></li>
-                                <li class="list-inline-item me-0"><i class="fa-solid fa-star text-warning"></i></li>
-                                <li class="list-inline-item me-0"><i class="fa-solid fa-star text-warning"></i></li>
-                                <li class="list-inline-item"><i class="fa-solid fa-star-half-alt text-warning"></i></li>
+                            <ul class="list-inline small mb-0 text-center">
+                                <li class="list-inline-item me-0"><i th:class="(${avgRating <= 0.2} ? 'fa-regular fa-star' : (${avgRating >= 0.8} ? 'fa-solid fa-star' : 'fa-solid fa-star-half-alt')) + ' text-warning'"></i></li>
+                                <li class="list-inline-item me-0"><i th:class="(${avgRating <= 1.2} ? 'fa-regular fa-star' : (${avgRating >= 1.8} ? 'fa-solid fa-star' : 'fa-solid fa-star-half-alt')) + ' text-warning'"></i></li>
+                                <li class="list-inline-item me-0"><i th:class="(${avgRating <= 2.2} ? 'fa-regular fa-star' : (${avgRating >= 2.8} ? 'fa-solid fa-star' : 'fa-solid fa-star-half-alt')) + ' text-warning'"></i></li>
+                                <li class="list-inline-item me-0"><i th:class="(${avgRating <= 3.2} ? 'fa-regular fa-star' : (${avgRating >= 3.8} ? 'fa-solid fa-star' : 'fa-solid fa-star-half-alt')) + ' text-warning'"></i></li>
+                                <li class="list-inline-item me-0"><i th:class="(${avgRating <= 4.2} ? 'fa-regular fa-star' : (${avgRating >= 4.8} ? 'fa-solid fa-star' : 'fa-solid fa-star-half-alt')) + ' text-warning'"></i></li>
                             </ul>
                         </div>
                         <!-- Card footer -->

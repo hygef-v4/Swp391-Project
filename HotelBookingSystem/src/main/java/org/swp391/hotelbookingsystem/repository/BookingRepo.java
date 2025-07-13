@@ -1,6 +1,7 @@
 package org.swp391.hotelbookingsystem.repository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -125,6 +126,49 @@ public class BookingRepo {
         }, bookingUnitId);
     }
 
+    public int bookedRoom(int roomId, LocalDateTime checkIn, LocalDateTime checkOut){
+        String sql = """
+                WITH BookedRooms AS (
+                    SELECT 
+                        bu.room_id,
+                        SUM(bu.quantity) AS booked_quantity
+                    FROM BookingUnits bu
+                    JOIN Bookings b ON b.booking_id = bu.booking_id
+                    WHERE bu.status IN ('pending', 'approved', 'check_in')
+                        AND b.check_out >= ? AND b.check_in <= ?
+                    GROUP BY bu.room_id
+                )
+                SELECT r.quantity - ISNULL(SUM(br.booked_quantity), 0)
+                FROM Rooms r
+                LEFT JOIN BookedRooms br ON br.room_id = r.room_id
+                WHERE r.room_id = ?
+                GROUP BY r.quantity
+            """;
+
+        return jdbcTemplate.queryForObject(sql, Integer.class, checkIn, checkOut, roomId);
+    }
+
+    public void pendingBookingUnit(int id, BookingUnit bookingUnit){
+        String sql = """
+            INSERT INTO BookingUnits (booking_id, room_id, quantity, price, status, refund_amount)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """;
+
+        jdbcTemplate.update(sql,
+            id,
+            bookingUnit.getRoomId(),
+            bookingUnit.getQuantity(),
+            bookingUnit.getPrice(),
+            "pending",
+            (Object) bookingUnit.getRefundAmount()
+        );
+    }
+
+    public void approveBookingUnit(int id){
+        String sql = "UPDATE BookingUnits SET status = 'approved' WHERE booking_id = ?";
+        jdbcTemplate.update(sql, id);
+    }
+
     public void saveBookingUnit(int id, BookingUnit bookingUnit){
         String sql = """
             INSERT INTO BookingUnits (booking_id, room_id, quantity, price, refund_amount)
@@ -215,13 +259,64 @@ public class BookingRepo {
                     .build();
 
             booking.setBookingUnits(findBookingUnitsByBookingId(bookingId));
-
+            booking.setStatus(booking.determineStatus());
             return booking;
         }, id);
     }
 
+    public int pendingBooking(Booking booking){
+        String sql = """
+            INSERT INTO Bookings (hotel_id, customer_id, coupon_id, check_in, check_out, total_price)
+            OUTPUT inserted.booking_id
+            VALUES (?, ?, ?, ?, ?, ?)
+        """;
+        int id = jdbcTemplate.queryForObject(sql, Integer.class, 
+            booking.getHotelId(),
+            booking.getCustomerId(),
+            booking.getCouponId(),
+            booking.getCheckIn(),
+            booking.getCheckOut(),
+            booking.getTotalPrice()
+        );
+
+        for(BookingUnit bookingUnit : booking.getBookingUnits()){
+            pendingBookingUnit(id, bookingUnit);
+        }
+
+        return id;
+    }
+
+    public int remainPendingTime(int bookingId){
+        String sql = """
+            SELECT DATEDIFF(SECOND, created_at, GETDATE()) FROM Bookings
+            WHERE booking_id = ?
+        """;
+
+        return jdbcTemplate.queryForObject(sql, Integer.class, bookingId);
+    }
+
+    public boolean isPending(int id, int userId){
+        String sql = "SELECT 1 FROM Bookings WHERE booking_id = ? AND customer_id = ?";
+        return !jdbcTemplate.query(sql,(rs, rowNum) -> rs.getInt(1), id, userId).isEmpty();
+    }
+
+    public List<Integer> isPendingOverTIme(){
+        String sql = """
+            SELECT DISTINCT b.booking_id FROM Bookings b
+            JOIN BookingUnits bu ON bu.booking_id = b.booking_id
+            WHERE bu.status = 'pending' AND DATEDIFF(MINUTE, b.created_at, GETDATE()) > 30
+        """;
+
+        return jdbcTemplate.query(sql,(rs, rowNum) -> rs.getInt("booking_id"));
+    }
+
+    public void deletePendingBooking(int id){
+        String sql = "DELETE FROM Bookings WHERE booking_id = ?";
+        jdbcTemplate.update(sql, id);
+    }
+
     // 3. Tạo booking mới
-    public void saveBooking(Booking booking) {
+    public int saveBooking(Booking booking) {
         String sql = """
             INSERT INTO Bookings (hotel_id, customer_id, coupon_id, check_in, check_out, total_price)
             OUTPUT inserted.booking_id
@@ -239,6 +334,8 @@ public class BookingRepo {
         for(BookingUnit bookingUnit : booking.getBookingUnits()){
             saveBookingUnit(id, bookingUnit);
         }
+
+        return id;
     }
 
     // 4. Cập nhật trạng thái đặt phòng
@@ -655,28 +752,51 @@ public class BookingRepo {
     }
 
     public int getTodayCheckIn() {
-        String sql = "SELECT COUNT(*) FROM Bookings WHERE CAST(check_in AS DATE) = CAST(GETDATE() AS DATE)";
-        Integer total = jdbcTemplate.queryForObject(sql, Integer.class);
-        return total != null ? total : 0;
+        LocalDate today = LocalDate.now();
+        List<Booking> bookings = findAll();
+
+        return (int) bookings.stream()
+                .filter(b -> b.getCheckIn() != null && b.getCheckIn().toLocalDate().isEqual(today))
+                .filter(b -> {
+                    String status = b.determineStatus();
+                    return "check_in".equals(status) || "approved".equals(status);
+                })
+                .count();
     }
 
     public int getFutureCheckIn() {
-        String sql = "SELECT COUNT(*) FROM Bookings WHERE check_in > GETDATE()";
-        Integer total = jdbcTemplate.queryForObject(sql, Integer.class);
-        return total != null ? total : 0;
+        LocalDate today = LocalDate.now();
+        List<Booking> bookings = findAll();
+
+        return (int) bookings.stream()
+                .filter(b -> b.getCheckIn() != null && b.getCheckIn().toLocalDate().isAfter(today))
+                .filter(b -> "approved".equals(b.determineStatus()))
+                .count();
     }
 
     public int getTodayCheckOut() {
-        String sql = "SELECT COUNT(*) FROM Bookings WHERE CAST(check_out AS DATE) = CAST(GETDATE() AS DATE)";
-        Integer total = jdbcTemplate.queryForObject(sql, Integer.class);
-        return total != null ? total : 0;
+        LocalDate today = LocalDate.now();
+        List<Booking> bookings = findAll();
+
+        return (int) bookings.stream()
+                .filter(b -> b.getCheckOut() != null && b.getCheckOut().toLocalDate().isEqual(today))
+                .filter(b -> {
+                    String status = b.determineStatus();
+                    return "completed".equals(status) || "check_in".equals(status);
+                })
+                .count();
     }
 
     public int getFutureCheckOut() {
-        String sql = "SELECT COUNT(*) FROM Bookings WHERE check_out > GETDATE()";
-        Integer total = jdbcTemplate.queryForObject(sql, Integer.class);
-        return total != null ? total : 0;
+        LocalDate today = LocalDate.now();
+        List<Booking> bookings = findAll();
+
+        return (int) bookings.stream()
+                .filter(b -> b.getCheckOut() != null && b.getCheckOut().toLocalDate().isAfter(today))
+                .filter(b -> "check_in".equals(b.determineStatus()))
+                .count();
     }
+
 
     public List<Booking> findBookingsByStatusAndKeywordPaginated(String status, String keyword, int page, int size) {
         StringBuilder sql = new StringBuilder("""
@@ -730,7 +850,6 @@ public class BookingRepo {
             params.add(likeKeyword); // check_in date as string
             params.add(likeKeyword); // check_out date as string
         }
-
 
         sql.append(" ORDER BY b.created_at DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
         params.add(page * size);
@@ -832,7 +951,7 @@ public class BookingRepo {
             JOIN Bookings b ON bu.booking_id = b.booking_id
             JOIN Hotels h ON b.hotel_id = h.hotel_id
             WHERE h.host_id = ?
-            AND bu.status IN ('approved', 'completed')
+            AND bu.status IN ('approved', 'completed', 'check_in')
         """;
         Double revenue = jdbcTemplate.queryForObject(sql, Double.class, hostId);
         return revenue != null ? revenue : 0.0;
@@ -1126,10 +1245,92 @@ public class BookingRepo {
         }, hotelId, offset, size);
     }
 
+    public List<Booking> getBookingsByHotelIdOrderByDate(int hotelId) {
+        String sql = """
+        SELECT 
+            b.booking_id,
+            b.hotel_id,
+            b.customer_id,
+            b.coupon_id,
+            b.check_in,
+            b.check_out,
+            b.total_price,
+            b.created_at,
+            u.full_name AS customerName,
+            u.email AS customerEmail,
+            u.avatar_url AS customerAvatar,
+            h.hotel_name,
+            h.hotel_image_url
+        FROM Bookings b
+        JOIN Users u ON u.user_id = b.customer_id
+        JOIN Hotels h ON h.hotel_id = b.hotel_id
+        WHERE b.hotel_id = ?
+        ORDER BY b.created_at DESC
+    """;
+
+        return jdbcTemplate.query(sql, rs -> {
+            List<Booking> bookings = new ArrayList<>();
+
+            while (rs.next()) {
+                int bookingId = rs.getInt("booking_id");
+
+                Booking booking = Booking.builder()
+                        .bookingId(bookingId)
+                        .hotelId(rs.getInt("hotel_id"))
+                        .customerId(rs.getInt("customer_id"))
+                        .couponId((Integer) rs.getObject("coupon_id"))
+                        .checkIn(rs.getTimestamp("check_in").toLocalDateTime())
+                        .checkOut(rs.getTimestamp("check_out").toLocalDateTime())
+                        .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
+                        .totalPrice(rs.getDouble("total_price"))
+                        .hotelName(rs.getString("hotel_name"))
+                        .imageUrl(rs.getString("hotel_image_url"))
+                        .customerName(rs.getString("customerName"))
+                        .customerEmail(rs.getString("customerEmail"))
+                        .customerAvatar(rs.getString("customerAvatar"))
+                        .build();
+
+                booking.setBookingUnits(findBookingUnitsByBookingId(bookingId));
+                booking.setStatus(booking.determineStatus());
+                booking.setTotalPrice(booking.calculateTotalPrice());
+
+                bookings.add(booking);
+            }
+
+            return bookings;
+        }, hotelId);
+    }
+
+
     public int countBookingsByHotelId(int hotelId) {
         String sql = "SELECT COUNT(*) FROM Bookings WHERE hotel_id = ?";
         return jdbcTemplate.queryForObject(sql, Integer.class, hotelId);
     }
 
+    public int autoUpdateCheckin(){
+        String sql = """
+            UPDATE BU
+            SET BU.status = 'check_in'
+            FROM BookingUnits BU
+            JOIN Bookings B ON BU.booking_id = B.booking_id
+            WHERE B.check_in <= CAST(GETDATE() AS DATE)
+              AND B.check_out >= CAST(GETDATE() AS DATE)
+              AND BU.status = 'approved';
+        """;
 
+        return jdbcTemplate.update(sql);
+    }
+
+    public int autoUpdateCompleted(){
+        String sql = """
+            UPDATE BU
+            SET BU.status = 'completed'
+            FROM BookingUnits BU
+            JOIN Bookings B ON BU.booking_id = B.booking_id
+            WHERE B.check_out < CAST(GETDATE() AS DATE)
+              AND BU.status = 'check_in';
+        """;
+
+        return jdbcTemplate.update(sql);
+    }
 }

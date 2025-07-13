@@ -190,6 +190,21 @@
                                                 <i class="bi bi-geo-alt me-2"></i>
                                                 <span th:text="${hotel.address + ', ' + hotel.cityName}">Địa chỉ khách sạn</span>
                                             </small>
+                                            
+                                            <!-- Hotel Status -->
+                                            <div class="mt-2">
+                                                <span class="badge" 
+                                                      th:classappend="${hotel.status == 'active' ? 'bg-success' : 
+                                                                       hotel.status == 'inactive' ? 'bg-warning' : 
+                                                                       hotel.status == 'banned' ? 'bg-danger' : 
+                                                                       hotel.status == 'pending' ? 'bg-info' : 'bg-secondary'}"
+                                                      th:text="${hotel.status == 'active' ? 'Đang hoạt động' : 
+                                                                hotel.status == 'inactive' ? 'Vô hiệu hóa' : 
+                                                                hotel.status == 'banned' ? 'Bị cấm' : 
+                                                                hotel.status == 'pending' ? 'Chờ duyệt' : 'Không xác định'}">
+                                                    Trạng thái
+                                                </span>
+                                            </div>
 
 
                                             <!-- Price and Button -->
@@ -207,43 +222,79 @@
                                                 <!-- Action Buttons for Each Hotel -->
                                                 <div class="hstack gap-2 mt-3 mt-sm-0">
 
-                                                    <!-- View Detail -->
+                                                    <!-- View Detail - Always available -->
                                                     <a th:href="@{/hotel-detail(hotelId=${hotel.hotelId})}"
                                                        class="btn btn-sm btn-outline-secondary mb-0">
                                                         <i class="bi bi-eye fa-fw me-1"></i> Xem chi tiết
                                                     </a>
 
-                                                    <!-- Add Room -->
+                                                    <!-- Add Room - Only for active hotels -->
                                                     <a th:href="@{/add-room(hotelId=${hotel.hotelId})}"
-                                                       class="btn btn-sm btn-outline-primary mb-0">
+                                                       class="btn btn-sm btn-outline-primary mb-0"
+                                                       th:classappend="${hotel.status != 'active'} ? 'disabled' : ''"
+                                                       th:title="${hotel.status != 'active'} ? 'Chỉ có thể thêm phòng khi khách sạn đang hoạt động' : ''">
                                                         <i class="bi bi-plus-circle fa-fw me-1"></i> Thêm phòng
                                                     </a>
 
-                                                    <!-- Manage -->
+                                                    <!-- Manage - Only for active and inactive hotels -->
                                                     <a th:href="@{/manage-hotel(hotelId=${hotel.hotelId})}"
-                                                       class="btn btn-sm btn-outline-warning mb-0">
+                                                       class="btn btn-sm btn-outline-warning mb-0"
+                                                       th:classappend="${hotel.status == 'banned' or hotel.status == 'pending'} ? 'disabled' : ''"
+                                                       th:title="${hotel.status == 'banned' ? 'Không thể quản lý khách sạn bị cấm' : 
+                                                                  hotel.status == 'pending' ? 'Không thể quản lý khách sạn đang chờ duyệt' : ''}">
                                                         <i class="bi bi-gear fa-fw me-1"></i> Quản lý
                                                     </a>
 
 
-                                                    <!-- Delete Button Form -->
-                                                    <form th:action="@{/host/request-delete-hotel}" method="post"
-                                                          class="d-inline-block">
-                                                        <input type="hidden" name="hotelId"
-                                                               th:value="${hotel.hotelId}"/>
-                                                        <button type="submit"
-                                                                class="btn btn-sm btn-outline-danger mb-0"
-                                                                onclick="return confirm('Bạn có chắc chắn muốn yêu cầu xóa khách sạn này không?');">
-                                                            <i class="bi bi-trash3 fa-fw me-1"></i> Xóa khách sạn
-                                                        </button>
-                                                    </form>
+                                                    <!-- Activate/Deactivate Button Forms -->
+                                                    <div th:if="${hotel.status == 'active'}">
+                                                        <!-- Deactivate Button Form -->
+                                                        <form th:action="@{/host/request-deactivate-hotel}" method="post"
+                                                              class="d-inline-block">
+                                                            <input type="hidden" name="hotelId"
+                                                                   th:value="${hotel.hotelId}"/>
+                                                            <button type="submit"
+                                                                    class="btn btn-sm btn-outline-danger mb-0"
+                                                                    onclick="return confirm('Bạn có chắc chắn muốn yêu cầu vô hiệu hóa khách sạn này không?');">
+                                                                <i class="bi bi-pause-circle fa-fw me-1"></i> Vô hiệu hóa
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                    
+                                                    <div th:if="${hotel.status == 'inactive'}">
+                                                        <!-- Activate Button Form -->
+                                                        <form th:action="@{/host/activate-hotel}" method="post"
+                                                              class="d-inline-block">
+                                                            <input type="hidden" name="hotelId"
+                                                                   th:value="${hotel.hotelId}"/>
+                                                            <button type="submit"
+                                                                    class="btn btn-sm btn-outline-success mb-0"
+                                                                    onclick="return confirm('Bạn có chắc chắn muốn kích hoạt lại khách sạn này không?');">
+                                                                <i class="bi bi-play-circle fa-fw me-1"></i> Kích hoạt
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                    
+                                                    <div th:if="${hotel.status == 'banned'}">
+                                                        <!-- Banned Status Info -->
+                                                        <span class="btn btn-sm btn-outline-danger mb-0 disabled">
+                                                            <i class="bi bi-ban fa-fw me-1"></i> Bị cấm
+                                                        </span>
+                                                    </div>
+                                                    
+                                                    <div th:if="${hotel.status == 'pending'}">
+                                                        <!-- Pending Status Info -->
+                                                        <span class="btn btn-sm btn-outline-info mb-0 disabled">
+                                                            <i class="bi bi-clock fa-fw me-1"></i> Chờ duyệt
+                                                        </span>
+                                                    </div>
 
                                                     <!-- OTP Modal (Ensure it's on the page you redirect to, e.g., host-listing.html) -->
                                                     <div class="modal fade" id="otpModal" tabindex="-1"
                                                          aria-labelledby="otpModalLabel" aria-hidden="true">
                                                         <div class="modal-dialog modal-dialog-centered">
                                                             <div class="modal-content">
-                                                                <form th:action="@{/host/confirm-delete-hotel}"
+                                                                <form th:action="@{/host/confirm-deactivate-hotel}"
                                                                       method="post" id="otpForm">
                                                                     <div class="modal-header">
                                                                         <h5 class="modal-title" id="otpModalLabel">Nhập
@@ -254,7 +305,7 @@
                                                                     </div>
                                                                     <div class="modal-body">
                                                                         <p>Mã xác nhận đã được gửi tới email của bạn.
-                                                                            Vui lòng nhập mã để xác nhận xóa khách
+                                                                            Vui lòng nhập mã để xác nhận vô hiệu hóa khách
                                                                             sạn.</p>
                                                                         <!-- Display OTP error if any -->
                                                                         <div th:if="${otpError}"
@@ -278,8 +329,8 @@
                                                                         <!-- Cancel button sets cancel flag and submits -->
                                                                         <button type="button" class="btn btn-secondary" onclick="submitCancel()">Hủy</button>
 
-                                                                        <!-- Confirm deletion -->
-                                                                        <button type="submit" class="btn btn-danger">Xác nhận xóa</button>
+                                                                        <!-- Confirm deactivation -->
+                                                                        <button type="submit" class="btn btn-warning">Xác nhận vô hiệu hóa</button>
                                                                     </div>
                                                                 </form>
                                                             </div>

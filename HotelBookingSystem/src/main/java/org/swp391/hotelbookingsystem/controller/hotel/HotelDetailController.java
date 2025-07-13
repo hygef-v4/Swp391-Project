@@ -2,6 +2,8 @@ package org.swp391.hotelbookingsystem.controller.hotel;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.sql.Date;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,8 +45,7 @@ public class HotelDetailController {
         @RequestParam(value = "hotelId") int hotelId,
     
         @RequestParam(value = "dateRange", defaultValue = "") String dateRange,
-        @RequestParam(value = "adults", defaultValue = "1") int adults,
-        @RequestParam(value = "children", defaultValue = "0") int children,
+        @RequestParam(value = "guests", defaultValue = "1") int guests,
         @RequestParam(value = "rooms", defaultValue = "1") int roomQuantity,
         
         Model model, HttpSession session
@@ -53,25 +54,42 @@ public class HotelDetailController {
         model.addAttribute("locations", locations);
 
         model.addAttribute("dateRange", dateRange);
+        String[] date = dateRange.split(" => ");
+        Date checkin = !date[0].isBlank() ? Date.valueOf(date[0]) : null;
+        Date checkout = date.length > 1 ? Date.valueOf(date[1]) : checkin;
 
-        model.addAttribute("adults", adults);
-        model.addAttribute("children", children);
+        model.addAttribute("guests", guests);
         model.addAttribute("roomQuantity", roomQuantity);
 
         Hotel hotel = hotelService.getHotelById(hotelId);
         hotel.setPolicy(hotel.getPolicy().replace("<li>", "<li class=\"list-group-item d-flex\"><i class=\"bi bi-arrow-right me-2\"></i>"));
         model.addAttribute("hotel", hotel);
 
-        User user = (User) session.getAttribute("user");
         boolean favorite = false;
+        Review review = null;
+
+        User user = (User) session.getAttribute("user");
         if (user != null) {
             favorite = hotelService.isFavoriteHotel(user.getId(), hotelId);
-        }model.addAttribute("favorite", favorite);
+            review = reviewService.getReview(hotelId, user.getId());
+        }
+        
+        model.addAttribute("favorite", favorite);
+        model.addAttribute("review", review);
+
+        if(!hotel.getStatus().equals("active")){
+            if(hotel.getStatus().equals("inactive")){
+                model.addAttribute("banMessage", "Khách sạn này hiện không hoạt động, tạm thời không thể đặt phòng!");
+            }else if(hotel.getStatus().equals("banned")){
+                model.addAttribute("banMessage", "Khách sạn này đã bị khóa, tạm thời không thể đặt phòng!");
+            }else{
+                return "redirect:/hotel-list?location=" + hotel.getLocationId() + "&dateRange=" + dateRange + "&guests=" + guests + "&rooms=" + roomQuantity;
+            }
+        }
 
         String redirect = "";
         if(!"".equals(dateRange)) redirect += "&dateRange=" + URLEncoder.encode(dateRange, StandardCharsets.UTF_8);
-        if(adults != 1) redirect += "&adults=" + adults;
-        if(children != 0) redirect += "&children=" + children;
+        if(guests != 1) redirect += "&guests=" + guests;
         if(roomQuantity != 1) redirect += "&rooms=" + roomQuantity;
         model.addAttribute("redirect", redirect);
 
@@ -92,7 +110,7 @@ public class HotelDetailController {
             }
         }
         
-        List<Room> rooms = roomService.getRoomByHotelId(hotelId);
+        List<Room> rooms = roomService.getRoomsByIdAndDateRange(hotelId, checkin, checkout);
         for(Room room : rooms){
             room.setDescription("<li>Sức chứa: " + room.getMaxGuests() + " Người</li>" + room.getDescription());
 
@@ -111,9 +129,6 @@ public class HotelDetailController {
 
             room.setCategories(categories);
         }model.addAttribute("rooms", rooms);
-
-        boolean commented = reviewService.checkReview(hotelId, user.getId());
-        model.addAttribute("comment", commented);
 
         List<Review> comments = reviewService.getHotelReview(hotelId);
         model.addAttribute("comments", comments);

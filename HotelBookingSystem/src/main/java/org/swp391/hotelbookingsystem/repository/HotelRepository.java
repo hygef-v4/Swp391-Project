@@ -1,5 +1,6 @@
 package org.swp391.hotelbookingsystem.repository;
 
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -123,42 +124,59 @@ public class HotelRepository {
         return jdbcTemplate.query(SELECT_TOP_8_HOTELS, HOTEL_MAPPER);
     }
 
-    public List<Hotel> getHotelsByLocation(int locationId, int maxGuests, int roomQuantity, String name, int min, int max, boolean star) {
+    public List<Hotel> getHotelsByLocation(int locationId, Date checkin, Date checkout, int maxGuests, int roomQuantity, String name, int min, int max, boolean price) {
         String query = """
+                    WITH BookedRooms AS (
+                        SELECT 
+                            bu.room_id,
+                            SUM(bu.quantity) AS booked_quantity
+                        FROM BookingUnits bu
+                        JOIN Bookings b ON b.booking_id = bu.booking_id
+                        WHERE bu.status IN ('approved', 'check_in')
+                            AND b.check_out >= ? AND b.check_in <= ?
+                        GROUP BY bu.room_id
+                    )
                     SELECT h.hotel_id AS hotelId,
-                           h.host_id AS hostId,
-                           h.hotel_name AS hotelName,
-                           h.address,
-                           h.description,
-                           h.location_id AS locationId,
-                           h.hotel_image_url AS hotelImageUrl,
-                           h.rating,
-                           h.latitude,
-                           h.longitude,
-                           h.status,
-                           MIN(r.price) AS minPrice,
-                           SUM(r.max_guests) AS maxGuests,
-                           SUM(r.quantity) AS roomQuantity,
-                           l.city_name AS cityName
+                            h.host_id AS hostId,
+                            h.hotel_name AS hotelName,
+                            h.address,
+                            h.description,
+                            h.location_id AS locationId,
+                            h.hotel_image_url AS hotelImageUrl,
+                            h.rating,
+                            h.latitude,
+                            h.longitude,
+                            h.description,
+                            MIN(r.price) AS minPrice,
+                            SUM(r.max_guests) AS maxGuests,
+                            SUM(r.quantity - ISNULL(br.booked_quantity, 0)) AS roomQuantity,
+                            l.city_name AS cityName
                     FROM Hotels h
                     JOIN Locations l ON h.location_id = l.location_id
                     LEFT JOIN Rooms r ON h.hotel_id = r.hotel_id
-                    WHERE (h.location_id = ? OR ? = -1) AND h.hotel_name like ?
+                    LEFT JOIN BookedRooms br ON r.room_id = br.room_id
+                    WHERE (h.location_id = ? OR ? = -1) 
+                        AND h.hotel_name like ?
+                        AND h.status = 'active'
                     GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
-                             h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude,
-                             h.status, l.city_name
-                    HAVING SUM(r.max_guests) >= ? AND SUM(r.quantity) >= ? AND MIN(r.price) >= ? AND MIN(r.price) <= ? 
+                        h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude,
+                        l.city_name
+                    HAVING SUM(r.max_guests) >= ?
+                        AND SUM(r.quantity - ISNULL(br.booked_quantity, 0)) >= ?
+                        AND MIN(r.price) >= ? AND MIN(r.price) <= ?
                 """;
-        String order = " ORDER BY h.rating " + (star ? "ASC" : "DESC");
+        String order = " ORDER BY minPrice " + (price ? "ASC" : "DESC") + ", h.rating DESC";
 
         return jdbcTemplate.query(query+order, ps -> {
-            ps.setInt(1, locationId);
-            ps.setInt(2, locationId);
-            ps.setString(3, "%" + name + "%");
-            ps.setInt(4, maxGuests);
-            ps.setInt(5, roomQuantity);
-            ps.setInt(6, min);
-            ps.setInt(7, max);
+            ps.setDate(1, checkin != null ? checkin : new Date(System.currentTimeMillis()));
+            ps.setDate(2, checkout != null ? checkout : new Date(System.currentTimeMillis()));
+            ps.setInt(3, locationId);
+            ps.setInt(4, locationId);
+            ps.setString(5, "%" + name + "%");
+            ps.setInt(6, maxGuests);
+            ps.setInt(7, roomQuantity);
+            ps.setInt(8, min);
+            ps.setInt(9, max);
         }, HOTEL_MAPPER);
     }
 
@@ -286,6 +304,7 @@ public class HotelRepository {
                            h.latitude,
                            h.longitude,
                            h.policy,
+                           h.status,
                            MIN(r.price) AS minPrice,
                            l.city_name AS cityName
                     FROM Hotels h
@@ -294,11 +313,21 @@ public class HotelRepository {
                     WHERE h.host_id = ?
                     GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
                              h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude,
-                             h.policy, l.city_name
+                             h.policy, h.status, l.city_name
                     ORDER BY h.hotel_id DESC
                 """;
 
         return jdbcTemplate.query(sql, new Object[]{hostId}, HOTEL_MAPPER);
+    }
+
+    public Double findAverageRatingByHostId(int hostId) {
+        String sql = """
+                SELECT CASE WHEN COUNT(*) = 0 THEN NULL
+                            ELSE SUM(h.rating) / COUNT(*) END AS averageRating
+                FROM Hotels h
+                WHERE h.host_id = ?
+            """;
+        return jdbcTemplate.queryForObject(sql, new Object[]{hostId}, Double.class);
     }
 
 

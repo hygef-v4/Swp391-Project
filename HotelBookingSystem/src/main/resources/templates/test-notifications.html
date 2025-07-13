@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Notifications - Hotel Booking System</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <style>
+        .notification-test {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            max-width: 400px;
+            z-index: 9999;
+        }
+        
+        .notification {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        .notification.booking { border-left: 4px solid #198754; }
+        .notification.message { border-left: 4px solid #0d6efd; }
+        .notification.payment { border-left: 4px solid #fd7e14; }
+        .notification.hotel { border-left: 4px solid #6610f2; }
+        .notification.promotion { border-left: 4px solid #d63384; }
+        .notification.system { border-left: 4px solid #6c757d; }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .ws-status {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .ws-connected { background-color: #d4edda; color: #155724; }
+        .ws-disconnected { background-color: #f8d7da; color: #721c24; }
+        .ws-connecting { background-color: #fff3cd; color: #856404; }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1>🔔 Notification System Test</h1>
+        
+        <!-- User Session Debug Info -->
+        <div class="alert alert-info">
+            <strong>🔍 Debug Information:</strong><br/>
+            <span th:text="'User ID: ' + (${userId} != null ? ${userId} : 'null')">User ID: null</span><br/>
+            <span th:text="'User Name: ' + (${userName} != null ? ${userName} : 'null')">User Name: null</span>
+        </div>
+        
+        <!-- Login Required Message -->
+        <div th:if="${userId == null}" class="alert alert-warning">
+            <i class="bi bi-exclamation-triangle"></i> No user session found - please login first to test notifications
+        </div>
+        
+        <!-- WebSocket Status -->
+        <div id="ws-status" class="ws-status ws-disconnected">
+            <i class="bi bi-wifi-off"></i> WebSocket: Disconnected
+        </div>
+        
+        <!-- Notification Bell (like in header) -->
+        <div class="mb-4">
+            <button class="btn btn-outline-primary position-relative" id="notification-bell">
+                <i class="bi bi-bell"></i>
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notification-count">
+                    0
+                </span>
+            </button>
+            <span class="ms-2">Current unread count</span>
+        </div>
+        
+        <!-- Test Buttons -->
+        <div class="row">
+            <div class="col-md-6">
+                <h3>Test Different Notification Types</h3>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-success" onclick="sendTestNotification('booking')">
+                        <i class="bi bi-calendar-check"></i> Test Booking Notification
+                    </button>
+                    <button class="btn btn-primary" onclick="sendTestNotification('message')">
+                        <i class="bi bi-chat-dots"></i> Test Chat Message Notification
+                    </button>
+                    <button class="btn btn-warning" onclick="sendTestNotification('payment')">
+                        <i class="bi bi-credit-card"></i> Test Payment Notification
+                    </button>
+                    <button class="btn btn-info" onclick="sendTestNotification('hotel')">
+                        <i class="bi bi-building"></i> Test Hotel Notification
+                    </button>
+                    <button class="btn btn-danger" onclick="sendTestNotification('promotion')">
+                        <i class="bi bi-gift"></i> Test Promotion Notification
+                    </button>
+                    <button class="btn btn-secondary" onclick="sendTestNotification('system')">
+                        <i class="bi bi-gear"></i> Test System Notification
+                    </button>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <h3>WebSocket Log</h3>
+                <div class="border p-3" style="height: 300px; overflow-y: auto;" id="ws-log">
+                    <small class="text-muted">WebSocket messages will appear here...</small>
+                </div>
+                
+                <div class="mt-3">
+                    <button class="btn btn-outline-secondary" onclick="connectWebSocket()">Reconnect WebSocket</button>
+                    <button class="btn btn-outline-info" onclick="getUnreadCount()">Refresh Count</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notification-container" class="notification-test"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7/bundles/stomp.umd.min.js"></script>
+    
+    <!-- User Data Script -->
+    <script th:inline="javascript">
+        // Set user data as global variables
+        window.APP_USER_ID = /*[[${userId}]]*/ null;
+        window.APP_USER_NAME = /*[[${userName}]]*/ 'Guest';
+        console.log('🔍 Window variables set - userId:', window.APP_USER_ID, 'userName:', window.APP_USER_NAME);
+    </script>
+    
+    <script>
+        let stompClient = null;
+        let currentUserId = null;
+        
+        // Get user ID from window variables
+        const userId = window.APP_USER_ID;
+        const userName = window.APP_USER_NAME;
+        
+        // Debug: Log the received values
+        console.log('🔍 JavaScript received userId:', userId);
+        console.log('🔍 JavaScript received userName:', userName);
+        console.log('🔍 Type of userId:', typeof userId);
+        
+        function updateStatus(status, message) {
+            const statusDiv = document.getElementById('ws-status');
+            statusDiv.className = `ws-status ws-${status}`;
+            statusDiv.innerHTML = `<i class="bi bi-${status === 'connected' ? 'wifi' : status === 'connecting' ? 'wifi-1' : 'wifi-off'}"></i> ${message}`;
+        }
+        
+        function logMessage(message) {
+            const log = document.getElementById('ws-log');
+            const time = new Date().toLocaleTimeString();
+            log.innerHTML += `<div><small class="text-muted">[${time}]</small> ${message}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+        
+        function connectWebSocket() {
+            if (!userId) {
+                updateStatus('disconnected', 'WebSocket: No user session found');
+                logMessage('❌ Cannot connect: User not logged in');
+                return;
+            }
+            
+            updateStatus('connecting', 'WebSocket: Connecting...');
+            logMessage('🔄 Connecting to WebSocket...');
+            logMessage(`🔗 Attempting connection to: ${window.location.origin}/ws`);
+            
+            // Test basic HTTP connection first
+            fetch('/ws')
+                .then(response => {
+                    logMessage(`📡 HTTP test to /ws: ${response.status} ${response.statusText}`);
+                    return response.text();
+                })
+                .then(text => {
+                    logMessage(`📄 Response preview: ${text.substring(0, 100)}...`);
+                })
+                .catch(error => {
+                    logMessage(`❌ HTTP test failed: ${error.message}`);
+                });
+            
+            try {
+                const socket = new SockJS('/ws');
+                
+                socket.onopen = function() {
+                    logMessage('🔌 SockJS connection opened');
+                };
+                
+                socket.onmessage = function(e) {
+                    logMessage('📨 SockJS message: ' + e.data);
+                };
+                
+                socket.onclose = function(e) {
+                    logMessage(`🔌 SockJS connection closed: Code ${e.code}, Reason: ${e.reason}`);
+                };
+                
+                socket.onerror = function(e) {
+                    logMessage(`❌ SockJS error: ${JSON.stringify(e)}`);
+                };
+                
+                stompClient = new StompJs.Client({
+                    webSocketFactory: () => socket,
+                    debug: (str) => {
+                        console.log('STOMP: ' + str);
+                        logMessage(`🔍 STOMP: ${str}`);
+                    },
+                    onConnect: (frame) => {
+                        updateStatus('connected', 'WebSocket: Connected');
+                        logMessage('✅ Connected to WebSocket');
+                        logMessage(`🎯 Frame: ${JSON.stringify(frame)}`);
+                        
+                        // Subscribe to user-specific notifications
+                        stompClient.subscribe(`/topic/notifications.${userId}`, (message) => {
+                            const data = JSON.parse(message.body);
+                            logMessage(`📨 Received: ${JSON.stringify(data)}`);
+                            handleNotificationMessage(data);
+                        });
+                        
+                        // Get initial unread count
+                        getUnreadCount();
+                    },
+                    onDisconnect: () => {
+                        updateStatus('disconnected', 'WebSocket: Disconnected');
+                        logMessage('❌ Disconnected from WebSocket');
+                    },
+                    onStompError: (frame) => {
+                        updateStatus('disconnected', 'WebSocket: Error');
+                        logMessage(`❌ STOMP Error: ${JSON.stringify(frame)}`);
+                        logMessage(`❌ Error details: ${frame.headers?.message || 'Unknown error'}`);
+                        logMessage(`❌ Error body: ${frame.body || 'No body'}`);
+                    },
+                    onWebSocketError: (event) => {
+                        logMessage(`❌ WebSocket Error: ${JSON.stringify(event)}`);
+                        updateStatus('disconnected', 'WebSocket: Connection Error');
+                    }
+                });
+                
+                stompClient.activate();
+                
+            } catch (error) {
+                logMessage(`❌ Exception during connection: ${error.message}`);
+                logMessage(`❌ Stack trace: ${error.stack}`);
+                updateStatus('disconnected', 'WebSocket: Exception');
+            }
+        }
+        
+        function handleNotificationMessage(data) {
+            if (data.type === 'new_notification') {
+                showNotification(data.notification);
+            } else if (data.type === 'unread_count_update') {
+                updateUnreadCount(data.count);
+            }
+        }
+        
+        function showNotification(notification) {
+            const container = document.getElementById('notification-container');
+            
+            const notifDiv = document.createElement('div');
+            notifDiv.className = `notification ${notification.type}`;
+            notifDiv.innerHTML = `
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h6 class="mb-1"><i class="${notification.icon}"></i> ${notification.title}</h6>
+                        <p class="mb-0 small">${notification.message}</p>
+                        ${notification.actionUrl ? `<a href="${notification.actionUrl}" class="btn btn-sm btn-outline-primary mt-2">View</a>` : ''}
+                    </div>
+                    <button type="button" class="btn-close" onclick="this.parentElement.parentElement.remove()"></button>
+                </div>
+            `;
+            
+            container.appendChild(notifDiv);
+            
+            // Auto remove after 10 seconds
+            setTimeout(() => {
+                if (notifDiv.parentElement) {
+                    notifDiv.remove();
+                }
+            }, 10000);
+        }
+        
+        function updateUnreadCount(count) {
+            const badge = document.getElementById('notification-count');
+            badge.textContent = count;
+            badge.style.display = count > 0 ? 'inline' : 'none';
+            logMessage(`🔔 Unread count updated: ${count}`);
+        }
+        
+        function sendTestNotification(type) {
+            logMessage(`🧪 Sending test notification: ${type}`);
+            
+            fetch('/api/notifications/test', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `type=${type}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    logMessage(`✅ Test notification sent: ${data.type}`);
+                } else {
+                    logMessage(`❌ Error sending notification: ${data.error || 'Unknown error'}`);
+                }
+            })
+            .catch(error => {
+                logMessage(`❌ Network error: ${error.message}`);
+            });
+        }
+        
+        function getUnreadCount() {
+            fetch('/api/notifications/unread-count')
+            .then(response => response.json())
+            .then(data => {
+                if (data.count !== undefined) {
+                    updateUnreadCount(data.count);
+                } else {
+                    logMessage(`❌ Error getting unread count: ${data.error || 'Unknown error'}`);
+                }
+            })
+            .catch(error => {
+                logMessage(`❌ Network error getting unread count: ${error.message}`);
+            });
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            if (userId) {
+                connectWebSocket();
+                logMessage(`👤 User ID: ${userId}`);
+            } else {
+                logMessage('❌ No user session found - please login first');
+            }
+        });
+    </script>
+</body>
+</html> 

@@ -3,7 +3,7 @@
 
 <!-- Mirrored from stackbros.in/bookinga/landing/hotel-booking.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:06:47 GMT -->
 <head>
-	<title>Payment</title>
+	<title>Thanh toán</title>
 
 	<!-- Meta Tags -->
 	<meta charset="utf-8">
@@ -68,11 +68,77 @@
 
 			}
 		})
+	</script>
+
+	<script th:inline="javascript">
+		var hotelId = /*[[${hotelId}]]*/ "";
+		var dateRange = /*[[${dateRange}]]*/ "";
+		var guests = /*[[${guests}]]*/ "";
+		var rooms = /*[[${rooms}]]*/ "";
+		var bookingId = /*[[${id}]]*/ "";
+
+		var href = '/booking/' + hotelId + '?dateRange=' + dateRange + '&guests=' + guests + '&rooms=' + rooms + '&bookingId=' + bookingId;
 		
+		function back(message, cancel = true){
+			if(cancel){
+				if(confirm(message))
+					window.location.href = href;
+			}else{
+				alert(message);
+				window.location.href = href;
+			}
+		}
+	</script>
+
+	<script>
+		document.addEventListener("DOMContentLoaded", function() {
+			const remainMinute = document.querySelector('.remainMinute');
+			const remainSecond = document.querySelector('.remainSecond');
+
+			let minute = parseInt(remainMinute.textContent);
+			let second = parseInt(remainSecond.textContent);
+
+			if(minute < 1){
+				remainMinute.classList.add('text-danger');
+				remainSecond.classList.add('text-danger');
+			}else if(minute < 5){
+				remainMinute.classList.add('text-warning');
+				remainSecond.classList.add('text-warning');
+			}
+			
+			if(minute == 0 && second == 0){
+				back('Thời gian thanh toán đã hết!', false);
+			}
+
+			const countdown = setInterval(function() {
+				if(second == 0){
+					if(minute == 0){
+						clearInterval(countdown);
+						back('Thời gian thanh toán đã hết!', false);
+					}else{
+						if(minute == 1){
+							remainMinute.classList.add('text-danger');
+							remainSecond.classList.add('text-danger');
+						}else if(minute == 5){
+							remainMinute.classList.add('text-warning');
+							remainSecond.classList.add('text-warning');
+						}
+
+						minute--;
+						second = 59;
+					}
+				}else{
+					second--;
+				}
+
+				remainMinute.textContent = minute.toString().padStart(2, '0');
+				remainSecond.textContent = second.toString().padStart(2, '0');
+			}, 1000);
+		});
 	</script>
 
 	<!-- Favicon -->
-	<link rel="shortcut icon" href="assets/images/favicon.ico">
+	<link rel="shortcut icon" href="/assets/images/favicon.ico">
 
 	<!-- Google Font -->
 	<link rel="preconnect" href="https://fonts.googleapis.com/">
@@ -80,12 +146,12 @@
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Poppins:wght@400;500;700&amp;display=swap">
 
 	<!-- Plugins CSS -->
-	<link rel="stylesheet" type="text/css" href="assets/vendor/font-awesome/css/all.min.css">
-	<link rel="stylesheet" type="text/css" href="assets/vendor/bootstrap-icons/bootstrap-icons.css">
-	<link rel="stylesheet" type="text/css" href="assets/vendor/choices/css/choices.min.css">
+	<link rel="stylesheet" type="text/css" href="/assets/vendor/font-awesome/css/all.min.css">
+	<link rel="stylesheet" type="text/css" href="/assets/vendor/bootstrap-icons/bootstrap-icons.css">
+	<link rel="stylesheet" type="text/css" href="/assets/vendor/choices/css/choices.min.css">
 
 	<!-- Theme CSS -->
-	<link rel="stylesheet" type="text/css" href="assets/css/style.css">
+	<link rel="stylesheet" type="text/css" href="/assets/css/style.css">
 
 </head>
 
@@ -110,13 +176,14 @@ Page banner START -->
 				<div class="col-sm-9">
 					<div class="card-body">
 						<!-- Title -->
-						<h1 class="m-0 h2 card-title">Payment</h1>
+						<a href="javascript:void(0)" onclick="back('Quý khách có chắc chắn muốn hủy thanh toán giao dịch này?')"><h5 style="color: rgba(var(--bs-link-color-rgb), var(--bs-link-opacity, 1))"><i class="bi bi-arrow-left"></i> Quay lại</h5></a>
+						<h1 class="m-0 h2 card-title">Thanh toán</h1>
 					</div>
 				</div>	
 
 				<!-- Image -->
 				<div class="col-sm-3 text-end d-none d-sm-block">
-					<img src="assets/images/element/17.svg" class="mb-n4" alt="">
+					<img src="/assets/images/element/17.svg" class="mb-n4" alt="">
 				</div>
 			</div>
 		</div>
@@ -139,8 +206,17 @@ Page content START -->
 					<div class="card shadow">
 						<!-- Card header -->
 						<div class="card-header border-bottom p-4">
-							<!-- Title -->
-							<h4 class="card-title mb-0"><i class="bi bi-wallet-fill me-2"></i>Payment Options</h4>
+							<div class="row justify-content-between align-items-center">
+								<!-- Title -->
+								<h4 class="col-md-10 col-sm-9 card-title mb-0"><i class="bi bi-wallet-fill me-2"></i>Phương thức thanh toán</h4>
+								
+								<!-- Timer -->
+								<div class="col-md-2 col-sm-3 col-5 ms-auto">
+									<div class="bg-light py-3 px-3 rounded-3 text-center">
+										<span class="fw-bold fs-6 remainMinute" th:text="${remainMinute}"></span> : <span class="fw-bold fs-6 remainSecond" th:text="${remainSecond}"></span>
+									</div>
+								</div>
+							</div>
 						</div>
 						
 						<!-- Card body START -->
@@ -151,7 +227,7 @@ Page content START -->
 								<div class="accordion-item mb-3">
 									<h6 class="accordion-header" id="heading">
 										<button class="accordion-button rounded" type="button" data-bs-toggle="collapse" data-bs-target="#collapse" aria-expanded="true" aria-controls="collapse">
-											<i class="bi bi-credit-card text-primary me-2"></i>	<span class="me-5">Payment Method</span>
+											<i class="bi bi-credit-card text-primary me-2"></i>	<span class="me-5">Thanh toán bằng ngân hàng điện tử</span>
 										</button>
 									</h6>
 
@@ -171,13 +247,20 @@ Page content START -->
                                                 <div class="accordion-body">
                                                     <div class="card card-body border align-items-center text-center mt-4">
                                                         <!-- Image -->
-                                                        <img src="assets/images/element/paypal.svg" class="h-70px mb-3" alt="">
-                                                        <p class="mb-3"><strong>Tips:</strong> Simply click on the payment button below to proceed to the PayPal payment page.</p>
+                                                        <img src="/assets/images/VNPay.svg" class="h-70px mb-3" alt="">
+                                                        <p class="mb-3">Nhấn nút dưới để chuyển tới trang thanh toán của <span>VNPay</span></p>
+
+														<input type="hidden" name="id" th:value="${id}">
 
                                                         <input type="hidden" name="amount" th:value="${booking.totalPrice.longValue()}">
-                                                        <input type="hidden" name="orderInfo" value="Payment for booking">
-                                                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                                                        <input type="submit" class="btn btn-success mb-0 w-100" th:value="'Pay $' + ${booking.totalPrice.longValue()}"/>
+                                                        <input type="hidden" name="orderInfo" th:value="'Đặt phòng tại ' + ${booking.hotelName}">
+
+														<input type="hidden" name="dateRange" th:value="${dateRange}">
+														<input type="hidden" name="guests" th:value="${guests}">
+														<input type="hidden" name="rooms" th:value="${rooms}">
+
+														<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                                        <input type="submit" class="btn btn-success mb-0 w-100" th:value="'Thanh toán ' + ${#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 0, 'POINT') + '₫'}"/>
                                                     </div>
                                                 </div>
 											</form>
@@ -193,7 +276,7 @@ Page content START -->
 
 						<div class="card-footer p-4 pt-0">
 							<!-- Condition link -->
-							<p class="mb-0">By processing, You accept Booking Terms of Services and Policy</p>
+							<!-- <p class="mb-0">Để thực hiện thanh toán, bạn phải tuân thủ Chính sách đặt phòng của chúng tôi.</p> -->
 						</div>
 					</div>
 					<!-- Payment Options END -->
@@ -210,7 +293,7 @@ Page content START -->
                         <div class="card shadow rounded-2">
                             <!-- card header -->
                             <div class="card-header border-bottom">
-                                <h5 class="card-title mb-0">Price Summary</h5>
+                                <h5 class="card-title mb-0">Hóa đơn</h5>
                             </div>
 
                             <!-- Card body -->
@@ -221,11 +304,11 @@ Page content START -->
                                             <h6 class="ellipsis" th:text="${bookingUnit.roomName}"></h6>
                                         </li>
                                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            <span class="h6 fw-light mb-0">Room Charges</span>
-                                            <span class="fs-5 priceText" th:text="'$' + ${bookingUnit.price}"></span>
+                                            <span class="h6 fw-light mb-0">Giá Phòng</span>
+                                            <span class="fs-5 priceText" th:text="${#numbers.formatDecimal(bookingUnit.price, 0, 'COMMA', 0, 'POINT')} + '₫'"></span>
                                         </li>
                                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            <span class="h6 fw-light mb-0">Amount</span>
+                                            <span class="h6 fw-light mb-0">Số Lượng</span>
                                             <span class="fs-5 quantityText" th:text="${bookingUnit.quantity}"></span>
                                         </li>
                                         <hr>
@@ -233,12 +316,12 @@ Page content START -->
                                 </ul>
                                 <ul class="list-group list-group-borderless">
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <span class="h6 fw-light mb-0">Total Price</span>
-                                        <span class="fs-5">$<span id="totalPrice" th:text="${price}"></span></span>
+                                        <span class="h6 fw-light mb-0">Tổng tiền</span>
+                                        <span class="fs-5"><span id="totalPrice" th:text="${#numbers.formatDecimal(price, 0, 'COMMA', 0, 'POINT')}"></span>₫</span>
                                     </li>                                    
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <span class="h6 fw-light mb-0">Total Discount</span>
-                                        <span class="fs-5 text-success">-$<span id="totalDiscount" th:text="${discount}"></span></span>
+                                        <span class="h6 fw-light mb-0">Ưu đãi</span>
+                                        <span class="fs-5 text-success">-<span id="totalDiscount" th:text="${#numbers.formatDecimal(discount, 0, 'COMMA', 0, 'POINT')}"></span>₫</span>
                                     </li>
                                 </ul>
                             </div>
@@ -246,8 +329,8 @@ Page content START -->
                             <!-- Card footer -->
                             <div class="card-footer border-top">
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <span class="h5 mb-0">Payable</span>
-                                    <span class="h5 mb-0">$<span id="paidPrice" th:text="${booking.totalPrice}"></span></span>
+                                    <span class="h5 mb-0">Thành tiền</span>
+                                    <span class="h5 mb-0"><span id="paidPrice" th:text="${#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 0, 'POINT')}"></span>₫</span>
                                 </div>
                             </div>
                         </div>
@@ -276,13 +359,13 @@ Footer END -->
 <div class="back-top"></div>
 
 <!-- Bootstrap JS -->
-<script src="assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
 <!-- Vendors -->
-<script src="assets/vendor/choices/js/choices.min.js"></script>
+<script src="/assets/vendor/choices/js/choices.min.js"></script>
 
 <!-- ThemeFunctions -->
-<script src="assets/js/functions.js"></script>
+<script src="/assets/js/functions.js"></script>
 
 </body>
 

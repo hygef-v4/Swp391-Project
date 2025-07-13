@@ -12,10 +12,10 @@
 	<meta name="description" content="Booking - Multipurpose Online Booking Theme">
 
 	<style>
-		#star *{
+		#price *{
 			transition: color 0.2s ease;
 		}
-		#star:hover *{
+		#price:hover *{
 			color: white !important;
 		}
 	</style>
@@ -123,7 +123,7 @@ Main Banner START -->
 				</div>
 			</div>
 
-			<!-- Booking from START -->
+			<!-- Search with offcanvas START -->
 			<form th:action="@{/hotel-list}" method="GET"
 					class="card shadow rounded-3 position-relative p-4 pe-md-5 pb-5 pb-md-4">
 				<div class="row g-4 align-items-center">
@@ -172,47 +172,24 @@ Main Banner START -->
 							<div class="w-100">
 								<label class="form-label">Khách & Phòng</label>
 								<div class="dropdown guest-selector me-2">
-									<input readonly type="text"
-										   class="form-guest-selector form-control selection-result"
-										   th:value="${adults+children} + ' Khách ' + ${rooms} + ' Phòng'" data-bs-auto-close="outside"
-										   data-bs-toggle="dropdown">
+									<input readonly type="text" class="form-guest-selector form-control selection-result" th:value="${guests} + ' Khách ' + ${rooms} + ' Phòng'" data-bs-auto-close="outside" data-bs-toggle="dropdown">
 
 									<!-- dropdown items -->
 									<ul class="dropdown-menu guest-selector-dropdown">
-										<!-- Adult -->
+										<!-- Guest -->
 										<li class="d-flex justify-content-between">
 											<div>
-												<h6 class="mb-0">Người lớn</h6>
-												<small>18 tuổi trở lên</small>
+												<h6 class="mb-0">Khách</h6>
 											</div>
 
 											<div class="hstack gap-1 align-items-center">
-												<button type="button"
-														class="btn btn-link adult-remove p-0 mb-0"><i
-														class="bi bi-dash-circle fs-5 fa-fw"></i></button>
-												<h6 class="guest-selector-count mb-0 adults" th:text="${adults}"></h6>
-												<button type="button" class="btn btn-link adult-add p-0 mb-0"><i
-														class="bi bi-plus-circle fs-5 fa-fw"></i></button>
-											</div>
-										</li>
-
-										<!-- Divider -->
-										<li class="dropdown-divider"></li>
-
-										<!-- Child -->
-										<li class="d-flex justify-content-between">
-											<div>
-												<h6 class="mb-0">Trẻ em </h6>
-												<small>0-17 tuổi</small>
-											</div>
-
-											<div class="hstack gap-1 align-items-center">
-												<button type="button"
-														class="btn btn-link child-remove p-0 mb-0"><i
-														class="bi bi-dash-circle fs-5 fa-fw"></i></button>
-												<h6 class="guest-selector-count mb-0 child" th:text="${children}"></h6>
-												<button type="button" class="btn btn-link child-add p-0 mb-0"><i
-														class="bi bi-plus-circle fs-5 fa-fw"></i></button>
+												<button type="button" th:class="'btn btn-link guest-remove p-0 mb-0' + ${guests == 1 ? ' disabled' : ''}">
+													<i class="bi bi-dash-circle fs-5 fa-fw"></i>
+												</button>
+												<h6 class="guest-selector-count mb-0 guests" th:text="${guests}"></h6>
+												<button type="button" th:class="'btn btn-link guest-add p-0 mb-0' + ${guests == 50 ? ' disabled' : ''}">
+													<i class="bi bi-plus-circle fs-5 fa-fw"></i>
+												</button>
 											</div>
 										</li>
 
@@ -222,16 +199,17 @@ Main Banner START -->
 										<!-- Rooms -->
 										<li class="d-flex justify-content-between">
 											<div>
-												<h6 class="mb-0">Phòng </h6>
-												<!-- <small>Tối đa 8 phòng</small> -->
+												<h6 class="mb-0">Phòng</h6>
 											</div>
 
 											<div class="hstack gap-1 align-items-center">
-												<button type="button" class="btn btn-link room-remove p-0 mb-0">
-													<i class="bi bi-dash-circle fs-5 fa-fw"></i></button>
+												<button type="button" th:class="'btn btn-link room-remove p-0 mb-0' + ${rooms == 1 ? ' disabled' : ''}">
+													<i class="bi bi-dash-circle fs-5 fa-fw"></i>
+												</button>
 												<h6 class="guest-selector-count mb-0 rooms" th:text="${rooms}"></h6>
-												<button type="button" class="btn btn-link room-add p-0 mb-0"><i
-														class="bi bi-plus-circle fs-5 fa-fw"></i></button>
+												<button type="button" th:class="'btn btn-link room-add p-0 mb-0' + ${rooms == 20 ? ' disabled' : ''}">
+													<i class="bi bi-plus-circle fs-5 fa-fw"></i>
+												</button>
 											</div>
 										</li>
 									</ul>
@@ -241,10 +219,8 @@ Main Banner START -->
 					</div>
 				</div>
 
-				<!--                        hidden field for adults, children, and rooms-->
-				
-				<input type="hidden" name="adults" id="adultsInput" th:value="${adults}">
-				<input type="hidden" name="children" id="childrenInput" th:value="${children}">
+				<!--Hidden field for guests and rooms-->
+				<input type="hidden" name="guests" id="guestsInput" th:value="${guests}">
 				<input type="hidden" name="rooms" id="roomsInput" th:value="${rooms}">
 
 
@@ -255,7 +231,7 @@ Main Banner START -->
 					</button>
 				</div>			
 			</form>
-			<!-- Booking from END -->
+			<!-- Search with offcanvas END -->
 		</div>
 	</div>
 </section>
@@ -278,10 +254,10 @@ Title and Tabs START -->
 						<i class="bi fa-fe bi-sliders me-2"></i>Bộ Lọc
 					</label>
 
-					<a th:href="'/hotel-list?star=' + ${!star} + ${request}">
-						<button id="star" class="btn btn-secondary-soft btn-secondary-check mx-1 mb-0" onclick="toggleSortStar()">
-							<span th:if="${star}"><i class="bi bi-star-fill text-secondary"></i><i id="sortArrowIcon" class="bi bi-caret-up-fill text-secondary"></i></span>
-							<span th:unless="${star}"><i class="bi bi-star-fill text-secondary"></i><i id="sortArrowIcon" class="bi bi-caret-down-fill text-secondary"></i></span>
+					<a th:href="'/hotel-list?price=' + ${!price} + ${request}">
+						<button id="price" class="btn btn-secondary-soft btn-secondary-check mx-1 mb-0">
+							<span th:if="${price}"><i class="bi bi-coin text-secondary"></i><i id="sortArrowIcon" class="bi bi-caret-up-fill text-secondary"></i></span>
+							<span th:unless="${price}"><i class="bi bi-coin text-secondary"></i><i id="sortArrowIcon" class="bi bi-caret-down-fill text-secondary"></i></span>
 						</button>
 					</a>	
 				</div>
@@ -298,9 +274,9 @@ Title and Tabs START -->
 				<form class="row g-4" action="/hotel-list" method="GET" id="filter">
 					<input type="hidden" name="locationId" th:value="${hamora.id}">
 					<input type="hidden" name="dateRange" th:value="${dateRange}">
-					<input type="hidden" name="adults" th:value="${adults}">
-					<input type="hidden" name="children" th:value="${children}">
-					<input type="hidden" name="rooms" th:value="${rooms}">	
+					<input type="hidden" name="guests" th:value="${guests}">
+					<input type="hidden" name="rooms" th:value="${rooms}">
+					<input type="hidden" name="price" th:value="${price}">
 
 					<!-- Input item -->
 					<div class="col-sm-12 col-md-6">
@@ -320,7 +296,7 @@ Title and Tabs START -->
 										<input type="text" class="text-body input-with-range-min" name="min" id="min">
 										<input type="text" class="text-body input-with-range-max" name="max" id="max">
 									</div>
-									<div class="noui-slider-range mt-2" data-range-min='100' data-range-max='5000' th:data-range-selected-min='${min}' th:data-range-selected-max='${max}'></div>
+									<div class="noui-slider-range mt-2" data-range-min='0' data-range-max='5000' th:data-range-selected-min='${min}' th:data-range-selected-max='${max}'></div>
 								</div>
 							</div>
 						</div>
@@ -405,16 +381,16 @@ Hotel grid START -->
 			<div class="col-12">
 				<nav class="mt-4 d-flex justify-content-center" aria-label="navigation">
 					<ul class="pagination pagination-primary-soft d-inline-block d-md-flex rounded mb-0">
-						<li th:if="${pagination >= 2}" th:class="'page-item mb-0' + ${page == 1 ? ' disabled' : ''}"><a class="page-link" th:href="'/hotel-list?page=' + ${page-1} + '&star=' + ${star} + ${request}"><i class="fa-solid fa-angle-left"></i></a></li>
-						<li th:if="${pagination >= 1}" th:class="'page-item mb-0' + ${page == 1 ? ' active disabled' : ''}"><a class="page-link" th:href="'/hotel-list?page=1' + '&star=' + ${star} + ${request}">1</a></li>
-						<li th:if="${pagination >= 2}" th:class="'page-item mb-0' + ${page == 2 ? ' active disabled' : ''}"><a class="page-link" th:href="'/hotel-list?page=2' + '&star=' + ${star} + ${request}">2</a></li>
+						<li th:if="${pagination >= 2}" th:class="'page-item mb-0' + ${page == 1 ? ' disabled' : ''}"><a class="page-link" th:href="'/hotel-list?page=' + ${page-1} + '&price=' + ${price} + ${request}"><i class="fa-solid fa-angle-left"></i></a></li>
+						<li th:if="${pagination >= 1}" th:class="'page-item mb-0' + ${page == 1 ? ' active disabled' : ''}"><a class="page-link" th:href="'/hotel-list?page=1' + '&price=' + ${price} + ${request}">1</a></li>
+						<li th:if="${pagination >= 2}" th:class="'page-item mb-0' + ${page == 2 ? ' active disabled' : ''}"><a class="page-link" th:href="'/hotel-list?page=2' + '&price=' + ${price} + ${request}">2</a></li>
 						<li th:if="${pagination >= 5 && page-2 > 2}" class="page-item mb-0 disabled"><a class="page-link">...</a></li>
-						<li th:if="${pagination >= 4 && page != 1 && page-1 != 1 && page-1 != 2}" class="page-item mb-0"><a class="page-link" th:href="'/hotel-list?page=' + ${page-1} + '&star=' + ${star} + ${request}" th:text="${page-1}"></a></li>
+						<li th:if="${pagination >= 4 && page != 1 && page-1 != 1 && page-1 != 2}" class="page-item mb-0"><a class="page-link" th:href="'/hotel-list?page=' + ${page-1} + '&price=' + ${price} + ${request}" th:text="${page-1}"></a></li>
 						<li th:if="${pagination >= 4 && page != 1 && page != 2 && page != pagination}" class="page-item mb-0 active disabled"><a class="page-link" th:text="${page}"></a></li>
-						<li th:if="${pagination >= 4 && page+1 != 2 && page+1 != pagination && page != pagination}" class="page-item mb-0"><a class="page-link" th:href="'/hotel-list?page=' + ${page+1} + '&star=' + ${star} + ${request}" th:text="${page+1}"></a></li>
+						<li th:if="${pagination >= 4 && page+1 != 2 && page+1 != pagination && page != pagination}" class="page-item mb-0"><a class="page-link" th:href="'/hotel-list?page=' + ${page+1} + '&price=' + ${price} + ${request}" th:text="${page+1}"></a></li>
 						<li th:if="${pagination >= 4 && pagination > page+2}" class="page-item mb-0 disabled"><a class="page-link">...</a></li>
-						<li th:if="${pagination >= 3}" th:class="'page-item mb-0' + ${page == pagination ? ' active disabled' : ''}"><a class="page-link" th:href="'/hotel-list?page=' + ${pagination} + '&star=' + ${star} + ${request}" th:text="${pagination}"></a></li>
-						<li th:if="${pagination >= 2}" th:class="'page-item mb-0' + ${page == pagination ? ' disabled' : ''}"><a class="page-link" th:href="'/hotel-list?page=' + ${page+1} + '&star=' + ${star} + ${request}"><i class="fa-solid fa-angle-right"></i></a></li>
+						<li th:if="${pagination >= 3}" th:class="'page-item mb-0' + ${page == pagination ? ' active disabled' : ''}"><a class="page-link" th:href="'/hotel-list?page=' + ${pagination} + '&price=' + ${price} + ${request}" th:text="${pagination}"></a></li>
+						<li th:if="${pagination >= 2}" th:class="'page-item mb-0' + ${page == pagination ? ' disabled' : ''}"><a class="page-link" th:href="'/hotel-list?page=' + ${page+1} + '&price=' + ${price} + ${request}"><i class="fa-solid fa-angle-right"></i></a></li>
 					</ul>
 				</nav>
 			</div>

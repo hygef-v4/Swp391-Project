@@ -3,6 +3,7 @@ package org.swp391.hotelbookingsystem.model;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Builder
 @Data
@@ -18,9 +19,12 @@ public class Review {
     private LocalDateTime createdAt;
 
     // for User
+    private int userId;
     private String fullName;
     private String avatarUrl;
     private String bio;
 
     private String hotelName;
+
+    private List<Reply> replies;
 }

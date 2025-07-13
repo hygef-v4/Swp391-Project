@@ -43,8 +43,8 @@
 
              // Trích thông tin
              String location = parameters.get("location").toString();
-             String checkin = parameters.getOrDefault("checkin-date", "").toString();
-             String checkout = parameters.getOrDefault("checkout-date", "").toString();
+             String checkin = parameters.getOrDefault("checkin-date", "").toString().split("T")[0];
+             String checkout = parameters.getOrDefault("checkout-date", "").toString().split("T")[0];
 
              String adultsRaw = parameters.getOrDefault("adults", "1").toString();
              String childrenRaw = parameters.getOrDefault("children", "").toString();
@@ -59,7 +59,7 @@
              int locationId = mapLocationToId(location);
 
              // Build URL
-             String url = String.format("http://localhost:8386/hotel-list?locationId=%d&dateRange=%s_to_%s&adults=%d&children=%d&rooms=%d",
+             String url = String.format("http://localhost:8386/hotel-list?locationId=%d&dateRange=%s => %s&adults=%d&children=%d&rooms=%d",
                      locationId, checkin, checkout, adults, children, rooms);
 
              String softPrompt = String.format("Người dùng đang tìm khách sạn ở %s từ %s đến %s cho %d người lớn và %d trẻ em. Viết câu phản hồi lịch sự, mời họ bấm nút để xem danh sách.",
@@ -95,6 +95,6 @@
      private int mapLocationToId(String locationName) {
          if (locationName.toLowerCase().contains("hà nội")) return 1;
          if (locationName.toLowerCase().contains("sài gòn")) return 2;
-         return 0; // unknown
+         return 0;
      }
  }

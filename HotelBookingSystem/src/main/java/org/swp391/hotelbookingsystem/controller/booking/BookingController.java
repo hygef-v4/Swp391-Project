@@ -2,6 +2,7 @@ package org.swp391.hotelbookingsystem.controller.booking;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -24,16 +25,23 @@ import org.swp391.hotelbookingsystem.model.Hotel;
 import org.swp391.hotelbookingsystem.model.Room;
 import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.service.AmenityService;
+import org.swp391.hotelbookingsystem.service.BookingService;
 import org.swp391.hotelbookingsystem.service.HotelService;
 import org.swp391.hotelbookingsystem.service.LocationService;
 import org.swp391.hotelbookingsystem.service.RoomService;
 import org.swp391.hotelbookingsystem.service.VNPayService;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class BookingController {
+    @Autowired
+    BookingService bookingService;
     @Autowired
     LocationService locationService;
     @Autowired
@@ -46,18 +54,43 @@ public class BookingController {
     @GetMapping("/booking/{id}")
     public String booking(
         @PathVariable(value = "id") int hotelId,
+
         @RequestParam(value = "dateRange") String dateRange,
+        @RequestParam(value = "guests") int guests,
+        @RequestParam(value = "rooms") int roomQuantity,    
         
+        @RequestParam(value = "bookingId", required = false) Integer bookingId, 
         Model model, HttpSession session
     ){
         User user = (User) session.getAttribute("user");
-        model.addAttribute("user", user);
+        if(user == null) {
+            return "redirect:/login";
+        }model.addAttribute("user", user);
+
+        if(bookingId != null){
+            try{
+                Booking booking = bookingService.findById(bookingId);
+                if(booking == null) return "redirect:/";
+                else bookingService.deletePendingBooking(bookingId, user.getId());
+            }catch(Exception e){}
+        }
 
         Hotel hotel = hotelService.getHotelById(hotelId);
         hotel.setPolicy(hotel.getPolicy().replace("<li>", "<li class=\"list-group-item d-flex\"><i class=\"bi bi-arrow-right me-2\"></i>"));
         model.addAttribute("hotel", hotel);
+
+        model.addAttribute("dateRange", dateRange);
+        String[] date = dateRange.split(" => ");
+        Date checkin = !date[0].isBlank() ? Date.valueOf(date[0]) : null;
+        Date checkout = date.length > 1 ? Date.valueOf(date[1]) : checkin;
+
+        model.addAttribute("checkIn", date[0]);
+        model.addAttribute("checkOut", date.length > 1 ? date[1] : date[0]);
+
+        model.addAttribute("guests", guests);
+        model.addAttribute("roomQuantity", roomQuantity);
         
-        List<Room> rooms = roomService.getAvailableRoomsByHotelId(hotelId);
+        List<Room> rooms = roomService.getRoomsByIdAndDateRange(hotelId, checkin, checkout);
         for(Room room : rooms){
             room.setDescription("<li>Sức chứa: " + room.getMaxGuests() + " Người</li>" + room.getDescription());
 
@@ -82,10 +115,6 @@ public class BookingController {
         String map = "https://www.google.com/maps/search/" + encode + "//@" + hotel.getLatitude() + "," + hotel.getLongitude() + ",17z";
         model.addAttribute("map", map);
 
-        String[] dates = dateRange.split(" => ");
-        model.addAttribute("checkIn", dates[0]);
-        model.addAttribute("checkOut", dates.length > 1 ? dates[1] : dates[0]);
-
         return "page/booking";
     }
 
@@ -102,7 +131,11 @@ public class BookingController {
         @RequestParam(value = "price") List<Double> price,
         @RequestParam(value = "quantity") List<Integer> quantity,
 
-        Model model, HttpSession session
+        @RequestParam(value = "dateRange") String dateRange,
+        @RequestParam(value = "guests") int guests,
+        @RequestParam(value = "rooms") int rooms,    
+
+        Model model, HttpSession session, HttpServletResponse response
     ){
         User user = (User) session.getAttribute("user");
         if(user == null) {
@@ -123,8 +156,10 @@ public class BookingController {
             .createdAt(LocalDateTime.now())
             .couponId(couponId)
             .build();
-
+            
+        List<String> json = new ArrayList<>();
         List<BookingUnit> bookingUnits = new ArrayList<>();
+
         for(int i = 0; i < roomId.size(); i++){
             BookingUnit bookingUnit = BookingUnit.builder()
                 .roomId(roomId.get(i))
@@ -133,10 +168,20 @@ public class BookingController {
                 .quantity(quantity.get(i))
                 .build();
             bookingUnits.add(bookingUnit);
+
+            json.add(String.format("{\"roomId\":\"%d\",\"quantity\":%d}", roomId.get(i), quantity.get(i)));
         }booking.setBookingUnits(bookingUnits);
 
-        session.setAttribute("booking", booking);
+        Cookie cookie = new Cookie("booking" + hotelId, URLEncoder.encode("[" + String.join(",", json) + "]", StandardCharsets.UTF_8));
+        cookie.setPath("/");
+        cookie.setMaxAge(60 * 30);
+        response.addCookie(cookie);
 
-        return "redirect:/payment";
+        if(!bookingService.checkQuantity(booking)){
+            return "redirect:/booking/" + hotelId + "&dateRange=" + dateRange + "&guests=" + guests + "&rooms=" + rooms;
+        }
+        
+        int id = bookingService.pendingBooking(booking);
+        return "redirect:/payment/" + id + "?hotelId=" + hotelId + "&dateRange=" + dateRange + "&guests=" + guests + "&rooms=" + rooms;
     }
 }

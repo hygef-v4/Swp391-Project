@@ -34,7 +34,9 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf
                         .ignoringRequestMatchers("/api/files/**", "/webhook", "/booking",
-                                "/update-hotel", "/update-room", "/delete-room", "/ws/**", "/api/chat/**")
+                                "/update-hotel", "/update-room", "/delete-room", "/deactivate-room", "/activate-room", "/update-cancellation-policy", "/ws/**", "/api/chat/**",
+                                "/api/notifications/**", "/test-notifications", "/invoice"
+                        )
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
@@ -42,8 +44,9 @@ public class SecurityConfig {
                                 "/login", "/register", "/verify-email-otp", "/resend-otp", "/forgotPassword", "/resetPassword",
                                 "/hotel-list", "/filter-hotels", "/hotel-detail",
                                 "/css/**", "/js/**", "/images/**", "/assets/**",
-                                "/api/files/**", "user-profile", "user-wishlist", "/ws/**", "/api/chat/**"
+                                "/api/files/**", "user-profile", "user-wishlist", "/ws/**", "/api/chat/**", "/api/notifications/**", "/test-notifications"
                         ).permitAll()
+                        .requestMatchers("/notifications").authenticated()
                         .requestMatchers("/admin-dashboard", "/admin-user-list", "/admin-hotel-list").access(AuthorizationManagers.allOf(
                                 new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
                                 new WebExpressionAuthorizationManager("hasRole('ADMIN')")
@@ -52,9 +55,9 @@ public class SecurityConfig {
                                 new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
                                 new WebExpressionAuthorizationManager("hasAnyRole('ADMIN')")
                         ))
-                        .requestMatchers("/host-dashboard","/add-hotel","/add-room","/request-delete-hotel",
-                                "/manage-hotel","/update-hotel","/update-room","/delete-room",
-                                "/host-customers","/host-customer-detail").access(AuthorizationManagers.allOf(
+                        .requestMatchers("/host-dashboard","/add-hotel","/add-room","/host/request-deactivate-hotel",
+                                "/host/confirm-deactivate-hotel","/host/activate-hotel","/manage-hotel","/update-hotel","/update-room","/delete-room",
+                                "/deactivate-room","/activate-room","/update-cancellation-policy","/host-customers","/host-customer-detail").access(AuthorizationManagers.allOf(
                                 new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
                                 new WebExpressionAuthorizationManager("hasAnyRole('HOTEL_OWNER', 'ADMIN')")
                         ))

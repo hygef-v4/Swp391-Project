@@ -24,8 +24,60 @@
     <!-- Theme CSS -->
     <link rel="stylesheet" th:href="@{/assets/css/style.css}" />
     <style>
-        .tab-content.hidden-before-js {
-            visibility: hidden;
+        .badge {
+            display: inline-block;
+            font-size: 0.875rem;
+            border-radius: 999px;
+        }
+
+        .bg-soft-primary {
+            background-color: rgba(0, 123, 255, 0.1);
+        }
+
+        .bg-soft-success {
+            background-color: rgba(40, 167, 69, 0.1);
+        }
+
+        .bg-soft-info {
+            background-color: rgba(23, 162, 184, 0.1);
+        }
+
+        .bg-soft-warning {
+            background-color: rgba(255, 193, 7, 0.1);
+        }
+
+        .bg-soft-danger {
+            background-color: rgba(220, 53, 69, 0.1);
+        }
+
+        .hover-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+
+        /* Light mode hover */
+        .hover-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            background-color: #f8f9fa;
+        }
+
+        /* Dark mode hover */
+        body.dark .hover-card:hover,
+        [data-bs-theme="dark"] .hover-card:hover {
+            background-color: #2a2a2a; /* nền xám đậm hơn */
+            box-shadow: 0 10px 20px rgba(255, 255, 255, 0.05); /* sáng nhẹ */
+        }
+
+        .hover-card:hover .card-body,
+        .hover-card:hover .card-footer {
+            background-color: inherit !important;
+        }
+
+        [data-bs-theme="dark"] .hover-card:hover .card-body,
+        [data-bs-theme="dark"] .hover-card:hover .card-footer {
+            background-color: inherit !important;
         }
     </style>
     <!-- Dark mode -->
@@ -110,9 +162,7 @@
             <div class="row">
                 <div class="col-12 mb-4 mb-sm-5">
                     <div class="d-sm-flex justify-content-start align-items-center">
-<!--                        <h1 class="h3 mb-2 mb-sm-0" th:text="${booking.hotelName}">Tên khách sạn</h1>-->
                         <h1 class="h3 mb-2 mb-sm-0">Chi tiết đặt phòng</h1>
-<!--                        <a href="#" class="btn btn-primary-soft text-nowrap mb-0"><i class="bi bi-pencil-square fa-fw"></i> Edit Room</a>-->
                     </div>
                 </div>
             </div>
@@ -121,7 +171,7 @@
             <div class="row g-4 g-xl-5">
                 <!-- Image -->
                 <div class="col-xxl-6">
-                    <img class="img-fluid rounded" th:src="@{${booking.imageUrl}}" alt="Hình ảnh khách sạn">
+                    <img class="img-fluid rounded hover-card" th:src="@{${booking.imageUrl}}" alt="Hình ảnh khách sạn">
                 </div>
 
                 <!-- Content -->
@@ -143,7 +193,7 @@
                     </p>
 
                     <!-- Booking info -->
-                    <div class="bg-light border border-secondary border-opacity-25 p-3 rounded d-inline-block mt-4">
+                    <div class="bg-light border border-secondary border-opacity-25 p-3 rounded d-inline-block mt-4 hover-card">
                         <h6 class="small">Đặt phòng hiện tại:</h6>
                         <!-- Avatar -->
                         <div class="d-sm-flex align-items-center">
@@ -209,7 +259,7 @@
                     <!-- Search and select END -->
 
                     <!-- Table head -->
-                    <div class="bg-light rounded p-3 d-none d-lg-block">
+                    <div class="bg-light rounded p-3 d-none d-lg-block hover-card">
                         <div class="row row-cols-7 g-4">
                             <div class="col"><h6 class="mb-0">Ảnh</h6></div>
                             <div class="col"><h6 class="mb-0">Khách hàng</h6></div>
@@ -223,7 +273,7 @@
 
                     <!-- Booking LIST VIEW for this hotel -->
                     <div class="mt-4" th:each="booking : ${bookingList}">
-                        <div class="row g-3 g-sm-4 align-items-center justify-content-center border-bottom px-2 py-4">
+                        <div class="row g-3 g-sm-4 align-items-center justify-content-center border-bottom px-2 py-4 hover-card">
 
                             <!-- Room image -->
                             <div class="col">
@@ -298,7 +348,7 @@
                                     <h6 class="text-primary mb-3"><i class="bi bi-info-circle"></i> Chi Tiết Phòng Đặt</h6>
                                     <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
                                         <div class="col" th:each="unit : ${booking.bookingUnits}">
-                                            <div class="card border shadow-sm h-100">
+                                            <div class="card border shadow-sm h-100 hover-card">
                                                 <div class="card-body">
                                                     <div class="d-flex mb-2">
                                                         <img th:src="@{${unit.imageUrl}}" class="rounded me-3"
@@ -338,7 +388,7 @@
                             <nav class="mb-sm-0 d-flex justify-content-center" aria-label="navigation">
                                 <ul class="pagination pagination-sm pagination-primary-soft d-inline-block d-md-flex rounded mb-0">
                                     <!-- Previous -->
-                                    <li th:if="${totalBookingPages >= 2}" th:class="'page-item mb-0' + (${currentPage == 1} ? ' disabled' : '')">
+                                    <li th:if="${totalBookingPages >= 2}" th:class="'page-item mb-0 hover-card' + (${currentPage == 1} ? ' disabled' : '')">
                                         <a class="page-link"
                                            th:href="@{'/admin/bookings'(hotelId=${hotelId}, page=${currentPage - 1})}">
                                             <i class="fa-solid fa-angle-left"></i>
@@ -346,25 +396,25 @@
                                     </li>
 
                                     <!-- Page 1 -->
-                                    <li th:if="${totalBookingPages >= 1}" th:class="'page-item mb-0' + (${currentPage == 1} ? ' active disabled' : '')">
+                                    <li th:if="${totalBookingPages >= 1}" th:class="'page-item mb-0 hover-card' + (${currentPage == 1} ? ' active disabled' : '')">
                                         <a class="page-link"
                                            th:href="@{'/admin/bookings'(page=1, hotelId=${hotelId})}">1</a>
                                     </li>
 
                                     <!-- Page 2 -->
-                                    <li th:if="${totalBookingPages >= 2}" th:class="'page-item mb-0' + (${currentPage == 2} ? ' active disabled' : '')">
+                                    <li th:if="${totalBookingPages >= 2}" th:class="'page-item mb-0 hover-card' + (${currentPage == 2} ? ' active disabled' : '')">
                                         <a class="page-link"
                                            th:href="@{'/admin/bookings'(page=2, hotelId=${hotelId})}">2</a>
                                     </li>
 
                                     <!-- Left ellipsis -->
-                                    <li th:if="${totalBookingPages >= 5 and currentPage - 2 > 2}" class="page-item mb-0 disabled">
+                                    <li th:if="${totalBookingPages >= 5 and currentPage - 2 > 2}" class="page-item hover-card mb-0 disabled">
                                         <a class="page-link">...</a>
                                     </li>
 
                                     <!-- Page -1 -->
                                     <li th:if="${totalBookingPages >= 4 and currentPage != 1 and currentPage - 1 != 1 and currentPage - 1 != 2}"
-                                        class="page-item mb-0">
+                                        class="page-item mb-0 hover-card">
                                         <a class="page-link"
                                            th:href="@{'/admin/bookings'(page=${currentPage - 1}, hotelId=${hotelId})}"
                                            th:text="${currentPage - 1}"></a>
@@ -372,33 +422,33 @@
 
                                     <!-- Current Page -->
                                     <li th:if="${totalBookingPages >= 4 and currentPage != 1 and currentPage != 2 and currentPage != totalBookingPages}"
-                                        class="page-item mb-0 active disabled">
+                                        class="page-item mb-0 active disabled hover-card">
                                         <a class="page-link" th:text="${currentPage}"></a>
                                     </li>
 
                                     <!-- Page +1 -->
                                     <li th:if="${totalBookingPages >= 4 and currentPage + 1 != 2 and currentPage + 1 != totalBookingPages and currentPage != totalBookingPages}"
-                                        class="page-item mb-0">
+                                        class="page-item mb-0 hover-card">
                                         <a class="page-link"
                                            th:href="@{'/admin/bookings'(page=${currentPage + 1}, hotelId=${hotelId})}"
                                            th:text="${currentPage + 1}"></a>
                                     </li>
 
                                     <!-- Right ellipsis -->
-                                    <li th:if="${totalBookingPages >= 4 and totalBookingPages > currentPage + 2}" class="page-item mb-0 disabled">
+                                    <li th:if="${totalBookingPages >= 4 and totalBookingPages > currentPage + 2}" class="page-item mb-0 disabled hover-card">
                                         <a class="page-link">...</a>
                                     </li>
 
                                     <!-- Last page -->
                                     <li th:if="${totalBookingPages >= 3}"
-                                        th:class="'page-item mb-0' + (${currentPage == totalBookingPages} ? ' active disabled' : '')">
+                                        th:class="'page-item mb-0 hover-card' + (${currentPage == totalBookingPages} ? ' active disabled' : '')">
                                         <a class="page-link"
                                            th:href="@{'/admin/bookings'(page=${totalBookingPages}, hotelId=${hotelId})}"
                                            th:text="${totalBookingPages}"></a>
                                     </li>
 
                                     <!-- Next -->
-                                    <li th:if="${totalBookingPages >= 2}" th:class="'page-item mb-0' + (${currentPage == totalBookingPages} ? ' disabled' : '')">
+                                    <li th:if="${totalBookingPages >= 2}" th:class="'page-item mb-0 hover-card' + (${currentPage == totalBookingPages} ? ' disabled' : '')">
                                         <a class="page-link"
                                            th:href="@{'/admin/bookings'(page=${currentPage + 1}, hotelId=${hotelId})}">
                                             <i class="fa-solid fa-angle-right"></i>

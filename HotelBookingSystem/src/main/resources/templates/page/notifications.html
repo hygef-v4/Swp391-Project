@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thông báo của tôi</title>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" th:href="@{/assets/images/favicon.ico}" />
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/" />
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Poppins:wght@400;500;700&amp;display=swap" />
+
+    <!-- Plugins CSS -->
+    <link rel="stylesheet" th:href="@{/assets/vendor/font-awesome/css/all.min.css}" />
+    <link rel="stylesheet" th:href="@{/assets/vendor/bootstrap-icons/bootstrap-icons.css}" />
+    <link rel="stylesheet" th:href="@{/assets/vendor/overlay-scrollbar/css/overlayscrollbars.min.css}" />
+    <link rel="stylesheet" th:href="@{/assets/vendor/choices/css/choices.min.css}" />
+    <link rel="stylesheet" th:href="@{/assets/vendor/glightbox/css/glightbox.css}" />
+
+    <!-- Theme CSS -->
+    <link rel="stylesheet" th:href="@{/assets/css/style.css}" />
+
+    <!-- Dark mode -->
+    <script>
+        const storedTheme = localStorage.getItem('theme')
+
+        const getPreferredTheme = () => {
+            if (storedTheme) {
+                return storedTheme
+            }
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        }
+
+        const setTheme = function (theme) {
+            if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.setAttribute('data-bs-theme', 'dark')
+            } else {
+                document.documentElement.setAttribute('data-bs-theme', theme)
+            }
+        }
+
+        setTheme(getPreferredTheme())
+
+        window.addEventListener('DOMContentLoaded', () => {
+            var el = document.querySelector('.theme-icon-active');
+            if(el != 'undefined' && el != null) {
+                const showActiveTheme = theme => {
+                    const activeThemeIcon = document.querySelector('.theme-icon-active use')
+                    const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+                    const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
+
+                    document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+                        element.classList.remove('active')
+                    })
+
+                    btnToActive.classList.add('active')
+                    activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+                }
+
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                    if (storedTheme !== 'light' || storedTheme !== 'dark') {
+                        setTheme(getPreferredTheme())
+                    }
+                })
+
+                showActiveTheme(getPreferredTheme())
+
+                document.querySelectorAll('[data-bs-theme-value]')
+                    .forEach(toggle => {
+                        toggle.addEventListener('click', () => {
+                            const theme = toggle.getAttribute('data-bs-theme-value')
+                            localStorage.setItem('theme', theme)
+                            setTheme(theme)
+                            showActiveTheme(theme)
+                        })
+                    })
+            }
+        })
+    </script>
+
+    <style>
+        .notification-item {
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+        
+        .notification-item:hover {
+            background-color: rgba(0, 123, 255, 0.05);
+            border-left-color: #007bff;
+            transform: translateX(5px);
+        }
+        
+        .notification-item.unread {
+            background-color: rgba(0, 123, 255, 0.02);
+            border-left-color: #007bff;
+        }
+        
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        
+        .notification-time {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+        
+        .filter-tabs .nav-link {
+            border: none;
+            padding: 8px 16px;
+            margin-right: 8px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-tabs .nav-link.active {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        .priority-badge {
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+        
+        .priority-urgent {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .priority-high {
+            background-color: #fd7e14;
+            color: white;
+        }
+        
+        .priority-normal {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .priority-low {
+            background-color: #28a745;
+            color: white;
+        }
+
+        /* Dark mode styles */
+        [data-bs-theme="dark"] .notification-item:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Delete button appears on hover */
+        .notification-item .delete-noti-btn {
+            opacity: 0;
+            transform: scale(0.8);
+            transition: opacity 0.15s ease, transform 0.15s ease;
+        }
+        .notification-item:hover .delete-noti-btn {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        [data-bs-theme="dark"] .notification-item.unread {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        /* Button hover styles */
+        .btn-outline-primary:hover {
+            color: white !important;
+            background-color: #007bff !important;
+            border-color: #007bff !important;
+        }
+
+        .btn-outline-primary:hover i {
+            color: white !important;
+        }
+    </style>
+</head>
+
+<body>
+<!-- Header START -->
+<div th:replace="~{common/header :: header}"></div>
+<!-- Header END -->
+
+<!-- **************** MAIN CONTENT START **************** -->
+<main>
+    <section class="pt-4 pb-0">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <!-- Page title -->
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h1 class="h3 mb-0">Thông báo của tôi</h1>
+                            <p class="mb-0 text-muted">Quản lý tất cả thông báo của bạn</p>
+                        </div>
+                        <div class="btn-group" role="group" aria-label="Notification actions">
+                            <button id="markAllReadBtn" class="btn btn-outline-primary btn-sm" type="button" onclick="markAllAsRead(); return false;">
+                                <i class="bi bi-check-all"></i> Đánh dấu đã đọc tất cả
+                            </button>
+                            <button id="deleteAllBtn" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i> Xóa tất cả</button>
+                        </div>
+                    </div>
+
+                    <!-- Filter tabs -->
+                    <ul class="nav nav-pills filter-tabs mb-4" id="notificationTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="all-tab" data-bs-toggle="pill" data-bs-target="#all" type="button" role="tab">
+                                Tất cả <span id="allCount" class="badge bg-secondary ms-1">0</span>
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="unread-tab" data-bs-toggle="pill" data-bs-target="#unread" type="button" role="tab">
+                                Chưa đọc <span id="unreadCount" class="badge bg-danger ms-1">0</span>
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="booking-tab" data-bs-toggle="pill" data-bs-target="#booking" type="button" role="tab">
+                                <i class="bi bi-calendar-check"></i> Đặt phòng <span id="bookingCount" class="badge bg-primary ms-1">0</span>
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="payment-tab" data-bs-toggle="pill" data-bs-target="#payment" type="button" role="tab">
+                                <i class="bi bi-credit-card"></i> Thanh toán <span id="paymentCount" class="badge bg-success ms-1">0</span>
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="chat-tab" data-bs-toggle="pill" data-bs-target="#chat" type="button" role="tab">
+                                <i class="bi bi-chat-dots"></i> Tin nhắn <span id="chatCount" class="badge bg-warning ms-1">0</span>
+                            </button>
+                        </li>
+                    </ul>
+
+                    <!-- Notifications content (single shared area) -->
+                    <div id="notificationsList" class="card">
+                        <div class="card-body">
+                            <!-- Loading state -->
+                            <div id="loadingState" class="text-center py-4">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Đang tải...</span>
+                                </div>
+                                <p class="mt-2 text-muted">Đang tải thông báo...</p>
+                            </div>
+
+                            <!-- Empty state -->
+                            <div id="emptyState" class="text-center py-5 d-none">
+                                <i class="bi bi-bell-slash text-muted" style="font-size: 3rem;"></i>
+                                <h5 class="mt-3 text-muted">Không có thông báo</h5>
+                                <p class="text-muted" id="emptyMessage">Bạn chưa có thông báo nào.</p>
+                            </div>
+
+                            <!-- Error state -->
+                            <div id="errorState" class="text-center py-5 d-none">
+                                <i class="bi bi-exclamation-triangle text-warning" style="font-size: 3rem;"></i>
+                                <h5 class="mt-3 text-warning">Không thể tải thông báo</h5>
+                                <p class="text-muted">Vui lòng thử lại sau.</p>
+                                <button class="btn btn-primary" onclick="loadNotifications()">
+                                    <i class="bi bi-arrow-clockwise"></i> Thử lại
+                                </button>
+                            </div>
+
+                            <!-- Notifications list -->
+                            <div id="notificationsContainer"></div>
+                        </div>
+                    </div>
+
+                    <!-- Pagination -->
+                    <nav aria-label="Notifications pagination" class="mt-4">
+                        <ul id="paginationContainer" class="pagination justify-content-center">
+                            <!-- Pagination will be populated by JavaScript -->
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+<!-- **************** MAIN CONTENT END **************** -->
+
+<!-- Footer START -->
+<div th:replace="~{common/footer :: footer}"></div>
+<!-- Footer END -->
+
+<!-- Bootstrap JS -->
+<script th:src="@{/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/assets/vendor/overlay-scrollbar/js/overlayscrollbars.min.js}"></script>
+<script th:src="@{/assets/js/functions.js}"></script>
+
+<!-- Notifications JavaScript -->
+<script>
+// Global variables
+let currentPage = 1;
+let currentFilter = 'all';
+const notificationsPerPage = 10;
+let totalNotifications = 0;
+const currentUserId = [[${session.user?.id}]];
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    if (!currentUserId) {
+        window.location.href = '/login';
+        return;
+    }
+    
+    loadNotifications();
+    setupEventListeners();
+    connectWebSocket();
+    updateAllCounts(); // Load all counts on startup
+});
+
+// Setup event listeners
+function setupEventListeners() {
+    // Tab switches
+    document.querySelectorAll('[data-bs-toggle="pill"]').forEach(tab => {
+        tab.addEventListener('shown.bs.tab', function(e) {
+            const targetFilter = e.target.getAttribute('data-bs-target').substring(1);
+            console.log('Tab switched to:', targetFilter);
+            if (targetFilter !== currentFilter) {
+                currentFilter = targetFilter;
+                currentPage = 1;
+                loadNotifications();
+                // Update counts when switching tabs
+                updateAllCounts();
+            }
+        });
+    });
+
+    // Mark all as read button - multiple event binding approaches
+    const markAllReadBtn = document.getElementById('markAllReadBtn');
+    if (markAllReadBtn) {
+        // Method 1: Standard click event
+        markAllReadBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('✅ Mark all as read button clicked via addEventListener');
+            markAllAsRead();
+        });
+        
+        // Method 2: Direct onclick as backup
+        markAllReadBtn.onclick = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('✅ Mark all as read button clicked via onclick');
+            markAllAsRead();
+            return false;
+        };
+        
+        console.log('✅ Mark all as read button event listeners attached');
+    } else {
+        console.error('❌ Mark all as read button not found!');
+    }
+}
+
+// Load notifications
+async function loadNotifications() {
+    try {
+        showLoadingState();
+        
+        const params = new URLSearchParams({
+            page: currentPage - 1, // Backend expects 0-based page
+            size: notificationsPerPage
+        });
+        
+        // Add filter parameters based on current filter
+        if (currentFilter === 'unread') {
+            params.append('unread', 'true');
+            console.log('🔍 [DEBUG] Added unread=true parameter');
+        } else if (currentFilter !== 'all') {
+            params.append('type', currentFilter);
+            console.log('🔍 [DEBUG] Added type=' + currentFilter + ' parameter');
+        }
+        
+        console.log('🔍 [DEBUG] Current filter:', currentFilter);
+        console.log('🔍 [DEBUG] Full URL:', `/api/notifications?${params.toString()}`);
+        console.log('🔍 [DEBUG] Params being sent:', params.toString());
+        
+        console.log('Loading notifications with params:', params.toString());
+        
+        const response = await fetch(`/api/notifications?${params.toString()}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('Received data for filter "' + currentFilter + '":', data);
+        console.log('Number of notifications received:', data.content ? data.content.length : 0);
+        
+        hideLoadingState();
+        
+        const container = document.getElementById('notificationsContainer');
+        if (data.content && data.content.length > 0) {
+            displayNotifications(data.content);
+            updatePagination(data);
+            hideEmptyState();
+        } else {
+            // No notifications returned – clear previous list and show empty state
+            if (container) container.innerHTML = '';
+            showEmptyState();
+            // Clear pagination if no results
+            document.getElementById('paginationContainer').innerHTML = '';
+        }
+        
+    } catch (error) {
+        console.error('Error loading notifications:', error);
+        hideLoadingState();
+        showErrorState();
+    }
+}
+
+// Display notifications
+function displayNotifications(notifications) {
+    const container = document.getElementById('notificationsContainer');
+    container.innerHTML = '';
+    
+    notifications.forEach(notification => {
+        const notificationElement = createNotificationElement(notification);
+        container.appendChild(notificationElement);
+    });
+    
+    hideEmptyState();
+    hideErrorState();
+}
+
+// Create notification element
+function createNotificationElement(notification) {
+    const div = document.createElement('div');
+    div.className = `notification-item p-3 border-bottom ${!notification.is_read ? 'unread' : ''}`;
+    div.style.cursor = 'pointer';
+    
+    const iconClass = getNotificationIcon(notification.notification_type);
+    const iconBg = getNotificationIconBg(notification.notification_type);
+    const priorityBadge = notification.priority !== 'normal' ? 
+        `<span class="priority-badge priority-${notification.priority}">${getPriorityText(notification.priority)}</span>` : '';
+
+    // Delete button (appears on hover)
+    const deleteBtnHtml = `
+        <button class="btn btn-sm btn-link text-muted delete-noti-btn" title="Xóa" onclick="event.stopPropagation(); deleteNotification(${notification.notification_id});">
+            <i class="bi bi-trash"></i>
+        </button>`;
+ 
+    div.innerHTML = `
+        <div class="d-flex align-items-start">
+            <div class="notification-icon ${iconBg} text-white me-3">
+                <i class="${iconClass}"></i>
+            </div>
+            <div class="flex-grow-1">
+                <div class="d-flex justify-content-between align-items-start mb-1">
+                    <h6 class="mb-0 ${!notification.is_read ? 'fw-bold' : ''}">${notification.title}</h6>
+                    <div class="d-flex align-items-center">
+                        ${priorityBadge}
+                        <small class="notification-time ms-2">${formatNotificationTime(notification.created_at)}</small>
+                        ${deleteBtnHtml}
+                    </div>
+                </div>
+                <p class="mb-1 text-muted">${notification.message}</p>
+                ${!notification.is_read ? '<span class="badge bg-primary">Mới</span>' : ''}
+            </div>
+        </div>
+    `;
+    
+    // Add click handler
+    div.addEventListener('click', () => handleNotificationClick(notification));
+    
+    return div;
+}
+
+// Handle notification click
+async function handleNotificationClick(notification) {
+    try {
+        // Mark as read if unread
+        if (!notification.is_read) {
+            await markAsRead(notification.notification_id);
+            notification.is_read = true;
+            // Refresh the current view to show updated read status
+            await loadNotifications();
+            await updateCounts();
+        }
+        
+        // Navigate to action URL if available
+        if (notification.action_url) {
+            window.location.href = notification.action_url;
+        }
+    } catch (error) {
+        console.error('Error handling notification click:', error);
+    }
+}
+
+// Mark notification as read
+async function markAsRead(notificationId) {
+    try {
+        const response = await fetch(`/api/notifications/${notificationId}/read`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+    } catch (error) {
+        console.error('Error marking notification as read:', error);
+        throw error;
+    }
+}
+
+// Mark all as read
+async function markAllAsRead() {
+    console.log('🔄 markAllAsRead function called');
+    
+    const button = document.getElementById('markAllReadBtn');
+    if (!button) {
+        console.error('❌ Button not found');
+        return;
+    }
+    
+    try {
+        // Show loading state
+        button.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang xử lý...';
+        button.disabled = true;
+        
+        const response = await fetch('/api/notifications/mark-all-read', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        // Refresh notifications and counts
+        await loadNotifications();
+        await updateAllCounts();
+        
+        // Show success message
+        showToast('Đã đánh dấu tất cả thông báo là đã đọc', 'success');
+        
+    } catch (error) {
+        console.error('❌ Error:', error);
+        showToast('Không thể đánh dấu thông báo. Vui lòng thử lại.', 'error');
+    } finally {
+        // Restore button
+        button.innerHTML = '<i class="bi bi-check-all"></i> Đánh dấu đã đọc tất cả';
+        button.disabled = false;
+    }
+}
+
+// Update all filter counts
+async function updateAllCounts() {
+    try {
+        // Update unread count
+        const unreadResponse = await fetch('/api/notifications/unread-count');
+        if (unreadResponse.ok) {
+            const unreadData = await unreadResponse.json();
+            document.getElementById('unreadCount').textContent = unreadData.count || 0;
+        }
+
+        // Get count for each filter type
+        const filters = [
+            { id: 'allCount', params: '' },
+            { id: 'bookingCount', params: 'type=booking' },
+            { id: 'paymentCount', params: 'type=payment' }, 
+            { id: 'chatCount', params: 'type=chat' }
+        ];
+
+        for (const filter of filters) {
+            try {
+                const response = await fetch(`/api/notifications?size=1&${filter.params}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    const countElement = document.getElementById(filter.id);
+                    if (countElement && data.totalElements !== undefined) {
+                        countElement.textContent = data.totalElements;
+                    }
+                }
+            } catch (e) {
+                console.warn(`Failed to update count for ${filter.id}:`, e);
+            }
+        }
+    } catch (error) {
+        console.error('Error updating counts:', error);
+    }
+}
+
+// Update notification counts (simplified version)
+async function updateCounts() {
+    try {
+        const response = await fetch('/api/notifications/unread-count');
+        if (response.ok) {
+            const data = await response.json();
+            document.getElementById('unreadCount').textContent = data.count || 0;
+        }
+        
+        // Also update all counts periodically
+        await updateAllCounts();
+    } catch (error) {
+        console.error('Error updating counts:', error);
+    }
+}
+
+// Update pagination
+function updatePagination(data) {
+    const container = document.getElementById('paginationContainer');
+    container.innerHTML = '';
+    
+    if (data.totalPages <= 1) return;
+    
+    const currentPage = data.number + 1; // Backend sends 0-based page
+    const totalPages = data.totalPages;
+    
+    // Previous button
+    if (currentPage > 1) {
+        container.appendChild(createPaginationItem(currentPage - 1, '<i class="bi bi-chevron-left"></i>', false));
+    }
+    
+    // Page numbers
+    const startPage = Math.max(1, currentPage - 2);
+    const endPage = Math.min(totalPages, currentPage + 2);
+    
+    for (let i = startPage; i <= endPage; i++) {
+        container.appendChild(createPaginationItem(i, i.toString(), i === currentPage));
+    }
+    
+    // Next button
+    if (currentPage < totalPages) {
+        container.appendChild(createPaginationItem(currentPage + 1, '<i class="bi bi-chevron-right"></i>', false));
+    }
+}
+
+// Create pagination item
+function createPaginationItem(page, text, isActive) {
+    const li = document.createElement('li');
+    li.className = `page-item ${isActive ? 'active' : ''}`;
+    
+    const a = document.createElement('a');
+    a.className = 'page-link';
+    a.href = '#';
+    a.innerHTML = text;
+    
+    if (!isActive) {
+        a.addEventListener('click', (e) => {
+            e.preventDefault();
+            currentPage = page;
+            loadNotifications();
+        });
+    }
+    
+    li.appendChild(a);
+    return li;
+}
+
+// Utility functions
+function showLoadingState() {
+    document.getElementById('loadingState').classList.remove('d-none');
+    hideEmptyState();
+    hideErrorState();
+}
+
+function hideLoadingState() {
+    document.getElementById('loadingState').classList.add('d-none');
+}
+
+function showEmptyState() {
+    const emptyMessage = document.getElementById('emptyMessage');
+    const messages = {
+        'all': 'Bạn chưa có thông báo nào.',
+        'unread': 'Bạn không có thông báo chưa đọc.',
+        'booking': 'Bạn không có thông báo đặt phòng nào.',
+        'payment': 'Bạn không có thông báo thanh toán nào.',
+        'chat': 'Bạn không có thông báo tin nhắn nào.'
+    };
+    
+    if (emptyMessage) {
+        emptyMessage.textContent = messages[currentFilter] || messages['all'];
+    }
+    
+    document.getElementById('emptyState').classList.remove('d-none');
+    hideErrorState();
+}
+
+function hideEmptyState() {
+    document.getElementById('emptyState').classList.add('d-none');
+}
+
+function showErrorState() {
+    document.getElementById('errorState').classList.remove('d-none');
+    hideEmptyState();
+}
+
+function hideErrorState() {
+    document.getElementById('errorState').classList.add('d-none');
+}
+
+function getNotificationIcon(type) {
+    const icons = {
+        'booking': 'bi bi-calendar-check',
+        'payment': 'bi bi-credit-card',
+        'hotel': 'bi bi-building',
+        'chat': 'bi bi-chat-dots',
+        'system': 'bi bi-gear'
+    };
+    return icons[type] || 'bi bi-bell';
+}
+
+function getNotificationIconBg(type) {
+    const backgrounds = {
+        'booking': 'bg-primary',
+        'payment': 'bg-success',
+        'hotel': 'bg-info',
+        'chat': 'bg-warning',
+        'system': 'bg-secondary'
+    };
+    return backgrounds[type] || 'bg-primary';
+}
+
+function getPriorityText(priority) {
+    const texts = {
+        'urgent': 'Khẩn cấp',
+        'high': 'Cao',
+        'normal': 'Bình thường',
+        'low': 'Thấp'
+    };
+    return texts[priority] || 'Bình thường';
+}
+
+function formatNotificationTime(timestamp) {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+    
+    if (diffMins < 1) return 'Vừa xong';
+    if (diffMins < 60) return `${diffMins} phút trước`;
+    if (diffHours < 24) return `${diffHours} giờ trước`;
+    if (diffDays < 7) return `${diffDays} ngày trước`;
+    
+    return date.toLocaleDateString('vi-VN');
+}
+
+function showToast(message, type = 'info') {
+    const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+    
+    const toast = document.createElement('div');
+    toast.className = `toast align-items-center text-white bg-${type === 'error' ? 'danger' : 'success'} border-0`;
+    toast.role = 'alert';
+    toast.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">${message}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    `;
+    
+    toastContainer.appendChild(toast);
+    
+    const bsToast = new bootstrap.Toast(toast);
+    bsToast.show();
+    
+    toast.addEventListener('hidden.bs.toast', () => {
+        toast.remove();
+    });
+}
+
+function createToastContainer() {
+    const container = document.createElement('div');
+    container.id = 'toastContainer';
+    container.className = 'toast-container position-fixed top-0 end-0 p-3';
+    container.style.zIndex = '9999';
+    document.body.appendChild(container);
+    return container;
+}
+
+
+// WebSocket connection
+function connectWebSocket() {
+    if (typeof SockJS === 'undefined' || typeof Stomp === 'undefined') {
+        console.log('WebSocket libraries not available, skipping real-time notifications');
+        return;
+    }
+    
+    try {
+        const socket = new SockJS('/ws');
+        const stompClient = Stomp.over(socket);
+        
+        stompClient.connect({}, function(frame) {
+            console.log('Connected to WebSocket for notifications');
+            
+            stompClient.subscribe(`/topic/notifications.${currentUserId}`, function(message) {
+                const data = JSON.parse(message.body);
+                console.log('Received notification:', data);
+
+                if (data.type === 'new_notification') {
+                    const n = data.notification;
+                    showToast(n.title, 'info');
+
+                    // Always reload notifications list so it reflects merged update
+                    if (currentPage === 1 && currentFilter === 'all') {
+                        loadNotifications();
+                    } else {
+                        // Still update counts so badge reflects unread
+                        updateCounts();
+                    }
+                } else if (data.type === 'unread_count_update') {
+                    updateCounts();
+                } else if (data.type === 'notification_deleted') {
+                    // If a notification was deleted, refresh list if we are on first page
+                    if (currentPage === 1 && currentFilter === 'all') {
+                        loadNotifications();
+                    }
+                    updateCounts();
+                }
+            });
+        }, function(error) {
+            console.log('WebSocket connection error:', error);
+        });
+        
+        window.addEventListener('beforeunload', function() {
+            if (stompClient && stompClient.connected) {
+                stompClient.disconnect();
+            }
+        });
+    } catch (error) {
+        console.log('Error setting up WebSocket:', error);
+    }
+}
+
+// Delete notification
+async function deleteNotification(notificationId) {
+    try {
+        const response = await fetch(`/api/notifications/${notificationId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        // Refresh notifications and counts
+        await loadNotifications();
+        await updateAllCounts();
+        showToast('Đã xóa thông báo thành công.', 'success');
+    } catch (error) {
+        console.error('Error deleting notification:', error);
+        showToast('Không thể xóa thông báo. Vui lòng thử lại.', 'error');
+    }
+}
+
+async function deleteAllNotifications() {
+    try {
+        const response = await fetch('/api/notifications/delete-all', {method:'DELETE'});
+        if(!response.ok) throw new Error('HTTP '+response.status);
+        currentPage = 1;
+        await loadNotifications();
+        await updateAllCounts();
+        showToast('Đã xóa tất cả thông báo', 'success');
+    } catch (e) { console.error(e); showToast('Không thể xóa tất cả', 'error'); }
+}
+
+document.getElementById('deleteAllBtn')?.addEventListener('click', deleteAllNotifications);
+</script>
+
+<!-- Load WebSocket libraries asynchronously -->
+<script>
+// Load SockJS and STOMP libraries
+(function() {
+    const sockjsScript = document.createElement('script');
+    sockjsScript.src = 'https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js';
+    
+    const stompScript = document.createElement('script');
+    stompScript.src = 'https://cdn.jsdelivr.net/npm/@stomp/stompjs@7/bundles/stomp.umd.min.js';
+    
+    document.head.appendChild(sockjsScript);
+    document.head.appendChild(stompScript);
+})();
+</script>
+
+</body>
+</html> 

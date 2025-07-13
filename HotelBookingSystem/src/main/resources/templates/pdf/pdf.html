@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8"></meta>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
+	<title>PDF</title>
+	<style>
+		@font-face {
+			font-family: 'DejaVu Sans';
+			src: url('assets/font/DejaVuSans.ttf') format('truetype');
+		}
+
+		body {
+			font-family: "DejaVu Sans", sans-serif;
+		}
+
+		img {
+			width: 100%;
+			max-height: 100%;
+		}
+
+		.title {
+			margin-top: 0;
+			margin-bottom: 8px;
+			font-weight: 700;
+			line-height: 1.25;
+			color: #0b0a12;
+			text-align: center;
+		}
+
+		.hotel-image {
+			width: 100%;
+			height: auto;
+			background-color: #cccccc;
+			margin-bottom: 10px;
+		}
+
+		.row {
+			margin-top: 0px;
+			margin-bottom: 5px;
+			padding-right: 15px;
+			padding-left: 15px;
+		}
+
+		.col {
+			display: inline-block;
+			vertical-align: bottom;
+			width: 48%;
+			margin-bottom: 5px;
+		}
+
+		.date {
+			background-color: #f5f5f6;
+			padding: 9px 15px;
+			width: 39%;
+		}
+
+		.room-image {
+			width: auto;
+			height: 170px;
+			display: inline-block;
+		}
+	</style>
+</head>
+<body>
+	<h1 class="title">Thông Tin Đặt Phòng</h1>
+	<div class="hotel-image">
+		<img th:src="${booking.imageUrl}"></img>
+	</div>
+
+	<h2 class="title" th:text="${hotel.hotelName}"></h2>
+	<h6 class="title" th:text="${hotel.address + ', ' + hotel.cityName}"></h6>
+	<div class="row">
+		<div class="col"><b>Người Đặt Phòng: </b><span th:text="${user.fullName}"></span></div>
+		<div class="col"><b>Mã Đặt Phòng: </b><span th:text="${booking.bookingId}"></span></div>
+		<div class="col"><b>Email: </b><span th:text="${user.email}"></span></div>
+		<div class="col"><b>Số Điện Thoại: </b><span th:text="${user.phone}"></span></div>
+		<div class="col"><b>Ngày Đặt Phòng: </b><span th:text="${createdAt}"></span></div>
+		<div class="col"><b>Tổng Tiền: </b><span th:text="${booking.totalPrice}"></span></div>
+	</div>
+
+	<div class="row">
+		<div class="col date" style="margin-right: 3%;">
+			<h5 class="title">Ngày nhận Phòng</h5>
+			<h1 class="title" th:text="${checkIn}"></h1>
+		</div>
+		<div class="col date">
+			<h5 class="title">Ngày trả Phòng</h5>
+			<h1 class="title" th:text="${checkOut}"></h1>
+		</div>
+	</div>
+
+	<h4>Các Phòng Đã Đặt:</h4>
+	<div>
+		<div class="row" th:each="unit: ${booking.bookingUnits}">
+			<div class="room-image">
+				<img th:src="${unit.imageUrl}"></img>
+			</div>
+			<div class="col">
+				<ul>
+					<h3 th:text="${unit.roomName}"></h3>
+					<li><b>Số Khách Tối Đa: </b><span th:text="${unit.roomCapacity}"></span></li>
+					<li><b>Giá Phòng: </b><span th:text="${#numbers.formatDecimal(unit.price, 0, 'COMMA', 0, 'POINT')}"></span>₫</li>
+					<li><b>Số Lượng: </b><span th:text="${unit.quantity}"></span></li>					
+				</ul>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

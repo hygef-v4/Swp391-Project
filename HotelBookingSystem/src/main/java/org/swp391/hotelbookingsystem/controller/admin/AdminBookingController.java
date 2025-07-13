@@ -3,12 +3,10 @@ package org.swp391.hotelbookingsystem.controller.admin;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.swp391.hotelbookingsystem.model.*;
 import org.swp391.hotelbookingsystem.service.BookingService;
 import org.swp391.hotelbookingsystem.service.HotelService;
-import org.swp391.hotelbookingsystem.service.RoomService;
 import org.swp391.hotelbookingsystem.service.UserService;
 
 import java.util.*;
@@ -20,7 +18,7 @@ public class AdminBookingController {
     private final HotelService hotelService;
     private final UserService userService;
 
-    public AdminBookingController(BookingService bookingService, HotelService hotelService, UserService userService, RoomService roomService) {
+    public AdminBookingController(BookingService bookingService, HotelService hotelService, UserService userService) {
         this.bookingService = bookingService;
         this.hotelService = hotelService;
         this.userService = userService;
@@ -30,7 +28,7 @@ public class AdminBookingController {
     public String showBookingList(@RequestParam(defaultValue = "1") int page,
                                   @RequestParam(defaultValue = "10") int size,
                                   @RequestParam(required = false) String status,
-                                  @RequestParam(defaultValue = "grid") String view,
+                                  @RequestParam(defaultValue = "list") String view,
                                   @RequestParam(required = false) String search,
                                   Model model) {
 
@@ -39,7 +37,6 @@ public class AdminBookingController {
         List<Hotel> hotelList = hotelService.searchHotelsPaginated(search, offset, size);
         int totalHotels = hotelService.countHotelsBySearch(search);
         int totalHotelPages = (int) Math.ceil((double) totalHotels / size);
-
 
         List<Booking> bookings = bookingService.getBookingsByStatusAndSearchPaginated(status, search, page - 1, size);
         int totalBookingPages = bookingService.getTotalPagesByStatusAndSearch(status, search, size);
@@ -74,18 +71,20 @@ public class AdminBookingController {
 
         Hotel hotel = hotelService.getHotelById(hotelId);
         if (hotel == null) {
+            model.addAttribute("error", "hotelNotFound");
             return "redirect:/admin-booking-list?error=hotelNotFound";
         }
 
         List<Booking> bookings = bookingService.getBookingsByHotelIdPaginated(hotelId, page - 1, size);
         if (bookings == null || bookings.isEmpty()) {
+            model.addAttribute("error", "noBookingFound");
             return "redirect:/admin-booking-list?error=noBookingFound";
         }
 
         int totalBookings = bookingService.countBookingsByHotelId(hotelId);
         int totalBookingPages = (int) Math.ceil((double) totalBookings / size);
 
-        Booking booking = bookings.get(bookings.size() - 1);
+        Booking booking = bookingService.getBookingsByHotelIdOrderByDate(hotelId).get(0);
         User customer = userService.findUserById(booking.getCustomerId());
         List<BookingUnit> bookingUnit = booking.getBookingUnits();
 

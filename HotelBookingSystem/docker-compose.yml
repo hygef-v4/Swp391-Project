@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  # SQL Server Database
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: hotel-booking-db
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrong@Passw0rd
+      - MSSQL_PID=Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    networks:
+      - hotel-booking-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: hotel-booking-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - hotel-booking-network
+
+  # Spring Boot Application
+  app:
+    build: .
+    container_name: hotel-booking-app
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=ec2
+    depends_on:
+      - redis
+    networks:
+      - hotel-booking-network
+
+volumes:
+  sqlserver_data:
+  redis_data:
+
+networks:
+  hotel-booking-network:
+    driver: bridge 

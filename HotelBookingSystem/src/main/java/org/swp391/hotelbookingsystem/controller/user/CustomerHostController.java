@@ -44,7 +44,7 @@ public class CustomerHostController {
         try {
             log.info("Fetching hosts for customer: {}", customer.getId());
             
-            // Get all bookings for this customer (use the same comprehensive approach as host side)
+            // Get all bookings for this customer
             List<Booking> allBookings = bookingService.getAllBookings();
             List<Booking> customerBookings = allBookings.stream()
                     .filter(b -> b.getCustomerId() == customer.getId())
@@ -52,8 +52,28 @@ public class CustomerHostController {
             
             log.debug("Found {} bookings for customer {}", customerBookings.size(), customer.getId());
 
-            // Get unique hotel IDs and then get host IDs through hotels
-            List<Integer> hotelIds = customerBookings.stream()
+            // Calculate booking status for all bookings
+            for (Booking booking : customerBookings) {
+                if (booking.getBookingUnits() != null && !booking.getBookingUnits().isEmpty()) {
+                    String status = bookingService.calculateBookingStatus(booking.getBookingUnits());
+                    booking.setStatus(status);
+                } else {
+                    booking.setStatus("unknown");
+                }
+            }
+
+            // Filter to only include bookings with approved/completed/check_in status
+            List<Booking> validBookings = customerBookings.stream()
+                    .filter(booking -> {
+                        String status = booking.getStatus();
+                        return "approved".equals(status) || "completed".equals(status) || "check_in".equals(status);
+                    })
+                    .collect(Collectors.toList());
+
+            log.debug("Found {} valid bookings (approved/completed/check_in) for customer {}", validBookings.size(), customer.getId());
+
+            // Get unique hotel IDs from valid bookings only
+            List<Integer> hotelIds = validBookings.stream()
                     .map(Booking::getHotelId)
                     .distinct()
                     .collect(Collectors.toList());
@@ -81,23 +101,29 @@ public class CustomerHostController {
                             // Get hotels for this host
                             List<Hotel> hostHotels = hotelService.getHotelsByHostId(hostId);
                             
-                            // Calculate stats for this host
-                            List<Booking> hostBookings = customerBookings.stream()
+                            // Calculate stats for this host - only count valid bookings
+                            List<Booking> hostValidBookings = validBookings.stream()
                                     .filter(b -> {
                                         Hotel hotel = hotelService.getHotelById(b.getHotelId());
                                         return hotel != null && hotel.getHostId() == hostId;
                                     })
                                     .collect(Collectors.toList());
                             
-                            long totalBookings = hostBookings.size();
-                            double totalSpent = hostBookings.stream()
+                            long totalBookings = hostValidBookings.size();
+                            
+                            // Calculate total spent - only count approved, completed, and check_in booking units for revenue
+                            double totalSpent = hostValidBookings.stream()
                                     .mapToDouble(b -> {
-                                        // Only count approved and completed booking units
+                                        if (b.getBookingUnits() == null || b.getBookingUnits().isEmpty()) {
+                                            return 0.0;
+                                        }
+                                        
+                                        // Only count approved, completed, and check_in booking units
                                         double sum = b.getBookingUnits().stream()
                                                 .filter(u -> u.getPrice() != null && u.getPrice() > 0)
                                                 .filter(u -> {
                                                     String unitStatus = (u.getStatus() != null) ? u.getStatus().toLowerCase() : "";
-                                                    return "approved".equals(unitStatus) || "completed".equals(unitStatus);
+                                                    return "approved".equals(unitStatus) || "completed".equals(unitStatus) || "check_in".equals(unitStatus);
                                                 })
                                                 .mapToDouble(u -> u.getPrice() * (u.getQuantity() == 0 ? 1 : u.getQuantity()))
                                                 .sum();
@@ -105,7 +131,7 @@ public class CustomerHostController {
                                     })
                                     .sum();
 
-                            return new HostInfo(host, hostHotels, totalBookings, totalSpent, hostBookings);
+                            return new HostInfo(host, hostHotels, totalBookings, totalSpent, hostValidBookings);
                         } catch (Exception e) {
                             log.error("Error processing host {}: {}", hostId, e.getMessage(), e);
                             return null;
@@ -128,7 +154,7 @@ public class CustomerHostController {
             model.addAttribute("totalBookings", totalBookings);
             model.addAttribute("totalHotels", totalHotels);
             
-            log.info("Successfully loaded {} hosts for customer {}", hosts.size(), customer.getId());
+            log.info("Successfully loaded {} hosts for customer {} (filtered for valid bookings only)", hosts.size(), customer.getId());
             return "user/customer-hosts";
             
         } catch (Exception e) {
@@ -162,7 +188,7 @@ public class CustomerHostController {
                 return "redirect:/customer-hosts?error=host-not-found";
             }
 
-            // Get all bookings for this customer and host (use the same comprehensive approach as host side)
+            // Get all bookings for this customer and host
             List<Booking> allBookings = bookingService.getAllBookings();
             List<Booking> allCustomerBookings = allBookings.stream()
                     .filter(b -> b.getCustomerId() == customer.getId())
@@ -179,26 +205,64 @@ public class CustomerHostController {
             log.debug("Found {} bookings for customer {} and host {}", 
                 customerBookings.size(), customer.getId(), hostId);
 
-            // Calculate total price for each booking - only count approved and completed booking units
+            // Calculate status for all bookings and filter out pending booking units
             for (Booking booking : customerBookings) {
                 if (booking.getBookingUnits() != null && !booking.getBookingUnits().isEmpty()) {
-                    double sum = booking.getBookingUnits().stream()
-                            .filter(u -> u.getPrice() != null && u.getPrice() > 0)
+                    // Filter out pending booking units for display
+                    List<org.swp391.hotelbookingsystem.model.BookingUnit> nonPendingUnits = booking.getBookingUnits().stream()
                             .filter(u -> {
                                 String unitStatus = (u.getStatus() != null) ? u.getStatus().toLowerCase() : "";
-                                return "approved".equals(unitStatus) || "completed".equals(unitStatus);
+                                return !"pending".equals(unitStatus);
                             })
-                            .mapToDouble(u -> u.getPrice() * (u.getQuantity() == 0 ? 1 : u.getQuantity()))
-                            .sum();
-                    booking.setTotalPrice(sum);
+                            .collect(Collectors.toList());
                     
-                    // Calculate booking status based on booking units
-                    String status = bookingService.calculateBookingStatus(booking.getBookingUnits());
-                    booking.setStatus(status);
+                    // Set the filtered booking units
+                    booking.setBookingUnits(nonPendingUnits);
+                    
+                    // Calculate status based on filtered units
+                    if (!nonPendingUnits.isEmpty()) {
+                        String status = bookingService.calculateBookingStatus(nonPendingUnits);
+                        booking.setStatus(status);
+                        
+                        double sum = nonPendingUnits.stream()
+                                .filter(u -> u.getPrice() != null && u.getPrice() > 0)
+                                .filter(u -> {
+                                    String unitStatus = (u.getStatus() != null) ? u.getStatus().toLowerCase() : "";
+                                    return "approved".equals(unitStatus) || "completed".equals(unitStatus) || "check_in".equals(unitStatus);
+                                })
+                                .mapToDouble(u -> u.getPrice() * (u.getQuantity() == 0 ? 1 : u.getQuantity()))
+                                .sum();
+                        booking.setTotalPrice(sum);
+                    } else {
+                        // If no non-pending units, set booking as having no valid units
+                        booking.setTotalPrice(0.0);
+                        booking.setStatus("no_valid_units");
+                    }
                 } else {
                     booking.setTotalPrice(0.0);
                     booking.setStatus("unknown");
                 }
+            }
+
+            // Filter out bookings that have no valid booking units after removing pending ones
+            customerBookings = customerBookings.stream()
+                    .filter(booking -> {
+                        return booking.getBookingUnits() != null && 
+                               !booking.getBookingUnits().isEmpty() && 
+                               !"no_valid_units".equals(booking.getStatus());
+                    })
+                    .collect(Collectors.toList());
+
+            // Check if customer has at least one approved/completed/check_in booking with this host - block access if only pending
+            boolean hasValidBooking = customerBookings.stream()
+                    .anyMatch(booking -> {
+                        String status = booking.getStatus();
+                        return "approved".equals(status) || "completed".equals(status) || "check_in".equals(status);
+                    });
+
+            if (!hasValidBooking) {
+                log.warn("Customer {} blocked from chat - only has pending bookings with host {}", customer.getId(), hostId);
+                return "redirect:/customer-hosts?error=no-valid-bookings";
             }
 
             // Get host hotels for additional context
@@ -209,9 +273,6 @@ public class CustomerHostController {
             model.addAttribute("bookings", customerBookings);
             model.addAttribute("currentUserId", customer.getId());
             
-            // Debug logging for template variables
-            log.info("Setting template variables - currentUserId: {}, host.id: {}", customer.getId(), host.getId());
-
             log.info("Successfully loaded host detail for host {} and customer {}", hostId, customer.getId());
             return "user/customer-host-detail";
             

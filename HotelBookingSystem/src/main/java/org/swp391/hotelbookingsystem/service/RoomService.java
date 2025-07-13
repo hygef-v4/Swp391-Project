@@ -1,5 +1,6 @@
 package org.swp391.hotelbookingsystem.service;
 
+import java.sql.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +17,8 @@ public class RoomService {
         this.roomRepository = roomRepository;
     }
 
-    public List<Room> getRoomByHotelId(int id) {
-        List<Room> rooms = roomRepository.getRoomsByHotelId(id);
+    public List<Room> getRoomsByIdAndDateRange(int id, Date checkin, Date checkout){
+        List<Room> rooms = roomRepository.getRoomsByIdAndDateRange(id, checkin, checkout);
 
         for (Room room : rooms) {
             room.setImages(roomRepository.getRoomImages(room.getRoomId()));
@@ -26,8 +27,8 @@ public class RoomService {
         return rooms;
     }
 
-    public List<Room> getAvailableRoomsByHotelId(int hotelId) {
-        List<Room> rooms = roomRepository.getAvailableRoomsByHotelId(hotelId);
+    public List<Room> getRoomByHotelId(int id) {
+        List<Room> rooms = roomRepository.getRoomsByHotelId(id);
 
         for (Room room : rooms) {
             room.setImages(roomRepository.getRoomImages(room.getRoomId()));
@@ -59,9 +60,6 @@ public class RoomService {
         return roomRepository.countRooms();
     }
 
-    /**
-     * Returns all rooms associated with a given hotel.
-     */
     public List<Room> getRoomsByHotelId(int hotelId) {
         return roomRepository.getRoomsByHotelId(hotelId);
     }
@@ -113,5 +111,21 @@ public class RoomService {
 
     public boolean hasActiveBookingUnits(int roomId) {
         return roomRepository.hasActiveBookingUnits(roomId);
+    }
+
+    public void updateRoomStatus(int roomId, String status) {
+        Room room = roomRepository.getRoomById(roomId);
+        if (room != null) {
+            room.setStatus(status);
+            roomRepository.updateRoom(room);
+        }
+    }
+
+    public void deactivateRoom(int roomId) {
+        updateRoomStatus(roomId, "inactive");
+    }
+
+    public void activateRoom(int roomId) {
+        updateRoomStatus(roomId, "active");
     }
 }
