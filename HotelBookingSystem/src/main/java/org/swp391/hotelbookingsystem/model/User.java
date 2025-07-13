@@ -20,14 +20,8 @@ public class User {
     private String avatarUrl;
     private String bio;
     private Date dob;
-    // Xoá isFlagged và flagReason khỏi model
-    // private boolean isFlagged = false;
-    // private String flagReason;
-    // Thêm getter/setter tạm thời cho flagged/flagReason để phục vụ view (không lưu DB)
-    @lombok.Getter @lombok.Setter
-    private transient boolean flagged;
-    @lombok.Getter @lombok.Setter
-    private transient String flagReason;
+    private boolean isFlagged = false;
+    private String flagReason;
 
     public User(String email, String password) {
         this.email = email;
