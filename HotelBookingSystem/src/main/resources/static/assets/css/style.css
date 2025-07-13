@@ -22468,6 +22468,8 @@ html[dir=rtl] .choices__input {
 
 .two-line-ellipsis {
   display: -webkit-box;
+  line-height: 1.5em;
+  height: 3em;
   -webkit-line-clamp: 2;       /* Số dòng tối đa */
   -webkit-box-orient: vertical;
   overflow: hidden;
