@@ -93,20 +93,10 @@ public class AdminHotelController {
     @GetMapping("/admin/hotel/view/{hotelId}")
     public String hotelDetail(
             @PathVariable("hotelId") int hotelId,
-            @RequestParam(value = "dateRange", defaultValue = "") String dateRange,
-            @RequestParam(value = "adults", defaultValue = "1") int adults,
-            @RequestParam(value = "children", defaultValue = "0") int children,
             @RequestParam(value = "rooms", defaultValue = "1") int roomQuantity,
 
             Model model, HttpSession session
     ){
-        List<Location> locations = locationService.getAllLocations();
-        model.addAttribute("locations", locations);
-
-        model.addAttribute("dateRange", dateRange);
-
-        model.addAttribute("adults", adults);
-        model.addAttribute("children", children);
         model.addAttribute("roomQuantity", roomQuantity);
 
         Hotel hotel = hotelService.getHotelById(hotelId);
@@ -118,13 +108,6 @@ public class AdminHotelController {
         if (user != null) {
             favorite = hotelService.isFavoriteHotel(user.getId(), hotelId);
         }model.addAttribute("favorite", favorite);
-
-        String redirect = "";
-        if(!"".equals(dateRange)) redirect += "&dateRange=" + dateRange;
-        if(adults != 1) redirect += "&adults=" + adults;
-        if(children != 0) redirect += "&children=" + children;
-        if(roomQuantity != 1) redirect += "&rooms=" + roomQuantity;
-        model.addAttribute("redirect", redirect);
 
         String description = hotel.getDescription();
         if (description != null) {
