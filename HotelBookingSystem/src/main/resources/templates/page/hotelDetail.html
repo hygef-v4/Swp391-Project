@@ -120,7 +120,7 @@
 	</script>
 
 	<script>
-		async function review() {
+		async function review(add = true){
 			const form = document.getElementById('review');
 			const formData = new FormData(form);
 
@@ -151,15 +151,20 @@
 			let date = box.querySelector("#reviewDate");
 			let rating = box.querySelector("#reviewRating");
 			let review = box.querySelector("#reviewComment");
-			let add = true;
 
-			if(date.textContent == "") date.textContent = new Date().toLocaleDateString('vi-VN');
-			else add = false;
+			if(add) date.textContent = new Date().toLocaleDateString('vi-VN');
 			rating.textContent = formData.get('rating');
 			review.textContent = formData.get('comment');
 
 			chat.classList.add("d-none");
-			box.classList.remove("d-none");
+			if(add){
+				document.getElementById("button").innerHTML = `
+					<div class="form-control-bg-light mb-3 w-100 d-flex justify-content-center row">
+						<button onclick="closeReview()" type="button" class="btn btn-lg btn-danger mb-0 col-5 me-3">Quay lại</button>
+						<button onclick="review(false)" type="button" class="btn btn-lg btn-primary mb-0 col-5">Sửa<i class="bi fa-fw bi-arrow-right ms-2"></i></button>
+					</div>
+				`;
+			}box.classList.remove("d-none");
 
 			let response = await request.json();
 			
@@ -184,7 +189,7 @@
 								<div class="d-flex justify-content-end mt-2">
 									<div>
 										<a href="javascript:void(0)" class="text-secondary fw-bold hover-danger me-2" onclick="deleteReview()">Xóa</a>
-										<a href="javascript:void(0)" class="text-secondary fw-bold hover-primary me-2" onclick="scrollToId('review');editReview()">Chỉnh sửa</a>
+										<a href="javascript:void(0)" class="text-secondary fw-bold hover-primary me-2" onclick="editReview();scrollToId('review')">Chỉnh sửa</a>
 									</div>
 									<a href="javascript:void(0)" class="text-secondary fw-bold hover-primary" onclick="reply(${response.reviewId},${response.userId})">Trả lời</a>
 								</div>
@@ -203,6 +208,22 @@
 					r.querySelector(".comment").textContent = response.comment;
 				}
 			}
+		}
+
+		function closeReview(){
+			const form = document.getElementById('review');
+
+			let chat = document.getElementById("reviewChat");
+			let box = document.getElementById("reviewBox");
+
+			let rating = box.querySelector("#reviewRating");
+			let comment = box.querySelector("#reviewComment");
+
+			choices.setChoiceByValue(rating.textContent);
+			form.elements['comment'].value = comment.textContent;
+
+			chat.classList.add("d-none");
+			box.classList.remove("d-none");
 		}
 
 		async function editReview() {
@@ -235,6 +256,10 @@
 			box.querySelector("#reviewDate").textContent = "";
 			choices.setChoiceByValue('5');
 			form.elements['comment'].value = "";
+
+			document.getElementById("button").innerHTML = `
+				<button onclick="review()" type="button" class="btn btn-lg btn-primary mb-0 w-100">Gửi<i class="bi fa-fw bi-arrow-right ms-2"></i></button>
+			`;
 
 			chat.classList.remove("d-none");
 			box.classList.add("d-none");
@@ -322,6 +347,7 @@
 							<div class="d-flex justify-content-end mt-2">
 								<div>
 									<a href="javascript:void(0)" class="text-secondary fw-bold hover-danger me-2" onclick="deleteReply(${response.replyId})">Xóa</a>
+									<a href="javascript:void(0)" class="text-secondary fw-bold hover-primary me-2" onclick="reply(${response.reviewId},${response.userId});scrollToId(reply);">Chỉnh sửa</a>
 								</div>
 								<a href="javascript:void(0)" class="text-secondary fw-bold hover-primary" onclick="reply(${response.reviewId},${response.userId});scrollToId(reply);">Trả lời</a>
 							</div>
@@ -824,7 +850,13 @@ About hotel START -->
 															<textarea name="comment" class="form-control" placeholder="Đánh giá về khách sạn" rows="3" th:text="${review != null ? review.comment : ''}"></textarea>
 														</div>
 														<!-- Button -->
-														<button onclick="review()" type="button" class="btn btn-lg btn-primary mb-0 button">Gửi<i class="bi fa-fw bi-arrow-right ms-2"></i></button>
+														<div id="button">
+															<button onclick="review(true)" type="button" class="btn btn-lg btn-primary mb-0 w-100" th:if="${review == null}">Gửi<i class="bi fa-fw bi-arrow-right ms-2"></i></button>
+															<div class="form-control-bg-light mb-3 w-100 d-flex justify-content-center row" th:unless="${review == null}">
+																<button onclick="closeReview()" type="button" class="btn btn-lg btn-danger mb-0 col-5 me-3">Quay lại</button>
+																<button onclick="review(false)" type="button" class="btn btn-lg btn-primary mb-0 col-5">Sửa<i class="bi fa-fw bi-arrow-right ms-2"></i></button>
+															</div>
+														</div>
 														<!-- Leave review END -->
 													</div>
 													<div id="reviewBox" th:class="'row gx-3 g-2 align-items-center' + ${review == null ? ' d-none' : ''}">
@@ -848,7 +880,7 @@ About hotel START -->
 															<!-- Button -->
 															<div class="form-control-bg-light mb-3 d-flex justify-content-center row">
 																<button onclick="deleteReview()" type="button" class="btn btn-lg btn-danger mb-0 col-5 me-3">Xóa</button>
-																<button onclick="editReview()" type="button" class="btn btn-lg btn-primary mb-0 col-5">Chỉnh Sửa</button>
+																<button onclick="editReview()" type="button" class="btn btn-lg btn-primary mb-0 col-5">Chỉnh sửa</button>
 															</div>
 														</div>
 													</div>
@@ -892,7 +924,7 @@ About hotel START -->
 											<div class="d-flex justify-content-end mt-2" th:if="${session.user != null}">
 												<div th:if="${comment.userId == session.user.id}">
 													<a href="javascript:void(0)" class="text-secondary fw-bold hover-danger me-2" onclick="deleteReview()">Xóa</a>
-													<a href="javascript:void(0)" class="text-secondary fw-bold hover-primary me-2" onclick="scrollToId('review');editReview()">Chỉnh sửa</a>
+													<a href="javascript:void(0)" class="text-secondary fw-bold hover-primary me-2" onclick="editReview();scrollToId('review')">Chỉnh sửa</a>
 												</div>
 												<a href="javascript:void(0)" class="text-secondary fw-bold hover-primary" th:onclick="'reply(' + ${comment.reviewId} + ',' + ${session.user.id} + ')'">Trả lời</a>
 											</div>
@@ -915,6 +947,7 @@ About hotel START -->
 													<div class="d-flex justify-content-end mt-2" th:if="${session.user != null}">
 														<div th:if="${reply.userId == session.user.id}">
 															<a href="javascript:void(0)" class="text-secondary fw-bold hover-danger me-2" th:onclick="'deleteReply(' + ${reply.replyId} + ')'">Xóa</a>
+															<a href="javascript:void(0)" class="text-secondary fw-bold hover-primary me-2" th:onclick="'reply(' + ${comment.reviewId} + ',' + ${session.user.id} + ');scrollToId(reply);'">Chỉnh sửa</a>
 														</div>
 														<a href="javascript:void(0)" class="text-secondary fw-bold hover-primary" th:onclick="'reply(' + ${comment.reviewId} + ',' + ${session.user.id} + ');scrollToId(reply);'">Trả lời</a>
 													</div>
