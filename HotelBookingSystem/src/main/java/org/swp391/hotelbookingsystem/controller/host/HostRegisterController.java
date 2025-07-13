@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
-import org.swp391.hotelbookingsystem.constant.ConstantVariables;
 import org.swp391.hotelbookingsystem.model.Amenity;
 import org.swp391.hotelbookingsystem.model.CancellationPolicy;
 import org.swp391.hotelbookingsystem.model.Hotel;
@@ -82,7 +81,7 @@ public class HostRegisterController {
             @RequestParam(required = false) Integer partialRefundPercent,
             @RequestParam(required = false) Integer noRefundWithinDays) {
         
-        session.setAttribute(ConstantVariables.LOCATIONS, locationService.getAllLocations());
+        session.setAttribute("locations", locationService.getAllLocations());
 
         //  Get amenities with joined category
         List<Amenity> amenities = amenityService.getAllAmenitiesWithCategory();

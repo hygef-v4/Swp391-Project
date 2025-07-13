@@ -57,7 +57,7 @@ public class AdminHotelController {
     public String getHotelDashboard(@RequestParam(value = "search", required = false) String search,
                                     @RequestParam(value = "page", defaultValue = "1") int page,
                                     Model model, HttpSession session) {
-        model.addAttribute(ConstantVariables.PAGE_TITLE, "Hamora Booking - Hotel Management");
+        model.addAttribute("pageTitle", "Hamora Booking - Hotel Management");
         User user = (User) session.getAttribute("user");
         if (user == null) {
             return "redirect:/login";
