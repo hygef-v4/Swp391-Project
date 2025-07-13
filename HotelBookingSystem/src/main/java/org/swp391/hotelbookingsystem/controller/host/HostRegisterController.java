@@ -27,6 +27,7 @@ import org.swp391.hotelbookingsystem.service.CancellationPolicyService;
 import org.swp391.hotelbookingsystem.service.CloudinaryService;
 import org.swp391.hotelbookingsystem.service.HotelService;
 import org.swp391.hotelbookingsystem.service.LocationService;
+import org.swp391.hotelbookingsystem.service.NotificationService;
 import org.swp391.hotelbookingsystem.service.RoomService;
 import org.swp391.hotelbookingsystem.service.UserService;
 
@@ -41,10 +42,11 @@ public class HostRegisterController {
     final HotelService hotelService;
     final UserService userService;
     final CancellationPolicyService cancellationPolicyService;
+    final NotificationService notificationService;
 
     public HostRegisterController(LocationService locationService, AmenityService amenityService, 
             CloudinaryService cloudinaryService, RoomService roomService, HotelService hotelService, 
-            UserService userService, CancellationPolicyService cancellationPolicyService) {
+            UserService userService, CancellationPolicyService cancellationPolicyService, NotificationService notificationService) {
         this.locationService = locationService;
         this.amenityService = amenityService;
         this.cloudinaryService = cloudinaryService;
@@ -52,6 +54,7 @@ public class HostRegisterController {
         this.hotelService = hotelService;
         this.userService = userService;
         this.cancellationPolicyService = cancellationPolicyService;
+        this.notificationService = notificationService;
     }
 
     @GetMapping("/host-intro")
@@ -152,19 +155,18 @@ public class HostRegisterController {
             User user = (User) session.getAttribute("user");
             int userId = user.getId();
 
+            boolean becameHost = false;
             if (!"HOTEL_OWNER".equalsIgnoreCase(user.getRole())) {
                 user.setRole("HOTEL_OWNER");
                 userService.updateUserRoleToHost(userId);
                 session.setAttribute("user", user);
-                System.out.println("User Id : " + userId + " has been updated to HOTEL_OWNER role");
+                becameHost = true;
 
-                //  Prepare a new list of authorities for Spring Security (required format: "ROLE_<role_name>")
+                // Update Spring Security context
                 List<SimpleGrantedAuthority> updatedAuthorities = new ArrayList<>();
-                updatedAuthorities.add(new SimpleGrantedAuthority("ROLE_HOTEL_OWNER"));   //Create new authorities (permissions/roles),
-
-                Authentication newAuth = new UsernamePasswordAuthenticationToken(user, null, updatedAuthorities);  // Create a new Authentication object with updated role (Spring Security token)
-
-                SecurityContextHolder.getContext().setAuthentication(newAuth);   //  Replace the current authentication in the Spring Security context to avoid user re-login
+                updatedAuthorities.add(new SimpleGrantedAuthority("ROLE_HOTEL_OWNER"));
+                Authentication newAuth = new UsernamePasswordAuthenticationToken(user, null, updatedAuthorities);
+                SecurityContextHolder.getContext().setAuthentication(newAuth);
             }
 
             // Validate cancellation policy data
@@ -233,6 +235,13 @@ public class HostRegisterController {
                     .build();
 
             roomService.saveRoom(room, amenityIds, roomImageUrls);
+
+            // Send notifications
+            if (becameHost) {
+                notificationService.notifyHostRegistrationSuccess(userId);
+            }
+            notificationService.notifyHotelAdded(userId, savedHotel.getHotelName(), savedHotel.getHotelId());
+
             return "redirect:/host-dashboard";
         } catch (Exception e) {
             e.printStackTrace();
