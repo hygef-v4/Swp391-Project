@@ -22516,6 +22516,36 @@ html[dir=rtl] .choices__input {
   padding: 8px;
 }
 
+.hover-primary:hover {
+  color: var(--bs-primary) !important;
+  transition: color 0.3s ease-in-out;
+}
+
+.hover-secondary:hover {
+  color: var(--bs-secondary) !important;
+  transition: color 0.3s ease-in-out;
+}
+
+.hover-success:hover {
+  color: var(--bs-success) !important;
+  transition: color 0.3s ease-in-out;
+}
+
+.hover-info:hover {
+  color: var(--bs-info) !important;
+  transition: color 0.3s ease-in-out;
+}
+
+.hover-warning:hover {
+  color: var(--bs-warning) !important;
+  transition: color 0.3s ease-in-out;
+}
+
+.hover-danger:hover {
+  color: var(--bs-danger) !important;
+  transition: color 0.3s ease-in-out;
+}
+
 /* Responsive adjustments for testimonial images */
 @media (max-width: 768px) {
     .testimonial-customer-image {

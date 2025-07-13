@@ -124,8 +124,12 @@
 			const form = document.getElementById('review');
 			const formData = new FormData(form);
 
-			if(!formData.get('comment').trim()) {
+			const comment = formData.get('comment').trim();
+			if(!comment) {
 				alert("Vui lòng nhập bình luận.");
+				return;
+			}if(/<.*?>/.test(comment)){
+				alert("Không thể gửi tin nhắn");
 				return;
 			}
 
@@ -177,6 +181,13 @@
 									<div class="icon-md rounded text-bg-warning fs-6 rating">${response.rating}</div>
 								</div>
 								<p class="mb-0 comment">${response.comment}</p>
+								<div class="d-flex justify-content-end mt-2">
+									<div>
+										<a href="javascript:void(0)" class="text-secondary fw-bold hover-danger me-2" onclick="deleteReview()">Xóa</a>
+										<a href="javascript:void(0)" class="text-secondary fw-bold hover-primary me-2" onclick="scrollToId('review');editReview()">Chỉnh sửa</a>
+									</div>
+									<a href="javascript:void(0)" class="text-secondary fw-bold hover-primary" onclick="reply(${response.reviewId},${response.userId})">Trả lời</a>
+								</div>
 							</div>
 						</div>
 						<hr>
@@ -228,8 +239,117 @@
 			chat.classList.remove("d-none");
 			box.classList.add("d-none");
 
-			let review = await request.text()
-			document.querySelector("#review" + review)?.remove();
+			let response = await request.text()
+			document.querySelector("#review" + response)?.remove();
+		}
+
+		function reply(reviewId, userId){
+			let reply = document.getElementById("reply");
+			if(reply){
+				reply.remove();				
+				if(reply.elements["reviewId"].value == reviewId)
+					return;
+			}
+
+			let form =`
+				<form class="mb-5" id="reply">
+					<div class="d-md-flex mt-4">
+						<!-- Avatar -->
+						<div class="avatar avatar-lg me-3 flex-shrink-0">
+							<div class="avatar-img rounded-circle"></div>
+						</div>
+						<!-- Text -->
+						<div class="w-100">
+							<div class="row gx-3 g-2 align-items-center}">
+								<!-- Leave reply START -->
+								<input type="hidden" name="reviewId" value="${reviewId}">
+								<input type="hidden" name="userId" value="${userId}">
+								<!-- Message -->
+								<div class="form-control-bg-light mb-3">
+									<textarea name="comment" class="form-control" placeholder="Viết bình luận" rows="3"></textarea>
+								</div>
+								<!-- Button -->
+								<button onclick="addReply()" type="button" class="btn btn-lg btn-primary mb-0">Gửi<i class="bi fa-fw bi-arrow-right ms-2"></i></button>
+								<!-- Leave reply END -->
+							</div>
+						</div>
+					</div>
+				</form>
+			`
+
+			let review = document.getElementById("review" + reviewId).querySelector(".reply");
+			review.innerHTML = form + review.innerHTML;
+		}
+
+		async function addReply(){
+			const form = document.getElementById('reply');
+			const formData = new FormData(form);
+
+			if(!formData.get('comment').trim()) {
+				alert("Vui lòng nhập bình luận.");
+				return;
+			}if(/<.*?>/.test(comment)){
+				alert("Không thể gửi tin nhắn");
+				return;
+			}
+
+			// Lấy CSRF từ meta tag
+			const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+			const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+			let request = await fetch('/addReply', {
+				method: 'POST',
+				headers: {
+					[csrfHeader]: csrfToken
+				},
+				body: formData
+			});
+
+			form.remove();
+
+			let response = await request.json();
+
+			let r = `
+				<div class="ps-2 ps-md-3 mb-2" id="reply${response.replyId}">
+					<div class="d-md-flex">
+						<img class="avatar avatar-sm rounded-circle me-3" src="${response.avatarUrl}" alt="avatar">
+						<div class="mt-2 mt-md-0 w-100">
+							<h6 class="mb-1">${response.fullName}</h6>
+							<ul class="nav nav-divider small mb-2">
+								<li class="nav-item">${new Date(response.createdAt).toLocaleDateString('vi-VN')}</li>
+							</ul>
+							<p class="mb-0 comment">${response.comment}</p>
+							<div class="d-flex justify-content-end mt-2">
+								<div>
+									<a href="javascript:void(0)" class="text-secondary fw-bold hover-danger me-2" onclick="deleteReply(${response.replyId})">Xóa</a>
+								</div>
+								<a href="javascript:void(0)" class="text-secondary fw-bold hover-primary" onclick="reply(${response.reviewId},${response.userId});scrollToId(reply);">Trả lời</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			`;
+
+			let review = document.getElementById("review" + form.elements["reviewId"].value).querySelector(".reply");
+			review.innerHTML = review.innerHTML + r;
+		}
+
+		async function deleteReply(replyId) {
+			// Lấy CSRF từ meta tag
+			const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+			const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+			let request = await fetch('/deleteReply', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded',
+					[csrfHeader]: csrfToken
+				},
+				body: "replyId=" + replyId
+			});
+
+			let response = await request.text()
+			document.querySelector("#reply" + response).remove();
 		}
 	</script>
 
@@ -704,7 +824,7 @@ About hotel START -->
 															<textarea name="comment" class="form-control" placeholder="Đánh giá về khách sạn" rows="3" th:text="${review != null ? review.comment : ''}"></textarea>
 														</div>
 														<!-- Button -->
-														<button onclick="review()" type="button" class="btn btn-lg btn-primary mb-0">Gửi<i class="bi fa-fw bi-arrow-right ms-2"></i></button>
+														<button onclick="review()" type="button" class="btn btn-lg btn-primary mb-0 button">Gửi<i class="bi fa-fw bi-arrow-right ms-2"></i></button>
 														<!-- Leave review END -->
 													</div>
 													<div id="reviewBox" th:class="'row gx-3 g-2 align-items-center' + ${review == null ? ' d-none' : ''}">
@@ -748,7 +868,7 @@ About hotel START -->
 							<!-- Review item START -->
 							<div id="comment" style="max-width: 100%;">
 								<div th:each="comment : ${comments}" th:id="'review' + ${comment.reviewId}">
-									<div class="d-md-flex my-4">
+									<div class="d-md-flex mt-4">
 										<!-- Avatar -->
 										<div class="avatar avatar-lg me-3 flex-shrink-0">
 											<img class="avatar-img rounded-circle" th:src="${comment.avatarUrl != null ? comment.avatarUrl : '/assets/images/avatar/avatar.jpg'}" th:alt="${comment.fullName}">
@@ -768,26 +888,47 @@ About hotel START -->
 											</div>
 											
 											<p class="mb-0 comment" th:text="${comment.comment}"></p>
+
+											<div class="d-flex justify-content-end mt-2" th:if="${session.user != null}">
+												<div th:if="${comment.userId == session.user.id}">
+													<a href="javascript:void(0)" class="text-secondary fw-bold hover-danger me-2" onclick="deleteReview()">Xóa</a>
+													<a href="javascript:void(0)" class="text-secondary fw-bold hover-primary me-2" onclick="scrollToId('review');editReview()">Chỉnh sửa</a>
+												</div>
+												<a href="javascript:void(0)" class="text-secondary fw-bold hover-primary" th:onclick="'reply(' + ${comment.reviewId} + ',' + ${session.user.id} + ')'">Trả lời</a>
+											</div>
 										</div>
 									</div>
 
+									<!-- Child review START -->
+									<div class="reply">
+										<div class="ps-2 ps-md-3 mb-2" th:each="reply : ${comment.replies}" th:id="'reply' + ${reply.replyId}">
+											<div class="d-md-flex">
+												<img class="avatar avatar-sm rounded-circle me-3" th:src="${reply.avatarUrl != null ? reply.avatarUrl : '/assets/images/avatar/avatar.jpg'}" alt="avatar">
+												<div class="mt-2 mt-md-0 w-100">
+													<h6 class="mb-1" th:text="${reply.fullName}"></h6>
+													<ul class="nav nav-divider small mb-2">
+														<li class="nav-item" th:text="${reply.createdAt.format(T(java.time.format.DateTimeFormatter).ofPattern('dd/MM/yyyy'))}"></li>
+													</ul>
+
+													<p class="mb-0 comment" th:text="${reply.comment}"></p>
+													
+													<div class="d-flex justify-content-end mt-2" th:if="${session.user != null}">
+														<div th:if="${reply.userId == session.user.id}">
+															<a href="javascript:void(0)" class="text-secondary fw-bold hover-danger me-2" th:onclick="'deleteReply(' + ${reply.replyId} + ')'">Xóa</a>
+														</div>
+														<a href="javascript:void(0)" class="text-secondary fw-bold hover-primary" th:onclick="'reply(' + ${comment.reviewId} + ',' + ${session.user.id} + ');scrollToId(reply);'">Trả lời</a>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									<!-- Child review END -->
+									
 									<!-- Divider -->
 									<hr>
 								</div>
 							</div>
 							<!-- Review item END -->
-
-							<!-- Child review START -->
-							<!-- <div class="my-4 ps-2 ps-md-3">
-								<div class="d-md-flex p-3 bg-light rounded-3">
-									<img class="avatar avatar-sm rounded-circle me-3" src="assets/images/avatar/02.jpg" alt="avatar">
-									<div class="mt-2 mt-md-0">
-										<h6 class="mb-1">Manager</h6>
-										<p class="mb-0">But discretion frequently sir she instruments unaffected admiration everything. </p>
-									</div>
-								</div>
-							</div> -->
-							<!-- Child review END -->
 
 							<!-- Button -->
 							<!-- <div class="text-center">

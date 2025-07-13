@@ -270,13 +270,6 @@
     </script>
 
     <script>
-        function scrollToId(id){
-            const e = document.getElementById(id);
-            if(e) e.scrollIntoView({behavior: 'smooth'});
-        }
-    </script>
-
-    <script>
         function booking(id, scroll = true){
             const bookedContent = document.getElementById('bookedContent').firstElementChild;
             const bookedRoom = document.getElementById('booked' + id);
