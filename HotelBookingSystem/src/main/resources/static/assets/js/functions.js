@@ -1189,3 +1189,12 @@ function scrollToId(id){
         window.scrollTo({top: y, behavior: 'smooth'});
     }
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+    const hash = window.location.hash;
+    if(hash){
+        const id = hash.substring(1);
+        console.log(id);
+        scrollToId(id);
+    }
+});

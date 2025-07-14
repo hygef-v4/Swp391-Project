@@ -220,6 +220,11 @@ public class ReviewRepository {
         return jdbcTemplate.queryForObject(query, Integer.class, reply.getReviewId(), reply.getReplierId(), reply.getComment());
     }
 
+    public int editReply(int replyId, String comment){
+        String query = "UPDATE Replies SET comment = ? OUTPUT inserted.reply_id WHERE reply_id = ?";
+        return jdbcTemplate.queryForObject(query, Integer.class, comment, replyId);
+    }
+
     public int deleteReply(int replyId){
         String query = "DELETE FROM Replies OUTPUT deleted.reply_id WHERE reply_id = ?";
         return jdbcTemplate.queryForObject(query, Integer.class, replyId);
