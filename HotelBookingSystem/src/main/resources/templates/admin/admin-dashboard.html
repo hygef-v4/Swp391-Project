@@ -271,45 +271,36 @@
 
 
                     <!-- Reviews START -->
-                    <div class="col-lg-6 col-xxl-4">
+                    <div class="col-lg col-xxl">
                         <div class="card shadow h-100">
-                            <!-- Card header -->
                             <div class="card-header border-bottom d-flex justify-content-between align-items-center p-3">
-                                <h5 class="card-header-title">Đánh giá</h5>
+                                <h5 class="card-header-title">Thống kê theo khu vực</h5>
                                 <a href="#" class="btn btn-link p-0 mb-0">Xem tất cả</a>
                             </div>
-
-                            <!-- Card body START -->
                             <div class="card-body p-3">
                                 <div class="list-group list-group-flush list-unstyled mb-0">
-                                    <div th:each="review : ${recentReviews}">
-                                        <!-- Review item START -->
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div class="d-sm-flex align-items-center mb-1 mb-sm-0">
-                                                <div class="flex-shrink-0">
-                                                    <img th:src="${review.avatarUrl}" class="rounded h-60px"
-                                                         alt="Reviewer Avatar">
-                                                </div>
-                                                <div class="ms-sm-3 mt-2 mt-sm-0">
-                                                    <h6 class="mb-1" th:text="${review.fullName}">User Name</h6>
-                                                    <li class="list-inline-item me-0 smaller"
-                                                        th:each="i : ${#numbers.sequence(1, review.rating)}">
-                                                        <i class="fa-solid fa-star text-warning"></i>
-                                                    </li>
-                                                    <p class="mb-0 small" th:text="${review.comment}">Comment
-                                                        content</p>
-                                                </div>
+                                    <div th:each="loc : ${locationStats}" class="mb-3">
+                                        <div class="d-flex align-items-center">
+                                            <img th:src="${loc.imageUrl}" class="rounded" alt="Location" style="width: 60px; height: 60px; object-fit: cover;">
+                                            <div class="ms-3">
+                                                <h6 class="mb-1" th:text="${loc.cityName}">City Name</h6>
+                                                <p class="mb-0 small">
+                                                    <i class="fa-solid fa-hotel me-1 text-warning"></i>
+                                                    <span th:text="${loc.numberOfHotels}">0</span> khách sạn |
+                                                    <i class="fa-solid fa-bed me-1 text-success"></i>
+                                                    <span th:text="${loc.totalRooms}">0</span> phòng |
+                                                    <i class="fa-solid fa-star me-1 text-primary"></i>
+                                                    <span th:text="${#numbers.formatDecimal(loc.averageRating, 1, 'COMMA', 1, 'POINT')}">0.0</span> ★
+                                                </p>
                                             </div>
-                                            <a th:href="@{'/admin/reviews/view/' + ${review.reviewId}}"
-                                               class="btn btn-sm btn-light flex-shrink-0 mb-0 ms-3">Chi tiết</a>
                                         </div>
                                         <hr>
                                     </div>
                                 </div>
                             </div>
-                            <!-- Card body END -->
                         </div>
                     </div>
+
                     <!-- Reviews END -->
                 </div>
                 <!-- Widget END -->

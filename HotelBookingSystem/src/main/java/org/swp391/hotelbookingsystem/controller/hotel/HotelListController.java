@@ -95,6 +95,10 @@ public class HotelListController {
 
         model.addAttribute("price", price);
 
+        List<Location> locationStats = locationService.getTop5LocationStats();
+        model.addAttribute("locationStats", locationStats);
+
+
         return "page/hotelList";
     }
 }
