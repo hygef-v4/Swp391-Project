@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-import org.swp391.hotelbookingsystem.constant.ConstantVariables;
 import org.swp391.hotelbookingsystem.model.Amenity;
 import org.swp391.hotelbookingsystem.model.CancellationPolicy;
 import org.swp391.hotelbookingsystem.model.Hotel;
@@ -82,7 +81,7 @@ public class HostHotelController {
     // đang để chung với register-host, có thể tách ra
     @GetMapping("/add-hotel")
     public String showAddListingPage(Model model, HttpSession session) {
-        session.setAttribute(ConstantVariables.LOCATIONS, locationService.getAllLocations());
+        session.setAttribute("locations", locationService.getAllLocations());
 
         //  Get amenities with joined category
         List<Amenity> amenities = amenityService.getAllAmenitiesWithCategory();
@@ -118,7 +117,7 @@ public class HostHotelController {
 
         model.addAttribute("hotelId", hotelId);
 
-        session.setAttribute(ConstantVariables.LOCATIONS, locationService.getAllLocations());
+        session.setAttribute("locations", locationService.getAllLocations());
 
         // Get amenities with joined category
         List<Amenity> amenities = amenityService.getAllAmenitiesWithCategory();

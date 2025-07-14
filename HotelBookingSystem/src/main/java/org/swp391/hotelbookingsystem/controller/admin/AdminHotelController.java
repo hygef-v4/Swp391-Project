@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.swp391.hotelbookingsystem.constant.ConstantVariables;
 import org.swp391.hotelbookingsystem.model.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.swp391.hotelbookingsystem.service.*;
@@ -57,7 +56,7 @@ public class AdminHotelController {
     public String getHotelDashboard(@RequestParam(value = "search", required = false) String search,
                                     @RequestParam(value = "page", defaultValue = "1") int page,
                                     Model model, HttpSession session) {
-        model.addAttribute(ConstantVariables.PAGE_TITLE, "Hamora Booking - Hotel Management");
+        model.addAttribute("pageTitle", "Hamora Booking - Hotel Management");
         User user = (User) session.getAttribute("user");
         if (user == null) {
             return "redirect:/login";
