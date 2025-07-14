@@ -72,18 +72,11 @@ public class AdminDashboardController {
         List<User> hotelOwnerList = userService.getUsersByRole("HOTEL_OWNER");
         model.addAttribute("numberOfHotelOwners", hotelOwnerList.size());
 
-        List<User> getTop5UsersWithProfile = userService.getTop5Users();
-        model.addAttribute("userList", getTop5UsersWithProfile);
-
         List<Hotel> popularHotels = hotelService.getTop4PopularHotels();
         model.addAttribute("popularHotels", popularHotels);
 
-        List<Review> recentReviews = reviewService.getRecentPublicReviews();
-        model.addAttribute("recentReviews", recentReviews);
-
-        List<Location> getTop5Location = locationService.getTop5Locations();
-        model.addAttribute("locationList", getTop5Location);
-
+        List<Location> locationStats = locationService.getTop5LocationStats();
+        model.addAttribute("locationStats", locationStats);
 
 
         return "admin/admin-dashboard";

@@ -15,4 +15,14 @@ public class Location implements Serializable {
     private int id;
     private String cityName;
     private String imageUrl;
+
+    private int numberOfHotels;
+    private int totalRooms;
+    private double averageRating;
+
+    public Location(int id, String cityName, String imageUrl) {
+        this.id = id;
+        this.cityName = cityName;
+        this.imageUrl = imageUrl;
+    }
 }
