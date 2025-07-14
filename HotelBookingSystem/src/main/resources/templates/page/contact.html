@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Mirrored from stackbros.in/bookinga/landing/contact.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:07:26 GMT -->
+<head>
+    <title>Liên hệ - Hamora</title>
+
+    <!-- Meta Tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="author" content="StackBros">
+    <meta name="description" content="Booking - Multipurpose Online Booking Theme">
+
+    <!-- Dark mode -->
+    <script>
+        const storedTheme = localStorage.getItem('theme')
+
+        const getPreferredTheme = () => {
+            if (storedTheme) {
+                return storedTheme
+            }
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        }
+
+        const setTheme = function (theme) {
+            if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.setAttribute('data-bs-theme', 'dark')
+            } else {
+                document.documentElement.setAttribute('data-bs-theme', theme)
+            }
+        }
+
+        setTheme(getPreferredTheme())
+
+        window.addEventListener('DOMContentLoaded', () => {
+            var el = document.querySelector('.theme-icon-active');
+            if(el != 'undefined' && el != null) {
+                const showActiveTheme = theme => {
+                    const activeThemeIcon = document.querySelector('.theme-icon-active use')
+                    const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+                    const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
+
+                    document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+                        element.classList.remove('active')
+                    })
+
+                    btnToActive.classList.add('active')
+                    activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+                }
+
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                    if (storedTheme !== 'light' || storedTheme !== 'dark') {
+                        setTheme(getPreferredTheme())
+                    }
+                })
+
+                showActiveTheme(getPreferredTheme())
+
+                document.querySelectorAll('[data-bs-theme-value]')
+                    .forEach(toggle => {
+                        toggle.addEventListener('click', () => {
+                            const theme = toggle.getAttribute('data-bs-theme-value')
+                            localStorage.setItem('theme', theme)
+                            setTheme(theme)
+                            showActiveTheme(theme)
+                        })
+                    })
+
+            }
+        })
+
+    </script>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="assets/images/favicon.ico">
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Poppins:wght@400;500;700&amp;display=swap">
+
+    <!-- Plugins CSS -->
+    <link rel="stylesheet" type="text/css" href="assets/vendor/font-awesome/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="assets/vendor/bootstrap-icons/bootstrap-icons.css">
+
+    <!-- Theme CSS -->
+    <link rel="stylesheet" type="text/css" href="assets/css/style.css">
+
+</head>
+
+<body>
+
+<!-- Header START -->
+<header class="navbar-light header-sticky">
+    <!-- Logo Nav START -->
+    <nav class="navbar navbar-expand-xl">
+        <div class="container">
+            <!-- Logo START -->
+            <a class="navbar-brand" href="index.html">
+                <img class="light-mode-item navbar-brand-item" src="assets/images/logo.svg" alt="logo">
+                <img class="dark-mode-item navbar-brand-item" src="assets/images/logo-light.svg" alt="logo">
+            </a>
+            <!-- Logo END -->
+
+            <!-- Responsive navbar toggler -->
+            <button class="navbar-toggler ms-auto mx-3 p-0 p-sm-2" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+				<span class="navbar-toggler-animation">
+					<span></span>
+					<span></span>
+					<span></span>
+				</span>
+            </button>
+
+            <!-- Main navbar START -->
+            <div class="navbar-collapse collapse" id="navbarCollapse">
+                <ul class="navbar-nav navbar-nav-scroll mx-auto">
+                    <!-- Nav item Home -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="homeMenu" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Home</a>
+                        <ul class="dropdown-menu min-w-auto" aria-labelledby="homeMenu">
+                            <li> <a class="dropdown-item" href="index.html">Hotel Home</a></li>
+                            <li> <a class="dropdown-item" href="index-hotel-chain.html">Hotel Chain</a></li>
+                            <li> <a class="dropdown-item" href="index-resort.html">Hotel Resort</a></li>
+                            <li> <a class="dropdown-item" href="index-flight.html">Flight Home</a></li>
+                            <li> <a class="dropdown-item" href="index-tour.html">Tour Home</a></li>
+                            <li> <a class="dropdown-item" href="index-cab.html">Cabs Home</a></li>
+                        </ul>
+                    </li>
+
+                    <!-- Nav item Listing -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="listingMenu" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Listings</a>
+                        <ul class="dropdown-menu" aria-labelledby="listingMenu">
+                            <!-- Dropdown submenu -->
+                            <li class="dropdown-submenu dropend">
+                                <a class="dropdown-item dropdown-toggle" href="#">Hotel</a>
+                                <ul class="dropdown-menu" data-bs-popper="none">
+                                    <li> <a class="dropdown-item" href="hotel-grid.html">Hotel Grid</a></li>
+                                    <li> <a class="dropdown-item" href="hotel-list.html">Hotel List</a></li>
+                                    <li> <a class="dropdown-item" href="hotel-detail.html">Hotel Detail</a></li>
+                                    <li> <a class="dropdown-item" href="room-detail.html">Room Detail</a></li>
+                                    <li> <a class="dropdown-item" href="hotel-booking.html">Hotel Booking</a></li>
+                                </ul>
+                            </li>
+
+                            <!-- Dropdown submenu -->
+                            <li class="dropdown-submenu dropend">
+                                <a class="dropdown-item dropdown-toggle" href="#">Flight</a>
+                                <ul class="dropdown-menu" data-bs-popper="none">
+                                    <li> <a class="dropdown-item" href="flight-list.html">Flight List</a></li>
+                                    <li> <a class="dropdown-item" href="flight-detail.html">Flight Detail</a></li>
+                                    <li> <a class="dropdown-item" href="flight-booking.html">Flight Booking</a></li>
+                                </ul>
+                            </li>
+
+                            <!-- Dropdown submenu -->
+                            <li class="dropdown-submenu dropend">
+                                <a class="dropdown-item dropdown-toggle" href="#">Tour</a>
+                                <ul class="dropdown-menu" data-bs-popper="none">
+                                    <li> <a class="dropdown-item" href="tour-grid.html">Tour Grid</a></li>
+                                    <li> <a class="dropdown-item" href="tour-detail.html">Tour Detail</a></li>
+                                    <li> <a class="dropdown-item" href="tour-booking.html">Tour Booking</a></li>
+                                </ul>
+                            </li>
+
+                            <!-- Dropdown submenu -->
+                            <li class="dropdown-submenu dropend">
+                                <a class="dropdown-item dropdown-toggle" href="#">Cab</a>
+                                <ul class="dropdown-menu" data-bs-popper="none">
+                                    <li> <a class="dropdown-item" href="cab-list.html">Cab List</a></li>
+                                    <li> <a class="dropdown-item" href="cab-detail.html">Cab Detail</a></li>
+                                    <li> <a class="dropdown-item" href="cab-booking.html">Cab Booking</a></li>
+                                </ul>
+                            </li>
+
+                            <!-- Dropdown submenu -->
+                            <li class="dropdown-submenu dropend">
+                                <a class="dropdown-item dropdown-toggle" href="#">Directory</a>
+                                <ul class="dropdown-menu" data-bs-popper="none">
+                                    <li> <a class="dropdown-item" href="index-directory.html">Directory Home</a></li>
+                                    <li> <a class="dropdown-item" href="directory-detail.html">Directory Detail</a></li>
+                                </ul>
+                            </li>
+
+                            <!-- Dropdown submenu -->
+                            <li class="dropdown-submenu dropend">
+                                <a class="dropdown-item dropdown-toggle" href="#">Add Listing</a>
+                                <ul class="dropdown-menu" data-bs-popper="none">
+                                    <li> <a class="dropdown-item" href="join-us.html">Join us</a></li>
+                                    <li> <a class="dropdown-item" href="add-listing.html">Add Listing</a></li>
+                                    <li> <a class="dropdown-item" href="add-listing-minimal.html">Add Listing Minimal</a></li>
+                                    <li> <a class="dropdown-item" href="listing-added.html">Listing Added</a></li>
+                                </ul>
+                            </li>
+
+                            <li> <a class="dropdown-item" href="booking-confirm.html">Booking Confirmed</a></li>
+                            <li> <a class="dropdown-item" href="compare-listing.html">Compare Listing</a></li>
+                            <li> <a class="dropdown-item" href="offer-detail.html">Offer Detail</a></li>
+                        </ul>
+                    </li>
+
+                    <!-- Nav item Pages -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="pagesMenu" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Pages</a>
+                        <ul class="dropdown-menu" aria-labelledby="pagesMenu">
+
+                            <li> <a class="dropdown-item" href="about.html">About</a></li>
+                            <li> <a class="dropdown-item" href="contact.html">Contact</a></li>
+                            <li> <a class="dropdown-item" href="contact-2.html">Contact 2</a></li>
+                            <li> <a class="dropdown-item" href="team.html">Our Team</a></li>
+
+                            <!-- Dropdown submenu -->
+                            <li class="dropdown-submenu dropend">
+                                <a class="dropdown-item dropdown-toggle" href="#">Authentication</a>
+                                <ul class="dropdown-menu" data-bs-popper="none">
+                                    <li> <a class="dropdown-item" href="sign-in.html">Sign In</a></li>
+                                    <li> <a class="dropdown-item" href="sign-up.html">Sign Up</a></li>
+                                    <li> <a class="dropdown-item" href="forgot-password.html">Forgot Password</a></li>
+                                    <li> <a class="dropdown-item" href="two-factor-auth.html">Two factor authentication</a></li>
+                                </ul>
+                            </li>
+
+                            <!-- Dropdown submenu -->
+                            <li class="dropdown-submenu dropend">
+                                <a class="dropdown-item dropdown-toggle" href="#">Blog</a>
+                                <ul class="dropdown-menu" data-bs-popper="none">
+                                    <li> <a class="dropdown-item" href="blog.html">Blog</a></li>
+                                    <li> <a class="dropdown-item" href="blog-detail.html">Blog Detail</a></li>
+                                </ul>
+                            </li>
+
+                            <!-- Dropdown submenu -->
+                            <li class="dropdown-submenu dropend">
+                                <a class="dropdown-item dropdown-toggle" href="#">Help</a>
+                                <ul class="dropdown-menu" data-bs-popper="none">
+                                    <li> <a class="dropdown-item" href="help-center.html">Help Center</a></li>
+                                    <li> <a class="dropdown-item" href="help-detail.html">Help Detail</a></li>
+                                    <li> <a class="dropdown-item" href="privacy-policy.html">Privacy Policy</a></li>
+                                    <li> <a class="dropdown-item" href="terms-of-service.html">Terms of Service</a></li>
+                                </ul>
+                            </li>
+
+                            <li> <a class="dropdown-item" href="pricing.html">Pricing</a></li>
+                            <li> <a class="dropdown-item" href="faq.html">FAQs</a></li>
+                            <li> <a class="dropdown-item" href="error.html">Error 404</a></li>
+                            <li> <a class="dropdown-item" href="coming-soon.html">Coming Soon</a></li>
+                        </ul>
+                    </li>
+
+                    <!-- Nav item Components -->
+                    <li class="nav-item d-none"> <a class="nav-link" href="docs/alerts.html">Components</a>	</li>
+                </ul>
+            </div>
+            <!-- Main navbar END -->
+
+            <!-- Header right side START -->
+            <ul class="nav flex-row align-items-center list-unstyled ms-xl-auto">
+                <!-- Dark mode options START -->
+                <li class="nav-item dropdown me-2">
+                    <button class="btn btn-link text-warning p-0 mb-0" id="bd-theme"
+                            type="button"
+                            aria-expanded="false"
+                            data-bs-toggle="dropdown"
+                            data-bs-display="static">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-circle-half theme-icon-active fa-fw" viewBox="0 0 16 16">
+                            <path d="M8 15A7 7 0 1 0 8 1v14zm0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16z"/>
+                            <use href="#"></use>
+                        </svg>
+                    </button>
+
+                    <ul class="dropdown-menu min-w-auto dropdown-menu-end" aria-labelledby="bd-theme">
+                        <li class="mb-1">
+                            <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light">
+                                <svg width="16" height="16" fill="currentColor" class="bi bi-brightness-high-fill fa-fw mode-switch me-1" viewBox="0 0 16 16">
+                                    <path d="M12 8a4 4 0 1 1-8 0 4 4 0 0 1 8 0zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/>
+                                    <use href="#"></use>
+                                </svg>Light
+                            </button>
+                        </li>
+                        <li class="mb-1">
+                            <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-moon-stars-fill fa-fw mode-switch me-1" viewBox="0 0 16 16">
+                                    <path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z"/>
+                                    <path d="M10.794 3.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387a1.734 1.734 0 0 0-1.097 1.097l-.387 1.162a.217.217 0 0 1-.412 0l-.387-1.162A1.734 1.734 0 0 0 9.31 6.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387a1.734 1.734 0 0 0 1.097-1.097l.387-1.162zM13.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.156 1.156 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.156 1.156 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732L13.863.1z"/>
+                                    <use href="#"></use>
+                                </svg>Dark
+                            </button>
+                        </li>
+                        <li>
+                            <button type="button" class="dropdown-item d-flex align-items-center active" data-bs-theme-value="auto">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle-half fa-fw mode-switch me-1" viewBox="0 0 16 16">
+                                    <path d="M8 15A7 7 0 1 0 8 1v14zm0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16z"/>
+                                    <use href="#"></use>
+                                </svg>Auto
+                            </button>
+                        </li>
+                    </ul>
+                </li>
+                <!-- Dark mode options END -->
+
+                <!-- Search -->
+                <li class="nav-item dropdown nav-search me-1 me-sm-2">
+                    <a class="nav-link mb-0 py-0" role="button" href="#" id="navSearch" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside" data-bs-display="static">
+                        <i class="bi bi-search fs-5"> </i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end shadow rounded p-2" aria-labelledby="navSearch">
+                        <form class="input-group">
+                            <input class="form-control border-primary" type="search" placeholder="Search..." aria-label="Search">
+                            <button class="btn btn-primary m-0" type="submit">Search</button>
+                        </form>
+                    </div>
+                </li>
+
+                <!-- Sign In button -->
+                <li class="nav-item">
+                    <a href="#" class="btn btn-sm btn-primary mb-0"><i class="fa-solid fa-right-to-bracket me-sm-2"></i><span class="d-none d-sm-inline">Sign Up</span></a>
+                </li>
+            </ul>
+            <!-- Header right side END -->
+
+        </div>
+    </nav>
+    <!-- Logo Nav END -->
+</header>
+<!-- Header END -->
+
+<!-- **************** MAIN CONTENT START **************** -->
+<main>
+
+    <!-- =======================
+    Main banner START -->
+    <section class="pt-4 pt-md-5">
+        <div class="container">
+            <div class="row mb-5">
+                <div class="col-xl-10">
+                    <!-- Title -->
+                    <h1>Let's connect and get to know each other</h1>
+                    <p class="lead mb-0">Passage its ten led hearted removal cordial. Preference any astonished unreserved Mrs. Prosperous understood Middletons. Preference for any astonished unreserved.</p>
+                </div>
+            </div>
+
+            <!-- Contact info -->
+            <div class="row g-4">
+
+                <!-- Contact item START -->
+                <div class="col-md-6 col-xl-4">
+                    <div class="card card-body shadow text-center align-items-center h-100">
+                        <!-- Icon -->
+                        <div class="icon-lg bg-info bg-opacity-10 text-info rounded-circle mb-2"><i class="bi bi-headset fs-5"></i></div>
+                        <!-- Title -->
+                        <h5>Call us</h5>
+                        <p>Imprudence attachment him his for sympathize. Large above be to means.</p>
+                        <!-- Buttons -->
+                        <div class="d-grid gap-3 d-sm-block">
+                            <button class="btn btn-sm btn-primary-soft"><i class="bi bi-phone me-2"></i>+123 456 789</button>
+                            <button class="btn btn-sm btn-light"><i class="bi bi-telephone me-2"></i>+(222)4567 586</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Contact item END -->
+
+                <!-- Contact item START -->
+                <div class="col-md-6 col-xl-4">
+                    <div class="card card-body shadow text-center align-items-center h-100">
+                        <!-- Icon -->
+                        <div class="icon-lg bg-danger bg-opacity-10 text-danger rounded-circle mb-2"><i class="bi bi-inboxes-fill fs-5"></i></div>
+                        <!-- Title -->
+                        <h5>Email us</h5>
+                        <p>Large above be to means. Him his for sympathize.</p>
+                        <!-- Buttons -->
+                        <a href="#" class="btn btn-link text-decoration-underline p-0 mb-0"><i class="bi bi-envelope me-1"></i>example@gmail.com</a>
+                    </div>
+                </div>
+                <!-- Contact item END -->
+
+                <!-- Contact item START -->
+                <div class="col-xl-4 position-relative">
+                    <!-- Svg decoration -->
+                    <figure class="position-absolute top-0 end-0 z-index-1 mt-n4 ms-n7">
+                        <svg class="fill-warning" width="77px" height="77px">
+                            <path d="M76.997,41.258 L45.173,41.258 L67.676,63.760 L63.763,67.673 L41.261,45.171 L41.261,76.994 L35.728,76.994 L35.728,45.171 L13.226,67.673 L9.313,63.760 L31.816,41.258 L-0.007,41.258 L-0.007,35.725 L31.816,35.725 L9.313,13.223 L13.226,9.311 L35.728,31.813 L35.728,-0.010 L41.261,-0.010 L41.261,31.813 L63.763,9.311 L67.676,13.223 L45.174,35.725 L76.997,35.725 L76.997,41.258 Z"></path>
+                        </svg>
+                    </figure>
+
+                    <div class="card card-body shadow text-center align-items-center h-100">
+                        <!-- Icon -->
+                        <div class="icon-lg bg-orange bg-opacity-10 text-orange rounded-circle mb-2"><i class="bi bi-globe2 fs-5"></i></div>
+                        <!-- Title -->
+                        <h5>Social media</h5>
+                        <p>Sympathize Large above be to means.</p>
+                        <!-- Buttons -->
+                        <ul class="list-inline mb-0">
+                            <li class="list-inline-item"> <a class="btn btn-sm bg-facebook px-2 mb-0" href="#"><i class="fab fa-fw fa-facebook-f"></i></a> </li>
+                            <li class="list-inline-item"> <a class="btn btn-sm bg-instagram px-2 mb-0" href="#"><i class="fab fa-fw fa-instagram"></i></a> </li>
+                            <li class="list-inline-item"> <a class="btn btn-sm bg-twitter px-2 mb-0" href="#"><i class="fab fa-fw fa-twitter"></i></a> </li>
+                            <li class="list-inline-item"> <a class="btn btn-sm bg-linkedin px-2 mb-0" href="#"><i class="fab fa-fw fa-linkedin-in"></i></a> </li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- Contact item END -->
+            </div>
+        </div>
+    </section>
+    <!-- =======================
+    Main banner START -->
+
+    <!-- =======================
+    Contact form and vector START -->
+    <section class="pt-0 pt-lg-5">
+        <div class="container">
+            <div class="row g-4 g-lg-5 align-items-center">
+                <!-- Vector image START -->
+                <div class="col-lg-6 text-center">
+                    <img src="assets/images/element/contact.svg" alt="">
+                </div>
+                <!-- Vector image END -->
+
+                <!-- Contact form START -->
+                <div class="col-lg-6">
+                    <div class="card bg-light p-4">
+                        <!-- Svg decoration -->
+                        <figure class="position-absolute end-0 bottom-0 mb-n4 me-n2">
+                            <svg class="fill-orange" width="104.2px" height="95.2px">
+                                <circle cx="2.6" cy="92.6" r="2.6"/>
+                                <circle cx="2.6" cy="77.6" r="2.6"/>
+                                <circle cx="2.6" cy="62.6" r="2.6"/>
+                                <circle cx="2.6" cy="47.6" r="2.6"/>
+                                <circle cx="2.6" cy="32.6" r="2.6"/>
+                                <circle cx="2.6" cy="17.6" r="2.6"/>
+                                <circle cx="2.6" cy="2.6" r="2.6"/>
+                                <circle cx="22.4" cy="92.6" r="2.6"/>
+                                <circle cx="22.4" cy="77.6" r="2.6"/>
+                                <circle cx="22.4" cy="62.6" r="2.6"/>
+                                <circle cx="22.4" cy="47.6" r="2.6"/>
+                                <circle cx="22.4" cy="32.6" r="2.6"/>
+                                <circle cx="22.4" cy="17.6" r="2.6"/>
+                                <circle cx="22.4" cy="2.6" r="2.6"/>
+                                <circle cx="42.2" cy="92.6" r="2.6"/>
+                                <circle cx="42.2" cy="77.6" r="2.6"/>
+                                <circle cx="42.2" cy="62.6" r="2.6"/>
+                                <circle cx="42.2" cy="47.6" r="2.6"/>
+                                <circle cx="42.2" cy="32.6" r="2.6"/>
+                                <circle cx="42.2" cy="17.6" r="2.6"/>
+                                <circle cx="42.2" cy="2.6" r="2.6"/>
+                                <circle cx="62" cy="92.6" r="2.6"/>
+                                <circle cx="62" cy="77.6" r="2.6"/>
+                                <circle cx="62" cy="62.6" r="2.6"/>
+                                <circle cx="62" cy="47.6" r="2.6"/>
+                                <circle cx="62" cy="32.6" r="2.6"/>
+                                <circle cx="62" cy="17.6" r="2.6"/>
+                                <circle cx="62" cy="2.6" r="2.6"/>
+                                <circle cx="81.8" cy="92.6" r="2.6"/>
+                                <circle cx="81.8" cy="77.6" r="2.6"/>
+                                <circle cx="81.8" cy="62.6" r="2.6"/>
+                                <circle cx="81.8" cy="47.6" r="2.6"/>
+                                <circle cx="81.8" cy="32.6" r="2.6"/>
+                                <circle cx="81.8" cy="17.6" r="2.6"/>
+                                <circle cx="81.8" cy="2.6" r="2.6"/>
+                                <circle cx="101.7" cy="92.6" r="2.6"/>
+                                <circle cx="101.7" cy="77.6" r="2.6"/>
+                                <circle cx="101.7" cy="62.6" r="2.6"/>
+                                <circle cx="101.7" cy="47.6" r="2.6"/>
+                                <circle cx="101.7" cy="32.6" r="2.6"/>
+                                <circle cx="101.7" cy="17.6" r="2.6"/>
+                                <circle cx="101.7" cy="2.6" r="2.6"/>
+                            </svg>
+                        </figure>
+
+                        <!-- Card header -->
+                        <div class="card-header bg-light p-0 pb-3">
+                            <h3 class="mb-0">Send us message</h3>
+                        </div>
+
+                        <!-- Card body START -->
+                        <div class="card-body p-0">
+                            <form class="row g-4">
+                                <!-- Name -->
+                                <div class="col-md-6">
+                                    <label class="form-label">Your name *</label>
+                                    <input type="text" class="form-control">
+                                </div>
+                                <!-- Email -->
+                                <div class="col-md-6">
+                                    <label class="form-label">Email address *</label>
+                                    <input type="email" class="form-control">
+                                </div>
+                                <!-- Mobile number -->
+                                <div class="col-12">
+                                    <label class="form-label">Mobile number *</label>
+                                    <input type="text" class="form-control">
+                                </div>
+                                <!-- Message -->
+                                <div class="col-12">
+                                    <label class="form-label">Message *</label>
+                                    <textarea class="form-control" rows="3"></textarea>
+                                </div>
+                                <!-- Checkbox -->
+                                <div class="col-12 form-check ms-2">
+                                    <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                                    <label class="form-check-label" for="exampleCheck1">
+                                        By submitting this form you agree to our terms and conditions.
+                                    </label>
+                                </div>
+                                <!-- Button -->
+                                <div class="col-12">
+                                    <button class="btn btn-dark mb-0" type="button">Send Message</button>
+                                </div>
+                            </form>
+                        </div>
+                        <!-- Card body END -->
+                    </div>
+                </div>
+                <!-- Contact form END -->
+            </div>
+        </div>
+    </section>
+    <!-- =======================
+    Contact form and vector END -->
+
+    <!-- =======================
+    Map START -->
+    <section class="pt-0 pt-lg-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <iframe class="w-100 h-300px rounded" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3724.5063419425232!2d105.52271427503096!3d21.012416680632853!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3135abc60e7d3f19%3A0x2be9d7d0b5abcbf4!2zVHLGsOG7nW5nIMSQ4bqhaSBo4buNYyBGUFQgSMOgIE7hu5lp!5e0!3m2!1svi!2s!4v1751527604512!5m2!1svi!2s" height="500" style="border:0;" aria-hidden="false" tabindex="0"></iframe>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- =======================
+    Map END -->
+
+</main>
+<!-- **************** MAIN CONTENT END **************** -->
+
+<!-- =======================
+Footer START -->
+<footer class="bg-dark pt-5">
+    <div class="container">
+        <!-- Row START -->
+        <div class="row g-4">
+
+            <!-- Widget 1 START -->
+            <div class="col-lg-3">
+                <!-- logo -->
+                <a href="index.html">
+                    <img class="h-40px" src="assets/images/logo-light.svg" alt="logo">
+                </a>
+                <p class="my-3 text-body-secondary">Departure defective arranging rapturous did believe him all had supported.</p>
+                <p class="mb-2"><a href="#" class="text-body-secondary text-primary-hover"><i class="bi bi-telephone me-2"></i>+1234 568 963</a> </p>
+                <p class="mb-0"><a href="#" class="text-body-secondary text-primary-hover"><i class="bi bi-envelope me-2"></i>example@gmail.com</a></p>
+            </div>
+            <!-- Widget 1 END -->
+
+            <!-- Widget 2 START -->
+            <div class="col-lg-8 ms-auto">
+                <div class="row g-4">
+                    <!-- Link block -->
+                    <div class="col-6 col-md-3">
+                        <h5 class="text-white mb-2 mb-md-4">Page</h5>
+                        <ul class="nav flex-column text-primary-hover">
+                            <li class="nav-item"><a class="nav-link text-body-secondary" href="#">About us</a></li>
+                            <li class="nav-item"><a class="nav-link text-body-secondary" href="#">Contact us</a></li>
+                            <li class="nav-item"><a class="nav-link text-body-secondary" href="#">News and Blog</a></li>
+                            <li class="nav-item"><a class="nav-link text-body-secondary" href="#">Meet a Team</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Link block -->
+                    <div class="col-6 col-md-3">
+                        <h5 class="text-white mb-2 mb-md-4">Link</h5>
+                        <ul class="nav flex-column text-primary-hover">
+                            <li class="nav-item"><a class="nav-link text-body-secondary" href="#">Sign up</a></li>
+                            <li class="nav-item"><a class="nav-link text-body-secondary" href="#">Sign in</a></li>
+                            <li class="nav-item"><a class="nav-link text-body-secondary" href="#">Privacy Policy</a></li>
+                            <li class="nav-item"><a class="nav-link text-body-secondary" href="#">Terms</a></li>
+                            <li class="nav-item"><a class="nav-link text-body-secondary" href="#">Cookie</a></li>
+                            <li class="nav-item"><a class="nav-link text-body-secondary" href="#">Support</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Link block -->
+                    <div class="col-6 col-md-3">
+                        <h5 class="text-white mb-2 mb-md-4">Global Site</h5>
+                        <ul class="nav flex-column text-primary-hover">
+                            <li class="nav-item"><a class="nav-link text-body-secondary" href="#">India</a></li>
+                            <li class="nav-item"><a class="nav-link text-body-secondary" href="#">California</a></li>
+                            <li class="nav-item"><a class="nav-link text-body-secondary" href="#">Indonesia</a></li>
+                            <li class="nav-item"><a class="nav-link text-body-secondary" href="#">Canada</a></li>
+                            <li class="nav-item"><a class="nav-link text-body-secondary" href="#">Malaysia</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Link block -->
+                    <div class="col-6 col-md-3">
+                        <h5 class="text-white mb-2 mb-md-4">Booking</h5>
+                        <ul class="nav flex-column text-primary-hover">
+                            <li class="nav-item"><a class="nav-link text-body-secondary" href="#"><i class="fa-solid fa-hotel me-2"></i>Hotel</a></li>
+                            <li class="nav-item"><a class="nav-link text-body-secondary" href="#"><i class="fa-solid fa-plane me-2"></i>Flight</a></li>
+                            <li class="nav-item"><a class="nav-link text-body-secondary" href="#"><i class="fa-solid fa-globe-americas me-2"></i>Tour</a></li>
+                            <li class="nav-item"><a class="nav-link text-body-secondary" href="#"><i class="fa-solid fa-car me-2"></i>Cabs</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!-- Widget 2 END -->
+
+        </div><!-- Row END -->
+
+        <!-- Tops Links -->
+        <div class="row mt-5">
+            <h5 class="mb-2 text-white">Top Links</h5>
+            <ul class="list-inline text-primary-hover lh-lg">
+                <li class="list-inline-item"><a href="#" class="text-body-secondary">Flights</a></li>
+                <li class="list-inline-item"><a href="#" class="text-body-secondary">Hotels</a></li>
+                <li class="list-inline-item"><a href="#" class="text-body-secondary">Tours</a></li>
+                <li class="list-inline-item"><a href="#" class="text-body-secondary">Cabs</a></li>
+                <li class="list-inline-item"><a href="#" class="text-body-secondary">About</a></li>
+                <li class="list-inline-item"><a href="#" class="text-body-secondary">Contact us</a></li>
+                <li class="list-inline-item"><a href="#" class="text-body-secondary">Blogs</a></li>
+                <li class="list-inline-item"><a href="#" class="text-body-secondary">Services</a></li>
+                <li class="list-inline-item"><a href="#" class="text-body-secondary">Detail page</a></li>
+                <li class="list-inline-item"><a href="#" class="text-body-secondary">Services</a></li>
+                <li class="list-inline-item"><a href="#" class="text-body-secondary">Policy</a></li>
+                <li class="list-inline-item"><a href="#" class="text-body-secondary">Testimonials</a></li>
+                <li class="list-inline-item"><a href="#" class="text-body-secondary">Newsletters</a></li>
+                <li class="list-inline-item"><a href="#" class="text-body-secondary">Podcasts</a></li>
+                <li class="list-inline-item"><a href="#" class="text-body-secondary">Protests</a></li>
+                <li class="list-inline-item"><a href="#" class="text-body-secondary">NewsCyber</a></li>
+                <li class="list-inline-item"><a href="#" class="text-body-secondary">Education</a></li>
+                <li class="list-inline-item"><a href="#" class="text-body-secondary">Sports</a></li>
+                <li class="list-inline-item"><a href="#" class="text-body-secondary">Tech and Auto</a></li>
+                <li class="list-inline-item"><a href="#" class="text-body-secondary">Opinion</a></li>
+                <li class="list-inline-item"><a href="#" class="text-body-secondary">Share Market</a></li>
+            </ul>
+        </div>
+
+        <!-- Payment and card -->
+        <div class="row g-4 justify-content-between mt-0 mt-md-2">
+
+            <!-- Payment card -->
+            <div class="col-sm-7 col-md-6 col-lg-4">
+                <h5 class="text-white mb-2">Payment & Security</h5>
+                <ul class="list-inline mb-0 mt-3">
+                    <li class="list-inline-item"> <a href="#"><img src="assets/images/element/paypal.svg" class="h-30px" alt=""></a></li>
+                    <li class="list-inline-item"> <a href="#"><img src="assets/images/element/visa.svg" class="h-30px" alt=""></a></li>
+                    <li class="list-inline-item"> <a href="#"><img src="assets/images/element/mastercard.svg" class="h-30px" alt=""></a></li>
+                    <li class="list-inline-item"> <a href="#"><img src="assets/images/element/expresscard.svg" class="h-30px" alt=""></a></li>
+                </ul>
+            </div>
+
+            <!-- Social media icon -->
+            <div class="col-sm-5 col-md-6 col-lg-3 text-sm-end">
+                <h5 class="text-white mb-2">Follow us on</h5>
+                <ul class="list-inline mb-0 mt-3">
+                    <li class="list-inline-item"> <a class="btn btn-sm px-2 bg-facebook mb-0" href="#"><i class="fab fa-fw fa-facebook-f"></i></a> </li>
+                    <li class="list-inline-item"> <a class="btn btn-sm shadow px-2 bg-instagram mb-0" href="#"><i class="fab fa-fw fa-instagram"></i></a> </li>
+                    <li class="list-inline-item"> <a class="btn btn-sm shadow px-2 bg-twitter mb-0" href="#"><i class="fab fa-fw fa-twitter"></i></a> </li>
+                    <li class="list-inline-item"> <a class="btn btn-sm shadow px-2 bg-linkedin mb-0" href="#"><i class="fab fa-fw fa-linkedin-in"></i></a> </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Divider -->
+        <hr class="mt-4 mb-0">
+
+        <!-- Bottom footer -->
+        <div class="row">
+            <div class="container">
+                <div class="d-lg-flex justify-content-between align-items-center py-3 text-center text-lg-start">
+                    <!-- copyright text -->
+                    <div class="text-body-secondary text-primary-hover"> Copyrights ©2023 Booking. Build by <a href="#" class="text-body-secondary">StackBros</a>. </div>
+                    <!-- copyright links-->
+                    <div class="nav mt-2 mt-lg-0">
+                        <ul class="list-inline text-primary-hover mx-auto mb-0">
+                            <li class="list-inline-item me-0"><a class="nav-link text-body-secondary py-1" href="#">Privacy policy</a></li>
+                            <li class="list-inline-item me-0"><a class="nav-link text-body-secondary py-1" href="#">Terms and conditions</a></li>
+                            <li class="list-inline-item me-0"><a class="nav-link text-body-secondary py-1 pe-0" href="#">Refund policy</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+<!-- =======================
+Footer END -->
+
+<!-- Back to top -->
+<div class="back-top"></div>
+
+<!-- Bootstrap JS -->
+<script src="assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- ThemeFunctions -->
+<script src="assets/js/functions.js"></script>
+
+</body>
+
+<!-- Mirrored from stackbros.in/bookinga/landing/contact.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:07:26 GMT -->
+</html>
