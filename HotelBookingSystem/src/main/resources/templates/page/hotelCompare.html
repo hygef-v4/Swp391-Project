@@ -64,49 +64,21 @@
                                             <i class="fa-solid fa-plus"></i>
                                         </a>
                                     </th>
-                                    <th scope="col">
+                                    <th scope="col" th:each="hotel : ${hotels}">
                                         <div class="card bg-transparent">
                                             <!-- Image -->
-                                            <img src="/assets/images/category/hotel/4by3/02.jpg" class="rounded" alt="...">
+                                            <img th:src="${hotel.hotelImageUrl}" class="rounded" alt="...">
                                             <!-- Card body START -->
                                             <div class="card-body px-0">
                                                 <!-- Title -->
-                                                <span class="h6"><a href="#">Courtyard by Marriott New York</a></span>
+                                                <span class="h6"><a th:text="${hotel.hotelName}" href="#"></a></span>
                                                 <!-- Button and price -->
                                                 <div class="d-sm-flex justify-content-between align-items-center mt-2">
-                                                    <span class="h6 text-success mb-0">$750</span>
-                                                    <a href="#" class="btn btn-sm btn-link mb-0 p-0">View Listing<i class="bi bi-arrow-right ms-2"></i></a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </th>
-                                    <th scope="col">
-                                        <div class="card bg-transparent">
-                                            <!-- Image -->
-                                            <img src="/assets/images/category/hotel/4by3/03.jpg" class="rounded" alt="...">
-                                            <!-- Card body START -->
-                                            <div class="card-body px-0">
-                                                <!-- Title -->
-                                                <span class="h6"><a href="#">Club Quarters Hotel</a></span>
-                                                <!-- Button and price -->
-                                                <div class="d-sm-flex justify-content-between align-items-center mt-2">
-                                                    <span class="h6 text-success mb-0">$800</span>
-                                                    <a href="#" class="btn btn-sm btn-link mb-0 p-0">View Listing<i class="bi bi-arrow-right ms-2"></i></a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </th>
-                                    <th scope="col">
-                                        <div class="card bg-transparent">
-                                            <!-- Image -->
-                                            <img src="/assets/images/category/hotel/4by3/05.jpg" class="rounded" alt="...">
-                                            <!-- Card body START -->
-                                            <div class="card-body px-0">
-                                                <!-- Title -->
-                                                <span class="h6"><a href="#">Pride moon Village Resort & Spa</a></span>
-                                                <!-- Button and price -->
-                                                <div class="d-sm-flex justify-content-between align-items-center mt-2">
-                                                    <span class="h6 text-success mb-0">$1000</span>
+                                                    <span class="h6 text-success mb-0"
+                                                          th:if="${hotel.minPrice != null}"
+                                                          th:text="${#numbers.formatDecimal(hotel.minPrice, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+                                                    <span class="h6 text-success mb-0"
+                                                          th:if="${hotel.minPrice == null}">N/A</span>
                                                     <a href="#" class="btn btn-sm btn-link mb-0 p-0">View Listing<i class="bi bi-arrow-right ms-2"></i></a>
                                                 </div>
                                             </div>
@@ -117,36 +89,32 @@
                                 <!-- Head END -->
                                 <!-- Body START -->
                                 <tbody class="border-top-0">
-                                <!-- Item -->
+                                <!-- Item: Rating -->
                                 <tr>
                                     <th scope="row"><span class="h6 mb-0">Rating</span></th>
-                                    <td>
-                                        <ul class="list-inline mb-0">
-                                            <li class="list-inline-item me-0 small"><i class="fas fa-star text-warning"></i></li>
-                                            <li class="list-inline-item me-0 small"><i class="fas fa-star text-warning"></i></li>
-                                            <li class="list-inline-item me-0 small"><i class="fas fa-star text-warning"></i></li>
-                                            <li class="list-inline-item me-0 small"><i class="fas fa-star text-warning"></i></li>
-                                            <li class="list-inline-item"><i class="far fa-star text-warning"></i></li>
-                                        </ul>
+                                    <td th:each="hotel : ${hotels}">
+                                        <span th:text="${hotel.rating}"></span>
                                     </td>
-                                    <td>
-                                        <ul class="list-inline mb-0">
-                                            <li class="list-inline-item me-0 small"><i class="fas fa-star text-warning"></i></li>
-                                            <li class="list-inline-item me-0 small"><i class="fas fa-star text-warning"></i></li>
-                                            <li class="list-inline-item me-0 small"><i class="fas fa-star text-warning"></i></li>
-                                            <li class="list-inline-item me-0 small"><i class="fas fa-star text-warning"></i></li>
-                                            <li class="list-inline-item"><i class="fas fa-star-half-alt text-warning"></i></li>
-                                        </ul>
-                                    </td>
-                                    <td>
-                                        <ul class="list-inline mb-0">
-                                            <li class="list-inline-item me-0 small"><i class="fas fa-star text-warning"></i></li>
-                                            <li class="list-inline-item me-0 small"><i class="fas fa-star text-warning"></i></li>
-                                            <li class="list-inline-item me-0 small"><i class="fas fa-star text-warning"></i></li>
-                                            <li class="list-inline-item me-0 small"><i class="fas fa-star text-warning"></i></li>
-                                            <li class="list-inline-item"><i class="fas fa-star text-warning"></i></li>
-                                        </ul>
-                                    </td>
+                                </tr>
+                                <!-- Item: Address -->
+                                <tr>
+                                    <th scope="row"><span class="h6 mb-0">Address</span></th>
+                                    <td th:each="hotel : ${hotels}" th:text="${hotel.address}"></td>
+                                </tr>
+                                <!-- Item: Max Guests -->
+                                <tr>
+                                    <th scope="row"><span class="h6 mb-0">Max Guests</span></th>
+                                    <td th:each="hotel : ${hotels}" th:text="${hotel.maxGuests}"></td>
+                                </tr>
+                                <!-- Item: Room Quantity -->
+                                <tr>
+                                    <th scope="row"><span class="h6 mb-0">Room Quantity</span></th>
+                                    <td th:each="hotel : ${hotels}" th:text="${hotel.roomQuantity}"></td>
+                                </tr>
+                                <!-- Item: Host Name -->
+                                <tr>
+                                    <th scope="row"><span class="h6 mb-0">Host Name</span></th>
+                                    <td th:each="hotel : ${hotels}" th:text="${hotel.hostName}"></td>
                                 </tr>
                                 <!-- Item -->
                                 <tr>
