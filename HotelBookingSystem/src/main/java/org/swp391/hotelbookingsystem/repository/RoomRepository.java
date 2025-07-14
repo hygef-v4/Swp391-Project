@@ -94,7 +94,7 @@ public class RoomRepository {
                         price,
                         max_guests AS maxGuests,
                         status,
-                        quantity - ISNULL((SELECT SUM(quantity) FROM BookingUnits WHERE room_id = Rooms.room_id AND status IN ('pending', 'approved', 'check_in')), 0) AS quantity
+                        quantity AS quantity
                     FROM Rooms
                     WHERE hotel_id = ?
                 """;
