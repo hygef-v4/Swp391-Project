@@ -11,7 +11,7 @@
     <style>
         .compare-table th, .compare-table td { vertical-align: middle !important; font-size: 1.05rem; padding: 1.1rem 0.7rem; }
         .compare-table th { background: #f5f7fa; font-weight: bold; font-size: 1.12rem; color: #222; border-top: none; }
-        .compare-table { border-radius: 18px; overflow: hidden; box-shadow: 0 4px 24px #0001; border: 1.5px solid #e3e8ee; }
+        .compare-table { border-radius: 18px; box-shadow: 0 4px 24px #0001; border: 1.5px solid #e3e8ee; width: 100%; table-layout: fixed; }
         .compare-table tr:nth-child(even) { background: #f8fafc; }
         .compare-table tr:nth-child(odd) { background: #fff; }
         .compare-table td, .compare-table th { border-color: #e3e8ee; }
@@ -22,6 +22,7 @@
         .compare-review-rating { color: #ffc107; font-size: 1.2rem; margin-left: 4px; }
         .compare-review-name { font-weight: 700; font-size: 1.05rem; margin-right: 4px; display: block; white-space: normal; text-align: left; }
         .compare-review-comment { font-style: italic; color: #555; font-size: 0.98rem; line-height: 1.3; margin-top: 2px; white-space: normal; word-break: break-word; text-align: left; }
+        .location-cell { white-space: normal !important; word-break: break-word !important; line-height: 1.5; text-align: left !important; }
         .compare-table .btn-outline-danger { border-radius: 50%; padding: 0.3rem 0.5rem; border-width: 2px; transition: background 0.2s, color 0.2s; }
         .compare-table .btn-outline-danger:hover { background: #ffebee; color: #c00; border-color: #c00; }
         .compare-table .btn-outline-primary.btn-lg { font-size: 1.1rem; padding: 0.7rem 1.3rem; border-radius: 2rem; }
@@ -37,6 +38,39 @@
             .compare-table .btn-outline-primary.btn-lg { font-size: 0.93rem; padding: 0.4rem 0.7rem; }
             .compare-avatar { width: 32px; height: 32px; }
         }
+        /* Đảm bảo bảng chính không tràn ngang */
+        .table-responsive { overflow-x: unset !important; }
+        .hotel-slider-container {
+            overflow-x: auto;
+            white-space: nowrap;
+            padding-bottom: 8px;
+            margin-bottom: 0.5rem;
+        }
+        .hotel-slider-card {
+            display: inline-block;
+            vertical-align: top;
+            width: 220px;
+            margin-right: 18px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px #0001;
+            cursor: pointer;
+            transition: box-shadow 0.2s, transform 0.2s;
+            border: 1.5px solid #e3e8ee;
+        }
+        .hotel-slider-card:hover {
+            box-shadow: 0 4px 16px #0002;
+            transform: translateY(-2px) scale(1.03);
+            border-color: #a5d8ff;
+        }
+        .hotel-slider-card img {
+            width: 100%; height: 120px; object-fit: cover; border-radius: 12px 12px 0 0;
+        }
+        .hotel-slider-card .card-body {
+            padding: 0.7rem 0.6rem 0.6rem 0.6rem;
+        }
+        .hotel-slider-card .badge { font-size: 0.98rem; }
+        .hotel-slider-card .text-muted { font-size: 0.97rem; }
     </style>
 </head>
 <body>
@@ -78,8 +112,9 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <div class="row mb-3">
-          <div class="col-md-4 mb-2">
+        <div class="row mb-3 align-items-end">
+          <div class="col-md-3 mb-2 d-none"><!-- Ẩn filter loại khách sạn -->
+            <label class="form-label mb-1">Loại khách sạn</label>
             <select class="form-select" id="filterCategory">
               <option value="">Tất cả loại khách sạn</option>
               <option value="resort">Resort</option>
@@ -87,7 +122,28 @@
               <option value="apartment">Căn hộ</option>
             </select>
           </div>
-          <div class="col-md-8">
+          <div class="col-md-4 mb-2">
+            <label class="form-label mb-1">Thành phố</label>
+            <select class="form-select" id="filterCity">
+              <option value="">Tất cả thành phố</option>
+              <option value="Hà Nội">Hà Nội</option>
+              <option value="Đà Nẵng">Đà Nẵng</option>
+              <option value="Hồ Chí Minh">Hồ Chí Minh</option>
+              <option value="Đà Lạt">Đà Lạt</option>
+              <option value="Nha Trang">Nha Trang</option>
+            </select>
+          </div>
+          <div class="col-md-4 mb-2">
+            <label class="form-label mb-1">Khoảng giá</label>
+            <input type="range" class="form-range" min="500000" max="2000000" step="50000" id="filterMinPrice" value="500000" oninput="document.getElementById('minPriceVal').innerText=this.value.toLocaleString('vi-VN')">
+            <input type="range" class="form-range" min="500000" max="2000000" step="50000" id="filterMaxPrice" value="2000000" oninput="document.getElementById('maxPriceVal').innerText=this.value.toLocaleString('vi-VN')">
+            <div class="d-flex justify-content-between small mt-1">
+              <span id="minPriceVal">500,000</span>
+              <span id="maxPriceVal">2,000,000</span>
+            </div>
+          </div>
+          <div class="col-md-2 mb-2">
+            <label class="form-label mb-1">Tên khách sạn</label>
             <input type="text" class="form-control" id="searchHotelName" placeholder="Tìm kiếm tên khách sạn...">
           </div>
         </div>
@@ -124,6 +180,7 @@ function renderCompareTable() {
       totalRooms: 10,
       amenityCount: 3,
       maxGuests: 5,
+      roomAreas: [22, 35], // diện tích các loại phòng (m²)
       review: { fullName: 'Người dùng 1', avatarUrl: '/assets/images/avatar/01.jpg', rating: 4, comment: 'Khách sạn rất tuyệt vời! Tôi sẽ quay lại lần nữa.' },
       rating: 4.3,
       hotelId: 101
@@ -137,6 +194,7 @@ function renderCompareTable() {
       totalRooms: 10,
       amenityCount: 3,
       maxGuests: 7,
+      roomAreas: [28, 40],
       review: { fullName: 'Người dùng 1', avatarUrl: '/assets/images/avatar/01.jpg', rating: 5, comment: 'Khách sạn rất tuyệt vời! Tôi sẽ quay lại lần nữa.' },
       rating: 4.6,
       hotelId: 102
@@ -146,10 +204,11 @@ function renderCompareTable() {
       city: 'Hồ Chí Minh',
       minPrice: 1100000,
       amenities: [],
-      roomTypes: 0,
+      roomTypes: 1,
       totalRooms: 10,
       amenityCount: 0,
       maxGuests: 0,
+      roomAreas: [30],
       review: { fullName: 'Người dùng 1', avatarUrl: '/assets/images/avatar/01.jpg', rating: 4, comment: 'Khách sạn rất tuyệt vời! Tôi sẽ quay lại lần nữa.' },
       rating: 4.9,
       hotelId: 103
@@ -176,7 +235,7 @@ function renderCompareTable() {
     },
     {
       label: 'Địa điểm',
-      render: (h, idx) => h ? `<i class="bi bi-geo-alt me-1"></i> ${demoDetails[idx]?.address || 'Không có thông tin'}, ${demoDetails[idx]?.city || ''}` : ''
+      render: (h, idx) => h ? `<div class="location-cell"><i class="bi bi-geo-alt me-1"></i> ${demoDetails[idx]?.address || 'Không có thông tin'}, ${demoDetails[idx]?.city || ''}</div>` : ''
     },
     {
       label: 'Giá thấp nhất',
@@ -201,6 +260,18 @@ function renderCompareTable() {
     {
       label: 'Số khách tối đa/phòng',
       render: (h, idx) => h ? (demoDetails[idx]?.maxGuests > 0 ? demoDetails[idx].maxGuests : 'Không có thông tin') : ''
+    },
+    {
+      label: 'Diện tích phòng (m²)',
+      render: (h, idx) => {
+        if (!h) return '';
+        const areas = demoDetails[idx]?.roomAreas || [];
+        if (areas.length === 0) return 'Không có thông tin';
+        if (areas.length === 1) return areas[0] + ' m²';
+        const min = Math.min(...areas);
+        const max = Math.max(...areas);
+        return min === max ? `${min} m²` : `${min} - ${max} m²`;
+      }
     },
     {
       label: 'Đánh giá nổi bật',
@@ -239,26 +310,54 @@ function openSelectHotel(idx) {
 }
 window.openSelectHotel = openSelectHotel;
 
+// Đảm bảo demoHotels có trường minPrice
+const demoHotels = [
+  {id: 201, name: 'Sunshine Resort', category: 'resort', image: '/assets/images/category/hotel/01.jpg', city: 'Đà Nẵng', minPrice: 900000},
+  {id: 202, name: 'Central Hotel', category: 'hotel', image: '/assets/images/category/hotel/02.jpg', city: 'Hà Nội', minPrice: 1200000},
+  {id: 203, name: 'Luxury Apartment', category: 'apartment', image: '/assets/images/category/hotel/03.jpg', city: 'Hồ Chí Minh', minPrice: 1500000},
+  {id: 204, name: 'Green Villa', category: 'resort', image: '/assets/images/category/hotel/04.jpg', city: 'Đà Lạt', minPrice: 800000},
+  {id: 205, name: 'City View Hotel', category: 'hotel', image: '/assets/images/category/hotel/05.jpg', city: 'Nha Trang', minPrice: 1100000},
+  {id: 206, name: 'Inter Resort', category: 'resort', image: '/assets/images/category/hotel/06.jpg', city: 'Đà Nẵng', minPrice: 1000000},
+  {id: 207, name: 'Lakeview Apartment', category: 'apartment', image: '/assets/images/category/hotel/07.jpg', city: 'Hà Nội', minPrice: 1300000},
+  {id: 208, name: 'Mountain Resort', category: 'resort', image: '/assets/images/category/hotel/08.jpg', city: 'Đà Lạt', minPrice: 950000},
+  {id: 209, name: 'Ocean Pearl', category: 'hotel', image: '/assets/images/category/hotel/09.jpg', city: 'Nha Trang', minPrice: 1400000},
+  {id: 210, name: 'Saigon Central', category: 'hotel', image: '/assets/images/category/hotel/10.jpg', city: 'Hồ Chí Minh', minPrice: 1700000},
+  {id: 211, name: 'Inter Hotel', category: 'hotel', image: '/assets/images/category/hotel/11.jpg', city: 'Đà Nẵng', minPrice: 1050000},
+  {id: 212, name: 'Sky Apartment', category: 'apartment', image: '/assets/images/category/hotel/12.jpg', city: 'Đà Nẵng', minPrice: 1150000}
+];
+
 function renderHotelListPopup() {
-  const filter = document.getElementById('filterCategory').value;
+  // const filter = document.getElementById('filterCategory').value; // Bỏ filter loại
+  const city = document.getElementById('filterCity').value;
+  const minPrice = parseInt(document.getElementById('filterMinPrice').value) || 500000;
+  const maxPrice = parseInt(document.getElementById('filterMaxPrice').value) || 2000000;
   const search = document.getElementById('searchHotelName').value.toLowerCase();
-  const list = demoHotels.filter(h => (!filter || h.category === filter) && (!search || h.name.toLowerCase().includes(search)));
+  const list = demoHotels.filter(h =>
+    (!city || h.city === city) &&
+    (h.minPrice >= minPrice && h.minPrice <= maxPrice) &&
+    (!search || h.name.toLowerCase().includes(search))
+  );
   const container = document.getElementById('hotelListPopup');
-  container.innerHTML = list.length ? list.map(h => `
-    <div class="col-md-4 mb-3">
-      <div class="card h-100 shadow-sm hotel-select-card" style="cursor:pointer" onclick="selectHotelForCompare(${h.id})">
-        <img src="${h.image}" class="card-img-top" alt="${h.name}">
-        <div class="card-body p-2 text-center">
-          <h6 class="mb-1">${h.name}</h6>
-          <div class="text-muted small">${h.city}</div>
-          <span class="badge bg-secondary">${h.category}</span>
+  if (list.length) {
+    container.innerHTML = `<div class='hotel-slider-container'>` +
+      list.map(h => `
+        <div class="hotel-slider-card hotel-select-card" onclick="selectHotelForCompare(${h.id})">
+          <img src="${h.image}" alt="${h.name}">
+          <div class="card-body text-center">
+            <h6 class="mb-1 fw-bold">${h.name}</h6>
+            <div class="text-muted small mb-1"><i class='bi bi-geo-alt me-1'></i>${h.city}</div>
+            <div class="text-success mt-1 fw-bold">${h.minPrice.toLocaleString('vi-VN')}₫</div>
+          </div>
         </div>
-      </div>
-    </div>
-  `).join('') : '<div class="col-12 text-center text-muted">Không tìm thấy khách sạn phù hợp</div>';
+      `).join('') + `</div>`;
+  } else {
+    container.innerHTML = '<div class="col-12 text-center text-muted">Không tìm thấy khách sạn phù hợp với tiêu chí lọc</div>';
+  }
 }
 
-document.getElementById('filterCategory').addEventListener('change', renderHotelListPopup);
+document.getElementById('filterCity').addEventListener('change', renderHotelListPopup);
+document.getElementById('filterMinPrice').addEventListener('input', renderHotelListPopup);
+document.getElementById('filterMaxPrice').addEventListener('input', renderHotelListPopup);
 document.getElementById('searchHotelName').addEventListener('input', renderHotelListPopup);
 document.addEventListener('DOMContentLoaded', renderHotelListPopup);
 

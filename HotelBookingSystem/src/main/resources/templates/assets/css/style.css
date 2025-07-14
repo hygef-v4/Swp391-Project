@@ -1,0 +1,6 @@
+.location-cell {
+  white-space: normal !important;
+  word-break: break-word !important;
+  line-height: 1.5;
+  text-align: left !important;
+} 
