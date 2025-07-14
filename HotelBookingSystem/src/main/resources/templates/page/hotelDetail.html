@@ -87,298 +87,6 @@
 		})
 		
 	</script>
-
-	<script>
-		let choices;
-
-		document.addEventListener("DOMContentLoaded", function(){
-			const items = document.querySelectorAll(".room-description li");
-			items.forEach(li => {
-				li.classList.add("list-group-item", "h6", "fw-light", "d-flex", "mb-0");
-
-				const icon = document.createElement("i");
-				icon.className = "fa-solid fa-check-circle text-success me-2";
-				li.insertBefore(icon, li.firstChild);
-			})
-
-			var element = document.querySelector('.js-choice-review');
-
-			var removeItemBtn = element.getAttribute('data-remove-item-button') == 'true' ? true : false;
-			var placeHolder = element.getAttribute('data-placeholder') ? element.getAttribute('data-placeholder') : '';
-			var placeHolderVal = element.getAttribute('data-placeholder-value') ? element.getAttribute('data-placeholder-value') : '';
-			var maxItemCount = element.getAttribute('data-max-item-count') ? element.getAttribute('data-max-item-count') : 3;
-			var searchEnabled = element.getAttribute('data-search-enabled') == 'true' ? true : false;
-
-			choices = new Choices(element, {
-				removeItemButton: removeItemBtn,
-				placeholder: placeHolder,
-				placeholderValue: placeHolderVal,
-				maxItemCount: maxItemCount,
-				searchEnabled: searchEnabled
-			});
-		});
-	</script>
-
-	<script>
-		async function review(add = true){
-			const form = document.getElementById('review');
-			const formData = new FormData(form);
-
-			const comment = formData.get('comment').trim();
-			if(!comment) {
-				alert("Vui lòng nhập bình luận.");
-				return;
-			}if(/<.*?>/.test(comment)){
-				alert("Không thể gửi tin nhắn");
-				return;
-			}
-
-			let chat = document.getElementById("reviewChat");
-			let box = document.getElementById("reviewBox");
-
-			// Lấy CSRF từ meta tag
-			const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-			const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-
-			let request = await fetch('/review', {
-				method: 'POST',
-				headers: {
-					[csrfHeader]: csrfToken
-				},
-				body: formData
-			});
-
-			let date = box.querySelector("#reviewDate");
-			let rating = box.querySelector("#reviewRating");
-			let review = box.querySelector("#reviewComment");
-
-			if(add) date.textContent = new Date().toLocaleDateString('vi-VN');
-			rating.textContent = formData.get('rating');
-			review.textContent = formData.get('comment');
-
-			chat.classList.add("d-none");
-			if(add){
-				document.getElementById("button").innerHTML = `
-					<div class="form-control-bg-light mb-3 w-100 d-flex justify-content-center row">
-						<button onclick="closeReview()" type="button" class="btn btn-lg btn-danger mb-0 col-5 me-3">Quay lại</button>
-						<button onclick="review(false)" type="button" class="btn btn-lg btn-primary mb-0 col-5">Sửa<i class="bi fa-fw bi-arrow-right ms-2"></i></button>
-					</div>
-				`;
-			}box.classList.remove("d-none");
-
-			let response = await request.json();
-			
-			if(add){
-				let r = `
-					<div id="review${response.reviewId}">
-						<div class="d-md-flex my-4">
-							<div class="avatar avatar-lg me-3 flex-shrink-0">
-								<img class="avatar-img rounded-circle" src="${response.avatarUrl ? response.avatarUrl : '/assets/images/avatar/avatar.jpg'}" alt="${response.fullName}">
-							</div>
-							<div class="w-100">
-								<div class="d-flex justify-content-between mt-1 mt-md-0">
-									<div>
-										<h6 class="me-3 mb-0">${response.fullName}</h6>
-										<ul class="nav nav-divider small mb-2">
-											<li class="nav-item">${new Date(response.createdAt).toLocaleDateString('vi-VN')}</li>
-										</ul>
-									</div>
-									<div class="icon-md rounded text-bg-warning fs-6 rating">${response.rating}</div>
-								</div>
-								<p class="mb-0 comment">${response.comment}</p>
-								<div class="d-flex justify-content-end mt-2">
-									<div>
-										<a href="javascript:void(0)" class="text-secondary fw-bold hover-danger me-2" onclick="deleteReview()">Xóa</a>
-										<a href="javascript:void(0)" class="text-secondary fw-bold hover-primary me-2" onclick="editReview();scrollToId('review')">Chỉnh sửa</a>
-									</div>
-									<a href="javascript:void(0)" class="text-secondary fw-bold hover-primary" onclick="reply(${response.reviewId},${response.userId})">Trả lời</a>
-								</div>
-							</div>
-						</div>
-						<hr>
-					</div>
-				`;
-				
-				let comment = document.getElementById("comment");
-				comment.innerHTML = r + comment.innerHTML;
-			}else{
-				let r = document.querySelector("#review" + response.reviewId);
-				if(r) {
-					r.querySelector(".rating").textContent = response.rating;
-					r.querySelector(".comment").textContent = response.comment;
-				}
-			}
-		}
-
-		function closeReview(){
-			const form = document.getElementById('review');
-
-			let chat = document.getElementById("reviewChat");
-			let box = document.getElementById("reviewBox");
-
-			let rating = box.querySelector("#reviewRating");
-			let comment = box.querySelector("#reviewComment");
-
-			choices.setChoiceByValue(rating.textContent);
-			form.elements['comment'].value = comment.textContent;
-
-			chat.classList.add("d-none");
-			box.classList.remove("d-none");
-		}
-
-		async function editReview() {
-			let chat = document.getElementById("reviewChat");
-			let box = document.getElementById("reviewBox");
-
-			chat.classList.remove("d-none");
-			box.classList.add("d-none");
-		}
-
-		async function deleteReview() {
-			const form = document.getElementById('review');
-			const formData = new FormData(form);
-
-			let chat = document.getElementById("reviewChat");
-			let box = document.getElementById("reviewBox");
-
-			// Lấy CSRF từ meta tag
-			const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-			const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-
-			let request = await fetch('/deleteReview', {
-				method: 'POST',
-				headers: {
-					[csrfHeader]: csrfToken
-				},
-				body: formData
-			});
-
-			box.querySelector("#reviewDate").textContent = "";
-			choices.setChoiceByValue('5');
-			form.elements['comment'].value = "";
-
-			document.getElementById("button").innerHTML = `
-				<button onclick="review()" type="button" class="btn btn-lg btn-primary mb-0 w-100">Gửi<i class="bi fa-fw bi-arrow-right ms-2"></i></button>
-			`;
-
-			chat.classList.remove("d-none");
-			box.classList.add("d-none");
-
-			let response = await request.text()
-			document.querySelector("#review" + response)?.remove();
-		}
-
-		function reply(reviewId, userId){
-			let reply = document.getElementById("reply");
-			if(reply){
-				reply.remove();				
-				if(reply.elements["reviewId"].value == reviewId)
-					return;
-			}
-
-			let form =`
-				<form class="mb-5" id="reply">
-					<div class="d-md-flex mt-4">
-						<!-- Avatar -->
-						<div class="avatar avatar-lg me-3 flex-shrink-0">
-							<div class="avatar-img rounded-circle"></div>
-						</div>
-						<!-- Text -->
-						<div class="w-100">
-							<div class="row gx-3 g-2 align-items-center}">
-								<!-- Leave reply START -->
-								<input type="hidden" name="reviewId" value="${reviewId}">
-								<input type="hidden" name="userId" value="${userId}">
-								<!-- Message -->
-								<div class="form-control-bg-light mb-3">
-									<textarea name="comment" class="form-control" placeholder="Viết bình luận" rows="3"></textarea>
-								</div>
-								<!-- Button -->
-								<button onclick="addReply()" type="button" class="btn btn-lg btn-primary mb-0">Gửi<i class="bi fa-fw bi-arrow-right ms-2"></i></button>
-								<!-- Leave reply END -->
-							</div>
-						</div>
-					</div>
-				</form>
-			`
-
-			let review = document.getElementById("review" + reviewId).querySelector(".reply");
-			review.innerHTML = form + review.innerHTML;
-		}
-
-		async function addReply(){
-			const form = document.getElementById('reply');
-			const formData = new FormData(form);
-
-			if(!formData.get('comment').trim()) {
-				alert("Vui lòng nhập bình luận.");
-				return;
-			}if(/<.*?>/.test(comment)){
-				alert("Không thể gửi tin nhắn");
-				return;
-			}
-
-			// Lấy CSRF từ meta tag
-			const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-			const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-
-			let request = await fetch('/addReply', {
-				method: 'POST',
-				headers: {
-					[csrfHeader]: csrfToken
-				},
-				body: formData
-			});
-
-			form.remove();
-
-			let response = await request.json();
-
-			let r = `
-				<div class="ps-2 ps-md-3 mb-2" id="reply${response.replyId}">
-					<div class="d-md-flex">
-						<img class="avatar avatar-sm rounded-circle me-3" src="${response.avatarUrl}" alt="avatar">
-						<div class="mt-2 mt-md-0 w-100">
-							<h6 class="mb-1">${response.fullName}</h6>
-							<ul class="nav nav-divider small mb-2">
-								<li class="nav-item">${new Date(response.createdAt).toLocaleDateString('vi-VN')}</li>
-							</ul>
-							<p class="mb-0 comment">${response.comment}</p>
-							<div class="d-flex justify-content-end mt-2">
-								<div>
-									<a href="javascript:void(0)" class="text-secondary fw-bold hover-danger me-2" onclick="deleteReply(${response.replyId})">Xóa</a>
-									<a href="javascript:void(0)" class="text-secondary fw-bold hover-primary me-2" onclick="reply(${response.reviewId},${response.userId});scrollToId(reply);">Chỉnh sửa</a>
-								</div>
-								<a href="javascript:void(0)" class="text-secondary fw-bold hover-primary" onclick="reply(${response.reviewId},${response.userId});scrollToId(reply);">Trả lời</a>
-							</div>
-						</div>
-					</div>
-				</div>
-			`;
-
-			let review = document.getElementById("review" + form.elements["reviewId"].value).querySelector(".reply");
-			review.innerHTML = review.innerHTML + r;
-		}
-
-		async function deleteReply(replyId) {
-			// Lấy CSRF từ meta tag
-			const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-			const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-
-			let request = await fetch('/deleteReply', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded',
-					[csrfHeader]: csrfToken
-				},
-				body: "replyId=" + replyId
-			});
-
-			let response = await request.text()
-			document.querySelector("#reply" + response).remove();
-		}
-	</script>
-
 	<!-- Favicon -->
 	<link rel="shortcut icon" href="assets/images/favicon.ico">
 
@@ -1269,6 +977,297 @@ Footer END -->
 
 <!-- ThemeFunctions -->
 <script src="assets/js/functions.js"></script>
+
+<script>
+	let choices;
+
+	document.addEventListener("DOMContentLoaded", function(){
+		const items = document.querySelectorAll(".room-description li");
+		items.forEach(li => {
+			li.classList.add("list-group-item", "h6", "fw-light", "d-flex", "mb-0");
+
+			const icon = document.createElement("i");
+			icon.className = "fa-solid fa-check-circle text-success me-2";
+			li.insertBefore(icon, li.firstChild);
+		})
+
+		var element = document.querySelector('.js-choice-review');
+
+		var removeItemBtn = element.getAttribute('data-remove-item-button') == 'true' ? true : false;
+		var placeHolder = element.getAttribute('data-placeholder') ? element.getAttribute('data-placeholder') : '';
+		var placeHolderVal = element.getAttribute('data-placeholder-value') ? element.getAttribute('data-placeholder-value') : '';
+		var maxItemCount = element.getAttribute('data-max-item-count') ? element.getAttribute('data-max-item-count') : 3;
+		var searchEnabled = element.getAttribute('data-search-enabled') == 'true' ? true : false;
+
+		choices = new Choices(element, {
+			removeItemButton: removeItemBtn,
+			placeholder: placeHolder,
+			placeholderValue: placeHolderVal,
+			maxItemCount: maxItemCount,
+			searchEnabled: searchEnabled
+		});
+	});
+</script>
+
+<script>
+	async function review(add = true){
+		const form = document.getElementById('review');
+		const formData = new FormData(form);
+
+		const comment = formData.get('comment').trim();
+		if(!comment) {
+			alert("Vui lòng nhập bình luận.");
+			return;
+		}if(/<.*?>/.test(comment)){
+			alert("Không thể gửi tin nhắn");
+			return;
+		}
+
+		let chat = document.getElementById("reviewChat");
+		let box = document.getElementById("reviewBox");
+
+		// Lấy CSRF từ meta tag
+		const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+		const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+		let request = await fetch('/review', {
+			method: 'POST',
+			headers: {
+				[csrfHeader]: csrfToken
+			},
+			body: formData
+		});
+
+		let date = box.querySelector("#reviewDate");
+		let rating = box.querySelector("#reviewRating");
+		let review = box.querySelector("#reviewComment");
+
+		if(add) date.textContent = new Date().toLocaleDateString('vi-VN');
+		rating.textContent = formData.get('rating');
+		review.textContent = formData.get('comment');
+
+		chat.classList.add("d-none");
+		if(add){
+			document.getElementById("button").innerHTML = `
+					<div class="form-control-bg-light mb-3 w-100 d-flex justify-content-center row">
+						<button onclick="closeReview()" type="button" class="btn btn-lg btn-danger mb-0 col-5 me-3">Quay lại</button>
+						<button onclick="review(false)" type="button" class="btn btn-lg btn-primary mb-0 col-5">Sửa<i class="bi fa-fw bi-arrow-right ms-2"></i></button>
+					</div>
+				`;
+		}box.classList.remove("d-none");
+
+		let response = await request.json();
+
+		if(add){
+			let r = `
+					<div id="review${response.reviewId}">
+						<div class="d-md-flex my-4">
+							<div class="avatar avatar-lg me-3 flex-shrink-0">
+								<img class="avatar-img rounded-circle" src="${response.avatarUrl ? response.avatarUrl : '/assets/images/avatar/avatar.jpg'}" alt="${response.fullName}">
+							</div>
+							<div class="w-100">
+								<div class="d-flex justify-content-between mt-1 mt-md-0">
+									<div>
+										<h6 class="me-3 mb-0">${response.fullName}</h6>
+										<ul class="nav nav-divider small mb-2">
+											<li class="nav-item">${new Date(response.createdAt).toLocaleDateString('vi-VN')}</li>
+										</ul>
+									</div>
+									<div class="icon-md rounded text-bg-warning fs-6 rating">${response.rating}</div>
+								</div>
+								<p class="mb-0 comment">${response.comment}</p>
+								<div class="d-flex justify-content-end mt-2">
+									<div>
+										<a href="javascript:void(0)" class="text-secondary fw-bold hover-danger me-2" onclick="deleteReview()">Xóa</a>
+										<a href="javascript:void(0)" class="text-secondary fw-bold hover-primary me-2" onclick="editReview();scrollToId('review')">Chỉnh sửa</a>
+									</div>
+									<a href="javascript:void(0)" class="text-secondary fw-bold hover-primary" onclick="reply(${response.reviewId},${response.userId})">Trả lời</a>
+								</div>
+							</div>
+						</div>
+						<hr>
+					</div>
+				`;
+
+			let comment = document.getElementById("comment");
+			comment.innerHTML = r + comment.innerHTML;
+		}else{
+			let r = document.querySelector("#review" + response.reviewId);
+			if(r) {
+				r.querySelector(".rating").textContent = response.rating;
+				r.querySelector(".comment").textContent = response.comment;
+			}
+		}
+	}
+
+	function closeReview(){
+		const form = document.getElementById('review');
+
+		let chat = document.getElementById("reviewChat");
+		let box = document.getElementById("reviewBox");
+
+		let rating = box.querySelector("#reviewRating");
+		let comment = box.querySelector("#reviewComment");
+
+		choices.setChoiceByValue(rating.textContent);
+		form.elements['comment'].value = comment.textContent;
+
+		chat.classList.add("d-none");
+		box.classList.remove("d-none");
+	}
+
+	async function editReview() {
+		let chat = document.getElementById("reviewChat");
+		let box = document.getElementById("reviewBox");
+
+		chat.classList.remove("d-none");
+		box.classList.add("d-none");
+	}
+
+	async function deleteReview() {
+		const form = document.getElementById('review');
+		const formData = new FormData(form);
+
+		let chat = document.getElementById("reviewChat");
+		let box = document.getElementById("reviewBox");
+
+		// Lấy CSRF từ meta tag
+		const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+		const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+		let request = await fetch('/deleteReview', {
+			method: 'POST',
+			headers: {
+				[csrfHeader]: csrfToken
+			},
+			body: formData
+		});
+
+		box.querySelector("#reviewDate").textContent = "";
+		choices.setChoiceByValue('5');
+		form.elements['comment'].value = "";
+
+		document.getElementById("button").innerHTML = `
+				<button onclick="review()" type="button" class="btn btn-lg btn-primary mb-0 w-100">Gửi<i class="bi fa-fw bi-arrow-right ms-2"></i></button>
+			`;
+
+		chat.classList.remove("d-none");
+		box.classList.add("d-none");
+
+		let response = await request.text()
+		document.querySelector("#review" + response)?.remove();
+	}
+
+	function reply(reviewId, userId){
+		let reply = document.getElementById("reply");
+		if(reply){
+			reply.remove();
+			if(reply.elements["reviewId"].value == reviewId)
+				return;
+		}
+
+		let form =`
+				<form class="mb-5" id="reply">
+					<div class="d-md-flex mt-4">
+						<!-- Avatar -->
+						<div class="avatar avatar-lg me-3 flex-shrink-0">
+							<div class="avatar-img rounded-circle"></div>
+						</div>
+						<!-- Text -->
+						<div class="w-100">
+							<div class="row gx-3 g-2 align-items-center}">
+								<!-- Leave reply START -->
+								<input type="hidden" name="reviewId" value="${reviewId}">
+								<input type="hidden" name="userId" value="${userId}">
+								<!-- Message -->
+								<div class="form-control-bg-light mb-3">
+									<textarea name="comment" class="form-control" placeholder="Viết bình luận" rows="3"></textarea>
+								</div>
+								<!-- Button -->
+								<button onclick="addReply()" type="button" class="btn btn-lg btn-primary mb-0">Gửi<i class="bi fa-fw bi-arrow-right ms-2"></i></button>
+								<!-- Leave reply END -->
+							</div>
+						</div>
+					</div>
+				</form>
+			`
+
+		let review = document.getElementById("review" + reviewId).querySelector(".reply");
+		review.innerHTML = form + review.innerHTML;
+	}
+
+	async function addReply(){
+		const form = document.getElementById('reply');
+		const formData = new FormData(form);
+
+		if(!formData.get('comment').trim()) {
+			alert("Vui lòng nhập bình luận.");
+			return;
+		}if(/<.*?>/.test(comment)){
+			alert("Không thể gửi tin nhắn");
+			return;
+		}
+
+		// Lấy CSRF từ meta tag
+		const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+		const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+		let request = await fetch('/addReply', {
+			method: 'POST',
+			headers: {
+				[csrfHeader]: csrfToken
+			},
+			body: formData
+		});
+
+		form.remove();
+
+		let response = await request.json();
+
+		let r = `
+				<div class="ps-2 ps-md-3 mb-2" id="reply${response.replyId}">
+					<div class="d-md-flex">
+						<img class="avatar avatar-sm rounded-circle me-3" src="${response.avatarUrl}" alt="avatar">
+						<div class="mt-2 mt-md-0 w-100">
+							<h6 class="mb-1">${response.fullName}</h6>
+							<ul class="nav nav-divider small mb-2">
+								<li class="nav-item">${new Date(response.createdAt).toLocaleDateString('vi-VN')}</li>
+							</ul>
+							<p class="mb-0 comment">${response.comment}</p>
+							<div class="d-flex justify-content-end mt-2">
+								<div>
+									<a href="javascript:void(0)" class="text-secondary fw-bold hover-danger me-2" onclick="deleteReply(${response.replyId})">Xóa</a>
+									<a href="javascript:void(0)" class="text-secondary fw-bold hover-primary me-2" onclick="reply(${response.reviewId},${response.userId});scrollToId(reply);">Chỉnh sửa</a>
+								</div>
+								<a href="javascript:void(0)" class="text-secondary fw-bold hover-primary" onclick="reply(${response.reviewId},${response.userId});scrollToId(reply);">Trả lời</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			`;
+
+		let review = document.getElementById("review" + form.elements["reviewId"].value).querySelector(".reply");
+		review.innerHTML = review.innerHTML + r;
+	}
+
+	async function deleteReply(replyId) {
+		// Lấy CSRF từ meta tag
+		const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+		const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+		let request = await fetch('/deleteReply', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded',
+				[csrfHeader]: csrfToken
+			},
+			body: "replyId=" + replyId
+		});
+
+		let response = await request.text()
+		document.querySelector("#reply" + response).remove();
+	}
+</script>
 
 </body>
 

@@ -72,7 +72,7 @@
 <body>
 
 <main>
-    <section class="vh-xxl-100">
+    <section class="vh-100">
         <div class="container h-100 d-flex px-0 px-sm-4">
             <div class="row justify-content-center align-items-center m-auto">
                 <div class="col-12">
@@ -89,13 +89,23 @@
 
                             <!-- Login Form -->
                             <div class="col-lg-6 order-1">
-                                <div class="p-4 p-sm-7">
-
-
-                                    <h1 class="mb-2 h3">Chào mừng bạn trở lại</h1>
+                                <!-- Nút quay lại trang chủ -->
+                                <div class="text-end px-4 pt-4">
+                                    <a href="/home" class="btn btn-outline-light btn-sm">
+                                        <i class="fas fa-arrow-left me-1"></i> Trang chủ
+                                    </a>
+                                </div>
+                                <div class="p-4 pt-2">
+                                    <div class="d-flex align-items-center gap-3 mb-2">
+                                        <!-- Logo -->
+                                        <a href="home">
+                                            <img class="h-50px" src="/assets/images/logo-icon.svg" alt="logo" style="height: 50px;">
+                                        </a>
+                                        <!-- Tiêu đề -->
+                                        <h2 class="mb-0 h3">Chào mừng bạn trở lại</h2>
+                                    </div>
                                     <p class="mb-0">Chưa có tài khoản? <a th:href="@{/register}">Đăng ký ngay</a></p>
-                                    <br>
-                                    <div th:if="${param.error}" class="alert alert-danger">
+                                    <div th:if="${param.error}" class="alert alert-danger" style="margin-top: 10px">
                                             <span th:switch="${param.error[0]}">
                                                 <span th:case="'inactive'"> Tài khoản của bạn đã bị vô hiệu hoá. Vui lòng liên hệ bộ phận hỗ trợ.</span>
                                                 <span th:case="'true'"> Emai hoặc mật khẩu không đúng. Vui lòng thử lại.</span>

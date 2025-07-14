@@ -31,7 +31,7 @@ public class LoginController {
         rememberMe.setMaxAge(0);
         response.addCookie(rememberMe);
 
-        return "redirect:/login";
+        return "redirect:/home";
     }
 
 }

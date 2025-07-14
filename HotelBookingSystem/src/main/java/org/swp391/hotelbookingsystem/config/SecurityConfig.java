@@ -1,6 +1,5 @@
 package org.swp391.hotelbookingsystem.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authorization.AuthorizationManagers;
@@ -20,14 +19,17 @@ import org.swp391.hotelbookingsystem.handler.OAuth2LoginSuccessHandler;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Autowired
-    private OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
-    @Autowired
-    private FormLoginSuccessHandler formLoginSuccessHandler;
+    private final FormLoginSuccessHandler formLoginSuccessHandler;
 
-    @Autowired
-    private CustomUserDetailsService customUserDetailsService;
+    private final CustomUserDetailsService customUserDetailsService;
+
+    public SecurityConfig(OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler, FormLoginSuccessHandler formLoginSuccessHandler, CustomUserDetailsService customUserDetailsService) {
+        this.oAuth2LoginSuccessHandler = oAuth2LoginSuccessHandler;
+        this.formLoginSuccessHandler = formLoginSuccessHandler;
+        this.customUserDetailsService = customUserDetailsService;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -40,7 +42,7 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/", "/home", "/error", "/webhook",
+                                "/", "/home", "/error", "/webhook", "/contact",
                                 "/login", "/register", "/verify-email-otp", "/resend-otp", "/forgotPassword", "/resetPassword",
                                 "/hotel-list", "/filter-hotels", "/hotel-detail",
                                 "/css/**", "/js/**", "/images/**", "/assets/**",
