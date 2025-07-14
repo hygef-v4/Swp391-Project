@@ -222,6 +222,7 @@ public class BookingService {
         for (Booking booking : all) {
             booking.setBookingUnits(bookingRepo.findBookingUnitsByBookingId(booking.getBookingId()));
             booking.setStatus(booking.determineStatus());
+            booking.calculateNumberOfNights();
             booking.setTotalPrice(booking.calculateTotalPrice());
         }
 
