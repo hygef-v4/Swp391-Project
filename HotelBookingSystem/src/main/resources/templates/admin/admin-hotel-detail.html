@@ -375,7 +375,7 @@
                                             <th>Sức chứa</th>
                                             <th>Giá tiền</th>
                                             <th>Trạng thái</th>
-                                            <th>Số lượng đặt thành công</th>
+                                            <th>Lượt đặt hoàn thành</th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -396,9 +396,16 @@
                                             </td>
 
                                             <td>
-                                                <a href="#" th:text="${room.title}" data-bs-toggle="modal"
-                                                   th:data-bs-target="'#roomDetail' + ${room.roomId}"></a>
+                                                <a class="text-truncate d-inline-block text-decoration-none text-primary"
+                                                   style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                                                   href="#"
+                                                   th:text="${room.title}"
+                                                   th:title="${room.title}"
+                                                data-bs-toggle="modal"
+                                                th:data-bs-target="'#roomDetail' + ${room.roomId}">
+                                                </a>
                                             </td>
+
                                             <td>
                                 <span th:class="${room.quantity == 0} ? 'text-danger fw-bold' : 'fw-bold'"
                                       th:text="${room.quantity}"></span>
