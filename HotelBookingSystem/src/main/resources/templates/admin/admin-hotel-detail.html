@@ -408,9 +408,9 @@
                                                     th:text="${#numbers.formatDecimal(room.price, 0, 'COMMA', 0, 'POINT')} + '₫'"></span>
                                             </td>
                                             <td th:switch="${room.status}">
-                                                <span th:case="'active'" class="badge bg-success">Còn trống</span>
+                                                <span th:case="'active'" class="badge bg-success">Hoạt động</span>
                                                 <span th:case="'inactive'"
-                                                      class="badge bg-secondary">Không có sẵn</span>
+                                                      class="badge bg-secondary">Không hoạt động</span>
                                                 <span th:case="'booked'" class="badge bg-warning">Đang được đặt</span>
                                                 <span th:case="*">Không xác định</span>
                                             </td>
