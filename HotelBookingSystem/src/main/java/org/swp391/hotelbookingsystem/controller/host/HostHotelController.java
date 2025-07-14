@@ -14,27 +14,24 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-import org.swp391.hotelbookingsystem.constant.ConstantVariables;
 import org.swp391.hotelbookingsystem.model.Amenity;
+import org.swp391.hotelbookingsystem.model.CancellationPolicy;
 import org.swp391.hotelbookingsystem.model.Hotel;
 import org.swp391.hotelbookingsystem.model.Room;
-import org.swp391.hotelbookingsystem.model.RoomTypes;
 import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.service.AmenityService;
+import org.swp391.hotelbookingsystem.service.CancellationPolicyService;
 import org.swp391.hotelbookingsystem.service.CloudinaryService;
 import org.swp391.hotelbookingsystem.service.HotelService;
 import org.swp391.hotelbookingsystem.service.LocationService;
+import org.swp391.hotelbookingsystem.service.NotificationService;
 import org.swp391.hotelbookingsystem.service.RoomService;
-import org.swp391.hotelbookingsystem.service.RoomTypeService;
 import org.swp391.hotelbookingsystem.service.UserService;
 
 import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class HostHotelController {
-
-    final
-    RoomTypeService roomTypeService;
 
     final
     LocationService locationService;
@@ -52,15 +49,19 @@ public class HostHotelController {
 
     final
     UserService userService;
+    final NotificationService notificationService;
 
-    public HostHotelController(RoomTypeService roomTypeService, LocationService locationService, AmenityService amenityService, CloudinaryService cloudinaryService, RoomService roomService, HotelService hotelService, UserService userService) {
-        this.roomTypeService = roomTypeService;
+    final CancellationPolicyService cancellationPolicyService;
+
+    public HostHotelController(LocationService locationService, AmenityService amenityService, CloudinaryService cloudinaryService, RoomService roomService, HotelService hotelService, UserService userService, CancellationPolicyService cancellationPolicyService, NotificationService notificationService) {
         this.locationService = locationService;
         this.amenityService = amenityService;
         this.cloudinaryService = cloudinaryService;
         this.roomService = roomService;
         this.hotelService = hotelService;
         this.userService = userService;
+        this.cancellationPolicyService = cancellationPolicyService;
+        this.notificationService = notificationService;
     }
 
     @GetMapping("/host-listing")
@@ -80,8 +81,7 @@ public class HostHotelController {
     // đang để chung với register-host, có thể tách ra
     @GetMapping("/add-hotel")
     public String showAddListingPage(Model model, HttpSession session) {
-        session.setAttribute(ConstantVariables.ROOM_TYPES, roomTypeService.getAllRoomTypes());
-        session.setAttribute(ConstantVariables.LOCATIONS, locationService.getAllLocations());
+        session.setAttribute("locations", locationService.getAllLocations());
 
         //  Get amenities with joined category
         List<Amenity> amenities = amenityService.getAllAmenitiesWithCategory();
@@ -117,9 +117,7 @@ public class HostHotelController {
 
         model.addAttribute("hotelId", hotelId);
 
-
-        session.setAttribute(ConstantVariables.ROOM_TYPES, roomTypeService.getAllRoomTypes());
-        session.setAttribute(ConstantVariables.LOCATIONS, locationService.getAllLocations());
+        session.setAttribute("locations", locationService.getAllLocations());
 
         // Get amenities with joined category
         List<Amenity> amenities = amenityService.getAllAmenitiesWithCategory();
@@ -153,20 +151,8 @@ public class HostHotelController {
         // Get hotel details and rooms
         List<Room> rooms = roomService.getRoomByHotelId(hotelId);
         
-        // Populate room type names and amenities for each room
+        // Populate amenities for each room
         for (Room room : rooms) {
-            // Get room type name
-            if (room.getRoomTypeId() > 0) {
-                try {
-                    RoomTypes roomType = roomTypeService.getRoomTypeById(room.getRoomTypeId());
-                    if (roomType != null) {
-                        room.setRoomType(roomType.getName());
-                    }
-                } catch (Exception e) {
-                    room.setRoomType("Unknown");
-                }
-            }
-            
             // Get room amenities
             List<Amenity> roomAmenities = amenityService.getRoomAmenities(room.getRoomId());
             room.setAmenities(roomAmenities);
@@ -179,12 +165,15 @@ public class HostHotelController {
             String categoryName = amenity.getCategory().getName();
             groupedAmenities.computeIfAbsent(categoryName, k -> new ArrayList<>()).add(amenity);
         }
+
+        // Get cancellation policy for the hotel
+        CancellationPolicy cancellationPolicy = cancellationPolicyService.getCancellationPolicyByHotelId(hotelId);
         
         model.addAttribute("hotel", hotel);
         model.addAttribute("rooms", rooms);
         model.addAttribute("groupedAmenities", groupedAmenities);
-        model.addAttribute("roomTypes", roomTypeService.getAllRoomTypes());
         model.addAttribute("locations", locationService.getAllLocations());
+        model.addAttribute("cancellationPolicy", cancellationPolicy);
 
         return "host/host-manage-hotel";
     }
@@ -193,7 +182,6 @@ public class HostHotelController {
     @PostMapping("/add-room")
     public String handleAddRoom(
             @RequestParam("hotelId") int hotelId,
-            @RequestParam("roomTypeId") int roomTypeId,
             @RequestParam("roomTitle") String roomTitle,
             @RequestParam("roomMaxGuests") int roomMaxGuests,
             @RequestParam("roomQuantity") int roomQuantity,
@@ -218,12 +206,11 @@ public class HostHotelController {
                 }
             }
 
-            // Build and save room
+            // Build and save room - set default room type ID to 1 for backward compatibility
             Room room = Room.builder()
                     .hotelId(hotelId)
                     .title(roomTitle)
                     .description(roomDescription)
-                    .roomTypeId(roomTypeId)
                     .maxGuests(roomMaxGuests)
                     .quantity(roomQuantity)
                     .price(roomPrice)
@@ -231,6 +218,12 @@ public class HostHotelController {
                     .build();
 
             roomService.saveRoom(room, amenityIds, roomImageUrls);
+
+            // Send notification to host
+            User host = (User) session.getAttribute("user");
+            if(host != null) {
+                notificationService.notifyRoomAdded(host.getId(), roomTitle, hotelId);
+            }
 
             return "redirect:/host-listing"; // or /host-dashboard if preferred
         } catch (Exception e) {
@@ -343,7 +336,6 @@ public class HostHotelController {
             @RequestParam("roomId") int roomId,
             @RequestParam("hotelId") int hotelId,
             @RequestParam("roomTitle") String roomTitle,
-            @RequestParam("roomTypeId") int roomTypeId,
             @RequestParam("maxGuests") int maxGuests,
             @RequestParam("quantity") int quantity,
             @RequestParam("price") float price,
@@ -382,13 +374,12 @@ public class HostHotelController {
                 }
             }
 
-            // Update room
+            // Update room - keep existing room type or default to 1
             Room updatedRoom = Room.builder()
                     .roomId(roomId)
                     .hotelId(hotelId)
                     .title(roomTitle)
                     .description(description)
-                    .roomTypeId(roomTypeId)
                     .maxGuests(maxGuests)
                     .quantity(quantity)
                     .price(price)
@@ -408,9 +399,9 @@ public class HostHotelController {
         return response;
     }
 
-    @PostMapping("/delete-room")
+    @PostMapping("/deactivate-room")
     @ResponseBody
-    public Map<String, Object> deleteRoom(
+    public Map<String, Object> deactivateRoom(
             @RequestParam("roomId") int roomId,
             @RequestParam("hotelId") int hotelId,
             HttpSession session
@@ -432,7 +423,7 @@ public class HostHotelController {
                 hotel = hotelService.getHotelById(hotelId);
                 if (hotel == null || hotel.getHostId() != host.getId()) {
                     response.put("success", false);
-                    response.put("message", "Không có quyền xóa phòng này");
+                    response.put("message", "Không có quyền vô hiệu hóa phòng này");
                     return response;
                 }
             } catch (Exception e) {
@@ -442,13 +433,17 @@ public class HostHotelController {
                 return response;
             }
 
-            // 3. Check if this is the last room in the hotel
+            // 3. Check if this would leave no active rooms in the hotel
             List<Room> currentRooms;
             try {
                 currentRooms = roomService.getRoomsByHotelId(hotelId);
-                if (currentRooms.size() <= 1) {
+                long activeRooms = currentRooms.stream()
+                        .filter(room -> "active".equals(room.getStatus()))
+                        .count();
+                
+                if (activeRooms <= 1) {
                     response.put("success", false);
-                    response.put("message", "Không thể xóa phòng cuối cùng. Khách sạn phải có ít nhất 1 phòng.");
+                    response.put("message", "Không thể vô hiệu hóa phòng cuối cùng đang hoạt động. Khách sạn phải có ít nhất 1 phòng hoạt động.");
                     return response;
                 }
             } catch (Exception e) {
@@ -462,7 +457,7 @@ public class HostHotelController {
             try {
                 if (roomService.hasActiveBookingUnits(roomId)) {
                     response.put("success", false);
-                    response.put("message", "Không thể xóa phòng này vì có khách đang đặt phòng.");
+                    response.put("message", "Không thể vô hiệu hóa phòng này vì có khách đang đặt phòng.");
                     return response;
                 }
             } catch (Exception e) {
@@ -472,32 +467,146 @@ public class HostHotelController {
                 return response;
             }
 
-            // 5. Actually delete the room
+            // 5. Deactivate the room
             try {
-                roomService.deleteRoom(roomId);
-                System.out.println("Successfully deleted room " + roomId);
+                roomService.deactivateRoom(roomId);
+                System.out.println("Successfully deactivated room " + roomId);
             } catch (Exception e) {
-                System.err.println("Error deleting room " + roomId + ": " + e.getMessage());
+                System.err.println("Error deactivating room " + roomId + ": " + e.getMessage());
                 e.printStackTrace();
                 response.put("success", false);
-                response.put("message", "Lỗi khi xóa phòng: " + e.getMessage());
+                response.put("message", "Lỗi khi vô hiệu hóa phòng: " + e.getMessage());
                 return response;
             }
 
             // 6. Success response
             response.put("success", true);
-            response.put("message", "Xóa phòng thành công");
+            response.put("message", "Vô hiệu hóa phòng thành công");
             
         } catch (Exception e) {
             // Catch any unexpected errors
-            System.err.println("Unexpected error in deleteRoom for roomId " + roomId + ": " + e.getMessage());
+            System.err.println("Unexpected error in deactivateRoom for roomId " + roomId + ": " + e.getMessage());
             e.printStackTrace();
             response.put("success", false);
-            response.put("message", "Lỗi không mong muốn khi xóa phòng");
+            response.put("message", "Lỗi không mong muốn khi vô hiệu hóa phòng");
         }
         
         return response;
     }
 
+    @PostMapping("/activate-room")
+    @ResponseBody
+    public Map<String, Object> activateRoom(
+            @RequestParam("roomId") int roomId,
+            @RequestParam("hotelId") int hotelId,
+            HttpSession session
+    ) {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            // 1. Authentication and authorization check
+            User host = (User) session.getAttribute("user");
+            if (host == null || !host.getRole().equalsIgnoreCase("HOTEL_OWNER")) {
+                response.put("success", false);
+                response.put("message", "Không có quyền truy cập");
+                return response;
+            }
+
+            // 2. Hotel ownership verification
+            Hotel hotel;
+            try {
+                hotel = hotelService.getHotelById(hotelId);
+                if (hotel == null || hotel.getHostId() != host.getId()) {
+                    response.put("success", false);
+                    response.put("message", "Không có quyền kích hoạt phòng này");
+                    return response;
+                }
+            } catch (Exception e) {
+                System.err.println("Error fetching hotel data for hotelId " + hotelId + ": " + e.getMessage());
+                response.put("success", false);
+                response.put("message", "Lỗi khi kiểm tra thông tin khách sạn");
+                return response;
+            }
+
+            // 3. Activate the room
+            try {
+                roomService.activateRoom(roomId);
+                System.out.println("Successfully activated room " + roomId);
+            } catch (Exception e) {
+                System.err.println("Error activating room " + roomId + ": " + e.getMessage());
+                e.printStackTrace();
+                response.put("success", false);
+                response.put("message", "Lỗi khi kích hoạt phòng: " + e.getMessage());
+                return response;
+            }
+
+            // 4. Success response
+            response.put("success", true);
+            response.put("message", "Kích hoạt phòng thành công");
+            
+        } catch (Exception e) {
+            // Catch any unexpected errors
+            System.err.println("Unexpected error in activateRoom for roomId " + roomId + ": " + e.getMessage());
+            e.printStackTrace();
+            response.put("success", false);
+            response.put("message", "Lỗi không mong muốn khi kích hoạt phòng");
+        }
+        
+        return response;
+    }
+
+    @PostMapping("/update-cancellation-policy")
+    @ResponseBody
+    public Map<String, Object> updateCancellationPolicy(
+            @RequestParam("hotelId") int hotelId,
+            @RequestParam("partialRefundDays") int partialRefundDays,
+            @RequestParam("partialRefundPercent") int partialRefundPercent,
+            @RequestParam("noRefundWithinDays") int noRefundWithinDays,
+            HttpSession session
+    ) {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            User host = (User) session.getAttribute("user");
+            if (host == null || !host.getRole().equalsIgnoreCase("HOTEL_OWNER")) {
+                response.put("success", false);
+                response.put("message", "Không có quyền truy cập");
+                return response;
+            }
+
+            Hotel hotel = hotelService.getHotelById(hotelId);
+            if (hotel == null || hotel.getHostId() != host.getId()) {
+                response.put("success", false);
+                response.put("message", "Không có quyền chỉnh sửa chính sách của khách sạn này");
+                return response;
+            }
+
+            // Create and validate cancellation policy
+            CancellationPolicy policy = CancellationPolicy.builder()
+                    .hotelId(hotelId)
+                    .partialRefundDays(partialRefundDays)
+                    .partialRefundPercent(partialRefundPercent)
+                    .noRefundWithinDays(noRefundWithinDays)
+                    .build();
+
+            if (!cancellationPolicyService.validatePolicy(policy)) {
+                response.put("success", false);
+                response.put("message", "Chính sách hủy phòng không hợp lệ. Vui lòng kiểm tra lại các giá trị.");
+                return response;
+            }
+
+            // Save or update the policy
+            cancellationPolicyService.saveCancellationPolicy(policy);
+
+            response.put("success", true);
+            response.put("message", "Cập nhật chính sách hủy phòng thành công");
+            
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Lỗi khi cập nhật chính sách: " + e.getMessage());
+        }
+        
+        return response;
+    }
 
 }

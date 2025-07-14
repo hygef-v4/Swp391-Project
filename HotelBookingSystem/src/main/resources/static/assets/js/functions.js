@@ -1181,3 +1181,11 @@ var e = {
 
 };
 e.init();
+
+function scrollToId(id){
+    const e = document.getElementById(id);
+    if(e){
+        const y = e.getBoundingClientRect().top + window.scrollY - 100;
+        window.scrollTo({top: y, behavior: 'smooth'});
+    }
+}

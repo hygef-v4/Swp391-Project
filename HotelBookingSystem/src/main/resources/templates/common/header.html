@@ -283,42 +283,44 @@
                 <!-- Search dropdown END -->
 
                 <!-- Notification dropdown START -->
-                <li class="nav-item dropdown me-3">
+                <li class="nav-item dropdown me-3" th:if="${session.user != null}">
                     <!-- Notification button -->
                     <a class="nav-notification btn btn-light p-0 mb-0" href="#" role="button" data-bs-toggle="dropdown"
-                       aria-expanded="false" data-bs-auto-close="outside">
+                       aria-expanded="false" data-bs-auto-close="outside" id="notificationDropdownBtn">
                         <i class="bi bi-bell fa-fw"></i>
                     </a>
-                    <!-- Notification dote -->
-                    <span class="notif-badge animation-blink"></span>
+                    <!-- Notification badge -->
+                    <span class="notif-badge animation-blink position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" 
+                          id="notificationBadge" style="display: none;">0</span>
 
                     <!-- Notification dropdown menu START -->
                     <div class="dropdown-menu dropdown-animation dropdown-menu-end dropdown-menu-size-md shadow-lg p-0">
                         <div class="card bg-transparent">
                             <!-- Card header -->
                             <div class="card-header bg-transparent d-flex justify-content-between align-items-center border-bottom">
-                                <h6 class="m-0">Thông báo</h6>
-                                <a class="small" href="#" id="clearNotifications">Xóa thông báo</a>
+                                <h6 class="m-0">Thông báo <span id="notificationCountText">(0)</span></h6>
+                                <a class="small" href="#" id="markAllReadBtn">Đánh dấu đã đọc</a>
                             </div>
 
                             <!-- Card body START -->
-                            <div class="card-body p-0">
+                            <div class="card-body p-0" style="max-height: 400px; overflow-y: auto;">
                                 <ul class="list-group list-group-flush list-unstyled p-2" id="notificationList">
-                                    <!-- Notification item -->
-                                    <li>
-                                        <a href="#" class="list-group-item list-group-item-action rounded notif-unread border-0 mb-1 p-3">
-                                            <h6 class="mb-2">Bạn đã đặt thành công khách sạn tại Đà Nẵng 🏨</h6>
-                                            <p class="mb-0 small">Xem chi tiết đặt phòng của bạn và chuẩn bị cho chuyến đi.</p>
-                                            <span>Hôm nay</span>
-                                        </a>
+                                    <!-- Loading state -->
+                                    <li id="notificationLoading">
+                                        <div class="text-center p-3">
+                                            <div class="spinner-border spinner-border-sm" role="status">
+                                                <span class="visually-hidden">Đang tải...</span>
+                                            </div>
+                                            <p class="mb-0 small mt-2">Đang tải thông báo...</p>
+                                        </div>
                                     </li>
-                                    <!-- Notification item -->
-                                    <li>
-                                        <a href="#" class="list-group-item list-group-item-action rounded border-0 mb-1 p-3">
-                                            <h6 class="mb-2">Ưu đãi đặc biệt: Giảm đến 40% cho khách sạn 5 sao 🌟</h6>
-                                            <p class="mb-0 small">Nhanh tay đặt ngay để không bỏ lỡ!</p>
-                                            <span>Hôm qua</span>
-                                        </a>
+                                    
+                                    <!-- Empty state -->
+                                    <li id="notificationEmpty" style="display: none;">
+                                        <div class="text-center p-4">
+                                            <i class="bi bi-bell-slash text-muted" style="font-size: 2rem;"></i>
+                                            <p class="mb-0 text-muted">Không có thông báo nào</p>
+                                        </div>
                                     </li>
                                 </ul>
                             </div>
@@ -326,7 +328,7 @@
 
                             <!-- Card footer -->
                             <div class="card-footer bg-transparent text-center border-top">
-                                <a href="#" class="btn btn-sm btn-link mb-0 p-0">Xem tất cả thông báo</a>
+                                <a href="/notifications" class="btn btn-sm btn-link mb-0 p-0">Xem tất cả thông báo</a>
                             </div>
                         </div>
                     </div>
@@ -408,5 +410,14 @@
         </div>
     </nav>
     <!-- Logo Nav END -->
+
+    <!-- Notification system loader START -->
+    <script th:if="${session.user != null}" th:inline="javascript">
+        // Expose userId globally for notification script
+        window.currentUserId = /*[[${session.user.id}]]*/ null;
+    </script>
+    <script th:if="${session.user != null}" src="/assets/js/notifications.js"></script>
+    <!-- Notification system loader END -->
 </header>
+
 </html>

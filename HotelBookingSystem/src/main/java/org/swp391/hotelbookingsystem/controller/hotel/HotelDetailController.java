@@ -65,11 +65,27 @@ public class HotelDetailController {
         hotel.setPolicy(hotel.getPolicy().replace("<li>", "<li class=\"list-group-item d-flex\"><i class=\"bi bi-arrow-right me-2\"></i>"));
         model.addAttribute("hotel", hotel);
 
-        User user = (User) session.getAttribute("user");
         boolean favorite = false;
+        Review review = null;
+
+        User user = (User) session.getAttribute("user");
         if (user != null) {
             favorite = hotelService.isFavoriteHotel(user.getId(), hotelId);
-        }model.addAttribute("favorite", favorite);
+            review = reviewService.getReview(hotelId, user.getId());
+        }
+        
+        model.addAttribute("favorite", favorite);
+        model.addAttribute("review", review);
+
+        if(!hotel.getStatus().equals("active")){
+            if(hotel.getStatus().equals("inactive")){
+                model.addAttribute("banMessage", "Khách sạn này hiện không hoạt động, tạm thời không thể đặt phòng!");
+            }else if(hotel.getStatus().equals("banned")){
+                model.addAttribute("banMessage", "Khách sạn này đã bị khóa, tạm thời không thể đặt phòng!");
+            }else{
+                return "redirect:/hotel-list?location=" + hotel.getLocationId() + "&dateRange=" + dateRange + "&guests=" + guests + "&rooms=" + roomQuantity;
+            }
+        }
 
         String redirect = "";
         if(!"".equals(dateRange)) redirect += "&dateRange=" + URLEncoder.encode(dateRange, StandardCharsets.UTF_8);
@@ -113,11 +129,6 @@ public class HotelDetailController {
 
             room.setCategories(categories);
         }model.addAttribute("rooms", rooms);
-
-        if(user != null){
-            boolean commented = reviewService.checkReview(hotelId, user.getId());
-            model.addAttribute("comment", commented);
-        }
 
         List<Review> comments = reviewService.getHotelReview(hotelId);
         model.addAttribute("comments", comments);

@@ -1,5 +1,6 @@
 package org.swp391.hotelbookingsystem.service;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -18,12 +19,28 @@ public class BookingService {
         this.bookingRepo = bookingRepo;
     }
 
-    public void updateStatus(BookingUnit bookingUnit, String status) {
+    public int bookedRoom(int roomId, LocalDateTime checkIn, LocalDateTime checkOut){
+        return bookingRepo.bookedRoom(roomId, checkIn, checkOut);
+    }
+
+    public boolean checkQuantity(Booking booking){
+        for(BookingUnit bookingUnit : booking.getBookingUnits()){
+            if(bookingRepo.bookedRoom(bookingUnit.getRoomId(), booking.getCheckIn(), booking.getCheckOut()) <= 0){
+                return false;
+            }
+        }return true;
+    }
+
+    public void updateStatus(BookingUnit bookingUnit, String status){
         bookingRepo.updateStatus(bookingUnit.getBookingUnitId(), status);
     }
 
     public int pendingBooking(Booking booking){
         return bookingRepo.pendingBooking(booking);
+    }
+
+    public int remainPendingTime(int bookingId){
+        return bookingRepo.remainPendingTime(bookingId);
     }
 
     public void approveBooking(int id){
@@ -40,8 +57,12 @@ public class BookingService {
         return bookingRepo.saveBooking(booking);
     }
 
-    public Booking findById(int id) {
-        return bookingRepo.findById(id);
+    public Booking findById(int id){
+        try{
+            return bookingRepo.findById(id);
+        }catch(Exception e){
+            return null;
+        }
     }
 
     public Booking findBooking(int id) {

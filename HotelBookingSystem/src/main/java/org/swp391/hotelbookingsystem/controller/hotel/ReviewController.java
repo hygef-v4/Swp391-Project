@@ -2,45 +2,45 @@ package org.swp391.hotelbookingsystem.controller.hotel;
 
 import org.springframework.web.bind.annotation.RestController;
 import org.swp391.hotelbookingsystem.model.Review;
-import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.service.ReviewService;
 import jakarta.servlet.http.HttpSession;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-
 @RestController
 public class ReviewController {
-
     private final ReviewService reviewService;
 
-    ReviewController(ReviewService reviewService) {
+    public ReviewController(ReviewService reviewService){
         this.reviewService = reviewService;
     }
 
     @PostMapping("/review")
     public Review addReview(
         @RequestParam("hotelId") int hotelId,
+        @RequestParam("userId") int userId,
         @RequestParam("rating") int rating,
-        @RequestParam("comment") String comment,
-
-        HttpSession session
+        @RequestParam("comment") String comment
     ) {
-        User user = (User) session.getAttribute("user");
-
+        if(comment.isBlank()) return null;
         Review requestReview = Review.builder()
             .hotelId(hotelId)
-            .reviewerId(user.getId())
+            .reviewerId(userId)
             .rating(rating)
             .comment(comment)
             .build();
 
-        int reviewId = reviewService.addReview(requestReview);
+        int reviewId = reviewService.review(requestReview);
         if(reviewId == 0) return null;
-        Review responseReview = reviewService.getReviewById(reviewId);
+        return reviewService.getReviewById(reviewId);
+    }
 
-        if(comment.isBlank()) return null;
-        return responseReview;
+    @PostMapping("/deleteReview")
+    public int deleteReview(
+        @RequestParam("hotelId") int hotelId,
+        @RequestParam("userId") int userId
+    ) {
+        return reviewService.deleteReview(hotelId, userId);
     }
 }

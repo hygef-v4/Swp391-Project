@@ -1,6 +1,7 @@
 package org.swp391.hotelbookingsystem.repository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -123,6 +124,28 @@ public class BookingRepo {
             booking.setImageUrl(rs.getString("hotel_image_url"));
             return booking;
         }, bookingUnitId);
+    }
+
+    public int bookedRoom(int roomId, LocalDateTime checkIn, LocalDateTime checkOut){
+        String sql = """
+                WITH BookedRooms AS (
+                    SELECT 
+                        bu.room_id,
+                        SUM(bu.quantity) AS booked_quantity
+                    FROM BookingUnits bu
+                    JOIN Bookings b ON b.booking_id = bu.booking_id
+                    WHERE bu.status IN ('pending', 'approved', 'check_in')
+                        AND b.check_out >= ? AND b.check_in <= ?
+                    GROUP BY bu.room_id
+                )
+                SELECT r.quantity - ISNULL(SUM(br.booked_quantity), 0)
+                FROM Rooms r
+                LEFT JOIN BookedRooms br ON br.room_id = r.room_id
+                WHERE r.room_id = ?
+                GROUP BY r.quantity
+            """;
+
+        return jdbcTemplate.queryForObject(sql, Integer.class, checkIn, checkOut, roomId);
     }
 
     public void pendingBookingUnit(int id, BookingUnit bookingUnit){
@@ -261,6 +284,15 @@ public class BookingRepo {
         }
 
         return id;
+    }
+
+    public int remainPendingTime(int bookingId){
+        String sql = """
+            SELECT DATEDIFF(SECOND, created_at, GETDATE()) FROM Bookings
+            WHERE booking_id = ?
+        """;
+
+        return jdbcTemplate.queryForObject(sql, Integer.class, bookingId);
     }
 
     public boolean isPending(int id, int userId){
@@ -919,7 +951,7 @@ public class BookingRepo {
             JOIN Bookings b ON bu.booking_id = b.booking_id
             JOIN Hotels h ON b.hotel_id = h.hotel_id
             WHERE h.host_id = ?
-            AND bu.status IN ('approved', 'completed')
+            AND bu.status IN ('approved', 'completed', 'check_in')
         """;
         Double revenue = jdbcTemplate.queryForObject(sql, Double.class, hostId);
         return revenue != null ? revenue : 0.0;

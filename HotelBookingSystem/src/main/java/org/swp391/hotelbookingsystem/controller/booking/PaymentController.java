@@ -3,7 +3,6 @@ package org.swp391.hotelbookingsystem.controller.booking;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintStream;
 import java.time.format.DateTimeFormatter;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,21 +12,19 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.swp391.hotelbookingsystem.model.Booking;
 import org.swp391.hotelbookingsystem.model.BookingUnit;
 import org.swp391.hotelbookingsystem.model.Hotel;
 import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.service.BookingService;
-import org.swp391.hotelbookingsystem.service.UserService;
 import org.swp391.hotelbookingsystem.service.HotelService;
+import org.swp391.hotelbookingsystem.service.NotificationService;
+import org.swp391.hotelbookingsystem.service.UserService;
 import org.swp391.hotelbookingsystem.service.VNPayService;
-
+import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
-
-import org.thymeleaf.context.Context;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -43,6 +40,8 @@ public class PaymentController {
     HotelService hotelService;
     @Autowired
     VNPayService vnpayService;
+    @Autowired
+    NotificationService notificationService;
     @Autowired
     SpringTemplateEngine templateEngine;
 
@@ -62,10 +61,10 @@ public class PaymentController {
         model.addAttribute("dateRange", dateRange);
         model.addAttribute("guests", guests);
         model.addAttribute("rooms", rooms);
-
+        
         Booking booking = bookingService.findById(id);
         if(booking == null) {
-            return "redirect:/";
+            return "redirect:/booking/" + hotelId + "?dateRange=" + dateRange + "&guests=" + guests + "&rooms=" + rooms;
         }
 
         User user = (User) session.getAttribute("user");
@@ -78,9 +77,16 @@ public class PaymentController {
             price += bookingUnit.getPrice() * bookingUnit.getQuantity();
         }double discount = price - booking.getTotalPrice();
 
+        model.addAttribute("id", id);
         model.addAttribute("booking", booking);
         model.addAttribute("price", price);
         model.addAttribute("discount", discount);
+
+        int remainTime = (60 * 15) - bookingService.remainPendingTime(id);
+        if(remainTime <= 0) remainTime = 0;
+        
+        model.addAttribute("remainMinute", String.format("%02d", remainTime / 60));
+        model.addAttribute("remainSecond", String.format("%02d", remainTime % 60));
 
         return "page/payment";
     }
@@ -130,6 +136,9 @@ public class PaymentController {
             }
 
             bookingService.approveBooking(id);
+            // Real-time notification to customer
+            notificationService.notifyPaymentSuccess(user.getId(), String.valueOf(id), booking.getTotalPrice());
+
             model.addAttribute("booking", booking);
 
             model.addAttribute("dateRange", dateRange);

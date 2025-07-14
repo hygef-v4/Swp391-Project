@@ -63,20 +63,20 @@ public class VNPayService {
         params.put("vnp_CreateDate", createDate);
         params.put("vnp_ExpireDate", expireDate);
 
-        List fieldNames = new ArrayList(params.keySet());
-        Collections.sort(fieldNames);
-        Iterator itr = fieldNames.iterator();
+        List fields = new ArrayList(params.keySet());
+        Collections.sort(fields);
+        Iterator itr = fields.iterator();
         while (itr.hasNext()) {
-            String fieldName = (String) itr.next();
-            String fieldValue = (String) params.get(fieldName);
+            String fieldKey = (String) itr.next();
+            String fieldValue = (String) params.get(fieldKey);
             if ((fieldValue != null) && (fieldValue.length() > 0)) {
                 //Build hash data
-                hashData.append(fieldName);
+                hashData.append(fieldKey);
                 hashData.append('=');
                 hashData.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
                 
                 //Build query
-                query.append(URLEncoder.encode(fieldName, StandardCharsets.US_ASCII.toString()));
+                query.append(URLEncoder.encode(fieldKey, StandardCharsets.US_ASCII.toString()));
                 query.append('=');
                 query.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
                 

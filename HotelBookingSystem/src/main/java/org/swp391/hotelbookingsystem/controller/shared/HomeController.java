@@ -1,19 +1,19 @@
 package org.swp391.hotelbookingsystem.controller.shared;
 
-import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.List;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.swp391.hotelbookingsystem.constant.ConstantVariables;
+import org.swp391.hotelbookingsystem.model.Hotel;
 import org.swp391.hotelbookingsystem.model.Location;
 import org.swp391.hotelbookingsystem.model.Review;
-import org.swp391.hotelbookingsystem.service.LocationService;
+import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.service.HotelService;
-import org.swp391.hotelbookingsystem.model.Hotel;
+import org.swp391.hotelbookingsystem.service.LocationService;
 import org.swp391.hotelbookingsystem.service.ReviewService;
 
-import java.util.List;
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class HomeController {
@@ -31,9 +31,9 @@ public class HomeController {
 
     @GetMapping({"/", "/home"})
     public String home(Model model, HttpSession session) {
-        model.addAttribute(ConstantVariables.PAGE_TITLE, "Hamora Booking");
+        model.addAttribute("pageTitle", "Hamora Booking");
         List<Location> locations = locationService.getAllLocations();
-        session.setAttribute(ConstantVariables.LOCATIONS, locations);
+        session.setAttribute("locations", locations);
 
         // Fetch top 4 high-rated hotels and add to model
         List<Hotel> topHotels = hotelService.getTop8HighRatedHotels();
@@ -43,7 +43,18 @@ public class HomeController {
         List<Review> top5Reviews = reviewService.getTop5PublicPositiveReviews();
         model.addAttribute("top5Reviews", top5Reviews);
 
-
         return "page/homepage";
+    }
+
+    @GetMapping("/notifications")
+    public String notifications(Model model, HttpSession session) {
+        // Check if user is logged in
+        User user = (User) session.getAttribute("user");
+        if (user == null) {
+            return "redirect:/login";
+        }
+
+        model.addAttribute("pageTitle", "Thông báo của tôi");
+        return "page/notifications";
     }
 }
