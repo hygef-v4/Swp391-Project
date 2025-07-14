@@ -429,7 +429,7 @@ public class UserRepo {
         GROUP BY\s
           u.user_id, u.full_name, u.email, u.password_hash, u.phone,\s
           u.role, u.is_active, u.date_of_birth, u.bio, u.gender,\s
-          u.avatar_url, u.is_flagged, u.flag_reason
+          u.avatar_url
     """;
 
         // Add ORDER BY
