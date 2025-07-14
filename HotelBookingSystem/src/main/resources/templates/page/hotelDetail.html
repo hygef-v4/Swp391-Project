@@ -657,7 +657,7 @@ About hotel START -->
 															<a href="javascript:void(0)" class="text-secondary fw-bold hover-danger me-2" th:onclick="'deleteReply(' + ${reply.replyId} + ')'">Xóa</a>
 															<a href="javascript:void(0)" class="text-secondary fw-bold hover-primary me-2" th:onclick="'editReply(' + ${reply.replyId} + ',' + ${comment.reviewId} + ');scrollToId(\'reply\');'">Chỉnh sửa</a>
 														</div>
-														<a href="javascript:void(0)" class="text-secondary fw-bold hover-primary" th:onclick="'reply(' + ${comment.reviewId} + ',' + ${session.user.id} + ');scrollToId(\'reply\');'">Trả lời</a>
+														<!-- <a href="javascript:void(0)" class="text-secondary fw-bold hover-primary" th:onclick="'reply(' + ${comment.reviewId} + ',' + ${session.user.id} + ');scrollToId(reply);'">Trả lời</a> -->
 													</div>
 												</div>
 											</div>
@@ -1147,9 +1147,7 @@ Footer END -->
 		choices.setChoiceByValue('5');
 		form.elements['comment'].value = "";
 
-		document.getElementById("button").innerHTML = `
-				<button onclick="review()" type="button" class="btn btn-lg btn-primary mb-0 w-100">Gửi<i class="bi fa-fw bi-arrow-right ms-2"></i></button>
-			`;
+		document.getElementById("button").innerHTML = '<button onclick="review()" type="button" class="btn btn-lg btn-primary mb-0 w-100">Gửi<i class="bi fa-fw bi-arrow-right ms-2"></i></button>';
 
 		chat.classList.remove("d-none");
 		box.classList.add("d-none");
@@ -1158,7 +1156,7 @@ Footer END -->
 		document.querySelector("#review" + response)?.remove();
 	}
 
-	function reply(reviewId, userId){
+	function reply(reviewId, userId, edit = ""){
 		let reply = document.getElementById("reply");
 		if(reply){
 			reply.remove();
@@ -1167,36 +1165,36 @@ Footer END -->
 		}
 
 		let form =`
-				<form class="mb-5" id="reply">
-					<div class="d-md-flex mt-4">
-						<!-- Avatar -->
-						<div class="avatar avatar-lg me-3 flex-shrink-0">
-							<div class="avatar-img rounded-circle"></div>
-						</div>
-						<!-- Text -->
-						<div class="w-100">
-							<div class="row gx-3 g-2 align-items-center}">
-								<!-- Leave reply START -->
-								<input type="hidden" name="reviewId" value="${reviewId}">
-								<input type="hidden" name="userId" value="${userId}">
-								<!-- Message -->
-								<div class="form-control-bg-light mb-3">
-									<textarea name="comment" class="form-control" placeholder="Viết bình luận" rows="3"></textarea>
-								</div>
-								<!-- Button -->
-								<button onclick="addReply()" type="button" class="btn btn-lg btn-primary mb-0">Gửi<i class="bi fa-fw bi-arrow-right ms-2"></i></button>
-								<!-- Leave reply END -->
+			<form class="mb-5" id="reply">
+				<div class="d-md-flex mt-4">
+					<!-- Avatar -->
+					<div class="avatar avatar-lg me-3 flex-shrink-0">
+						<div class="avatar-img rounded-circle"></div>
+					</div>
+					<!-- Text -->
+					<div class="w-100">
+						<div class="row gx-3 g-2 align-items-center}">
+							<!-- Leave reply START -->
+							<input type="hidden" name="reviewId" value="${reviewId}">
+							<input type="hidden" name="userId" value="${userId}">
+							<!-- Message -->
+							<div class="form-control-bg-light mb-3">
+								<textarea name="comment" class="form-control" placeholder="Viết bình luận" rows="3">${edit}</textarea>
 							</div>
+							<!-- Button -->
+							<button onclick="addReply()" type="button" class="btn btn-lg btn-primary mb-0">Gửi<i class="bi fa-fw bi-arrow-right ms-2"></i></button>
+							<!-- Leave reply END -->
 						</div>
 					</div>
-				</form>
-			`
+				</div>
+			</form>
+		`;
 
 		let review = document.getElementById("review" + reviewId).querySelector(".reply");
 		review.innerHTML = form + review.innerHTML;
 	}
 
-	async function addReply(){
+	async function addReply(add = true){
 		const form = document.getElementById('reply');
 		const formData = new FormData(form);
 
@@ -1212,19 +1210,20 @@ Footer END -->
 		const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
 		const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
 
-		let request = await fetch('/addReply', {
-			method: 'POST',
-			headers: {
-				[csrfHeader]: csrfToken
-			},
-			body: formData
-		});
+		if(add){
+			let request = await fetch('/addReply', {
+				method: 'POST',
+				headers: {
+					[csrfHeader]: csrfToken
+				},
+				body: formData
+			});
 
-		form.remove();
+			form.remove();
 
-		let response = await request.json();
+			let response = await request.json();
 
-		let r = `
+			let r = `
 				<div class="ps-2 ps-md-3 mb-2" id="reply${response.replyId}">
 					<div class="d-md-flex">
 						<img class="avatar avatar-sm rounded-circle me-3" src="${response.avatarUrl}" alt="avatar">
@@ -1237,20 +1236,90 @@ Footer END -->
 							<div class="d-flex justify-content-end mt-2">
 								<div>
 									<a href="javascript:void(0)" class="text-secondary fw-bold hover-danger me-2" onclick="deleteReply(${response.replyId})">Xóa</a>
-									<a href="javascript:void(0)" class="text-secondary fw-bold hover-primary me-2" onclick="reply(${response.reviewId},${response.userId});scrollToId(reply);">Chỉnh sửa</a>
+									<a href="javascript:void(0)" class="text-secondary fw-bold hover-primary me-2" onclick="editReply(${response.replyId},${response.reviewId});scrollToId('reply');">Chỉnh sửa</a>
 								</div>
-								<a href="javascript:void(0)" class="text-secondary fw-bold hover-primary" onclick="reply(${response.reviewId},${response.userId});scrollToId(reply);">Trả lời</a>
 							</div>
 						</div>
 					</div>
 				</div>
 			`;
 
-		let review = document.getElementById("review" + form.elements["reviewId"].value).querySelector(".reply");
-		review.innerHTML = review.innerHTML + r;
+			let review = document.getElementById("review" + form.elements["reviewId"].value).querySelector(".reply");
+			review.innerHTML = review.innerHTML + r;
+		}else{
+			let request = await fetch('/editReply', {
+				method: 'POST',
+				headers: {
+					[csrfHeader]: csrfToken
+				},
+				body: formData
+			});
+
+			form.remove();
+
+			let response = await request.json();
+
+			let r = document.querySelector("#reply" + response.replyId);
+			if(r){
+				r.querySelector(".comment").textContent = response.comment;
+			}
+		}
+	}
+
+	function closeReply(){
+		const form = document.getElementById('reply');
+		form.remove();
+	}
+
+	function editReply(replyId, reviewId){
+		let reply = document.getElementById("reply");
+		if(reply){
+			reply.remove();
+			if(reply.elements["reviewId"].value == reviewId)
+				return;
+		}
+
+		let r = document.getElementById("reply" + replyId);
+		let comment = r.querySelector(".comment").textContent;
+	
+		let form =`
+			<form class="mb-5" id="reply">
+				<div class="d-md-flex mt-4">
+					<!-- Avatar -->
+					<div class="avatar avatar-lg me-3 flex-shrink-0">
+						<div class="avatar-img rounded-circle"></div>
+					</div>
+					<!-- Text -->
+					<div class="w-100">
+						<div class="row gx-3 g-2 align-items-center}">
+							<!-- Leave reply START -->
+							<input type="hidden" name="replyId" value="${replyId}">
+							<!-- Message -->
+							<div class="form-control-bg-light mb-3">
+								<textarea name="comment" class="form-control" placeholder="Viết bình luận" rows="3">${comment}</textarea>
+							</div>
+							<!-- Button -->
+							<div class="form-control-bg-light mb-3 w-100 d-flex justify-content-center row">
+								<button onclick="closeReply()" type="button" class="btn btn-lg btn-danger mb-0 col-5 me-3">Quay lại</button>
+								<button onclick="addReply(false)" type="button" class="btn btn-lg btn-primary mb-0 col-5">Sửa<i class="bi fa-fw bi-arrow-right ms-2"></i></button>
+							</div>
+							<!-- Leave reply END -->
+						</div>
+					</div>
+				</div>
+			</form>
+		`;
+
+		let review = document.getElementById("review" + reviewId).querySelector(".reply");
+		review.innerHTML = form + review.innerHTML;
 	}
 
 	async function deleteReply(replyId) {
+		let reply = document.getElementById("reply");
+		if(reply){
+			reply.remove();
+		}
+
 		// Lấy CSRF từ meta tag
 		const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
 		const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');

@@ -178,7 +178,7 @@ public class BookingController {
         response.addCookie(cookie);
 
         if(!bookingService.checkQuantity(booking)){
-            return "redirect:/booking/" + hotelId + "&dateRange=" + dateRange + "&guests=" + guests + "&rooms=" + rooms;
+            return "redirect:/booking/" + hotelId + "?dateRange=" + dateRange + "&guests=" + guests + "&rooms=" + rooms;
         }
         
         int id = bookingService.pendingBooking(booking);
