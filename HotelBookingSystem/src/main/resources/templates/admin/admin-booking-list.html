@@ -337,14 +337,14 @@
                                     <a class="nav-link rounded-start rounded-0"
                                        th:classappend="${viewMode} == 'grid' ? ' active'"
                                        th:href="@{'/admin-booking-list'(page=1, status=${statusFilter}, view='grid', search=${search})}">
-                                        <i class="bi fa-fw bi-grid-fill"></i>
+                                        <i class="bi bi-building"></i>
                                     </a>
                                 </li>
                                 <li class="nav-item hover-card">
                                     <a class="nav-link rounded-end rounded-0"
                                        th:classappend="${viewMode} == 'list' ? ' active'"
                                        th:href="@{'/admin-booking-list'(page=1, status=${statusFilter}, view='list', search=${search})}">
-                                        <i class="bi fa-fw bi-list-ul"></i>
+                                        <i class="bi bi-card-list"></i>
                                     </a>
                                 </li>
                             </ul>
