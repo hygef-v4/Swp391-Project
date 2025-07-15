@@ -41,12 +41,16 @@ public class ModeratorHotelListController {
         List<Hotel> inactiveHotels = hotels.stream()
             .filter(h -> "inactive".equals(h.getStatus()))
             .toList();
+        List<Hotel> bannedHotels = hotels.stream()
+            .filter(h -> "banned".equals(h.getStatus()))
+            .toList();
 
         // Ghép các danh sách theo thứ tự ưu tiên
         List<Hotel> sortedHotels = new ArrayList<>();
         sortedHotels.addAll(pendingHotels);
         sortedHotels.addAll(activeHotels);
         sortedHotels.addAll(inactiveHotels);
+        sortedHotels.addAll(bannedHotels);
 
         // Lấy danh sách thành phố duy nhất và sắp xếp theo alphabet
         List<String> cities = hotels.stream()
@@ -60,6 +64,7 @@ public class ModeratorHotelListController {
         int pendingCount = pendingHotels.size();
         int approvedCount = activeHotels.size();
         int rejectedCount = inactiveHotels.size();
+        int bannedCount = bannedHotels.size();
 
         // Get host info
         for (Hotel hotel : sortedHotels) {
@@ -75,6 +80,7 @@ public class ModeratorHotelListController {
         model.addAttribute("pendingCount", pendingCount);
         model.addAttribute("approvedCount", approvedCount);
         model.addAttribute("rejectedCount", rejectedCount);
+        model.addAttribute("bannedCount", bannedCount);
         return "moderator/moderatorHotelList";
     }
 
@@ -93,7 +99,7 @@ public class ModeratorHotelListController {
     @ResponseBody
     public Map<String, Object> rejectHotel(@PathVariable int id, @RequestBody Map<String, String> body) {
         String reason = body.get("reason");
-        hotelService.updateHotelStatus(id, "inactive");
+        hotelService.updateHotelStatus(id, "banned");
         Map<String, Object> res = new HashMap<>();
         res.put("success", true);
         res.put("message", "Từ chối khách sạn thành công!");
