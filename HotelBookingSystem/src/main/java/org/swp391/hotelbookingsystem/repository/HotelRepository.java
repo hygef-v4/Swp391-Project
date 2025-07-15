@@ -39,7 +39,6 @@ public class HotelRepository {
             FROM Hotels h
             JOIN Locations l ON h.location_id = l.location_id
             LEFT JOIN Rooms r ON h.hotel_id = r.hotel_id
-            WHERE h.status = 'active'
             GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
                      h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude,
                      h.status, l.city_name
@@ -93,7 +92,7 @@ public class HotelRepository {
                                 JOIN Locations l ON h.location_id = l.location_id
                 				JOIN BookingUnits bu ON r.room_id = bu.room_id
                                 JOIN Bookings b ON bu.booking_id = b.booking_id
-                                WHERE bu.status = 'approved' AND h.status = 'active'
+                                WHERE bu.status = 'approved'
                                 GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
                                          h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude, h.status, l.city_name
                                 ORDER BY COUNT(b.booking_id) DESC
@@ -199,7 +198,7 @@ public class HotelRepository {
                 FROM Hotels h
                 JOIN Locations l ON h.location_id = l.location_id
                 JOIN Rooms r ON h.hotel_id = r.hotel_id
-                WHERE h.hotel_name like ? AND h.status = 'active'
+                WHERE h.hotel_name like ?
                 GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
                          h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude,
                          h.status, l.city_name
@@ -239,9 +238,9 @@ public class HotelRepository {
     public Hotel insertHotel(Hotel hotel) {
         String sql = """
                     INSERT INTO Hotels 
-                    (host_id, hotel_name, address, location_id, latitude, longitude, hotel_image_url, rating, description, policy, status)
+                    (host_id, hotel_name, address, location_id, latitude, longitude, hotel_image_url, rating, description, policy)
                     OUTPUT INSERTED.hotel_id
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
 
         Integer hotelId = jdbcTemplate.queryForObject(sql, Integer.class,
@@ -254,8 +253,7 @@ public class HotelRepository {
                 hotel.getHotelImageUrl(),
                 hotel.getRating(),  // can be null
                 hotel.getDescription(),
-                hotel.getPolicy(),
-                hotel.getStatus() != null ? hotel.getStatus() : "pending"  // Default to pending if status not set
+                hotel.getPolicy()
         );
 
         if (hotelId == null) {
@@ -400,7 +398,7 @@ public class HotelRepository {
         JOIN Locations l ON h.location_id = l.location_id
         JOIN Users u ON h.host_id = u.user_id
         LEFT JOIN Rooms r ON h.hotel_id = r.hotel_id
-        WHERE h.hotel_name LIKE ? AND h.status = 'active'
+        WHERE h.hotel_name LIKE ?
         GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
                  h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude,
                  l.city_name, u.full_name

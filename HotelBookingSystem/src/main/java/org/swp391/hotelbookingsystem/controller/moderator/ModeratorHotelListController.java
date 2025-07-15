@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.swp391.hotelbookingsystem.model.Hotel;
 import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.service.HotelService;
-import org.swp391.hotelbookingsystem.service.NotificationService;
 import org.swp391.hotelbookingsystem.service.UserService;
 
 @Controller
@@ -27,8 +26,6 @@ public class ModeratorHotelListController {
     private HotelService hotelService;
     @Autowired
     private UserService userService;
-    @Autowired
-    private NotificationService notificationService;
 
     @GetMapping("")
     public String getHotelList(Model model) {
@@ -67,6 +64,7 @@ public class ModeratorHotelListController {
         int pendingCount = pendingHotels.size();
         int approvedCount = activeHotels.size();
         int rejectedCount = inactiveHotels.size();
+        int bannedCount = bannedHotels.size();
 
         // Get host info
         for (Hotel hotel : sortedHotels) {
@@ -90,21 +88,7 @@ public class ModeratorHotelListController {
     @PostMapping("/api/moderator/hotels/{id}/approve")
     @ResponseBody
     public Map<String, Object> approveHotel(@PathVariable int id) {
-        // Get hotel details before updating status
-        Hotel hotel = hotelService.getHotelById(id);
-        if (hotel == null) {
-            Map<String, Object> res = new HashMap<>();
-            res.put("success", false);
-            res.put("message", "Không tìm thấy khách sạn");
-            return res;
-        }
-
-        // Update hotel status to active
         hotelService.updateHotelStatus(id, "active");
-
-        // Notify host about approval
-        notificationService.notifyHotelApproval(hotel.getHostId(), hotel.getHotelName());
-
         Map<String, Object> res = new HashMap<>();
         res.put("success", true);
         res.put("message", "Phê duyệt khách sạn thành công!");
