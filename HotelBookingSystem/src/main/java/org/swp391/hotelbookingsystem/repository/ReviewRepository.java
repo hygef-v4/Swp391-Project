@@ -403,4 +403,54 @@ public class ReviewRepository {
                 .build());
     }
 
+    public int countTotalReviewsByHostId(int hostId) {
+        String sql = """
+        SELECT COUNT(*) FROM Reviews r
+        JOIN Hotels h ON r.hotel_id = h.hotel_id
+        WHERE h.host_id = ?
+    """;
+        return jdbcTemplate.queryForObject(sql, Integer.class, hostId);
+    }
+
+    public int countUnaddressedReviewsByHostId(int hostId) {
+        String sql = """
+        SELECT COUNT(*) FROM Reviews r
+        JOIN Hotels h ON r.hotel_id = h.hotel_id
+        LEFT JOIN Replies rp ON r.review_id = rp.review_id
+        WHERE h.host_id = ? AND rp.review_id IS NULL
+    """;
+        return jdbcTemplate.queryForObject(sql, Integer.class, hostId);
+    }
+
+    public int countRecentReviewsByHostId(int hostId) {
+        String sql = """
+        SELECT COUNT(*) FROM Reviews r
+        JOIN Hotels h ON r.hotel_id = h.hotel_id
+        WHERE h.host_id = ? AND r.created_at >= DATEADD(day, -30, GETDATE())
+    """;
+        return jdbcTemplate.queryForObject(sql, Integer.class, hostId);
+    }
+
+    public List<Review> getReviewsByHostId(int hostId) {
+        String sql = """
+        SELECT
+            r.review_id AS reviewId,
+            r.hotel_id AS hotelId,
+            r.reviewer_id AS reviewerId,
+            r.rating,
+            r.comment,
+            r.is_public AS isPublic,
+            r.created_at AS createdAt,
+            u.full_name AS fullName,
+            u.avatar_url AS avatarUrl,
+            h.hotel_name AS hotelName
+        FROM Reviews r
+        JOIN Hotels h ON r.hotel_id = h.hotel_id
+        JOIN Users u ON r.reviewer_id = u.user_id
+        WHERE h.host_id = ?
+        ORDER BY r.created_at DESC
+    """;
+        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Review.class), hostId);
+    }
+
 }
