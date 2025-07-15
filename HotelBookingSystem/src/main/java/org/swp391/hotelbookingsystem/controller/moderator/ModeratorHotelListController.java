@@ -44,12 +44,16 @@ public class ModeratorHotelListController {
         List<Hotel> inactiveHotels = hotels.stream()
             .filter(h -> "inactive".equals(h.getStatus()))
             .toList();
+        List<Hotel> bannedHotels = hotels.stream()
+            .filter(h -> "banned".equals(h.getStatus()))
+            .toList();
 
         // Ghép các danh sách theo thứ tự ưu tiên
         List<Hotel> sortedHotels = new ArrayList<>();
         sortedHotels.addAll(pendingHotels);
         sortedHotels.addAll(activeHotels);
         sortedHotels.addAll(inactiveHotels);
+        sortedHotels.addAll(bannedHotels);
 
         // Lấy danh sách thành phố duy nhất và sắp xếp theo alphabet
         List<String> cities = hotels.stream()
@@ -78,6 +82,7 @@ public class ModeratorHotelListController {
         model.addAttribute("pendingCount", pendingCount);
         model.addAttribute("approvedCount", approvedCount);
         model.addAttribute("rejectedCount", rejectedCount);
+        model.addAttribute("bannedCount", bannedCount);
         return "moderator/moderatorHotelList";
     }
 
@@ -93,13 +98,13 @@ public class ModeratorHotelListController {
             res.put("message", "Không tìm thấy khách sạn");
             return res;
         }
-        
+
         // Update hotel status to active
         hotelService.updateHotelStatus(id, "active");
-        
+
         // Notify host about approval
         notificationService.notifyHotelApproval(hotel.getHostId(), hotel.getHotelName());
-        
+
         Map<String, Object> res = new HashMap<>();
         res.put("success", true);
         res.put("message", "Phê duyệt khách sạn thành công!");
@@ -110,26 +115,7 @@ public class ModeratorHotelListController {
     @ResponseBody
     public Map<String, Object> rejectHotel(@PathVariable int id, @RequestBody Map<String, String> body) {
         String reason = body.get("reason");
-        
-        // Get hotel details before updating status
-        Hotel hotel = hotelService.getHotelById(id);
-        if (hotel == null) {
-            Map<String, Object> res = new HashMap<>();
-            res.put("success", false);
-            res.put("message", "Không tìm thấy khách sạn");
-            return res;
-        }
-        
-        // Update hotel status to inactive
-        hotelService.updateHotelStatus(id, "inactive");
-        
-        // Notify host about rejection
-        String title = "Khách sạn bị từ chối 🚫";
-        String message = "Khách sạn \"" + hotel.getHotelName() + "\" đã bị từ chối. Lý do: " + (reason != null ? reason : "Không có lý do cụ thể");
-        String actionUrl = "/host-listing";
-        notificationService.createNotification(hotel.getHostId(), title, message, "hotel", "high", actionUrl, "bi-x-circle",
-                                             Map.of("hotelName", hotel.getHotelName(), "reason", reason != null ? reason : ""));
-        
+        hotelService.updateHotelStatus(id, "banned");
         Map<String, Object> res = new HashMap<>();
         res.put("success", true);
         res.put("message", "Từ chối khách sạn thành công!");

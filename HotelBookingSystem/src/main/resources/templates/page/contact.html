@@ -136,7 +136,11 @@
                         <h5>Email cho chúng tôi</h5>
                         <p>Gửi thắc mắc hoặc góp ý của bạn đến chúng tôi.</p>
                         <!-- Buttons -->
-                        <a href="#" class="btn btn-link text-decoration-underline p-0 mb-0"><i class="bi bi-envelope me-1"></i>hamoraplatform@gmail.com</a>
+                        <a href="https://mail.google.com/mail/?view=cm&fs=1&to=hamoraplatform@gmail.com"
+                           target="_blank"
+                           class="btn btn-link text-decoration-underline p-0 mb-0">
+                            <i class="bi bi-envelope me-1"></i>hamoraplatform@gmail.com
+                        </a>
                     </div>
                 </div>
                 <!-- Contact item END -->
@@ -241,39 +245,49 @@
 
                         <!-- Card body START -->
                         <div class="card-body p-0">
-                            <form class="row g-4">
+                            <form class="row g-4" method="POST" action="/send-message">
                                 <!-- Name -->
                                 <div class="col-md-6">
                                     <label class="form-label">Họ và tên *</label>
-                                    <input type="text" class="form-control">
+                                    <input type="text" name="name" class="form-control" required>
                                 </div>
                                 <!-- Email -->
                                 <div class="col-md-6">
                                     <label class="form-label">Địa chỉ email *</label>
-                                    <input type="email" class="form-control">
+                                    <input type="email" name="email" class="form-control" required>
                                 </div>
-                                <!-- Mobile number -->
+                                <!-- Phone -->
                                 <div class="col-12">
                                     <label class="form-label">Số điện thoại *</label>
-                                    <input type="text" class="form-control">
+                                    <input type="number" name="phone" class="form-control" required>
                                 </div>
                                 <!-- Message -->
                                 <div class="col-12">
                                     <label class="form-label">Nội dung *</label>
-                                    <textarea class="form-control" rows="3"></textarea>
+                                    <textarea name="message" class="form-control" rows="3" required></textarea>
                                 </div>
                                 <!-- Checkbox -->
                                 <div class="col-12 form-check ms-2">
-                                    <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                                    <input type="checkbox" class="form-check-input" id="exampleCheck1" required>
                                     <label class="form-check-label" for="exampleCheck1">
                                         Khi gửi biểu mẫu này, bạn đồng ý với các điều khoản của chúng tôi.
                                     </label>
                                 </div>
-                                <!-- Button -->
+                                <!-- Submit button -->
                                 <div class="col-12">
-                                    <button class="btn btn-dark mb-0" type="button">Gửi tin nhắn</button>
+                                    <button class="btn btn-dark mb-0" type="submit">Gửi tin nhắn</button>
                                 </div>
                             </form>
+                            <!-- Success message -->
+                            <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert" style="margin-top: 10px">
+                                <span th:text="${success}"></span>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+                            </div>
+                            <!-- Error message -->
+                            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert" style="margin-top: 10px">
+                                <span th:text="${error}"></span>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+                            </div>
                         </div>
                         <!-- Card body END -->
                     </div>
