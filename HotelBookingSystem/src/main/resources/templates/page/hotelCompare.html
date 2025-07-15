@@ -251,13 +251,48 @@
         tbody.appendChild(renderRow('Số lượng phòng', comparedHotels.map(h => (h.roomQuantity != null ? h.roomQuantity : 0))));
         // Tiêu chí: Tên chủ khách sạn
         tbody.appendChild(renderRow('Tên chủ khách sạn', comparedHotels.map(h => h.hostName && h.hostName.trim() !== '' ? h.hostName : 'Không có')));
-        // Tiện ích (amenities)
-        Array.from(allAmenities).forEach(amenity => {
-            tbody.appendChild(renderRow(amenity, comparedHotels.map(h => {
-                const amenities = (hotelDetails[h.hotelId].amenities || []);
-                return amenities.includes(amenity) ? '<span class="h5 text-success mb-0"><i class="bi bi-check-lg"></i></span>' : '<span class="h5 text-danger mb-0"><i class="bi bi-x-lg"></i></span>';
-            }), true));
+        // Tiện ích (amenities) - mỗi tiện ích là một hàng, mỗi khách sạn là một cột
+        // Lấy danh sách tất cả amenities xuất hiện ở bất kỳ khách sạn nào
+        let allAmenitiesArr = [];
+        let amenitiesSet = new Set();
+        comparedHotels.forEach(h => {
+            (hotelDetails[h.hotelId].amenities || []).forEach(a => amenitiesSet.add(a));
         });
+        allAmenitiesArr = Array.from(amenitiesSet);
+        // Chỉ hiển thị tối đa 5 tiện ích đầu tiên
+        const maxAmenitiesShow = 5;
+        let amenitiesToShow = allAmenitiesArr.slice(0, maxAmenitiesShow);
+        amenitiesToShow.forEach((amenity, idx) => {
+            const tr = document.createElement('tr');
+            const th = document.createElement('th');
+            th.scope = 'row';
+            th.innerHTML = `<span class="h6 mb-0">${amenity}</span>`;
+            tr.appendChild(th);
+            for (let j = 0; j < 3; j++) {
+                const td = document.createElement('td');
+                if (comparedHotels[j]) {
+                    const amenities = (hotelDetails[comparedHotels[j].hotelId].amenities || []);
+                    if (amenities.includes(amenity)) {
+                        td.innerHTML = '<span class="h5 text-success mb-0"><i class="bi bi-check-lg"></i></span>';
+                    } else {
+                        td.innerHTML = '<span class="h5 text-danger mb-0"><i class="bi bi-x-lg"></i></span>';
+                    }
+                }
+                tr.appendChild(td);
+            }
+            tbody.appendChild(tr);
+        });
+        // Nếu có nhiều hơn 5 amenities thì thêm nút "xem thêm"
+        if (allAmenitiesArr.length > maxAmenitiesShow) {
+            const tr = document.createElement('tr');
+            tr.id = 'show-more-amenities-row';
+            const td = document.createElement('td');
+            td.colSpan = 4;
+            td.className = 'text-center';
+            td.innerHTML = '<button id="show-more-amenities-btn" class="btn btn-link" type="button" onclick="showMoreAmenities()"><i class="bi bi-chevron-down"></i> Xem thêm tiện ích</button>';
+            tr.appendChild(td);
+            tbody.appendChild(tr);
+        }
         // Hành động
         tbody.appendChild(renderRow('Thao tác', comparedHotels.map(h => `<button class="btn btn-sm btn-outline-primary mb-0" onclick="removeHotelFromCompare(${h.hotelId})">Xóa</button>`), true));
     }
@@ -286,6 +321,73 @@
         for (let i = r; i < 5; i++) html += '<i class="bi bi-star"></i>';
         html += `<span class="ms-1">${rating || ''}</span>`;
         return html;
+    }
+    // Hàm showMoreAmenities: hiện thêm các amenities còn lại
+    function showMoreAmenities() {
+        // Xóa nút
+        document.getElementById('show-more-amenities-row').remove();
+        // Render thêm các amenities còn lại
+        const tbody = document.getElementById('compare-table-body');
+        let allAmenitiesArr = [];
+        let amenitiesSet = new Set();
+        comparedHotels.forEach(h => {
+            (hotelDetails[h.hotelId].amenities || []).forEach(a => amenitiesSet.add(a));
+        });
+        allAmenitiesArr = Array.from(amenitiesSet);
+        const maxAmenitiesShow = 5;
+        let extraRows = [];
+        for (let idx = maxAmenitiesShow; idx < allAmenitiesArr.length; idx++) {
+            const amenity = allAmenitiesArr[idx];
+            const tr = document.createElement('tr');
+            tr.classList.add('extra-amenity-row');
+            const th = document.createElement('th');
+            th.scope = 'row';
+            th.innerHTML = `<span class="h6 mb-0">${amenity}</span>`;
+            tr.appendChild(th);
+            for (let j = 0; j < 3; j++) {
+                const td = document.createElement('td');
+                if (comparedHotels[j]) {
+                    const amenities = (hotelDetails[comparedHotels[j].hotelId].amenities || []);
+                    if (amenities.includes(amenity)) {
+                        td.innerHTML = '<span class="h5 text-success mb-0"><i class="bi bi-check-lg"></i></span>';
+                    } else {
+                        td.innerHTML = '<span class="h5 text-danger mb-0"><i class="bi bi-x-lg"></i></span>';
+                    }
+                }
+                tr.appendChild(td);
+            }
+            // Thêm vào trước dòng thao tác (dòng cuối cùng)
+            tbody.insertBefore(tr, tbody.lastChild);
+            extraRows.push(tr);
+        }
+        // Thêm nút rút gọn
+        const trCollapse = document.createElement('tr');
+        trCollapse.id = 'collapse-amenities-row';
+        const tdCollapse = document.createElement('td');
+        tdCollapse.colSpan = 4;
+        tdCollapse.className = 'text-center';
+        tdCollapse.innerHTML = '<button id="collapse-amenities-btn" class="btn btn-link" type="button" onclick="collapseAmenities()"><i class="bi bi-chevron-up"></i> Rút gọn tiện ích</button>';
+        trCollapse.appendChild(tdCollapse);
+        tbody.insertBefore(trCollapse, tbody.lastChild);
+    }
+    // Hàm collapseAmenities: ẩn các amenities ngoài 5 tiện ích đầu và hiện lại nút xem thêm
+    function collapseAmenities() {
+        // Xóa các dòng tiện ích thêm
+        document.querySelectorAll('.extra-amenity-row').forEach(row => row.remove());
+        // Xóa nút rút gọn
+        const collapseRow = document.getElementById('collapse-amenities-row');
+        if (collapseRow) collapseRow.remove();
+        // Thêm lại nút xem thêm
+        const tbody = document.getElementById('compare-table-body');
+        const tr = document.createElement('tr');
+        tr.id = 'show-more-amenities-row';
+        const td = document.createElement('td');
+        td.colSpan = 4;
+        td.className = 'text-center';
+        td.innerHTML = '<button id="show-more-amenities-btn" class="btn btn-link" type="button" onclick="showMoreAmenities()"><i class="bi bi-chevron-down"></i> Xem thêm tiện ích</button>';
+        tr.appendChild(td);
+        // Thêm vào trước dòng thao tác (dòng cuối cùng)
+        tbody.insertBefore(tr, tbody.lastChild);
     }
     // Khởi tạo bảng rỗng khi load trang
     document.addEventListener('DOMContentLoaded', function() {
