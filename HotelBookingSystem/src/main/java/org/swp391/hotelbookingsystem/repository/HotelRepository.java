@@ -61,7 +61,8 @@ public class HotelRepository {
                    h.status,
                    MIN(r.price) AS minPrice,
                    l.city_name AS cityName,
-                   u.full_name AS hostName
+                   u.full_name AS hostName,
+                   SUM(r.quantity) AS roomQuantity
             FROM Hotels h
             JOIN Locations l ON h.location_id = l.location_id
             LEFT JOIN Rooms r ON h.hotel_id = r.hotel_id
