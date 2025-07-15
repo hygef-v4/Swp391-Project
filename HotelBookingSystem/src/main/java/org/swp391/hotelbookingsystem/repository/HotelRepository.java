@@ -238,9 +238,9 @@ public class HotelRepository {
     public Hotel insertHotel(Hotel hotel) {
         String sql = """
                     INSERT INTO Hotels 
-                    (host_id, hotel_name, address, location_id, latitude, longitude, hotel_image_url, rating, description, policy)
+                    (host_id, hotel_name, address, location_id, latitude, longitude, hotel_image_url, rating, description, policy, status)
                     OUTPUT INSERTED.hotel_id
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
 
         Integer hotelId = jdbcTemplate.queryForObject(sql, Integer.class,
@@ -253,7 +253,8 @@ public class HotelRepository {
                 hotel.getHotelImageUrl(),
                 hotel.getRating(),  // can be null
                 hotel.getDescription(),
-                hotel.getPolicy()
+                hotel.getPolicy(),
+                hotel.getStatus() // Add status here
         );
 
         if (hotelId == null) {
