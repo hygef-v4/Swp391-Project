@@ -32,9 +32,9 @@
                                 <!-- Content -->
                                 <div class="col-lg-6">
                                     <!-- Title -->
-                                    <h1 class="mb-3 fs-2">Compare listing and choose the best</h1>
-                                    <p class="mb-3">Expand knowledge by reading book Two before narrow not relied on how except moment myself Dejection assurance. </p>
-                                    <a href="#" class="btn btn-primary-soft mb-0">View all Listing<i class="bi bi-arrow-right fa-fw ms-2"></i></a>
+                                    <h1 class="mb-3 fs-2">So sánh khách sạn và chọn lựa tốt nhất</h1>
+                                    <p class="mb-3">Mở rộng hiểu biết của bạn bằng cách so sánh các khách sạn để lựa chọn phù hợp nhất.</p>
+                                    <a href="#" class="btn btn-primary-soft mb-0">Xem tất cả khách sạn<i class="bi bi-arrow-right fa-fw ms-2"></i></a>
                                 </div>
                                 <!-- Image -->
                                 <div class="col-lg-6">
@@ -59,7 +59,7 @@
                                 <thead class="align-top">
                                 <tr>
                                     <th scope="col">
-                                        <p class="h3">Compare Our Listing</p>
+                                        <p class="h3">So sánh các khách sạn</p>
                                         <a href="#" class="btn btn-lg btn-primary btn-round mb-0">
                                             <i class="fa-solid fa-plus"></i>
                                         </a>
@@ -79,7 +79,7 @@
                                                           th:text="${#numbers.formatDecimal(hotel.minPrice, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
                                                     <span class="h6 text-success mb-0"
                                                           th:if="${hotel.minPrice == null}">N/A</span>
-                                                    <a href="#" class="btn btn-sm btn-link mb-0 p-0">View Listing<i class="bi bi-arrow-right ms-2"></i></a>
+                                                    <a href="#" class="btn btn-sm btn-link mb-0 p-0">Xem chi tiết<i class="bi bi-arrow-right ms-2"></i></a>
                                                 </div>
                                             </div>
                                         </div>
@@ -91,55 +91,55 @@
                                 <tbody class="border-top-0">
                                 <!-- Item: Rating -->
                                 <tr>
-                                    <th scope="row"><span class="h6 mb-0">Rating</span></th>
+                                    <th scope="row"><span class="h6 mb-0">Đánh giá</span></th>
                                     <td th:each="hotel : ${hotels}">
                                         <span th:text="${hotel.rating}"></span>
                                     </td>
                                 </tr>
                                 <!-- Item: Address -->
                                 <tr>
-                                    <th scope="row"><span class="h6 mb-0">Address</span></th>
+                                    <th scope="row"><span class="h6 mb-0">Địa chỉ</span></th>
                                     <td th:each="hotel : ${hotels}" th:text="${hotel.address}"></td>
                                 </tr>
                                 <!-- Item: Max Guests -->
                                 <tr>
-                                    <th scope="row"><span class="h6 mb-0">Max Guests</span></th>
+                                    <th scope="row"><span class="h6 mb-0">Số khách tối đa</span></th>
                                     <td th:each="hotel : ${hotels}" th:text="${hotel.maxGuests}"></td>
                                 </tr>
                                 <!-- Item: Room Quantity -->
                                 <tr>
-                                    <th scope="row"><span class="h6 mb-0">Room Quantity</span></th>
+                                    <th scope="row"><span class="h6 mb-0">Số lượng phòng</span></th>
                                     <td th:each="hotel : ${hotels}" th:text="${hotel.roomQuantity}"></td>
                                 </tr>
                                 <!-- Item: Host Name -->
                                 <tr>
-                                    <th scope="row"><span class="h6 mb-0">Host Name</span></th>
+                                    <th scope="row"><span class="h6 mb-0">Tên chủ khách sạn</span></th>
                                     <td th:each="hotel : ${hotels}" th:text="${hotel.hostName}"></td>
                                 </tr>
                                 <!-- Item -->
                                 <tr>
-                                    <th scope="row"><span class="h6 mb-0">Floor area</span></th>
+                                    <th scope="row"><span class="h6 mb-0">Diện tích sàn</span></th>
                                     <td>1700 sq.ft</td>
                                     <td>1500 sq.ft</td>
                                     <td>1650 sq.ft</td>
                                 </tr>
                                 <!-- Item -->
                                 <tr>
-                                    <th scope="row"><span class="h6 mb-0">Bedroom</span></th>
-                                    <td>3 Bedroom  4 Beds</td>
-                                    <td>2 Bedroom  3 Beds</td>
-                                    <td>1 Bedroom  2 Beds</td>
+                                    <th scope="row"><span class="h6 mb-0">Phòng ngủ</span></th>
+                                    <td>3 Phòng ngủ  4 Giường</td>
+                                    <td>2 Phòng ngủ  3 Giường</td>
+                                    <td>1 Phòng ngủ  2 Giường</td>
                                 </tr>
                                 <!-- Item -->
                                 <tr>
-                                    <th scope="row"><span class="h6 mb-0">Bathroom</span></th>
-                                    <td>2 Showers</td>
-                                    <td>2 Showers 1 Bathtub</td>
-                                    <td>1 Shower 1 Bathtub</td>
+                                    <th scope="row"><span class="h6 mb-0">Phòng tắm</span></th>
+                                    <td>2 Vòi sen</td>
+                                    <td>2 Vòi sen 1 Bồn tắm</td>
+                                    <td>1 Vòi sen 1 Bồn tắm</td>
                                 </tr>
                                 <!-- Item -->
                                 <tr>
-                                    <th scope="row"><span class="h6 mb-0">Swimming Pool</span></th>
+                                    <th scope="row"><span class="h6 mb-0">Hồ bơi</span></th>
                                     <td>
                                         <span class="h5 text-success mb-0"><i class="bi bi-check-lg"></i></span>
                                     </td>
@@ -152,7 +152,7 @@
                                 </tr>
                                 <!-- Item -->
                                 <tr>
-                                    <th scope="row"><span class="h6 mb-0">Air conditioning</span></th>
+                                    <th scope="row"><span class="h6 mb-0">Điều hòa không khí</span></th>
                                     <td>
                                         <span class="h5 text-success mb-0"><i class="bi bi-check-lg"></i></span>
                                     </td>
@@ -165,7 +165,7 @@
                                 </tr>
                                 <!-- Item -->
                                 <tr>
-                                    <th scope="row"><span class="h6 mb-0">Gym</span></th>
+                                    <th scope="row"><span class="h6 mb-0">Phòng gym</span></th>
                                     <td>
                                         <span class="h5 text-danger mb-0"><i class="bi bi-x-lg"></i></span>
                                     </td>
@@ -191,15 +191,15 @@
                                 </tr>
                                 <!-- Item -->
                                 <tr>
-                                    <th scope="row"><span class="h6 mb-0">Actions</span></th>
+                                    <th scope="row"><span class="h6 mb-0">Thao tác</span></th>
                                     <td>
-                                        <button class="btn btn-sm btn-outline-primary mb-0">Remove</button>
+                                        <button class="btn btn-sm btn-outline-primary mb-0">Xóa</button>
                                     </td>
                                     <td>
-                                        <button class="btn btn-sm btn-outline-primary mb-0">Remove</button>
+                                        <button class="btn btn-sm btn-outline-primary mb-0">Xóa</button>
                                     </td>
                                     <td>
-                                        <button class="btn btn-sm btn-outline-primary mb-0">Remove</button>
+                                        <button class="btn btn-sm btn-outline-primary mb-0">Xóa</button>
                                     </td>
                                 </tr>
                                 </tbody>
@@ -231,13 +231,13 @@
                     <div class="row g-4 justify-content-md-between align-items-center position-relative">
                         <div class="col-xl-6">
                             <!-- Title -->
-                            <h4 class="mb-0">Subscribe Our Newsletter</h4>
+                            <h4 class="mb-0">Đăng ký nhận bản tin</h4>
                         </div>
                         <!-- Content and input -->
                         <div class="col-xl-5">
                             <form class="bg-body rounded-2 p-2">
                                 <div class="d-flex">
-                                    <input class="form-control border-0 me-1" type="email" placeholder="Enter your email">
+                                    <input class="form-control border-0 me-1" type="email" placeholder="Nhập email của bạn">
                                     <button type="button" class="btn btn-dark btn-round mb-0 flex-shrink-0"><i class="bi bi-arrow-right fa-fw"></i></button>
                                 </div>
                             </form>
