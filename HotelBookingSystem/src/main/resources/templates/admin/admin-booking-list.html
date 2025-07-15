@@ -617,7 +617,8 @@
                                                     </div>
                                                 </div>
                                                 <p class="mb-1" th:text="'Giá 1 phòng: ' + ${#numbers.formatDecimal(unit.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></p>
-                                                <p class="mb-1 text-success" th:text="'Tổng tiền: ' + ${#numbers.formatDecimal(unit.price * unit.quantity, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></p>
+                                                <p class="mb-1" th:text="'Số ngày: ' + ${booking.numberOfNights}"></p>
+                                                <p class="mb-1" th:text="'Tổng tiền: ' + ${#numbers.formatDecimal(unit.price * unit.quantity * booking.numberOfNights, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></p>
                                             </div>
                                         </div>
                                     </div> <!-- end unit loop -->

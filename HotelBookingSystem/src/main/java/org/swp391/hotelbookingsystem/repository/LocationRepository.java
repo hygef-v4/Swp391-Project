@@ -41,7 +41,7 @@ public class LocationRepository {
         }, new BeanPropertyRowMapper<>(Location.class));
     }
 
-    public List<Location> getTop5LocationStats() {
+    public List<Location> getAllLocationStats() {
         String sql = """
         SELECT 
             l.location_id AS id,
@@ -55,9 +55,19 @@ public class LocationRepository {
         LEFT JOIN Rooms r ON h.hotel_id = r.hotel_id
         GROUP BY l.location_id, l.city_name, l.location_image_url
         ORDER BY numberOfHotels DESC
-        OFFSET 0 ROWS FETCH NEXT 5 ROWS ONLY
         """;
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Location.class));
+    }
+
+    public void insertLocation(Location location) {
+        String sql = "INSERT INTO Locations (city_name, location_image_url) VALUES (?, ?)";
+        jdbcTemplate.update(sql, location.getCityName(), location.getImageUrl());
+    }
+
+    public boolean cityNameExistsIgnoreCase(String cityName) {
+        String sql = "SELECT COUNT(*) FROM Locations WHERE LOWER(city_name) = LOWER(?)";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, cityName.trim());
+        return count != null && count > 0;
     }
 
 }
