@@ -44,7 +44,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/", "/home", "/error", "/webhook", "/contact",
                                 "/login", "/register", "/verify-email-otp", "/resend-otp", "/forgotPassword", "/resetPassword",
-                                "/hotel-list", "/filter-hotels", "/hotel-detail",
+                                "/hotel-list", "/filter-hotels", "/hotel-detail", "/about", "/faq",
                                 "/css/**", "/js/**", "/images/**", "/assets/**",
                                 "/api/files/**", "user-profile", "user-wishlist", "/ws/**", "/api/chat/**", "/api/notifications/**", "/test-notifications"
                         ).permitAll()
