@@ -125,7 +125,7 @@ public class ReviewRepository {
     public boolean checkReview(int hotelId, int userId){
         String query = """
             SELECT * FROM Reviews
-            WHERE hotel_id = ? AND reviewer_id = ?        
+            WHERE hotel_id = ? AND reviewer_id = ? AND is_public = 1     
         """;
         return !jdbcTemplate.query(query, ps -> {
             ps.setInt(1, hotelId);
@@ -156,17 +156,29 @@ public class ReviewRepository {
     }
 
     public int addReview(Review review){
-        String query = "INSERT INTO Reviews (hotel_id, reviewer_id, rating, comment) OUTPUT inserted.review_id VALUES (?, ?, ?, ?)";
+        String query = """
+            DECLARE @output TABLE (reviewId INT);
+            INSERT INTO Reviews (hotel_id, reviewer_id, rating, comment) OUTPUT inserted.review_id INTO @output VALUES (?, ?, ?, ?)  
+            SELECT * FROM @output;
+        """;
         return jdbcTemplate.queryForObject(query, Integer.class, review.getHotelId(), review.getReviewerId(), review.getRating(), review.getComment());
     }
 
     public int editReview(Review review){
-        String query = "UPDATE Reviews SET rating = ?, comment = ? OUTPUT inserted.review_id WHERE hotel_id = ? AND reviewer_id = ?";
+        String query = """
+            DECLARE @output TABLE (reviewId INT);
+            UPDATE Reviews SET rating = ?, comment = ? OUTPUT inserted.review_id INTO @output WHERE hotel_id = ? AND reviewer_id = ?    
+            SELECT * FROM @output;
+        """;
         return jdbcTemplate.queryForObject(query, Integer.class, review.getRating(), review.getComment(), review.getHotelId(), review.getReviewerId());
     }
 
     public int deleteReview(int hotelId, int userId){
-        String query = "DELETE FROM Reviews OUTPUT deleted.review_id WHERE hotel_id = ? AND reviewer_id = ?";
+        String query = """
+            DECLARE @output TABLE (reviewId INT);
+            UPDATE Reviews SET is_public = 0 OUTPUT inserted.review_id INTO @output WHERE hotel_id = ? AND reviewer_id = ?
+            SELECT * FROM @output;
+        """;
         return jdbcTemplate.queryForObject(query, Integer.class, hotelId, userId);
     }
 
