@@ -167,7 +167,7 @@ public class ReviewRepository {
     public int editReview(Review review){
         String query = """
             DECLARE @output TABLE (reviewId INT);
-            UPDATE Reviews SET rating = ?, comment = ? OUTPUT inserted.review_id INTO @output WHERE hotel_id = ? AND reviewer_id = ?    
+            UPDATE Reviews SET rating = ?, comment = ? OUTPUT inserted.review_id INTO @output WHERE hotel_id = ? AND reviewer_id = ? AND is_public = 1
             SELECT * FROM @output;
         """;
         return jdbcTemplate.queryForObject(query, Integer.class, review.getRating(), review.getComment(), review.getHotelId(), review.getReviewerId());
@@ -176,7 +176,7 @@ public class ReviewRepository {
     public int deleteReview(int hotelId, int userId){
         String query = """
             DECLARE @output TABLE (reviewId INT);
-            UPDATE Reviews SET is_public = 0 OUTPUT inserted.review_id INTO @output WHERE hotel_id = ? AND reviewer_id = ?
+            UPDATE Reviews SET is_public = 0 OUTPUT deleted.review_id INTO @output WHERE hotel_id = ? AND reviewer_id = ? AND is_public = 1
             SELECT * FROM @output;
         """;
         return jdbcTemplate.queryForObject(query, Integer.class, hotelId, userId);
