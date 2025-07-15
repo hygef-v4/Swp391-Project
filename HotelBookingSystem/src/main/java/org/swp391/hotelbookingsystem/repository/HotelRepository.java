@@ -226,14 +226,17 @@ public class HotelRepository {
                        h.policy,
                        h.status,
                        MIN(r.price) AS minPrice,
-                       l.city_name AS cityName
+                       l.city_name AS cityName,
+                       u.full_name AS hostName,
+                       SUM(r.quantity) AS roomQuantity
                 FROM Hotels h
                 JOIN Locations l ON h.location_id = l.location_id
-                JOIN Rooms r ON h.hotel_id = r.hotel_id
-                WHERE h.hotel_id like ?
+                LEFT JOIN Rooms r ON h.hotel_id = r.hotel_id
+                JOIN Users u ON h.host_id = u.user_id
+                WHERE h.hotel_id = ?
                 GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
                          h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude, h.policy,
-                         l.city_name, h.status
+                         l.city_name, h.status, u.full_name
                 """;
         return jdbcTemplate.queryForObject(query, HOTEL_MAPPER, id);
     }

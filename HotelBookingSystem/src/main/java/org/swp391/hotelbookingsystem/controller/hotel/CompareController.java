@@ -26,35 +26,29 @@ public class CompareController {
     private RoomService roomService;
 
     @GetMapping("/hotel-compare")
-    public String hotelCompareDemo(Model model) {
-        List<Hotel> hotels = hotelService.getAllHotels();
-        if (hotels.size() > 3) {
-            hotels = hotels.subList(0, 3);
-        }
-        model.addAttribute("hotels", hotels);
-
-        // Lấy danh sách phòng cho từng khách sạn
-        Map<Integer, List<Room>> hotelRoomsMap = new HashMap<>();
-        // Map: hotelId -> Set<Amenity>
-        Map<Integer, Set<String>> hotelAmenitiesMap = new HashMap<>();
-        // Tổng hợp tất cả amenities xuất hiện ở bất kỳ khách sạn nào
-        Set<String> allAmenities = new HashSet<>();
-        for (Hotel hotel : hotels) {
-            List<Room> rooms = roomService.getRoomByHotelId(hotel.getHotelId());
-            hotelRoomsMap.put(hotel.getHotelId(), rooms);
-            Set<String> amenitiesOfHotel = new HashSet<>();
-            for (Room room : rooms) {
-                List<Amenity> amenities = amenityService.getRoomAmenities(room.getRoomId());
-                for (Amenity a : amenities) {
-                    amenitiesOfHotel.add(a.getName());
-                    allAmenities.add(a.getName());
-                }
-            }
-            hotelAmenitiesMap.put(hotel.getHotelId(), amenitiesOfHotel);
-        }
-        model.addAttribute("hotelRoomsMap", hotelRoomsMap);
-        model.addAttribute("hotelAmenitiesMap", hotelAmenitiesMap);
-        model.addAttribute("allAmenities", allAmenities);
+    public String hotelComparePage(Model model) {
+        List<Hotel> allHotels = hotelService.getAllHotels();
+        model.addAttribute("allHotels", allHotels);
         return "page/hotelCompare";
+    }
+
+    // AJAX endpoint: trả về chi tiết khách sạn (phòng, amenities, ...)
+    @GetMapping("/hotel-compare/detail/{hotelId}")
+    @org.springframework.web.bind.annotation.ResponseBody
+    public Map<String, Object> getHotelCompareDetail(@org.springframework.web.bind.annotation.PathVariable Integer hotelId) {
+        Map<String, Object> result = new HashMap<>();
+        Hotel hotel = hotelService.getHotelById(hotelId);
+        result.put("hotel", hotel);
+        List<Room> rooms = roomService.getRoomByHotelId(hotelId);
+        result.put("rooms", rooms);
+        Set<String> amenities = new HashSet<>();
+        for (Room room : rooms) {
+            List<Amenity> roomAmenities = amenityService.getRoomAmenities(room.getRoomId());
+            for (Amenity a : roomAmenities) {
+                amenities.add(a.getName());
+            }
+        }
+        result.put("amenities", amenities);
+        return result;
     }
 } 

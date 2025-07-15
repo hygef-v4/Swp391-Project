@@ -34,7 +34,10 @@
                                     <!-- Title -->
                                     <h1 class="mb-3 fs-2">So sánh khách sạn và chọn lựa tốt nhất</h1>
                                     <p class="mb-3">Mở rộng hiểu biết của bạn bằng cách so sánh các khách sạn để lựa chọn phù hợp nhất.</p>
-                                    <a href="#" class="btn btn-primary-soft mb-0">Xem tất cả khách sạn<i class="bi bi-arrow-right fa-fw ms-2"></i></a>
+                                    <!-- Nút thêm khách sạn -->
+                                    <button id="add-hotel-btn" class="btn btn-primary-soft mb-0" data-bs-toggle="modal" data-bs-target="#addHotelModal">
+                                        <i class="fa-solid fa-plus"></i> Thêm khách sạn để so sánh
+                                    </button>
                                 </div>
                                 <!-- Image -->
                                 <div class="col-lg-6">
@@ -52,133 +55,53 @@
             <div class="container">
                 <div class="row">
                     <div class="col-12">
-                        <!-- Table START -->
                         <div class="table-responsive-xl">
-                            <table class="table table-compare align-middle">
-                                <!-- Head START -->
+                            <div id="compare-empty-message" class="text-center py-5">
+                                <h4>Chưa thêm khách sạn để so sánh</h4>
+                                <button class="btn btn-primary-soft mt-3" data-bs-toggle="modal" data-bs-target="#addHotelModal">
+                                    <i class="fa-solid fa-plus"></i> Thêm khách sạn
+                                </button>
+                            </div>
+                            <table id="compare-table" class="table table-compare align-middle d-none">
                                 <thead class="align-top">
                                 <tr>
                                     <th scope="col">
                                         <p class="h3">So sánh các khách sạn</p>
-                                        <a href="#" class="btn btn-lg btn-primary btn-round mb-0">
+                                        <button class="btn btn-lg btn-primary btn-round mb-0" data-bs-toggle="modal" data-bs-target="#addHotelModal" id="add-hotel-btn-table">
                                             <i class="fa-solid fa-plus"></i>
-                                        </a>
+                                        </button>
                                     </th>
-                                    <th scope="col" th:each="hotel : ${hotels}">
-                                        <div class="card bg-transparent">
-                                            <!-- Image -->
-                                            <img th:src="${hotel.hotelImageUrl}" class="rounded" alt="...">
-                                            <!-- Card body START -->
-                                            <div class="card-body px-0">
-                                                <!-- Title -->
-                                                <span class="h6"><a th:text="${hotel.hotelName}" href="#"></a></span>
-                                                <!-- Button and price -->
-                                                <div class="d-sm-flex justify-content-between align-items-center mt-2">
-                                                    <span class="h6 text-success mb-0"
-                                                          th:if="${hotel.minPrice != null}"
-                                                          th:text="${#numbers.formatDecimal(hotel.minPrice, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
-                                                    <span class="h6 text-success mb-0"
-                                                          th:if="${hotel.minPrice == null}">N/A</span>
-                                                    <a href="#" class="btn btn-sm btn-link mb-0 p-0">Xem chi tiết<i class="bi bi-arrow-right ms-2"></i></a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </th>
+                                    <th scope="col" class="compare-hotel-col" colspan="1"></th>
+                                    <th scope="col" class="compare-hotel-col" colspan="1"></th>
+                                    <th scope="col" class="compare-hotel-col" colspan="1"></th>
                                 </tr>
                                 </thead>
-                                <!-- Head END -->
-                                <!-- Body START -->
-                                <tbody class="border-top-0">
-                                <!-- Item: Rating -->
-                                <tr>
-                                    <th scope="row"><span class="h6 mb-0">Đánh giá</span></th>
-                                    <td th:each="hotel : ${hotels}">
-                                        <span th:each="i : ${#numbers.sequence(1, T(java.lang.Math).floor(hotel.rating))}">
-                                            <i class="bi bi-star-fill text-warning"></i>
-                                        </span>
-                                        <span th:each="i : ${#numbers.sequence(1, 5 - T(java.lang.Math).floor(hotel.rating))}">
-                                            <i class="bi bi-star"></i>
-                                        </span>
-                                        <span th:text="${hotel.rating}" class="ms-1"></span>
-                                    </td>
-                                </tr>
-                                <!-- Item: Address -->
-                                <tr>
-                                    <th scope="row"><span class="h6 mb-0">Địa chỉ</span></th>
-                                    <td th:each="hotel : ${hotels}" th:text="${hotel.address}"></td>
-                                </tr>
-                                <!-- Item: Max Guests -->
-                                <!--
-                                <tr>
-                                    <th scope="row"><span class="h6 mb-0">Số khách tối đa</span></th>
-                                    <td th:each="hotel : ${hotels}" th:text="${hotel.maxGuests}"></td>
-                                </tr>
-                                -->
-                                <!-- Item: Room Quantity -->
-                                <tr>
-                                    <th scope="row"><span class="h6 mb-0">Số lượng phòng</span></th>
-                                    <td th:each="hotel : ${hotels}" th:text="${hotel.roomQuantity}"></td>
-                                </tr>
-                                <!-- Item: Host Name -->
-                                <tr>
-                                    <th scope="row"><span class="h6 mb-0">Tên chủ khách sạn</span></th>
-                                    <td th:each="hotel : ${hotels}" th:text="${hotel.hostName}"></td>
-                                </tr>
-                                <!-- Item -->
-                                <!--
-                                <tr>
-                                    <th scope="row"><span class="h6 mb-0">Diện tích sàn</span></th>
-                                    <td>1700 sq.ft</td>
-                                    <td>1500 sq.ft</td>
-                                    <td>1650 sq.ft</td>
-                                </tr>
-                                -->
-                                <!-- Amenities dynamic rows START -->
-                                <script>
-                                function showMoreAmenities() {
-                                    const rows = document.querySelectorAll('.amenity-row.d-none');
-                                    for (let i = 0; i < 5 && i < rows.length; i++) {
-                                        rows[i].classList.remove('d-none');
-                                    }
-                                    if (document.querySelectorAll('.amenity-row.d-none').length === 0) {
-                                        document.getElementById('show-more-amenities-btn').style.display = 'none';
-                                    }
-                                }
-                                </script>
-                                <th:block th:each="amenity,iterStat : ${allAmenities}">
-                                    <tr th:class="${iterStat.index >= 5} ? 'amenity-row d-none' : 'amenity-row'">
-                                        <th scope="row"><span class="h6 mb-0" th:text="${amenity}"></span></th>
-                                        <td th:each="hotel : ${hotels}">
-                                            <span th:if="${hotelAmenitiesMap[hotel.hotelId].contains(amenity)}" class="h5 text-success mb-0"><i class="bi bi-check-lg"></i></span>
-                                            <span th:if="${!hotelAmenitiesMap[hotel.hotelId].contains(amenity)}" class="h5 text-danger mb-0"><i class="bi bi-x-lg"></i></span>
-                                        </td>
-                                    </tr>
-                                 </th:block>
-                                 <tr>
-                                    <td colspan="4" class="text-center">
-                                        <button id="show-more-amenities-btn" class="btn btn-link" type="button" onclick="showMoreAmenities()">
-                                            <i class="bi bi-chevron-down"></i> Xem thêm tiện ích
-                                        </button>
-                                    </td>
-                                 </tr>
-                                <!-- Amenities dynamic rows END -->
-                                <!-- Item -->
-                                <tr id="action-row">
-                                    <th scope="row"><span class="h6 mb-0">Thao tác</span></th>
-                                    <td th:each="hotel,iterStat : ${hotels}">
-                                        <button class="btn btn-sm btn-outline-primary mb-0" th:attr="onclick='removeHotelColumn(this, ' + ${hotel.hotelId} + ')'">Xóa</button>
-                                    </td>
-                                </tr>
+                                <tbody class="border-top-0" id="compare-table-body">
+                                <!-- Nội dung động sẽ render ở đây bằng JS -->
                                 </tbody>
-                                <!-- Body END -->
                             </table>
                         </div>
-                        <!-- Table END -->
                     </div>
-                </div><!-- Row END -->
+                </div>
             </div>
         </section>
         <!-- ======================= Compare listing END -->
+        <!-- Modal chọn khách sạn -->
+        <div class="modal fade" id="addHotelModal" tabindex="-1" aria-labelledby="addHotelModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addHotelModalLabel">Chọn khách sạn để so sánh</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <ul class="list-group" id="hotel-list-select">
+                            <li class="list-group-item text-center">Đang tải...</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
         <!-- ======================= Action box START -->
         <section class="pt-0">
             <div class="container">
@@ -222,54 +145,152 @@
     <script src="/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <!-- ThemeFunctions -->
     <script src="/assets/js/functions.js"></script>
-    <script>
-    function removeHotelColumn(btn, hotelId) {
-        // Tìm vị trí cột cần xóa
-        const td = btn.closest('td');
-        const colIndex = Array.from(td.parentNode.children).indexOf(td);
-        // Xóa cột ở tất cả các hàng
-        const table = td.closest('table');
-        Array.from(table.rows).forEach(row => {
-            if (row.children.length > colIndex) {
-                row.deleteCell(colIndex);
-            }
+    <script th:inline="javascript">
+    // Dữ liệu khách sạn từ server (dùng cho popup)
+    const allHotels = /*[[${allHotels}]]*/ [];
+    // Quản lý danh sách khách sạn đang so sánh
+    let comparedHotels = [];
+    let hotelDetails = {};
+    let allAmenities = new Set();
+
+    // Render danh sách khách sạn trong modal
+    function renderHotelListSelect() {
+        const ul = document.getElementById('hotel-list-select');
+        ul.innerHTML = '';
+        if (allHotels.length === 0) {
+            ul.innerHTML = '<li class="list-group-item text-center">Không có khách sạn nào</li>';
+            return;
+        }
+        allHotels.forEach(hotel => {
+            // Không cho chọn lại khách sạn đã có trong bảng
+            if (comparedHotels.find(h => h.hotelId === hotel.hotelId)) return;
+            const li = document.createElement('li');
+            li.className = 'list-group-item d-flex align-items-center justify-content-between';
+            li.innerHTML = `<span>${hotel.hotelName}</span><button class='btn btn-sm btn-primary' onclick='addHotelToCompare(${hotel.hotelId})'>Thêm</button>`;
+            ul.appendChild(li);
         });
-        // Sau khi xóa, cập nhật lại các dòng tiện ích
-        updateAmenitiesRows();
+        if (ul.innerHTML === '') {
+            ul.innerHTML = '<li class="list-group-item text-center">Đã chọn tối đa 3 khách sạn</li>';
+        }
     }
 
-    function updateAmenitiesRows() {
-        // Lấy tất cả các dòng tiện ích
-        const amenityRows = document.querySelectorAll('.amenity-row');
-        // Đếm số khách sạn còn lại (số cột trừ 1 là số khách sạn)
-        const hotelCount = document.querySelectorAll('thead th[scope="col"]').length - 1;
-        let visibleCount = 0;
-        amenityRows.forEach(row => {
-            // Kiểm tra xem còn khách sạn nào có tiện ích này không
-            let hasAny = false;
-            // Bắt đầu từ cột 1 (bỏ qua cột tiêu đề)
-            for (let i = 1; i <= hotelCount; i++) {
-                const cell = row.children[i];
-                if (cell && cell.querySelector('.text-success')) {
-                    hasAny = true;
-                    break;
-                }
-            }
-            // Nếu không khách sạn nào còn tiện ích này, ẩn dòng
-            row.style.display = hasAny ? '' : 'none';
-            if (hasAny) visibleCount++;
-        });
-        // Nếu không còn khách sạn nào, ẩn toàn bộ dòng tiện ích
-        if (hotelCount === 0) {
-            amenityRows.forEach(row => row.style.display = 'none');
-            visibleCount = 0;
-        }
-        // Ẩn/hiện nút "Xem thêm tiện ích"
-        var showMoreBtn = document.getElementById('show-more-amenities-btn');
-        if (showMoreBtn) {
-            showMoreBtn.style.display = visibleCount === 0 ? 'none' : '';
-        }
+    // Khi mở modal, render lại danh sách
+    document.getElementById('addHotelModal').addEventListener('show.bs.modal', renderHotelListSelect);
+
+    // Thêm khách sạn vào so sánh
+    function addHotelToCompare(hotelId) {
+        if (comparedHotels.length >= 3) return;
+        fetch(`/hotel-compare/detail/${hotelId}`)
+            .then(res => res.json())
+            .then(data => {
+                comparedHotels.push(data.hotel);
+                hotelDetails[data.hotel.hotelId] = data;
+                // Cập nhật amenities tổng hợp
+                data.amenities.forEach(a => allAmenities.add(a));
+                renderCompareTable();
+                // Đóng modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('addHotelModal'));
+                modal.hide();
+            });
     }
+
+    // Xóa khách sạn khỏi so sánh
+    function removeHotelFromCompare(hotelId) {
+        comparedHotels = comparedHotels.filter(h => h.hotelId !== hotelId);
+        delete hotelDetails[hotelId];
+        // Cập nhật lại allAmenities
+        allAmenities = new Set();
+        comparedHotels.forEach(h => {
+            (hotelDetails[h.hotelId].amenities || []).forEach(a => allAmenities.add(a));
+        });
+        renderCompareTable();
+    }
+
+    // Render bảng so sánh
+    function renderCompareTable() {
+        const table = document.getElementById('compare-table');
+        const emptyMsg = document.getElementById('compare-empty-message');
+        // Hiện/ẩn bảng và thông báo
+        if (comparedHotels.length === 0) {
+            table.classList.add('d-none');
+            emptyMsg.classList.remove('d-none');
+            return;
+        } else {
+            table.classList.remove('d-none');
+            emptyMsg.classList.add('d-none');
+        }
+        // Render header
+        const ths = table.querySelectorAll('th.compare-hotel-col');
+        for (let i = 0; i < 3; i++) {
+            if (comparedHotels[i]) {
+                const h = comparedHotels[i];
+                ths[i].innerHTML = `
+                    <div class="card bg-transparent">
+                        <img src="${h.hotelImageUrl || '/assets/images/element/compare.svg'}" class="rounded" alt="...">
+                        <div class="card-body px-0">
+                            <span class="h6">${h.hotelName}</span>
+                            <div class="d-sm-flex justify-content-between align-items-center mt-2">
+                                <span class="h6 text-success mb-0">${h.minPrice ? h.minPrice.toLocaleString('vi-VN') + ' đ' : 'N/A'}</span>
+                                <a href="#" class="btn btn-sm btn-link mb-0 p-0">Xem chi tiết<i class="bi bi-arrow-right ms-2"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                ths[i].innerHTML = '';
+            }
+        }
+        // Render body
+        const tbody = document.getElementById('compare-table-body');
+        tbody.innerHTML = '';
+        // Tiêu chí: Đánh giá
+        tbody.appendChild(renderRow('Đánh giá', comparedHotels.map(h => renderRating(h.rating)), true));
+        // Tiêu chí: Địa chỉ
+        tbody.appendChild(renderRow('Địa chỉ', comparedHotels.map(h => h.address || '')));
+        // Tiêu chí: Số lượng phòng
+        tbody.appendChild(renderRow('Số lượng phòng', comparedHotels.map(h => (h.roomQuantity != null ? h.roomQuantity : 0))));
+        // Tiêu chí: Tên chủ khách sạn
+        tbody.appendChild(renderRow('Tên chủ khách sạn', comparedHotels.map(h => h.hostName && h.hostName.trim() !== '' ? h.hostName : 'Không có')));
+        // Tiện ích (amenities)
+        Array.from(allAmenities).forEach(amenity => {
+            tbody.appendChild(renderRow(amenity, comparedHotels.map(h => {
+                const amenities = (hotelDetails[h.hotelId].amenities || []);
+                return amenities.includes(amenity) ? '<span class="h5 text-success mb-0"><i class="bi bi-check-lg"></i></span>' : '<span class="h5 text-danger mb-0"><i class="bi bi-x-lg"></i></span>';
+            }), true));
+        });
+        // Hành động
+        tbody.appendChild(renderRow('Thao tác', comparedHotels.map(h => `<button class="btn btn-sm btn-outline-primary mb-0" onclick="removeHotelFromCompare(${h.hotelId})">Xóa</button>`), true));
+    }
+    // Helper render dòng
+    function renderRow(label, cols, isHtml) {
+        const tr = document.createElement('tr');
+        const th = document.createElement('th');
+        th.scope = 'row';
+        th.innerHTML = `<span class="h6 mb-0">${label}</span>`;
+        tr.appendChild(th);
+        for (let i = 0; i < 3; i++) {
+            const td = document.createElement('td');
+            if (cols[i]) {
+                if (isHtml) td.innerHTML = cols[i];
+                else td.textContent = cols[i];
+            } else td.innerHTML = '';
+            tr.appendChild(td);
+        }
+        return tr;
+    }
+    // Helper render rating
+    function renderRating(rating) {
+        let html = '';
+        const r = Math.floor(rating || 0);
+        for (let i = 0; i < r; i++) html += '<i class="bi bi-star-fill text-warning"></i>';
+        for (let i = r; i < 5; i++) html += '<i class="bi bi-star"></i>';
+        html += `<span class="ms-1">${rating || ''}</span>`;
+        return html;
+    }
+    // Khởi tạo bảng rỗng khi load trang
+    document.addEventListener('DOMContentLoaded', function() {
+        renderCompareTable();
+    });
     </script>
 </body>
 </html>
