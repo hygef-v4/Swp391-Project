@@ -127,7 +127,12 @@ public class ReviewService {
     }
 
     public List<Review> getAllReviewsByHostId(int hostId) {
-        return reviewRepository.getReviewsByHostId(hostId);
+        List<Review> reviews = reviewRepository.getReviewsByHostId(hostId);
+        for (Review r : reviews) {
+            List<Reply> replies = reviewRepository.getReviewReply(r.getReviewId());
+            r.setReplies(replies);
+        }
+        return reviews;
     }
 
 }
