@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết người dùng - Admin</title>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" th:href="@{/assets/images/favicon.ico}" />
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/" />
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Poppins:wght@400;500;700&amp;display=swap" />
+
+    <!-- Plugins CSS -->
+    <link rel="stylesheet" th:href="@{/assets/vendor/font-awesome/css/all.min.css}" />
+    <link rel="stylesheet" th:href="@{/assets/vendor/bootstrap-icons/bootstrap-icons.css}" />
+    <link rel="stylesheet" th:href="@{/assets/vendor/overlay-scrollbar/css/overlayscrollbars.min.css}" />
+    <link rel="stylesheet" th:href="@{/assets/vendor/choices/css/choices.min.css}" />
+    <link rel="stylesheet" th:href="@{/assets/vendor/glightbox/css/glightbox.css}" />
+
+    <!-- Theme CSS -->
+    <link rel="stylesheet" th:href="@{/assets/css/style.css}" />
+    
+    <style>
+        .hover-card {
+            transition: all 0.3s ease;
+            border-radius: 8px;
+        }
+
+        .hover-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card {
+            border-left: 4px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card.revenue {
+            border-left-color: #28a745;
+        }
+
+        .stat-card.bookings {
+            border-left-color: #007bff;
+        }
+
+        .stat-card.hotels {
+            border-left-color: #ffc107;
+        }
+
+        .stat-card.customers {
+            border-left-color: #17a2b8;
+        }
+
+        .user-avatar {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border: 4px solid #fff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .role-badge {
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+        }
+
+        .status-active {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .status-inactive {
+            background: linear-gradient(45deg, #dc3545, #fd7e14);
+            color: white;
+        }
+
+        .flagged-warning {
+            background: linear-gradient(45deg, #dc3545, #ffc107);
+            color: white;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .table-responsive {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .booking-status {
+            font-size: 0.8rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 15px;
+        }
+
+        .status-completed {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-approved {
+            background-color: #cce7ff;
+            color: #004085;
+            border: 1px solid #99d3ff;
+        }
+
+        .status-cancelled {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f1b0b7;
+        }
+
+        .status-check-in {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+    </style>
+
+    <!-- Dark mode -->
+    <script>
+        const storedTheme = localStorage.getItem('theme')
+
+        const getPreferredTheme = () => {
+            if (storedTheme) {
+                return storedTheme
+            }
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        }
+
+        const setTheme = function (theme) {
+            if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.setAttribute('data-bs-theme', 'dark')
+            } else {
+                document.documentElement.setAttribute('data-bs-theme', theme)
+            }
+        }
+
+        setTheme(getPreferredTheme())
+    </script>
+</head>
+
+<body>
+
+<!-- **************** MAIN CONTENT START **************** -->
+<main>
+
+    <!-- Sidebar START -->
+    <div th:replace="~{common-admin/admin-sidebar :: admin_sidebar}"></div>
+    <!-- Sidebar END -->
+
+    <!-- Page content START -->
+    <div class="page-content">
+
+        <!-- Top bar START -->
+        <div th:replace="~{common-admin/admin-topbar :: admin_topbar}"></div>
+        <!-- Top bar END -->
+
+        <!-- Page main content START -->
+        <div class="page-content-wrapper p-xxl-4">
+
+            <!-- Breadcrumb -->
+            <div class="row">
+                <div class="col-12 mb-4">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb breadcrumb-dots">
+                            <li class="breadcrumb-item"><a th:href="@{/admin-dashboard}">Trang chủ</a></li>
+                            <li class="breadcrumb-item"><a th:href="@{/admin-user-list}">Danh sách người dùng</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Chi tiết người dùng</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Title -->
+            <div class="row">
+                <div class="col-12 mb-4">
+                    <div class="d-sm-flex justify-content-between align-items-center">
+                        <h1 class="h3 mb-2 mb-sm-0">Chi tiết người dùng</h1>
+                        <div class="d-flex gap-2">
+                            <a th:href="@{/admin-user-list}" class="btn btn-outline-primary">
+                                <i class="bi bi-arrow-left me-1"></i>Quay lại
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Profile Card -->
+            <div class="row">
+                <div class="col-lg-4 col-xl-3">
+                    <div class="card hover-card">
+                        <div class="card-body text-center">
+                            <!-- Avatar -->
+                            <div class="avatar avatar-xxl mb-3">
+                                <img class="avatar-img rounded-circle user-avatar" 
+                                     th:src="${user.avatarUrl ?: '/assets/images/avatar/01.jpg'}" 
+                                     alt="User Avatar">
+                            </div>
+                            
+                            <!-- Basic Info -->
+                            <h5 class="mb-2" th:text="${user.fullName}">User Name</h5>
+                            <p class="text-muted mb-3" th:text="${user.email}">user@example.com</p>
+                            
+                            <!-- Role Badge -->
+                            <span class="badge role-badge mb-3"
+                                  th:classappend="${user.role == 'ADMIN' ? 'bg-danger' : 
+                                                 (user.role == 'MODERATOR' ? 'bg-warning' :
+                                                 (user.role == 'HOTEL_OWNER' ? 'bg-info' : 'bg-primary'))}"
+                                  th:text="${user.role == 'CUSTOMER' ? 'KHÁCH HÀNG' : 
+                                           (user.role == 'HOTEL_OWNER' ? 'CHỦ KHÁCH SẠN' :
+                                           (user.role == 'MODERATOR' ? 'QUẢN LÝ WEB' : 
+                                           (user.role == 'ADMIN' ? 'QUẢN TRỊ VIÊN' : user.role)))}">
+                                Role
+                            </span>
+                            
+                            <!-- Status Badge -->
+                            <div class="mb-3">
+                                <span class="badge px-3 py-2" 
+                                      th:classappend="${user.active ? 'status-active' : 'status-inactive'}"
+                                      th:text="${user.active ? 'Hoạt động' : 'Bị khóa'}">
+                                    Status
+                                </span>
+                            </div>
+                            
+                            <!-- Flagged Warning -->
+                            <div th:if="${isFlagged}" class="alert alert-danger flagged-warning">
+                                <i class="bi bi-flag-fill me-2"></i>
+                                <strong>Người dùng bị báo cáo</strong>
+                                <div class="mt-2">
+                                    <small th:text="'Lý do: ' + ${flagReason}">Reason</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-8 col-xl-9">
+                    <!-- Personal Information -->
+                    <div class="card hover-card mb-4">
+                        <div class="card-header border-bottom">
+                            <h5 class="mb-0">Thông tin cá nhân</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <ul class="list-group list-group-borderless">
+                                        <li class="list-group-item d-flex justify-content-between">
+                                            <span>Họ và tên:</span>
+                                            <span class="fw-semibold" th:text="${user.fullName ?: 'Chưa cập nhật'}">Name</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between">
+                                            <span>Email:</span>
+                                            <span class="fw-semibold" th:text="${user.email}">Email</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between">
+                                            <span>Số điện thoại:</span>
+                                            <span class="fw-semibold" th:text="${user.phone ?: 'Chưa cập nhật'}">Phone</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <ul class="list-group list-group-borderless">
+                                        <li class="list-group-item d-flex justify-content-between">
+                                            <span>Giới tính:</span>
+                                            <span class="fw-semibold" th:text="${genderDisplay}">Gender</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between">
+                                            <span>Ngày sinh:</span>
+                                            <span class="fw-semibold" th:text="${user.dob ?: 'Chưa cập nhật'}">DOB</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between">
+                                            <span>Trạng thái:</span>
+                                            <span class="fw-semibold" 
+                                                  th:text="${user.active ? 'Hoạt động' : 'Bị khóa'}"
+                                                  th:classappend="${user.active ? 'text-success' : 'text-danger'}">
+                                                Status
+                                            </span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div th:if="${user.bio}" class="row mt-3">
+                                <div class="col-12">
+                                    <hr>
+                                    <h6>Giới thiệu:</h6>
+                                    <p class="text-muted mb-0" th:text="${user.bio}">Bio</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Statistics Cards - Hotel Owner -->
+                    <div th:if="${user.role == 'HOTEL_OWNER'}" class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="card stat-card hotels hover-card">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-building fs-1 text-warning mb-2"></i>
+                                    <h3 class="mb-1" th:text="${hotelCount ?: 0}">0</h3>
+                                    <p class="mb-0 text-muted">Khách sạn</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card stat-card bookings hover-card">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-calendar-check fs-1 text-primary mb-2"></i>
+                                    <h3 class="mb-1" th:text="${totalBookings ?: 0}">0</h3>
+                                    <p class="mb-0 text-muted">Đặt phòng</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card stat-card revenue hover-card">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-cash-stack fs-1 text-success mb-2"></i>
+                                    <h3 class="mb-1" th:text="${#numbers.formatDecimal(totalRevenue ?: 0, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</h3>
+                                    <p class="mb-0 text-muted">Tổng doanh thu</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Statistics Cards - Customer -->
+                    <div th:if="${user.role == 'CUSTOMER'}" class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card stat-card bookings hover-card">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-calendar-check fs-1 text-primary mb-2"></i>
+                                    <h3 class="mb-1" th:text="${totalBookings ?: 0}">0</h3>
+                                    <p class="mb-0 text-muted">Tổng đặt phòng</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card stat-card revenue hover-card">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-cash-stack fs-1 text-success mb-2"></i>
+                                    <h3 class="mb-1" th:text="${#numbers.formatDecimal(totalSpent ?: 0, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</h3>
+                                    <p class="mb-0 text-muted">Tổng chi tiêu</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hotels List - Hotel Owner -->
+                    <div th:if="${user.role == 'HOTEL_OWNER' and hotels != null and !hotels.isEmpty()}" class="card hover-card mb-4">
+                        <div class="card-header border-bottom">
+                            <h5 class="mb-0">Danh sách khách sạn</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Hình ảnh</th>
+                                            <th>Tên khách sạn</th>
+                                            <th>Địa điểm</th>
+                                            <th>Trạng thái</th>
+                                            <th>Đánh giá</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="hotel : ${hotels}">
+                                            <td>
+                                                <img th:src="${hotel.hotelImageUrl}" alt="Hotel" 
+                                                     class="rounded" width="60" height="40" style="object-fit: cover;">
+                                            </td>
+                                            <td>
+                                                <span class="fw-semibold" th:text="${hotel.hotelName}">Hotel Name</span>
+                                            </td>
+                                            <td th:text="${hotel.cityName}">Location</td>
+                                            <td>
+                                                <span class="badge" 
+                                                      th:classappend="${hotel.status == 'active' ? 'bg-success' : 'bg-danger'}"
+                                                      th:text="${hotel.status == 'active' ? 'Hoạt động' : 'Bị khóa'}">
+                                                    Status
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <i class="bi bi-star-fill text-warning me-1"></i>
+                                                    <span th:text="${#numbers.formatDecimal(hotel.rating ?: 0, 1, 1)}">0.0</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Bookings -->
+                    <div th:if="${(user.role == 'CUSTOMER' and customerBookings != null and !customerBookings.isEmpty()) or 
+                                 (user.role == 'HOTEL_OWNER' and recentBookings != null and !recentBookings.isEmpty())}" 
+                         class="card hover-card">
+                        <div class="card-header border-bottom">
+                            <h5 class="mb-0">
+                                <span th:if="${user.role == 'CUSTOMER'}">Lịch sử đặt phòng gần đây</span>
+                                <span th:if="${user.role == 'HOTEL_OWNER'}">Đặt phòng gần đây tại khách sạn</span>
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Mã đặt phòng</th>
+                                            <th>Khách sạn</th>
+                                            <th th:if="${user.role == 'HOTEL_OWNER'}">Khách hàng</th>
+                                            <th>Check-in</th>
+                                            <th>Check-out</th>
+                                            <th>Tổng tiền</th>
+                                            <th>Thao tác</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <th:block th:each="booking : ${user.role == 'CUSTOMER' ? customerBookings : recentBookings}">
+                                            <!-- Main booking row -->
+                                            <tr class="booking-main-row" th:attr="data-booking-id=${booking.bookingId}">
+                                                <td>
+                                                    <span class="fw-semibold" th:text="'#BK' + ${booking.bookingId}">Booking ID</span>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <img th:src="${booking.imageUrl}" alt="Hotel" 
+                                                             class="rounded me-2" width="40" height="30" style="object-fit: cover;">
+                                                        <span class="hotel-name-truncate" 
+                                                              th:text="${booking.hotelName}" 
+                                                              th:title="${booking.hotelName}">Hotel Name</span>
+                                                    </div>
+                                                </td>
+                                                <td th:if="${user.role == 'HOTEL_OWNER'}">
+                                                    <div class="d-flex align-items-center">
+                                                        <img th:src="${booking.customerAvatar ?: '/assets/images/avatar/01.jpg'}" 
+                                                             alt="Customer" class="rounded-circle me-2" width="30" height="30">
+                                                        <span th:text="${booking.customerName}">Customer Name</span>
+                                                    </div>
+                                                </td>
+
+                                                <td th:text="${#temporals.format(booking.checkIn, 'dd/MM/yyyy')}">Check-in</td>
+                                                <td th:text="${#temporals.format(booking.checkOut, 'dd/MM/yyyy')}">Check-out</td>
+                                                <td>
+                                                    <strong th:text="${booking.totalPrice > 0 ? (#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 0, 'POINT') + ' VNĐ') : 'Đã hủy/ Từ chối'}">Total</strong>
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-primary" 
+                                                            th:onclick="'toggleBookingDetails(' + ${booking.bookingId} + ')'" 
+                                                            title="Xem chi tiết phòng">
+                                                        <i class="bi bi-eye" th:id="'toggle-icon-' + ${booking.bookingId}"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            <!-- Expandable booking details row -->
+                                            <tr th:id="'expand-' + ${booking.bookingId}" class="booking-details-row d-none">
+                                                <td th:colspan="${user.role == 'HOTEL_OWNER' ? '7' : '6'}" class="p-0">
+                                                    <div class="bg-light p-3 border-start border-primary border-3" style="overflow-x: auto;">
+                                                        <h6 class="mb-3 text-primary">
+                                                            <i class="bi bi-door-open me-2"></i>Chi Tiết Phòng Đặt
+                                                        </h6>
+                                                        <div class="d-flex flex-wrap gap-3">
+                                                            <div th:each="unit : ${booking.bookingUnits}" class="booking-unit-card" style="min-width: 300px; max-width: 400px; flex: 1 1 calc(50% - 12px);">
+                                                                <div class="card">
+                                                                    <div class="card-body p-3">
+                                                                        <div class="d-flex align-items-start">
+                                                                            <img th:src="${unit.imageUrl ?: '/assets/images/category/hotel/4by3/01.jpg'}" 
+                                                                                 alt="Room" class="rounded me-3" style="width: 60px; height: 45px; object-fit: cover;">
+                                                                            <div class="flex-grow-1">
+                                                                                <h6 class="mb-1 room-name-truncate" 
+                                                                                    th:text="${unit.roomName}" 
+                                                                                    th:title="${unit.roomName}">Room Name</h6>
+                                                                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                                                                    <p class="mb-0 small text-muted">
+                                                                                        <i class="bi bi-people me-1"></i>Sức chứa: 
+                                                                                        <strong th:text="${unit.roomCapacity > 0 ? (unit.roomCapacity + ' khách') : 'Chưa cập nhật'}">2 khách</strong>
+                                                                                    </p>
+                                                                                    <p class="mb-0 small text-primary">
+                                                                                        <i class="bi bi-box me-1"></i>Số lượng: 
+                                                                                        <strong th:text="${unit.quantity}">1</strong>
+                                                                                    </p>
+                                                                                </div>
+                                                                                <div class="mb-2">
+                                                                                    <small class="text-muted d-block" 
+                                                                                           th:text="'Giá 1 phòng: ' + ${#numbers.formatDecimal(unit.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">Giá 1 phòng</small>
+                                                                                    <small class="fw-bold" 
+                                                                                           th:classappend="${(unit.status == 'approved' or unit.status == 'completed' or unit.status == 'check_in') ? 'text-success' : 'text-muted'}"
+                                                                                           th:text="'Tổng tiền: ' + ${#numbers.formatDecimal(unit.price * unit.quantity, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">Tổng tiền</small>
+                                                                                </div>
+                                                                                <div class="d-flex justify-content-between align-items-center">
+                                                                                    <span class="badge" 
+                                                                                          th:classappend="${unit.status == 'completed' ? 'bg-success bg-opacity-10 text-success' :
+                                                                                                         (unit.status == 'approved' ? 'bg-info bg-opacity-10 text-info' :
+                                                                                                         (unit.status == 'check_in' ? 'bg-primary bg-opacity-10 text-primary' :
+                                                                                                         (unit.status == 'rejected' ? 'bg-danger bg-opacity-10 text-danger' :
+                                                                                                         (unit.status == 'cancelled' ? 'bg-warning bg-opacity-10 text-warning' : 'bg-secondary bg-opacity-10 text-secondary'))))}"
+                                                                                          th:text="${unit.status == 'completed' ? 'Hoàn thành' :
+                                                                                                   (unit.status == 'approved' ? 'Đã phê duyệt' :
+                                                                                                   (unit.status == 'check_in' ? 'Đã nhận phòng' :
+                                                                                                   (unit.status == 'rejected' ? 'Đã từ chối' :
+                                                                                                   (unit.status == 'cancelled' ? 'Đã hủy' : unit.status))))}">
+                                                                                        Trạng thái
+                                                                                    </span>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </th:block>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div th:if="${(user.role == 'CUSTOMER' and (customerBookings == null or customerBookings.isEmpty())) or 
+                                 (user.role == 'HOTEL_OWNER' and (recentBookings == null or recentBookings.isEmpty()) and (hotels == null or hotels.isEmpty()))}" 
+                         class="card hover-card">
+                        <div class="card-body text-center py-5">
+                            <i class="bi bi-inbox fs-1 text-muted mb-3"></i>
+                            <h5 class="text-muted">Chưa có dữ liệu</h5>
+                            <p class="text-muted mb-0">
+                                <span th:if="${user.role == 'CUSTOMER'}">Người dùng này chưa có lịch sử đặt phòng.</span>
+                                <span th:if="${user.role == 'HOTEL_OWNER'}">Người dùng này chưa có khách sạn hoặc đặt phòng.</span>
+                                <span th:if="${user.role == 'MODERATOR' or user.role == 'ADMIN'}">Đây là tài khoản quản lý hệ thống.</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <!-- Page main content END -->
+
+    </div>
+    <!-- Page content END -->
+
+</main>
+<!-- **************** MAIN CONTENT END **************** -->
+
+<!-- Bootstrap JS -->
+<script th:src="@{/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+
+<!-- Vendors -->
+<script th:src="@{/assets/vendor/overlay-scrollbar/js/overlayscrollbars.min.js}"></script>
+<script th:src="@{/assets/vendor/choices/js/choices.min.js}"></script>
+<script th:src="@{/assets/vendor/glightbox/js/glightbox.js}"></script>
+
+<!-- ThemeFunctions -->
+<script th:src="@{/assets/js/functions.js}"></script>
+
+<!-- Booking Details Toggle Script -->
+<script>
+function toggleBookingDetails(bookingId) {
+    const detailsRow = document.getElementById(`expand-${bookingId}`);
+    const toggleIcon = document.getElementById(`toggle-icon-${bookingId}`);
+
+    if (detailsRow.classList.contains('d-none')) {
+        detailsRow.classList.remove('d-none');
+        toggleIcon.className = 'bi bi-eye-slash';
+    } else {
+        detailsRow.classList.add('d-none');
+        toggleIcon.className = 'bi bi-eye';
+    }
+}
+</script>
+
+<style>
+/* Booking details row styling */
+.booking-details-row .card {
+    transition: box-shadow 0.2s ease;
+    border: 1px solid #dee2e6;
+}
+
+.booking-details-row .card:hover {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Booking unit card styling */
+.booking-unit-card {
+    flex-shrink: 0;
+}
+
+.booking-unit-card .card {
+    height: 100%;
+    min-height: 180px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .booking-unit-card {
+        min-width: 100% !important;
+        max-width: 100% !important;
+        flex: 1 1 100% !important;
+    }
+}
+
+/* Table responsive improvements */
+.table-responsive {
+    overflow-x: auto;
+}
+
+/* Ensure booking details container doesn't overflow */
+.booking-details-row td > div {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.table tbody tr.booking-details-row td {
+    border-top: none;
+}
+
+.table tbody tr.booking-main-row + tr.booking-details-row td {
+    border-top: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+/* Hotel name truncation in booking table */
+.hotel-name-truncate {
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+    cursor: help;
+}
+
+/* Room name truncation in details */
+.room-name-truncate {
+    max-width: 220px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+    cursor: help;
+}
+</style>
+
+</body>
+</html> 

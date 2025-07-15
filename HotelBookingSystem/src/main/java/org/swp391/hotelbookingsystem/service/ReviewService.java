@@ -114,4 +114,20 @@ public class ReviewService {
         return reviewRepository.getReviewsByStatus(status);
     }
 
+    public int getTotalReviewsForHost(int hostId) {
+        return reviewRepository.countTotalReviewsByHostId(hostId);
+    }
+
+    public int getUnaddressedReviewsForHost(int hostId) {
+        return reviewRepository.countUnaddressedReviewsByHostId(hostId);
+    }
+
+    public int getRecentReviewsForHost(int hostId) {
+        return reviewRepository.countRecentReviewsByHostId(hostId);
+    }
+
+    public List<Review> getAllReviewsByHostId(int hostId) {
+        return reviewRepository.getReviewsByHostId(hostId);
+    }
+
 }

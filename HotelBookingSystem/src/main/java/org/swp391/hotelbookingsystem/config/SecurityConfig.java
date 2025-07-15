@@ -44,12 +44,12 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/", "/home", "/error", "/webhook", "/contact",
                                 "/login", "/register", "/verify-email-otp", "/resend-otp", "/forgotPassword", "/resetPassword",
-                                "/hotel-list", "/filter-hotels", "/hotel-detail",
+                                "/hotel-list", "/filter-hotels", "/hotel-detail", "/about", "/faq",
                                 "/css/**", "/js/**", "/images/**", "/assets/**",
                                 "/api/files/**", "user-profile", "user-wishlist", "/ws/**", "/api/chat/**", "/api/notifications/**", "/test-notifications"
                         ).permitAll()
                         .requestMatchers("/notifications").authenticated()
-                        .requestMatchers("/admin-dashboard", "/admin-user-list", "/admin-hotel-list", "/admin/locations/add").access(AuthorizationManagers.allOf(
+                        .requestMatchers("/admin-dashboard", "/admin-user-list", "/admin-user-detail", "/admin-hotel-list", "/admin/locations/add").access(AuthorizationManagers.allOf(
                                 new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
                                 new WebExpressionAuthorizationManager("hasRole('ADMIN')")
                         ))
