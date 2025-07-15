@@ -26,6 +26,7 @@ import org.swp391.hotelbookingsystem.model.Room;
 import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.service.AmenityService;
 import org.swp391.hotelbookingsystem.service.BookingService;
+import org.swp391.hotelbookingsystem.service.CouponService;
 import org.swp391.hotelbookingsystem.service.HotelService;
 import org.swp391.hotelbookingsystem.service.LocationService;
 import org.swp391.hotelbookingsystem.service.RoomService;
@@ -50,6 +51,8 @@ public class BookingController {
     RoomService roomService;
     @Autowired
     AmenityService amenityService;
+    @Autowired
+    CouponService couponService;
 
     @GetMapping("/booking/{id}")
     public String booking(
@@ -133,7 +136,7 @@ public class BookingController {
 
         @RequestParam(value = "dateRange") String dateRange,
         @RequestParam(value = "guests") int guests,
-        @RequestParam(value = "rooms") int rooms,    
+        @RequestParam(value = "rooms") int rooms,
 
         Model model, HttpSession session, HttpServletResponse response
     ){
@@ -177,8 +180,12 @@ public class BookingController {
         cookie.setMaxAge(60 * 30);
         response.addCookie(cookie);
 
-        if(!bookingService.checkQuantity(booking)){
+        if(!bookingService.checkQuantity(booking) || couponService.checkCoupon(couponId)){
             return "redirect:/booking/" + hotelId + "?dateRange=" + dateRange + "&guests=" + guests + "&rooms=" + rooms;
+        }
+
+        if(couponId != null){
+            couponService.applyCoupon(couponId, user.getId());
         }
         
         int id = bookingService.pendingBooking(booking);
