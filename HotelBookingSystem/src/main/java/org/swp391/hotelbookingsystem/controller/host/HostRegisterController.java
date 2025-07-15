@@ -201,6 +201,7 @@ public class HostRegisterController {
                     .longitude(longitude)
                     .hotelImageUrl(hotelImageUrl)
                     .policy(hotelPolicies)
+                    .status("pending")  // New hotels start as pending for moderator approval
                     .build(); // no .rating() // because it's optional
 
 

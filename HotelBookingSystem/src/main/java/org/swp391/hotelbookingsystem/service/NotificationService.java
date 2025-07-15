@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.repository.NotificationRepository;
 
 @Service
@@ -12,10 +13,12 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final SimpMessagingTemplate messagingTemplate;
+    private final UserService userService;
 
-    public NotificationService(NotificationRepository notificationRepository, SimpMessagingTemplate messagingTemplate) {
+    public NotificationService(NotificationRepository notificationRepository, SimpMessagingTemplate messagingTemplate, UserService userService) {
         this.notificationRepository = notificationRepository;
         this.messagingTemplate = messagingTemplate;
+        this.userService = userService;
     }
 
     // Basic notification (backward compatibility)
@@ -111,7 +114,7 @@ public class NotificationService {
     public void notifyHotelApproval(int userId, String hotelName) {
         String title = "Khách sạn được phê duyệt 🏨";
         String message = "Khách sạn \"" + hotelName + "\" đã được phê duyệt và có thể nhận khách";
-        String actionUrl = "/manage-hotel";
+        String actionUrl = "/host-listing";
         createNotification(userId, title, message, "hotel", "high", actionUrl, "bi-building",
                          Map.of("hotelName", hotelName));
     }
@@ -126,9 +129,27 @@ public class NotificationService {
 
     public void notifyHotelAdded(int userId, String hotelName, int hotelId) {
         String title = "Tạo khách sạn thành công 🏨";
-        String message = "Bạn đã tạo khách sạn \"" + hotelName + "\" thành công.";
-        String actionUrl = "/manage-hotel?hotelId=" + hotelId;
+        String message = "Bạn đã tạo khách sạn \"" + hotelName + "\" thành công. Khách sạn đang chờ moderator phê duyệt.";
+        String actionUrl = "/host-listing";
         createNotification(userId, title, message, "hotel", "normal", actionUrl, "bi-building", Map.of("hotelId", hotelId, "hotelName", hotelName));
+        
+        // Notify all moderators about the new hotel pending review
+        notifyModeratorsNewHotelPending(hotelName, hotelId, userService.findUserById(userId).getFullName());
+    }
+
+    public void notifyModeratorsNewHotelPending(String hotelName, int hotelId, String hostName) {
+        String title = "Khách sạn mới chờ duyệt 🏨";
+        String message = "Khách sạn \"" + hotelName + "\" của " + hostName + " đang chờ phê duyệt.";
+        String actionUrl = "/moderator-hotel-list";
+        
+        // Get all moderators
+        List<User> moderators = userService.getUsersByRole("MODERATOR");
+        
+        // Notify each moderator
+        for (User moderator : moderators) {
+            createNotification(moderator.getId(), title, message, "pending_review", "high", actionUrl, "bi-clock-history",
+                             Map.of("hotelId", hotelId, "hotelName", hotelName, "hostName", hostName));
+        }
     }
 
     public void notifyRoomAdded(int userId, String roomTitle, int hotelId) {
