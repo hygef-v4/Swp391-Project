@@ -281,14 +281,14 @@
                         <p th:text="${review.comment}">Nội dung đánh giá</p>
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <a th:href="'/hotel-detail?hotelId=' + ${review.hotelId} + '#review' + ${review.reviewId}" class="btn btn-sm btn-primary-soft mb-0">Direct message</a>
+                                <a th:href="'/hotel-detail?hotelId=' + ${review.hotelId} + '#review' + ${review.reviewId}" class="btn btn-sm btn-primary-soft mb-0">Đến trang đánh giá</a>
                                 <a class="btn btn-sm btn-light mb-0"
                                    data-bs-toggle="collapse"
                                    th:href="'#collapseComment__' + ${review.reviewId}"
                                    role="button"
                                    aria-expanded="false"
                                    th:attr="aria-controls='collapseComment__' + ${review.reviewId}">
-                                    Reply
+                                    Phản hồi
                                 </a>
                                 <a class="btn btn-sm btn-warning-soft mb-0"
                                    th:if="${review != null and !review.isPublic}"
@@ -300,7 +300,7 @@
                                class="text-primary-hover"
                                th:if="${review.isPublic}"
                                th:attr="data-bs-toggle='modal', data-bs-target='#confirmDeleteModal__' + ${review.reviewId}">
-                                <i class="bi bi-trash3 me-1"></i>Delete
+                                <i class="bi bi-trash3 me-1"></i>Xoá
                             </a>
                         </div>
                         <!-- collapse textarea -->
