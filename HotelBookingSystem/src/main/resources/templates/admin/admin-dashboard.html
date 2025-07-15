@@ -272,33 +272,49 @@
 
                     <!-- Reviews START -->
                     <div class="col-12">
-                        <div class="card shadow h-100">
+                        <div class="card shadow-sm rounded-4 border-0">
                             <!-- Header -->
-                            <div class="card-header d-flex justify-content-between align-items-center p-3">
-                                <h5 class="card-header-title">Thống kê theo khu vực</h5>
-                                <a href="#" class="btn btn-link p-0 mb-0">Xem tất cả</a>
+                            <div class="card-header bg-white border-0 px-4 py-3">
+                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                    <h5 class="mb-0 fw-bold">Thống kê theo khu vực</h5>
+                                    <div>
+<!--                                        <a href="#" class="btn btn-sm btn-primary me-2" data-bs-toggle="modal" data-bs-target="#addLocationModal">-->
+<!--                                            <i class="fa-solid fa-plus me-1"></i> Thêm khu vực-->
+<!--                                        </a>-->
+                                    </div>
+                                </div>
                             </div>
+
 
                             <!-- Table -->
                             <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
+                                <table class="table align-middle table-hover mb-0">
                                     <thead class="table-light">
-                                    <tr>
-                                        <th>Ảnh</th>
+                                    <tr class="align-middle">
+                                        <th class="ps-4">Ảnh</th>
                                         <th>Thành phố</th>
                                         <th>Số khách sạn</th>
                                         <th>Số phòng</th>
-                                        <th>Đánh giá trung bình</th>
+                                        <th>Đánh giá TB</th>
                                     </tr>
                                     </thead>
                                     <tbody>
                                     <tr th:each="loc : ${locationStats}">
-                                        <td>
-                                            <img th:src="${loc.imageUrl}" alt="Location" class="rounded" style="width: 60px; height: 40px; object-fit: cover;">
+                                        <td class="ps-4">
+                                            <img th:src="${loc.imageUrl}" alt="Location" class="rounded-3 border"
+                                                 style="width: 60px; height: 45px; object-fit: cover;">
                                         </td>
-                                        <td th:text="${loc.cityName}">Thành phố</td>
-                                        <td th:text="${loc.numberOfHotels}">0</td>
-                                        <td th:text="${loc.totalRooms}">0</td>
+                                        <td>
+                                            <span class="fw-semibold" th:text="${loc.cityName}">Hà Nội</span>
+                                        </td>
+                                        <td>
+                                            <span class="text-dark" th:text="${loc.numberOfHotels}">0</span>
+                                            <i class="fa-solid fa-hotel text-warning ms-1"></i>
+                                        </td>
+                                        <td>
+                                            <span class="text-dark" th:text="${loc.totalRooms}">0</span>
+                                            <i class="fa-solid fa-bed text-success ms-1"></i>
+                                        </td>
                                         <td>
                                             <i class="fa-solid fa-star text-warning me-1"></i>
                                             <span th:text="${#numbers.formatDecimal(loc.averageRating, 1, 'COMMA', 1, 'POINT')}">0.0</span>
@@ -306,6 +322,23 @@
                                     </tr>
                                     </tbody>
                                 </table>
+                                <div class="card-footer d-flex justify-content-center align-items-center py-3">
+                                    <nav>
+                                        <ul class="pagination mb-0">
+                                            <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                                                <a class="page-link" th:href="@{'/admin-dashboard'(page=${currentPage - 1})}">&laquo;</a>
+                                            </li>
+                                            <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPages)}"
+                                                th:classappend="${i == currentPage} ? 'active'">
+                                                <a class="page-link" th:href="@{'/admin-dashboard'(page=${i})}" th:text="${i}">1</a>
+                                            </li>
+                                            <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+                                                <a class="page-link" th:href="@{'/admin-dashboard'(page=${currentPage + 1})}">&raquo;</a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                </div>
+
                             </div>
                         </div>
                     </div>
@@ -354,7 +387,7 @@
             },
             xaxis: {
                 categories: labels,
-                title: { text: 'Date' },
+                title: {text: 'Date'},
                 labels: {
                     rotate: -45,
                     format: 'yyyy-MM-dd',
@@ -387,8 +420,127 @@
     });
 </script>
 
+<!-- Add Location Modal -->
+<!-- Add Location Modal (✔ fixed version) -->
+<div class="modal fade" id="addLocationModal" tabindex="-1" aria-labelledby="addLocationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content rounded-4">
+            <form id="addLocationForm" enctype="multipart/form-data">
+                <!-- CSRF token from Spring Security -->
+                <input type="hidden" name="_csrf" th:value="${_csrf.token}" th:name="${_csrf.parameterName}" />
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Thêm khu vực mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div id="addLocationError" class="alert alert-danger d-none"></div>
+
+                    <!-- City name -->
+                    <div class="mb-3">
+                        <label class="form-label">Tên thành phố <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="cityName" id="cityName" required minlength="2" maxlength="255">
+                    </div>
+
+                    <!-- Image upload -->
+                    <div class="mb-3">
+                        <label class="form-label">Tải ảnh khu vực <span class="text-danger">*</span></label>
+                        <div class="dropzone border rounded-3 text-center p-4" id="dropzone" style="cursor: pointer;">
+                            <i class="fa fa-cloud-upload-alt fs-1 text-muted"></i>
+                            <p class="mb-0 text-muted">Kéo ảnh vào đây hoặc nhấn để chọn</p>
+                            <input type="file" name="imageFile" id="imageFile" accept="image/*" class="form-control d-none" required>
+                        </div>
+                        <div class="form-text">Chỉ chấp nhận ảnh JPG, PNG...</div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Thêm khu vực</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById("addLocationForm");
+        const dropzone = document.getElementById("dropzone");
+        const fileInput = document.getElementById("imageFile");
+        const errorDiv = document.getElementById("addLocationError");
+
+        // Preview image from click
+        fileInput.addEventListener("change", () => {
+            const file = fileInput.files[0];
+            if (file && file.type.startsWith("image/")) {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    dropzone.innerHTML = `<img src="${reader.result}" class="img-fluid rounded-3" style="max-height: 200px;" alt="Preview">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Drag & Drop support
+        dropzone.addEventListener("click", () => fileInput.click());
+        dropzone.addEventListener("dragover", e => {
+            e.preventDefault();
+            dropzone.classList.add("bg-light");
+        });
+        dropzone.addEventListener("dragleave", () => {
+            dropzone.classList.remove("bg-light");
+        });
+        dropzone.addEventListener("drop", e => {
+            e.preventDefault();
+            dropzone.classList.remove("bg-light");
+            if (e.dataTransfer.files.length > 0) {
+                fileInput.files = e.dataTransfer.files;
+                fileInput.dispatchEvent(new Event("change")); // trigger preview
+            }
+        });
+
+        // Submit AJAX with CSRF
+        form.addEventListener("submit", function (e) {
+            e.preventDefault();
+            errorDiv.classList.add("d-none");
+
+            const formData = new FormData(form);
+            const csrfToken = form.querySelector("input[name='_csrf']").value;
+            const csrfName = form.querySelector("input[name='_csrf']").name;
+
+            // Manually append if CSRF is not automatically handled
+            if (!formData.has(csrfName)) {
+                formData.append(csrfName, csrfToken);
+            }
+
+            fetch("/admin/locations/add", {
+                method: "POST",
+                body: formData
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => { throw new Error(text); });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    bootstrap.Modal.getInstance(document.getElementById("addLocationModal")).hide();
+                    location.reload(); // or update the DOM without reloading
+                })
+                .catch(err => {
+                    errorDiv.classList.remove("d-none");
+                    errorDiv.textContent = err.message || "Có lỗi xảy ra. Vui lòng thử lại.";
+                });
+        });
+    });
+</script>
+
 
 </body>
+
 
 <!-- Mirrored from stackbros.in/bookinga/landing/admin-dashboard.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:07:37 GMT -->
 </html>

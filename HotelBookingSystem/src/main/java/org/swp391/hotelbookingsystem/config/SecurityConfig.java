@@ -49,13 +49,9 @@ public class SecurityConfig {
                                 "/api/files/**", "user-profile", "user-wishlist", "/ws/**", "/api/chat/**", "/api/notifications/**", "/test-notifications"
                         ).permitAll()
                         .requestMatchers("/notifications").authenticated()
-                        .requestMatchers("/admin-dashboard", "/admin-user-list", "/admin-hotel-list").access(AuthorizationManagers.allOf(
+                        .requestMatchers("/admin-dashboard", "/admin-user-list", "/admin-hotel-list", "/admin/locations/add").access(AuthorizationManagers.allOf(
                                 new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
                                 new WebExpressionAuthorizationManager("hasRole('ADMIN')")
-                        ))
-                        .requestMatchers("/admin-dashboard").access(AuthorizationManagers.allOf(
-                                new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
-                                new WebExpressionAuthorizationManager("hasAnyRole('ADMIN')")
                         ))
                         .requestMatchers("/host-dashboard","/add-hotel","/add-room","/host/request-deactivate-hotel",
                                 "/host/confirm-deactivate-hotel","/host/activate-hotel","/manage-hotel","/update-hotel","/update-room","/delete-room",
