@@ -24,7 +24,6 @@ public class ReplyController {
         @RequestParam("userId") int userId,
         @RequestParam("comment") String comment
     ){
-        if(comment.isBlank()) return null;
         Reply requestReview = Reply.builder()
             .reviewId(reviewId)
             .replierId(userId)

@@ -114,7 +114,7 @@ public class PaymentController {
     }
 
     @GetMapping("/booking-success/{id}")
-    public String returnPayment(
+    public String bookingSuccess(
         @PathVariable(value = "id") int id,
 
         @RequestParam(value = "dateRange") String dateRange,
@@ -152,7 +152,7 @@ public class PaymentController {
     }
 
     @GetMapping("/booking-error/{id}")
-    public String getMethodName(
+    public String bookingError(
         @PathVariable(value = "id") int id,
 
         @RequestParam(value = "dateRange") String dateRange,
