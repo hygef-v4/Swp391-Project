@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.swp391.hotelbookingsystem.constant.ConstantVariables;
 import org.swp391.hotelbookingsystem.model.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.swp391.hotelbookingsystem.service.*;
@@ -57,7 +56,7 @@ public class AdminHotelController {
     public String getHotelDashboard(@RequestParam(value = "search", required = false) String search,
                                     @RequestParam(value = "page", defaultValue = "1") int page,
                                     Model model, HttpSession session) {
-        model.addAttribute(ConstantVariables.PAGE_TITLE, "Hamora Booking - Hotel Management");
+        model.addAttribute("pageTitle", "Hamora Booking - Hotel Management");
         User user = (User) session.getAttribute("user");
         if (user == null) {
             return "redirect:/login";
@@ -93,20 +92,10 @@ public class AdminHotelController {
     @GetMapping("/admin/hotel/view/{hotelId}")
     public String hotelDetail(
             @PathVariable("hotelId") int hotelId,
-            @RequestParam(value = "dateRange", defaultValue = "") String dateRange,
-            @RequestParam(value = "adults", defaultValue = "1") int adults,
-            @RequestParam(value = "children", defaultValue = "0") int children,
             @RequestParam(value = "rooms", defaultValue = "1") int roomQuantity,
 
             Model model, HttpSession session
     ){
-        List<Location> locations = locationService.getAllLocations();
-        model.addAttribute("locations", locations);
-
-        model.addAttribute("dateRange", dateRange);
-
-        model.addAttribute("adults", adults);
-        model.addAttribute("children", children);
         model.addAttribute("roomQuantity", roomQuantity);
 
         Hotel hotel = hotelService.getHotelById(hotelId);
@@ -118,13 +107,6 @@ public class AdminHotelController {
         if (user != null) {
             favorite = hotelService.isFavoriteHotel(user.getId(), hotelId);
         }model.addAttribute("favorite", favorite);
-
-        String redirect = "";
-        if(!"".equals(dateRange)) redirect += "&dateRange=" + dateRange;
-        if(adults != 1) redirect += "&adults=" + adults;
-        if(children != 0) redirect += "&children=" + children;
-        if(roomQuantity != 1) redirect += "&rooms=" + roomQuantity;
-        model.addAttribute("redirect", redirect);
 
         String description = hotel.getDescription();
         if (description != null) {

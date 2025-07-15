@@ -29,4 +29,17 @@ public class LocationService {
         return allLocations.size() > 5 ? allLocations.subList(0, 5) : allLocations;
     }
 
+    public List<Location> getAllLocationStats() {
+        return locationRepository.getAllLocationStats();
+    }
+
+    public void insertLocation(Location location) {
+        locationRepository.insertLocation(location);
+    }
+
+    public boolean cityNameExists(String cityName) {
+        return locationRepository.cityNameExistsIgnoreCase(cityName);
+    }
+
+
 }

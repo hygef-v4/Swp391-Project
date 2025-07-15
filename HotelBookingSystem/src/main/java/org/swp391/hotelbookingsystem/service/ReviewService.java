@@ -60,6 +60,10 @@ public class ReviewService {
         return reviewRepository.addReply(reply);
     }
 
+    public int editReply(int replyId, String comment){
+        return reviewRepository.editReply(replyId, comment);
+    }
+
     public int deleteReply(int replyId){
         return reviewRepository.deleteReply(replyId);
     }

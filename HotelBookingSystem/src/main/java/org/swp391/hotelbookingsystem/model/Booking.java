@@ -2,6 +2,8 @@ package org.swp391.hotelbookingsystem.model;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.time.temporal.ChronoUnit;
+
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,6 +31,8 @@ public class Booking {
     private String customerName;
     private String customerEmail;
     private String customerAvatar;
+    private long numberOfNights;
+
 
     public int getBookingUnitSize(){
         int size = 0;
@@ -65,8 +69,17 @@ public class Booking {
         return null;
     }
 
+    public void calculateNumberOfNights() {
+        if (checkIn != null && checkOut != null) {
+            this.numberOfNights = Math.max(1, ChronoUnit.DAYS.between(checkIn.toLocalDate(), checkOut.toLocalDate()));
+        } else {
+            this.numberOfNights = 0;
+        }
+    }
+
     public double calculateTotalPrice() {
-        if (bookingUnits == null) return 0.0;
+        calculateNumberOfNights();
+        if (bookingUnits == null || numberOfNights == 0) return 0.0;
 
         return bookingUnits.stream()
                 .filter(unit -> {
@@ -75,8 +88,9 @@ public class Booking {
                             || "completed".equals(status)
                             || "check_in".equals(status);
                 })
-                .mapToDouble(unit -> unit.getPrice() * unit.getQuantity())
+                .mapToDouble(unit -> unit.getPrice() * unit.getQuantity() * numberOfNights)
                 .sum();
     }
+
 
 }

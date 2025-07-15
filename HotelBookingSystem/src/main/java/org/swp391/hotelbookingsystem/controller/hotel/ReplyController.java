@@ -36,6 +36,18 @@ public class ReplyController {
         return reviewService.getReplyById(replyId);
     }
 
+    @PostMapping("/editReply")
+    public Reply editReply(
+        @RequestParam("replyId") int replyId,
+        @RequestParam("comment") String comment
+    ){
+        if(comment.isBlank()) return null;
+        
+        int id = reviewService.editReply(replyId, comment);
+        if(id == 0) return null;
+        return reviewService.getReplyById(id);
+    }
+
     @PostMapping("/deleteReply")
     public int deleteReply(@RequestParam("replyId") int replyId){
         return reviewService.deleteReply(replyId);

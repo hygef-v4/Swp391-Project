@@ -4,6 +4,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -26,6 +29,10 @@ public class VNPayService {
     VNPayConfig vnPayConfig;
 
     public String createPayment(long total, String orderInfo, String url, HttpServletRequest request) throws UnsupportedEncodingException{
+        ZoneId zone = ZoneId.of("Asia/Ho_Chi_Minh");
+        ZonedDateTime cld = ZonedDateTime.now(zone);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+
         StringBuilder hashData = new StringBuilder();
         StringBuilder query = new StringBuilder();
 
@@ -40,12 +47,8 @@ public class VNPayService {
         String locale = "vn";
         String returnUrl = vnPayConfig.vnp_ReturnUrl + url;
         String ipAddr = VNPayConfig.getIpAddress(request);
-
-        Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
-        String createDate = formatter.format(cld.getTime());
-        cld.add(Calendar.MINUTE, 10);
-        String expireDate = formatter.format(cld.getTime());
+        String createDate = cld.format(formatter);
+        String expireDate = cld.plusMinutes(15).format(formatter);
 
         Map<String, String> params = new HashMap<>();
         params.put("vnp_Version", version);

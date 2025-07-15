@@ -300,7 +300,7 @@
                                th:href="@{'/admin-booking-list'(status='check_in', view=${viewMode}, search=${search})}">Nhận phòng</a>
                         </li>
                         <li class="nav-item hover-card">
-                            <a class="nav-link border rounded-pill mb-0"
+                            <a class="nav-link border rounded-pill mb-0 me-sm-2"
                                th:classappend="${statusFilter} == 'completed' ? ' active'"
                                th:href="@{'/admin-booking-list'(status='completed', view=${viewMode}, search=${search})}">Hoàn thành</a>
                         </li>
@@ -337,14 +337,14 @@
                                     <a class="nav-link rounded-start rounded-0"
                                        th:classappend="${viewMode} == 'grid' ? ' active'"
                                        th:href="@{'/admin-booking-list'(page=1, status=${statusFilter}, view='grid', search=${search})}">
-                                        <i class="bi fa-fw bi-grid-fill"></i>
+                                        <i class="bi bi-building"></i>
                                     </a>
                                 </li>
                                 <li class="nav-item hover-card">
                                     <a class="nav-link rounded-end rounded-0"
                                        th:classappend="${viewMode} == 'list' ? ' active'"
                                        th:href="@{'/admin-booking-list'(page=1, status=${statusFilter}, view='list', search=${search})}">
-                                        <i class="bi fa-fw bi-list-ul"></i>
+                                        <i class="bi bi-card-list"></i>
                                     </a>
                                 </li>
                             </ul>
@@ -372,15 +372,15 @@
                                                 <i class="bi bi-star-fill me-2 text-warning"></i>
                                                 <span th:text="${hotel.rating}">0</span>
                                             </div>
-                                            <div class="list-inline-item dropdown">
-                                                <a href="#" class="btn btn-sm btn-round btn-light" data-bs-toggle="dropdown">
-                                                    <i class="bi bi-three-dots-vertical"></i>
-                                                </a>
-                                                <ul class="dropdown-menu dropdown-menu-end min-w-auto shadow rounded small">
-                                                    <li><a class="dropdown-item" href="#"><i class="bi bi-info-circle me-2"></i>Báo cáo</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="bi bi-slash-circle me-2"></i>Vô hiệu hoá</a></li>
-                                                </ul>
-                                            </div>
+<!--                                            <div class="list-inline-item dropdown">-->
+<!--                                                <a href="#" class="btn btn-sm btn-round btn-light" data-bs-toggle="dropdown">-->
+<!--                                                    <i class="bi bi-three-dots-vertical"></i>-->
+<!--                                                </a>-->
+<!--                                                <ul class="dropdown-menu dropdown-menu-end min-w-auto shadow rounded small">-->
+<!--                                                    <li><a class="dropdown-item" href="#"><i class="bi bi-info-circle me-2"></i>Báo cáo</a></li>-->
+<!--                                                    <li><a class="dropdown-item" href="#"><i class="bi bi-slash-circle me-2"></i>Vô hiệu hoá</a></li>-->
+<!--                                                </ul>-->
+<!--                                            </div>-->
                                         </div>
                                     </div>
                                 </div>
@@ -548,11 +548,11 @@
                                 </div>
                             </div>
 
-                            <!-- Room name -->
+                            <!-- hotel name -->
                             <div class="col two-line-ellipsis" th:title="${booking.hotelName}">
                                 <h6 class="mb-0" th:text="${booking.hotelName}"
-                                    style="white-space: normal; word-break: break-word;">
-                                    Loại phòng
+                                    style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis;">
+                                    Khách sạn
                                 </h6>
                             </div>
 
@@ -617,7 +617,8 @@
                                                     </div>
                                                 </div>
                                                 <p class="mb-1" th:text="'Giá 1 phòng: ' + ${#numbers.formatDecimal(unit.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></p>
-                                                <p class="mb-1 text-success" th:text="'Tổng tiền: ' + ${#numbers.formatDecimal(unit.price * unit.quantity, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></p>
+                                                <p class="mb-1" th:text="'Số ngày: ' + ${booking.numberOfNights}"></p>
+                                                <p class="mb-1" th:text="'Tổng tiền: ' + ${#numbers.formatDecimal(unit.price * unit.quantity * booking.numberOfNights, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></p>
                                             </div>
                                         </div>
                                     </div> <!-- end unit loop -->

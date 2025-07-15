@@ -20,9 +20,17 @@ public class CouponRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    public boolean checkCoupon(int couponId){
+        return true;
+    }
+
     public List<Coupon> getAllCoupons() {
         String sql = "SELECT * FROM Coupons ORDER BY coupon_id DESC";
         return jdbcTemplate.query(sql, COUPON_MAPPER);
+    }
+
+    public void applyCoupon(int couponId, int userId){
+
     }
 
     public void insertCoupon(Coupon coupon) {

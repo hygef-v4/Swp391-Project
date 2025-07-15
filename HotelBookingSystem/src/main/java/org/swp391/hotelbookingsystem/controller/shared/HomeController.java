@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.swp391.hotelbookingsystem.constant.ConstantVariables;
 import org.swp391.hotelbookingsystem.model.Hotel;
 import org.swp391.hotelbookingsystem.model.Location;
 import org.swp391.hotelbookingsystem.model.Review;
@@ -32,9 +31,9 @@ public class HomeController {
 
     @GetMapping({"/", "/home"})
     public String home(Model model, HttpSession session) {
-        model.addAttribute(ConstantVariables.PAGE_TITLE, "Hamora Booking");
+        model.addAttribute("pageTitle", "Hamora Booking");
         List<Location> locations = locationService.getAllLocations();
-        session.setAttribute(ConstantVariables.LOCATIONS, locations);
+        session.setAttribute("locations", locations);
 
         // Fetch top 4 high-rated hotels and add to model
         List<Hotel> topHotels = hotelService.getTop8HighRatedHotels();
@@ -55,7 +54,7 @@ public class HomeController {
             return "redirect:/login";
         }
 
-        model.addAttribute(ConstantVariables.PAGE_TITLE, "Thông báo của tôi");
+        model.addAttribute("pageTitle", "Thông báo của tôi");
         return "page/notifications";
     }
 }

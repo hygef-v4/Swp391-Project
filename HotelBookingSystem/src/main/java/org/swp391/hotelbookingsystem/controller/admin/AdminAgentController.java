@@ -39,7 +39,7 @@ public class AdminAgentController {
 
         int offset = (page - 1) * size;
 
-        List<User> agentList = userService.getAgentsSortedPaginated(search, sort, offset, size); // new method
+        List<User> agentList = userService.getAgentsSortedPaginated(search, sort, offset, size);
         int totalItems = userService.countAgentsBySearch(search);
         int totalPages = (int) Math.ceil((double) totalItems / size);
 
