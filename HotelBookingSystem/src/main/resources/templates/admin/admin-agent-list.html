@@ -219,13 +219,9 @@
                                 Số khách sạn: [[${hotelCountMap[agent.id]}]]
                             </h6>
                             <div class="d-flex justify-content-between align-items-center gap-3 mb-0">
-                                <h6 class="mb-0 small text-truncate-ellipsis" th:title="${#numbers.formatDecimal(revenueMap[agent.id], 0, 'COMMA', 0, 'POINT') + '₫'}" style="max-width: 160px">
+                                <h6 class="mb-0 small text-truncate-ellipsis" th:title="${#numbers.formatDecimal(revenueMap[agent.id], 0, 'COMMA', 0, 'POINT') + '₫'}" style="max-width: 300px">
                                     <i class="fa-solid fa-money-bill-wave me-1"></i>
                                     Doanh thu: [[${#numbers.formatDecimal(revenueMap[agent.id], 0, 'COMMA', 0, 'POINT')}]] ₫
-                                </h6>
-                                <h6 class="mb-0 small">
-                                    [[${#numbers.formatDecimal(avgRatingMap[agent.id], 1, 'COMMA', 1, 'POINT')}]]
-                                    <i class="fa-solid fa-star text-warning ms-1"></i>
                                 </h6>
                             </div>
                         </div>

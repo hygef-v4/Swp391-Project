@@ -372,15 +372,6 @@
                                                 <i class="bi bi-star-fill me-2 text-warning"></i>
                                                 <span th:text="${hotel.rating}">0</span>
                                             </div>
-<!--                                            <div class="list-inline-item dropdown">-->
-<!--                                                <a href="#" class="btn btn-sm btn-round btn-light" data-bs-toggle="dropdown">-->
-<!--                                                    <i class="bi bi-three-dots-vertical"></i>-->
-<!--                                                </a>-->
-<!--                                                <ul class="dropdown-menu dropdown-menu-end min-w-auto shadow rounded small">-->
-<!--                                                    <li><a class="dropdown-item" href="#"><i class="bi bi-info-circle me-2"></i>Báo cáo</a></li>-->
-<!--                                                    <li><a class="dropdown-item" href="#"><i class="bi bi-slash-circle me-2"></i>Vô hiệu hoá</a></li>-->
-<!--                                                </ul>-->
-<!--                                            </div>-->
                                         </div>
                                     </div>
                                 </div>
@@ -410,8 +401,10 @@
 
                                 <!-- 3. Footer -->
                                 <div class="card-footer pt-0">
-                                    <a th:href="@{'/admin/bookings'(hotelId=${hotel.hotelId})}"
-                                       class="btn btn-sm btn-primary-soft w-100">Xem chi tiết</a>
+                                    <button th:onclick="'checkAndRedirect(' + ${hotel.hotelId} + ')'"
+                                            class="btn btn-sm btn-primary-soft w-100">
+                                        Xem chi tiết
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -736,6 +729,23 @@
         });
         document.querySelector('.tab-content').classList.remove('hidden-before-js');
     });
+</script>
+<script>
+    function checkAndRedirect(hotelId) {
+        fetch(`/api/hotel/${hotelId}/has-booking`)
+            .then(response => response.json())
+            .then(hasBooking => {
+                if (hasBooking) {
+                    window.location.href = `/admin/bookings?hotelId=${hotelId}`;
+                } else {
+                    alert("Không tìm thấy đặt phòng nào cho khách sạn này.");
+                }
+            })
+            .catch(error => {
+                console.error("Lỗi khi kiểm tra đặt phòng:", error);
+                alert("Đã xảy ra lỗi. Vui lòng thử lại sau.");
+            });
+    }
 </script>
 </body>
 </html>
