@@ -87,6 +87,38 @@
 		})
 		
 	</script>
+
+	<script>
+		let choices;
+
+		document.addEventListener("DOMContentLoaded", function(){
+			const items = document.querySelectorAll(".room-description li");
+			items.forEach(li => {
+				li.classList.add("list-group-item", "h6", "fw-light", "d-flex", "mb-0");
+
+				const icon = document.createElement("i");
+				icon.className = "fa-solid fa-check-circle text-success me-2";
+				li.insertBefore(icon, li.firstChild);
+			})
+
+			var element = document.querySelector('.js-choice-review');
+
+			var removeItemBtn = element.getAttribute('data-remove-item-button') == 'true' ? true : false;
+			var placeHolder = element.getAttribute('data-placeholder') ? element.getAttribute('data-placeholder') : '';
+			var placeHolderVal = element.getAttribute('data-placeholder-value') ? element.getAttribute('data-placeholder-value') : '';
+			var maxItemCount = element.getAttribute('data-max-item-count') ? element.getAttribute('data-max-item-count') : 3;
+			var searchEnabled = element.getAttribute('data-search-enabled') == 'true' ? true : false;
+
+			choices = new Choices(element, {
+				removeItemButton: removeItemBtn,
+				placeholder: placeHolder,
+				placeholderValue: placeHolderVal,
+				maxItemCount: maxItemCount,
+				searchEnabled: searchEnabled
+			});
+		});
+	</script>
+
 	<!-- Favicon -->
 	<link rel="shortcut icon" href="assets/images/favicon.ico">
 
@@ -979,46 +1011,12 @@ Footer END -->
 <script src="assets/js/functions.js"></script>
 
 <script>
-	let choices;
-
-	document.addEventListener("DOMContentLoaded", function(){
-		const items = document.querySelectorAll(".room-description li");
-		items.forEach(li => {
-			li.classList.add("list-group-item", "h6", "fw-light", "d-flex", "mb-0");
-
-			const icon = document.createElement("i");
-			icon.className = "fa-solid fa-check-circle text-success me-2";
-			li.insertBefore(icon, li.firstChild);
-		})
-
-		var element = document.querySelector('.js-choice-review');
-
-		var removeItemBtn = element.getAttribute('data-remove-item-button') == 'true' ? true : false;
-		var placeHolder = element.getAttribute('data-placeholder') ? element.getAttribute('data-placeholder') : '';
-		var placeHolderVal = element.getAttribute('data-placeholder-value') ? element.getAttribute('data-placeholder-value') : '';
-		var maxItemCount = element.getAttribute('data-max-item-count') ? element.getAttribute('data-max-item-count') : 3;
-		var searchEnabled = element.getAttribute('data-search-enabled') == 'true' ? true : false;
-
-		choices = new Choices(element, {
-			removeItemButton: removeItemBtn,
-			placeholder: placeHolder,
-			placeholderValue: placeHolderVal,
-			maxItemCount: maxItemCount,
-			searchEnabled: searchEnabled
-		});
-	});
-</script>
-
-<script>
 	async function review(add = true){
 		const form = document.getElementById('review');
 		const formData = new FormData(form);
 
 		const comment = formData.get('comment').trim();
-		if(!comment) {
-			alert("Vui lòng nhập bình luận.");
-			return;
-		}if(/<.*?>/.test(comment)){
+		if(/<.*?>/.test(comment)){
 			alert("Không thể gửi tin nhắn");
 			return;
 		}
