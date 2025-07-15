@@ -49,7 +49,7 @@ public class SecurityConfig {
                                 "/api/files/**", "user-profile", "user-wishlist", "/ws/**", "/api/chat/**", "/api/notifications/**", "/test-notifications"
                         ).permitAll()
                         .requestMatchers("/notifications").authenticated()
-                        .requestMatchers("/admin-dashboard", "/admin-user-list", "/admin-hotel-list", "/admin/locations/add").access(AuthorizationManagers.allOf(
+                        .requestMatchers("/admin-dashboard", "/admin-user-list", "/admin-user-detail", "/admin-hotel-list", "/admin/locations/add").access(AuthorizationManagers.allOf(
                                 new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
                                 new WebExpressionAuthorizationManager("hasRole('ADMIN')")
                         ))
