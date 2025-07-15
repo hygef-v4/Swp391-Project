@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.HashMap;
 import org.swp391.hotelbookingsystem.model.Room;
 import org.swp391.hotelbookingsystem.service.RoomService;
+import org.swp391.hotelbookingsystem.service.ReviewService;
 
 @Controller
 public class CompareController {
@@ -24,6 +25,8 @@ public class CompareController {
     private AmenityService amenityService;
     @Autowired
     private RoomService roomService;
+    @Autowired
+    private ReviewService reviewService;
 
     @GetMapping("/hotel-compare")
     public String hotelComparePage(Model model) {
@@ -49,6 +52,25 @@ public class CompareController {
             }
         }
         result.put("amenities", amenities);
+        // Thêm số lượng phòng còn lại
+        int availableRooms = roomService.countAvailableRoomsByHotelId(hotelId);
+        result.put("availableRooms", availableRooms);
+        // Thêm review nổi bật
+        org.swp391.hotelbookingsystem.model.Review featuredReview = null;
+        List<org.swp391.hotelbookingsystem.model.Review> reviews = reviewService.getHotelReview(hotelId);
+        if (reviews != null && !reviews.isEmpty()) {
+            // Lấy review có rating cao nhất, nếu nhiều review cùng rating thì lấy review mới nhất
+            featuredReview = reviews.stream()
+                .sorted((a, b) -> {
+                    int cmp = Integer.compare(b.getRating(), a.getRating());
+                    if (cmp == 0) {
+                        return b.getCreatedAt().compareTo(a.getCreatedAt());
+                    }
+                    return cmp;
+                })
+                .findFirst().orElse(null);
+        }
+        result.put("featuredReview", featuredReview);
         return result;
     }
 } 
