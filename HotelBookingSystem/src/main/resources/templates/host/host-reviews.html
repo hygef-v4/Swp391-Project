@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Mirrored from stackbros.in/bookinga/landing/agent-reviews.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:07:33 GMT -->
+<head>
+    <title>Booking - Multipurpose Online Booking Theme</title>
+
+    <!-- Meta Tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="author" content="StackBros">
+    <meta name="description" content="Booking - Multipurpose Online Booking Theme">
+
+    <!-- Dark mode -->
+    <script>
+        const storedTheme = localStorage.getItem('theme')
+
+        const getPreferredTheme = () => {
+            if (storedTheme) {
+                return storedTheme
+            }
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        }
+
+        const setTheme = function (theme) {
+            if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.setAttribute('data-bs-theme', 'dark')
+            } else {
+                document.documentElement.setAttribute('data-bs-theme', theme)
+            }
+        }
+
+        setTheme(getPreferredTheme())
+
+        window.addEventListener('DOMContentLoaded', () => {
+            var el = document.querySelector('.theme-icon-active');
+            if (el != 'undefined' && el != null) {
+                const showActiveTheme = theme => {
+                    const activeThemeIcon = document.querySelector('.theme-icon-active use')
+                    const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+                    const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
+
+                    document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+                        element.classList.remove('active')
+                    })
+
+                    btnToActive.classList.add('active')
+                    activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+                }
+
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                    if (storedTheme !== 'light' || storedTheme !== 'dark') {
+                        setTheme(getPreferredTheme())
+                    }
+                })
+
+                showActiveTheme(getPreferredTheme())
+
+                document.querySelectorAll('[data-bs-theme-value]')
+                    .forEach(toggle => {
+                        toggle.addEventListener('click', () => {
+                            const theme = toggle.getAttribute('data-bs-theme-value')
+                            localStorage.setItem('theme', theme)
+                            setTheme(theme)
+                            showActiveTheme(theme)
+                        })
+                    })
+
+            }
+        })
+
+    </script>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" th:href="@{assets/images/favicon.ico}">
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Poppins:wght@400;500;700&amp;display=swap">
+
+    <!-- Plugins CSS -->
+    <link rel="stylesheet" type="text/css" th:href="@{assets/vendor/font-awesome/css/all.min.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{assets/vendor/bootstrap-icons/bootstrap-icons.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{assets/vendor/choices/css/choices.min.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{assets/vendor/glightbox/css/glightbox.css}">
+
+    <!-- Theme CSS -->
+    <link rel="stylesheet" type="text/css" th:href="@{assets/css/style.css}">
+
+</head>
+
+<body>
+
+<!-- Header START -->
+<div th:replace="~{common/header :: header}"></div>
+<!-- Header END -->
+
+<!-- **************** MAIN CONTENT START **************** -->
+<main>
+
+    <!-- =======================
+    Menu item START -->
+    <section th:replace="~{common-host/menu-host :: menu}"></section>
+
+    <!-- =======================
+    Menu item END -->
+
+    <!-- =======================
+    Content START -->
+    <section class="pt-0">
+        <div class="container vstack gap-4">
+            <!-- Title START -->
+            <div class="row">
+                <div class="col-12">
+                    <h1 class="fs-4 mb-0"><i class="bi bi-star fa-fw me-1"></i>Đánh giá</h1>
+                </div>
+            </div>
+            <!-- Title END -->
+
+            <!-- Counter START -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card border h-100">
+                        <!-- Card header -->
+                        <div class="card-header border-bottom">
+                            <h5 class="card-header-title">Chỉ số đánh giá</h5>
+                        </div>
+
+                        <!-- Card body START -->
+                        <div class="card-body">
+                            <div class="row g-4">
+                                <!-- Counter item -->
+                                <div class="col-sm-6 col-xl-3">
+                                    <div class="d-flex align-items-center">
+                                        <!-- Icon -->
+                                        <span class="display-6 text-primary"> <i class="bi bi-trophy"></i> </span>
+                                        <!-- Content -->
+                                        <div class="ms-3">
+                                            <h4 class="mb-0" th:text="${averageRating}">4.5</h4>
+                                            <span>Đánh giá trung bình</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Counter item -->
+                                <div class="col-sm-6 col-xl-3">
+                                    <div class="d-flex align-items-center">
+                                        <!-- Icon -->
+                                        <span class="display-6 text-warning"> <i class="bi bi-star"></i> </span>
+                                        <!-- Content -->
+                                        <div class="ms-3">
+                                            <h4 class="mb-0" th:text="${totalReviews}">548</h4>
+                                            <span>Số đánh giá</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Counter item -->
+                                <div class="col-sm-6 col-xl-3">
+                                    <div class="d-flex align-items-center">
+                                        <!-- Icon -->
+                                        <span class="display-6 text-danger"> <i class="bi bi-exclamation-octagon"></i> </span>
+                                        <!-- Content -->
+                                        <div class="ms-3">
+                                            <h4 class="mb-0" th:text="${unaddressedReviews}">56</h4>
+                                            <span>Đánh giá chưa phản hồi</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Counter item -->
+                                <div class="col-sm-6 col-xl-3">
+                                    <div class="d-flex align-items-center">
+                                        <!-- Icon -->
+                                        <span class="display-6 text-success"> <i
+                                                class="bi bi-bookmark-star"></i> </span>
+                                        <!-- Content -->
+                                        <div class="ms-3">
+                                            <h4 class="mb-0" th:text="${recentReviews}">145</h4>
+                                            <span>Đánh giá trong vòng 30 ngày</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <!-- Card body END -->
+                    </div>
+                </div>
+            </div>
+            <!-- Counter END -->
+
+            <!-- Review START -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card border rounded-3">
+                        <!-- Card header START -->
+                        <div class="card-header border-bottom">
+                            <h5 class="card-header-title">Đánh giá của người dùng</h5>
+                        </div>
+                        <!-- Card header END -->
+
+                        <!-- Card body START -->
+                        <div class="card-body">
+                            <div class="bg-light rounded p-3" th:each="review : ${reviews}">
+                                <!-- Review item START -->
+                                <div class="d-sm-flex justify-content-between">
+                                    <!-- Avatar image -->
+                                    <div class="d-sm-flex align-items-center mb-3">
+                                        <img th:src="${review != null and review.avatarUrl != null} ? ${review.avatarUrl} : '/assets/images/default-avatar.jpg'" alt="avatar"/>
+                                        <!-- Title -->
+                                        <div>
+                                            <h6 class="m-0" th:text="${review.fullName}">Reviewer Name</h6>
+                                            <span class="me-3 small" th:text="${#dates.format(review.createdAt, 'dd MMM yyyy')}">Date</span>
+                                        </div>
+                                    </div>
+                                    <!-- Review star -->
+                                    <ul class="list-inline mb-2 mb-sm-0" >
+                                        <li class="list-inline-item me-0" th:each="i : ${#numbers.sequence(1, 5)}">
+                                            <i th:class="${i <= review.rating} ? 'fas fa-star text-warning' : 'far fa-star text-warning'"></i>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <!-- Content -->
+                                <h6 class="fw-normal"><span class="text-body">Review on:</span> <span th:text="${review.hotelName}">Hotel Name</span></h6>
+                                <p th:text="${review.comment}">Review content</p>
+
+                                <!-- Buttons and collapse -->
+                                <div class="mt-3">
+                                    <!-- Buttons -->
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <a class="btn btn-sm btn-primary-soft mb-0" data-bs-toggle="collapse"
+                                           href="#collapseComment" role="button" aria-expanded="true"
+                                           aria-controls="collapseComment">
+                                            <i class="bi bi-reply me-1"></i>Reply
+                                        </a>
+                                        <a href="#" class="text-primary-hover text-reset small mb-0"><i
+                                                class="bi bi-info-circle me-1"></i>Report</a>
+                                    </div>
+                                    <!-- collapse textarea -->
+                                    <div class="collapse show" id="collapseComment">
+                                        <div class="d-flex mt-3">
+                                            <textarea class="form-control mb-0" placeholder="Add a comment..." rows="2"
+                                                      spellcheck="false"></textarea>
+                                            <button class="btn btn-sm btn-primary-soft ms-2 px-4 mb-0 flex-shrink-0"><i
+                                                    class="fas fa-paper-plane fs-5"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Review item END -->
+                            </div>
+
+                            <hr> <!-- Divider -->
+                        </div>
+                        <!-- Card body END -->
+
+                        <!-- Card footer START -->
+                        <div class="card-footer pt-0">
+                            <!-- Pagination and content -->
+                            <div class="d-sm-flex justify-content-sm-between align-items-sm-center mt-4">
+                                <p class="mb-sm-0 text-center text-sm-start">
+                                    Hiển thị <span th:text="${startIndex + 1}">1</span>
+                                    đến <span th:text="${endIndex}">8</span>
+                                    trong số <span th:text="${totalHotels}">20</span> đánh giá
+                                </p>
+                                <nav class="mb-sm-0 d-flex justify-content-center" aria-label="navigation">
+                                    <ul class="pagination pagination-primary-soft pagination-sm mb-0">
+                                        <li th:if="${pagination >= 2}"
+                                            th:class="'page-item mb-0' + (${page == 1} ? ' disabled' : '')">
+                                            <a class="page-link"
+                                               th:href="@{/host-reviews(page=${page - 1})}">
+                                                <i class="fa-solid fa-angle-left"></i>
+                                            </a>
+                                        </li>
+
+                                        <li th:if="${pagination >= 1}"
+                                            th:class="'page-item mb-0' + (${page == 1} ? ' active disabled' : '')">
+                                            <a class="page-link"
+                                               th:href="@{/host-reviews(page=1)}">1</a>
+                                        </li>
+
+                                        <li th:if="${pagination >= 2}"
+                                            th:class="'page-item mb-0' + (${page == 2} ? ' active disabled' : '')">
+                                            <a class="page-link"
+                                               th:href="@{/host-reviews(page=2)}">2</a>
+                                        </li>
+
+                                        <li th:if="${pagination >= 5 and page - 2 > 2}" class="page-item mb-0 disabled">
+                                            <a class="page-link">...</a>
+                                        </li>
+
+                                        <li th:if="${pagination >= 4 and page != 1 and page - 1 != 1 and page - 1 != 2}"
+                                            class="page-item mb-0">
+                                            <a class="page-link"
+                                               th:href="@{/host-reviews(page=${page - 1})}"
+                                               th:text="${page - 1}"></a>
+                                        </li>
+
+                                        <li th:if="${pagination >= 4 and page != 1 and page != 2 and page != pagination}"
+                                            class="page-item mb-0 active disabled">
+                                            <a class="page-link" th:text="${page}"></a>
+                                        </li>
+
+                                        <li th:if="${pagination >= 4 and page + 1 != 2 and page + 1 != pagination and page != pagination}"
+                                            class="page-item mb-0">
+                                            <a class="page-link"
+                                               th:href="@{/host-reviews(page=${page + 1})}"
+                                               th:text="${page + 1}"></a>
+                                        </li>
+
+                                        <li th:if="${pagination >= 4 and pagination > page + 2}"
+                                            class="page-item mb-0 disabled">
+                                            <a class="page-link">...</a>
+                                        </li>
+
+                                        <li th:if="${pagination >= 3}"
+                                            th:class="'page-item mb-0' + (${page == pagination} ? ' active disabled' : '')">
+                                            <a class="page-link"
+                                               th:href="@{/host-reviews(page=${pagination})}"
+                                               th:text="${pagination}"></a>
+                                        </li>
+
+                                        <li th:if="${pagination >= 2}"
+                                            th:class="'page-item mb-0' + (${page == pagination} ? ' disabled' : '')">
+                                            <a class="page-link"
+                                               th:href="@{/host-reviews(page=${page + 1})}">
+                                                <i class="fa-solid fa-angle-right"></i>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                        <!-- Card footer END -->
+                    </div>
+                </div>
+            </div>
+            <!-- Review END -->
+        </div>
+    </section>
+    <!-- =======================
+    Content END -->
+
+</main>
+<!-- **************** MAIN CONTENT END **************** -->
+
+<!-- =======================
+Footer START -->
+
+<div th:replace="~{common/footer :: footer}"></div>
+
+<div class="back-top"></div>
+<!-- =======================
+Footer END -->
+
+<!-- Back to top -->
+<div class="back-top"></div>
+
+<!-- Bootstrap JS -->
+<script th:src="@{assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+
+<!-- Vendors -->
+<script th:src="@{assets/vendor/choices/js/choices.min.js}"></script>
+<script th:src="@{assets/vendor/glightbox/js/glightbox.js}"></script>
+
+<!-- ThemeFunctions -->
+<script th:src="@{assets/js/functions.js}"></script>
+
+</body>
+
+<!-- Mirrored from stackbros.in/bookinga/landing/agent-reviews.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:07:33 GMT -->
+</html>
