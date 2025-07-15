@@ -166,7 +166,7 @@
                                 <tr id="action-row">
                                     <th scope="row"><span class="h6 mb-0">Thao tác</span></th>
                                     <td th:each="hotel,iterStat : ${hotels}">
-                                        <button class="btn btn-sm btn-outline-primary mb-0" th:attr="onclick='removeHotelColumn(this, ' + ${hotel.hotelId} + ')'"></button>
+                                        <button class="btn btn-sm btn-outline-primary mb-0" th:attr="onclick='removeHotelColumn(this, ' + ${hotel.hotelId} + ')'">Xóa</button>
                                     </td>
                                 </tr>
                                 </tbody>
