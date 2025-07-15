@@ -163,16 +163,10 @@
                                  </tr>
                                 <!-- Amenities dynamic rows END -->
                                 <!-- Item -->
-                                <tr>
+                                <tr id="action-row">
                                     <th scope="row"><span class="h6 mb-0">Thao tác</span></th>
-                                    <td>
-                                        <button class="btn btn-sm btn-outline-primary mb-0">Xóa</button>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-sm btn-outline-primary mb-0">Xóa</button>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-sm btn-outline-primary mb-0">Xóa</button>
+                                    <td th:each="hotel,iterStat : ${hotels}">
+                                        <button class="btn btn-sm btn-outline-primary mb-0" th:attr="onclick='removeHotelColumn(this, ' + ${hotel.hotelId} + ')'"></button>
                                     </td>
                                 </tr>
                                 </tbody>
@@ -228,5 +222,54 @@
     <script src="/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <!-- ThemeFunctions -->
     <script src="/assets/js/functions.js"></script>
+    <script>
+    function removeHotelColumn(btn, hotelId) {
+        // Tìm vị trí cột cần xóa
+        const td = btn.closest('td');
+        const colIndex = Array.from(td.parentNode.children).indexOf(td);
+        // Xóa cột ở tất cả các hàng
+        const table = td.closest('table');
+        Array.from(table.rows).forEach(row => {
+            if (row.children.length > colIndex) {
+                row.deleteCell(colIndex);
+            }
+        });
+        // Sau khi xóa, cập nhật lại các dòng tiện ích
+        updateAmenitiesRows();
+    }
+
+    function updateAmenitiesRows() {
+        // Lấy tất cả các dòng tiện ích
+        const amenityRows = document.querySelectorAll('.amenity-row');
+        // Đếm số khách sạn còn lại (số cột trừ 1 là số khách sạn)
+        const hotelCount = document.querySelectorAll('thead th[scope="col"]').length - 1;
+        let visibleCount = 0;
+        amenityRows.forEach(row => {
+            // Kiểm tra xem còn khách sạn nào có tiện ích này không
+            let hasAny = false;
+            // Bắt đầu từ cột 1 (bỏ qua cột tiêu đề)
+            for (let i = 1; i <= hotelCount; i++) {
+                const cell = row.children[i];
+                if (cell && cell.querySelector('.text-success')) {
+                    hasAny = true;
+                    break;
+                }
+            }
+            // Nếu không khách sạn nào còn tiện ích này, ẩn dòng
+            row.style.display = hasAny ? '' : 'none';
+            if (hasAny) visibleCount++;
+        });
+        // Nếu không còn khách sạn nào, ẩn toàn bộ dòng tiện ích
+        if (hotelCount === 0) {
+            amenityRows.forEach(row => row.style.display = 'none');
+            visibleCount = 0;
+        }
+        // Ẩn/hiện nút "Xem thêm tiện ích"
+        var showMoreBtn = document.getElementById('show-more-amenities-btn');
+        if (showMoreBtn) {
+            showMoreBtn.style.display = visibleCount === 0 ? 'none' : '';
+        }
+    }
+    </script>
 </body>
 </html>
