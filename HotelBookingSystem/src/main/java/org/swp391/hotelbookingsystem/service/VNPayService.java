@@ -41,7 +41,7 @@ public class VNPayService {
         String returnUrl = vnPayConfig.vnp_ReturnUrl + url;
         String ipAddr = VNPayConfig.getIpAddress(request);
 
-        Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
+        Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
         String createDate = formatter.format(cld.getTime());
         cld.add(Calendar.MINUTE, 10);
