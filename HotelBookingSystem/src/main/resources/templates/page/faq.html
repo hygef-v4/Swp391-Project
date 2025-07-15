@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<title th:text="${pageTitle}">FAQ - Câu hỏi thường gặp | Hamora Booking</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="author" content="Hamora">
+	<meta name="description" content="Câu hỏi thường gặp về dịch vụ đặt phòng khách sạn Hamora">
+	
+	<!-- Dark mode -->
+	<script>
+		const storedTheme = localStorage.getItem('theme')
+		const getPreferredTheme = () => {
+			if (storedTheme) {
+				return storedTheme
+			}
+			return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+		}
+		const setTheme = function (theme) {
+			if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+				document.documentElement.setAttribute('data-bs-theme', 'dark')
+			} else {
+				document.documentElement.setAttribute('data-bs-theme', theme)
+			}
+		}
+		setTheme(getPreferredTheme())
+		window.addEventListener('DOMContentLoaded', () => {
+		    var el = document.querySelector('.theme-icon-active');
+			if(el != 'undefined' && el != null) {
+				const showActiveTheme = theme => {
+				const activeThemeIcon = document.querySelector('.theme-icon-active use')
+				const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+				const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
+				document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+					element.classList.remove('active')
+				})
+				btnToActive.classList.add('active')
+				activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+			}
+			window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+				if (storedTheme !== 'light' || storedTheme !== 'dark') {
+					setTheme(getPreferredTheme())
+				}
+			})
+			showActiveTheme(getPreferredTheme())
+			document.querySelectorAll('[data-bs-theme-value]')
+				.forEach(toggle => {
+					toggle.addEventListener('click', () => {
+						const theme = toggle.getAttribute('data-bs-theme-value')
+						localStorage.setItem('theme', theme)
+						setTheme(theme)
+						showActiveTheme(theme)
+					})
+				})
+			}
+		})
+	</script>
+	
+	<!-- Favicon -->
+	<link rel="shortcut icon" href="/assets/images/favicon.ico">
+	<!-- Google Font -->
+	<link rel="preconnect" href="https://fonts.googleapis.com/">
+	<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Poppins:wght@400;500;700&amp;display=swap">
+	<!-- Plugins CSS -->
+	<link rel="stylesheet" type="text/css" href="/assets/vendor/font-awesome/css/all.min.css">
+	<link rel="stylesheet" type="text/css" href="/assets/vendor/bootstrap-icons/bootstrap-icons.css">
+	<!-- Theme CSS -->
+	<link rel="stylesheet" type="text/css" href="/assets/css/style.css">
+</head>
+
+<body>
+<!-- Header START -->
+<header th:replace="common/header :: header"></header>
+<!-- Header END -->
+
+<main>
+	<!-- =======================
+	Page Banner START -->
+	<section class="py-0">
+		<div class="container">
+			<div class="row">
+				<div class="col-12">
+					<div class="bg-primary bg-opacity-10 rounded-3 p-4 p-sm-5">
+						<div class="row justify-content-between align-items-center">
+							<div class="col-lg-8">
+								<h1 class="text-primary mb-2">Câu hỏi thường gặp</h1>
+								<p class="mb-0 h6 fw-light">Tìm câu trả lời cho những thắc mắc phổ biến về dịch vụ đặt phòng của chúng tôi</p>
+							</div>
+							<div class="col-lg-3 text-lg-end">
+								<img src="/assets/images/element/17.svg" class="h-100px" alt="FAQ icon">
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	<!-- =======================
+	Page Banner END -->
+
+	<!-- =======================
+	FAQ Content START -->
+	<section class="pt-4 pt-md-5">
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-10 mx-auto">
+					
+					<!-- FAQ Categories -->
+					<div class="row g-4 mb-5">
+						<div class="col-sm-6 col-lg-4">
+							<div class="text-center">
+								<div class="icon-lg bg-primary bg-opacity-10 text-primary rounded-2 mx-auto mb-3">
+									<i class="fa-solid fa-bed fs-4"></i>
+								</div>
+								<h5>Đặt phòng</h5>
+								<p class="mb-0">Hướng dẫn đặt phòng và quản lý booking</p>
+							</div>
+						</div>
+						<div class="col-sm-6 col-lg-4">
+							<div class="text-center">
+								<div class="icon-lg bg-success bg-opacity-10 text-success rounded-2 mx-auto mb-3">
+									<i class="fa-solid fa-credit-card fs-4"></i>
+								</div>
+								<h5>Thanh toán</h5>
+								<p class="mb-0">Phương thức thanh toán và hoàn tiền</p>
+							</div>
+						</div>
+						<div class="col-sm-6 col-lg-4">
+							<div class="text-center">
+								<div class="icon-lg bg-warning bg-opacity-10 text-warning rounded-2 mx-auto mb-3">
+									<i class="fa-solid fa-headset fs-4"></i>
+								</div>
+								<h5>Hỗ trợ</h5>
+								<p class="mb-0">Dịch vụ chăm sóc khách hàng</p>
+							</div>
+						</div>
+					</div>
+
+					<!-- FAQ Accordion START -->
+					<div class="accordion accordion-icon accordion-bg-light" id="accordionFaq">
+						
+						<!-- Booking Questions -->
+						<h3 class="mb-3 mt-5">
+							<i class="fa-solid fa-bed text-primary me-2"></i>
+							Về việc đặt phòng
+						</h3>
+						
+						<!-- Question 1 -->
+						<div class="accordion-item mb-3">
+							<h6 class="accordion-header" id="heading-1">
+								<button class="accordion-button fw-bold rounded d-inline-block" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-1" aria-expanded="true" aria-controls="collapse-1">
+									Làm thế nào để đặt phòng trên Hamora?
+								</button>
+							</h6>
+							<div id="collapse-1" class="accordion-collapse collapse show" aria-labelledby="heading-1" data-bs-parent="#accordionFaq">
+								<div class="accordion-body mt-3">
+									<p>Để đặt phòng trên Hamora, bạn chỉ cần:</p>
+									<ol>
+										<li>Nhập địa điểm và thời gian lưu trú</li>
+										<li>Chọn số lượng khách và phòng</li>
+										<li>Duyệt <a href="/hotel-list" class="text-primary">danh sách khách sạn</a> và chọn phòng phù hợp</li>
+										<li>Điền thông tin cá nhân và thanh toán</li>
+										<li>Nhận xác nhận đặt phòng qua email</li>
+									</ol>
+									<p class="mb-0">Toàn bộ quá trình chỉ mất vài phút và hoàn toàn bảo mật.</p>
+								</div>
+							</div>
+						</div>
+
+						<!-- Question 2 -->
+						<div class="accordion-item mb-3">
+							<h6 class="accordion-header" id="heading-2">
+								<button class="accordion-button fw-bold rounded d-inline-block collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-2" aria-expanded="false" aria-controls="collapse-2">
+									Tôi có thể thay đổi hoặc hủy đặt phòng không?
+								</button>
+							</h6>
+							<div id="collapse-2" class="accordion-collapse collapse" aria-labelledby="heading-2" data-bs-parent="#accordionFaq">
+								<div class="accordion-body mt-3">
+									<p>Có, bạn có thể thay đổi hoặc hủy đặt phòng tùy thuộc vào chính sách hủy của từng khách sạn:</p>
+									<ul>
+										<li><strong>Hủy miễn phí:</strong> Được hủy không mất phí trong thời gian quy định</li>
+										<li><strong>Hủy có phí:</strong> Mất một phần hoặc toàn bộ tiền đặt phòng</li>
+										<li><strong>Không hoàn tiền:</strong> Không được hủy hoặc không hoàn lại tiền</li>
+									</ul>
+									<p class="mb-0">Bạn có thể xem chi tiết chính sách hủy trong email xác nhận hoặc tại trang <a href="/bookingHistory" class="text-primary">"Lịch sử đặt phòng"</a>.</p>
+								</div>
+							</div>
+						</div>
+
+						<!-- Question 3 -->
+						<div class="accordion-item mb-3">
+							<h6 class="accordion-header" id="heading-3">
+								<button class="accordion-button fw-bold rounded d-inline-block collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-3" aria-expanded="false" aria-controls="collapse-3">
+									Tôi có cần tạo tài khoản để đặt phòng không?
+								</button>
+							</h6>
+							<div id="collapse-3" class="accordion-collapse collapse" aria-labelledby="heading-3" data-bs-parent="#accordionFaq">
+								<div class="accordion-body mt-3">
+									<p>Không bắt buộc, nhưng chúng tôi khuyến khích bạn tạo tài khoản để:</p>
+									<ul>
+										<li>Quản lý dễ dàng tất cả đặt phòng của bạn</li>
+										<li>Lưu thông tin cá nhân cho những lần đặt phòng tiếp theo</li>
+										<li>Nhận ưu đãi và chương trình khuyến mãi độc quyền</li>
+										<li>Đánh giá và lưu <a href="/user-wishlist" class="text-primary">danh sách yêu thích</a></li>
+										<li>Theo dõi <a href="/bookingHistory" class="text-primary">lịch sử đặt phòng</a></li>
+									</ul>
+									<p class="mb-0">Việc <a href="/register" class="text-primary">tạo tài khoản</a> hoàn toàn miễn phí và chỉ mất vài phút.</p>
+								</div>
+							</div>
+						</div>
+
+						<!-- Payment Questions -->
+						<h3 class="mb-3 mt-5">
+							<i class="fa-solid fa-credit-card text-success me-2"></i>
+							Về thanh toán và hoàn tiền
+						</h3>
+
+						<!-- Question 4 -->
+						<div class="accordion-item mb-3">
+							<h6 class="accordion-header" id="heading-4">
+								<button class="accordion-button fw-bold rounded d-inline-block collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-4" aria-expanded="false" aria-controls="collapse-4">
+									Hamora hỗ trợ những phương thức thanh toán nào?
+								</button>
+							</h6>
+							<div id="collapse-4" class="accordion-collapse collapse" aria-labelledby="heading-4" data-bs-parent="#accordionFaq">
+								<div class="accordion-body mt-3">
+									<p>Chúng tôi chấp nhận các phương thức thanh toán sau:</p>
+									<ul>
+										<li><strong>Thẻ tín dụng:</strong> Visa, Mastercard, JCB</li>
+										<li><strong>Thẻ ghi nợ:</strong> ATM nội địa và quốc tế</li>
+										<li><strong>Ví điện tử:</strong> MoMo, ZaloPay, VNPay</li>
+										<li><strong>Chuyển khoản ngân hàng:</strong> Internet Banking</li>
+										<li><strong>Thanh toán tại khách sạn:</strong> Tiền mặt hoặc thẻ</li>
+									</ul>
+									<p class="mb-0">Tất cả giao dịch đều được mã hóa SSL 256-bit để đảm bảo bảo mật tối đa.</p>
+								</div>
+							</div>
+						</div>
+
+						<!-- Question 5 -->
+						<div class="accordion-item mb-3">
+							<h6 class="accordion-header" id="heading-5">
+								<button class="accordion-button fw-bold rounded d-inline-block collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-5" aria-expanded="false" aria-controls="collapse-5">
+									Khi nào tiền sẽ được hoàn lại sau khi hủy phòng?
+								</button>
+							</h6>
+							<div id="collapse-5" class="accordion-collapse collapse" aria-labelledby="heading-5" data-bs-parent="#accordionFaq">
+								<div class="accordion-body mt-3">
+									<p>Thời gian hoàn tiền phụ thuộc vào phương thức thanh toán ban đầu:</p>
+									<ul>
+										<li><strong>Thẻ tín dụng/ghi nợ:</strong> 3-5 ngày làm việc</li>
+										<li><strong>Ví điện tử:</strong> 1-2 ngày làm việc</li>
+										<li><strong>Chuyển khoản ngân hàng:</strong> 5-7 ngày làm việc</li>
+									</ul>
+									<p class="mb-0">Bạn sẽ nhận được email thông báo khi việc hoàn tiền được xử lý thành công.</p>
+								</div>
+							</div>
+						</div>
+
+						<!-- Account Questions -->
+						<h3 class="mb-3 mt-5">
+							<i class="fa-solid fa-user text-info me-2"></i>
+							Về tài khoản và thông tin cá nhân
+						</h3>
+
+						<!-- Question 6 -->
+						<div class="accordion-item mb-3">
+							<h6 class="accordion-header" id="heading-6">
+								<button class="accordion-button fw-bold rounded d-inline-block collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-6" aria-expanded="false" aria-controls="collapse-6">
+									Làm thế nào để thay đổi thông tin cá nhân?
+								</button>
+							</h6>
+							<div id="collapse-6" class="accordion-collapse collapse" aria-labelledby="heading-6" data-bs-parent="#accordionFaq">
+								<div class="accordion-body mt-3">
+									<p>Để cập nhật thông tin cá nhân:</p>
+									<ol>
+										<li><a href="/login" class="text-primary">Đăng nhập</a> vào tài khoản của bạn</li>
+										<li>Vào mục <a href="/user-profile" class="text-primary">"Hồ sơ cá nhân"</a></li>
+										<li>Chỉnh sửa thông tin cần thiết</li>
+										<li>Nhấn "Lưu thay đổi"</li>
+									</ol>
+									<p class="mb-0">Một số thông tin quan trọng như email có thể yêu cầu xác minh bổ sung.</p>
+								</div>
+							</div>
+						</div>
+
+						<!-- Question 7 -->
+						<div class="accordion-item mb-3">
+							<h6 class="accordion-header" id="heading-7">
+								<button class="accordion-button fw-bold rounded d-inline-block collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-7" aria-expanded="false" aria-controls="collapse-7">
+									Tôi quên mật khẩu, phải làm gì?
+								</button>
+							</h6>
+							<div id="collapse-7" class="accordion-collapse collapse" aria-labelledby="heading-7" data-bs-parent="#accordionFaq">
+								<div class="accordion-body mt-3">
+									<p>Nếu quên mật khẩu, bạn có thể:</p>
+									<ol>
+										<li>Vào <a href="/login" class="text-primary">trang đăng nhập</a></li>
+										<li>Nhấn <a href="/forgotPassword" class="text-primary">"Quên mật khẩu?"</a></li>
+										<li>Nhập địa chỉ email đã đăng ký</li>
+										<li>Kiểm tra email và làm theo hướng dẫn đặt lại mật khẩu</li>
+									</ol>
+									<p class="mb-0">Liên kết đặt lại mật khẩu có hiệu lực trong 24 giờ.</p>
+								</div>
+							</div>
+						</div>
+
+						<!-- Question 7b -->
+						<div class="accordion-item mb-3">
+							<h6 class="accordion-header" id="heading-7b">
+								<button class="accordion-button fw-bold rounded d-inline-block collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-7b" aria-expanded="false" aria-controls="collapse-7b">
+									Làm thế nào để thay đổi mật khẩu hiện tại?
+								</button>
+							</h6>
+							<div id="collapse-7b" class="accordion-collapse collapse" aria-labelledby="heading-7b" data-bs-parent="#accordionFaq">
+								<div class="accordion-body mt-3">
+									<p>Để thay đổi mật khẩu khi đã biết mật khẩu hiện tại:</p>
+									<ol>
+										<li><a href="/login" class="text-primary">Đăng nhập</a> vào tài khoản của bạn</li>
+										<li>Vào trang <a href="/user-change-password" class="text-primary">"Thay đổi mật khẩu"</a></li>
+										<li>Nhập mật khẩu hiện tại</li>
+										<li>Nhập mật khẩu mới và xác nhận</li>
+										<li>Nhấn "Cập nhật mật khẩu"</li>
+									</ol>
+									<p class="mb-0">Mật khẩu mới phải có ít nhất 8 ký tự và bao gồm chữ cái, số.</p>
+								</div>
+							</div>
+						</div>
+
+						<!-- Hotel Policy Questions -->
+						<h3 class="mb-3 mt-5">
+							<i class="fa-solid fa-building text-orange me-2"></i>
+							Về chính sách khách sạn
+						</h3>
+
+						<!-- Question 8 -->
+						<div class="accordion-item mb-3">
+							<h6 class="accordion-header" id="heading-8">
+								<button class="accordion-button fw-bold rounded d-inline-block collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-8" aria-expanded="false" aria-controls="collapse-8">
+									Thời gian nhận và trả phòng tiêu chuẩn là khi nào?
+								</button>
+							</h6>
+							<div id="collapse-8" class="accordion-collapse collapse" aria-labelledby="heading-8" data-bs-parent="#accordionFaq">
+								<div class="accordion-body mt-3">
+									<p>Thời gian nhận và trả phòng thường như sau:</p>
+									<ul>
+										<li><strong>Nhận phòng (Check-in):</strong> Từ 14:00</li>
+										<li><strong>Trả phòng (Check-out):</strong> Trước 12:00</li>
+									</ul>
+									<p>Tuy nhiên, mỗi khách sạn có thể có quy định khác nhau. Bạn có thể:</p>
+									<ul>
+										<li>Yêu cầu nhận phòng sớm (có thể phát sinh phí)</li>
+										<li>Yêu cầu trả phòng muộn (có thể phát sinh phí)</li>
+										<li>Liên hệ trực tiếp với khách sạn để thỏa thuận</li>
+									</ul>
+									<p class="mb-0">Thông tin chi tiết được ghi trong email xác nhận đặt phòng.</p>
+								</div>
+							</div>
+						</div>
+
+						<!-- Question 9 -->
+						<div class="accordion-item mb-3">
+							<h6 class="accordion-header" id="heading-9">
+								<button class="accordion-button fw-bold rounded d-inline-block collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-9" aria-expanded="false" aria-controls="collapse-9">
+									Tôi có thể mang theo thú cưng không?
+								</button>
+							</h6>
+							<div id="collapse-9" class="accordion-collapse collapse" aria-labelledby="heading-9" data-bs-parent="#accordionFaq">
+								<div class="accordion-body mt-3">
+									<p>Chính sách về thú cưng tùy thuộc vào từng khách sạn:</p>
+									<ul>
+										<li><strong>Cho phép thú cưng:</strong> Có thể có phí bổ sung</li>
+										<li><strong>Không cho phép thú cưng:</strong> Nghiêm cấm mang theo</li>
+										<li><strong>Chỉ cho phép một số loại:</strong> Thường là chó/mèo nhỏ</li>
+									</ul>
+									<p class="mb-0">Thông tin này được hiển thị rõ ràng trong mô tả khách sạn và bạn nên liên hệ trước để xác nhận.</p>
+								</div>
+							</div>
+						</div>
+
+						<!-- Host Questions -->
+						<h3 class="mb-3 mt-5">
+							<i class="fa-solid fa-home text-purple me-2"></i>
+							Dành cho chủ khách sạn
+						</h3>
+
+						<!-- Question 10 -->
+						<div class="accordion-item mb-3">
+							<h6 class="accordion-header" id="heading-10">
+								<button class="accordion-button fw-bold rounded d-inline-block collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-10" aria-expanded="false" aria-controls="collapse-10">
+									Làm thế nào để đăng ký trở thành đối tác khách sạn?
+								</button>
+							</h6>
+							<div id="collapse-10" class="accordion-collapse collapse" aria-labelledby="heading-10" data-bs-parent="#accordionFaq">
+								<div class="accordion-body mt-3">
+									<p>Để trở thành đối tác của Hamora:</p>
+									<ol>
+										<li>Truy cập trang <a href="/host-intro" class="text-primary">"Đăng ký cho thuê"</a></li>
+										<li>Điền thông tin khách sạn và chủ sở hữu</li>
+										<li>Tải lên hình ảnh và mô tả chi tiết</li>
+										<li>Chờ đội ngũ duyệt và xác minh</li>
+										<li>Nhận thông báo kích hoạt tài khoản</li>
+									</ol>
+									<p class="mb-0">Quá trình duyệt thường mất 2-3 ngày làm việc.</p>
+								</div>
+							</div>
+						</div>
+
+						<!-- Question 11 -->
+						<div class="accordion-item mb-3">
+							<h6 class="accordion-header" id="heading-11">
+								<button class="accordion-button fw-bold rounded d-inline-block collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-11" aria-expanded="false" aria-controls="collapse-11">
+									Hamora có tính phí hoa hồng không?
+								</button>
+							</h6>
+							<div id="collapse-11" class="accordion-collapse collapse" aria-labelledby="heading-11" data-bs-parent="#accordionFaq">
+								<div class="accordion-body mt-3">
+									<p>Có, Hamora áp dụng hệ thống phí hoa hồng cạnh tranh:</p>
+									<ul>
+										<li><strong>Phí nền tảng:</strong> 3-5% trên mỗi đặt phòng thành công</li>
+										<li><strong>Phí thanh toán:</strong> 1-2% cho việc xử lý giao dịch</li>
+										<li><strong>Phí marketing:</strong> Tùy chọn để tăng độ hiển thị</li>
+									</ul>
+									<p class="mb-0">Phí chỉ được tính khi có đặt phòng thành công, không có phí ẩn.</p>
+								</div>
+							</div>
+						</div>
+
+						<!-- Support Questions -->
+						<h3 class="mb-3 mt-5">
+							<i class="fa-solid fa-headset text-warning me-2"></i>
+							Hỗ trợ khách hàng
+						</h3>
+
+						<!-- Question 12 -->
+						<div class="accordion-item mb-3">
+							<h6 class="accordion-header" id="heading-12">
+								<button class="accordion-button fw-bold rounded d-inline-block collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-12" aria-expanded="false" aria-controls="collapse-12">
+									Làm thế nào để liên hệ hỗ trợ khách hàng?
+								</button>
+							</h6>
+							<div id="collapse-12" class="accordion-collapse collapse" aria-labelledby="heading-12" data-bs-parent="#accordionFaq">
+								<div class="accordion-body mt-3">
+									<p>Bạn có thể liên hệ với chúng tôi qua:</p>
+									<ul>
+										<li><strong>Hotline:</strong> <a href="tel:+84987654321" class="text-primary">+84 987 654 321</a> (24/7)</li>
+										<li><strong>Email:</strong> <a href="mailto:support@hamora.com" class="text-primary">support@hamora.com</a></li>
+										<li><strong>Chat trực tuyến:</strong> Sử dụng widget chat trên website</li>
+										<li><strong>Chatbot AI:</strong> Hỗ trợ tự động 24/7</li>
+									</ul>
+									<p class="mb-0">Đội ngũ hỗ trợ của chúng tôi luôn sẵn sàng giúp đỡ bạn với mọi thắc mắc.</p>
+								</div>
+							</div>
+						</div>
+
+						<!-- Question 13 -->
+						<div class="accordion-item mb-3">
+							<h6 class="accordion-header" id="heading-13">
+								<button class="accordion-button fw-bold rounded d-inline-block collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-13" aria-expanded="false" aria-controls="collapse-13">
+									Tôi có vấn đề với đặt phòng, ai sẽ giúp tôi?
+								</button>
+							</h6>
+							<div id="collapse-13" class="accordion-collapse collapse" aria-labelledby="heading-13" data-bs-parent="#accordionFaq">
+								<div class="accordion-body mt-3">
+									<p>Nếu gặp vấn đề với đặt phòng, hãy liên hệ ngay với chúng tôi:</p>
+									<ul>
+										<li><strong>Vấn đề kỹ thuật:</strong> Đội ngũ IT sẽ hỗ trợ trong 30 phút</li>
+										<li><strong>Vấn đề thanh toán:</strong> Đội tài chính sẽ xử lý trong 2 giờ</li>
+										<li><strong>Vấn đề với khách sạn:</strong> Đội quan hệ đối tác sẽ can thiệp</li>
+										<li><strong>Khẩn cấp:</strong> Gọi hotline để được ưu tiên xử lý</li>
+									</ul>
+									<p class="mb-0">Chúng tôi cam kết giải quyết mọi vấn đề một cách nhanh chóng và tận tâm.</p>
+								</div>
+							</div>
+						</div>
+
+					</div>
+					<!-- FAQ Accordion END -->
+
+					<!-- Contact Support Section -->
+					<div class="bg-light rounded-3 p-4 p-sm-5 mt-5">
+						<div class="row align-items-center">
+							<div class="col-md-8">
+								<h4 class="mb-2">Không tìm thấy câu trả lời?</h4>
+								<p class="mb-0">Đội ngũ hỗ trợ của chúng tôi luôn sẵn sàng giúp đỡ bạn 24/7</p>
+							</div>
+							<div class="col-md-4 text-md-end">
+								<a href="mailto:support@hamora.com" class="btn btn-primary mb-0">Liên hệ hỗ trợ</a>
+							</div>
+						</div>
+					</div>
+
+				</div>
+			</div>
+		</div>
+	</section>
+	<!-- =======================
+	FAQ Content END -->
+
+</main>
+<!-- **************** MAIN CONTENT END **************** -->
+
+<!-- =======================
+Footer START -->
+<footer th:replace="common/footer :: footer"></footer>
+<!-- =======================
+Footer END -->
+
+<!-- Back to top -->
+<div class="back-top"></div>
+
+<!-- Bootstrap JS -->
+<script src="/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<!-- ThemeFunctions -->
+<script src="/assets/js/functions.js"></script>
+
+</body>
+</html> 
