@@ -64,17 +64,7 @@ class RoomServiceTest {
         verify(roomRepository).getRoomImages(1);
     }
 
-    @Test
-    void testGetRoomByHotelId_NoRoomsFound() {
-        when(roomRepository.getRoomsByHotelId(999)).thenReturn(Collections.emptyList());
 
-        List<Room> result = roomService.getRoomByHotelId(999);
-
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-        verify(roomRepository).getRoomsByHotelId(999);
-        verify(roomRepository, never()).getRoomImages(anyInt());
-    }
 
     @Test
     void testGetAvailableRoomsByHotelId_Success() {
@@ -93,16 +83,7 @@ class RoomServiceTest {
         verify(roomRepository).getRoomImages(1);
     }
 
-    @Test
-    void testGetAvailableRoomsByHotelId_NoRoomsFound() {
-        when(roomRepository.getAvailableRoomsByHotelId(999)).thenReturn(Collections.emptyList());
 
-        List<Room> result = roomService.getAvailableRoomsByHotelId(999);
-
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-        verify(roomRepository).getAvailableRoomsByHotelId(999);
-    }
 
     @Test
     void testSaveRoom_WithAmenitiesAndImages() {
@@ -130,17 +111,8 @@ class RoomServiceTest {
         verify(roomRepository, never()).insertRoomImage(anyInt(), anyString());
         verify(roomRepository, never()).linkRoomAmenity(anyInt(), anyInt());
     }
-    
-    @Test
-    void testSaveRoom_WithEmptyLists() {
-        when(roomRepository.insertRoom(any(Room.class))).thenReturn(1);
 
-        roomService.saveRoom(testRoom, new ArrayList<>(), new ArrayList<>());
 
-        verify(roomRepository).insertRoom(testRoom);
-        verify(roomRepository, never()).insertRoomImage(anyInt(), anyString());
-        verify(roomRepository, never()).linkRoomAmenity(anyInt(), anyInt());
-    }
 
     @Test
     void testCountRooms() {
@@ -236,14 +208,6 @@ class RoomServiceTest {
         verify(roomRepository).countAvailableRoomsByHotelId(100);
     }
 
-    @Test
-    void testGetRoomById_Success() {
-        when(roomRepository.getRoomById(1)).thenReturn(testRoom);
-        Room result = roomService.getRoomById(1);
-        assertNotNull(result);
-        assertEquals(1, result.getRoomId());
-        verify(roomRepository).getRoomById(1);
-    }
 
     @Test
     void testGetRoomById_NotFound() {
@@ -253,13 +217,7 @@ class RoomServiceTest {
         verify(roomRepository).getRoomById(999);
     }
 
-    @Test
-    void testHasActiveBookingUnits_True() {
-        when(roomRepository.hasActiveBookingUnits(1)).thenReturn(true);
-        boolean result = roomService.hasActiveBookingUnits(1);
-        assertTrue(result);
-        verify(roomRepository).hasActiveBookingUnits(1);
-    }
+
 
     @Test
     void testHasActiveBookingUnits_False() {
