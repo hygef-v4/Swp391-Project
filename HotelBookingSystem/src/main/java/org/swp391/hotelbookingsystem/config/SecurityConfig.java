@@ -37,12 +37,12 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf
                         .ignoringRequestMatchers("/api/files/**", "/webhook", "/booking",
                                 "/update-hotel", "/update-room", "/delete-room", "/deactivate-room", "/activate-room", "/update-cancellation-policy", "/ws/**", "/api/chat/**",
-                                "/api/notifications/**", "/test-notifications", "/invoice"
+                                "/api/notifications/**", "/test-notifications", "/invoice", "/send-message"
                         )
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/", "/home", "/error", "/webhook", "/contact",
+                                "/", "/home", "/error", "/webhook", "/contact", "/send-message",
                                 "/login", "/register", "/verify-email-otp", "/resend-otp", "/forgotPassword", "/resetPassword",
                                 "/hotel-list", "/filter-hotels", "/hotel-detail", "/about", "/faq",
                                 "/css/**", "/js/**", "/images/**", "/assets/**",
