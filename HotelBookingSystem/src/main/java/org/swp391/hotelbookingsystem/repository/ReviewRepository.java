@@ -125,7 +125,7 @@ public class ReviewRepository {
     public boolean checkReview(int hotelId, int userId){
         String query = """
             SELECT * FROM Reviews
-            WHERE hotel_id = ? AND reviewer_id = ?        
+            WHERE hotel_id = ? AND reviewer_id = ? AND is_public = 1     
         """;
         return !jdbcTemplate.query(query, ps -> {
             ps.setInt(1, hotelId);
@@ -156,17 +156,29 @@ public class ReviewRepository {
     }
 
     public int addReview(Review review){
-        String query = "INSERT INTO Reviews (hotel_id, reviewer_id, rating, comment) OUTPUT inserted.review_id VALUES (?, ?, ?, ?)";
+        String query = """
+            DECLARE @output TABLE (reviewId INT);
+            INSERT INTO Reviews (hotel_id, reviewer_id, rating, comment) OUTPUT inserted.review_id INTO @output VALUES (?, ?, ?, ?)  
+            SELECT * FROM @output;
+        """;
         return jdbcTemplate.queryForObject(query, Integer.class, review.getHotelId(), review.getReviewerId(), review.getRating(), review.getComment());
     }
 
     public int editReview(Review review){
-        String query = "UPDATE Reviews SET rating = ?, comment = ? OUTPUT inserted.review_id WHERE hotel_id = ? AND reviewer_id = ?";
+        String query = """
+            DECLARE @output TABLE (reviewId INT);
+            UPDATE Reviews SET rating = ?, comment = ? OUTPUT inserted.review_id INTO @output WHERE hotel_id = ? AND reviewer_id = ?    
+            SELECT * FROM @output;
+        """;
         return jdbcTemplate.queryForObject(query, Integer.class, review.getRating(), review.getComment(), review.getHotelId(), review.getReviewerId());
     }
 
     public int deleteReview(int hotelId, int userId){
-        String query = "DELETE FROM Reviews OUTPUT deleted.review_id WHERE hotel_id = ? AND reviewer_id = ?";
+        String query = """
+            DECLARE @output TABLE (reviewId INT);
+            UPDATE Reviews SET is_public = 0 OUTPUT inserted.review_id INTO @output WHERE hotel_id = ? AND reviewer_id = ?
+            SELECT * FROM @output;
+        """;
         return jdbcTemplate.queryForObject(query, Integer.class, hotelId, userId);
     }
 
@@ -401,6 +413,56 @@ public class ReviewRepository {
                 .avatarUrl(rs.getString("avatar_url"))
                 .hotelName(rs.getString("hotel_name"))
                 .build());
+    }
+
+    public int countTotalReviewsByHostId(int hostId) {
+        String sql = """
+        SELECT COUNT(*) FROM Reviews r
+        JOIN Hotels h ON r.hotel_id = h.hotel_id
+        WHERE h.host_id = ?
+    """;
+        return jdbcTemplate.queryForObject(sql, Integer.class, hostId);
+    }
+
+    public int countUnaddressedReviewsByHostId(int hostId) {
+        String sql = """
+        SELECT COUNT(*) FROM Reviews r
+        JOIN Hotels h ON r.hotel_id = h.hotel_id
+        LEFT JOIN Replies rp ON r.review_id = rp.review_id
+        WHERE h.host_id = ? AND rp.review_id IS NULL
+    """;
+        return jdbcTemplate.queryForObject(sql, Integer.class, hostId);
+    }
+
+    public int countRecentReviewsByHostId(int hostId) {
+        String sql = """
+        SELECT COUNT(*) FROM Reviews r
+        JOIN Hotels h ON r.hotel_id = h.hotel_id
+        WHERE h.host_id = ? AND r.created_at >= DATEADD(day, -30, GETDATE())
+    """;
+        return jdbcTemplate.queryForObject(sql, Integer.class, hostId);
+    }
+
+    public List<Review> getReviewsByHostId(int hostId) {
+        String sql = """
+        SELECT
+            r.review_id AS reviewId,
+            r.hotel_id AS hotelId,
+            r.reviewer_id AS reviewerId,
+            r.rating,
+            r.comment,
+            r.is_public AS isPublic,
+            r.created_at AS createdAt,
+            u.full_name AS fullName,
+            u.avatar_url AS avatarUrl,
+            h.hotel_name AS hotelName
+        FROM Reviews r
+        JOIN Hotels h ON r.hotel_id = h.hotel_id
+        JOIN Users u ON r.reviewer_id = u.user_id
+        WHERE h.host_id = ?
+        ORDER BY r.created_at DESC
+    """;
+        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Review.class), hostId);
     }
 
 }

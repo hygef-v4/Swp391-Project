@@ -204,15 +204,16 @@
                         <div class="row g-4 fw-semibold small text-uppercase">
                             <div class="col-1">Avatar</div>
                             <div class="col-2">Họ Tên</div>
-                            <div class="col-3">Email</div>
+                            <div class="col-2">Email</div>
                             <div class="col-2">Số Điện Thoại</div>
                             <div class="col-2 text-center">Vai Trò</div>
                             <div class="col-2 text-center">Status</div>
+                            <div class="col-1 text-center">Chi tiết</div>
                         </div>
                     </div>
                     <!-- Table body -->
                     <div th:each="user : ${userList}"
-                         class="row row-cols-6 align-items-center border-bottom g-4 px-2 py-4">
+                         class="row align-items-center border-bottom g-4 px-2 py-4">
                         <!-- Avatar -->
                         <div class="col-1 text-center">
                             <div class="avatar avatar-sm">
@@ -228,7 +229,7 @@
                         </div>
 
                         <!-- Email -->
-                        <div class="col-3">
+                        <div class="col-2">
                             <span class="text-break small" th:text="${user.email}">email@example.com</span>
                         </div>
 
@@ -299,6 +300,15 @@
                                     <span th:text="${user.active} ? 'Active' : 'Inactive'"></span>
                                 </button>
                             </form>
+                        </div>
+
+                        <!-- Detail button -->
+                        <div class="col-1 text-center">
+                            <a th:href="@{/admin-user-detail(id=${user.id})}" 
+                               class="btn btn-outline-primary btn-sm"
+                               title="Xem chi tiết">
+                                <i class="bi bi-eye"></i>
+                            </a>
                         </div>
                     </div>
                     <div class="card-footer pt-0">
