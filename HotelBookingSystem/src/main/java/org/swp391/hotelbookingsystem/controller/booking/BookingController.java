@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +27,7 @@ import org.swp391.hotelbookingsystem.model.Room;
 import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.service.AmenityService;
 import org.swp391.hotelbookingsystem.service.BookingService;
+import org.swp391.hotelbookingsystem.service.CouponService;
 import org.swp391.hotelbookingsystem.service.HotelService;
 import org.swp391.hotelbookingsystem.service.LocationService;
 import org.swp391.hotelbookingsystem.service.RoomService;
@@ -50,6 +52,8 @@ public class BookingController {
     RoomService roomService;
     @Autowired
     AmenityService amenityService;
+    @Autowired
+    CouponService couponService;
 
     @GetMapping("/booking/{id}")
     public String booking(
@@ -86,6 +90,9 @@ public class BookingController {
 
         model.addAttribute("checkIn", date[0]);
         model.addAttribute("checkOut", date.length > 1 ? date[1] : date[0]);
+
+        long range = ChronoUnit.DAYS.between(checkin.toLocalDate(), checkout.toLocalDate());
+        model.addAttribute("range", range);
 
         model.addAttribute("guests", guests);
         model.addAttribute("roomQuantity", roomQuantity);
@@ -133,7 +140,7 @@ public class BookingController {
 
         @RequestParam(value = "dateRange") String dateRange,
         @RequestParam(value = "guests") int guests,
-        @RequestParam(value = "rooms") int rooms,    
+        @RequestParam(value = "rooms") int rooms,
 
         Model model, HttpSession session, HttpServletResponse response
     ){
@@ -177,8 +184,12 @@ public class BookingController {
         cookie.setMaxAge(60 * 30);
         response.addCookie(cookie);
 
-        if(!bookingService.checkQuantity(booking)){
-            return "redirect:/booking/" + hotelId + "&dateRange=" + dateRange + "&guests=" + guests + "&rooms=" + rooms;
+        if(!bookingService.checkQuantity(booking) || couponService.checkCoupon(couponId)){
+            return "redirect:/booking/" + hotelId + "?dateRange=" + dateRange + "&guests=" + guests + "&rooms=" + rooms;
+        }
+
+        if(couponId != null){
+            couponService.applyCoupon(couponId, user.getId());
         }
         
         int id = bookingService.pendingBooking(booking);

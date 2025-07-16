@@ -156,7 +156,7 @@
                                 <td th:text="${#temporals.format(coupon.validUntil, 'dd/MM/yyyy')}"></td>
                                 <td th:switch="${true}">
                                     <!-- Case 1: Used up -->
-                                    <th:block th:case="${coupon.usageLimit != null and coupon.usedCount >= coupon.usageLimit}">
+                                    <th:block th:case="${coupon.usageLimit != null and coupon.usedCount >= coupon.usageLimit and !(coupon.usageLimit == 0)}">
                                         <button type="button" class="btn btn-sm btn-outline-secondary" disabled title="Mã đã dùng hết lượt">
                                             <i class="bi bi-pencil"></i>
                                         </button>

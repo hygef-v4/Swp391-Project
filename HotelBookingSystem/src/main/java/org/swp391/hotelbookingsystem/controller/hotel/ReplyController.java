@@ -24,7 +24,6 @@ public class ReplyController {
         @RequestParam("userId") int userId,
         @RequestParam("comment") String comment
     ){
-        if(comment.isBlank()) return null;
         Reply requestReview = Reply.builder()
             .reviewId(reviewId)
             .replierId(userId)
@@ -34,6 +33,18 @@ public class ReplyController {
         int replyId = reviewService.addReply(requestReview);
         if(replyId == 0) return null;
         return reviewService.getReplyById(replyId);
+    }
+
+    @PostMapping("/editReply")
+    public Reply editReply(
+        @RequestParam("replyId") int replyId,
+        @RequestParam("comment") String comment
+    ){
+        if(comment.isBlank()) return null;
+        
+        int id = reviewService.editReply(replyId, comment);
+        if(id == 0) return null;
+        return reviewService.getReplyById(id);
     }
 
     @PostMapping("/deleteReply")

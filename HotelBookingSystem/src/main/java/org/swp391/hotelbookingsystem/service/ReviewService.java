@@ -60,6 +60,10 @@ public class ReviewService {
         return reviewRepository.addReply(reply);
     }
 
+    public int editReply(int replyId, String comment){
+        return reviewRepository.editReply(replyId, comment);
+    }
+
     public int deleteReply(int replyId){
         return reviewRepository.deleteReply(replyId);
     }
@@ -108,6 +112,27 @@ public class ReviewService {
 
     public List<Review> getReviewsByStatus(String status) {
         return reviewRepository.getReviewsByStatus(status);
+    }
+
+    public int getTotalReviewsForHost(int hostId) {
+        return reviewRepository.countTotalReviewsByHostId(hostId);
+    }
+
+    public int getUnaddressedReviewsForHost(int hostId) {
+        return reviewRepository.countUnaddressedReviewsByHostId(hostId);
+    }
+
+    public int getRecentReviewsForHost(int hostId) {
+        return reviewRepository.countRecentReviewsByHostId(hostId);
+    }
+
+    public List<Review> getAllReviewsByHostId(int hostId) {
+        List<Review> reviews = reviewRepository.getReviewsByHostId(hostId);
+        for (Review r : reviews) {
+            List<Reply> replies = reviewRepository.getReviewReply(r.getReviewId());
+            r.setReplies(replies);
+        }
+        return reviews;
     }
 
 }

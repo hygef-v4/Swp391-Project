@@ -78,4 +78,57 @@ public class EmailService {
         mailSender.send(message); // Opens a connection to Gmail SMTP at smtp.gmail.com:587
     }
 
+    public void sendContactMessage(String name, String email, String phone, String messageContent) throws MessagingException {
+        Context context = new Context();
+        context.setVariable("name", name);
+        context.setVariable("email", email);
+        context.setVariable("phone", phone);
+        context.setVariable("messageContent", messageContent);
+
+        String htmlContent = templateEngine.process("email/contact-message", context);
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+        helper.setTo("hamoraplatform@gmail.com");
+        helper.setSubject("Tin nhắn từ biểu mẫu liên hệ");
+        helper.setText(htmlContent, true);
+        helper.setFrom("your_email@gmail.com");
+
+        mailSender.send(message);
+    }
+
+    public void sendUserBanEmail(String to, String reason) throws MessagingException {
+        Context context = new Context();
+        context.setVariable("reason", reason);
+        String htmlContent = templateEngine.process("email/user-ban-email", context);
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+        helper.setTo(to);
+        helper.setSubject("Tài khoản của bạn đã bị khóa");
+        helper.setText(htmlContent, true);
+        helper.setFrom("your_email@gmail.com");
+
+        mailSender.send(message);
+    }
+
+    public void sendUserUnbanEmail(String to, String reason) throws MessagingException {
+        Context context = new Context();
+        context.setVariable("reason", reason);
+        String htmlContent = templateEngine.process("email/user-unban-email", context);
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+        helper.setTo(to);
+        helper.setSubject("Tài khoản của bạn đã được mở khóa");
+        helper.setText(htmlContent, true);
+        helper.setFrom("your_email@gmail.com");
+
+        mailSender.send(message);
+    }
+
+
 }

@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Mirrored from stackbros.in/bookinga/landing/agent-reviews.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:07:33 GMT -->
+<head>
+    <title>Booking - Multipurpose Online Booking Theme</title>
+
+    <!-- Meta Tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="author" content="StackBros">
+    <meta name="description" content="Booking - Multipurpose Online Booking Theme">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <!-- Dark mode -->
+    <script>
+        const storedTheme = localStorage.getItem('theme')
+
+        const getPreferredTheme = () => {
+            if (storedTheme) {
+                return storedTheme
+            }
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        }
+
+        const setTheme = function (theme) {
+            if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.setAttribute('data-bs-theme', 'dark')
+            } else {
+                document.documentElement.setAttribute('data-bs-theme', theme)
+            }
+        }
+
+        setTheme(getPreferredTheme())
+
+        window.addEventListener('DOMContentLoaded', () => {
+            var el = document.querySelector('.theme-icon-active');
+            if (el != 'undefined' && el != null) {
+                const showActiveTheme = theme => {
+                    const activeThemeIcon = document.querySelector('.theme-icon-active use')
+                    const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+                    const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
+
+                    document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+                        element.classList.remove('active')
+                    })
+
+                    btnToActive.classList.add('active')
+                    activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+                }
+
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                    if (storedTheme !== 'light' || storedTheme !== 'dark') {
+                        setTheme(getPreferredTheme())
+                    }
+                })
+
+                showActiveTheme(getPreferredTheme())
+
+                document.querySelectorAll('[data-bs-theme-value]')
+                    .forEach(toggle => {
+                        toggle.addEventListener('click', () => {
+                            const theme = toggle.getAttribute('data-bs-theme-value')
+                            localStorage.setItem('theme', theme)
+                            setTheme(theme)
+                            showActiveTheme(theme)
+                        })
+                    })
+
+            }
+        })
+
+    </script>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" th:href="@{assets/images/favicon.ico}">
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Poppins:wght@400;500;700&amp;display=swap">
+
+    <!-- Plugins CSS -->
+    <link rel="stylesheet" type="text/css" th:href="@{assets/vendor/font-awesome/css/all.min.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{assets/vendor/bootstrap-icons/bootstrap-icons.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{assets/vendor/choices/css/choices.min.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{assets/vendor/glightbox/css/glightbox.css}">
+
+    <!-- Theme CSS -->
+    <link rel="stylesheet" type="text/css" th:href="@{assets/css/style.css}">
+
+    <style>
+        .avatar-img-sm {
+            max-width: 48px;
+            max-height: 48px;
+            width: 48px;
+            height: 48px;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+        .reply-block {
+            margin-left: 56px;
+            margin-top: 12px;
+            margin-bottom: 12px;
+            background: #f7f7fa;
+            border-radius: 8px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: flex-start;
+        }
+        .reply-content {
+            flex: 1;
+        }
+        .reply-actions {
+            margin-top: 4px;
+        }
+        .reply-edit-form {
+            margin-top: 8px;
+        }
+        /* Add clearer separation between reviews */
+        .review-card {
+            margin-bottom: 32px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            border: 1px solid #ececec;
+        }
+    </style>
+
+</head>
+
+<body>
+
+<!-- Header START -->
+<div th:replace="~{common/header :: header}"></div>
+<!-- Header END -->
+
+<!-- **************** MAIN CONTENT START **************** -->
+<main>
+
+    <!-- =======================
+    Menu item START -->
+    <section th:replace="~{common-host/menu-host :: menu}"></section>
+
+    <!-- =======================
+    Menu item END -->
+
+    <!-- =======================
+    Content START -->
+    <section class="pt-0">
+        <div class="container vstack gap-4">
+            <!-- Title START -->
+            <div class="row">
+                <div class="col-12">
+                    <h1 class="fs-4 mb-0"><i class="bi bi-star fa-fw me-1"></i>Đánh giá</h1>
+                </div>
+            </div>
+            <!-- Title END -->
+
+            <!-- Counter START -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card border h-100">
+                        <!-- Card header -->
+                        <div class="card-header border-bottom">
+                            <h5 class="card-header-title">Chỉ số đánh giá</h5>
+                        </div>
+
+                        <!-- Card body START -->
+                        <div class="card-body">
+                            <div class="row g-4">
+                                <!-- Counter item -->
+                                <div class="col-sm-6 col-xl-3">
+                                    <div class="d-flex align-items-center">
+                                        <!-- Icon -->
+                                        <span class="display-6 text-primary"> <i class="bi bi-trophy"></i> </span>
+                                        <!-- Content -->
+                                        <div class="ms-3">
+                                            <h4 class="mb-0" th:text="${averageRating}">4.5</h4>
+                                            <span>Đánh giá trung bình</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Counter item -->
+                                <div class="col-sm-6 col-xl-3">
+                                    <div class="d-flex align-items-center">
+                                        <!-- Icon -->
+                                        <span class="display-6 text-warning"> <i class="bi bi-star"></i> </span>
+                                        <!-- Content -->
+                                        <div class="ms-3">
+                                            <h4 class="mb-0" th:text="${totalReviews}">548</h4>
+                                            <span>Số đánh giá</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Counter item -->
+                                <div class="col-sm-6 col-xl-3">
+                                    <div class="d-flex align-items-center">
+                                        <!-- Icon -->
+                                        <span class="display-6 text-danger"> <i class="bi bi-exclamation-octagon"></i> </span>
+                                        <!-- Content -->
+                                        <div class="ms-3">
+                                            <h4 class="mb-0" th:text="${unaddressedReviews}">56</h4>
+                                            <span>Đánh giá chưa phản hồi</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Counter item -->
+                                <div class="col-sm-6 col-xl-3">
+                                    <div class="d-flex align-items-center">
+                                        <!-- Icon -->
+                                        <span class="display-6 text-success"> <i
+                                                class="bi bi-bookmark-star"></i> </span>
+                                        <!-- Content -->
+                                        <div class="ms-3">
+                                            <h4 class="mb-0" th:text="${recentReviews}">145</h4>
+                                            <span>Đánh giá trong vòng 30 ngày</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <!-- Card body END -->
+                    </div>
+                </div>
+            </div>
+            <!-- Counter END -->
+
+            <!-- Review START -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card border rounded-3">
+                        <!-- Card header START -->
+                        <div class="card-header border-bottom">
+                            <h5 class="card-header-title">Đánh giá của người dùng</h5>
+                        </div>
+                        <!-- Card header END -->
+
+                        <!-- Card body START -->
+                        <div class="card-body">
+                            <div class="bg-light rounded p-3 review-card" th:each="review : ${reviews}">
+                                <!-- Review item START -->
+                                <div class="d-sm-flex justify-content-between">
+                                    <!-- Avatar image -->
+                                    <div class="d-sm-flex align-items-center mb-3">
+                                        <img class="avatar-img-sm" th:src="${review != null and review.avatarUrl != null} ? ${review.avatarUrl} : '/assets/images/default-avatar.jpg'" alt="avatar"/>
+                                        <!-- Title -->
+                                        <div>
+                                            <h6 class="m-0" th:text="${review.fullName}">Reviewer Name</h6>
+                                            <span class="me-3 small" th:text="${#temporals.format(review.createdAt, 'dd MMM yyyy')}">Date</span>
+                                        </div>
+                                    </div>
+                                    <!-- Review star -->
+                                    <ul class="list-inline mb-2 mb-sm-0" >
+                                        <li class="list-inline-item me-0" th:each="i : ${#numbers.sequence(1, 5)}">
+                                            <i th:class="${i <= review.rating} ? 'fas fa-star text-warning' : 'far fa-star text-warning'"></i>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <!-- Content -->
+                                <h6 class="fw-normal"><span class="text-body">Review on:</span> <span th:text="${review.hotelName}">Hotel Name</span></h6>
+                                <p th:text="${review.comment}">Review content</p>
+
+                                <!-- Buttons and collapse -->
+                                <div class="mt-3">
+                                    <!-- Buttons -->
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <a class="btn btn-sm btn-primary-soft mb-0" href="javascript:void(0);" th:attr="onclick=|toggleReplyForm(${review.reviewId})|">
+                                            <i class="bi bi-reply me-1"></i>Reply
+                                        </a>
+                                        <a href="#" class="text-primary-hover text-reset small mb-0"><i
+                                                class="bi bi-info-circle me-1"></i>Report</a>
+                                    </div>
+                                    <!-- collapse textarea -->
+                                    <div class="collapse" th:attr="id='replyForm' + ${review.reviewId}">
+                                        <div class="d-flex mt-3">
+                                            <form th:onsubmit="|submitReply(event, ${review.reviewId}, ${session.user != null ? session.user.id : 0})|" class="d-flex mt-3 w-100">
+                                                <input type="hidden" name="reviewId" th:value="${review.reviewId}"/>
+                                                <input type="hidden" name="userId" th:value="${session.user.id}"/>
+                                                <textarea class="form-control mb-0" name="comment" placeholder="Thêm phản hồi..." rows="2" required></textarea>
+                                                <button type="submit" class="btn btn-sm btn-primary-soft ms-2 px-4 mb-0 flex-shrink-0">
+                                                    <i class="fas fa-paper-plane fs-5"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    <!-- Replies container -->
+                                    <div th:attr="id='repliesContainer' + ${review.reviewId}">
+                                        <div th:each="reply : ${review.replies}" th:if="${session.user != null and reply.replierId == session.user.id}">
+                                            <div class="reply-block" th:attr="id='reply' + ${reply.replyId}">
+                                                <img class="avatar-img-sm me-2" th:src="${reply.avatarUrl != null ? reply.avatarUrl : '/assets/images/default-avatar.jpg'}" alt="avatar">
+                                                <div class="reply-content">
+                                                    <div class="d-flex align-items-center">
+                                                        <h6 class="mb-0 me-2" th:text="${reply.fullName}"></h6>
+                                                        <span class="text-muted small" th:text="${#temporals.format(reply.createdAt, 'dd MMM yyyy')}"></span>
+                                                    </div>
+                                                    <div class="reply-text" th:text="${reply.comment}"></div>
+                                                    <div class="reply-actions">
+                                                        <button th:if="${session.user != null and reply.replierId == session.user.id}"
+                                                                class="btn btn-link btn-sm p-0 text-primary"
+                                                                th:attr="onclick=|showEditReplyForm(${reply.replyId}, ${review.reviewId})|">
+                                                            Edit
+                                                        </button>
+                                                    </div>
+                                                    <form class="reply-edit-form d-none"
+                                                          th:attr="id='editReplyForm' + ${reply.replyId},onsubmit=|submitEditReply(event, ${reply.replyId}, ${review.reviewId})|">
+                                                        <textarea class="form-control mb-2" name="comment" rows="2" required></textarea>
+                                                        <button type="submit" class="btn btn-sm btn-success me-2">Save</button>
+                                                        <button type="button" class="btn btn-sm btn-secondary"
+                                                                th:attr="onclick=|cancelEditReply(${reply.replyId})|">
+                                                            Cancel
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Review item END -->
+                            </div>
+
+                            <hr> <!-- Divider -->
+                        </div>
+                        <!-- Card body END -->
+
+                        <!-- Card footer START -->
+                        <div class="card-footer pt-0">
+                            <!-- Pagination and content -->
+                            <div class="d-sm-flex justify-content-sm-between align-items-sm-center mt-4">
+                                <p class="mb-sm-0 text-center text-sm-start">
+                                    Hiển thị <span th:text="${startIndex + 1}">1</span>
+                                    đến <span th:text="${endIndex}">8</span>
+                                    trong số <span th:text="${totalHotels}">20</span> đánh giá
+                                </p>
+                                <nav class="mb-sm-0 d-flex justify-content-center" aria-label="navigation">
+                                    <ul class="pagination pagination-primary-soft pagination-sm mb-0">
+                                        <li th:if="${pagination >= 2}"
+                                            th:class="'page-item mb-0' + (${page == 1} ? ' disabled' : '')">
+                                            <a class="page-link"
+                                               th:href="@{/host-reviews(page=${page - 1})}">
+                                                <i class="fa-solid fa-angle-left"></i>
+                                            </a>
+                                        </li>
+
+                                        <li th:if="${pagination >= 1}"
+                                            th:class="'page-item mb-0' + (${page == 1} ? ' active disabled' : '')">
+                                            <a class="page-link"
+                                               th:href="@{/host-reviews(page=1)}">1</a>
+                                        </li>
+
+                                        <li th:if="${pagination >= 2}"
+                                            th:class="'page-item mb-0' + (${page == 2} ? ' active disabled' : '')">
+                                            <a class="page-link"
+                                               th:href="@{/host-reviews(page=2)}">2</a>
+                                        </li>
+
+                                        <li th:if="${pagination >= 5 and page - 2 > 2}" class="page-item mb-0 disabled">
+                                            <a class="page-link">...</a>
+                                        </li>
+
+                                        <li th:if="${pagination >= 4 and page != 1 and page - 1 != 1 and page - 1 != 2}"
+                                            class="page-item mb-0">
+                                            <a class="page-link"
+                                               th:href="@{/host-reviews(page=${page - 1})}"
+                                               th:text="${page - 1}"></a>
+                                        </li>
+
+                                        <li th:if="${pagination >= 4 and page != 1 and page != 2 and page != pagination}"
+                                            class="page-item mb-0 active disabled">
+                                            <a class="page-link" th:text="${page}"></a>
+                                        </li>
+
+                                        <li th:if="${pagination >= 4 and page + 1 != 2 and page + 1 != pagination and page != pagination}"
+                                            class="page-item mb-0">
+                                            <a class="page-link"
+                                               th:href="@{/host-reviews(page=${page + 1})}"
+                                               th:text="${page + 1}"></a>
+                                        </li>
+
+                                        <li th:if="${pagination >= 4 and pagination > page + 2}"
+                                            class="page-item mb-0 disabled">
+                                            <a class="page-link">...</a>
+                                        </li>
+
+                                        <li th:if="${pagination >= 3}"
+                                            th:class="'page-item mb-0' + (${page == pagination} ? ' active disabled' : '')">
+                                            <a class="page-link"
+                                               th:href="@{/host-reviews(page=${pagination})}"
+                                               th:text="${pagination}"></a>
+                                        </li>
+
+                                        <li th:if="${pagination >= 2}"
+                                            th:class="'page-item mb-0' + (${page == pagination} ? ' disabled' : '')">
+                                            <a class="page-link"
+                                               th:href="@{/host-reviews(page=${page + 1})}">
+                                                <i class="fa-solid fa-angle-right"></i>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                        <!-- Card footer END -->
+                    </div>
+                </div>
+            </div>
+            <!-- Review END -->
+        </div>
+    </section>
+    <!-- =======================
+    Content END -->
+
+</main>
+<!-- **************** MAIN CONTENT END **************** -->
+
+<!-- =======================
+Footer START -->
+
+<div th:replace="~{common/footer :: footer}"></div>
+
+<div class="back-top"></div>
+<!-- =======================
+Footer END -->
+
+<!-- Back to top -->
+<div class="back-top"></div>
+
+<!-- Bootstrap JS -->
+<script th:src="@{assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+
+<!-- Vendors -->
+<script th:src="@{assets/vendor/choices/js/choices.min.js}"></script>
+<script th:src="@{assets/vendor/glightbox/js/glightbox.js}"></script>
+
+<!-- ThemeFunctions -->
+<script th:src="@{assets/js/functions.js}"></script>
+
+<script>
+function toggleReplyForm(reviewId) {
+    const form = document.getElementById('replyForm' + reviewId);
+    if (form.classList.contains('show')) {
+        form.classList.remove('show');
+    } else {
+        form.classList.add('show');
+    }
+}
+
+async function submitReply(event, reviewId, userId) {
+    event.preventDefault();
+    const form = event.target;
+    const formData = new FormData(form);
+
+    // CSRF token (if using Spring Security)
+    const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+    const response = await fetch('/addReply', {
+        method: 'POST',
+        headers: {
+            [csrfHeader]: csrfToken
+        },
+        body: formData
+    });
+
+    if (response.ok) {
+        // Instead of appending replyHtml, reload the page to show the new reply with edit button
+        window.location.reload();
+    } else {
+        alert('Có lỗi xảy ra khi gửi phản hồi.');
+    }
+}
+
+function showEditReplyForm(replyId, reviewId) {
+    const replyDiv = document.getElementById('reply' + replyId);
+    const editForm = document.getElementById('editReplyForm' + replyId);
+    const replyText = replyDiv.querySelector('.reply-text');
+    const textarea = editForm.querySelector('textarea');
+    textarea.value = replyText.textContent.trim();
+    editForm.classList.remove('d-none');
+    replyText.classList.add('d-none');
+}
+
+function cancelEditReply(replyId) {
+    const replyDiv = document.getElementById('reply' + replyId);
+    const editForm = document.getElementById('editReplyForm' + replyId);
+    const replyText = replyDiv.querySelector('.reply-text');
+    editForm.classList.add('d-none');
+    replyText.classList.remove('d-none');
+}
+
+async function submitEditReply(event, replyId, reviewId) {
+    event.preventDefault();
+    const form = event.target;
+    const formData = new FormData(form);
+    formData.append('replyId', replyId);
+
+    // CSRF token
+    const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+    const response = await fetch('/editReply', {
+        method: 'POST',
+        headers: {
+            [csrfHeader]: csrfToken
+        },
+        body: formData
+    });
+
+    if (response.ok) {
+        const updatedReply = await response.json();
+        const replyDiv = document.getElementById('reply' + replyId);
+        const replyText = replyDiv.querySelector('.reply-text');
+        replyText.textContent = updatedReply.comment;
+        cancelEditReply(replyId);
+    } else {
+        alert('Có lỗi xảy ra khi chỉnh sửa phản hồi.');
+    }
+}
+</script>
+
+</body>
+
+<!-- Mirrored from stackbros.in/bookinga/landing/agent-reviews.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:07:33 GMT -->
+</html>

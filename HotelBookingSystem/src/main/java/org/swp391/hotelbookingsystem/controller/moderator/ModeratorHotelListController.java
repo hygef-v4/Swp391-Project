@@ -1,23 +1,24 @@
 package org.swp391.hotelbookingsystem.controller.moderator;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.swp391.hotelbookingsystem.model.Hotel;
 import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.service.HotelService;
+import org.swp391.hotelbookingsystem.service.NotificationService;
 import org.swp391.hotelbookingsystem.service.UserService;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Comparator;
-import java.util.ArrayList;
 
 @Controller
 @RequestMapping("/moderator-hotel-list")
@@ -26,6 +27,8 @@ public class ModeratorHotelListController {
     private HotelService hotelService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private NotificationService notificationService;
 
     @GetMapping("")
     public String getHotelList(Model model) {
@@ -41,12 +44,16 @@ public class ModeratorHotelListController {
         List<Hotel> inactiveHotels = hotels.stream()
             .filter(h -> "inactive".equals(h.getStatus()))
             .toList();
+        List<Hotel> bannedHotels = hotels.stream()
+            .filter(h -> "banned".equals(h.getStatus()))
+            .toList();
 
         // Ghép các danh sách theo thứ tự ưu tiên
         List<Hotel> sortedHotels = new ArrayList<>();
         sortedHotels.addAll(pendingHotels);
         sortedHotels.addAll(activeHotels);
         sortedHotels.addAll(inactiveHotels);
+        sortedHotels.addAll(bannedHotels);
 
         // Lấy danh sách thành phố duy nhất và sắp xếp theo alphabet
         List<String> cities = hotels.stream()
@@ -60,6 +67,7 @@ public class ModeratorHotelListController {
         int pendingCount = pendingHotels.size();
         int approvedCount = activeHotels.size();
         int rejectedCount = inactiveHotels.size();
+        int bannedCount = bannedHotels.size();
 
         // Get host info
         for (Hotel hotel : sortedHotels) {
@@ -75,6 +83,7 @@ public class ModeratorHotelListController {
         model.addAttribute("pendingCount", pendingCount);
         model.addAttribute("approvedCount", approvedCount);
         model.addAttribute("rejectedCount", rejectedCount);
+        model.addAttribute("bannedCount", bannedCount);
         return "moderator/moderatorHotelList";
     }
 
@@ -83,6 +92,11 @@ public class ModeratorHotelListController {
     @ResponseBody
     public Map<String, Object> approveHotel(@PathVariable int id) {
         hotelService.updateHotelStatus(id, "active");
+        // Notify hotel owner
+        Hotel hotel = hotelService.getHotelById(id);
+        if (hotel != null) {
+            notificationService.notifyHotelApproval(hotel.getHostId(), hotel.getHotelName());
+        }
         Map<String, Object> res = new HashMap<>();
         res.put("success", true);
         res.put("message", "Phê duyệt khách sạn thành công!");
@@ -93,7 +107,22 @@ public class ModeratorHotelListController {
     @ResponseBody
     public Map<String, Object> rejectHotel(@PathVariable int id, @RequestBody Map<String, String> body) {
         String reason = body.get("reason");
-        hotelService.updateHotelStatus(id, "inactive");
+        hotelService.updateHotelStatus(id, "banned");
+        // Notify hotel owner
+        Hotel hotel = hotelService.getHotelById(id);
+        if (hotel != null) {
+            String message = "Khách sạn của bạn đã bị từ chối. Lý do: " + (reason != null ? reason : "Không xác định");
+            notificationService.createNotification(
+                hotel.getHostId(),
+                "Khách sạn bị từ chối",
+                message,
+                "hotel",
+                "high",
+                "/host-listing",
+                "bi-x-octagon",
+                Map.of("hotelId", hotel.getHotelId(), "hotelName", hotel.getHotelName(), "reason", reason)
+            );
+        }
         Map<String, Object> res = new HashMap<>();
         res.put("success", true);
         res.put("message", "Từ chối khách sạn thành công!");

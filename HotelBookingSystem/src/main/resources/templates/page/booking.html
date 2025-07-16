@@ -95,218 +95,6 @@
         });
 	</script>
 
-    <script>
-        // Khai báo trước ở phạm vi global
-        let total, discount, paid;
-        let totalPrice, totalDiscount, paidPrice;
-        let paidInput, payButton;
-
-        // Khi DOM load xong thì gán giá trị
-        window.addEventListener("DOMContentLoaded", function () {
-            totalPrice = document.getElementById('totalPrice');
-            totalDiscount = document.getElementById('totalDiscount');
-            paidPrice = document.getElementById('paidPrice');
-
-            total = parseInt(totalPrice.textContent.replace(/[^\d]/g, "")) || 0;
-            discount = parseInt(totalDiscount.textContent.replace(/[^\d]/g, "")) || 0;
-            paid = parseInt(paidPrice.textContent.replace(/[^\d]/g, "")) || 0;
-
-            paidInput = document.getElementById('paidInput');
-            payButton = document.getElementById('payButton');
-
-            const params = new URLSearchParams(window.location.search);
-            const roomId = params.get("roomId");
-            const amount = params.get("amount");
-
-            if(roomId){
-                const room = document.getElementById('booked' + roomId);
-
-                if(room.querySelector(".bookedQuantity").max > 0){
-                    room.querySelector(".bookedQuantity").value = amount;
-                    booking(roomId, false);
-                }else{
-                    alert("Đã hết phòng, vui lòng chọn phòng khác");
-                }
-            }
-            
-            const hotelId = document.getElementById('hotelId').value;
-            const cookie = document.cookie.match(new RegExp("(^| )booking" + hotelId + "=([^;]+)"));
-            if(cookie && cookie[2]){
-                const bookingData = JSON.parse(decodeURIComponent(cookie[2]));
-                bookingData.forEach(item => {
-                    const id = item.roomId;
-                    const quantity = item.quantity;
-                    const room = document.getElementById('booked' + id);
-
-                    if(id != roomId){
-                        if(room.querySelector(".bookedQuantity").max > 0){
-                            room.querySelector(".bookedQuantity").value = quantity;
-                            booking(id, false);
-                        }else{
-                            alert("Đã hết phòng, vui lòng chọn phòng khác");
-                        }
-                    }
-                });
-            }
-        });
-
-        function updatePaid(t, d){
-            total = t;
-            discount = d;
-            paid = total - discount;
-
-            // Cập nhật giá trị hiển thị
-            totalPrice.textContent = total.toLocaleString();
-            totalDiscount.textContent = discount.toLocaleString();
-
-            paidPrice.textContent = paid.toLocaleString();
-            paidInput.value = paid;
-
-            if(paid){
-                payButton.disabled = false;
-            }else{
-                payButton.disabled = true;
-            }
-        }
-
-        function addTotalPrice(id){
-            const bookedRoom = document.getElementById('booked' + id);
-            
-            // Get title
-            const title = bookedRoom.querySelector(".bookedTitle").textContent.trim();
-
-            // Get price
-            const priceText = bookedRoom.querySelector(".bookedPrice").textContent.trim();
-            const price = parseInt(priceText.replace(/[^\d]/g, ""));
-
-            // Get quantity
-            const quantityText = bookedRoom.querySelector(".bookedQuantity").value;
-            const quantity = parseInt(quantityText, 10);
-
-            // Cập nhật tổng giá
-            let i = total + (price * quantity);
-            updatePaid(i, discount);
-
-            // Thêm vào list-group hiển thị
-            const ul = document.getElementById("booking-info");
-            if (ul) {
-                ul.innerHTML += `
-                <div id=${'price' + id}>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <input type="hidden" name="roomId" value="${id}">
-                        <h6 class="ellipsis">${title}</h6>
-                        <a class="mb-0" onclick="less(${id})" title="Xóa" style="cursor: pointer;"><i class="bi bi-x-circle"></i></a>  
-                        <input type="hidden" name="roomName" value="${title}">
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span class="h6 fw-light mb-0">Giá Phòng</span>
-                        <span class="fs-5 priceText">${price.toLocaleString()}₫</span>
-                        <input type="hidden" name="price" value="${price}">
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span class="h6 fw-light mb-0">Số Lượng</span>
-                        <span class="fs-5 quantityText">${quantity}</span>
-                        <input class="quantityInput" type="hidden" name="quantity" value="${quantity}">
-                    </li>
-                    <hr>
-                </div>
-                `;
-            }
-        }
-
-        function removeTotalPrice(id){
-            const bookedRoom = document.getElementById('booked' + id);
-
-            // Get price
-            const priceText = bookedRoom.querySelector(".bookedPrice").textContent.trim();
-            const price = parseInt(priceText.replace(/[^\d]/g, ""));
-
-            // Get quantity
-            const quantityText = bookedRoom.querySelector(".bookedQuantity").value;
-            const quantity = parseInt(quantityText, 10);
-
-            // Cập nhật tổng giá
-            let i = total - (price * quantity);
-            updatePaid(i, discount);
-
-            // Xoá phần tử div theo id
-            const ul = document.getElementById("booking-info");
-            if (ul) {
-                const div = ul.querySelector("#price" + id);
-                if (div) {
-                    ul.removeChild(div);
-                }
-            }
-        }
-
-        function setQuantity(id){
-            const priceRoom = document.getElementById('price' + id);
-
-            const priceText = priceRoom.querySelector(".priceText").textContent.trim();
-            const price = parseInt(priceText.replace(/[^\d]/g, ""));
-
-            const quantityText = priceRoom.querySelector(".quantityText").textContent.trim();
-            const quantity = parseInt(quantityText, 10);
-
-            const bookedRoom = document.getElementById('booked' + id);
-
-            const bookedPriceText = bookedRoom.querySelector(".bookedPrice").textContent.trim();
-            const bookedPrice = parseInt(bookedPriceText.replace(/[^\d]/g, ""));
-
-            const bookedQuantityText = bookedRoom.querySelector(".bookedQuantity").value;
-            const bookedQuantity = parseInt(bookedQuantityText, 10);
-
-            if(!bookedQuantity|| bookedQuantity < bookedRoom.querySelector(".bookedQuantity").min || bookedQuantity > bookedRoom.querySelector(".bookedQuantity").max){
-                bookedRoom.querySelector(".bookedQuantity").value = quantity;
-            }else{
-                priceRoom.querySelector(".quantityText").textContent = bookedQuantity;
-                priceRoom.querySelector(".quantityInput").value = bookedQuantity;
-
-                oldPrice = total - (price * quantity);
-                newPrice = oldPrice + (bookedPrice * bookedQuantity);
-                updatePaid(newPrice, discount);
-            }
-        }
-    </script>
-
-    <script>
-        function booking(id, scroll = true){
-            const bookedContent = document.getElementById('bookedContent').firstElementChild;
-            const bookedRoom = document.getElementById('booked' + id);
-            const moreRoom = document.getElementById('more' + id);
-
-            if(!bookedRoom || !moreRoom){
-                alert("Đã hết phòng, vui lòng chọn phòng khác");
-                return;
-            }
-
-            bookedContent.removeChild(bookedRoom);
-            bookedContent.appendChild(bookedRoom);
-
-            bookedRoom.classList.remove('hidden');
-            moreRoom.classList.add('hidden');
-
-            addTotalPrice(id);
-            if(scroll) scrollToId('booked' + id);
-        }
-
-        function less(id){
-            const bookedRoom = document.getElementById('booked' + id);
-            const moreRoom = document.getElementById('more' + id);
-
-            bookedRoom.classList.add('hidden');
-            moreRoom.classList.remove('hidden');
-
-            removeTotalPrice(id);
-        }
-    </script>
-
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-
-        })
-    </script>
-
 	<!-- Favicon -->
 	<link rel="shortcut icon" href="/assets/images/favicon.ico">
 
@@ -800,6 +588,217 @@ Footer END -->
 
 <!-- ThemeFunctions -->
 <script src="/assets/js/functions.js"></script>
+
+<script>
+    // Khai báo trước ở phạm vi global
+    let total, discount, paid;
+    let totalPrice, totalDiscount, paidPrice;
+    let paidInput, payButton;
+
+    // Khi DOM load xong thì gán giá trị
+    window.addEventListener("DOMContentLoaded", function () {
+        totalPrice = document.getElementById('totalPrice');
+        totalDiscount = document.getElementById('totalDiscount');
+        paidPrice = document.getElementById('paidPrice');
+
+        total = parseInt(totalPrice.textContent.replace(/[^\d]/g, "")) || 0;
+        discount = parseInt(totalDiscount.textContent.replace(/[^\d]/g, "")) || 0;
+        paid = parseInt(paidPrice.textContent.replace(/[^\d]/g, "")) || 0;
+
+        paidInput = document.getElementById('paidInput');
+        payButton = document.getElementById('payButton');
+
+        const params = new URLSearchParams(window.location.search);
+        const roomId = params.get("roomId");
+        const amount = params.get("amount");
+
+        let msBox = false;
+
+        if(roomId){
+            const room = document.getElementById('booked' + roomId);
+
+            if(room.querySelector(".bookedQuantity").max > 0){
+                room.querySelector(".bookedQuantity").value = amount;
+                booking(roomId, false);
+            }else{
+                msBox = true;
+            }
+        }
+        
+        const hotelId = document.getElementById('hotelId').value;
+        const cookie = document.cookie.match(new RegExp("(^| )booking" + hotelId + "=([^;]+)"));
+        if(cookie && cookie[2]){
+            const bookingData = JSON.parse(decodeURIComponent(cookie[2]));
+            bookingData.forEach(item => {
+                const id = item.roomId;
+                const quantity = item.quantity;
+                const room = document.getElementById('booked' + id);
+
+                if(id != roomId){
+                    if(room.querySelector(".bookedQuantity").max > 0){
+                        room.querySelector(".bookedQuantity").value = quantity;
+                        booking(id, false);
+                    }else{
+                        msBox = true;
+                    }
+                }
+            });
+        }
+
+        if(msBox) alert("Đã hết phòng, vui lòng chọn phòng khác");
+    });
+
+    function updatePaid(t, d){
+        total = t;
+        discount = d;
+        paid = total - discount;
+
+        // Cập nhật giá trị hiển thị
+        totalPrice.textContent = total.toLocaleString();
+        totalDiscount.textContent = discount.toLocaleString();
+
+        paidPrice.textContent = paid.toLocaleString();
+        paidInput.value = paid;
+
+        if(paid){
+            payButton.disabled = false;
+        }else{
+            payButton.disabled = true;
+        }
+    }
+
+    function addTotalPrice(id){
+        const bookedRoom = document.getElementById('booked' + id);
+        
+        // Get title
+        const title = bookedRoom.querySelector(".bookedTitle").textContent.trim();
+
+        // Get price
+        const priceText = bookedRoom.querySelector(".bookedPrice").textContent.trim();
+        const price = parseInt(priceText.replace(/[^\d]/g, ""));
+
+        // Get quantity
+        const quantityText = bookedRoom.querySelector(".bookedQuantity").value;
+        const quantity = parseInt(quantityText, 10);
+
+        // Cập nhật tổng giá
+        let i = total + (price * quantity);
+        updatePaid(i, discount);
+
+        // Thêm vào list-group hiển thị
+        const ul = document.getElementById("booking-info");
+        if (ul) {
+            ul.innerHTML += `
+            <div id=${'price' + id}>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <input type="hidden" name="roomId" value="${id}">
+                    <h6 class="ellipsis">${title}</h6>
+                    <a class="mb-0" onclick="less(${id})" title="Xóa" style="cursor: pointer;"><i class="bi bi-x-circle"></i></a>  
+                    <input type="hidden" name="roomName" value="${title}">
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span class="h6 fw-light mb-0">Giá Phòng</span>
+                    <span class="fs-5 priceText">${price.toLocaleString()}₫</span>
+                    <input type="hidden" name="price" value="${price}">
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span class="h6 fw-light mb-0">Số Lượng</span>
+                    <span class="fs-5 quantityText">${quantity}</span>
+                    <input class="quantityInput" type="hidden" name="quantity" value="${quantity}">
+                </li>
+                <hr>
+            </div>
+            `;
+        }
+    }
+
+    function removeTotalPrice(id){
+        const bookedRoom = document.getElementById('booked' + id);
+
+        // Get price
+        const priceText = bookedRoom.querySelector(".bookedPrice").textContent.trim();
+        const price = parseInt(priceText.replace(/[^\d]/g, ""));
+
+        // Get quantity
+        const quantityText = bookedRoom.querySelector(".bookedQuantity").value;
+        const quantity = parseInt(quantityText, 10);
+
+        // Cập nhật tổng giá
+        let i = total - (price * quantity);
+        updatePaid(i, discount);
+
+        // Xoá phần tử div theo id
+        const ul = document.getElementById("booking-info");
+        if (ul) {
+            const div = ul.querySelector("#price" + id);
+            if (div) {
+                ul.removeChild(div);
+            }
+        }
+    }
+
+    function setQuantity(id){
+        const priceRoom = document.getElementById('price' + id);
+
+        const priceText = priceRoom.querySelector(".priceText").textContent.trim();
+        const price = parseInt(priceText.replace(/[^\d]/g, ""));
+
+        const quantityText = priceRoom.querySelector(".quantityText").textContent.trim();
+        const quantity = parseInt(quantityText, 10);
+
+        const bookedRoom = document.getElementById('booked' + id);
+
+        const bookedPriceText = bookedRoom.querySelector(".bookedPrice").textContent.trim();
+        const bookedPrice = parseInt(bookedPriceText.replace(/[^\d]/g, ""));
+
+        const bookedQuantityText = bookedRoom.querySelector(".bookedQuantity").value;
+        const bookedQuantity = parseInt(bookedQuantityText, 10);
+
+        if(!bookedQuantity|| bookedQuantity < bookedRoom.querySelector(".bookedQuantity").min || bookedQuantity > bookedRoom.querySelector(".bookedQuantity").max){
+            bookedRoom.querySelector(".bookedQuantity").value = quantity;
+        }else{
+            priceRoom.querySelector(".quantityText").textContent = bookedQuantity;
+            priceRoom.querySelector(".quantityInput").value = bookedQuantity;
+
+            oldPrice = total - (price * quantity);
+            newPrice = oldPrice + (bookedPrice * bookedQuantity);
+            updatePaid(newPrice, discount);
+        }
+    }
+</script>
+
+<script>
+    function booking(id, scroll = true){
+        const bookedContent = document.getElementById('bookedContent').firstElementChild;
+        const bookedRoom = document.getElementById('booked' + id);
+        const moreRoom = document.getElementById('more' + id);
+
+        if(!bookedRoom || !moreRoom){
+            alert("Đã hết phòng, vui lòng chọn phòng khác");
+            return;
+        }
+
+        bookedContent.removeChild(bookedRoom);
+        bookedContent.appendChild(bookedRoom);
+
+        bookedRoom.classList.remove('hidden');
+        moreRoom.classList.add('hidden');
+
+        addTotalPrice(id);
+        if(scroll) scrollToId('booked' + id);
+    }
+
+    function less(id){
+        const bookedRoom = document.getElementById('booked' + id);
+        const moreRoom = document.getElementById('more' + id);
+
+        bookedRoom.classList.add('hidden');
+        moreRoom.classList.remove('hidden');
+
+        removeTotalPrice(id);
+    }
+</script>
+
 
 </body>
 

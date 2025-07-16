@@ -308,23 +308,9 @@
                                 <!-- Card body -->
                                 <div class="col-sm-9 d-flex flex-column justify-content-between">
                                     <div class="card-body position-relative d-flex flex-column p-0 h-100">
-
-                                        <!-- Dropdown buttons -->
-                                        <div class="dropdown position-absolute top-0 end-0">
-                                            <a href="#" class="btn btn-sm btn-round btn-light" role="button"
-                                               th:id="'dropdownAction' + ${stat.index}" data-bs-toggle="dropdown" aria-expanded="false">
-                                                <i class="bi bi-three-dots-vertical"></i>
-                                            </a>
-                                            <ul class="dropdown-menu dropdown-menu-end shadow rounded"
-                                                th:aria-labelledby="'dropdownAction' + ${stat.index}">
-                                                <li><a class="dropdown-item" href="#"><i class="bi bi-info-circle me-1"></i>Báo cáo</a></li>
-                                                <li><a class="dropdown-item" href="#"><i class="bi bi-slash-circle me-1"></i>Vô hiệu hoá</a></li>
-                                            </ul>
-                                        </div>
-
                                         <!-- Title & Address -->
                                         <h5 class="card-title mb-1" th:text="${hotel.hotelName}">Tên khách sạn</h5>
-                                        <small class="text-light">
+                                        <small>
                                             <i class="bi bi-geo-alt me-2"></i>
                                             <span th:text="${hotel.address}">Địa chỉ khách sạn</span>
                                         </small>
@@ -332,8 +318,8 @@
                                         <!-- Price & View -->
                                         <div class="d-flex justify-content-between align-items-center mt-2">
                                             <div class="d-flex align-items-center text-white">
-                                                <h5 class="fw-bold mb-0 me-1" th:text="'$' + ${#numbers.formatDecimal(hotel.minPrice, 1, 'COMMA', 2, 'POINT')}">Price</h5>
-                                                <span class="mb-0">/day</span>
+                                                <h5 class="fw-bold mb-0 me-1" th:text="${#numbers.formatDecimal(hotel.minPrice, 0, 'COMMA', 0, 'POINT') + '₫'}">Giá</h5>
+                                                <span class="mb-0">/ngày</span>
                                             </div>
                                             <a th:href="@{/hotel-detail(hotelId=${hotel.hotelId})}"
                                                class="btn btn-sm btn-primary">

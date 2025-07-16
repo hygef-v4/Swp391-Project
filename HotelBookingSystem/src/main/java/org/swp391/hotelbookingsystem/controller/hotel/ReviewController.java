@@ -23,7 +23,6 @@ public class ReviewController {
         @RequestParam("rating") int rating,
         @RequestParam("comment") String comment
     ) {
-        if(comment.isBlank()) return null;
         Review requestReview = Review.builder()
             .hotelId(hotelId)
             .reviewerId(userId)

@@ -19,6 +19,15 @@ public class CouponService {
         return couponRepository.getAllCoupons();
     }
 
+    public boolean checkCoupon(Integer couponId){
+        if(couponId == null) return false;
+        return couponRepository.checkCoupon(couponId);
+    }
+
+    public void applyCoupon(int couponId, int userId) {
+        couponRepository.applyCoupon(couponId, userId);
+    }
+
     public void createCoupon(Coupon coupon) {
         couponRepository.insertCoupon(coupon);
     }

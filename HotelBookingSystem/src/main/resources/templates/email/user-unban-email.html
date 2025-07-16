@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Tài khoản đã được mở khóa</title>
+</head>
+<body>
+    <h2>Tài khoản của bạn đã được mở khóa</h2>
+    <p>Xin chào,</p>
+    <p>Tài khoản của bạn đã được quản trị viên hệ thống mở khóa và có thể sử dụng lại bình thường.</p>
+    <div th:if="${reason != null and !#strings.isEmpty(reason)}">
+        <p><strong>Lý do mở khóa:</strong></p>
+        <blockquote th:text="${reason}"></blockquote>
+    </div>
+    <div th:unless="${reason != null and !#strings.isEmpty(reason)}">
+        <p>Nếu bạn có thắc mắc, vui lòng liên hệ bộ phận hỗ trợ.</p>
+    </div>
+    <p>Trân trọng,<br>Đội ngũ Hamora</p>
+</body>
+</html> 

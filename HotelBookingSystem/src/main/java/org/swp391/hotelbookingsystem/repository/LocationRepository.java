@@ -40,4 +40,48 @@ public class LocationRepository {
             ps.setInt(1, locationId);
         }, new BeanPropertyRowMapper<>(Location.class));
     }
+
+    public List<Location> getAllLocationStats() {
+        String sql = """
+        SELECT 
+            l.location_id AS id,
+            l.city_name AS cityName,
+            l.location_image_url AS imageUrl,
+            COUNT(DISTINCT h.hotel_id) AS numberOfHotels,
+            COUNT(r.room_id) AS totalRooms,
+            AVG(h.rating) AS averageRating
+        FROM Locations l
+        LEFT JOIN Hotels h ON l.location_id = h.location_id
+        LEFT JOIN Rooms r ON h.hotel_id = r.hotel_id
+        GROUP BY l.location_id, l.city_name, l.location_image_url
+        ORDER BY numberOfHotels DESC
+        """;
+        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Location.class));
+    }
+
+    public void insertLocation(Location location) {
+        String sql = "INSERT INTO Locations (city_name, location_image_url) VALUES (?, ?)";
+        jdbcTemplate.update(sql, location.getCityName(), location.getImageUrl());
+    }
+
+    public boolean cityNameExistsIgnoreCase(String cityName) {
+        String sql = "SELECT COUNT(*) FROM Locations WHERE LOWER(city_name) = LOWER(?)";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, cityName.trim());
+        return count != null && count > 0;
+    }
+
+    public Integer getLocationIdByCityName(String cityName) {
+        String sql = "SELECT location_id FROM Locations WHERE LOWER(city_name) = LOWER(?)";
+        List<Integer> results = jdbcTemplate.query(sql, ps -> {
+            ps.setString(1, cityName.trim());
+        }, (rs, rowNum) -> rs.getInt("location_id"));
+
+        return results.isEmpty() ? null : results.get(0);
+    }
+
+    public List<String> getAllCityNames() {
+        String sql = "SELECT city_name FROM Locations ORDER BY city_name";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> rs.getString("city_name"));
+    }
+
 }

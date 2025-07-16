@@ -114,7 +114,7 @@ public class PaymentController {
     }
 
     @GetMapping("/booking-success/{id}")
-    public String returnPayment(
+    public String bookingSuccess(
         @PathVariable(value = "id") int id,
 
         @RequestParam(value = "dateRange") String dateRange,
@@ -135,7 +135,7 @@ public class PaymentController {
                 return "redirect:/login";
             }
 
-            bookingService.approveBooking(id);
+            bookingService.approveBooking(id, request.getParameter("vnp_TxnRef"), request.getParameter("vnp_TransactionNo"), request.getParameter("vnp_PayDate"));
             // Real-time notification to customer
             notificationService.notifyPaymentSuccess(user.getId(), String.valueOf(id), booking.getTotalPrice());
 
@@ -147,12 +147,13 @@ public class PaymentController {
 
             return "page/bookingSuccess";
         }catch(Exception e){
+            e.printStackTrace();
             return "redirect:/error";
         }
     }
 
     @GetMapping("/booking-error/{id}")
-    public String getMethodName(
+    public String bookingError(
         @PathVariable(value = "id") int id,
 
         @RequestParam(value = "dateRange") String dateRange,

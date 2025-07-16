@@ -96,6 +96,8 @@ public class HotelListController {
 
         model.addAttribute("price", price);
 
+
+
         return "page/hotelList";
     }
 }

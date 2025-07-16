@@ -4,6 +4,7 @@
  import org.springframework.web.bind.annotation.PostMapping;
  import org.springframework.web.bind.annotation.RequestBody;
  import org.springframework.web.bind.annotation.RestController;
+ import org.swp391.hotelbookingsystem.service.LocationService;
 
  import java.util.List;
  import java.util.Map;
@@ -12,20 +13,15 @@
  public class DialogflowWebhookController {
 
      private final GeminiService geminiService;
+     private final LocationService locationService;
 
-     public DialogflowWebhookController(GeminiService geminiService) {
+     public DialogflowWebhookController(GeminiService geminiService, LocationService locationService) {
          this.geminiService = geminiService;
+         this.locationService = locationService;
      }
 
      @PostMapping("/webhook")
      public Map<String, Object> handleDialogflow(@RequestBody Map<String, Object> payload) {
-//         try {
-//             String userMessage = ((Map<String, Object>) payload.get("queryResult")).get("queryText").toString();
-//             String response = geminiService.generateReply(userMessage);
-//             return Map.of("fulfillmentText", response);
-//         } catch (Exception e) {
-//             return Map.of("fulfillmentText", "Đã xảy ra lỗi khi xử lý webhook.");
-//         }
          try {
              System.out.println("=== Webhook Received ===");
              System.out.println("Payload: " + payload);
@@ -35,35 +31,46 @@
              Map<String, Object> parameters = (Map<String, Object>) queryResult.get("parameters");
 
              System.out.println("Intent: " + intentName);
-             System.out.println("Parameters: " + parameters);
+
+             if ("GetAvailableLocations".equals(intentName)) {
+                 List<String> locations = locationService.getAllLocationNames();
+                 if (locations.isEmpty()) {
+                     return Map.of("fulfillmentText", "Hiện tại chưa có địa điểm nào khả dụng.");
+                 }
+
+                 String reply = "Chúng tôi có khách sạn tại các địa điểm sau: " + String.join(", ", locations) + ".";
+                 return Map.of("fulfillmentText", reply);
+             }
 
              if ("Default Fallback Intent".equals(intentName) || parameters.isEmpty() || !parameters.containsKey("location")) {
                  return Map.of("fulfillmentText", "Xin lỗi, bạn có thể nói rõ địa điểm bạn muốn đặt phòng không?");
              }
 
              // Trích thông tin
-             String location = parameters.get("location").toString();
+             String location = parameters.get("location").toString().toLowerCase().replace("thành phố", "").trim();
+             location = location.substring(0, 1).toUpperCase() + location.substring(1);
+
              String checkin = parameters.getOrDefault("checkin-date", "").toString().split("T")[0];
              String checkout = parameters.getOrDefault("checkout-date", "").toString().split("T")[0];
 
-             String adultsRaw = parameters.getOrDefault("adults", "1").toString();
-             String childrenRaw = parameters.getOrDefault("children", "").toString();
+             String guestsRaw = parameters.getOrDefault("guests", "1").toString();
              String roomsRaw = parameters.getOrDefault("rooms", "").toString();
 
-             int adults = adultsRaw.isEmpty() ? 1 : (int) Double.parseDouble(adultsRaw);
-             int children = childrenRaw.isEmpty() ? 0 : (int) Double.parseDouble(childrenRaw);
+             int guests = guestsRaw.isEmpty() ? 1 : (int) Double.parseDouble(guestsRaw);
              int rooms = roomsRaw.isEmpty() ? 1 : (int) Double.parseDouble(roomsRaw);
 
-
-             // TODO: Ánh xạ location -> locationId (Hà Nội => 1)
-             int locationId = mapLocationToId(location);
+             // Lấy locationId từ DB
+             Integer locationId = locationService.getLocationIdByCityName(location);
+             if (locationId == null) {
+                 return Map.of("fulfillmentText", "Xin lỗi, hiện tại chúng tôi chưa hỗ trợ khu vực " + location + ".");
+             }
 
              // Build URL
-             String url = String.format("http://localhost:8386/hotel-list?locationId=%d&dateRange=%s => %s&adults=%d&children=%d&rooms=%d",
-                     locationId, checkin, checkout, adults, children, rooms);
+             String url = String.format("http://localhost:8386/hotel-list?locationId=%d&dateRange=%s => %s&guests=%d&rooms=%d",
+                     locationId, checkin, checkout, guests, rooms);
 
-             String softPrompt = String.format("Người dùng đang tìm khách sạn ở %s từ %s đến %s cho %d người lớn và %d trẻ em. Viết câu phản hồi lịch sự, mời họ bấm nút để xem danh sách.",
-                     location, checkin, checkout, adults, children);
+             String softPrompt = String.format("Người dùng đang tìm khách sạn ở %s từ %s đến %s cho %d người. Viết câu phản hồi lịch sự, mời họ bấm nút để xem danh sách.(lưu ý tôi đã có nút ở dưới sẵn rồi)",
+                     location, checkin, checkout, guests);
              String geminiResponse = geminiService.generateReply(softPrompt);
 
 
@@ -71,7 +78,6 @@
              return Map.of(
                      "fulfillmentMessages", List.of(
                              Map.of("text", Map.of("text", List.of(geminiResponse))),
-                             Map.of("text", Map.of("text", List.of("Dưới đây là khách sạn phù hợp với yêu cầu của bạn:"))),
                              Map.of("payload", Map.of(
                                      "richContent", List.of(List.of(
                                              Map.of(
@@ -90,11 +96,5 @@
              e.printStackTrace(); // ⚠️ In toàn bộ lỗi
              return Map.of("fulfillmentText", "Đã xảy ra lỗi khi xử lý webhook.");
          }
-     }
-
-     private int mapLocationToId(String locationName) {
-         if (locationName.toLowerCase().contains("hà nội")) return 1;
-         if (locationName.toLowerCase().contains("sài gòn")) return 2;
-         return 0;
      }
  }
