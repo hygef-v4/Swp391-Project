@@ -418,4 +418,9 @@ public class HotelRepository {
         String sql = "SELECT COUNT(*) FROM Hotels WHERE hotel_name LIKE ?";
         return jdbcTemplate.queryForObject(sql, Integer.class, "%" + (search == null ? "" : search.trim()) + "%");
     }
+
+    public void banAllHotelsByHostId(int hostId) {
+        String sql = "UPDATE Hotels SET status = 'banned' WHERE host_id = ?";
+        jdbcTemplate.update(sql, hostId);
+    }
 }

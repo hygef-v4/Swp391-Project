@@ -18,6 +18,7 @@ import org.swp391.hotelbookingsystem.service.BookingService;
 import org.swp391.hotelbookingsystem.service.HotelService;
 import org.swp391.hotelbookingsystem.service.ReportService;
 import org.swp391.hotelbookingsystem.service.UserService;
+import org.swp391.hotelbookingsystem.service.EmailService;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -28,18 +29,21 @@ public class AdminUserController {
     private final BookingService bookingService;
     private final HotelService hotelService;
     private final ReportService reportService;
+    private final EmailService emailService;
 
     public AdminUserController(UserService userService, BookingService bookingService, 
-                             HotelService hotelService, ReportService reportService) {
+                             HotelService hotelService, ReportService reportService, EmailService emailService) {
         this.userService = userService;
         this.bookingService = bookingService;
         this.hotelService = hotelService;
         this.reportService = reportService;
+        this.emailService = emailService;
     }
 
     @GetMapping("/admin-user-list")
     public String getUserList(@RequestParam(value = "search", required = false) String search,
                               @RequestParam(value = "role", required = false) String role,
+                              @RequestParam(value = "status", required = false) String status,
                               @RequestParam(value = "page", defaultValue = "1") int page,
                               Model model, HttpSession session) {
         User user = (User) session.getAttribute("user");
@@ -49,10 +53,19 @@ public class AdminUserController {
 
         String trimmedSearch = (search != null) ? search.trim().replaceAll("\\s+", " ") : null;
         String trimmedRole = (role != null) ? role.trim() : null;
+        String trimmedStatus = (status != null) ? status.trim() : null;
 
         List<User> filteredUsers;
 
-        if (trimmedSearch != null && !trimmedSearch.isBlank() && trimmedRole != null && !trimmedRole.isBlank()) {
+        if ("banned".equals(trimmedStatus)) {
+            filteredUsers = userService.getAllUsersWithProfile().stream()
+                    .filter(u -> !u.isActive())
+                    .toList();
+        } else if ("flagged".equals(trimmedStatus)) {
+            filteredUsers = userService.getAllUsersWithProfile().stream()
+                    .filter(u -> userService.isUserFlagged(u.getId()))
+                    .toList();
+        } else if (trimmedSearch != null && !trimmedSearch.isBlank() && trimmedRole != null && !trimmedRole.isBlank()) {
             filteredUsers = userService.getAllUsersWithProfile().stream()
                     .filter(u -> u.getFullName().toLowerCase().contains(trimmedSearch.toLowerCase()))
                     .filter(u -> trimmedRole.equalsIgnoreCase(u.getRole()))
@@ -67,6 +80,10 @@ public class AdminUserController {
             filteredUsers = userService.getAllUsersWithProfile();
         }
 
+        // Set flagged property for each user in the filtered list
+        for (User u : filteredUsers) {
+            u.setFlagged(userService.isUserFlagged(u.getId()));
+        }
 
         int pageSize = 10;
         int totalUsers = filteredUsers.size();
@@ -80,6 +97,7 @@ public class AdminUserController {
         model.addAttribute("totalUsers", totalUsers);
         model.addAttribute("search", trimmedSearch);
         model.addAttribute("role", trimmedRole);
+        model.addAttribute("status", trimmedStatus);
         model.addAttribute("userList", currentPageUsers);
         model.addAttribute("page", page);
         model.addAttribute("pagination", (int) Math.ceil((double) totalUsers / pageSize));
@@ -87,33 +105,68 @@ public class AdminUserController {
         return "admin/admin-user-list";
     }
 
+    @PostMapping("/admin/user/unflag/{userID}")
+    public String unflagUser(@PathVariable("userID") int userId,
+                             @RequestParam(value = "search", required = false) String search,
+                             @RequestParam(value = "role", required = false) String role,
+                             @RequestParam(value = "status", required = false) String status) {
+        reportService.unflagUser(userId); // sets reports to 'declined'
+        return "redirect:" + buildRedirectUrl("/admin-user-list", search, role, status);
+    }
+
     @PostMapping("/admin/user/toggle-status/{userID}")
     public String toggleUserStatus(@PathVariable("userID") int userId,
+                                   @RequestParam(value = "reason", required = false) String reason,
                                    @RequestParam(value = "search", required = false) String search,
-                                   @RequestParam(value = "role", required = false) String role) {
+                                   @RequestParam(value = "role", required = false) String role,
+                                   @RequestParam(value = "status", required = false) String status) {
+        User user = userService.findUserById(userId);
+        boolean wasActive = user.isActive();
         userService.toggleUserStatus(userId);
-
-        return "redirect:" + buildRedirectUrl("/admin-user-list", search, role);
+        // Refresh user object after status change
+        User updatedUser = userService.findUserById(userId);
+        try {
+            if (wasActive && !updatedUser.isActive()) {
+                // Ban: require reason and send ban email
+                if (reason == null || reason.trim().isEmpty()) {
+                    // Optionally, handle error (redirect with error message)
+                    return "redirect:" + buildRedirectUrl("/admin-user-list", search, role, status);
+                }
+                emailService.sendUserBanEmail(updatedUser.getEmail(), reason);
+                // Accept reports if flagged
+                if (reportService.isUserFlagged(userId)) {
+                    reportService.acceptUserReports(userId);
+                }
+                // Ban all hotels if user is a hotel owner
+                if ("HOTEL_OWNER".equals(updatedUser.getRole())) {
+                    hotelService.banAllHotelsByHostId(userId);
+                }
+            } else if (!wasActive && updatedUser.isActive()) {
+                // Unban: send unban email (reason optional)
+                emailService.sendUserUnbanEmail(updatedUser.getEmail(), reason != null ? reason : "");
+            }
+        } catch (Exception e) {
+            // log error
+        }
+        return "redirect:" + buildRedirectUrl("/admin-user-list", search, role, status);
     }
 
     @PostMapping("/admin/user/change-role/{userID}")
     public String changeUserRole(@PathVariable("userID") int userId,
                                  @RequestParam("newRole") String newRole,
                                  @RequestParam(value = "search", required = false) String search,
-                                 @RequestParam(value = "role", required = false) String role) {
+                                 @RequestParam(value = "role", required = false) String role,
+                                 @RequestParam(value = "status", required = false) String status) {
         userService.updateUserRole(userId, newRole);
 
-        return "redirect:" + buildRedirectUrl("/admin-user-list", search, role);
+        return "redirect:" + buildRedirectUrl("/admin-user-list", search, role, status);
     }
 
-    private String buildRedirectUrl(String base, String search, String role) {
-        search = (search != null && !search.trim().isEmpty()) ? search.trim() : null;
-        role = (role != null && !role.trim().isEmpty()) ? role.trim() : null;
-
+    private String buildRedirectUrl(String base, String search, String role, String status) {
         List<String> params = new ArrayList<>();
-        if (search != null) params.add("search=" + search);
-        if (role != null) params.add("role=" + role);
-
+        if (search != null && !search.trim().isEmpty()) params.add("search=" + search.trim());
+        if (role != null && !role.trim().isEmpty()) params.add("role=" + role.trim());
+        if (status != null && !status.trim().isEmpty()) params.add("status=" + status.trim());
         return base + (params.isEmpty() ? "" : "?" + String.join("&", params));
     }
 

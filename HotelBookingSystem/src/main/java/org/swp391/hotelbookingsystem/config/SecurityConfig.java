@@ -53,6 +53,10 @@ public class SecurityConfig {
                                 new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
                                 new WebExpressionAuthorizationManager("hasRole('ADMIN')")
                         ))
+                        .requestMatchers("/admin/user/toggle-status/**").access(AuthorizationManagers.allOf(
+                                new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
+                                new WebExpressionAuthorizationManager("hasRole('ADMIN')")
+                        ))
                         .requestMatchers("/host-dashboard","/add-hotel","/add-room","/host/request-deactivate-hotel",
                                 "/host/confirm-deactivate-hotel","/host/activate-hotel","/manage-hotel","/update-hotel","/update-room","/delete-room",
                                 "/deactivate-room","/activate-room","/update-cancellation-policy","/host-customers","/host-customer-detail").access(AuthorizationManagers.allOf(
