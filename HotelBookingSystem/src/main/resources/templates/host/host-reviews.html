@@ -10,7 +10,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="author" content="StackBros">
     <meta name="description" content="Booking - Multipurpose Online Booking Theme">
-
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <!-- Dark mode -->
     <script>
         const storedTheme = localStorage.getItem('theme')
@@ -88,6 +89,42 @@
 
     <!-- Theme CSS -->
     <link rel="stylesheet" type="text/css" th:href="@{assets/css/style.css}">
+
+    <style>
+        .avatar-img-sm {
+            max-width: 48px;
+            max-height: 48px;
+            width: 48px;
+            height: 48px;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+        .reply-block {
+            margin-left: 56px;
+            margin-top: 12px;
+            margin-bottom: 12px;
+            background: #f7f7fa;
+            border-radius: 8px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: flex-start;
+        }
+        .reply-content {
+            flex: 1;
+        }
+        .reply-actions {
+            margin-top: 4px;
+        }
+        .reply-edit-form {
+            margin-top: 8px;
+        }
+        /* Add clearer separation between reviews */
+        .review-card {
+            margin-bottom: 32px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            border: 1px solid #ececec;
+        }
+    </style>
 
 </head>
 
@@ -204,16 +241,16 @@
 
                         <!-- Card body START -->
                         <div class="card-body">
-                            <div class="bg-light rounded p-3" th:each="review : ${reviews}">
+                            <div class="bg-light rounded p-3 review-card" th:each="review : ${reviews}">
                                 <!-- Review item START -->
                                 <div class="d-sm-flex justify-content-between">
                                     <!-- Avatar image -->
                                     <div class="d-sm-flex align-items-center mb-3">
-                                        <img th:src="${review != null and review.avatarUrl != null} ? ${review.avatarUrl} : '/assets/images/default-avatar.jpg'" alt="avatar"/>
+                                        <img class="avatar-img-sm" th:src="${review != null and review.avatarUrl != null} ? ${review.avatarUrl} : '/assets/images/default-avatar.jpg'" alt="avatar"/>
                                         <!-- Title -->
                                         <div>
                                             <h6 class="m-0" th:text="${review.fullName}">Reviewer Name</h6>
-                                            <span class="me-3 small" th:text="${#dates.format(review.createdAt, 'dd MMM yyyy')}">Date</span>
+                                            <span class="me-3 small" th:text="${#temporals.format(review.createdAt, 'dd MMM yyyy')}">Date</span>
                                         </div>
                                     </div>
                                     <!-- Review star -->
@@ -232,21 +269,54 @@
                                 <div class="mt-3">
                                     <!-- Buttons -->
                                     <div class="d-flex justify-content-between align-items-center">
-                                        <a class="btn btn-sm btn-primary-soft mb-0" data-bs-toggle="collapse"
-                                           href="#collapseComment" role="button" aria-expanded="true"
-                                           aria-controls="collapseComment">
+                                        <a class="btn btn-sm btn-primary-soft mb-0" href="javascript:void(0);" th:attr="onclick=|toggleReplyForm(${review.reviewId})|">
                                             <i class="bi bi-reply me-1"></i>Reply
                                         </a>
                                         <a href="#" class="text-primary-hover text-reset small mb-0"><i
                                                 class="bi bi-info-circle me-1"></i>Report</a>
                                     </div>
                                     <!-- collapse textarea -->
-                                    <div class="collapse show" id="collapseComment">
+                                    <div class="collapse" th:attr="id='replyForm' + ${review.reviewId}">
                                         <div class="d-flex mt-3">
-                                            <textarea class="form-control mb-0" placeholder="Add a comment..." rows="2"
-                                                      spellcheck="false"></textarea>
-                                            <button class="btn btn-sm btn-primary-soft ms-2 px-4 mb-0 flex-shrink-0"><i
-                                                    class="fas fa-paper-plane fs-5"></i></button>
+                                            <form th:onsubmit="|submitReply(event, ${review.reviewId}, ${session.user != null ? session.user.id : 0})|" class="d-flex mt-3 w-100">
+                                                <input type="hidden" name="reviewId" th:value="${review.reviewId}"/>
+                                                <input type="hidden" name="userId" th:value="${session.user.id}"/>
+                                                <textarea class="form-control mb-0" name="comment" placeholder="Thêm phản hồi..." rows="2" required></textarea>
+                                                <button type="submit" class="btn btn-sm btn-primary-soft ms-2 px-4 mb-0 flex-shrink-0">
+                                                    <i class="fas fa-paper-plane fs-5"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    <!-- Replies container -->
+                                    <div th:attr="id='repliesContainer' + ${review.reviewId}">
+                                        <div th:each="reply : ${review.replies}" th:if="${session.user != null and reply.replierId == session.user.id}">
+                                            <div class="reply-block" th:attr="id='reply' + ${reply.replyId}">
+                                                <img class="avatar-img-sm me-2" th:src="${reply.avatarUrl != null ? reply.avatarUrl : '/assets/images/default-avatar.jpg'}" alt="avatar">
+                                                <div class="reply-content">
+                                                    <div class="d-flex align-items-center">
+                                                        <h6 class="mb-0 me-2" th:text="${reply.fullName}"></h6>
+                                                        <span class="text-muted small" th:text="${#temporals.format(reply.createdAt, 'dd MMM yyyy')}"></span>
+                                                    </div>
+                                                    <div class="reply-text" th:text="${reply.comment}"></div>
+                                                    <div class="reply-actions">
+                                                        <button th:if="${session.user != null and reply.replierId == session.user.id}"
+                                                                class="btn btn-link btn-sm p-0 text-primary"
+                                                                th:attr="onclick=|showEditReplyForm(${reply.replyId}, ${review.reviewId})|">
+                                                            Edit
+                                                        </button>
+                                                    </div>
+                                                    <form class="reply-edit-form d-none"
+                                                          th:attr="id='editReplyForm' + ${reply.replyId},onsubmit=|submitEditReply(event, ${reply.replyId}, ${review.reviewId})|">
+                                                        <textarea class="form-control mb-2" name="comment" rows="2" required></textarea>
+                                                        <button type="submit" class="btn btn-sm btn-success me-2">Save</button>
+                                                        <button type="button" class="btn btn-sm btn-secondary"
+                                                                th:attr="onclick=|cancelEditReply(${reply.replyId})|">
+                                                            Cancel
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -368,6 +438,89 @@ Footer END -->
 
 <!-- ThemeFunctions -->
 <script th:src="@{assets/js/functions.js}"></script>
+
+<script>
+function toggleReplyForm(reviewId) {
+    const form = document.getElementById('replyForm' + reviewId);
+    if (form.classList.contains('show')) {
+        form.classList.remove('show');
+    } else {
+        form.classList.add('show');
+    }
+}
+
+async function submitReply(event, reviewId, userId) {
+    event.preventDefault();
+    const form = event.target;
+    const formData = new FormData(form);
+
+    // CSRF token (if using Spring Security)
+    const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+    const response = await fetch('/addReply', {
+        method: 'POST',
+        headers: {
+            [csrfHeader]: csrfToken
+        },
+        body: formData
+    });
+
+    if (response.ok) {
+        // Instead of appending replyHtml, reload the page to show the new reply with edit button
+        window.location.reload();
+    } else {
+        alert('Có lỗi xảy ra khi gửi phản hồi.');
+    }
+}
+
+function showEditReplyForm(replyId, reviewId) {
+    const replyDiv = document.getElementById('reply' + replyId);
+    const editForm = document.getElementById('editReplyForm' + replyId);
+    const replyText = replyDiv.querySelector('.reply-text');
+    const textarea = editForm.querySelector('textarea');
+    textarea.value = replyText.textContent.trim();
+    editForm.classList.remove('d-none');
+    replyText.classList.add('d-none');
+}
+
+function cancelEditReply(replyId) {
+    const replyDiv = document.getElementById('reply' + replyId);
+    const editForm = document.getElementById('editReplyForm' + replyId);
+    const replyText = replyDiv.querySelector('.reply-text');
+    editForm.classList.add('d-none');
+    replyText.classList.remove('d-none');
+}
+
+async function submitEditReply(event, replyId, reviewId) {
+    event.preventDefault();
+    const form = event.target;
+    const formData = new FormData(form);
+    formData.append('replyId', replyId);
+
+    // CSRF token
+    const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+    const response = await fetch('/editReply', {
+        method: 'POST',
+        headers: {
+            [csrfHeader]: csrfToken
+        },
+        body: formData
+    });
+
+    if (response.ok) {
+        const updatedReply = await response.json();
+        const replyDiv = document.getElementById('reply' + replyId);
+        const replyText = replyDiv.querySelector('.reply-text');
+        replyText.textContent = updatedReply.comment;
+        cancelEditReply(replyId);
+    } else {
+        alert('Có lỗi xảy ra khi chỉnh sửa phản hồi.');
+    }
+}
+</script>
 
 </body>
 
