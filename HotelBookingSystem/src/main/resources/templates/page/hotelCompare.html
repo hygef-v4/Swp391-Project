@@ -744,6 +744,8 @@
         tbody.innerHTML = '';
         // Tiêu chí: Tên chủ khách sạn
         tbody.appendChild(renderRow('Tên chủ khách sạn', comparedHotels.map(h => h.hostName && h.hostName.trim() !== '' ? h.hostName : 'Không có')));
+        // Tiêu chí: Thành phố (thêm mới ở trên Địa chỉ)
+        tbody.appendChild(renderRow('Thành phố', comparedHotels.map(h => h.cityName || '')));
         // Tiêu chí: Địa chỉ
         tbody.appendChild(renderRow('Địa chỉ', comparedHotels.map(h => h.address || '')));
         // Tiêu chí: Đánh giá
