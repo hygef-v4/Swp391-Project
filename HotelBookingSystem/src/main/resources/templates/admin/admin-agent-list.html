@@ -169,7 +169,7 @@
             <!-- Search and select START -->
             <div class="row g-3 align-items-center justify-content-between mb-5">
                 <!-- Search -->
-                <div class="col-md-8">
+                <div class="col-md-8 hover-card">
                     <form class="rounded position-relative" method="get" th:action="@{/admin-agent-list}">
                         <input class="form-control pe-5" name="search" th:value="${search}" type="search" placeholder="Tìm theo tên đối tác" aria-label="Search">
                         <button class="btn border-0 px-3 py-0 position-absolute top-50 end-0 translate-middle-y" type="submit">
@@ -179,7 +179,7 @@
                 </div>
 
                 <!-- Select option -->
-                <div class="col-md-3">
+                <div class="col-md-3 hover-card">
                     <!-- Sort by filter -->
                     <form method="get" th:action="@{/admin-agent-list}">
                         <input type="hidden" name="search" th:value="${search}">

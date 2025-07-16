@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <title>Danh sách đặt phòng</title>
 
     <!-- Favicon -->
@@ -242,8 +244,7 @@
                                name="search"
                                th:value="${search}"
                                placeholder="Tìm kiếm">
-                        <input type="hidden" name="status" th:value="${statusFilter}">
-                        <input type="hidden" name="view" th:value="${viewMode}">
+                        <input type="hidden" name="status" th:value="${filter}">
                         <button class="bg-transparent p-2 position-absolute top-50 end-0 translate-middle-y border-0 text-primary-hover text-reset" type="submit">
                             <i class="fas fa-search fs-6"></i>
                         </button>
@@ -270,7 +271,8 @@
             <div class="vstack gap-4 mt-5">
                 <div th:each="review : ${reviewList}">
                     <!-- Review item -->
-                    <div class="row g-3 g-lg-4 p-3 rounded hover-card"
+                    <div th:id="'review' + ${review.reviewId}"
+                         class="row g-3 g-lg-4 p-3 rounded hover-card"
                          th:classappend="${review != null and !review.isPublic} ? ' bg-dark bg-opacity-10 border border-danger' : ''">
                         <div class="col-md-4 col-xxl-3">
                         <div class="d-flex align-items-center">
@@ -320,15 +322,32 @@
                             </a>
                         </div>
                         <!-- collapse textarea -->
+<!--                        <div class="collapse mt-3"-->
+<!--                             th:id="'collapseComment__' + ${review.reviewId}">-->
+<!--                            <div class="d-flex">-->
+<!--                                <textarea class="form-control mb-0" placeholder="Viết phản hồi..." rows="2" spellcheck="false"></textarea>-->
+<!--                                <button class="btn btn-sm btn-primary ms-2 px-4 mb-0 flex-shrink-0">-->
+<!--                                    <i class="fas fa-paper-plane fs-5"></i>-->
+<!--                                </button>-->
+<!--                            </div>-->
+<!--                        </div>-->
+
                         <div class="collapse mt-3"
                              th:id="'collapseComment__' + ${review.reviewId}">
-                            <div class="d-flex">
-                                <textarea class="form-control mb-0" placeholder="Add a comment..." rows="2" spellcheck="false"></textarea>
-                                <button class="btn btn-sm btn-primary ms-2 px-4 mb-0 flex-shrink-0">
+                            <form th:id="'replyForm__' + ${review.reviewId}" class="d-flex align-items-start mt-2">
+                                <input type="hidden" name="reviewId" th:value="${review.reviewId}">
+                                <input type="hidden" name="userId" th:value="${session.user.id}">
+
+                                <textarea name="comment" class="form-control mb-0" placeholder="Viết bình luận..." rows="2" style="resize: none;"></textarea>
+
+                                <button type="button"
+                                        class="btn btn-sm btn-primary ms-2 px-4 mb-0 flex-shrink-0"
+                                        th:onclick="'submitReplyFromCollapse(' + ${review.reviewId} + ')'">
                                     <i class="fas fa-paper-plane fs-5"></i>
                                 </button>
-                            </div>
+                            </form>
                         </div>
+
                     </div>
                 </div>
 
@@ -444,6 +463,53 @@
 <!-- **************** MAIN CONTENT END **************** -->
 <script th:src="@{/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
 <script th:src="@{/assets/vendor/overlay-scrollbar/js/overlayscrollbars.min.js}"></script>
+<script src="/assets/vendor/flatpickr/js/flatpickr.min.js"></script>
+<script src="/assets/vendor/choices/js/choices.min.js"></script>
+<script th:src="@{/assets/vendor/choices/js/choices.min.js}"></script>
 <script th:src="@{/assets/js/functions.js}"></script>
+<script>
+    async function submitReplyFromCollapse(reviewId) {
+        const form = document.getElementById('replyForm__' + reviewId);
+        const formData = new FormData(form);
+
+        const comment = formData.get('comment').trim();
+        if (!comment) {
+            alert("Vui lòng nhập bình luận.");
+            return;
+        }
+        if (/<.*?>/.test(comment)) {
+            alert("Không thể gửi tin nhắn chứa thẻ HTML.");
+            return;
+        }
+
+        const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+        try {
+            let request = await fetch('/addReply', {
+                method: 'POST',
+                headers: {
+                    [csrfHeader]: csrfToken
+                },
+                body: formData
+            });
+
+            if (!request.ok) {
+                alert("Gửi phản hồi thất bại.");
+                return;
+            }
+
+            // Reset form và ẩn collapse
+            form.reset();
+            bootstrap.Collapse.getInstance(document.getElementById('collapseComment__' + reviewId))?.hide();
+
+            alert("Phản hồi đã được gửi thành công.");
+
+        } catch (error) {
+            console.error("Lỗi khi gửi phản hồi:", error);
+            alert("Đã xảy ra lỗi. Vui lòng thử lại.");
+        }
+    }
+</script>
 </body>
 </html>
