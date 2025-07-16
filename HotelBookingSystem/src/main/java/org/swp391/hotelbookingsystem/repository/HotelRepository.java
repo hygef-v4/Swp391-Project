@@ -374,7 +374,7 @@ public class HotelRepository {
         String sql = """
         SELECT COUNT(*) FROM BookingUnits bu
         JOIN Rooms r ON bu.room_id = r.room_id
-        WHERE r.hotel_id = ?
+        WHERE r.hotel_id = ? and bu.status IN ('approved', 'check_in', 'completed')
     """;
         return jdbcTemplate.queryForObject(sql, Integer.class, hotelId);
     }
