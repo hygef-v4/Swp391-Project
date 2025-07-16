@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -89,6 +90,9 @@ public class BookingController {
 
         model.addAttribute("checkIn", date[0]);
         model.addAttribute("checkOut", date.length > 1 ? date[1] : date[0]);
+
+        long range = ChronoUnit.DAYS.between(checkin.toLocalDate(), checkout.toLocalDate());
+        model.addAttribute("range", range);
 
         model.addAttribute("guests", guests);
         model.addAttribute("roomQuantity", roomQuantity);
