@@ -3,7 +3,9 @@ package org.swp391.hotelbookingsystem.controller.admin;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.swp391.hotelbookingsystem.model.*;
 import org.swp391.hotelbookingsystem.service.BookingService;
 import org.swp391.hotelbookingsystem.service.HotelService;
@@ -100,5 +102,14 @@ public class AdminBookingController {
 
         return "admin/admin-booking-detail";
     }
+
+    @GetMapping("/api/hotel/{hotelId}/has-booking")
+    @ResponseBody
+    public boolean hasBooking(@PathVariable int hotelId) {
+        return bookingService.countBookingsByHotelId(hotelId) > 0;
+    }
+
+
+
 
 }

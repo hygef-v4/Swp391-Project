@@ -111,7 +111,7 @@ public class NotificationService {
     public void notifyHotelApproval(int userId, String hotelName) {
         String title = "Khách sạn được phê duyệt 🏨";
         String message = "Khách sạn \"" + hotelName + "\" đã được phê duyệt và có thể nhận khách";
-        String actionUrl = "/manage-hotel";
+        String actionUrl = "/host-listing";
         createNotification(userId, title, message, "hotel", "high", actionUrl, "bi-building",
                          Map.of("hotelName", hotelName));
     }
@@ -126,8 +126,8 @@ public class NotificationService {
 
     public void notifyHotelAdded(int userId, String hotelName, int hotelId) {
         String title = "Tạo khách sạn thành công 🏨";
-        String message = "Bạn đã tạo khách sạn \"" + hotelName + "\" thành công.";
-        String actionUrl = "/manage-hotel?hotelId=" + hotelId;
+        String message = "Bạn đã tạo khách sạn \"" + hotelName + "\" thành công. Khách sạn đang chờ moderator phê duyệt.";
+        String actionUrl = "/host-listing";
         createNotification(userId, title, message, "hotel", "normal", actionUrl, "bi-building", Map.of("hotelId", hotelId, "hotelName", hotelName));
     }
 
