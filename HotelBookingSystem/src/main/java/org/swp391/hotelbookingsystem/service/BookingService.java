@@ -69,11 +69,7 @@ public class BookingService {
     }
 
     public Booking findById(int id){
-        try{
-            return bookingRepo.findById(id);
-        }catch(Exception e){
-            return null;
-        }
+        return bookingRepo.findById(id);
     }
 
     public Booking findBooking(int id) {

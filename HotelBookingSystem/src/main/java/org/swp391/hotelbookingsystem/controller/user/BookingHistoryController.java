@@ -53,7 +53,6 @@ public class BookingHistoryController {
         List<Booking> completedBookings = bookingService.getCompletedBookingsPaginated(customerId, pageCompleted - 1, size);
         List<Booking> checkinBookings = bookingService.getCheckinBookingsPaginated(customerId, pageCheckin - 1, size);
 
-
         int totalPagesUpcoming = bookingService.getTotalPagesUpcoming(customerId, size);
         int totalPagesCancelled = bookingService.getTotalPagesCancelled(customerId, size);
         int totalPagesCompleted = bookingService.getTotalPagesCompleted(customerId, size);
@@ -117,7 +116,7 @@ public class BookingHistoryController {
                 System.out.println(bookingUnit.getBookingUnitId());
                 break;
             }
-        }model.addAttribute("cancelable", cancelable);
+        }model.addAttribute("cancelable", cancelable && booking.refundAmount() > 0);
         
         return "page/bookingDetail";
     }
@@ -130,6 +129,8 @@ public class BookingHistoryController {
         }
 
         Booking booking = bookingService.findById(bookingId);
+        long amount = booking.getTotalPrice().longValue();
+
 
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
@@ -137,12 +138,11 @@ public class BookingHistoryController {
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("id", String.valueOf(booking.getBookingId()));
-        System.out.println(booking.calculateTotalPrice());
         // if(bookingUnit.getPrice() == booking.getTotalPrice()){
             params.add("trantype", "02");
         // }else{
             // params.add("trantype", "03");
-        params.add("amount", String.valueOf(booking.getTotalPrice().longValue()));
+        params.add("amount", String.valueOf(booking.refundAmount()));
         params.add("refundRole", "customer");
         params.add("orderInfo", "Hủy đặt phòng " + booking.getHotelName());
 

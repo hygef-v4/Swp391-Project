@@ -25,6 +25,10 @@ public class Booking {
     private String orderCode;
     private String transactionNo;
     private LocalDateTime createdAt;
+
+    private int partialRefundDay;
+    private int partialRefundPercent;
+    private int noRefund;
     
     private String hotelName;
     private String imageUrl;
@@ -34,7 +38,6 @@ public class Booking {
     private String customerEmail;
     private String customerAvatar;
     private long numberOfNights;
-
 
     public int getBookingUnitSize(){
         int size = 0;
@@ -94,5 +97,11 @@ public class Booking {
                 .sum();
     }
 
-
+    public long refundAmount(){
+        long day = ChronoUnit.DAYS.between(LocalDateTime.now().toLocalDate(), checkIn.toLocalDate());
+        
+        if(day <= noRefund) return 0;
+        if(day <= partialRefundDay) return totalPrice.longValue() * partialRefundPercent;
+        return totalPrice.longValue();
+    }
 }

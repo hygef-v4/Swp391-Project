@@ -246,9 +246,13 @@ public class BookingRepo {
                 b.transaction_no,
                 b.created_at,
                 h.hotel_name,
-                h.hotel_image_url
+                h.hotel_image_url,
+				cp.partial_refund_days,
+				cp.partial_refund_percent,
+				cp.no_refund_within_days
             FROM Bookings b
             JOIN Hotels h ON b.hotel_id = h.hotel_id
+            JOIN CancellationPolicies cp ON cp.hotel_id = h.hotel_id
             WHERE booking_id = ?
         """;
 
@@ -268,8 +272,11 @@ public class BookingRepo {
                     .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
                     .hotelName(rs.getString("hotel_name"))
                     .imageUrl(rs.getString("hotel_image_url"))
+                    .partialRefundDay(rs.getInt("partial_refund_days"))
+                    .partialRefundPercent(rs.getInt("partial_refund_percent"))
+                    .noRefund(rs.getInt("no_refund_within_days"))
                     .build();
-
+            
             booking.setBookingUnits(findBookingUnitsByBookingId(bookingId));
             booking.setStatus(booking.determineStatus());
             return booking;
