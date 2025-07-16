@@ -264,6 +264,16 @@
 #addHotelModal .table-responsive {
     overflow-x: unset !important;
 }
+/* Làm mờ filter khi disable và đổi cursor */
+.filter-disabled {
+    opacity: 0.7;
+    pointer-events: auto;
+}
+.filter-disabled input,
+.filter-disabled select,
+.filter-disabled button {
+    cursor: not-allowed !important;
+}
 </style>
 </head>
 <body>
@@ -374,6 +384,11 @@
                                 <button type="button" class="btn btn-dark" id="filter-apply-btn">Áp dụng</button>
                             </div>
                         </form>
+                        <!-- Cảnh báo đủ 3 khách sạn -->
+                        <div id="max-hotel-warning" class="d-none" style="background:#ede8fd;color:#5b47fb;text-align:center;border-radius:8px;padding:16px 8px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:8px;">
+                            <i class="bi bi-info-circle" style="font-size:1.3rem;"></i>
+                            Bạn đã chọn đủ 3 khách sạn để so sánh. Hãy xóa bớt để chọn khách sạn khác.
+                        </div>
                         <!-- Danh sách khách sạn dạng bảng -->
                         <div class="table-responsive">
                             <table class="table table-bordered align-middle mb-2" id="hotel-list-table">
@@ -508,7 +523,37 @@
     }
     function renderHotelListTable() {
         const tbody = document.getElementById('hotel-list-table-body');
+        const warning = document.getElementById('max-hotel-warning');
         tbody.innerHTML = '';
+
+        // Nếu đã đủ 3 khách sạn
+        if (comparedHotels.length >= 3) {
+            warning.classList.remove('d-none');
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Đã chọn tối đa 3 khách sạn để so sánh</td></tr>';
+            renderHotelListPagination();
+            // Ẩn phân trang
+            const pagination = document.getElementById('hotel-list-pagination');
+            if (pagination) pagination.classList.add('d-none');
+            // Disable filter + làm mờ + cursor
+            const filterForm = document.getElementById('hotel-filter-form');
+            if (filterForm) {
+                Array.from(filterForm.elements).forEach(el => el.disabled = true);
+                filterForm.classList.add('filter-disabled');
+            }
+            return;
+        } else {
+            warning.classList.add('d-none');
+            // Hiện lại phân trang
+            const pagination = document.getElementById('hotel-list-pagination');
+            if (pagination) pagination.classList.remove('d-none');
+            // Enable filter + bỏ mờ + cursor
+            const filterForm = document.getElementById('hotel-filter-form');
+            if (filterForm) {
+                Array.from(filterForm.elements).forEach(el => el.disabled = false);
+                filterForm.classList.remove('filter-disabled');
+            }
+        }
+
         const start = (hotelFilterPage - 1) * HOTELS_PER_PAGE;
         const end = start + HOTELS_PER_PAGE;
         const pageHotels = hotelFilterResult.slice(start, end);
