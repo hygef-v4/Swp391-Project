@@ -23,14 +23,20 @@
      @PostMapping("/webhook")
      public Map<String, Object> handleDialogflow(@RequestBody Map<String, Object> payload) {
          try {
-             System.out.println("=== Webhook Received ===");
-             System.out.println("Payload: " + payload);
-
              Map<String, Object> queryResult = (Map<String, Object>) payload.get("queryResult");
              String intentName = ((Map<String, Object>) queryResult.get("intent")).get("displayName").toString();
              Map<String, Object> parameters = (Map<String, Object>) queryResult.get("parameters");
+             String userQuery = (String) queryResult.get("queryText");
 
              System.out.println("Intent: " + intentName);
+
+             // Nếu không nằm trong intent được hỗ trợ (Tìm phòng, GetAvailableLocations)
+             if (!List.of("GetAvailableLocations", "Tìm phòng").contains(intentName)) {
+                 String reply = geminiService.generateReply(
+                         "Người dùng hỏi: \"%s\". Bạn là trợ lý du lịch. Nếu câu hỏi không liên quan, hãy trả lời thân thiện rằng bạn chỉ hỗ trợ tìm phòng khách sạn.".formatted(userQuery)
+                 );
+                 return Map.of("fulfillmentText", reply);
+             }
 
              if ("GetAvailableLocations".equals(intentName)) {
                  List<String> locations = locationService.getAllLocationNames();
@@ -42,9 +48,9 @@
                  return Map.of("fulfillmentText", reply);
              }
 
-             if ("Default Fallback Intent".equals(intentName) || parameters.isEmpty() || !parameters.containsKey("location")) {
-                 return Map.of("fulfillmentText", "Xin lỗi, bạn có thể nói rõ địa điểm bạn muốn đặt phòng không?");
-             }
+//             if ("Default Fallback Intent".equals(intentName) || parameters.isEmpty() || !parameters.containsKey("location")) {
+//                 return Map.of("fulfillmentText", "Xin lỗi, bạn có thể nói rõ địa điểm bạn muốn đặt phòng không?");
+//             }
 
              // Trích thông tin
              String location = parameters.get("location").toString().toLowerCase().replace("thành phố", "").trim();
@@ -93,7 +99,7 @@
 
          } catch (Exception e) {
              System.err.println("Webhook error: " + e.getMessage());
-             e.printStackTrace(); // ⚠️ In toàn bộ lỗi
+             e.printStackTrace();
              return Map.of("fulfillmentText", "Đã xảy ra lỗi khi xử lý webhook.");
          }
      }
