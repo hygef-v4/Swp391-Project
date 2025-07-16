@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Tài khoản bị khóa</title>
+</head>
+<body>
+    <h2>Tài khoản của bạn đã bị khóa</h2>
+    <p>Xin chào,</p>
+    <p>Tài khoản của bạn đã bị khóa bởi quản trị viên hệ thống.</p>
+    <p><strong>Lý do:</strong></p>
+    <blockquote th:text="${reason}"></blockquote>
+    <p>Nếu bạn cho rằng đây là sự nhầm lẫn, vui lòng liên hệ bộ phận hỗ trợ.</p>
+    <p>Trân trọng,<br>Đội ngũ Hamora</p>
+</body>
+</html> 

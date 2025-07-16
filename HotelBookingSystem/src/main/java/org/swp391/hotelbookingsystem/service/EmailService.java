@@ -98,5 +98,37 @@ public class EmailService {
         mailSender.send(message);
     }
 
+    public void sendUserBanEmail(String to, String reason) throws MessagingException {
+        Context context = new Context();
+        context.setVariable("reason", reason);
+        String htmlContent = templateEngine.process("email/user-ban-email", context);
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+        helper.setTo(to);
+        helper.setSubject("Tài khoản của bạn đã bị khóa");
+        helper.setText(htmlContent, true);
+        helper.setFrom("your_email@gmail.com");
+
+        mailSender.send(message);
+    }
+
+    public void sendUserUnbanEmail(String to, String reason) throws MessagingException {
+        Context context = new Context();
+        context.setVariable("reason", reason);
+        String htmlContent = templateEngine.process("email/user-unban-email", context);
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+        helper.setTo(to);
+        helper.setSubject("Tài khoản của bạn đã được mở khóa");
+        helper.setText(htmlContent, true);
+        helper.setFrom("your_email@gmail.com");
+
+        mailSender.send(message);
+    }
+
 
 }

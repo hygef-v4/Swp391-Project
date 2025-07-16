@@ -147,4 +147,8 @@ public class HotelService {
         return hotelRepository.countBookingsByHotelId(hotelId);
 
     }
+
+    public void banAllHotelsByHostId(int hostId) {
+        hotelRepository.banAllHotelsByHostId(hostId);
+    }
 }
