@@ -1,6 +1,7 @@
 package org.swp391.hotelbookingsystem.service;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,12 @@ public class BookingService {
         }return true;
     }
 
+    public void updateBookingStatus(Booking booking, String status){
+        for(BookingUnit unit : booking.getBookingUnits()){
+            bookingRepo.updateStatus(unit.getBookingUnitId(), status);
+        }
+    }
+
     public void updateStatus(BookingUnit bookingUnit, String status){
         bookingRepo.updateStatus(bookingUnit.getBookingUnitId(), status);
     }
@@ -43,7 +50,11 @@ public class BookingService {
         return bookingRepo.remainPendingTime(bookingId);
     }
 
-    public void approveBooking(int id){
+    public void approveBooking(int id, String orderCode, String transactionNo, String payDate){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+        LocalDateTime createdAt = LocalDateTime.parse(payDate, formatter);
+        
+        bookingRepo.setTransactionDetails(id, orderCode, transactionNo, createdAt);
         bookingRepo.approveBookingUnit(id);
     }
 

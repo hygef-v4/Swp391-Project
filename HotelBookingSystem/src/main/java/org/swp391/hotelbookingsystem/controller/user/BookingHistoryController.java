@@ -1,11 +1,20 @@
 package org.swp391.hotelbookingsystem.controller.user;
 
 import jakarta.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.swp391.hotelbookingsystem.model.Booking;
 import org.swp391.hotelbookingsystem.model.BookingUnit;
 import org.swp391.hotelbookingsystem.model.User;
@@ -17,6 +26,8 @@ import java.util.List;
 @Controller
 public class BookingHistoryController {
 
+    @Value("${app.base-url}")
+    private String baseUrl;
     private final BookingService bookingService;
 
     public BookingHistoryController(BookingService bookingService) {
@@ -99,27 +110,68 @@ public class BookingHistoryController {
         model.addAttribute("completed", completed);
         model.addAttribute("checkin", checkin);
 
-
+        boolean cancelable = true;
         for (BookingUnit bookingUnit : booking.getBookingUnits()) {
-            bookingUnit.setCancelable("approved".equalsIgnoreCase(bookingUnit.getStatus()));
-        }
+            if(!"approved".equalsIgnoreCase(bookingUnit.getStatus())){
+                cancelable = false;
+                System.out.println(bookingUnit.getBookingUnitId());
+                break;
+            }
+        }model.addAttribute("cancelable", cancelable);
         
         return "page/bookingDetail";
     }
 
     @GetMapping("/cancel-booking/{id}")
-    public String cancelBooking(@PathVariable("id") int bookingId, HttpSession session) {
+    public String cancelBooking(@PathVariable("id") int bookingId, HttpSession session, RedirectAttributes redirectAttributes) {
         User user = (User) session.getAttribute("user");
         if (user == null) {
             return "redirect:/login";
         }
 
-        BookingUnit bookingUnit = bookingService.findBookingUnitById(bookingId);
-        Booking booking = bookingService.findBooking(bookingId);
-        if (bookingUnit != null && booking.getCustomerId() == user.getId()) {
-            if ("approved".equalsIgnoreCase(bookingUnit.getStatus()) && booking.getCheckIn().isAfter(LocalDate.now().atStartOfDay())) {
-                bookingService.updateStatus(bookingUnit, "cancelled");
+        Booking booking = bookingService.findById(bookingId);
+
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("id", String.valueOf(booking.getBookingId()));
+        System.out.println(booking.calculateTotalPrice());
+        // if(bookingUnit.getPrice() == booking.getTotalPrice()){
+            params.add("trantype", "02");
+        // }else{
+            // params.add("trantype", "03");
+        params.add("amount", String.valueOf(booking.getTotalPrice().longValue()));
+        params.add("refundRole", "customer");
+        params.add("orderInfo", "Hủy đặt phòng " + booking.getHotelName());
+
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+        String response = restTemplate.postForObject(baseUrl + "/refund", request, String.class);
+        
+        if (booking.getCustomerId() == user.getId() && response != null && response.equals("00")) {
+            if (booking.getCheckIn().isAfter(LocalDate.now().atStartOfDay())) {
+                bookingService.updateBookingStatus(booking, "cancelled");
             }
+        }
+
+        if(response != null){
+            switch(response){
+                case "00":
+                    redirectAttributes.addFlashAttribute("successMessage", "Hủy đặt phòng thành công");
+                    break;
+                case "94":
+                    redirectAttributes.addFlashAttribute("errorMessage", "Đang xử lý yêu cầu hoàn tiền trước đó");
+                    break;
+                case "95":
+                    redirectAttributes.addFlashAttribute("errorMessage", "VNPAY từ chối xử lý yêu cầu");
+                    break;
+                default:
+                    redirectAttributes.addFlashAttribute("errorMessage", "Đã xảy ra lỗi không xác định");
+                    break;
+            }
+        }else{
+            redirectAttributes.addFlashAttribute("errorMessage", "Đã xảy ra lỗi không xác định");
         }
 
         return "redirect:/bookingHistory";

@@ -37,7 +37,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf
                         .ignoringRequestMatchers("/api/files/**", "/webhook", "/booking",
                                 "/update-hotel", "/update-room", "/delete-room", "/deactivate-room", "/activate-room", "/update-cancellation-policy", "/ws/**", "/api/chat/**",
-                                "/api/notifications/**", "/test-notifications", "/invoice"
+                                "/api/notifications/**", "/test-notifications", "/invoice", "/refund"
                         )
                 )
                 .authorizeHttpRequests(auth -> auth
@@ -46,7 +46,7 @@ public class SecurityConfig {
                                 "/login", "/register", "/verify-email-otp", "/resend-otp", "/forgotPassword", "/resetPassword",
                                 "/hotel-list", "/filter-hotels", "/hotel-detail", "/about", "/faq",
                                 "/css/**", "/js/**", "/images/**", "/assets/**",
-                                "/api/files/**", "user-profile", "user-wishlist", "/ws/**", "/api/chat/**", "/api/notifications/**", "/test-notifications"
+                                "/api/files/**", "user-profile", "user-wishlist", "/ws/**", "/api/chat/**", "/api/notifications/**", "/test-notifications", "/refund"
                         ).permitAll()
                         .requestMatchers("/notifications").authenticated()
                         .requestMatchers("/admin-dashboard", "/admin-user-list", "/admin-user-detail", "/admin-hotel-list", "/admin/locations/add").access(AuthorizationManagers.allOf(

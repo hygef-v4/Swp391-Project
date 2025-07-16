@@ -108,6 +108,20 @@
                         </button>
                     </div>
 
+                    <div class="container mt-3">
+                        <!-- Thông báo thành công -->
+                        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                            <strong>Thành công!</strong> <span th:text="${successMessage}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+
+                        <!-- Thông báo lỗi -->
+                        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <strong>Lỗi!</strong> <span th:text="${errorMessage}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    </div>
+
                     <div class="card border bg-transparent">
                         <!-- Card header -->
                         <div class="card-header bg-transparent border-bottom">
@@ -154,7 +168,7 @@
                                     <h6>Sắp tới (<span th:text="${totalUpcomingBookings}"></span>)</h6>
                                     <div th:each="booking : ${upcomingBookings}" class="card border mb-4">
                                         <div class="card-header border-bottom d-md-flex justify-content-md-between align-items-center">
-                                            <div class="d-flex align-items-center">
+                                            <div class="d-flex align-items-center" style="width: 50%;">
                                                 <div class="icon-lg bg-light rounded-circle flex-shrink-0 overflow-hidden" style="width: 50px; height: 50px;">
                                                     <img th:src="${booking.imageUrl}" alt="Room Image" style="width: 100%; height: 100%; object-fit: cover;">
                                                 </div>
@@ -163,6 +177,7 @@
                                                 </div>
                                             </div>
                                             <div class="mt-2 mt-md-0">
+                                                <a th:attr="data-cancel-url=@{'/cancel-booking/' + ${booking.bookingId}}" class="btn btn-danger mb-0" onclick="confirmCancel(this)">Hủy đặt phòng</a>
                                                 <a th:href="@{'/booking-detail/' + ${booking.bookingId} + '?upcoming=true'}" class="btn btn-primary-soft mb-0">Xem chi tiết</a>
                                             </div>
                                         </div>
@@ -640,6 +655,40 @@ Footer END -->
 
 <!-- ThemeFunctions -->
 <script th:src="@{/assets/js/functions.js}"></script>
+
+<!-- Cancel Booking Modal -->
+<div id="cancelModal" class="modal d-none justify-content-center align-items-center"
+     style="position: fixed; z-index: 9999; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.5);">
+    <div class="bg-white p-4 rounded shadow text-center" style="min-width: 300px;">
+        <h5 class="mb-3">Xác nhận huỷ</h5>
+        <p>Bạn có chắc chắn muốn huỷ đặt phòng này?</p>
+        <div class="d-flex justify-content-center gap-2 mt-3">
+            <button class="btn btn-danger" onclick="proceedCancel()">Xác nhận</button>
+            <button class="btn btn-secondary" onclick="closeModal()">Đóng</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let cancelUrl = "";
+
+    function confirmCancel(element) {
+        cancelUrl = element.getAttribute('data-cancel-url');
+        const modal = document.getElementById("cancelModal");
+        modal.classList.remove("d-none");
+        modal.classList.add("d-flex");
+    }
+
+    function closeModal() {
+        const modal = document.getElementById("cancelModal");
+        modal.classList.remove("d-flex");
+        modal.classList.add("d-none");
+    }
+
+    function proceedCancel() {
+        window.location.href = cancelUrl;
+    }
+</script>
 
 </body>
 
