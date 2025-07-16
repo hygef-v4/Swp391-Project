@@ -172,11 +172,27 @@
     </section>
 </main>
 
-<!-- Back to Top -->
-<div class="back-top"></div>
-
 <script th:src="@{/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
 <script th:src="@{/assets/js/functions.js}"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const toggleIcons = document.querySelectorAll(".fakepasswordicon");
 
+        toggleIcons.forEach(icon => {
+            icon.addEventListener("click", function () {
+                const input = this.closest(".position-relative").querySelector(".fakepassword");
+                if (input.type === "password") {
+                    input.type = "text";
+                    this.classList.remove("fa-eye-slash");
+                    this.classList.add("fa-eye");
+                } else {
+                    input.type = "password";
+                    this.classList.remove("fa-eye");
+                    this.classList.add("fa-eye-slash");
+                }
+            });
+        });
+    });
+</script>
 </body>
 </html>

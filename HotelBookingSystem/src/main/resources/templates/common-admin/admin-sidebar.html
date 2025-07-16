@@ -25,26 +25,13 @@
                         Người dùng
                     </a>
                     <ul class="nav collapse flex-column" id="collapseguest" data-bs-parent="#navbar-sidebar">
-                        <li class="nav-item"><a class="nav-link" th:href="@{admin-user-list}">Danh sách người dùng</a></li>
+                        <li class="nav-item"><a class="nav-link" th:href="@{/admin-user-list}" href="/admin-user-list">Danh sách người dùng</a></li>
                     </ul>
                 </li>
                 <li class="nav-item"><a class="nav-link" href="/admin-agent-list">Đối tác</a></li>
                 <li class="nav-item"><a class="nav-link" th:href="@{/admin-hotel-list}">Khách sạn</a></li>
                 <li class="nav-item"><a class="nav-link" href="/admin-review">Đánh giá</a></li>
                 <li class="nav-item"><a class="nav-link" th:href="@{/admin/coupons}">Mã giảm giá</a></li>
-
-                <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="collapse" href="#collapseauthentication" role="button"
-                       aria-expanded="false" aria-controls="collapseauthentication">
-                        Xác thực
-                    </a>
-                    <ul class="nav collapse flex-column" id="collapseauthentication" data-bs-parent="#navbar-sidebar">
-                        <li class="nav-item"><a class="nav-link" th:href="@{/register}">Đăng ký</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/login">Đăng nhập</a></li>
-                        <li class="nav-item"><a class="nav-link" href="forgot-password.html">Quên mật khẩu</a></li>
-                        <li class="nav-item"><a class="nav-link" href="error.html">Error 404</a></li>
-                    </ul>
-                </li>
             </ul>
             <!-- Sidebar menu END -->
 

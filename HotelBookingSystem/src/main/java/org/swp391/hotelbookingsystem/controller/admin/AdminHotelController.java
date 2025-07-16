@@ -99,6 +99,11 @@ public class AdminHotelController {
         model.addAttribute("roomQuantity", roomQuantity);
 
         Hotel hotel = hotelService.getHotelById(hotelId);
+        // Set hotel owner name
+        User owner = userService.findUserById(hotel.getHostId());
+        if (owner != null) {
+            hotel.setHostName(owner.getFullName());
+        }
         hotel.setPolicy(hotel.getPolicy().replace("<li>", "<li class=\"list-group-item d-flex\"><i class=\"bi bi-arrow-right me-2\"></i>"));
         model.addAttribute("hotel", hotel);
 

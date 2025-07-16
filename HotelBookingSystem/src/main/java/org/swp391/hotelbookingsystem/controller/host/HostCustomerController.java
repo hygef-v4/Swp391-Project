@@ -165,11 +165,11 @@ public class HostCustomerController {
         
         User host = (User) session.getAttribute("user");
 
-        if (host == null || !host.getRole().equalsIgnoreCase("HOTEL_OWNER")) {
-            log.warn("Unauthorized access to customer detail page by user: {}", 
-                host != null ? host.getId() : "null");
-            return "redirect:/login";
-        }
+//        if (host == null || !host.getRole().equalsIgnoreCase("HOTEL_OWNER")) {
+//            log.warn("Unauthorized access to customer detail page by user: {}",
+//                host != null ? host.getId() : "null");
+//            return "redirect:/login";
+//        }
 
         try {
             log.info("Fetching customer detail for customer {} and host {}", customerId, host.getId());
