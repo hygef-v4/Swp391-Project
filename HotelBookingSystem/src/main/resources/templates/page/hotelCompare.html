@@ -394,10 +394,10 @@
                             <table class="table table-bordered align-middle mb-2" id="hotel-list-table">
                                 <thead>
                                     <tr>
-                                        <th>Ảnh</th>
+                                        <th class="text-center">Ảnh</th>
                                         <th>Tên khách sạn</th>
-                                        <th>Thành phố</th>
-                                        <th>Giá từ</th>
+                                        <th class="text-center">Thành phố</th>
+                                        <th class="text-center">Giá từ</th>
                                         <th></th>
                                     </tr>
                                 </thead>
@@ -565,10 +565,10 @@
         pageHotels.forEach(hotel => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td><img src="${hotel.hotelImageUrl || '/assets/images/element/compare.svg'}" style="width:60px;height:40px;object-fit:cover;border-radius:8px;background:#f5f5f5;" alt="Ảnh"/></td>
+                <td class="text-center"><img src="${hotel.hotelImageUrl || '/assets/images/element/compare.svg'}" style="width:60px;height:40px;object-fit:cover;border-radius:8px;background:#f5f5f5;" alt="Ảnh"/></td>
                 <td>${hotel.hotelName}</td>
-                <td>${hotel.cityName || ''}</td>
-                <td>${hotel.minPrice ? hotel.minPrice.toLocaleString('vi-VN') + ' đ' : 'N/A'}</td>
+                <td class="text-center">${hotel.cityName || ''}</td>
+                <td class="text-center">${hotel.minPrice ? hotel.minPrice.toLocaleString('vi-VN') + ' đ' : 'N/A'}</td>
                 <td><button class='btn btn-sm btn-primary' onclick='addHotelToCompare(${hotel.hotelId})'>Thêm</button></td>
             `;
             tbody.appendChild(tr);
