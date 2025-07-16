@@ -211,24 +211,24 @@
                                     <div class="card-body position-relative d-flex flex-column p-0 h-100">
 
                                         <!-- Dropdown Buttons -->
-                                        <div class="list-inline-item dropdown position-absolute top-0 end-0">
-                                            <a href="#" class="btn btn-sm btn-round btn-light" role="button"
-                                               th:id="'dropdownAction' + ${iterStat.index}" data-bs-toggle="dropdown"
-                                               aria-expanded="false">
-                                                <i class="bi bi-three-dots-vertical"></i>
-                                            </a>
-                                            <ul class="dropdown-menu dropdown-menu-end min-w-auto shadow"
-                                                th:attr="aria-labelledby='dropdownAction' + ${iterStat.index}">
-                                                <li><a class="dropdown-item small" href="#"><i
-                                                        class="bi bi-info-circle me-2"></i>Báo cáo</a></li>
-                                                <li><a class="dropdown-item small" href="#"><i
-                                                        class="bi bi-slash-circle me-2"></i>Vô hiệu hóa</a></li>
-                                            </ul>
-                                        </div>
+<!--                                        <div class="list-inline-item dropdown position-absolute top-0 end-0">-->
+<!--                                            <a href="#" class="btn btn-sm btn-round btn-light" role="button"-->
+<!--                                               th:id="'dropdownAction' + ${iterStat.index}" data-bs-toggle="dropdown"-->
+<!--                                               aria-expanded="false">-->
+<!--                                                <i class="bi bi-three-dots-vertical"></i>-->
+<!--                                            </a>-->
+<!--                                            <ul class="dropdown-menu dropdown-menu-end min-w-auto shadow"-->
+<!--                                                th:attr="aria-labelledby='dropdownAction' + ${iterStat.index}">-->
+<!--                                                <li><a class="dropdown-item small" href="#"><i-->
+<!--                                                        class="bi bi-info-circle me-2"></i>Báo cáo</a></li>-->
+<!--                                                <li><a class="dropdown-item small" href="#"><i-->
+<!--                                                        class="bi bi-slash-circle me-2"></i>Vô hiệu hóa</a></li>-->
+<!--                                            </ul>-->
+<!--                                        </div>-->
 
                                         <!-- Title and Address -->
                                         <h5 class="card-title mb-0 me-5 two-line-ellipsis">
-                                            <a th:href="@{'/hotels/' + ${hotel.hotelId}}" th:text="${hotel.hotelName}">Hotel
+                                            <a th:href="@{'admin/hotel/view/' + ${hotel.hotelId}}" th:text="${hotel.hotelName}">Hotel
                                                 Name</a>
                                         </h5>
                                         <small class="text-truncate d-block" style="max-width: 100%;">
