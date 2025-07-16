@@ -67,7 +67,7 @@ public class ChatController {
                     
                     // Determine the correct action URL based on receiver's role
                     String actionUrl;
-                    if (receiver.getRole().equals("HOST")) {
+                    if (receiver.getRole().equals("HOTEL_OWNER")) {
                         // Host receives message from customer
                         actionUrl = "/host-customer-detail?customerId=" + chatMessage.getSenderId();
                     } else {

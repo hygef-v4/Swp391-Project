@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.repository.NotificationRepository;
 
 @Service
@@ -12,10 +13,12 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final SimpMessagingTemplate messagingTemplate;
+    private final UserService userService;
 
-    public NotificationService(NotificationRepository notificationRepository, SimpMessagingTemplate messagingTemplate) {
+    public NotificationService(NotificationRepository notificationRepository, SimpMessagingTemplate messagingTemplate, UserService userService) {
         this.notificationRepository = notificationRepository;
         this.messagingTemplate = messagingTemplate;
+        this.userService = userService;
     }
 
     // Basic notification (backward compatibility)
@@ -52,7 +55,23 @@ public class NotificationService {
     public void notifyNewMessage(int userId, String senderName, int senderId) {
         String title = "Tin nhắn mới 💬";
         String message = senderName + " đã gửi tin nhắn cho bạn";
-        String actionUrl = "/chat?userId=" + senderId;
+        
+        // Determine the correct action URL based on receiver's role
+        String actionUrl;
+        try {
+            User receiver = userService.findUserById(userId);
+            if (receiver != null && receiver.getRole().equals("HOTEL_OWNER")) {
+                // Host receives message from customer
+                actionUrl = "/host-customer-detail?customerId=" + senderId;
+            } else {
+                // Customer receives message from host  
+                actionUrl = "/customer-host-detail?hostId=" + senderId;
+            }
+        } catch (Exception e) {
+            // Fallback to generic chat URL if unable to determine role
+            actionUrl = "/chat?userId=" + senderId;
+        }
+        
         createNotification(userId, title, message, "chat", "normal", actionUrl, "bi-chat-dots",
                          Map.of("senderId", senderId, "senderName", senderName));
     }
