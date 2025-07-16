@@ -45,11 +45,9 @@ public class RefundController{
             Booking booking = bookingService.findById(id);
             String refundBody = vnpayService.refundPayment(trantype, booking.getOrderCode(), amount, booking.getTransactionNo(), booking.getCreatedAt(), refundRole, orderInfo, request);
             HttpEntity<String> http = new HttpEntity<>(refundBody, headers);
-            System.out.println("Refund request body: " + refundBody);
 
             String apiUrl = VNPayConfig.vnp_ApiUrl;
             ResponseEntity<String> response = restTemplate.postForEntity(apiUrl, http, String.class);
-            System.out.println("Refund response: " + response.getBody());
 
             ObjectMapper mapper = new ObjectMapper();
             JsonNode json = mapper.readTree(response.getBody());
