@@ -53,7 +53,7 @@ public class CompareController {
         }
         result.put("amenities", amenities);
         // Thêm số lượng phòng còn lại
-        int availableRooms = roomService.countAvailableRoomsByHotelId(hotelId);
+        int availableRooms = rooms.stream().mapToInt(Room::getQuantity).sum();
         result.put("availableRooms", availableRooms);
         // Thêm review nổi bật
         org.swp391.hotelbookingsystem.model.Review featuredReview = null;
