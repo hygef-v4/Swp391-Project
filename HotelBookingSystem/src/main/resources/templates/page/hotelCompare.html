@@ -493,8 +493,8 @@
         };
         document.getElementById('filter-hotel-name').value = '';
         document.getElementById('filter-city').value = '';
-        document.getElementById('filter-price-min-input').value = hotelFilterMinPrice;
-        document.getElementById('filter-price-max-input').value = hotelFilterMaxPrice;
+        document.getElementById('filter-price-min-input').value = hotelFilterMinPrice.toLocaleString('vi-VN');
+        document.getElementById('filter-price-max-input').value = hotelFilterMaxPrice.toLocaleString('vi-VN');
         hotelFilterApplied = { ...hotelFilter };
         applyHotelFilter(); // Luôn render bảng sau reset
     }
@@ -571,23 +571,25 @@
         });
         const minInput = document.getElementById('filter-price-min-input');
         const maxInput = document.getElementById('filter-price-max-input');
-        minInput.value = hotelFilterMinPrice;
-        maxInput.value = hotelFilterMaxPrice;
+        minInput.value = hotelFilterMinPrice.toLocaleString('vi-VN');
+        maxInput.value = hotelFilterMaxPrice.toLocaleString('vi-VN');
         slider.noUiSlider.on('update', function(values, handle) {
-            minInput.value = parseInt(values[0]);
-            maxInput.value = parseInt(values[1]);
+            minInput.value = parseInt(values[0]).toLocaleString('vi-VN');
+            maxInput.value = parseInt(values[1]).toLocaleString('vi-VN');
         });
         minInput.addEventListener('change', function() {
-            let min = parseInt(minInput.value) || hotelFilterMinPrice;
-            let max = parseInt(maxInput.value) || hotelFilterMaxPrice;
+            let min = parseInt(this.value.replace(/\./g, '')) || hotelFilterMinPrice;
+            let max = parseInt(maxInput.value.replace(/\./g, '')) || hotelFilterMaxPrice;
             if (min > max) min = max;
             slider.noUiSlider.set([min, null]);
+            this.value = min.toLocaleString('vi-VN');
         });
         maxInput.addEventListener('change', function() {
-            let min = parseInt(minInput.value) || hotelFilterMinPrice;
-            let max = parseInt(maxInput.value) || hotelFilterMaxPrice;
+            let min = parseInt(minInput.value.replace(/\./g, '')) || hotelFilterMinPrice;
+            let max = parseInt(this.value.replace(/\./g, '')) || hotelFilterMaxPrice;
             if (max < min) max = min;
             slider.noUiSlider.set([null, max]);
+            this.value = max.toLocaleString('vi-VN');
         });
     }
     document.getElementById('addHotelModal').addEventListener('show.bs.modal', function() {
@@ -596,13 +598,13 @@
         applyHotelFilter(); // Hiển thị danh sách ngay khi mở popup
     });
     document.getElementById('filter-apply-btn').addEventListener('click', function() {
-        const slider = document.getElementById('filter-price-slider');
-        const [min, max] = slider.noUiSlider.get();
+        let min = parseInt(document.getElementById('filter-price-min-input').value.replace(/\./g, '')) || hotelFilterMinPrice;
+        let max = parseInt(document.getElementById('filter-price-max-input').value.replace(/\./g, '')) || hotelFilterMaxPrice;
         hotelFilterApplied = {
             name: document.getElementById('filter-hotel-name').value.trim(),
             city: document.getElementById('filter-city').value,
-            priceMin: parseInt(min),
-            priceMax: parseInt(max)
+            priceMin: min,
+            priceMax: max
         };
         applyHotelFilter();
     });
