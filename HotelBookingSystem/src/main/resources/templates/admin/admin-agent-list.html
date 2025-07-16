@@ -169,7 +169,7 @@
             <!-- Search and select START -->
             <div class="row g-3 align-items-center justify-content-between mb-5">
                 <!-- Search -->
-                <div class="col-md-8">
+                <div class="col-md-8 hover-card">
                     <form class="rounded position-relative" method="get" th:action="@{/admin-agent-list}">
                         <input class="form-control pe-5" name="search" th:value="${search}" type="search" placeholder="Tìm theo tên đối tác" aria-label="Search">
                         <button class="btn border-0 px-3 py-0 position-absolute top-50 end-0 translate-middle-y" type="submit">
@@ -179,7 +179,7 @@
                 </div>
 
                 <!-- Select option -->
-                <div class="col-md-3">
+                <div class="col-md-3 hover-card">
                     <!-- Sort by filter -->
                     <form method="get" th:action="@{/admin-agent-list}">
                         <input type="hidden" name="search" th:value="${search}">
@@ -199,14 +199,14 @@
                 <div class="col-md-6 col-lg-4 col-xxl-3" th:each="agent : ${agentList}">
                     <div class="card border h-100 hover-card">
                         <!-- Dropdown -->
-                        <div class="dropdown position-absolute top-0 end-0 m-3">
-                            <a href="#" class="btn btn-sm btn-light btn-round small mb-0" role="button" data-bs-toggle="dropdown">
-                                <i class="bi bi-three-dots fa-fw"></i>
-                            </a>
-                            <ul class="dropdown-menu dropdown-w-sm dropdown-menu-end min-w-auto shadow rounded">
-                                <li><a class="dropdown-item" href="#"><i class="bi bi-trash fa-fw me-2"></i>Huỷ đối tác</a></li>
-                            </ul>
-                        </div>
+<!--                        <div class="dropdown position-absolute top-0 end-0 m-3">-->
+<!--                            <a href="#" class="btn btn-sm btn-light btn-round small mb-0" role="button" data-bs-toggle="dropdown">-->
+<!--                                <i class="bi bi-three-dots fa-fw"></i>-->
+<!--                            </a>-->
+<!--                            <ul class="dropdown-menu dropdown-w-sm dropdown-menu-end min-w-auto shadow rounded">-->
+<!--                                <li><a class="dropdown-item" href="#"><i class="bi bi-trash fa-fw me-2"></i>Huỷ đối tác</a></li>-->
+<!--                            </ul>-->
+<!--                        </div>-->
 
                         <!-- Avatar -->
                         <div class="card-body text-center pb-0">

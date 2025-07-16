@@ -1,5 +1,6 @@
 package org.swp391.hotelbookingsystem.repository;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -122,6 +123,8 @@ public class BookingRepo {
             booking.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
             booking.setHotelName(rs.getString("hotel_name"));
             booking.setImageUrl(rs.getString("hotel_image_url"));
+
+            booking.setBookingUnits(findBookingUnitsByBookingId(rs.getInt("booking_id")));
             return booking;
         }, bookingUnitId);
     }
@@ -162,6 +165,11 @@ public class BookingRepo {
             "pending",
             (Object) bookingUnit.getRefundAmount()
         );
+    }
+
+    public void setTransactionDetails(int bookingId, String orderCode, String transactionNo, LocalDateTime createdAt){
+        String sql = "UPDATE Bookings SET order_code = ?, transaction_no = ?, created_at = ? WHERE booking_id = ?";
+        jdbcTemplate.update(sql, orderCode, transactionNo, Timestamp.valueOf(createdAt), bookingId);
     }
 
     public void approveBookingUnit(int id){
@@ -234,6 +242,8 @@ public class BookingRepo {
                 b.check_in,
                 b.check_out,
                 b.total_price,
+                b.order_code,
+                b.transaction_no,
                 b.created_at,
                 h.hotel_name,
                 h.hotel_image_url
@@ -253,6 +263,8 @@ public class BookingRepo {
                     .checkIn(rs.getTimestamp("check_in").toLocalDateTime())
                     .checkOut(rs.getTimestamp("check_out").toLocalDateTime())
                     .totalPrice(rs.getDouble("total_price"))
+                    .orderCode(rs.getString("order_code"))
+                    .transactionNo(rs.getString("transaction_no"))
                     .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
                     .hotelName(rs.getString("hotel_name"))
                     .imageUrl(rs.getString("hotel_image_url"))

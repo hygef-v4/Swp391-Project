@@ -122,77 +122,52 @@
             </div>
 
             <!-- Filters START -->
-            <div class="row g-4 align-items-center">
-                <div class="col-12 d-flex justify-content-between flex-wrap gap-3">
-                    <!-- Tabs -->
-                    <div class="col-lg-6">
-                        <ul class="nav nav-pills nav-pills-soft nav-responsive" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <a class="nav-link mb-0"
-                                   th:classappend="${#strings.isEmpty(role)} ? 'active border' : ''"
-                                   th:href="@{/admin-user-list}">
-                                    Tất cả
-                                </a>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <a class="nav-link mb-0"
-                                   th:classappend="${role} == 'CUSTOMER' ? 'active border' : ''"
-                                   th:href="@{/admin-user-list(role='CUSTOMER')}">
-                                    Khách hàng
-                                </a>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <a class="nav-link mb-0"
-                                   th:classappend="${role} == 'HOTEL_OWNER' ? 'active border' : ''"
-                                   th:href="@{/admin-user-list(role='HOTEL_OWNER')}">
-                                    Chủ khách sạn
-                                </a>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <a class="nav-link mb-0"
-                                   th:classappend="${role} == 'MODERATOR' ? 'active border' : ''"
-                                   th:href="@{/admin-user-list(role='MODERATOR')}">
-                                    Quản lý Web
-                                </a>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <a class="nav-link mb-0"
-                                   th:classappend="${role} == 'ADMIN' ? 'active border' : ''"
-                                   th:href="@{/admin-user-list(role='ADMIN')}">
-                                    Quản trị viên
-                                </a>
-                            </li>
-                        </ul>
-
-
-                    </div>
-
+            <div class="row g-4 align-items-center mb-4">
+                <div class="col-12 d-flex align-items-center justify-content-between flex-wrap gap-3">
+                    <!-- Role Tabs -->
+                    <ul class="nav nav-pills nav-pills-soft nav-responsive" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link mb-0" th:classappend="${#strings.isEmpty(role) && #strings.isEmpty(status)} ? 'active border' : ''"
+                               th:href="@{/admin-user-list}">Tất cả</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link mb-0" th:classappend="${role} == 'CUSTOMER' ? 'active border' : ''"
+                               th:href="@{/admin-user-list(role='CUSTOMER')}">Khách hàng</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link mb-0" th:classappend="${role} == 'HOTEL_OWNER' ? 'active border' : ''"
+                               th:href="@{/admin-user-list(role='HOTEL_OWNER')}">Chủ khách sạn</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link mb-0" th:classappend="${role} == 'MODERATOR' ? 'active border' : ''"
+                               th:href="@{/admin-user-list(role='MODERATOR')}">Quản lý Web</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link mb-0" th:classappend="${role} == 'ADMIN' ? 'active border' : ''"
+                               th:href="@{/admin-user-list(role='ADMIN')}">Quản trị viên</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link mb-0" th:classappend="${status} == 'banned' ? 'active border' : ''"
+                               th:href="@{/admin-user-list(status='banned')}">Bị khóa</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link mb-0" th:classappend="${status} == 'flagged' ? 'active border' : ''"
+                               th:href="@{/admin-user-list(status='flagged')}">Bị báo cáo</a>
+                        </li>
+                    </ul>
                     <!-- Search -->
-                    <div class="col-md-6 col-lg-3">
-                        <form class="rounded position-relative" th:action="@{/admin-user-list}" method="get"
-                              onsubmit="this.search.value = this.search.value.trim().replace(/\s+/g, ' ')">
-                            <input type="hidden" name="role" th:value="${role}"/>
-                            <input class="form-control bg-transparent" name="search" type="search"
-                                   th:value="${search}" placeholder="Tìm kiếm...">
-                            <button class="bg-transparent p-2 position-absolute top-50 end-0 translate-middle-y border-0 text-primary-hover text-reset"
-                                    type="submit">
-                                <i class="fas fa-search fs-6"></i>
-                            </button>
-                        </form>
-                    </div>
+                    <form class="rounded position-relative" th:action="@{/admin-user-list}" method="get"
+                          onsubmit="this.search.value = this.search.value.trim().replace(/\s+/g, ' ')">
+                        <input type="hidden" name="role" th:value="${role}"/>
+                        <input type="hidden" name="status" th:value="${status}"/>
+                        <input class="form-control bg-transparent" name="search" type="search"
+                               th:value="${search}" placeholder="Tìm kiếm...">
+                        <button class="bg-transparent p-2 position-absolute top-50 end-0 translate-middle-y border-0 text-primary-hover text-reset"
+                                type="submit">
+                            <i class="fas fa-search fs-6"></i>
+                        </button>
+                    </form>
                 </div>
-                <!-- Select -->
-                <!--				<div class="col-md-6 col-lg-3">-->
-                <!--					<form>-->
-                <!--						<select class="form-select js-choice" aria-label=".form-select-sm">-->
-                <!--							<option value="">Sort by hotels</option>-->
-                <!--							<option>Pride moon Village Resort & Spa</option>-->
-                <!--							<option>Courtyard by Marriott New York</option>-->
-                <!--							<option>Park Plaza Lodge Hotel</option>-->
-                <!--							<option>Royal Beach Resort</option>-->
-                <!--						</select>-->
-                <!--					</form>-->
-                <!--				</div>-->
             </div>
             <!-- Filters END -->
 
@@ -257,25 +232,29 @@
 
                                     <!-- Dropdown menu -->
                                     <ul class="dropdown-menu text-center shadow">
-                                        <li>
-                                            <button class="dropdown-item" type="submit"
-                                                    th:onclick="'document.getElementById(\'newRoleInput__' + ${user.id} + '\').value=\'CUSTOMER\''">
-                                                KHÁCH HÀNG
-                                            </button>
-                                        </li>
-                                        <li>
+                                        <!-- Only show HOTEL_OWNER if user is not CUSTOMER, ADMIN, or MODERATOR -->
+                                        <li th:if="${user.role != 'CUSTOMER' and user.role != 'ADMIN' and user.role != 'MODERATOR'}">
                                             <button class="dropdown-item" type="submit"
                                                     th:onclick="'document.getElementById(\'newRoleInput__' + ${user.id} + '\').value=\'HOTEL_OWNER\''">
                                                 CHỦ KHÁCH SẠN
                                             </button>
                                         </li>
-                                        <li>
+                                        <!-- Only show CUSTOMER if user is not HOTEL_OWNER -->
+                                        <li th:if="${user.role != 'HOTEL_OWNER'}">
+                                            <button class="dropdown-item" type="submit"
+                                                    th:onclick="'document.getElementById(\'newRoleInput__' + ${user.id} + '\').value=\'CUSTOMER\''">
+                                                KHÁCH HÀNG
+                                            </button>
+                                        </li>
+                                        <!-- Only show MODERATOR if user is not MODERATOR -->
+                                        <li th:if="${user.role != 'MODERATOR'}">
                                             <button class="dropdown-item" type="submit"
                                                     th:onclick="'document.getElementById(\'newRoleInput__' + ${user.id} + '\').value=\'MODERATOR\''">
                                                 QUẢN LÝ WEB
                                             </button>
                                         </li>
-                                        <li>
+                                        <!-- Only show ADMIN if user is not ADMIN -->
+                                        <li th:if="${user.role != 'ADMIN'}">
                                             <button class="dropdown-item" type="submit"
                                                     th:onclick="'document.getElementById(\'newRoleInput__' + ${user.id} + '\').value=\'ADMIN\''">
                                                 QUẢN TRỊ VIÊN
@@ -289,15 +268,20 @@
 
                         <!-- Status toggle -->
                         <div class="col-2 text-center">
-                            <form th:action="@{'/admin/user/toggle-status/' + ${user.id}}" method="post">
+                            <button class="btn btn-sm px-3 toggle-status-btn"
+                                    th:classappend="${user.active} ? 'btn-success' : 'btn-danger'"
+                                    th:title="${user.active} ? 'Click to deactivate' : 'Click to activate'"
+                                    th:attr="data-user-id=${user.id},data-user-active=${user.active}">
+                                <i class="bi"
+                                   th:classappend="${user.active} ? 'bi-check-circle' : 'bi-slash-circle'"></i>
+                                <span th:text="${user.active} ? 'Active' : 'Inactive'"></span>
+                            </button>
+                            <form th:if="${user.flagged}" th:action="@{'/admin/user/unflag/' + ${user.id}}" method="post" style="display:inline; margin-left: 4px;">
                                 <input type="hidden" name="search" th:value="${search}" />
                                 <input type="hidden" name="role" th:value="${role}" />
-                                <button type="submit" class="btn btn-sm px-3"
-                                        th:classappend="${user.active} ? 'btn-success' : 'btn-danger'"
-                                        th:title="${user.active} ? 'Click to deactivate' : 'Click to activate'">
-                                    <i class="bi"
-                                       th:classappend="${user.active} ? 'bi-check-circle' : 'bi-slash-circle'"></i>
-                                    <span th:text="${user.active} ? 'Active' : 'Inactive'"></span>
+                                <input type="hidden" name="status" th:value="${status}" />
+                                <button type="submit" class="btn btn-warning btn-sm" title="Unflag user">
+                                    <i class="bi bi-flag-slash"></i> Unflag
                                 </button>
                             </form>
                         </div>
@@ -418,6 +402,63 @@
 
 <!-- ThemeFunctions -->
 <script src="assets/js/functions.js"></script>
+
+<!-- Ban/Unban Modal (shared) -->
+<div class="modal fade" id="toggleStatusModal" tabindex="-1" aria-labelledby="toggleStatusModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="toggleStatusForm" method="post">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+        <div class="modal-header">
+          <h5 class="modal-title" id="toggleStatusModalLabel"></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="toggleStatusReason" class="form-label" id="toggleStatusReasonLabel"></label>
+            <textarea class="form-control" id="toggleStatusReason" name="reason" rows="4"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+          <button type="submit" class="btn btn-primary" id="toggleStatusSubmitBtn"></button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.toggle-status-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const userId = this.getAttribute('data-user-id');
+        const isActive = this.getAttribute('data-user-active') === 'true';
+        const modal = new bootstrap.Modal(document.getElementById('toggleStatusModal'));
+        const form = document.getElementById('toggleStatusForm');
+        const reasonField = document.getElementById('toggleStatusReason');
+        const reasonLabel = document.getElementById('toggleStatusReasonLabel');
+        const modalTitle = document.getElementById('toggleStatusModalLabel');
+        const submitBtn = document.getElementById('toggleStatusSubmitBtn');
+        form.setAttribute('action', `/admin/user/toggle-status/${userId}`);
+        reasonField.value = '';
+        if (isActive) {
+          modalTitle.textContent = 'Khóa tài khoản';
+          reasonLabel.textContent = 'Lý do khóa tài khoản (bắt buộc)';
+          reasonField.required = true;
+          submitBtn.textContent = 'Xác nhận khóa';
+          submitBtn.className = 'btn btn-danger';
+        } else {
+          modalTitle.textContent = 'Mở khóa tài khoản';
+          reasonLabel.textContent = 'Lý do mở khóa (không bắt buộc)';
+          reasonField.required = false;
+          submitBtn.textContent = 'Xác nhận mở khóa';
+          submitBtn.className = 'btn btn-success';
+        }
+        modal.show();
+      });
+    });
+  });
+</script>
 
 </body>
 

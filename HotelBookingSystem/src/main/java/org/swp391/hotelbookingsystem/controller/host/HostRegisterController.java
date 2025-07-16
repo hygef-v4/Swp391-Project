@@ -201,6 +201,7 @@ public class HostRegisterController {
                     .longitude(longitude)
                     .hotelImageUrl(hotelImageUrl)
                     .policy(hotelPolicies)
+                    .status("pending") // Set status to pending
                     .build(); // no .rating() // because it's optional
 
 
@@ -240,6 +241,20 @@ public class HostRegisterController {
                 notificationService.notifyHostRegistrationSuccess(userId);
             }
             notificationService.notifyHotelAdded(userId, savedHotel.getHotelName(), savedHotel.getHotelId());
+            // Notify all moderators about the new pending hotel
+            List<User> moderators = userService.getUsersByRole("MODERATOR");
+            for (User moderator : moderators) {
+                notificationService.createNotification(
+                    moderator.getId(),
+                    "Khách sạn mới chờ duyệt",
+                    "Khách sạn '" + savedHotel.getHotelName() + "' vừa được tạo và đang chờ phê duyệt.",
+                    "hotel",
+                    "high",
+                    "/moderator-hotel-list",
+                    "bi-building",
+                    Map.of("hotelId", savedHotel.getHotelId(), "hotelName", savedHotel.getHotelName())
+                );
+            }
 
             return "redirect:/host-dashboard";
         } catch (Exception e) {

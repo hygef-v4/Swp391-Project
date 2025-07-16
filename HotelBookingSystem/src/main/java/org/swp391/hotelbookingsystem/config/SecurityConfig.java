@@ -37,19 +37,23 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf
                         .ignoringRequestMatchers("/api/files/**", "/webhook", "/booking",
                                 "/update-hotel", "/update-room", "/delete-room", "/deactivate-room", "/activate-room", "/update-cancellation-policy", "/ws/**", "/api/chat/**",
-                                "/api/notifications/**", "/test-notifications", "/invoice"
+                                "/api/notifications/**", "/test-notifications", "/invoice", "/refund", "/send-message"
                         )
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/", "/home", "/error", "/webhook", "/contact",
+                                "/", "/home", "/error", "/webhook", "/contact", "/send-message",
                                 "/login", "/register", "/verify-email-otp", "/resend-otp", "/forgotPassword", "/resetPassword",
                                 "/hotel-list", "/filter-hotels", "/hotel-detail", "/about", "/faq",
                                 "/css/**", "/js/**", "/images/**", "/assets/**",
-                                "/api/files/**", "user-profile", "user-wishlist", "/ws/**", "/api/chat/**", "/api/notifications/**", "/test-notifications"
+                                "/api/files/**", "user-profile", "user-wishlist", "/ws/**", "/api/chat/**", "/api/notifications/**", "/test-notifications", "/refund"
                         ).permitAll()
                         .requestMatchers("/notifications").authenticated()
                         .requestMatchers("/admin-dashboard", "/admin-user-list", "/admin-user-detail", "/admin-hotel-list", "/admin/locations/add").access(AuthorizationManagers.allOf(
+                                new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
+                                new WebExpressionAuthorizationManager("hasRole('ADMIN')")
+                        ))
+                        .requestMatchers("/admin/user/toggle-status/**").access(AuthorizationManagers.allOf(
                                 new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
                                 new WebExpressionAuthorizationManager("hasRole('ADMIN')")
                         ))

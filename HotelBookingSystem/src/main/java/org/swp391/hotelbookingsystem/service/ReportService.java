@@ -40,4 +40,8 @@ public class ReportService {
     public List<Report> getAllPendingReports() {
         return reportRepository.findAllPendingReports();
     }
+
+    public void acceptUserReports(int userId) {
+        reportRepository.acceptPendingReportsByUserId(userId);
+    }
 } 

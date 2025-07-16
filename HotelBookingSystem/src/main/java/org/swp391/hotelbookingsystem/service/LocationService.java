@@ -41,5 +41,12 @@ public class LocationService {
         return locationRepository.cityNameExistsIgnoreCase(cityName);
     }
 
+    public Integer getLocationIdByCityName(String cityName) {
+        return locationRepository.getLocationIdByCityName(cityName);
+    }
+
+    public List<String> getAllLocationNames() {
+        return locationRepository.getAllCityNames();
+    }
 
 }

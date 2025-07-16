@@ -66,4 +66,9 @@ public class ReportRepository {
                 .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
                 .build());
     }
+
+    public void acceptPendingReportsByUserId(int userId) {
+        String sql = "UPDATE Reports SET status = 'accepted' WHERE reported_user_id = ? AND status = 'pending'";
+        jdbc.update(sql, userId);
+    }
 } 

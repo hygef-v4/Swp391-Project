@@ -22,6 +22,8 @@ public class Booking {
     private LocalDateTime checkIn;
     private LocalDateTime checkOut;
     private Double totalPrice;
+    private String orderCode;
+    private String transactionNo;
     private LocalDateTime createdAt;
     
     private String hotelName;
@@ -88,7 +90,7 @@ public class Booking {
                             || "completed".equals(status)
                             || "check_in".equals(status);
                 })
-                .mapToDouble(unit -> unit.getPrice() * unit.getQuantity() * numberOfNights)
+                .mapToDouble(unit -> unit.getPrice() * unit.getQuantity() * 1)
                 .sum();
     }
 

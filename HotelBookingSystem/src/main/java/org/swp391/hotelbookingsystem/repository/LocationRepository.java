@@ -70,4 +70,18 @@ public class LocationRepository {
         return count != null && count > 0;
     }
 
+    public Integer getLocationIdByCityName(String cityName) {
+        String sql = "SELECT location_id FROM Locations WHERE LOWER(city_name) = LOWER(?)";
+        List<Integer> results = jdbcTemplate.query(sql, ps -> {
+            ps.setString(1, cityName.trim());
+        }, (rs, rowNum) -> rs.getInt("location_id"));
+
+        return results.isEmpty() ? null : results.get(0);
+    }
+
+    public List<String> getAllCityNames() {
+        String sql = "SELECT city_name FROM Locations ORDER BY city_name";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> rs.getString("city_name"));
+    }
+
 }

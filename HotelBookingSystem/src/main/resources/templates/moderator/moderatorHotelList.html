@@ -185,6 +185,7 @@
                                         <option value="pending">Chờ duyệt</option>
                                         <option value="active">Đã duyệt</option>
                                         <option value="inactive">Bị từ chối</option>
+                                        <option value="banned">Bị khóa</option>
                                     </select>
                                 </div>
 
@@ -220,14 +221,14 @@
                      th:data-city="${hotel.cityName != null ? hotel.cityName.toLowerCase().replace(' ', '').replace('.', '') : ''}"
                      th:data-hotel-id="${hotel.hotelId}">
                     <div class="card shadow h-100"
-                         th:classappend="${hotel.status == 'inactive' ? ' border-danger border-2 box-shadow-danger' : (hotel.status == 'pending' ? ' border-warning border-2 box-shadow-warning' : '')}">
+                         th:classappend="${hotel.status == 'inactive' || hotel.status == 'banned' ? ' border-danger border-2 box-shadow-danger' : (hotel.status == 'pending' ? ' border-warning border-2 box-shadow-warning' : '')}">
                         <div class="position-relative">
                             <img th:src="${hotel.hotelImageUrl != null ? hotel.hotelImageUrl : 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=200&fit=crop'}"
                                  class="card-img-top" th:alt="${hotel.hotelName}" style="height: 200px; object-fit: cover;">
                             <div class="position-absolute top-0 end-0 m-2">
                                 <span class="badge"
-                                      th:classappend="${hotel.status == 'pending' ? 'bg-warning border border-warning border-2 shadow' : (hotel.status == 'active' ? 'bg-success' : 'bg-danger border border-danger border-2 shadow')}"
-                                      th:text="${hotel.status == 'pending' ? 'Chờ duyệt' : (hotel.status == 'active' ? 'Đã duyệt' : 'Bị từ chối')}">
+                                      th:classappend="${hotel.status == 'pending' ? 'bg-warning border border-warning border-2 shadow' : (hotel.status == 'active' ? 'bg-success' : (hotel.status == 'banned' ? 'bg-danger border border-danger border-2 shadow' : 'bg-danger border border-danger border-2 shadow'))}"
+                                      th:text="${hotel.status == 'pending' ? 'Chờ duyệt' : (hotel.status == 'active' ? 'Đã duyệt' : (hotel.status == 'banned' ? 'Bị khóa' : 'Bị từ chối'))}">
                                     Chờ duyệt
                                 </span>
                             </div>
@@ -288,6 +289,11 @@
                                 <button class="btn btn-secondary flex-fill" disabled
                                         th:if="${hotel.status == 'inactive'}">
                                     <i class="bi bi-x-circle me-1"></i>Đã thu hồi
+                                </button>
+                                <!-- Nếu banned -->
+                                <button class="btn btn-secondary flex-fill" disabled
+                                        th:if="${hotel.status == 'banned'}">
+                                    <i class="bi bi-lock me-1"></i>Bị khóa
                                 </button>
                             </div>
                             <button class="btn btn-outline-primary w-100 view-details-btn"
@@ -629,7 +635,7 @@
                 const hotelId = button.getAttribute('data-hotel-id');
                 const status = button.closest('.hotel-card').getAttribute('data-status');
                 pendingActionHotelId = hotelId;
-                if (status === 'inactive') {
+                if (status === 'inactive' || status === 'banned') {
                     pendingActionType = 'approve-again';
                     confirmActionMessage.textContent = 'Bạn có chắc chắn muốn phê duyệt lại khách sạn này không?';
                     confirmActionBtn.className = 'btn btn-success';

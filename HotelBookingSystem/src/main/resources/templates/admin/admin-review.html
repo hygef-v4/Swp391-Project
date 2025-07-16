@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <title>Danh sách đặt phòng</title>
 
     <!-- Favicon -->
@@ -210,7 +212,7 @@
                 <div class="col-lg-5">
                     <!-- Tabs -->
                     <ul class="nav nav-pills-shadow nav-responsive" role="tablist">
-                        <li class="nav-item" role="presentation">
+                        <li class="nav-item hover-card" role="presentation">
                             <a class="nav-link mb-0 me-sm-2"
                                th:classappend="${filter == 'all'} ? ' active'"
                                th:href="@{/admin-review(filter='all', hotelName=${selectedHotelName})}">
@@ -218,14 +220,14 @@
                             </a>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <a class="nav-link mb-0 me-sm-2"
+                            <a class="nav-link hover-card mb-0 me-sm-2"
                                th:classappend="${filter == 'published'} ? ' active'"
                                th:href="@{/admin-review(filter='published', hotelName=${selectedHotelName})}">
                                 Công khai
                             </a>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <a class="nav-link mb-0"
+                            <a class="nav-link mb-0 hover-card"
                                th:classappend="${filter == 'deleted'} ? ' active'"
                                th:href="@{/admin-review(filter='deleted', hotelName=${selectedHotelName})}">
                                 Đã xoá
@@ -234,8 +236,23 @@
                     </ul>
                 </div>
 
+                <!-- Search -->
+<!--                <div class="col-md-6 col-lg-4 hover-card">-->
+<!--                    <form class="rounded position-relative" th:action="@{/admin-booking-list}" method="get">-->
+<!--                        <input class="form-control bg-transparent"-->
+<!--                               type="text"-->
+<!--                               name="search"-->
+<!--                               th:value="${search}"-->
+<!--                               placeholder="Tìm kiếm">-->
+<!--                        <input type="hidden" name="status" th:value="${filter}">-->
+<!--                        <button class="bg-transparent p-2 position-absolute top-50 end-0 translate-middle-y border-0 text-primary-hover text-reset" type="submit">-->
+<!--                            <i class="fas fa-search fs-6"></i>-->
+<!--                        </button>-->
+<!--                    </form>-->
+<!--                </div>-->
+
                 <!-- Select -->
-                <div class="col-md-6 col-lg-3">
+                <div class="col-md-6 col-lg-3 hover-card">
                     <form method="get" action="/admin-review">
                         <input type="hidden" name="filter" th:value="${filter}" />
                         <select class="form-select js-choice" name="hotelName" onchange="this.form.submit()">
@@ -254,7 +271,8 @@
             <div class="vstack gap-4 mt-5">
                 <div th:each="review : ${reviewList}">
                     <!-- Review item -->
-                    <div class="row g-3 g-lg-4 p-3 rounded hover-card"
+                    <div th:id="'review' + ${review.reviewId}"
+                         class="row g-3 g-lg-4 p-3 rounded hover-card"
                          th:classappend="${review != null and !review.isPublic} ? ' bg-dark bg-opacity-10 border border-danger' : ''">
                         <div class="col-md-4 col-xxl-3">
                         <div class="d-flex align-items-center">
@@ -274,21 +292,21 @@
                             </li>
                         </ul>
                         <h6>
-                            <span class="text-body fw-light">Review on:</span>
+                            <span class="text-body fw-light">Đánh giá trên:</span>
                             <span th:text="${review.hotelName}">Tên phòng</span>
                             <span class="badge bg-danger ms-2" th:if="${!review.isPublic}">Đã xóa</span>
                         </h6>
                         <p th:text="${review.comment}">Nội dung đánh giá</p>
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <a th:href="'/hotel-detail?hotelId=' + ${review.hotelId} + '#review' + ${review.reviewId}" class="btn btn-sm btn-primary-soft mb-0">Direct message</a>
+                                <a th:href="'/hotel-detail?hotelId=' + ${review.hotelId} + '#review' + ${review.reviewId}" class="btn btn-sm btn-primary-soft mb-0">Đến trang đánh giá</a>
                                 <a class="btn btn-sm btn-light mb-0"
                                    data-bs-toggle="collapse"
                                    th:href="'#collapseComment__' + ${review.reviewId}"
                                    role="button"
                                    aria-expanded="false"
                                    th:attr="aria-controls='collapseComment__' + ${review.reviewId}">
-                                    Reply
+                                    Phản hồi
                                 </a>
                                 <a class="btn btn-sm btn-warning-soft mb-0"
                                    th:if="${review != null and !review.isPublic}"
@@ -300,19 +318,36 @@
                                class="text-primary-hover"
                                th:if="${review.isPublic}"
                                th:attr="data-bs-toggle='modal', data-bs-target='#confirmDeleteModal__' + ${review.reviewId}">
-                                <i class="bi bi-trash3 me-1"></i>Delete
+                                <i class="bi bi-trash3 me-1"></i>Xoá
                             </a>
                         </div>
                         <!-- collapse textarea -->
+<!--                        <div class="collapse mt-3"-->
+<!--                             th:id="'collapseComment__' + ${review.reviewId}">-->
+<!--                            <div class="d-flex">-->
+<!--                                <textarea class="form-control mb-0" placeholder="Viết phản hồi..." rows="2" spellcheck="false"></textarea>-->
+<!--                                <button class="btn btn-sm btn-primary ms-2 px-4 mb-0 flex-shrink-0">-->
+<!--                                    <i class="fas fa-paper-plane fs-5"></i>-->
+<!--                                </button>-->
+<!--                            </div>-->
+<!--                        </div>-->
+
                         <div class="collapse mt-3"
                              th:id="'collapseComment__' + ${review.reviewId}">
-                            <div class="d-flex">
-                                <textarea class="form-control mb-0" placeholder="Add a comment..." rows="2" spellcheck="false"></textarea>
-                                <button class="btn btn-sm btn-primary ms-2 px-4 mb-0 flex-shrink-0">
+                            <form th:id="'replyForm__' + ${review.reviewId}" class="d-flex align-items-start mt-2">
+                                <input type="hidden" name="reviewId" th:value="${review.reviewId}">
+                                <input type="hidden" name="userId" th:value="${session.user.id}">
+
+                                <textarea name="comment" class="form-control mb-0" placeholder="Viết bình luận..." rows="2" style="resize: none;"></textarea>
+
+                                <button type="button"
+                                        class="btn btn-sm btn-primary ms-2 px-4 mb-0 flex-shrink-0"
+                                        th:onclick="'submitReplyFromCollapse(' + ${review.reviewId} + ')'">
                                     <i class="fas fa-paper-plane fs-5"></i>
                                 </button>
-                            </div>
+                            </form>
                         </div>
+
                     </div>
                 </div>
 
@@ -428,6 +463,53 @@
 <!-- **************** MAIN CONTENT END **************** -->
 <script th:src="@{/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
 <script th:src="@{/assets/vendor/overlay-scrollbar/js/overlayscrollbars.min.js}"></script>
+<script src="/assets/vendor/flatpickr/js/flatpickr.min.js"></script>
+<script src="/assets/vendor/choices/js/choices.min.js"></script>
+<script th:src="@{/assets/vendor/choices/js/choices.min.js}"></script>
 <script th:src="@{/assets/js/functions.js}"></script>
+<script>
+    async function submitReplyFromCollapse(reviewId) {
+        const form = document.getElementById('replyForm__' + reviewId);
+        const formData = new FormData(form);
+
+        const comment = formData.get('comment').trim();
+        if (!comment) {
+            alert("Vui lòng nhập bình luận.");
+            return;
+        }
+        if (/<.*?>/.test(comment)) {
+            alert("Không thể gửi tin nhắn chứa thẻ HTML.");
+            return;
+        }
+
+        const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+        try {
+            let request = await fetch('/addReply', {
+                method: 'POST',
+                headers: {
+                    [csrfHeader]: csrfToken
+                },
+                body: formData
+            });
+
+            if (!request.ok) {
+                alert("Gửi phản hồi thất bại.");
+                return;
+            }
+
+            // Reset form và ẩn collapse
+            form.reset();
+            bootstrap.Collapse.getInstance(document.getElementById('collapseComment__' + reviewId))?.hide();
+
+            alert("Phản hồi đã được gửi thành công.");
+
+        } catch (error) {
+            console.error("Lỗi khi gửi phản hồi:", error);
+            alert("Đã xảy ra lỗi. Vui lòng thử lại.");
+        }
+    }
+</script>
 </body>
 </html>

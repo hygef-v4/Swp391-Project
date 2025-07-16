@@ -238,7 +238,7 @@ public class ReviewRepository {
     }
 
     public int deleteReply(int replyId){
-        String query = "DELETE FROM Replies OUTPUT deleted.reply_id WHERE reply_id = ?";
+        String query = "UPDATE Replies SET is_public = 0 OUTPUT deleted.reply_id WHERE reply_id = ?";
         return jdbcTemplate.queryForObject(query, Integer.class, replyId);
     }
 

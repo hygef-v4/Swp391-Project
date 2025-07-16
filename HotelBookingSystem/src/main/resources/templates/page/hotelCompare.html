@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>So sánh khách sạn</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="author" content="StackBros">
+    <meta name="description" content="Booking - Multipurpose Online Booking Theme">
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Poppins:wght@400;500;700&display=swap">
+    <!-- Plugins CSS -->
+    <link rel="stylesheet" type="text/css" href="/assets/vendor/font-awesome/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="/assets/vendor/bootstrap-icons/bootstrap-icons.css">
+    <!-- Theme CSS -->
+    <link rel="stylesheet" type="text/css" href="/assets/css/style.css">
+    <link rel="shortcut icon" href="/assets/images/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="/assets/vendor/nouislider/nouislider.css">
+    <style>
+/* Chỉ giữ lại style input cho đẹp, bỏ max-width nhỏ */
+#addHotelModal .input-with-range-min,
+#addHotelModal .input-with-range-max {
+    width: 60px;
+    font-size: 14px;
+    padding: 2px 4px;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    text-align: center;
+}
+/* Đảm bảo thanh trượt và số không bị cắt */
+#addHotelModal .noui-wrapper {
+    padding-left: 0;
+    padding-right: 0;
+    width: 100%;
+}
+#addHotelModal .d-flex.justify-content-between {
+    gap: 8px;
+}
+#addHotelModal .noui-slider-range {
+    width: 100%;
+    margin-top: 8px;
+}
+/* Style màu sắc giống hotel list */
+#addHotelModal .noUi-target {
+    background: #e9ecef;
+    border-radius: 8px;
+    border: none;
+    box-shadow: none;
+    height: 8px;
+}
+#addHotelModal .noUi-connect {
+    background: #5b47fb;
+}
+#addHotelModal .noUi-handle {
+    background: #fff;
+    border: 3px solid #5b47fb;
+    box-shadow: 0 2px 8px rgba(91,71,251,0.08);
+    width: 24px;
+    height: 24px;
+    top: -8px;
+}
+#addHotelModal .noUi-handle:after, 
+#addHotelModal .noUi-handle:before {
+    display: none;
+}
+#addHotelModal .noui-wrapper {
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+}
+#addHotelModal .d-flex.justify-content-between {
+    gap: 8px;
+}
+#addHotelModal .input-with-range-min,
+#addHotelModal .input-with-range-max {
+    width: 80px;
+    font-size: 14px;
+    padding: 2px 4px;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    text-align: center;
+}
+#addHotelModal .noui-slider-range {
+    width: 100%;
+    margin-top: 8px;
+    padding: 0;
+    box-sizing: border-box;
+}
+#addHotelModal .noui-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 8px;
+}
+#addHotelModal .noui-slider-range {
+    width: 100%;
+    margin-top: 8px;
+    box-sizing: border-box;
+}
+#addHotelModal .d-flex.justify-content-between {
+    width: 100%;
+    gap: 8px;
+    margin-bottom: 2px;
+}
+#addHotelModal .input-with-range-min,
+#addHotelModal .input-with-range-max {
+    width: 80px;
+    font-size: 14px;
+    padding: 2px 4px;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    text-align: center;
+}
+#addHotelModal .filter-action-row {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+    margin-top: 4px;
+    margin-right: 8px;
+}
+#addHotelModal #filter-apply-btn {
+    min-width: 90px;
+}
+/* Bo tròn ảnh khách sạn */
+#addHotelModal td img {
+    border-radius: 8px;
+}
+/* Căn giữa nút Thêm và giá */
+#addHotelModal .table td, #addHotelModal .table th {
+    vertical-align: middle;
+}
+#addHotelModal td:last-child {
+    text-align: center;
+}
+#addHotelModal td:nth-child(4) {
+    text-align: center;
+}
+/* Nút Thêm: màu tím, hover đậm hơn */
+#addHotelModal .btn-primary {
+    background: #5b47fb;
+    border: none;
+    transition: background 0.2s;
+}
+#addHotelModal .btn-primary:hover {
+    background: #3d2fc7;
+}
+/* Pagination: bo tròn, padding lớn hơn */
+#addHotelModal .pagination .page-link {
+    border-radius: 6px !important;
+    padding: 6px 14px;
+}
+/* Hover hàng bảng */
+#addHotelModal .table tbody tr:hover {
+    background: #f8f9fa;
+}
+/* Tăng gap filter bar */
+#addHotelModal .row.g-2.align-items-end.mb-3 {
+    gap: 16px;
+}
+/* Đậm label filter */
+#addHotelModal .form-label {
+    font-weight: 600;
+}
+#addHotelModal .noui-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 0;
+    gap: 8px;
+}
+#addHotelModal .noui-slider-range {
+    width: 100%;
+    margin: 0 8px;
+    box-sizing: border-box;
+}
+#addHotelModal .input-with-range-min,
+#addHotelModal .input-with-range-max {
+    width: 80px;
+    min-width: 60px;
+    font-size: 14px;
+    padding: 2px 4px;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    text-align: center;
+}
+#addHotelModal .noui-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0;
+    gap: 0;
+}
+#addHotelModal .noui-slider-range {
+    width: 100%;
+    margin-top: 0;
+    box-sizing: border-box;
+}
+#addHotelModal .d-flex.justify-content-between.mb-1 {
+    width: 100%;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+#addHotelModal .input-with-range-min,
+#addHotelModal .input-with-range-max {
+    width: 80px;
+    min-width: 60px;
+    font-size: 14px;
+    padding: 2px 4px;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    text-align: center;
+}
+#addHotelModal .noui-wrapper {
+    max-width: 340px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0 12px;
+    gap: 0;
+}
+#addHotelModal .noui-wrapper .d-flex.align-items-center {
+    width: 100%;
+    gap: 8px;
+}
+#addHotelModal .input-with-range-min,
+#addHotelModal .input-with-range-max {
+    width: 80px;
+    min-width: 60px;
+    font-size: 14px;
+    padding: 2px 4px;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    text-align: center;
+    flex: none;
+}
+#addHotelModal .flex-grow-1 {
+    flex: 1 1 0%;
+    min-width: 0;
+}
+#addHotelModal .noui-slider-range {
+    width: 100%;
+    margin: 0;
+    box-sizing: border-box;
+}
+#addHotelModal td:nth-child(2), #addHotelModal th:nth-child(2) {
+    white-space: normal !important;
+    word-break: break-word;
+    max-width: 220px;
+}
+#addHotelModal .table-responsive {
+    overflow-x: unset !important;
+}
+</style>
+</head>
+<body>
+    <!-- Header dùng chung -->
+    <th:block th:replace="common/header :: header"></th:block>
+    <!-- **************** MAIN CONTENT START **************** -->
+    <main>
+        <!-- ======================= Main banner START -->
+        <section class="py-0">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="bg-light rounded-3 position-relative overflow-hidden p-4 p-xl-5">
+                            <div class="row g-4 align-items-center">
+                                <!-- Content -->
+                                <div class="col-lg-6">
+                                    <!-- Title -->
+                                    <h1 class="mb-3 fs-2">So sánh khách sạn và chọn lựa tốt nhất</h1>
+                                    <p class="mb-3">Mở rộng hiểu biết của bạn bằng cách so sánh các khách sạn để lựa chọn phù hợp nhất.</p>
+                                    <!-- Nút thêm khách sạn -->
+                                    <button id="add-hotel-btn" class="btn btn-primary-soft mb-0" data-bs-toggle="modal" data-bs-target="#addHotelModal">
+                                        <i class="fa-solid fa-plus"></i> Thêm khách sạn để so sánh
+                                    </button>
+                                </div>
+                                <!-- Image -->
+                                <div class="col-lg-6">
+                                    <img src="/assets/images/element/compare.svg" alt="">
+                                </div>
+                            </div> <!-- Row END -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- ======================= Main banner END -->
+        <!-- ======================= Compare listing START -->
+        <section>
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="table-responsive-xl">
+                            <div id="compare-empty-message" class="text-center py-5">
+                                <h4>Chưa thêm khách sạn để so sánh</h4>
+                                <button class="btn btn-primary-soft mt-3" data-bs-toggle="modal" data-bs-target="#addHotelModal">
+                                    <i class="fa-solid fa-plus"></i> Thêm khách sạn
+                                </button>
+                            </div>
+                            <table id="compare-table" class="table table-compare align-middle d-none">
+                                <thead class="align-top">
+                                <tr>
+                                    <th scope="col">
+                                        <p class="h3">So sánh các khách sạn</p>
+                                        <button class="btn btn-lg btn-primary btn-round mb-0" data-bs-toggle="modal" data-bs-target="#addHotelModal" id="add-hotel-btn-table">
+                                            <i class="fa-solid fa-plus"></i>
+                                        </button>
+                                    </th>
+                                    <th scope="col" class="compare-hotel-col" colspan="1"></th>
+                                    <th scope="col" class="compare-hotel-col" colspan="1"></th>
+                                    <th scope="col" class="compare-hotel-col" colspan="1"></th>
+                                </tr>
+                                </thead>
+                                <tbody class="border-top-0" id="compare-table-body">
+                                <!-- Nội dung động sẽ render ở đây bằng JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- ======================= Compare listing END -->
+        <!-- Modal chọn khách sạn -->
+        <div class="modal fade" id="addHotelModal" tabindex="-1" aria-labelledby="addHotelModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addHotelModalLabel">Chọn khách sạn để so sánh</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Filter bar -->
+                        <form id="hotel-filter-form" class="row g-2 align-items-end mb-3">
+                            <div class="row g-2 align-items-center mb-3">
+                                <div class="col-md-4">
+                                    <label class="form-label mb-1">Tên khách sạn</label>
+                                    <input type="text" class="form-control" id="filter-hotel-name" placeholder="Nhập tên khách sạn...">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label mb-1">Thành phố</label>
+                                    <select class="form-select" id="filter-city">
+                                        <option value="">Tất cả</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-5">
+                                    <label class="form-label mb-1">Khoảng giá</label>
+                                    <div class="noui-wrapper">
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <input type="text" class="text-body input-with-range-min" id="filter-price-min-input">
+                                            <input type="text" class="text-body input-with-range-max" id="filter-price-max-input">
+                                        </div>
+                                        <div class="noui-slider-range" id="filter-price-slider"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Thay phần nút filter trong modal -->
+                            <div class="col-12 filter-action-row">
+                                <button type="button" class="btn btn-link" id="filter-reset-btn">Reset</button>
+                                <button type="button" class="btn btn-dark" id="filter-apply-btn">Áp dụng</button>
+                            </div>
+                        </form>
+                        <!-- Danh sách khách sạn dạng bảng -->
+                        <div class="table-responsive">
+                            <table class="table table-bordered align-middle mb-2" id="hotel-list-table">
+                                <thead>
+                                    <tr>
+                                        <th>Ảnh</th>
+                                        <th>Tên khách sạn</th>
+                                        <th>Thành phố</th>
+                                        <th>Giá từ</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="hotel-list-table-body">
+                                    <tr><td colspan="5" class="text-center">Đang tải...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- Pagination -->
+                        <nav>
+                            <ul class="pagination justify-content-center mb-0" id="hotel-list-pagination"></ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- ======================= Action box START -->
+        <section class="pt-0">
+            <div class="container">
+                <div class="bg-light rounded-3 position-relative overflow-hidden p-4 p-sm-5">
+                    <!-- Svg decoration -->
+                    <figure class="position-absolute top-0 start-0 translate-middle">
+                        <svg class="fill-orange" width="250px" height="255px" viewBox="0 0 300.24 305.85">
+                            <path d="M72.33,265.03c-41.74-43.54-67.69-97.8-72.24-159.79C-2.45,59.51,47.02,6.52,101.33,1.31 c61.88-6.72,117.52,12.02,155.39,64.52c16.58,23.1,27.89,49.78,35.88,75.54c18.39,55.77,2.61,105.79-37.18,136.4 c-45.06,34.18-108.2,37.69-155.75,7.58C90.6,279.3,82.55,272.11,72.33,265.03z"/>
+                        </svg>
+                    </figure>
+                    <!-- Svg decoration -->
+                    <figure class="position-absolute top-100 start-100 translate-middle">
+                        <svg class="fill-warning" width="177.91px" height="132.35px" viewBox="0 0 177.91 132.35">
+                            <path d="M128.84,69.77c2.74,3.33,2.92,6.79,0.71,10.54c0.77,0,1.31,0,1.79,0c7.56,0,15.12,0.3,22.68,1.13 c4.94,0.54,9.82,1.31,14.52,2.86c1.73,0.54,3.39,1.25,5,2.08c1.07,0.54,2.08,1.37,2.92,2.26c1.85,2.02,1.9,4.7,0.36,6.96 c-0.83,1.25-1.96,2.26-3.21,2.98c-2.2,1.25-4.4,2.44-6.73,3.45c-6.25,2.74-12.74,4.82-19.23,6.79c-7.98,2.44-15.95,4.76-23.93,7.14 c-0.48,0.12-1.01,0.3-1.73,0.54c0.54,0.3,0.89,0.48,1.25,0.65c1.43,0.77,2.44,1.85,2.5,3.51c0.06,1.79-0.83,3.04-2.32,3.81 c-1.19,0.6-2.56,1.13-3.87,1.49c-5.3,1.49-10.71,2.32-16.13,3.15c-10.36,1.55-20.77,2.62-31.25,3.04 c-8.93,0.36-17.8,0.36-26.67-1.01c-3.33-0.54-6.67-1.25-9.76-2.56c-1.67-0.71-3.27-1.55-4.64-2.8c-3.15-2.8-3.87-6.61-1.9-10.36 c1.01-1.9,2.44-3.51,4.05-4.94c3.15-2.8,6.79-4.94,10.48-6.85c0.6-0.3,1.25-0.65,1.85-1.19c-0.36,0-0.71,0-1.01,0 c-6.07,0.3-12.2,0.36-18.27-0.48c-2.74-0.36-5.42-0.95-8.04-2.02c-1.85-0.77-3.63-1.73-5.06-3.15c-2.62-2.62-3.45-5.71-2.5-9.29 c0.54-2.02,1.49-3.81,2.92-5.36c1.67-1.85,3.33-3.69,5.24-5.24c3.15-2.56,6.49-4.82,9.76-7.26c0.48-0.36,0.89-0.65,1.67-1.25 c-0.71-0.06-1.07-0.12-1.49-0.12c-3.57,0-7.14,0.06-10.71-0.12c-1.96-0.06-3.99-0.42-5.95-0.83c-1.19-0.24-2.38-0.71-3.45-1.31 C4.91,64,3.6,60.3,5.15,56.32c0.83-2.14,2.26-3.93,3.87-5.6c0.54-0.6,1.13-1.13,1.85-1.85c-0.48-0.06-0.77-0.12-1.07-0.12 c-1.37-0.06-2.74-0.06-4.11-0.24c-0.95-0.12-1.96-0.42-2.86-0.83c-2.56-1.25-3.51-3.93-2.32-6.49c0.48-1.01,1.19-2.02,1.96-2.74 c1.49-1.31,3.04-2.62,4.76-3.63c3.51-2.02,7.02-3.99,10.71-5.71c5.6-2.44,11.19-4.7,16.73-7.08c0.95-0.42,1.96-0.83,2.86-1.37 c8.04-4.94,16.73-8.51,25.65-11.31c14.64-4.64,29.64-7.62,45-8.93c6.19-0.54,12.38-0.65,18.51,0.18c2.38,0.3,4.7,0.77,6.9,1.79 c1.13,0.54,2.32,1.13,3.27,1.96c2.38,1.96,2.98,5,1.49,7.74c-0.6,1.13-1.37,2.2-2.32,3.04c-1.96,1.79-4.05,3.45-6.25,4.94 c-4.35,2.98-8.99,5.42-13.63,7.8c-0.48,0.24-0.89,0.48-1.37,1.01c0.6,0.06,1.13,0.12,1.73,0.24c1.13,0.24,2.26,0.42,3.33,0.77 c4.11,1.49,4.88,5.48,1.67,8.39c-1.01,0.89-2.2,1.73-3.39,2.38c-2.62,1.43-5.36,2.74-8.04,3.99c-2.38,1.07-4.76,2.08-7.2,3.33 c0.36,0.06,0.77,0.12,1.13,0.12c6.49,0.3,12.92,0.77,19.29,1.9c3.33,0.6,6.67,1.25,9.82,2.56c1.37,0.6,2.8,1.25,3.99,2.14 c3.1,2.32,3.39,5.95,0.83,8.87c-0.83,0.89-1.79,1.73-2.8,2.44c-1.67,1.13-3.45,2.02-5.18,3.04 C129.67,69.29,129.32,69.53,128.84,69.77z"/>
+                        </svg>
+                    </figure>
+                    <div class="row g-4 justify-content-md-between align-items-center position-relative">
+                        <div class="col-xl-6">
+                            <!-- Title -->
+                            <h4 class="mb-0">Đăng ký nhận bản tin</h4>
+                        </div>
+                        <!-- Content and input -->
+                        <div class="col-xl-5">
+                            <form class="bg-body rounded-2 p-2">
+                                <div class="d-flex">
+                                    <input class="form-control border-0 me-1" type="email" placeholder="Nhập email của bạn">
+                                    <button type="button" class="btn btn-dark btn-round mb-0 flex-shrink-0"><i class="bi bi-arrow-right fa-fw"></i></button>
+                                </div>
+                            </form>
+                        </div>
+                    </div> <!-- Row END -->
+                </div>
+            </div>
+        </section>
+        <!-- ======================= Action box END -->
+    </main>
+    <!-- **************** MAIN CONTENT END **************** -->
+    <!-- Footer dùng chung -->
+    <th:block th:replace="common/footer :: footer"></th:block>
+    <!-- Bootstrap JS -->
+    <script src="/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- ThemeFunctions -->
+    <script src="/assets/js/functions.js"></script>
+    <script src="/assets/vendor/nouislider/nouislider.min.js"></script>
+    <script th:inline="javascript">
+    // Dữ liệu khách sạn từ server (dùng cho popup)
+    const allHotels = /*[[${allHotels}]]*/ [];
+    // Quản lý danh sách khách sạn đang so sánh
+    let comparedHotels = [];
+    let hotelDetails = {};
+    let allAmenities = new Set();
+
+    // --- FILTER & PAGINATION LOGIC FOR HOTEL SELECT MODAL ---
+    const HOTELS_PER_PAGE = 5;
+    let hotelFilter = {
+        name: '',
+        city: '',
+        priceMin: null,
+        priceMax: null
+    };
+    let hotelFilterApplied = { ...hotelFilter };
+    let hotelFilterPage = 1;
+    let hotelFilterResult = [];
+    let hotelFilterMinPrice = 0, hotelFilterMaxPrice = 0;
+
+    function getUniqueCities(hotels) {
+        const set = new Set();
+        hotels.forEach(h => h.cityName && set.add(h.cityName));
+        return Array.from(set);
+    }
+    function getMinMaxPrice(hotels) {
+        let min = Number.POSITIVE_INFINITY, max = 0;
+        hotels.forEach(h => {
+            if (typeof h.minPrice === 'number') {
+                if (h.minPrice < min) min = h.minPrice;
+                if (h.minPrice > max) max = h.minPrice;
+            }
+        });
+        return [min === Number.POSITIVE_INFINITY ? 0 : min, max];
+    }
+    function applyHotelFilter() {
+        let filtered = allHotels.filter(hotel => {
+            if (comparedHotels.find(h => h.hotelId === hotel.hotelId)) return false;
+            if (hotelFilterApplied.name && !hotel.hotelName.toLowerCase().includes(hotelFilterApplied.name.toLowerCase())) return false;
+            if (hotelFilterApplied.city && hotel.cityName !== hotelFilterApplied.city) return false;
+            if (hotelFilterApplied.priceMin !== null && hotel.minPrice < hotelFilterApplied.priceMin) return false;
+            if (hotelFilterApplied.priceMax !== null && hotel.minPrice > hotelFilterApplied.priceMax) return false;
+            return true;
+        });
+        hotelFilterResult = filtered;
+        hotelFilterPage = 1;
+        renderHotelListTable();
+    }
+    function resetHotelFilter() {
+        hotelFilter = {
+            name: '',
+            city: '',
+            priceMin: hotelFilterMinPrice,
+            priceMax: hotelFilterMaxPrice
+        };
+        document.getElementById('filter-hotel-name').value = '';
+        document.getElementById('filter-city').value = '';
+        document.getElementById('filter-price-min-input').value = hotelFilterMinPrice.toLocaleString('vi-VN');
+        document.getElementById('filter-price-max-input').value = hotelFilterMaxPrice.toLocaleString('vi-VN');
+        hotelFilterApplied = { ...hotelFilter };
+        applyHotelFilter(); // Luôn render bảng sau reset
+    }
+    function renderHotelListTable() {
+        const tbody = document.getElementById('hotel-list-table-body');
+        tbody.innerHTML = '';
+        const start = (hotelFilterPage - 1) * HOTELS_PER_PAGE;
+        const end = start + HOTELS_PER_PAGE;
+        const pageHotels = hotelFilterResult.slice(start, end);
+        if (pageHotels.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center">Không có khách sạn nào</td></tr>';
+            renderHotelListPagination();
+            return;
+        }
+        pageHotels.forEach(hotel => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><img src="${hotel.hotelImageUrl || '/assets/images/element/compare.svg'}" style="width:60px;height:40px;object-fit:cover;border-radius:8px;background:#f5f5f5;" alt="Ảnh"/></td>
+                <td>${hotel.hotelName}</td>
+                <td>${hotel.cityName || ''}</td>
+                <td>${hotel.minPrice ? hotel.minPrice.toLocaleString('vi-VN') + ' đ' : 'N/A'}</td>
+                <td><button class='btn btn-sm btn-primary' onclick='addHotelToCompare(${hotel.hotelId})'>Thêm</button></td>
+            `;
+            tbody.appendChild(tr);
+        });
+        renderHotelListPagination();
+    }
+    function renderHotelListPagination() {
+        const total = hotelFilterResult.length;
+        const totalPages = Math.ceil(total / HOTELS_PER_PAGE);
+        const ul = document.getElementById('hotel-list-pagination');
+        ul.innerHTML = '';
+        if (totalPages <= 1) return;
+
+        // Nút mũi tên trái
+        const prevLi = document.createElement('li');
+        prevLi.className = 'page-item' + (hotelFilterPage === 1 ? ' disabled' : '');
+        prevLi.innerHTML = `<a class="page-link" href="#"><span aria-hidden="true">&laquo;</span></a>`;
+        prevLi.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (hotelFilterPage > 1) {
+                hotelFilterPage--;
+                renderHotelListTable();
+            }
+        });
+        ul.appendChild(prevLi);
+
+        // Các nút số trang
+        for (let i = 1; i <= totalPages; i++) {
+            const li = document.createElement('li');
+            li.className = 'page-item' + (i === hotelFilterPage ? ' active' : '');
+            li.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+            li.addEventListener('click', function(e) {
+                e.preventDefault();
+                hotelFilterPage = i;
+                renderHotelListTable();
+            });
+            ul.appendChild(li);
+        }
+
+        // Nút mũi tên phải
+        const nextLi = document.createElement('li');
+        nextLi.className = 'page-item' + (hotelFilterPage === totalPages ? ' disabled' : '');
+        nextLi.innerHTML = `<a class="page-link" href="#"><span aria-hidden="true">&raquo;</span></a>`;
+        nextLi.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (hotelFilterPage < totalPages) {
+                hotelFilterPage++;
+                renderHotelListTable();
+            }
+        });
+        ul.appendChild(nextLi);
+    }
+    function initHotelFilterUI() {
+        // Thành phố
+        const citySelect = document.getElementById('filter-city');
+        const cities = getUniqueCities(allHotels);
+        citySelect.innerHTML = '<option value="">Tất cả</option>';
+        cities.forEach(city => {
+            const opt = document.createElement('option');
+            opt.value = city;
+            opt.textContent = city;
+            citySelect.appendChild(opt);
+        });
+        // Giá min/max
+        [hotelFilterMinPrice, hotelFilterMaxPrice] = getMinMaxPrice(allHotels);
+        // Khởi tạo noUiSlider
+        const slider = document.getElementById('filter-price-slider');
+        if (slider.noUiSlider) slider.noUiSlider.destroy();
+        noUiSlider.create(slider, {
+            start: [hotelFilterMinPrice, hotelFilterMaxPrice],
+            connect: true,
+            step: 100000,
+            range: {
+                min: hotelFilterMinPrice,
+                max: hotelFilterMaxPrice
+            },
+            format: {
+                to: value => Math.round(value),
+                from: value => Number(value)
+            }
+        });
+        const minInput = document.getElementById('filter-price-min-input');
+        const maxInput = document.getElementById('filter-price-max-input');
+        minInput.value = hotelFilterMinPrice.toLocaleString('vi-VN');
+        maxInput.value = hotelFilterMaxPrice.toLocaleString('vi-VN');
+        slider.noUiSlider.on('update', function(values, handle) {
+            minInput.value = parseInt(values[0]).toLocaleString('vi-VN');
+            maxInput.value = parseInt(values[1]).toLocaleString('vi-VN');
+        });
+        minInput.addEventListener('change', function() {
+            let min = parseInt(this.value.replace(/\./g, '')) || hotelFilterMinPrice;
+            let max = parseInt(maxInput.value.replace(/\./g, '')) || hotelFilterMaxPrice;
+            if (min > max) min = max;
+            slider.noUiSlider.set([min, null]);
+            this.value = min.toLocaleString('vi-VN');
+        });
+        maxInput.addEventListener('change', function() {
+            let min = parseInt(minInput.value.replace(/\./g, '')) || hotelFilterMinPrice;
+            let max = parseInt(this.value.replace(/\./g, '')) || hotelFilterMaxPrice;
+            if (max < min) max = min;
+            slider.noUiSlider.set([null, max]);
+            this.value = max.toLocaleString('vi-VN');
+        });
+    }
+    document.getElementById('addHotelModal').addEventListener('show.bs.modal', function() {
+        initHotelFilterUI();
+        resetHotelFilter();
+        applyHotelFilter(); // Hiển thị danh sách ngay khi mở popup
+    });
+    document.getElementById('filter-apply-btn').addEventListener('click', function() {
+        let min = parseInt(document.getElementById('filter-price-min-input').value.replace(/\./g, '')) || hotelFilterMinPrice;
+        let max = parseInt(document.getElementById('filter-price-max-input').value.replace(/\./g, '')) || hotelFilterMaxPrice;
+        hotelFilterApplied = {
+            name: document.getElementById('filter-hotel-name').value.trim(),
+            city: document.getElementById('filter-city').value,
+            priceMin: min,
+            priceMax: max
+        };
+        applyHotelFilter();
+    });
+    document.getElementById('filter-reset-btn').addEventListener('click', function() {
+        initHotelFilterUI();
+        resetHotelFilter();
+    });
+
+    // Render danh sách khách sạn trong modal
+    function renderHotelListSelect() {
+        const ul = document.getElementById('hotel-list-select');
+        ul.innerHTML = '';
+        if (allHotels.length === 0) {
+            ul.innerHTML = '<li class="list-group-item text-center">Không có khách sạn nào</li>';
+            return;
+        }
+        allHotels.forEach(hotel => {
+            // Không cho chọn lại khách sạn đã có trong bảng
+            if (comparedHotels.find(h => h.hotelId === hotel.hotelId)) return;
+            const li = document.createElement('li');
+            li.className = 'list-group-item d-flex align-items-center justify-content-between';
+            li.innerHTML = `<span>${hotel.hotelName}</span><button class='btn btn-sm btn-primary' onclick='addHotelToCompare(${hotel.hotelId})'>Thêm</button>`;
+            ul.appendChild(li);
+        });
+        if (ul.innerHTML === '') {
+            ul.innerHTML = '<li class="list-group-item text-center">Đã chọn tối đa 3 khách sạn</li>';
+        }
+    }
+
+    // Khi mở modal, render lại danh sách
+    document.getElementById('addHotelModal').addEventListener('show.bs.modal', renderHotelListSelect);
+
+    // Thêm khách sạn vào so sánh
+    function addHotelToCompare(hotelId) {
+        if (comparedHotels.length >= 3) return;
+        fetch(`/hotel-compare/detail/${hotelId}`)
+            .then(res => res.json())
+            .then(data => {
+                comparedHotels.push(data.hotel);
+                hotelDetails[data.hotel.hotelId] = data;
+                // Cập nhật amenities tổng hợp
+                data.amenities.forEach(a => allAmenities.add(a));
+                renderCompareTable();
+                // Đóng modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('addHotelModal'));
+                modal.hide();
+            });
+    }
+
+    // Xóa khách sạn khỏi so sánh
+    function removeHotelFromCompare(hotelId) {
+        comparedHotels = comparedHotels.filter(h => h.hotelId !== hotelId);
+        delete hotelDetails[hotelId];
+        // Cập nhật lại allAmenities
+        allAmenities = new Set();
+        comparedHotels.forEach(h => {
+            (hotelDetails[h.hotelId].amenities || []).forEach(a => allAmenities.add(a));
+        });
+        renderCompareTable();
+    }
+
+    // Render bảng so sánh
+    function renderCompareTable() {
+        const table = document.getElementById('compare-table');
+        const emptyMsg = document.getElementById('compare-empty-message');
+        if (comparedHotels.length === 0) {
+            table.classList.add('d-none');
+            emptyMsg.classList.remove('d-none');
+            return;
+        } else {
+            table.classList.remove('d-none');
+            emptyMsg.classList.add('d-none');
+        }
+        // Render header động đúng số cột
+        const theadRow = table.querySelector('thead tr');
+        // Xóa các th cũ (chỉ giữ lại th đầu tiên)
+        while (theadRow.children.length > 1) {
+            theadRow.removeChild(theadRow.lastChild);
+        }
+        for (let i = 0; i < comparedHotels.length; i++) {
+            const th = document.createElement('th');
+            th.className = 'compare-hotel-col';
+            th.colSpan = 1;
+            const h = comparedHotels[i];
+            th.innerHTML = `
+                <div class="compare-hotel-card" style="align-items: flex-start;">
+                    <img src="${h.hotelImageUrl || '/assets/images/element/compare.svg'}" class="compare-hotel-img" alt="..." style="width:260px;height:180px;object-fit:contain;border-radius:16px;background:#f5f5f5;display:block;margin-left:0;max-width:unset;max-height:unset;" />
+                    <div class="card-body px-0" style="margin-top:16px;">
+                        <span class="h6 hotel-name" style="display:block;max-width:240px;white-space:normal;word-break:break-word;">${h.hotelName}</span>
+                        <div class="mt-2">
+                            <span class="h6 text-success mb-0" style="display:block;">${h.minPrice ? h.minPrice.toLocaleString('vi-VN') + ' đ' : 'N/A'}</span>
+                            <a href="/hotel-detail?hotelId=${h.hotelId}" class="btn btn-sm btn-link mb-0 p-0" style="padding-left:0;">Xem chi tiết<i class="bi bi-arrow-right ms-2"></i></a>
+                        </div>
+                    </div>
+                </div>
+            `;
+            theadRow.appendChild(th);
+        }
+        // Render body
+        const tbody = document.getElementById('compare-table-body');
+        tbody.innerHTML = '';
+        // Tiêu chí: Tên chủ khách sạn
+        tbody.appendChild(renderRow('Tên chủ khách sạn', comparedHotels.map(h => h.hostName && h.hostName.trim() !== '' ? h.hostName : 'Không có')));
+        // Tiêu chí: Địa chỉ
+        tbody.appendChild(renderRow('Địa chỉ', comparedHotels.map(h => h.address || '')));
+        // Tiêu chí: Đánh giá
+        tbody.appendChild(renderRow('Đánh giá', comparedHotels.map(h => renderRating(h.rating)), true));
+        // Đánh giá nổi bật (ngay sau đánh giá)
+        tbody.appendChild(renderRow('Đánh giá nổi bật', comparedHotels.map(h => {
+            const detail = hotelDetails[h.hotelId];
+            if (!detail || !detail.featuredReview) return '<span class="text-muted">Chưa có đánh giá</span>';
+            const r = detail.featuredReview;
+            const stars = '<div style="margin-bottom:1px;"><span class="text-warning" style="font-size:14px;">' + '★'.repeat(r.rating) + '</span></div>';
+            const avatar = r.avatarUrl ? `<img src='${r.avatarUrl}' style='width:24px;height:24px;border-radius:50%;object-fit:cover;display:inline-block;margin:0 5px 0 0;vertical-align:middle;' alt='avatar'/>` : '';
+            const name = r.fullName ? `<b style="font-size:14px;vertical-align:middle;">${r.fullName}</b>` : '';
+            const comment = r.comment ? `<div style='font-style:italic;line-height:1.3;margin-bottom:1px;font-size:13px;'>\"${r.comment}\"</div>` : '';
+            const date = r.createdAt ? `<div style='font-size:11px;color:#888;'>${new Date(r.createdAt).toLocaleDateString('vi-VN')}</div>` : '';
+            return `
+              ${stars}
+              <div style=\"display:flex;align-items:center;gap:5px;margin-bottom:2px;\">
+                ${avatar}${name}
+              </div>
+              ${comment}
+              ${date}
+            `;
+        }), true));
+        // Số lượng phòng còn lại
+        tbody.appendChild(renderRow('Số lượng phòng còn lại', comparedHotels.map(h => {
+            const detail = hotelDetails[h.hotelId];
+            return (detail && typeof detail.availableRooms !== 'undefined') ? String(detail.availableRooms) : '0';
+        })));
+        // Tiện ích (amenities) - mỗi tiện ích là một hàng, mỗi khách sạn là một cột
+        // Lấy danh sách tất cả amenities xuất hiện ở bất kỳ khách sạn nào
+        let allAmenitiesArr = [];
+        let amenitiesSet = new Set();
+        comparedHotels.forEach(h => {
+            (hotelDetails[h.hotelId].amenities || []).forEach(a => amenitiesSet.add(a));
+        });
+        allAmenitiesArr = Array.from(amenitiesSet);
+        // Chỉ hiển thị tối đa 5 tiện ích đầu tiên
+        const maxAmenitiesShow = 5;
+        let amenitiesToShow = allAmenitiesArr.slice(0, maxAmenitiesShow);
+        amenitiesToShow.forEach((amenity, idx) => {
+            const tr = document.createElement('tr');
+            const th = document.createElement('th');
+            th.scope = 'row';
+            th.innerHTML = `<span class="h6 mb-0">${amenity}</span>`;
+            tr.appendChild(th);
+            for (let j = 0; j < 3; j++) {
+                const td = document.createElement('td');
+                if (comparedHotels[j]) {
+                    const amenities = (hotelDetails[comparedHotels[j].hotelId].amenities || []);
+                    if (amenities.includes(amenity)) {
+                        td.innerHTML = '<span class="h5 text-success mb-0"><i class="bi bi-check-lg"></i></span>';
+                    } else {
+                        td.innerHTML = '<span class="h5 text-danger mb-0"><i class="bi bi-x-lg"></i></span>';
+                    }
+                }
+                tr.appendChild(td);
+            }
+            tbody.appendChild(tr);
+        });
+        // Nếu có nhiều hơn 5 amenities thì thêm nút "xem thêm"
+        if (allAmenitiesArr.length > maxAmenitiesShow) {
+            const tr = document.createElement('tr');
+            tr.id = 'show-more-amenities-row';
+            const td = document.createElement('td');
+            td.colSpan = 4;
+            td.className = 'text-center';
+            td.innerHTML = '<button id="show-more-amenities-btn" class="btn btn-link" type="button" onclick="showMoreAmenities()"><i class="bi bi-chevron-down"></i> Xem thêm tiện ích</button>';
+            tr.appendChild(td);
+            tbody.appendChild(tr);
+        }
+        // Hành động
+        tbody.appendChild(renderRow('Thao tác', comparedHotels.map(h => `<button class="btn btn-sm btn-outline-primary mb-0" onclick="removeHotelFromCompare(${h.hotelId})">Xóa</button>`), true));
+    }
+    // Sửa renderRow để chỉ render đúng số cột bằng comparedHotels.length
+    function renderRow(label, cols, isHtml) {
+        const tr = document.createElement('tr');
+        const th = document.createElement('th');
+        th.scope = 'row';
+        th.innerHTML = `<span class="h6 mb-0">${label}</span>`;
+        tr.appendChild(th);
+        for (let i = 0; i < comparedHotels.length; i++) {
+            const td = document.createElement('td');
+            td.className = 'compare-hotel-td';
+            if (cols[i]) {
+                if (isHtml) td.innerHTML = cols[i];
+                else td.textContent = cols[i];
+            } else td.innerHTML = '';
+            tr.appendChild(td);
+        }
+        return tr;
+    }
+    // Helper render rating
+    function renderRating(rating) {
+        let html = '';
+        const r = Math.floor(rating || 0);
+        for (let i = 0; i < r; i++) html += '<i class="bi bi-star-fill text-warning"></i>';
+        for (let i = r; i < 5; i++) html += '<i class="bi bi-star"></i>';
+        html += `<span class="ms-1">${rating || ''}</span>`;
+        return html;
+    }
+    // Hàm showMoreAmenities: hiện thêm các amenities còn lại
+    function showMoreAmenities() {
+        // Xóa nút
+        document.getElementById('show-more-amenities-row').remove();
+        // Render thêm các amenities còn lại
+        const tbody = document.getElementById('compare-table-body');
+        let allAmenitiesArr = [];
+        let amenitiesSet = new Set();
+        comparedHotels.forEach(h => {
+            (hotelDetails[h.hotelId].amenities || []).forEach(a => amenitiesSet.add(a));
+        });
+        allAmenitiesArr = Array.from(amenitiesSet);
+        const maxAmenitiesShow = 5;
+        let extraRows = [];
+        for (let idx = maxAmenitiesShow; idx < allAmenitiesArr.length; idx++) {
+            const amenity = allAmenitiesArr[idx];
+            const tr = document.createElement('tr');
+            tr.classList.add('extra-amenity-row');
+            const th = document.createElement('th');
+            th.scope = 'row';
+            th.innerHTML = `<span class="h6 mb-0">${amenity}</span>`;
+            tr.appendChild(th);
+            for (let j = 0; j < 3; j++) {
+                const td = document.createElement('td');
+                if (comparedHotels[j]) {
+                    const amenities = (hotelDetails[comparedHotels[j].hotelId].amenities || []);
+                    if (amenities.includes(amenity)) {
+                        td.innerHTML = '<span class="h5 text-success mb-0"><i class="bi bi-check-lg"></i></span>';
+                    } else {
+                        td.innerHTML = '<span class="h5 text-danger mb-0"><i class="bi bi-x-lg"></i></span>';
+                    }
+                }
+                tr.appendChild(td);
+            }
+            // Thêm vào trước dòng thao tác (dòng cuối cùng)
+            tbody.insertBefore(tr, tbody.lastChild);
+            extraRows.push(tr);
+        }
+        // Thêm nút rút gọn
+        const trCollapse = document.createElement('tr');
+        trCollapse.id = 'collapse-amenities-row';
+        const tdCollapse = document.createElement('td');
+        tdCollapse.colSpan = 4;
+        tdCollapse.className = 'text-center';
+        tdCollapse.innerHTML = '<button id="collapse-amenities-btn" class="btn btn-link" type="button" onclick="collapseAmenities()"><i class="bi bi-chevron-up"></i> Rút gọn tiện ích</button>';
+        trCollapse.appendChild(tdCollapse);
+        tbody.insertBefore(trCollapse, tbody.lastChild);
+    }
+    // Hàm collapseAmenities: ẩn các amenities ngoài 5 tiện ích đầu và hiện lại nút xem thêm
+    function collapseAmenities() {
+        // Xóa các dòng tiện ích thêm
+        document.querySelectorAll('.extra-amenity-row').forEach(row => row.remove());
+        // Xóa nút rút gọn
+        const collapseRow = document.getElementById('collapse-amenities-row');
+        if (collapseRow) collapseRow.remove();
+        // Thêm lại nút xem thêm
+        const tbody = document.getElementById('compare-table-body');
+        const tr = document.createElement('tr');
+        tr.id = 'show-more-amenities-row';
+        const td = document.createElement('td');
+        td.colSpan = 4;
+        td.className = 'text-center';
+        td.innerHTML = '<button id="show-more-amenities-btn" class="btn btn-link" type="button" onclick="showMoreAmenities()"><i class="bi bi-chevron-down"></i> Xem thêm tiện ích</button>';
+        tr.appendChild(td);
+        // Thêm vào trước dòng thao tác (dòng cuối cùng)
+        tbody.insertBefore(tr, tbody.lastChild);
+    }
+    // Khởi tạo bảng rỗng khi load trang
+    document.addEventListener('DOMContentLoaded', function() {
+        renderCompareTable();
+    });
+    </script>
+</body>
+</html>
