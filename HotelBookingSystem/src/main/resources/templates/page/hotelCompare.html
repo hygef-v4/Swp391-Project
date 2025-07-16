@@ -256,6 +256,14 @@
     margin: 0;
     box-sizing: border-box;
 }
+#addHotelModal td:nth-child(2), #addHotelModal th:nth-child(2) {
+    white-space: normal !important;
+    word-break: break-word;
+    max-width: 220px;
+}
+#addHotelModal .table-responsive {
+    overflow-x: unset !important;
+}
 </style>
 </head>
 <body>
@@ -528,6 +536,21 @@
         const ul = document.getElementById('hotel-list-pagination');
         ul.innerHTML = '';
         if (totalPages <= 1) return;
+
+        // Nút mũi tên trái
+        const prevLi = document.createElement('li');
+        prevLi.className = 'page-item' + (hotelFilterPage === 1 ? ' disabled' : '');
+        prevLi.innerHTML = `<a class="page-link" href="#"><span aria-hidden="true">&laquo;</span></a>`;
+        prevLi.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (hotelFilterPage > 1) {
+                hotelFilterPage--;
+                renderHotelListTable();
+            }
+        });
+        ul.appendChild(prevLi);
+
+        // Các nút số trang
         for (let i = 1; i <= totalPages; i++) {
             const li = document.createElement('li');
             li.className = 'page-item' + (i === hotelFilterPage ? ' active' : '');
@@ -539,6 +562,19 @@
             });
             ul.appendChild(li);
         }
+
+        // Nút mũi tên phải
+        const nextLi = document.createElement('li');
+        nextLi.className = 'page-item' + (hotelFilterPage === totalPages ? ' disabled' : '');
+        nextLi.innerHTML = `<a class="page-link" href="#"><span aria-hidden="true">&raquo;</span></a>`;
+        nextLi.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (hotelFilterPage < totalPages) {
+                hotelFilterPage++;
+                renderHotelListTable();
+            }
+        });
+        ul.appendChild(nextLi);
     }
     function initHotelFilterUI() {
         // Thành phố
