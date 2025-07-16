@@ -16,6 +16,247 @@
     <!-- Theme CSS -->
     <link rel="stylesheet" type="text/css" href="/assets/css/style.css">
     <link rel="shortcut icon" href="/assets/images/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="/assets/vendor/nouislider/nouislider.css">
+    <style>
+/* Chỉ giữ lại style input cho đẹp, bỏ max-width nhỏ */
+#addHotelModal .input-with-range-min,
+#addHotelModal .input-with-range-max {
+    width: 60px;
+    font-size: 14px;
+    padding: 2px 4px;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    text-align: center;
+}
+/* Đảm bảo thanh trượt và số không bị cắt */
+#addHotelModal .noui-wrapper {
+    padding-left: 0;
+    padding-right: 0;
+    width: 100%;
+}
+#addHotelModal .d-flex.justify-content-between {
+    gap: 8px;
+}
+#addHotelModal .noui-slider-range {
+    width: 100%;
+    margin-top: 8px;
+}
+/* Style màu sắc giống hotel list */
+#addHotelModal .noUi-target {
+    background: #e9ecef;
+    border-radius: 8px;
+    border: none;
+    box-shadow: none;
+    height: 8px;
+}
+#addHotelModal .noUi-connect {
+    background: #5b47fb;
+}
+#addHotelModal .noUi-handle {
+    background: #fff;
+    border: 3px solid #5b47fb;
+    box-shadow: 0 2px 8px rgba(91,71,251,0.08);
+    width: 24px;
+    height: 24px;
+    top: -8px;
+}
+#addHotelModal .noUi-handle:after, 
+#addHotelModal .noUi-handle:before {
+    display: none;
+}
+#addHotelModal .noui-wrapper {
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+}
+#addHotelModal .d-flex.justify-content-between {
+    gap: 8px;
+}
+#addHotelModal .input-with-range-min,
+#addHotelModal .input-with-range-max {
+    width: 80px;
+    font-size: 14px;
+    padding: 2px 4px;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    text-align: center;
+}
+#addHotelModal .noui-slider-range {
+    width: 100%;
+    margin-top: 8px;
+    padding: 0;
+    box-sizing: border-box;
+}
+#addHotelModal .noui-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 8px;
+}
+#addHotelModal .noui-slider-range {
+    width: 100%;
+    margin-top: 8px;
+    box-sizing: border-box;
+}
+#addHotelModal .d-flex.justify-content-between {
+    width: 100%;
+    gap: 8px;
+    margin-bottom: 2px;
+}
+#addHotelModal .input-with-range-min,
+#addHotelModal .input-with-range-max {
+    width: 80px;
+    font-size: 14px;
+    padding: 2px 4px;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    text-align: center;
+}
+#addHotelModal .filter-action-row {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+    margin-top: 4px;
+    margin-right: 8px;
+}
+#addHotelModal #filter-apply-btn {
+    min-width: 90px;
+}
+/* Bo tròn ảnh khách sạn */
+#addHotelModal td img {
+    border-radius: 8px;
+}
+/* Căn giữa nút Thêm và giá */
+#addHotelModal .table td, #addHotelModal .table th {
+    vertical-align: middle;
+}
+#addHotelModal td:last-child {
+    text-align: center;
+}
+#addHotelModal td:nth-child(4) {
+    text-align: center;
+}
+/* Nút Thêm: màu tím, hover đậm hơn */
+#addHotelModal .btn-primary {
+    background: #5b47fb;
+    border: none;
+    transition: background 0.2s;
+}
+#addHotelModal .btn-primary:hover {
+    background: #3d2fc7;
+}
+/* Pagination: bo tròn, padding lớn hơn */
+#addHotelModal .pagination .page-link {
+    border-radius: 6px !important;
+    padding: 6px 14px;
+}
+/* Hover hàng bảng */
+#addHotelModal .table tbody tr:hover {
+    background: #f8f9fa;
+}
+/* Tăng gap filter bar */
+#addHotelModal .row.g-2.align-items-end.mb-3 {
+    gap: 16px;
+}
+/* Đậm label filter */
+#addHotelModal .form-label {
+    font-weight: 600;
+}
+#addHotelModal .noui-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 0;
+    gap: 8px;
+}
+#addHotelModal .noui-slider-range {
+    width: 100%;
+    margin: 0 8px;
+    box-sizing: border-box;
+}
+#addHotelModal .input-with-range-min,
+#addHotelModal .input-with-range-max {
+    width: 80px;
+    min-width: 60px;
+    font-size: 14px;
+    padding: 2px 4px;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    text-align: center;
+}
+#addHotelModal .noui-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0;
+    gap: 0;
+}
+#addHotelModal .noui-slider-range {
+    width: 100%;
+    margin-top: 0;
+    box-sizing: border-box;
+}
+#addHotelModal .d-flex.justify-content-between.mb-1 {
+    width: 100%;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+#addHotelModal .input-with-range-min,
+#addHotelModal .input-with-range-max {
+    width: 80px;
+    min-width: 60px;
+    font-size: 14px;
+    padding: 2px 4px;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    text-align: center;
+}
+#addHotelModal .noui-wrapper {
+    max-width: 340px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0 12px;
+    gap: 0;
+}
+#addHotelModal .noui-wrapper .d-flex.align-items-center {
+    width: 100%;
+    gap: 8px;
+}
+#addHotelModal .input-with-range-min,
+#addHotelModal .input-with-range-max {
+    width: 80px;
+    min-width: 60px;
+    font-size: 14px;
+    padding: 2px 4px;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    text-align: center;
+    flex: none;
+}
+#addHotelModal .flex-grow-1 {
+    flex: 1 1 0%;
+    min-width: 0;
+}
+#addHotelModal .noui-slider-range {
+    width: 100%;
+    margin: 0;
+    box-sizing: border-box;
+}
+</style>
 </head>
 <body>
     <!-- Header dùng chung -->
@@ -88,16 +329,64 @@
         <!-- ======================= Compare listing END -->
         <!-- Modal chọn khách sạn -->
         <div class="modal fade" id="addHotelModal" tabindex="-1" aria-labelledby="addHotelModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="addHotelModalLabel">Chọn khách sạn để so sánh</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <ul class="list-group" id="hotel-list-select">
-                            <li class="list-group-item text-center">Đang tải...</li>
-                        </ul>
+                        <!-- Filter bar -->
+                        <form id="hotel-filter-form" class="row g-2 align-items-end mb-3">
+                            <div class="row g-2 align-items-center mb-3">
+                                <div class="col-md-4">
+                                    <label class="form-label mb-1">Tên khách sạn</label>
+                                    <input type="text" class="form-control" id="filter-hotel-name" placeholder="Nhập tên khách sạn...">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label mb-1">Thành phố</label>
+                                    <select class="form-select" id="filter-city">
+                                        <option value="">Tất cả</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-5">
+                                    <label class="form-label mb-1">Khoảng giá</label>
+                                    <div class="noui-wrapper">
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <input type="text" class="text-body input-with-range-min" id="filter-price-min-input">
+                                            <input type="text" class="text-body input-with-range-max" id="filter-price-max-input">
+                                        </div>
+                                        <div class="noui-slider-range" id="filter-price-slider"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Thay phần nút filter trong modal -->
+                            <div class="col-12 filter-action-row">
+                                <button type="button" class="btn btn-link" id="filter-reset-btn">Reset</button>
+                                <button type="button" class="btn btn-dark" id="filter-apply-btn">Áp dụng</button>
+                            </div>
+                        </form>
+                        <!-- Danh sách khách sạn dạng bảng -->
+                        <div class="table-responsive">
+                            <table class="table table-bordered align-middle mb-2" id="hotel-list-table">
+                                <thead>
+                                    <tr>
+                                        <th>Ảnh</th>
+                                        <th>Tên khách sạn</th>
+                                        <th>Thành phố</th>
+                                        <th>Giá từ</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="hotel-list-table-body">
+                                    <tr><td colspan="5" class="text-center">Đang tải...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- Pagination -->
+                        <nav>
+                            <ul class="pagination justify-content-center mb-0" id="hotel-list-pagination"></ul>
+                        </nav>
                     </div>
                 </div>
             </div>
@@ -145,6 +434,7 @@
     <script src="/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <!-- ThemeFunctions -->
     <script src="/assets/js/functions.js"></script>
+    <script src="/assets/vendor/nouislider/nouislider.min.js"></script>
     <script th:inline="javascript">
     // Dữ liệu khách sạn từ server (dùng cho popup)
     const allHotels = /*[[${allHotels}]]*/ [];
@@ -152,6 +442,174 @@
     let comparedHotels = [];
     let hotelDetails = {};
     let allAmenities = new Set();
+
+    // --- FILTER & PAGINATION LOGIC FOR HOTEL SELECT MODAL ---
+    const HOTELS_PER_PAGE = 5;
+    let hotelFilter = {
+        name: '',
+        city: '',
+        priceMin: null,
+        priceMax: null
+    };
+    let hotelFilterApplied = { ...hotelFilter };
+    let hotelFilterPage = 1;
+    let hotelFilterResult = [];
+    let hotelFilterMinPrice = 0, hotelFilterMaxPrice = 0;
+
+    function getUniqueCities(hotels) {
+        const set = new Set();
+        hotels.forEach(h => h.cityName && set.add(h.cityName));
+        return Array.from(set);
+    }
+    function getMinMaxPrice(hotels) {
+        let min = Number.POSITIVE_INFINITY, max = 0;
+        hotels.forEach(h => {
+            if (typeof h.minPrice === 'number') {
+                if (h.minPrice < min) min = h.minPrice;
+                if (h.minPrice > max) max = h.minPrice;
+            }
+        });
+        return [min === Number.POSITIVE_INFINITY ? 0 : min, max];
+    }
+    function applyHotelFilter() {
+        let filtered = allHotels.filter(hotel => {
+            if (comparedHotels.find(h => h.hotelId === hotel.hotelId)) return false;
+            if (hotelFilterApplied.name && !hotel.hotelName.toLowerCase().includes(hotelFilterApplied.name.toLowerCase())) return false;
+            if (hotelFilterApplied.city && hotel.cityName !== hotelFilterApplied.city) return false;
+            if (hotelFilterApplied.priceMin !== null && hotel.minPrice < hotelFilterApplied.priceMin) return false;
+            if (hotelFilterApplied.priceMax !== null && hotel.minPrice > hotelFilterApplied.priceMax) return false;
+            return true;
+        });
+        hotelFilterResult = filtered;
+        hotelFilterPage = 1;
+        renderHotelListTable();
+    }
+    function resetHotelFilter() {
+        hotelFilter = {
+            name: '',
+            city: '',
+            priceMin: hotelFilterMinPrice,
+            priceMax: hotelFilterMaxPrice
+        };
+        document.getElementById('filter-hotel-name').value = '';
+        document.getElementById('filter-city').value = '';
+        document.getElementById('filter-price-min-input').value = hotelFilterMinPrice;
+        document.getElementById('filter-price-max-input').value = hotelFilterMaxPrice;
+        hotelFilterApplied = { ...hotelFilter };
+        applyHotelFilter(); // Luôn render bảng sau reset
+    }
+    function renderHotelListTable() {
+        const tbody = document.getElementById('hotel-list-table-body');
+        tbody.innerHTML = '';
+        const start = (hotelFilterPage - 1) * HOTELS_PER_PAGE;
+        const end = start + HOTELS_PER_PAGE;
+        const pageHotels = hotelFilterResult.slice(start, end);
+        if (pageHotels.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center">Không có khách sạn nào</td></tr>';
+            renderHotelListPagination();
+            return;
+        }
+        pageHotels.forEach(hotel => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><img src="${hotel.hotelImageUrl || '/assets/images/element/compare.svg'}" style="width:60px;height:40px;object-fit:cover;border-radius:8px;background:#f5f5f5;" alt="Ảnh"/></td>
+                <td>${hotel.hotelName}</td>
+                <td>${hotel.cityName || ''}</td>
+                <td>${hotel.minPrice ? hotel.minPrice.toLocaleString('vi-VN') + ' đ' : 'N/A'}</td>
+                <td><button class='btn btn-sm btn-primary' onclick='addHotelToCompare(${hotel.hotelId})'>Thêm</button></td>
+            `;
+            tbody.appendChild(tr);
+        });
+        renderHotelListPagination();
+    }
+    function renderHotelListPagination() {
+        const total = hotelFilterResult.length;
+        const totalPages = Math.ceil(total / HOTELS_PER_PAGE);
+        const ul = document.getElementById('hotel-list-pagination');
+        ul.innerHTML = '';
+        if (totalPages <= 1) return;
+        for (let i = 1; i <= totalPages; i++) {
+            const li = document.createElement('li');
+            li.className = 'page-item' + (i === hotelFilterPage ? ' active' : '');
+            li.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+            li.addEventListener('click', function(e) {
+                e.preventDefault();
+                hotelFilterPage = i;
+                renderHotelListTable();
+            });
+            ul.appendChild(li);
+        }
+    }
+    function initHotelFilterUI() {
+        // Thành phố
+        const citySelect = document.getElementById('filter-city');
+        const cities = getUniqueCities(allHotels);
+        citySelect.innerHTML = '<option value="">Tất cả</option>';
+        cities.forEach(city => {
+            const opt = document.createElement('option');
+            opt.value = city;
+            opt.textContent = city;
+            citySelect.appendChild(opt);
+        });
+        // Giá min/max
+        [hotelFilterMinPrice, hotelFilterMaxPrice] = getMinMaxPrice(allHotels);
+        // Khởi tạo noUiSlider
+        const slider = document.getElementById('filter-price-slider');
+        if (slider.noUiSlider) slider.noUiSlider.destroy();
+        noUiSlider.create(slider, {
+            start: [hotelFilterMinPrice, hotelFilterMaxPrice],
+            connect: true,
+            step: 10000,
+            range: {
+                min: hotelFilterMinPrice,
+                max: hotelFilterMaxPrice
+            },
+            format: {
+                to: value => Math.round(value),
+                from: value => Number(value)
+            }
+        });
+        const minInput = document.getElementById('filter-price-min-input');
+        const maxInput = document.getElementById('filter-price-max-input');
+        minInput.value = hotelFilterMinPrice;
+        maxInput.value = hotelFilterMaxPrice;
+        slider.noUiSlider.on('update', function(values, handle) {
+            minInput.value = parseInt(values[0]);
+            maxInput.value = parseInt(values[1]);
+        });
+        minInput.addEventListener('change', function() {
+            let min = parseInt(minInput.value) || hotelFilterMinPrice;
+            let max = parseInt(maxInput.value) || hotelFilterMaxPrice;
+            if (min > max) min = max;
+            slider.noUiSlider.set([min, null]);
+        });
+        maxInput.addEventListener('change', function() {
+            let min = parseInt(minInput.value) || hotelFilterMinPrice;
+            let max = parseInt(maxInput.value) || hotelFilterMaxPrice;
+            if (max < min) max = min;
+            slider.noUiSlider.set([null, max]);
+        });
+    }
+    document.getElementById('addHotelModal').addEventListener('show.bs.modal', function() {
+        initHotelFilterUI();
+        resetHotelFilter();
+        applyHotelFilter(); // Hiển thị danh sách ngay khi mở popup
+    });
+    document.getElementById('filter-apply-btn').addEventListener('click', function() {
+        const slider = document.getElementById('filter-price-slider');
+        const [min, max] = slider.noUiSlider.get();
+        hotelFilterApplied = {
+            name: document.getElementById('filter-hotel-name').value.trim(),
+            city: document.getElementById('filter-city').value,
+            priceMin: parseInt(min),
+            priceMax: parseInt(max)
+        };
+        applyHotelFilter();
+    });
+    document.getElementById('filter-reset-btn').addEventListener('click', function() {
+        initHotelFilterUI();
+        resetHotelFilter();
+    });
 
     // Render danh sách khách sạn trong modal
     function renderHotelListSelect() {
