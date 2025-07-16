@@ -66,8 +66,8 @@ public class ModeratorHotelListController {
         Map<Integer, User> hostMap = new HashMap<>();
         int pendingCount = pendingHotels.size();
         int approvedCount = activeHotels.size();
-        int rejectedCount = inactiveHotels.size();
-        int bannedCount = bannedHotels.size();
+        int rejectedCount = inactiveHotels.size(); // dừng hoạt động
+        int bannedCount = bannedHotels.size(); // bị khóa
 
         // Get host info
         for (Hotel hotel : sortedHotels) {
@@ -126,6 +126,30 @@ public class ModeratorHotelListController {
         Map<String, Object> res = new HashMap<>();
         res.put("success", true);
         res.put("message", "Từ chối khách sạn thành công!");
+        return res;
+    }
+
+    @PostMapping("/api/moderator/hotels/{id}/unlock")
+    @ResponseBody
+    public Map<String, Object> unlockHotel(@PathVariable int id) {
+        hotelService.updateHotelStatus(id, "active");
+        // Notify hotel owner
+        Hotel hotel = hotelService.getHotelById(id);
+        if (hotel != null) {
+            notificationService.createNotification(
+                hotel.getHostId(),
+                "Khách sạn được mở khóa",
+                "Khách sạn của bạn đã được mở khóa và hoạt động trở lại.",
+                "hotel",
+                "info",
+                "/host-listing",
+                "bi-unlock",
+                Map.of("hotelId", hotel.getHotelId(), "hotelName", hotel.getHotelName())
+            );
+        }
+        Map<String, Object> res = new HashMap<>();
+        res.put("success", true);
+        res.put("message", "Mở khóa khách sạn thành công!");
         return res;
     }
 
