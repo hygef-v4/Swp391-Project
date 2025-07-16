@@ -210,7 +210,7 @@
                 <div class="col-lg-5">
                     <!-- Tabs -->
                     <ul class="nav nav-pills-shadow nav-responsive" role="tablist">
-                        <li class="nav-item" role="presentation">
+                        <li class="nav-item hover-card" role="presentation">
                             <a class="nav-link mb-0 me-sm-2"
                                th:classappend="${filter == 'all'} ? ' active'"
                                th:href="@{/admin-review(filter='all', hotelName=${selectedHotelName})}">
@@ -218,14 +218,14 @@
                             </a>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <a class="nav-link mb-0 me-sm-2"
+                            <a class="nav-link hover-card mb-0 me-sm-2"
                                th:classappend="${filter == 'published'} ? ' active'"
                                th:href="@{/admin-review(filter='published', hotelName=${selectedHotelName})}">
                                 Công khai
                             </a>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <a class="nav-link mb-0"
+                            <a class="nav-link mb-0 hover-card"
                                th:classappend="${filter == 'deleted'} ? ' active'"
                                th:href="@{/admin-review(filter='deleted', hotelName=${selectedHotelName})}">
                                 Đã xoá
@@ -234,8 +234,24 @@
                     </ul>
                 </div>
 
+                <!-- Search -->
+                <div class="col-md-6 col-lg-4 hover-card">
+                    <form class="rounded position-relative" th:action="@{/admin-booking-list}" method="get">
+                        <input class="form-control bg-transparent"
+                               type="text"
+                               name="search"
+                               th:value="${search}"
+                               placeholder="Tìm kiếm">
+                        <input type="hidden" name="status" th:value="${statusFilter}">
+                        <input type="hidden" name="view" th:value="${viewMode}">
+                        <button class="bg-transparent p-2 position-absolute top-50 end-0 translate-middle-y border-0 text-primary-hover text-reset" type="submit">
+                            <i class="fas fa-search fs-6"></i>
+                        </button>
+                    </form>
+                </div>
+
                 <!-- Select -->
-                <div class="col-md-6 col-lg-3">
+                <div class="col-md-6 col-lg-3 hover-card">
                     <form method="get" action="/admin-review">
                         <input type="hidden" name="filter" th:value="${filter}" />
                         <select class="form-select js-choice" name="hotelName" onchange="this.form.submit()">
