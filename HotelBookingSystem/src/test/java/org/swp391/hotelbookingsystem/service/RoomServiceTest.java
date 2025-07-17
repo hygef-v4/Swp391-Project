@@ -93,6 +93,7 @@ class RoomServiceTest {
         when(roomRepository.insertRoom(any(Room.class))).thenReturn(1);
         doNothing().when(roomRepository).insertRoomImage(anyInt(), anyString());
         doNothing().when(roomRepository).linkRoomAmenity(anyInt(), anyInt());
+        // ensures doesn't throw any errors when those methods are called during saveRoom()
 
         roomService.saveRoom(testRoom, amenityIds, imageUrls);
 
