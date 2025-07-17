@@ -2,7 +2,9 @@ package org.swp391.hotelbookingsystem.service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -134,7 +136,30 @@ public class BookingService {
     }
 
     public List<Map<String, Object>> getBookingStatsByHostId(int hostId, String period) {
-        return bookingRepo.getBookingStatsByHostId(hostId, period);
+        List<Map<String, Object>> rawStats = bookingRepo.getBookingStatsByHostId(hostId, period);
+        if (!"6months".equals(period)) {
+            return rawStats;
+        }
+        // Build a map for quick lookup
+        Map<String, Integer> monthToCount = new HashMap<>();
+        for (Map<String, Object> stat : rawStats) {
+            String category = String.valueOf(stat.get("category"));
+            Integer count = stat.get("count") == null ? 0 : Integer.parseInt(stat.get("count").toString());
+            monthToCount.put(category, count);
+        }
+        // Generate last 6 months (including current month)
+        List<Map<String, Object>> result = new ArrayList<>();
+        java.time.YearMonth now = java.time.YearMonth.now();
+        java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM");
+        for (int i = 5; i >= 0; i--) {
+            java.time.YearMonth ym = now.minusMonths(i);
+            String key = ym.format(formatter);
+            Map<String, Object> item = new HashMap<>();
+            item.put("category", key);
+            item.put("count", monthToCount.getOrDefault(key, 0));
+            result.add(item);
+        }
+        return result;
     }
 
     // Calculate overall booking status based on booking units
