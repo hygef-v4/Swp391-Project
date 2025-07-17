@@ -129,6 +129,40 @@
             </div>
             <!-- Title END -->
 
+            <!-- Search Form START -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card border">
+                        <div class="card-body">
+                            <form method="GET" action="/host-listing" class="row g-3 align-items-center">
+                                <div class="col-md-8">
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                        <input type="text"
+                                               class="form-control"
+                                               name="search"
+                                               th:value="${search}"
+                                               placeholder="Tìm kiếm khách sạn theo tên..."
+                                               autocomplete="off">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="d-flex gap-2">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="bi bi-search me-1"></i>Tìm kiếm
+                                        </button>
+                                        <a href="/host-listing" class="btn btn-outline-secondary">
+                                            <i class="bi bi-arrow-clockwise me-1"></i>Đặt lại
+                                        </a>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Search Form END -->
+
             <!-- Listing table START -->
             <div class="row">
                 <div class="col-12">
@@ -137,8 +171,14 @@
                         <!-- Card header -->
                         <div class="card-header border-bottom d-flex justify-content-between align-items-center">
                             <h5 class="card-header-title mb-0">
-                                Khách sạn của tôi
-                                <span class="badge bg-primary bg-opacity-10 text-primary ms-2">[[${hotels.size()}]]</span>
+                                <span th:if="${search != null and !search.isEmpty()}">
+                                    Kết quả tìm kiếm: "<span th:text="${search}"></span>"
+                                    <span class="badge bg-primary bg-opacity-10 text-primary ms-2" th:text="${totalHotels}"></span>
+                                </span>
+                                <span th:unless="${search != null and !search.isEmpty()}">
+                                    Khách sạn của tôi
+                                    <span class="badge bg-primary bg-opacity-10 text-primary ms-2" th:text="${totalHotels}"></span>
+                                </span>
                             </h5>
 
                             <a href="/add-hotel" class="btn btn-sm btn-primary-soft">
@@ -149,6 +189,21 @@
 
                         <!-- Card body START -->
                         <div class="card-body vstack gap-3">
+                            <!-- No results message -->
+                            <div th:if="${hotels.isEmpty()}" class="text-center py-5">
+                                <i class="bi bi-search display-1 text-muted"></i>
+                                <h4 class="mt-3 text-muted">Không tìm thấy khách sạn nào</h4>
+                                <p class="text-muted" th:if="${search != null and !search.isEmpty()}">
+                                    Không có khách sạn nào phù hợp với từ khóa "<span th:text="${search}"></span>"
+                                </p>
+                                <p class="text-muted" th:unless="${search != null and !search.isEmpty()}">
+                                    Bạn chưa có khách sạn nào. Hãy thêm khách sạn đầu tiên của bạn!
+                                </p>
+                                <a href="/add-hotel" class="btn btn-primary">
+                                    <i class="bi bi-plus-lg me-1"></i> Thêm khách sạn mới
+                                </a>
+                            </div>
+
                             <!-- Listing item START -->
                             <div th:each="hotel : ${hotels}" class="card border p-2 mb-3">
                                 <div class="row g-4">
@@ -355,6 +410,66 @@
                 </div>
             </div>
             <!-- Listing table END -->
+
+            <!-- Pagination START -->
+            <div class="row" th:if="${totalPages > 1}">
+                <div class="col-12">
+                    <nav aria-label="Pagination">
+                        <ul class="pagination pagination-primary-soft d-flex justify-content-center">
+                            <!-- Previous button -->
+                            <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled' : ''">
+                                <a class="page-link"
+                                   th:href="@{/host-listing(page=${currentPage - 1}, search=${search})}"
+                                   th:if="${currentPage > 1}">
+                                    <i class="bi bi-arrow-left"></i>
+                                </a>
+                                <span class="page-link" th:unless="${currentPage > 1}">
+                                    <i class="bi bi-arrow-left"></i>
+                                </span>
+                            </li>
+
+                            <!-- Page numbers -->
+                            <li th:each="pageNum : ${#numbers.sequence(1, totalPages)}"
+                                class="page-item"
+                                th:classappend="${pageNum == currentPage} ? 'active' : ''">
+                                <a class="page-link"
+                                   th:href="@{/host-listing(page=${pageNum}, search=${search})}"
+                                   th:text="${pageNum}"
+                                   th:if="${pageNum != currentPage}">1</a>
+                                <span class="page-link"
+                                      th:text="${pageNum}"
+                                      th:if="${pageNum == currentPage}">1</span>
+                            </li>
+
+                            <!-- Next button -->
+                            <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled' : ''">
+                                <a class="page-link"
+                                   th:href="@{/host-listing(page=${currentPage + 1}, search=${search})}"
+                                   th:if="${currentPage < totalPages}">
+                                    <i class="bi bi-arrow-right"></i>
+                                </a>
+                                <span class="page-link" th:unless="${currentPage < totalPages}">
+                                    <i class="bi bi-arrow-right"></i>
+                                </span>
+                            </li>
+                        </ul>
+                    </nav>
+
+                    <!-- Pagination info -->
+                    <div class="text-center mt-3">
+                        <small class="text-muted">
+                            Hiển thị
+                            <span th:text="${(currentPage - 1) * pageSize + 1}">1</span>
+                            -
+                            <span th:text="${#numbers.formatInteger(T(java.lang.Math).min(currentPage * pageSize, totalHotels), 0, 'COMMA')}">6</span>
+                            trong tổng số
+                            <span th:text="${#numbers.formatInteger(totalHotels, 0, 'COMMA')}">10</span>
+                            khách sạn
+                        </small>
+                    </div>
+                </div>
+            </div>
+            <!-- Pagination END -->
         </div>
     </section>
     <!-- =======================
@@ -419,6 +534,39 @@
             }
         }
 
+    });
+</script>
+
+<!-- Search Enhancement Script -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.querySelector('input[name="search"]');
+        const searchForm = document.querySelector('form[action="/host-listing"]');
+
+        // Auto-submit on Enter key
+        if (searchInput) {
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    searchForm.submit();
+                }
+            });
+
+            // Focus search input if there's a search term
+            const urlParams = new URLSearchParams(window.location.search);
+            const searchTerm = urlParams.get('search');
+            if (searchTerm) {
+                searchInput.focus();
+                // Move cursor to end of input
+                searchInput.setSelectionRange(searchInput.value.length, searchInput.value.length);
+            }
+        }
+
+        // Smooth scroll to results after search
+        const resultsSection = document.querySelector('.card-body .vstack');
+        if (resultsSection && window.location.search.includes('search=')) {
+            resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
     });
 </script>
 

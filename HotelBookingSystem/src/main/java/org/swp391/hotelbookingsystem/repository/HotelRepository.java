@@ -429,4 +429,44 @@ public class HotelRepository {
         String sql = "UPDATE Hotels SET status = 'banned' WHERE host_id = ?";
         jdbcTemplate.update(sql, hostId);
     }
+
+    public List<Hotel> findByHostIdWithSearchAndPagination(int hostId, String search, int offset, int limit) {
+        String sql = """
+                    SELECT h.hotel_id AS hotelId,
+                           h.host_id AS hostId,
+                           h.hotel_name AS hotelName,
+                           h.address,
+                           h.description,
+                           h.location_id AS locationId,
+                           h.hotel_image_url AS hotelImageUrl,
+                           h.rating,
+                           h.latitude,
+                           h.longitude,
+                           h.policy,
+                           h.status,
+                           MIN(r.price) AS minPrice,
+                           l.city_name AS cityName
+                    FROM Hotels h
+                    JOIN Locations l ON h.location_id = l.location_id
+                    LEFT JOIN Rooms r ON h.hotel_id = r.hotel_id
+                    WHERE h.host_id = ? AND h.hotel_name LIKE ?
+                    GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
+                             h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude,
+                             h.policy, h.status, l.city_name
+                    ORDER BY h.hotel_id DESC
+                    OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
+                """;
+
+        return jdbcTemplate.query(sql, ps -> {
+            ps.setInt(1, hostId);
+            ps.setString(2, "%" + (search == null ? "" : search.trim()) + "%");
+            ps.setInt(3, offset);
+            ps.setInt(4, limit);
+        }, HOTEL_MAPPER);
+    }
+
+    public int countHotelsByHostIdAndSearch(int hostId, String search) {
+        String sql = "SELECT COUNT(*) FROM Hotels WHERE host_id = ? AND hotel_name LIKE ?";
+        return jdbcTemplate.queryForObject(sql, Integer.class, hostId, "%" + (search == null ? "" : search.trim()) + "%");
+    }
 }

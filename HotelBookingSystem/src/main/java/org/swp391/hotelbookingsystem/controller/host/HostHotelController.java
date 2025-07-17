@@ -65,15 +65,42 @@ public class HostHotelController {
     }
 
     @GetMapping("/host-listing")
-    public String viewHostListings(HttpSession session, Model model) {
+    public String viewHostListings(
+            @RequestParam(value = "search", defaultValue = "") String search,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            HttpSession session,
+            Model model) {
         User host = (User) session.getAttribute("user");
 
         if (host == null || !host.getRole().equalsIgnoreCase("HOTEL_OWNER")) {
             return "redirect:/login"; // not logged in
         }
 
-        List<Hotel> hotels = hotelService.getHotelsByHostId(host.getId());
+        // Pagination settings
+        int pageSize = 6; // Number of hotels per page
+        int offset = (page - 1) * pageSize;
+
+        // Get hotels with search and pagination
+        List<Hotel> hotels;
+        int totalHotels;
+
+        if (search != null && !search.trim().isEmpty()) {
+            hotels = hotelService.getHotelsByHostIdWithSearchAndPagination(host.getId(), search, offset, pageSize);
+            totalHotels = hotelService.countHotelsByHostIdAndSearch(host.getId(), search);
+        } else {
+            hotels = hotelService.getHotelsByHostIdWithSearchAndPagination(host.getId(), "", offset, pageSize);
+            totalHotels = hotelService.countHotelsByHostIdAndSearch(host.getId(), "");
+        }
+
+        // Calculate pagination data
+        int totalPages = (int) Math.ceil((double) totalHotels / pageSize);
+
         model.addAttribute("hotels", hotels);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("totalHotels", totalHotels);
+        model.addAttribute("search", search);
+        model.addAttribute("pageSize", pageSize);
 
         return "host/host-listing";
     }

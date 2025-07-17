@@ -151,4 +151,12 @@ public class HotelService {
     public void banAllHotelsByHostId(int hostId) {
         hotelRepository.banAllHotelsByHostId(hostId);
     }
+
+    public List<Hotel> getHotelsByHostIdWithSearchAndPagination(int hostId, String search, int offset, int limit) {
+        return hotelRepository.findByHostIdWithSearchAndPagination(hostId, search, offset, limit);
+    }
+
+    public int countHotelsByHostIdAndSearch(int hostId, String search) {
+        return hotelRepository.countHotelsByHostIdAndSearch(hostId, search);
+    }
 }
