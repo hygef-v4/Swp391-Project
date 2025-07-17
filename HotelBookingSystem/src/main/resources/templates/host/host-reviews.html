@@ -175,7 +175,7 @@
                                         <span class="display-6 text-primary"> <i class="bi bi-trophy"></i> </span>
                                         <!-- Content -->
                                         <div class="ms-3">
-                                            <h4 class="mb-0" th:text="${averageRating}">4.5</h4>
+                                            <h4 class="mb-0" th:text="${#numbers.formatDecimal(averageRating, 1, 1)}">4.5</h4>
                                             <span>Đánh giá trung bình</span>
                                         </div>
                                     </div>
