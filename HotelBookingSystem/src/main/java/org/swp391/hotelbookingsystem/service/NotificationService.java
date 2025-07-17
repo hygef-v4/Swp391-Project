@@ -182,6 +182,13 @@ public class NotificationService {
         createNotification(userId, title, message, "wishlist", "normal", actionUrl, "bi-heartbreak", Map.of("hotelId", hotelId, "hotelName", hotelName));
     }
 
+    public void notifyProfileUpdate(int userId) {
+        String title = "Cập nhật thông tin cá nhân";
+        String message = "Bạn đã cập nhật thông tin cá nhân thành công.";
+        String actionUrl = "/user-profile";
+        createNotification(userId, title, message, "profile", "normal", actionUrl, "bi-person-circle", null);
+    }
+
     // Get user notifications with pagination
     public List<Map<String, Object>> getUserNotifications(int userId, int page, int size) {
         return notificationRepository.getUserNotifications(userId, page, size);

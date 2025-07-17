@@ -10,14 +10,18 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.swp391.hotelbookingsystem.service.UserService;
+import org.swp391.hotelbookingsystem.service.NotificationService;
 
 @Controller
 public class UserProfileController {
 
     private final UserService userService;
+    private final NotificationService notificationService;
 
-    public UserProfileController(UserService userService) {
+    @Autowired
+    public UserProfileController(UserService userService, NotificationService notificationService) {
         this.userService = userService;
+        this.notificationService = notificationService;
     }
 
     @GetMapping("/user-profile")
@@ -65,6 +69,7 @@ public class UserProfileController {
                 userService.updateUser(sessionUser);
 
                 session.setAttribute("user", sessionUser); // Cập nhật session
+                notificationService.notifyProfileUpdate(sessionUser.getId());
                 redirectAttributes.addFlashAttribute("success", "Cập nhật thông tin thành công.");
             } catch (IllegalArgumentException e) {
                 redirectAttributes.addFlashAttribute("error", e.getMessage());
