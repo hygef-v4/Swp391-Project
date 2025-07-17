@@ -1424,6 +1424,9 @@
                                 <a href="/host-customer-detail?customerId=${booking.customerId}" class="btn btn-sm btn-outline-success" title="Liên hệ khách">
                                     <i class="bi bi-chat-dots"></i>
                                 </a>
+                                <button class="btn btn-sm btn-outline-danger" onclick="rejectBooking('${booking.bookingId}')" title="Từ chối toàn bộ booking">
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
                             </div>
                         </td>
                     </tr>
@@ -1467,17 +1470,7 @@
                                             </div>
                                             <div class="d-flex justify-content-between align-items-center">
                                                 <div class="d-flex align-items-center gap-2">
-                                                    <span class="badge ${unit.statusClass}" id="status-badge-${unit.unitId}">${unit.status}</span>
-                                                    <div class="dropdown">
-                                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" title="Thay đổi trạng thái">
-                                                            <i class="bi bi-gear"></i>
-                                                        </button>
-                                                        <ul class="dropdown-menu dropdown-menu-end">
-<!--                                                           <li><a class="dropdown-item" href="#" onclick="updateBookingUnitStatus(${unit.unitId}, 'approved')">Phê duyệt</a></li>-->
-
-                                                            <li><a class="dropdown-item" href="#" onclick="updateBookingUnitStatus(${unit.unitId}, 'rejected')">Từ chối</a></li>
-                                                        </ul>
-                                                    </div>
+                                                    <span class="badge ${unit.statusClass} align-middle" id="status-badge-${unit.unitId}" style="min-width: 90px; text-align: center; font-size: 0.95em; padding: 0.5em 1em; letter-spacing: 0.02em;">${unit.status}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -1636,6 +1629,37 @@
         } catch (error) {
             console.error('Error updating status:', error);
             showNotification('error', 'Lỗi', 'Không thể cập nhật trạng thái: ' + error.message);
+        }
+    }
+
+    async function rejectBooking(bookingId) {
+        if (!confirm('Bạn có chắc chắn muốn từ chối toàn bộ booking này?')) return;
+
+        try {
+            const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+            const headers = {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            };
+            if (csrfToken && csrfHeader) {
+                headers[csrfHeader] = csrfToken;
+            }
+
+            const response = await fetch('/api/host/reject-booking', {
+                method: 'POST',
+                headers: headers,
+                body: `bookingId=${bookingId}`
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                showNotification('success', 'Thành công', result.message);
+                setTimeout(() => window.location.reload(), 1500);
+            } else {
+                showNotification('error', 'Lỗi', result.message || 'Không thể từ chối booking');
+            }
+        } catch (error) {
+            showNotification('error', 'Lỗi', 'Không thể từ chối booking: ' + error.message);
         }
     }
 

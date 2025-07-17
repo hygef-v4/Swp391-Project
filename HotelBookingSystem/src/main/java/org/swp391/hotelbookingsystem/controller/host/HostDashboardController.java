@@ -69,10 +69,6 @@ public class HostDashboardController {
     public String showHostDashboard(HttpSession session, Model model) {
         User host = (User) session.getAttribute("user");
 
-        // if (host == null || !host.getRole().equalsIgnoreCase("HOTEL_OWNER")) {
-        //     return "redirect:/login"; // not logged in
-        // }
-
         int totalRooms = roomService.getTotalRoomsByHostId(host.getId());
         model.addAttribute("totalRooms", totalRooms);
 
@@ -84,7 +80,6 @@ public class HostDashboardController {
         double totalRevenue = bookingService.getTotalRevenueByHostId(host.getId());
         model.addAttribute("totalRevenue", formatRevenue(totalRevenue));
         model.addAttribute("totalBookings", bookingService.countTotalBookingsByHostId(host.getId()));
-//        model.addAttribute("completedBookings", bookingService.countCompletedBookingsByHostId(host.getId()));
 
         double averageRating = reviewService.getAverageHotelRatingForHost(host.getId());
         model.addAttribute("averageRating", String.format("%.1f", averageRating));
@@ -133,6 +128,46 @@ public class HostDashboardController {
         model.addAttribute("bookings", bookings);
 
         return "host/host-dashboard";
+    }
+
+    @PostMapping("/api/host/reject-booking")
+    @ResponseBody
+    public Map<String, Object> rejectBooking(
+            @RequestParam int bookingId,
+            HttpSession session) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            User host = (User) session.getAttribute("user");
+            if (host == null || !host.getRole().equalsIgnoreCase("HOTEL_OWNER")) {
+                response.put("success", false);
+                response.put("message", "Không có quyền truy cập");
+                return response;
+            }
+
+            Booking booking = bookingService.findById(bookingId);
+            if (booking == null) {
+                response.put("success", false);
+                response.put("message", "Không tìm thấy booking");
+                return response;
+            }
+
+            // Check if booking belongs to host
+            List<Hotel> hostHotels = hotelService.getHotelsByHostId(host.getId());
+            boolean isHostHotel = hostHotels.stream().anyMatch(h -> h.getHotelId() == booking.getHotelId());
+            if (!isHostHotel) {
+                response.put("success", false);
+                response.put("message", "Không có quyền chỉnh sửa booking này");
+                return response;
+            }
+
+            bookingService.updateBookingStatus(booking, "rejected");
+            response.put("success", true);
+            response.put("message", "Đã từ chối toàn bộ booking thành công");
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Lỗi khi từ chối booking: " + e.getMessage());
+        }
+        return response;
     }
 
     @GetMapping("/api/host/booking-stats")

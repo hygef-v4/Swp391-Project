@@ -36,6 +36,7 @@ public class BookingService {
         for(BookingUnit unit : booking.getBookingUnits()){
             bookingRepo.updateStatus(unit.getBookingUnitId(), status);
         }
+        booking.setStatus(status);
     }
 
     public void updateStatus(BookingUnit bookingUnit, String status){
@@ -153,17 +154,22 @@ public class BookingService {
             return statuses.get(0);
         }
 
-        // If multiple statuses, prioritize in order: completed > approved > pending > cancelled
+        // Prioritized status logic
         if (statuses.contains("completed")) {
             return "completed";
+        } else if (statuses.contains("check_in")) {
+            return "check_in";
         } else if (statuses.contains("approved")) {
             return "approved";
         } else if (statuses.contains("pending")) {
             return "pending";
+        } else if (statuses.contains("rejected")) {
+            return "rejected";
         } else {
-            return "cancelled";
+            return "cancelled"; // fallback
         }
     }
+
 
     public void updateBookingUnitStatus(int bookingUnitId, String status) {
         bookingRepo.updateStatus(bookingUnitId, status);
@@ -275,4 +281,6 @@ public class BookingService {
     public int countBookingsByHotelId(int hotelId) {
         return bookingRepo.countBookingsByHotelId(hotelId);
     }
+
+
 }
