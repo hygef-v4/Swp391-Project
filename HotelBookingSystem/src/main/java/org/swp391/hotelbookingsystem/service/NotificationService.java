@@ -168,6 +168,20 @@ public class NotificationService {
         createNotification(userId, title, message, "system", "high", actionUrl, "bi-award", null);
     }
 
+    public void notifyWishlistAdd(int userId, String hotelName, int hotelId) {
+        String title = "Đã thêm vào yêu thích ❤️";
+        String message = "Bạn đã thêm khách sạn '" + hotelName + "' vào danh sách yêu thích.";
+        String actionUrl = "/user-wishlist";
+        createNotification(userId, title, message, "wishlist", "normal", actionUrl, "bi-heart", Map.of("hotelId", hotelId, "hotelName", hotelName));
+    }
+
+    public void notifyWishlistRemove(int userId, String hotelName, int hotelId) {
+        String title = "Đã xoá khỏi yêu thích 💔";
+        String message = "Bạn đã xoá khách sạn '" + hotelName + "' khỏi danh sách yêu thích.";
+        String actionUrl = "/user-wishlist";
+        createNotification(userId, title, message, "wishlist", "normal", actionUrl, "bi-heartbreak", Map.of("hotelId", hotelId, "hotelName", hotelName));
+    }
+
     // Get user notifications with pagination
     public List<Map<String, Object>> getUserNotifications(int userId, int page, int size) {
         return notificationRepository.getUserNotifications(userId, page, size);

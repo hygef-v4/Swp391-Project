@@ -10,6 +10,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.swp391.hotelbookingsystem.model.Favorites;
 import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.repository.UserWishlistRepository;
+import org.swp391.hotelbookingsystem.service.HotelService;
+import org.swp391.hotelbookingsystem.service.NotificationService;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -21,9 +23,14 @@ import java.util.List;
 public class UserWishlistController {
 
     private final UserWishlistRepository userWishlistRepository;
+    private final HotelService hotelService;
+    private final NotificationService notificationService;
 
-    public UserWishlistController(UserWishlistRepository userWishlistRepository) {
+    @Autowired
+    public UserWishlistController(UserWishlistRepository userWishlistRepository, HotelService hotelService, NotificationService notificationService) {
         this.userWishlistRepository = userWishlistRepository;
+        this.hotelService = hotelService;
+        this.notificationService = notificationService;
     }
 
     @GetMapping("/user-wishlist")
@@ -83,6 +90,11 @@ public class UserWishlistController {
         try {
             // Xoá mục yêu thích
             userWishlistRepository.deleteFavorite(sessionUser.getId(), hotelId);
+            // Notification
+            var hotel = hotelService.getHotelById(hotelId);
+            if (hotel != null) {
+                notificationService.notifyWishlistRemove(sessionUser.getId(), hotel.getHotelName(), hotelId);
+            }
             redirectAttributes.addFlashAttribute("successMessage", "Xoá thành công mục yêu thích.");
         } catch (Exception e) {
             // Xử lý lỗi khi xoá
@@ -124,6 +136,11 @@ public class UserWishlistController {
         try {
             // Gọi repository để thêm khách sạn vào danh sách yêu thích
             userWishlistRepository.addFavorite(sessionUser.getId(), hotelId);
+            // Notification
+            var hotel = hotelService.getHotelById(hotelId);
+            if (hotel != null) {
+                notificationService.notifyWishlistAdd(sessionUser.getId(), hotel.getHotelName(), hotelId);
+            }
             redirectAttributes.addFlashAttribute("successMessage", "Khách sạn đã được thêm vào danh sách yêu thích.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Xảy ra lỗi khi thêm vào danh sách yêu thích.");
