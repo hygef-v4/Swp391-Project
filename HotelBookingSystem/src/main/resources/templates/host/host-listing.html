@@ -344,6 +344,55 @@
                                                         </span>
                                                     </div>
 
+                                                    <!-- Active Bookings Warning Modal -->
+                                                    <div class="modal fade" id="activeBookingsModal" tabindex="-1"
+                                                         aria-labelledby="activeBookingsModalLabel" aria-hidden="true">
+                                                        <div class="modal-dialog">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header bg-warning">
+                                                                    <h5 class="modal-title" id="activeBookingsModalLabel">
+                                                                        <i class="bi bi-exclamation-triangle me-2"></i>
+                                                                        Cảnh báo: Có đặt phòng đang hoạt động
+                                                                    </h5>
+                                                                    <button type="button" class="btn-close"
+                                                                            data-bs-dismiss="modal"
+                                                                            aria-label="Đóng"></button>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                    <div class="alert alert-warning">
+                                                                        <strong>Khách sạn "<span th:text="${hotelNameWithBookings}"></span>" hiện có
+                                                                        <span th:text="${activeBookingsCount}"></span> đặt phòng đang hoạt động.</strong>
+                                                                    </div>
+                                                                    <p>Các đặt phòng này bao gồm:</p>
+                                                                    <ul>
+                                                                        <li>Đặt phòng đã được duyệt (approved)</li>
+                                                                        <li>Khách đang ở (check-in)</li>
+                                                                    </ul>
+                                                                    <div class="alert alert-danger">
+                                                                        <strong>Nếu tiếp tục vô hiệu hóa:</strong>
+                                                                        <ul class="mb-0 mt-2">
+                                                                            <li>Tất cả đặt phòng này sẽ bị hủy</li>
+                                                                            <li>Bạn sẽ phải hoàn tiền toàn bộ cho khách hàng</li>
+                                                                            <li>Điều này có thể ảnh hưởng đến uy tín của bạn</li>
+                                                                        </ul>
+                                                                    </div>
+                                                                    <p class="mb-0"><strong>Bạn có chắc chắn muốn tiếp tục?</strong></p>
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                                                        <i class="bi bi-x-circle me-1"></i>Hủy bỏ
+                                                                    </button>
+                                                                    <form th:action="@{/host/force-deactivate-hotel}" method="post" class="d-inline">
+                                                                        <input type="hidden" name="hotelId" th:value="${hotelIdWithBookings}">
+                                                                        <button type="submit" class="btn btn-danger">
+                                                                            <i class="bi bi-exclamation-triangle me-1"></i>Vẫn tiếp tục vô hiệu hóa
+                                                                        </button>
+                                                                    </form>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
                                                     <!-- OTP Modal (Ensure it's on the page you redirect to, e.g., host-listing.html) -->
                                                     <div class="modal fade" id="otpModal" tabindex="-1"
                                                          aria-labelledby="otpModalLabel" aria-hidden="true">
@@ -504,6 +553,13 @@
 <script th:inline="javascript">
     /*<![CDATA[*/
     document.addEventListener('DOMContentLoaded', function () {
+        // Check for active bookings warning
+        const hasActiveBookings = /*[[${hasActiveBookings}]]*/ false;
+        if (hasActiveBookings) {
+            const activeBookingsModal = new bootstrap.Modal(document.getElementById('activeBookingsModal'));
+            activeBookingsModal.show();
+        }
+
         // Thymeleaf will replace [[${showOtpModalForHotelId}]] with the actual value or null if not present
         const hotelIdForOtp = /*[[${showOtpModalForHotelId}]]*/ null;
         const otpErrorMessage = /*[[${otpError}]]*/ null; // Get OTP specific error

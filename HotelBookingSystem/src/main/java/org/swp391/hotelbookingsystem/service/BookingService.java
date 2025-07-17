@@ -131,6 +131,18 @@ public class BookingService {
         return bookingRepo.countPaidBookingsByHostId(hostId);
     }
 
+    public int countActiveBookingsByHotelId(int hotelId) {
+        return bookingRepo.countActiveBookingsByHotelId(hotelId);
+    }
+
+    public List<Booking> findActiveBookingsByHotelId(int hotelId) {
+        return bookingRepo.findActiveBookingsByHotelId(hotelId);
+    }
+
+    public int rejectAllActiveBookingsByHotelId(int hotelId) {
+        return bookingRepo.rejectAllActiveBookingsByHotelId(hotelId);
+    }
+
     public double getMonthlyRevenueByHostId(int hostId) {
         return bookingRepo.getMonthlyRevenueByHostId(hostId);
     }

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.swp391.hotelbookingsystem.model.Hotel;
 import org.swp391.hotelbookingsystem.model.User;
+import org.swp391.hotelbookingsystem.service.BookingService;
 import org.swp391.hotelbookingsystem.service.EmailService;
 import org.swp391.hotelbookingsystem.service.HotelService;
 
@@ -23,9 +24,12 @@ public class HotelDeactivateController {
 
     private final EmailService emailService;
 
-    public HotelDeactivateController(HotelService hotelService, EmailService emailService) {
+    private final BookingService bookingService;
+
+    public HotelDeactivateController(HotelService hotelService, EmailService emailService, BookingService bookingService) {
         this.hotelService = hotelService;
         this.emailService = emailService;
+        this.bookingService = bookingService;
     }
 
     @PostMapping("/request-deactivate-hotel")
@@ -43,6 +47,19 @@ public class HotelDeactivateController {
         Hotel hotel = hotelService.getHotelById(hotelId);
         if (hotel == null || hotel.getHostId() != user.getId()) {
             redirectAttributes.addFlashAttribute("error", "Không tìm thấy khách sạn hoặc bạn không phải chủ sở hữu.");
+            return "redirect:/host-listing";
+        }
+
+        // Check for active bookings
+        int activeBookingsCount = bookingService.countActiveBookingsByHotelId(hotelId);
+        if (activeBookingsCount > 0) {
+            redirectAttributes.addFlashAttribute("hasActiveBookings", true);
+            redirectAttributes.addFlashAttribute("activeBookingsCount", activeBookingsCount);
+            redirectAttributes.addFlashAttribute("hotelIdWithBookings", hotelId);
+            redirectAttributes.addFlashAttribute("hotelNameWithBookings", hotel.getHotelName());
+            redirectAttributes.addFlashAttribute("warning",
+                "Khách sạn này hiện có " + activeBookingsCount + " đặt phòng đang hoạt động (đã được duyệt hoặc đang check-in). " +
+                "Nếu tiếp tục vô hiệu hóa, tất cả các đặt phòng này sẽ bị hủy và bạn sẽ phải hoàn tiền toàn bộ cho khách hàng.");
             return "redirect:/host-listing";
         }
 
@@ -102,9 +119,17 @@ public class HotelDeactivateController {
                 return "redirect:/host-listing";
             }
 
+            // Reject all active bookings first
+            int rejectedBookings = bookingService.rejectAllActiveBookingsByHotelId(hotelId);
+
+            // Then deactivate the hotel
             hotelService.updateHotelStatus(hotelId, "inactive");
 
-            redirectAttributes.addFlashAttribute("message", "Khách sạn '" + hotel.getHotelName() + "' đã được vô hiệu hóa thành công.");
+            String message = "Khách sạn '" + hotel.getHotelName() + "' đã được vô hiệu hóa thành công.";
+            if (rejectedBookings > 0) {
+                message += " Đã hủy " + rejectedBookings + " đặt phòng đang hoạt động. Vui lòng liên hệ với khách hàng để hoàn tiền.";
+            }
+            redirectAttributes.addFlashAttribute("message", message);
         } catch (EmptyResultDataAccessException e) {
             redirectAttributes.addFlashAttribute("error", "Mã OTP không hợp lệ hoặc đã hết hạn.");
             redirectAttributes.addFlashAttribute("showOtpModalForHotelId", hotelId);
@@ -139,6 +164,44 @@ public class HotelDeactivateController {
             redirectAttributes.addFlashAttribute("message", "Khách sạn '" + hotel.getHotelName() + "' đã được kích hoạt thành công.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Kích hoạt khách sạn thất bại: " + e.getMessage());
+        }
+
+        return "redirect:/host-listing";
+    }
+
+    @PostMapping("/force-deactivate-hotel")
+    public String forceDeactivateHotel(
+            @RequestParam("hotelId") int hotelId,
+            HttpSession session,
+            RedirectAttributes redirectAttributes
+    ) {
+        User user = (User) session.getAttribute("user");
+        if (user == null || !"HOTEL_OWNER".equalsIgnoreCase(user.getRole())) {
+            redirectAttributes.addFlashAttribute("error", "Bạn không có quyền thực hiện hành động này.");
+            return "redirect:/host-listing";
+        }
+
+        Hotel hotel = hotelService.getHotelById(hotelId);
+        if (hotel == null || hotel.getHostId() != user.getId()) {
+            redirectAttributes.addFlashAttribute("error", "Không tìm thấy khách sạn hoặc bạn không phải chủ sở hữu.");
+            return "redirect:/host-listing";
+        }
+
+        try {
+            // Reject all active bookings first
+            int rejectedBookings = bookingService.rejectAllActiveBookingsByHotelId(hotelId);
+
+            // Then deactivate the hotel
+            hotelService.updateHotelStatus(hotelId, "inactive");
+
+            String message = "Khách sạn '" + hotel.getHotelName() + "' đã được vô hiệu hóa thành công.";
+            if (rejectedBookings > 0) {
+                message += " Đã hủy " + rejectedBookings + " đặt phòng đang hoạt động. Vui lòng liên hệ với khách hàng để hoàn tiền.";
+            }
+
+            redirectAttributes.addFlashAttribute("message", message);
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Vô hiệu hóa khách sạn thất bại: " + e.getMessage());
         }
 
         return "redirect:/host-listing";
