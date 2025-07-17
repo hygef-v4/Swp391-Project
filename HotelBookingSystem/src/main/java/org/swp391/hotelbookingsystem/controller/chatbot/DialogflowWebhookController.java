@@ -72,7 +72,7 @@
              }
 
              // Build URL
-             String url = String.format("https://hamora.live/hotel-list?locationId=%d&dateRange=%s => %s&guests=%d&rooms=%d",
+             String url = String.format("http://localhost:8386/hotel-list?locationId=%d&dateRange=%s => %s&guests=%d&rooms=%d",
                      locationId, checkin, checkout, guests, rooms);
 
              String softPrompt = String.format("Người dùng đang tìm khách sạn ở %s từ %s đến %s cho %d người. Viết câu phản hồi lịch sự, mời họ bấm nút để xem danh sách.(lưu ý tôi đã có nút ở dưới sẵn rồi)",
