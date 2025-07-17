@@ -375,6 +375,17 @@
             color: #6f42c1 !important;
         }
 
+        .btn-outline-purple {
+            color: #6f42c1;
+            border-color: #6f42c1;
+        }
+
+        .btn-outline-purple:hover {
+            color: #fff;
+            background-color: #6f42c1;
+            border-color: #6f42c1;
+        }
+
         /* Text truncation for hotel names */
         .hotel-name-truncate {
             max-width: 150px;
@@ -600,13 +611,22 @@
                                     </span>
                                 </a>
 
-                                <a href="/bookingHistory" class="btn btn-outline-warning quick-action-btn text-start">
-                                    <i class="bi bi-calendar-check me-3"></i>
+                                <a href="/host-reviews" class="btn btn-outline-purple quick-action-btn text-start">
+                                    <i class="bi bi-star-half me-3"></i>
                                     <span>
-                                        <strong>Lịch Sử Đặt Phòng</strong><br>
-                                        <small class="text-muted">Xem tất cả đặt phòng</small>
+                                        <strong>Xem Đánh Giá</strong><br>
+                                        <small class="text-muted">Xem tất cả đánh giá của khách</small>
                                     </span>
                                 </a>
+
+                                <a href="/host-earning" class="btn btn-outline-warning quick-action-btn text-start">
+                                    <i class="bi bi-cash-stack me-3"></i>
+                                    <span>
+                                        <strong>Thống Kê Thu Nhập</strong><br>
+                                        <small class="text-muted">Xem chi tiết doanh thu và thu nhập</small>
+                                    </span>
+                                </a>
+
                             </div>
                         </div>
                     </div>

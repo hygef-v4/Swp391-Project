@@ -127,6 +127,10 @@ public class BookingService {
         return bookingRepo.countBookingsByHostIdAndStatus(hostId, "completed");
     }
 
+    public int countPaidBookingsByHostId(int hostId) {
+        return bookingRepo.countPaidBookingsByHostId(hostId);
+    }
+
     public double getMonthlyRevenueByHostId(int hostId) {
         return bookingRepo.getMonthlyRevenueByHostId(hostId);
     }
@@ -157,6 +161,33 @@ public class BookingService {
             Map<String, Object> item = new HashMap<>();
             item.put("category", key);
             item.put("count", monthToCount.getOrDefault(key, 0));
+            result.add(item);
+        }
+        return result;
+    }
+
+    public List<Map<String, Object>> getRevenueStatsByHostId(int hostId, String period) {
+        List<Map<String, Object>> rawStats = bookingRepo.getRevenueStatsByHostId(hostId, period);
+        if (!"6months".equals(period)) {
+            return rawStats;
+        }
+        // Build a map for quick lookup
+        Map<String, Double> monthToRevenue = new HashMap<>();
+        for (Map<String, Object> stat : rawStats) {
+            String category = String.valueOf(stat.get("category"));
+            Double revenue = stat.get("revenue") == null ? 0.0 : Double.parseDouble(stat.get("revenue").toString());
+            monthToRevenue.put(category, revenue);
+        }
+        // Generate last 6 months (including current month)
+        List<Map<String, Object>> result = new ArrayList<>();
+        java.time.YearMonth now = java.time.YearMonth.now();
+        java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM");
+        for (int i = 5; i >= 0; i--) {
+            java.time.YearMonth ym = now.minusMonths(i);
+            String key = ym.format(formatter);
+            Map<String, Object> item = new HashMap<>();
+            item.put("category", key);
+            item.put("revenue", monthToRevenue.getOrDefault(key, 0.0));
             result.add(item);
         }
         return result;

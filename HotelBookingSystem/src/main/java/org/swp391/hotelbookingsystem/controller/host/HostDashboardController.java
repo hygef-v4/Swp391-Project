@@ -243,6 +243,85 @@ public class HostDashboardController {
         return response;
     }
 
+    @GetMapping("/host-earning")
+    public String showHostEarning(HttpSession session, Model model) {
+        User host = (User) session.getAttribute("user");
+
+        if (host == null || !host.getRole().equalsIgnoreCase("HOTEL_OWNER")) {
+            return "redirect:/login";
+        }
+
+        // Get host hotels
+        List<Hotel> hotels = hotelService.getHotelsByHostId(host.getId());
+        model.addAttribute("hotels", hotels);
+
+        // Total revenue
+        double totalRevenue = bookingService.getTotalRevenueByHostId(host.getId());
+        model.addAttribute("totalRevenue", totalRevenue);
+        model.addAttribute("formattedTotalRevenue", formatRevenue(totalRevenue));
+
+        // Monthly revenue
+        double monthlyRevenue = bookingService.getMonthlyRevenueByHostId(host.getId());
+        model.addAttribute("monthlyRevenue", monthlyRevenue);
+        model.addAttribute("formattedMonthlyRevenue", formatRevenue(monthlyRevenue));
+
+        // Paid bookings (approved, completed, check_in)
+        int paidBookings = bookingService.countPaidBookingsByHostId(host.getId());
+        model.addAttribute("paidBookings", paidBookings);
+
+        // Calculate average revenue per paid booking
+        double avgRevenuePerBooking = paidBookings > 0 ? totalRevenue / paidBookings : 0;
+        model.addAttribute("avgRevenuePerBooking", avgRevenuePerBooking);
+        model.addAttribute("formattedAvgRevenuePerBooking", formatRevenue(avgRevenuePerBooking));
+
+        // Get recent bookings for earnings details
+        List<Booking> recentBookings = bookingService.getBookingsByHostId(host.getId());
+
+        // Filter and process bookings for earnings (only approved, completed, check_in)
+        List<Booking> earningBookings = recentBookings.stream()
+                .filter(booking -> {
+                    if (booking.getBookingUnits() == null || booking.getBookingUnits().isEmpty()) {
+                        return false;
+                    }
+
+                    // Check if booking has any revenue-generating units
+                    boolean hasRevenueUnits = booking.getBookingUnits().stream()
+                            .anyMatch(unit -> {
+                                String unitStatus = (unit.getStatus() != null) ? unit.getStatus().toLowerCase() : "";
+                                return "approved".equals(unitStatus) || "completed".equals(unitStatus) || "check_in".equals(unitStatus);
+                            });
+
+                    return hasRevenueUnits;
+                })
+                .peek(booking -> {
+                    // Calculate revenue for this booking
+                    double bookingRevenue = booking.getBookingUnits().stream()
+                            .filter(unit -> {
+                                String unitStatus = (unit.getStatus() != null) ? unit.getStatus().toLowerCase() : "";
+                                return "approved".equals(unitStatus) || "completed".equals(unitStatus) || "check_in".equals(unitStatus);
+                            })
+                            .mapToDouble(unit -> (unit.getPrice() != null ? unit.getPrice() : 0.0) * (unit.getQuantity() > 0 ? unit.getQuantity() : 1))
+                            .sum();
+
+                    booking.setTotalPrice(bookingRevenue);
+                })
+                .collect(Collectors.toList());
+
+        model.addAttribute("earningBookings", earningBookings);
+
+        return "host/host-earning";
+    }
+
+    @GetMapping("/api/host/revenue-stats")
+    @ResponseBody
+    public List<Map<String, Object>> getRevenueStats(HttpSession session, @RequestParam String period) {
+        User host = (User) session.getAttribute("user");
+        if (host == null) {
+            return List.of();
+        }
+        return bookingService.getRevenueStatsByHostId(host.getId(), period);
+    }
+
     private String formatRevenue(double revenue) {
         if (revenue >= 1_000_000_000) {
             return new DecimalFormat("#,##0.0 'Tỷ'").format(revenue / 1_000_000_000);

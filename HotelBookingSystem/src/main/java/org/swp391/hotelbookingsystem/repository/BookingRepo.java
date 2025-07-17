@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -948,6 +949,22 @@ public class BookingRepo {
         return count != null ? count : 0;
     }
 
+    public int countPaidBookingsByHostId(int hostId) {
+        String sql = """
+            SELECT COUNT(DISTINCT b.booking_id)
+            FROM Bookings b
+            JOIN Hotels h ON b.hotel_id = h.hotel_id
+            WHERE h.host_id = ?
+            AND EXISTS (
+                SELECT 1 FROM BookingUnits bu
+                WHERE bu.booking_id = b.booking_id
+                AND bu.status IN ('approved', 'completed', 'check_in')
+            )
+        """;
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, hostId);
+        return count != null ? count : 0;
+    }
+
     public Double getMonthlyRevenueByHostId(int hostId) {
         String sql = """
             SELECT SUM(bu.price * bu.quantity)
@@ -955,7 +972,7 @@ public class BookingRepo {
             JOIN Bookings b ON bu.booking_id = b.booking_id
             JOIN Hotels h ON b.hotel_id = h.hotel_id
             WHERE h.host_id = ?
-            AND bu.status IN ('approved', 'completed')
+            AND bu.status IN ('approved', 'completed', 'check_in')
             AND b.created_at >= DATEADD(month, DATEDIFF(month, 0, GETDATE()), 0)
             AND b.created_at < DATEADD(month, DATEDIFF(month, 0, GETDATE()) + 1, 0)
         """;
@@ -974,6 +991,61 @@ public class BookingRepo {
         """;
         Double revenue = jdbcTemplate.queryForObject(sql, Double.class, hostId);
         return revenue != null ? revenue : 0.0;
+    }
+
+    public List<Map<String, Object>> getRevenueStatsByHostId(int hostId, String period) {
+        String dateTrunc;
+        String groupBy;
+        String whereClause = "WHERE h.host_id = ? AND bu.status IN ('approved', 'completed', 'check_in')";
+
+        switch (period) {
+            case "30days":
+                dateTrunc = "CAST(b.created_at AS DATE)";
+                groupBy = "CAST(b.created_at AS DATE)";
+                whereClause += " AND b.created_at >= DATEADD(day, -30, GETDATE())";
+                break;
+            case "6months":
+                dateTrunc = "FORMAT(b.created_at, 'yyyy-MM')";
+                groupBy = "FORMAT(b.created_at, 'yyyy-MM')";
+                whereClause += " AND b.created_at >= DATEADD(month, -6, GETDATE())";
+                break;
+            case "year2024":
+                dateTrunc = "FORMAT(b.created_at, 'yyyy-MM')";
+                groupBy = "FORMAT(b.created_at, 'yyyy-MM')";
+                whereClause += " AND YEAR(b.created_at) = 2024";
+                break;
+            case "year2023":
+                dateTrunc = "FORMAT(b.created_at, 'yyyy-MM')";
+                groupBy = "FORMAT(b.created_at, 'yyyy-MM')";
+                whereClause += " AND YEAR(b.created_at) = 2023";
+                break;
+            case "year2022":
+                dateTrunc = "FORMAT(b.created_at, 'yyyy-MM')";
+                groupBy = "FORMAT(b.created_at, 'yyyy-MM')";
+                whereClause += " AND YEAR(b.created_at) = 2022";
+                break;
+            default:
+                dateTrunc = "FORMAT(b.created_at, 'yyyy-MM')";
+                groupBy = "FORMAT(b.created_at, 'yyyy-MM')";
+                whereClause += " AND b.created_at >= DATEADD(month, -6, GETDATE())";
+        }
+
+        String sql = String.format("""
+            SELECT %s as category, SUM(bu.price * bu.quantity) as revenue
+            FROM Bookings b
+            JOIN BookingUnits bu ON b.booking_id = bu.booking_id
+            JOIN Hotels h ON b.hotel_id = h.hotel_id
+            %s
+            GROUP BY %s
+            ORDER BY %s
+            """, dateTrunc, whereClause, groupBy, groupBy);
+
+        return jdbcTemplate.query(sql, ps -> ps.setInt(1, hostId), (rs, rowNum) -> {
+            Map<String, Object> result = new HashMap<>();
+            result.put("category", rs.getString("category"));
+            result.put("revenue", rs.getDouble("revenue"));
+            return result;
+        });
     }
 
     public List<Map<String, Object>> getBookingStatsByHostId(int hostId, String period) {

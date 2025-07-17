@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Thống Kê Thu Nhập - Hamora</title>
+
+    <!-- Meta Tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Thống kê thu nhập chi tiết cho chủ khách sạn">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+
+    <!-- Dark mode -->
+    <script>
+        const storedTheme = localStorage.getItem('theme')
+
+        const getPreferredTheme = () => {
+            if (storedTheme) {
+                return storedTheme
+            }
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        }
+
+        const setTheme = function (theme) {
+            if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.setAttribute('data-bs-theme', 'dark')
+            } else {
+                document.documentElement.setAttribute('data-bs-theme', theme)
+            }
+        }
+
+        setTheme(getPreferredTheme())
+
+        window.addEventListener('DOMContentLoaded', () => {
+            var el = document.querySelector('.theme-icon-active');
+            if (el != 'undefined' && el != null) {
+                const showActiveTheme = theme => {
+                    const activeThemeIcon = document.querySelector('.theme-icon-active use')
+                    const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+                    const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
+
+                    document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+                        element.classList.remove('active')
+                    })
+
+                    btnToActive.classList.add('active')
+                    activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+                }
+
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                    if (storedTheme !== 'light' || storedTheme !== 'dark') {
+                        setTheme(getPreferredTheme())
+                    }
+                })
+
+                showActiveTheme(getPreferredTheme())
+
+                document.querySelectorAll('[data-bs-theme-value]')
+                    .forEach(toggle => {
+                        toggle.addEventListener('click', () => {
+                            const theme = toggle.getAttribute('data-bs-theme-value')
+                            localStorage.setItem('theme', theme)
+                            setTheme(theme)
+                            showActiveTheme(theme)
+                        })
+                    })
+
+            }
+        })
+    </script>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="assets/images/favicon.ico">
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Poppins:wght@400;500;700&display=swap">
+
+    <!-- Plugins CSS -->
+    <link rel="stylesheet" type="text/css" href="assets/vendor/font-awesome/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="assets/vendor/bootstrap-icons/bootstrap-icons.css">
+    <link rel="stylesheet" type="text/css" href="assets/vendor/apexcharts/css/apexcharts.css">
+    <link rel="stylesheet" type="text/css" href="assets/vendor/choices/css/choices.min.css">
+
+    <!-- Theme CSS -->
+    <link rel="stylesheet" type="text/css" href="assets/css/style.css">
+
+    <style>
+        .metric-card {
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-container {
+            position: relative;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .chart-header-enhanced {
+            background: linear-gradient(45deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .enhanced-dropdown .dropdown-toggle {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+
+        .enhanced-dropdown .dropdown-toggle:hover,
+        .enhanced-dropdown .dropdown-toggle:focus {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: none;
+            color: white;
+        }
+
+        .enhanced-dropdown .dropdown-menu {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            padding: 8px;
+        }
+
+        .enhanced-dropdown .dropdown-item {
+            border-radius: 10px;
+            margin: 2px 0;
+            padding: 8px 12px;
+            transition: all 0.3s ease;
+            color: #495057;
+        }
+
+        .enhanced-dropdown .dropdown-item:hover {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .enhanced-dropdown .dropdown-item.active {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            font-weight: 600;
+        }
+
+        .zoom-controls {
+            display: flex;
+            gap: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 4px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .zoom-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            min-width: 36px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .zoom-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #28a745;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .earning-badge {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 10px rgba(40, 167, 69, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+
+<div th:replace="~{common/header :: header}"></div>
+
+<!-- **************** MAIN CONTENT START **************** -->
+<main>
+    <!-- Host Menu -->
+    <section th:replace="~{common-host/menu-host :: menu}"></section>
+
+    <section class="pt-0">
+        <div class="container vstack gap-4">
+
+            <!-- Header START -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="fs-3 mb-2">
+                                <i class="bi bi-cash-stack text-success me-2"></i>
+                                Thống Kê Thu Nhập
+                            </h1>
+                            <p class="text-muted mb-0">Xem chi tiết thu nhập và doanh thu từ các khách sạn của bạn.</p>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-success btn-sm" onclick="exportEarningReport()">
+                                <i class="bi bi-download me-1"></i>Xuất Báo Cáo
+                            </button>
+                            <a href="/host-dashboard" class="btn btn-success btn-sm">
+                                <i class="bi bi-arrow-left me-1"></i>Quay Lại Dashboard
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Header END -->
+
+            <!-- Revenue Metrics START -->
+            <div class="row g-4">
+                <!-- Total Revenue -->
+                <div class="col-sm-6 col-xl-3">
+                    <div class="card metric-card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="icon-xl bg-success bg-opacity-10 rounded-3 text-success">
+                                    <i class="bi bi-cash-stack fs-4"></i>
+                                </div>
+                                <div class="ms-3 flex-grow-1">
+                                    <h3 class="mb-1 fw-bold" th:text="${formattedTotalRevenue}">0 ₫</h3>
+                                    <h6 class="mb-1">Tổng Doanh Thu</h6>
+                                    <small class="text-muted">Tất cả thời gian</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Monthly Revenue -->
+                <div class="col-sm-6 col-xl-3">
+                    <div class="card metric-card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="icon-xl bg-info bg-opacity-10 rounded-3 text-info">
+                                    <i class="bi bi-calendar-month fs-4"></i>
+                                </div>
+                                <div class="ms-3 flex-grow-1">
+                                    <h3 class="mb-1 fw-bold" th:text="${formattedMonthlyRevenue}">0 ₫</h3>
+                                    <h6 class="mb-1">Doanh Thu Tháng Này</h6>
+                                    <small class="text-muted">Tháng hiện tại</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Average Revenue per Booking -->
+                <div class="col-sm-6 col-xl-3">
+                    <div class="card metric-card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="icon-xl bg-warning bg-opacity-10 rounded-3 text-warning">
+                                    <i class="bi bi-graph-up-arrow fs-4"></i>
+                                </div>
+                                <div class="ms-3 flex-grow-1">
+                                    <h3 class="mb-1 fw-bold" th:text="${formattedAvgRevenuePerBooking}">0 ₫</h3>
+                                    <h6 class="mb-1">TB Thu Nhập/Đặt Phòng</h6>
+                                    <small class="text-muted">Trung bình</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Paid Bookings -->
+                <div class="col-sm-6 col-xl-3">
+                    <div class="card metric-card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="icon-xl bg-primary bg-opacity-10 rounded-3 text-primary">
+                                    <i class="bi bi-credit-card-2-front fs-4"></i>
+                                </div>
+                                <div class="ms-3 flex-grow-1">
+                                    <h3 class="mb-1 fw-bold" th:text="${paidBookings}">0</h3>
+                                    <h6 class="mb-1">Đặt Phòng Đã Thanh Toán</h6>
+                                    <small class="text-muted">Approved, Check-in, Completed</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Revenue Metrics END -->
+
+            <!-- Revenue Chart START -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card border-0 shadow-sm chart-container">
+                        <div class="chart-header-enhanced">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center gap-3">
+                                    <h5 class="card-title mb-0" id="chartTitle">Biểu Đồ Doanh Thu</h5>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <!-- Zoom Controls -->
+                                    <div class="zoom-controls">
+                                        <button class="btn btn-sm zoom-btn" onclick="zoomIn()" title="Phóng to">
+                                            <i class="bi bi-zoom-in"></i>
+                                        </button>
+                                        <button class="btn btn-sm zoom-btn" onclick="zoomOut()" title="Thu nhỏ">
+                                            <i class="bi bi-zoom-out"></i>
+                                        </button>
+                                        <button class="btn btn-sm zoom-btn" onclick="resetZoom()" title="Đặt lại">
+                                            <i class="bi bi-arrow-clockwise"></i>
+                                        </button>
+                                    </div>
+                                    <!-- Period Dropdown -->
+                                    <div class="enhanced-dropdown dropdown">
+                                        <button class="btn btn-sm dropdown-toggle" type="button"
+                                                data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="bi bi-calendar3 me-2"></i><span id="filter-display-name">6 tháng qua</span>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <!-- Items are generated by JavaScript -->
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body p-4">
+                            <div id="revenueChart" class="mt-2"></div>
+                            <div id="chartLoading" class="chart-loading d-none">
+                                <div class="text-center">
+                                    <div class="loading-spinner mb-3"></div>
+                                    <p class="text-muted">Đang tải dữ liệu...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Revenue Chart END -->
+
+            <!-- Recent Earnings START -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-transparent border-bottom-0">
+                            <div class="d-sm-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-2 mb-sm-0">Thu Nhập Gần Đây</h5>
+                                <div class="earning-badge">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    <span>Chỉ hiển thị đặt phòng đã tạo ra doanh thu</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-body">
+                            <!-- Earnings Table -->
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead class="table-light">
+                                    <tr>
+                                        <th scope="col" class="border-0">Mã Đặt Phòng</th>
+                                        <th scope="col" class="border-0">Khách Hàng</th>
+                                        <th scope="col" class="border-0">Khách Sạn</th>
+                                        <th scope="col" class="border-0">Ngày Đặt</th>
+                                        <th scope="col" class="border-0">Nhận Phòng</th>
+                                        <th scope="col" class="border-0">Trả Phòng</th>
+                                        <th scope="col" class="border-0">Doanh Thu</th>
+                                        <th scope="col" class="border-0">Trạng Thái</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:each="booking : ${earningBookings}" th:if="${booking.totalPrice > 0}">
+                                        <td>
+                                            <span class="fw-bold text-primary" th:text="'#BK' + ${booking.bookingId}">
+                                                #BK001
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar avatar-xs me-2">
+                                                    <img class="avatar-img rounded-circle"
+                                                         th:src="${booking.customerAvatar}"
+                                                         alt="Avatar">
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0" th:text="${booking.customerName}">Tên khách hàng</h6>
+                                                    <small class="text-muted" th:text="${booking.customerEmail}">email@example.com</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="fw-semibold" th:text="${booking.hotelName}">Tên khách sạn</span>
+                                        </td>
+                                        <td>
+                                            <span th:text="${#temporals.format(booking.createdAt, 'dd/MM/yyyy')}">01/01/2024</span>
+                                        </td>
+                                        <td>
+                                            <span th:text="${#temporals.format(booking.checkIn, 'dd/MM/yyyy')}">01/01/2024</span>
+                                        </td>
+                                        <td>
+                                            <span th:text="${#temporals.format(booking.checkOut, 'dd/MM/yyyy')}">02/01/2024</span>
+                                        </td>
+                                        <td>
+                                            <span class="fw-bold text-success"
+                                                  th:text="${#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
+                                                1,000,000 ₫
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-success bg-opacity-10 text-success">
+                                                Đã thanh toán
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+
+                                <!-- No earnings message -->
+                                <div th:if="${earningBookings.isEmpty()}" class="text-center py-5">
+                                    <i class="bi bi-cash-stack display-1 text-muted"></i>
+                                    <h4 class="mt-3 text-muted">Chưa có doanh thu</h4>
+                                    <p class="text-muted">Bạn chưa có đặt phòng nào tạo ra doanh thu.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Recent Earnings END -->
+
+        </div>
+    </section>
+
+</main>
+<!-- **************** MAIN CONTENT END **************** -->
+
+<div th:replace="~{common/footer :: footer}"></div>
+
+<div class="back-top"></div>
+
+<!-- Bootstrap JS -->
+<script src="assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Vendors -->
+<script src="assets/vendor/apexcharts/js/apexcharts.min.js"></script>
+<script src="assets/vendor/choices/js/choices.min.js"></script>
+
+<!-- ThemeFunctions -->
+<script src="assets/js/functions.js"></script>
+
+<!-- Revenue Chart Script -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        populateDateFilterDropdown();
+
+        if (typeof ApexCharts !== 'undefined') {
+            console.log('Initializing revenue chart...');
+            changePeriod('last-6-months', '6 tháng qua'); // Default view
+        } else {
+            console.error('ApexCharts not loaded');
+            document.querySelector("#revenueChart").innerHTML =
+                '<div class="text-center p-5"><i class="bi bi-bar-chart fs-1 mb-3"></i><p>Đang tải biểu đồ...</p></div>';
+        }
+    });
+
+    // Populates the date filter dropdown dynamically
+    function populateDateFilterDropdown() {
+        const menu = document.querySelector('.enhanced-dropdown .dropdown-menu');
+        if (!menu) return;
+
+        const currentYear = new Date().getFullYear();
+        let menuHTML = '';
+
+        // Relative timeframes
+        menuHTML += `<li><a class="dropdown-item" href="#" onclick="changePeriod('last-30-days', '30 ngày qua')"><i class="bi bi-calendar-week me-2"></i>30 ngày qua</a></li>`;
+        menuHTML += `<li><a class="dropdown-item" href="#" onclick="changePeriod('last-6-months', '6 tháng qua')"><i class="bi bi-calendar-range me-2"></i>6 tháng qua</a></li>`;
+        menuHTML += `<li><hr class="dropdown-divider"></li>`;
+
+        // Year-based timeframes
+        for (let i = 0; i < 4; i++) {
+            const year = currentYear - i;
+            menuHTML += `<li><a class="dropdown-item" href="#" onclick="changePeriod('year-${year}', 'Năm ${year}')"><i class="bi bi-calendar4-range me-2"></i>Năm ${year}</a></li>`;
+        }
+
+        menu.innerHTML = menuHTML;
+    }
+
+    // Chart Management
+    let currentChart = null;
+    let zoomLevel = 1;
+
+    function changePeriod(periodKey, displayName) {
+        const buttonText = document.getElementById('filter-display-name');
+        const chartContainer = document.querySelector("#revenueChart");
+
+        // Show loading state
+        buttonText.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Đang tải...`;
+        chartContainer.innerHTML = '<div class="d-flex align-items-center justify-content-center" style="height: 350px;"><div class="spinner-border text-success" role="status"><span class="visually-hidden">Đang tải...</span></div></div>';
+
+        // Update active states in dropdown
+        document.querySelectorAll('.enhanced-dropdown .dropdown-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        const clickedItem = document.querySelector(`.enhanced-dropdown .dropdown-item[onclick*="'${periodKey}'"]`);
+        if (clickedItem) {
+            clickedItem.classList.add('active');
+        }
+
+        // Map frontend period keys to backend API periods
+        const periodMap = {
+            'last-6-months': '6months',
+            'last-30-days': '30days',
+            'year-2024': 'year2024',
+            'year-2023': 'year2023',
+            'year-2022': 'year2022'
+        };
+
+        const apiPeriod = periodMap[periodKey] || '6months';
+
+        // Fetch real data from API
+        fetch(`/api/host/revenue-stats?period=${apiPeriod}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                ...(document.querySelector('meta[name="_csrf"]') && {
+                    [document.querySelector('meta[name="_csrf_header"]').getAttribute('content')]:
+                    document.querySelector('meta[name="_csrf"]').getAttribute('content')
+                })
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Raw revenue data:', data);
+
+            // Transform the data to match the chart format
+            let transformedData = [];
+
+            if (data && data.length > 0) {
+                transformedData = data.map(item => ({
+                    category: formatCategoryForDisplay(item.category, periodKey),
+                    revenue: item.revenue || 0
+                }));
+            } else {
+                // If no data, create empty data structure based on period
+                transformedData = generateEmptyDataForPeriod(periodKey);
+            }
+
+            console.log('Transformed revenue data:', transformedData);
+
+            const categories = transformedData.map(item => item.category);
+            const seriesData = transformedData.map(item => item.revenue);
+            const newChartData = {categories, data: seriesData, title: displayName};
+
+            buttonText.textContent = displayName;
+            initializeRevenueChart(newChartData);
+        })
+        .catch(error => {
+            console.error('Error fetching revenue data:', error);
+            buttonText.textContent = 'Lỗi';
+            chartContainer.innerHTML = '<div class="text-center text-danger p-5">Không thể tải dữ liệu biểu đồ.</div>';
+        });
+    }
+
+    function formatCategoryForDisplay(category, periodKey) {
+        if (!category) return 'N/A';
+        // Similar logic as in dashboard
+        if (periodKey.includes('year-')) {
+            if (category.includes('-')) {
+                const [year, month] = category.split('-');
+                const monthNames = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'];
+                const monthIndex = parseInt(month) - 1;
+                return monthNames[monthIndex];
+            }
+        } else if (periodKey === 'last-6-months') {
+            if (category.includes('-')) {
+                const [year, month] = category.split('-');
+                const monthNames = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'];
+                const monthIndex = parseInt(month) - 1;
+                return monthNames[monthIndex] + '/' + year.substring(2);
+            }
+        } else if (periodKey === 'last-30-days') {
+            if (category.includes('-')) {
+                const date = new Date(category + 'T00:00:00');
+                if (!isNaN(date.getTime())) {
+                    return (date.getDate()).toString().padStart(2, '0') + '/' + (date.getMonth() + 1).toString().padStart(2, '0');
+                }
+            }
+        }
+        return category;
+    }
+
+    function generateEmptyDataForPeriod(periodKey) {
+        const now = new Date();
+        let emptyData = [];
+
+        switch (periodKey) {
+            case 'last-6-months': {
+                for (let i = 5; i >= 0; i--) {
+                    const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                    const category = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
+                    emptyData.push({
+                        category: formatCategoryForDisplay(category, periodKey),
+                        revenue: 0
+                    });
+                }
+                break;
+            }
+            case 'last-30-days': {
+                for (let i = 29; i >= 0; i--) {
+                    const date = new Date(now);
+                    date.setDate(now.getDate() - i);
+                    const category = date.toISOString().split('T')[0];
+                    emptyData.push({
+                        category: formatCategoryForDisplay(category, periodKey),
+                        revenue: 0
+                    });
+                }
+                break;
+            }
+            default: {
+                if (periodKey.startsWith('year-')) {
+                    const year = periodKey.split('-')[1];
+                    for (let i = 1; i <= 12; i++) {
+                        const category = year + '-' + String(i).padStart(2, '0');
+                        emptyData.push({
+                            category: formatCategoryForDisplay(category, periodKey),
+                            revenue: 0
+                        });
+                    }
+                }
+                break;
+            }
+        }
+
+        return emptyData;
+    }
+
+    function initializeRevenueChart(chartData) {
+        const chartContainer = document.querySelector("#revenueChart");
+        chartContainer.innerHTML = '';
+
+        if (currentChart) {
+            currentChart.destroy();
+        }
+
+        if (!chartData || !chartData.data || chartData.data.length === 0) {
+            chartContainer.innerHTML = `
+            <div class="d-flex align-items-center justify-content-center h-100 text-muted" style="min-height: 350px;">
+                <div class="text-center">
+                    <i class="bi bi-bar-chart fs-1 mb-3"></i>
+                    <p>Không có dữ liệu doanh thu cho khoảng thời gian này.</p>
+                </div>
+            </div>`;
+            const titleElement = document.querySelector('#chartTitle');
+            if (titleElement) {
+                titleElement.innerHTML = `Biểu Đồ Doanh Thu <small class="text-light opacity-75 ms-2">(${chartData.title})</small>`;
+            }
+            return;
+        }
+
+        window.originalChartData = chartData.data;
+        window.originalCategories = chartData.categories;
+        zoomLevel = 1;
+        currentZoomStart = 0;
+        currentZoomEnd = chartData.categories.length - 1;
+
+        const options = {
+            series: [{
+                name: 'Doanh Thu (₫)',
+                data: window.originalChartData
+            }],
+            chart: {
+                type: 'area',
+                height: 350,
+                toolbar: {show: false},
+                zoom: {enabled: false}
+            },
+            colors: ['#28a745'],
+            dataLabels: {enabled: false},
+            stroke: {
+                curve: 'smooth',
+                width: 3
+            },
+            xaxis: {
+                categories: window.originalCategories,
+                type: 'category',
+                labels: {
+                    show: true,
+                    style: {colors: '#888', fontSize: '12px'},
+                    rotate: -20,
+                    hideOverlappingLabels: true
+                },
+                axisBorder: {show: false},
+                axisTicks: {show: true, color: '#e0e0e0'}
+            },
+            yaxis: {
+                show: true,
+                labels: {
+                    formatter: function (val) {
+                        if (val >= 1000000) {
+                            return (val / 1000000).toFixed(1) + 'M';
+                        } else if (val >= 1000) {
+                            return (val / 1000).toFixed(0) + 'K';
+                        }
+                        return val.toFixed(0);
+                    }
+                }
+            },
+            grid: {
+                show: true,
+                borderColor: '#f0f0f0',
+                strokeDashArray: 4,
+                yaxis: {lines: {show: true}},
+                xaxis: {lines: {show: false}}
+            },
+            fill: {
+                type: 'gradient',
+                gradient: {
+                    shade: 'dark',
+                    type: "vertical",
+                    shadeIntensity: 0.5,
+                    gradientToColors: ['#20c997'],
+                    inverseColors: true,
+                    opacityFrom: 0.5,
+                    opacityTo: 0.1,
+                    stops: [0, 100]
+                }
+            },
+            tooltip: {
+                theme: 'dark',
+                y: {
+                    formatter: (val) => new Intl.NumberFormat('vi-VN', {style: 'currency', currency: 'VND'}).format(val),
+                    title: {formatter: () => "Doanh thu: "}
+                }
+            },
+            responsive: [{
+                breakpoint: 480,
+                options: {chart: {height: 250}}
+            }]
+        };
+
+        currentChart = new ApexCharts(chartContainer, options);
+        currentChart.render().then(() => {
+            updateZoomButtonStates();
+        });
+
+        const titleElement = document.querySelector('#chartTitle');
+        if (titleElement) {
+            titleElement.innerHTML = `Biểu Đồ Doanh Thu <small class="text-light opacity-75 ms-2">(${chartData.title})</small>`;
+        }
+    }
+
+    // Zoom Controls
+    let currentZoomStart = 0;
+    let currentZoomEnd = 5;
+
+    function zoomIn() {
+        if (currentChart && zoomLevel < 3) {
+            zoomLevel += 0.5;
+            const totalCategories = window.originalCategories.length;
+            const categoriesToShow = Math.max(2, Math.floor(totalCategories / zoomLevel));
+            currentZoomEnd = totalCategories - 1;
+            currentZoomStart = Math.max(0, currentZoomEnd - categoriesToShow + 1);
+            updateChartZoom();
+        }
+    }
+
+    function zoomOut() {
+        if (currentChart && zoomLevel > 1) {
+            if (zoomLevel <= 1.5) {
+                resetZoom();
+                return;
+            }
+            zoomLevel -= 0.5;
+            const totalCategories = window.originalCategories.length;
+            const categoriesToShow = Math.max(2, Math.floor(totalCategories / zoomLevel));
+            currentZoomEnd = totalCategories - 1;
+            currentZoomStart = Math.max(0, currentZoomEnd - categoriesToShow + 1);
+            updateChartZoom();
+        }
+    }
+
+    function resetZoom() {
+        if (currentChart) {
+            zoomLevel = 1;
+            currentZoomStart = 0;
+            currentZoomEnd = window.originalCategories.length - 1;
+            currentChart.updateOptions({xaxis: {categories: window.originalCategories}});
+            currentChart.updateSeries([{data: window.originalChartData}]);
+            updateZoomButtonStates();
+        }
+    }
+
+    function updateChartZoom() {
+        if (currentChart) {
+            const zoomedCategories = window.originalCategories.slice(currentZoomStart, currentZoomEnd + 1);
+            const zoomedData = window.originalChartData.slice(currentZoomStart, currentZoomEnd + 1);
+            currentChart.updateOptions({xaxis: {categories: zoomedCategories}});
+            currentChart.updateSeries([{data: zoomedData}]);
+            updateZoomButtonStates();
+        }
+    }
+
+    function updateZoomButtonStates() {
+        const zoomInBtn = document.querySelector('[onclick="zoomIn()"]');
+        const zoomOutBtn = document.querySelector('[onclick="zoomOut()"]');
+        const resetBtn = document.querySelector('[onclick="resetZoom()"]');
+        if (zoomInBtn && zoomOutBtn && resetBtn) {
+            zoomInBtn.style.opacity = zoomLevel >= 3 ? '0.5' : '1';
+            zoomInBtn.style.cursor = zoomLevel >= 3 ? 'not-allowed' : 'pointer';
+            zoomOutBtn.style.opacity = zoomLevel <= 1 ? '0.5' : '1';
+            zoomOutBtn.style.cursor = zoomLevel <= 1 ? 'not-allowed' : 'pointer';
+            resetBtn.style.opacity = zoomLevel === 1 ? '0.7' : '1';
+        }
+    }
+
+    function exportEarningReport() {
+        // Implement export functionality
+        alert('Tính năng xuất báo cáo đang được phát triển!');
+    }
+</script>
+
+</body>
+</html>
+
