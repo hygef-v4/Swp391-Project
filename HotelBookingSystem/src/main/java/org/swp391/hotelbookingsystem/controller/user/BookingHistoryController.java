@@ -15,10 +15,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.swp391.hotelbookingsystem.controller.NotificationController;
 import org.swp391.hotelbookingsystem.model.Booking;
 import org.swp391.hotelbookingsystem.model.BookingUnit;
 import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.service.BookingService;
+import org.swp391.hotelbookingsystem.service.NotificationService;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -28,10 +30,12 @@ public class BookingHistoryController {
 
     @Value("${app.base-url}")
     private String baseUrl;
-    private final BookingService bookingService;
+    private BookingService bookingService;
+    private NotificationService notificationService;
 
-    public BookingHistoryController(BookingService bookingService) {
+    public BookingHistoryController(BookingService bookingService, NotificationService notificationService) {
         this.bookingService = bookingService;
+        this.notificationService = notificationService;
     }
 
     @GetMapping("/bookingHistory")
@@ -116,7 +120,7 @@ public class BookingHistoryController {
                 System.out.println(bookingUnit.getBookingUnitId());
                 break;
             }
-        }model.addAttribute("cancelable", cancelable && booking.refundAmount() > 0);
+        }model.addAttribute("cancelable", (cancelable && booking.refundAmount() > 0));
         
         return "page/bookingDetail";
     }
@@ -129,8 +133,6 @@ public class BookingHistoryController {
         }
 
         Booking booking = bookingService.findById(bookingId);
-        long amount = booking.getTotalPrice().longValue();
-
 
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
@@ -138,11 +140,11 @@ public class BookingHistoryController {
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("id", String.valueOf(booking.getBookingId()));
-        // if(bookingUnit.getPrice() == booking.getTotalPrice()){
+        if(booking.refundAmount() == booking.getTotalPrice()){
             params.add("trantype", "02");
-        // }else{
-            // params.add("trantype", "03");
-        params.add("amount", String.valueOf(booking.refundAmount()));
+        }else{
+            params.add("trantype", "03");
+        }params.add("amount", String.valueOf(booking.refundAmount()));
         params.add("refundRole", "customer");
         params.add("orderInfo", "Hủy đặt phòng " + booking.getHotelName());
 
@@ -152,6 +154,7 @@ public class BookingHistoryController {
         if (booking.getCustomerId() == user.getId() && response != null && response.equals("00")) {
             if (booking.getCheckIn().isAfter(LocalDate.now().atStartOfDay())) {
                 bookingService.updateBookingStatus(booking, "cancelled");
+                notificationService.notifyRefundSuccess(user.getId(), String.valueOf(booking.getBookingId()), booking.getTotalPrice());
             }
         }
 

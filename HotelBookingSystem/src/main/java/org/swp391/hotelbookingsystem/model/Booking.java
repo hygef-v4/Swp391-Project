@@ -99,7 +99,7 @@ public class Booking {
 
     public long refundAmount(){
         long day = ChronoUnit.DAYS.between(LocalDateTime.now().toLocalDate(), checkIn.toLocalDate());
-        
+
         if(day <= noRefund) return 0;
         if(day <= partialRefundDay) return totalPrice.longValue() * partialRefundPercent;
         return totalPrice.longValue();

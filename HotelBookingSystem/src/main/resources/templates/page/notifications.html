@@ -229,8 +229,8 @@
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="payment-tab" data-bs-toggle="pill" data-bs-target="#payment" type="button" role="tab">
-                                <i class="bi bi-credit-card"></i> Thanh toán <span id="paymentCount" class="badge bg-success ms-1">0</span>
+                            <button class="nav-link" id="refund-tab" data-bs-toggle="pill" data-bs-target="#refund" type="button" role="tab">
+                                <i class="bi bi-credit-card"></i> Hoàn tiền <span id="refundCount" class="badge bg-success ms-1">0</span>
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
@@ -296,13 +296,13 @@
 <script th:src="@{/assets/js/functions.js}"></script>
 
 <!-- Notifications JavaScript -->
-<script>
+<script th:inline="javascript">
 // Global variables
 let currentPage = 1;
 let currentFilter = 'all';
 const notificationsPerPage = 10;
 let totalNotifications = 0;
-const currentUserId = [[${session.user?.id}]];
+const currentUserId = /*[[${session.user?.id}]]*/ 0;
 
 // Initialize page
 document.addEventListener('DOMContentLoaded', function() {
@@ -577,7 +577,7 @@ async function updateAllCounts() {
         const filters = [
             { id: 'allCount', params: '' },
             { id: 'bookingCount', params: 'type=booking' },
-            { id: 'paymentCount', params: 'type=payment' }, 
+            { id: 'refundCount', params: 'type=refund' }, 
             { id: 'chatCount', params: 'type=chat' }
         ];
 
@@ -684,7 +684,7 @@ function showEmptyState() {
         'all': 'Bạn chưa có thông báo nào.',
         'unread': 'Bạn không có thông báo chưa đọc.',
         'booking': 'Bạn không có thông báo đặt phòng nào.',
-        'payment': 'Bạn không có thông báo thanh toán nào.',
+        'refund': 'Bạn không có thông báo hoàn tiền nào.',
         'chat': 'Bạn không có thông báo tin nhắn nào.'
     };
     
@@ -712,7 +712,7 @@ function hideErrorState() {
 function getNotificationIcon(type) {
     const icons = {
         'booking': 'bi bi-calendar-check',
-        'payment': 'bi bi-credit-card',
+        'refund': 'bi bi-credit-card',
         'hotel': 'bi bi-building',
         'chat': 'bi bi-chat-dots',
         'system': 'bi bi-gear'
@@ -723,7 +723,7 @@ function getNotificationIcon(type) {
 function getNotificationIconBg(type) {
     const backgrounds = {
         'booking': 'bg-primary',
-        'payment': 'bg-success',
+        'refund': 'bg-success',
         'hotel': 'bg-info',
         'chat': 'bg-warning',
         'system': 'bg-secondary'

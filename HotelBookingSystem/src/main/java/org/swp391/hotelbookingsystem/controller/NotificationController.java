@@ -69,8 +69,8 @@ public class NotificationController {
                 case "message":
                     notificationService.notifyNewMessage(user.getId(), "Test Sender", 999);
                     break;
-                case "payment":
-                    notificationService.notifyPaymentSuccess(user.getId(), "BK123", 1500000);
+                case "refund":
+                    notificationService.notifyRefundSuccess(user.getId(), "BK123", 1500000);
                     break;
                 case "hotel":
                     notificationService.notifyHotelApproval(user.getId(), "Hotel Test");

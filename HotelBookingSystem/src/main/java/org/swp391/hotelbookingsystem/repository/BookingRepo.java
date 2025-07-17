@@ -1115,9 +1115,13 @@ public class BookingRepo {
         }
 
         sql.append("""
-            ) AS total_price
+            ) AS total_price,
+            cp.partial_refund_days,
+            cp.partial_refund_percent,
+            cp.no_refund_within_days
         FROM Bookings b
         JOIN Hotels h ON b.hotel_id = h.hotel_id
+        JOIN CancellationPolicies cp ON cp.hotel_id = h.hotel_id
         WHERE b.customer_id = ?
     """);
 
@@ -1154,6 +1158,9 @@ public class BookingRepo {
                     .totalPrice(rs.getDouble("total_price"))
                     .hotelName(rs.getString("hotel_name"))
                     .imageUrl(rs.getString("hotel_image_url"))
+                    .partialRefundDay(rs.getInt("partial_refund_days"))
+                    .partialRefundPercent(rs.getInt("partial_refund_percent"))
+                    .noRefund(rs.getInt("no_refund_within_days"))
                     .build();
 
             booking.setBookingUnits(findBookingUnitsByBookingId(bookingId));
