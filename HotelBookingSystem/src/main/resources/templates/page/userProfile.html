@@ -172,7 +172,7 @@
                             <!-- Card body START -->
                             <div class="card-body">
                                 <!-- Form START -->
-                                <form th:action="@{/update-user-profile}" method="post" class="row g-3">
+                                <form th:action="@{/update-user-profile}" method="post" class="row g-3" id="userProfileForm">
 
                                     <!-- Profile photo -->
 <!--                                    <div class="col-12">-->
@@ -251,6 +251,7 @@
                                     <div class="col-12">
                                         <label class="form-label">Bio</label>
                                         <textarea class="form-control" name="bio" th:text="${session.user.bio}"></textarea>
+                                        <small class="text-muted">* Không quá 255 ký tự.</small>
                                     </div>
 
                                     <!-- Button -->
@@ -359,6 +360,108 @@ Footer END -->
 
 <!-- ThemeFunctions -->
 <script src="assets/js/functions.js"></script>
+
+<script>
+// Validation rules
+const profileRules = {
+    fullname: {
+        required: true,
+        minLength: 3,
+        maxLength: 50,
+        message: 'Tên người dùng phải từ 3-50 ký tự'
+    },
+    phone: {
+        required: true,
+        pattern: /^\d{10,15}$/,
+        message: 'Số điện thoại phải từ 10-15 chữ số'
+    },
+    dob: {
+        required: true,
+        message: 'Ngày sinh không được để trống',
+        validate: function(value) {
+            // Định dạng yyyy-mm-dd
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return 'Ngày sinh không hợp lệ (yyyy-mm-dd)';
+            const date = new Date(value);
+            const now = new Date();
+            if (isNaN(date.getTime())) return 'Ngày sinh không hợp lệ';
+            if (date > now) return 'Ngày sinh không được lớn hơn hiện tại';
+            // Tuổi tối thiểu 10
+            const age = now.getFullYear() - date.getFullYear() - (now < new Date(now.getFullYear(), date.getMonth(), date.getDate()) ? 1 : 0);
+            if (age < 10) return 'Bạn phải từ 10 tuổi trở lên';
+            return null;
+        }
+    },
+    bio: {
+        maxLength: 255,
+        message: 'Giới thiệu không quá 255 ký tự'
+    }
+};
+
+function showFieldError(element, message) {
+    element.classList.add('is-invalid');
+    let error = element.parentNode.querySelector('.invalid-feedback');
+    if (!error) {
+        error = document.createElement('div');
+        error.className = 'invalid-feedback';
+        element.parentNode.appendChild(error);
+    }
+    error.textContent = message;
+}
+function removeFieldError(element) {
+    element.classList.remove('is-invalid');
+    let error = element.parentNode.querySelector('.invalid-feedback');
+    if (error) error.remove();
+}
+function validateField(element) {
+    const name = element.name;
+    const value = element.value.trim();
+    const rule = profileRules[name];
+    removeFieldError(element);
+    if (!rule) return true;
+    if (rule.required && value === '') {
+        showFieldError(element, rule.message || 'Trường này là bắt buộc');
+        return false;
+    }
+    if (rule.minLength && value.length < rule.minLength) {
+        showFieldError(element, rule.message);
+        return false;
+    }
+    if (rule.maxLength && value.length > rule.maxLength) {
+        showFieldError(element, rule.message);
+        return false;
+    }
+    if (rule.pattern && !rule.pattern.test(value)) {
+        showFieldError(element, rule.message);
+        return false;
+    }
+    if (rule.validate) {
+        const err = rule.validate(value);
+        if (err) {
+            showFieldError(element, err);
+            return false;
+        }
+    }
+    return true;
+}
+// Real-time validation
+const form = document.getElementById('userProfileForm');
+if (form) {
+    form.querySelectorAll('input, textarea').forEach(input => {
+        input.addEventListener('input', function() {
+            validateField(this);
+        });
+    });
+    form.addEventListener('submit', function(e) {
+        let valid = true;
+        form.querySelectorAll('input, textarea').forEach(input => {
+            if (!validateField(input)) valid = false;
+        });
+        if (!valid) {
+            e.preventDefault();
+        }
+    });
+}
+</script>
 
 </body>
 
