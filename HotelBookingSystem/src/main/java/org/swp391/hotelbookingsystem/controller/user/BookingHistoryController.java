@@ -116,7 +116,7 @@ public class BookingHistoryController {
                 System.out.println(bookingUnit.getBookingUnitId());
                 break;
             }
-        }model.addAttribute("cancelable", cancelable && booking.refundAmount() > 0);
+        }model.addAttribute("cancelable", (cancelable && booking.refundAmount() > 0));
         
         return "page/bookingDetail";
     }
@@ -129,8 +129,6 @@ public class BookingHistoryController {
         }
 
         Booking booking = bookingService.findById(bookingId);
-        long amount = booking.getTotalPrice().longValue();
-
 
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();

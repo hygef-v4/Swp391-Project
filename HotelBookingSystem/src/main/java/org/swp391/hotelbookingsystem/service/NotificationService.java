@@ -26,6 +26,10 @@ public class NotificationService {
         createNotification(userId, "Thông báo", message, "system", "normal", null, null, null);
     }
 
+    public void refundNotification(int userId, String message,  String priority, String actionUrl, String icon, Map<String, Object> metadata){
+
+    }
+
     // Enhanced notification method
     public void createNotification(int userId, String title, String message, String type, 
                                  String priority, String actionUrl, String icon, Map<String, Object> metadata) {
@@ -119,11 +123,11 @@ public class NotificationService {
         }
     }
 
-    public void notifyPaymentSuccess(int userId, String bookingId, double amount) {
-        String title = "Thanh toán thành công ✅";
-        String message = "Thanh toán " + String.format("%,.0f", amount) + "₫ cho đơn đặt phòng " + bookingId + " đã hoàn tất";
+    public void notifyRefundSuccess(int userId, String bookingId, double amount) {
+        String title = "Hoàn tiền thành công ✅";
+        String message = "Hoàn " + String.format("%,.0f", amount) + "₫ về tài khoản cua bạn";
         String actionUrl = "/bookingHistory";
-        createNotification(userId, title, message, "payment", "high", actionUrl, "bi-credit-card",
+        createNotification(userId, title, message, "refund", "high", actionUrl, "bi-credit-card",
                          Map.of("bookingId", bookingId, "amount", amount));
     }
 

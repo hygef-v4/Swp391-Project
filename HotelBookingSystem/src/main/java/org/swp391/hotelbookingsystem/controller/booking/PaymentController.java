@@ -137,7 +137,7 @@ public class PaymentController {
 
             bookingService.approveBooking(id, request.getParameter("vnp_TxnRef"), request.getParameter("vnp_TransactionNo"), request.getParameter("vnp_PayDate"));
             // Real-time notification to customer
-            notificationService.notifyPaymentSuccess(user.getId(), String.valueOf(id), booking.getTotalPrice());
+            notificationService.notifyRefundSuccess(user.getId(), String.valueOf(id), booking.getTotalPrice());
 
             model.addAttribute("booking", booking);
 
