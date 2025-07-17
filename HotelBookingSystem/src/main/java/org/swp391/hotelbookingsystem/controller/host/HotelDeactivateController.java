@@ -112,14 +112,15 @@ public class HotelDeactivateController {
             String tokenToVerify = otp + ":" + hotelId;
             String tokenType = hotelService.getHotelDeleteTokenType(tokenToVerify, user.getId());
 
-            if (!"hotel deactivate".equals(tokenType)) {
+            // Check if it's either normal deactivate or force deactivate
+            if (!"hotel deactivate".equals(tokenType) && !"hotel force deactivate".equals(tokenType)) {
                 redirectAttributes.addFlashAttribute("error", "Mã OTP không hợp lệ, đã hết hạn, hoặc không dành cho bạn.");
                 redirectAttributes.addFlashAttribute("showOtpModalForHotelId", hotelId);
                 redirectAttributes.addFlashAttribute("otpError", "Mã OTP không hợp lệ hoặc đã hết hạn.");
                 return "redirect:/host-listing";
             }
 
-            // Reject all active bookings first
+            // Reject all active bookings first (for both normal and force deactivate)
             int rejectedBookings = bookingService.rejectAllActiveBookingsByHotelId(hotelId);
 
             // Then deactivate the hotel
@@ -188,20 +189,26 @@ public class HotelDeactivateController {
         }
 
         try {
-            // Reject all active bookings first
-            int rejectedBookings = bookingService.rejectAllActiveBookingsByHotelId(hotelId);
+            // Generate OTP and send email for force deactivation
+            String otp = String.valueOf((int) (Math.random() * 900000) + 100000); // 6-digit OTP
+            String token = otp + ":" + hotelId;
+            String tokenType = "hotel force deactivate"; // Different token type for force deactivation
+            LocalDateTime expiry = LocalDateTime.now().plusMinutes(10);
 
-            // Then deactivate the hotel
-            hotelService.updateHotelStatus(hotelId, "inactive");
+            hotelService.insertHotelDeletionToken(user.getId(), token, expiry, tokenType);
 
-            String message = "Khách sạn '" + hotel.getHotelName() + "' đã được vô hiệu hóa thành công.";
-            if (rejectedBookings > 0) {
-                message += " Đã hủy " + rejectedBookings + " đặt phòng đang hoạt động. Vui lòng liên hệ với khách hàng để hoàn tiền.";
-            }
+            // Get active bookings count for email
+            int activeBookingsCount = bookingService.countActiveBookingsByHotelId(hotelId);
 
-            redirectAttributes.addFlashAttribute("message", message);
+            // Send email with warning about active bookings
+            emailService.sendHotelForceDeactivateConfirmationEmail(user.getEmail(), hotel.getHotelName(), otp, activeBookingsCount);
+
+            redirectAttributes.addFlashAttribute("showOtpModalForHotelId", hotelId);
+            redirectAttributes.addFlashAttribute("isForceDeactivate", true);
+            redirectAttributes.addFlashAttribute("activeBookingsCount", activeBookingsCount);
+            redirectAttributes.addFlashAttribute("message", "Mã xác nhận đã được gửi tới email của bạn. Vui lòng nhập mã OTP để hoàn tất vô hiệu hóa khách sạn.");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Vô hiệu hóa khách sạn thất bại: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "Đã xảy ra lỗi khi yêu cầu vô hiệu hóa khách sạn: " + e.getMessage());
         }
 
         return "redirect:/host-listing";

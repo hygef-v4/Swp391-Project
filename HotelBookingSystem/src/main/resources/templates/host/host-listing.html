@@ -408,6 +408,13 @@
                                                                                 aria-label="Đóng"></button>
                                                                     </div>
                                                                     <div class="modal-body">
+                                                                        <!-- Show different message for force deactivate -->
+                                                                        <div th:if="${isForceDeactivate}" class="alert alert-warning">
+                                                                            <h6><i class="bi bi-exclamation-triangle me-2"></i>Cảnh báo: Vô hiệu hóa khách sạn có đặt phòng đang hoạt động</h6>
+                                                                            <p class="mb-2">Khách sạn này có <strong th:text="${activeBookingsCount}">0</strong> đặt phòng đang hoạt động.</p>
+                                                                            <p class="mb-0"><strong>Tất cả đặt phòng này sẽ bị hủy và bạn phải hoàn tiền cho khách hàng.</strong></p>
+                                                                        </div>
+
                                                                         <p>Mã xác nhận đã được gửi tới email của bạn.
                                                                             Vui lòng nhập mã để xác nhận vô hiệu hóa khách
                                                                             sạn.</p>
@@ -563,6 +570,7 @@
         // Thymeleaf will replace [[${showOtpModalForHotelId}]] with the actual value or null if not present
         const hotelIdForOtp = /*[[${showOtpModalForHotelId}]]*/ null;
         const otpErrorMessage = /*[[${otpError}]]*/ null; // Get OTP specific error
+        const isForceDeactivate = /*[[${isForceDeactivate}]]*/ false;
 
         if (hotelIdForOtp) {
             const otpModalElement = document.getElementById('otpModal');
@@ -571,6 +579,14 @@
 
             if (otpModalElement && otpHotelIdInput) {
                 otpHotelIdInput.value = hotelIdForOtp; // Set the hidden hotelId field
+
+                // Update modal title for force deactivate
+                if (isForceDeactivate) {
+                    const modalTitle = otpModalElement.querySelector('.modal-title');
+                    if (modalTitle) {
+                        modalTitle.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>Xác nhận vô hiệu hóa khách sạn';
+                    }
+                }
 
                 const modal = new bootstrap.Modal(otpModalElement);
                 modal.show();
