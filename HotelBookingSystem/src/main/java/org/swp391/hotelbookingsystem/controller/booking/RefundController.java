@@ -48,7 +48,7 @@ public class RefundController{
 
             String apiUrl = VNPayConfig.vnp_ApiUrl;
             ResponseEntity<String> response = restTemplate.postForEntity(apiUrl, http, String.class);
-
+            System.out.println(response. getBody());
             ObjectMapper mapper = new ObjectMapper();
             JsonNode json = mapper.readTree(response.getBody());
             String responseCode = json.get("vnp_ResponseCode").asText();
