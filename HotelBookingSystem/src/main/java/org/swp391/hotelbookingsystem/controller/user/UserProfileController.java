@@ -66,10 +66,11 @@ public class UserProfileController {
                 sessionUser.setDob(java.sql.Date.valueOf(dob));
                 sessionUser.setBio(bio);
                 sessionUser.setGender(gender);
+                // Xử lý cập nhật avatar: Nếu avatarUrl có giá trị thì cập nhật, nếu không thì đặt về null để hiển thị ảnh mặc định
                 if (avatarUrl != null && !avatarUrl.isBlank()) {
                     sessionUser.setAvatarUrl(avatarUrl);
                 } else {
-                    sessionUser.setAvatarUrl(null); // reset về null để hiện ảnh mặc định
+                    sessionUser.setAvatarUrl(null); // Nếu không có avatar, đặt về null để dùng ảnh mặc định
                 }
 
                 userService.updateUser(sessionUser);
