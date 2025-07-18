@@ -3,6 +3,7 @@ package org.swp391.hotelbookingsystem.service;
 import org.springframework.stereotype.Service;
 import org.swp391.hotelbookingsystem.model.Hotel;
 import org.swp391.hotelbookingsystem.repository.HotelRepository;
+import org.swp391.hotelbookingsystem.repository.UserWishlistRepository;
 
 import java.time.LocalDateTime;
 import java.sql.Date;
@@ -158,5 +159,13 @@ public class HotelService {
 
     public int countHotelsByHostIdAndSearch(int hostId, String search) {
         return hotelRepository.countHotelsByHostIdAndSearch(hostId, search);
+    }
+
+    // Đánh dấu favorite cho từng hotel trong danh sách
+    public void setFavoriteStatusForHotels(List<Hotel> hotels, int userId, UserWishlistRepository wishlistRepo) {
+        List<Integer> favoriteHotelIds = wishlistRepo.findFavoriteHotelIdsByUserId(userId);
+        for (Hotel hotel : hotels) {
+            hotel.setFavorite(favoriteHotelIds.contains(hotel.getHotelId()));
+        }
     }
 }

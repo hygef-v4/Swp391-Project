@@ -55,6 +55,10 @@ public class UserWishlistRepository {
         jdbc.update(sql, userId, hotelId);
     }
 
+    public List<Integer> findFavoriteHotelIdsByUserId(int userId) {
+        String sql = "SELECT hotel_id FROM favorites WHERE user_id = ?";
+        return jdbc.query(sql, (rs, rowNum) -> rs.getInt("hotel_id"), userId);
+    }
 
 
 }

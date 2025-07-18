@@ -333,6 +333,15 @@ Hotel grid START -->
 							<img class="card-img clickable-img" th:src="${hotel.hotelImageUrl}" alt="hotel image">
 						</a>
 
+						<!-- Heart icon favorite -->
+						<div class="position-absolute top-0 end-0 p-2" style="z-index:10;">
+							<form th:action="${(hotel.favorite ? 'remove-favorite' : '/add-favorite') + '?hotelId=' + hotel.hotelId + '&detail=false'}" method="post" style="display: inline;">
+								<button type="submit" class="btn btn-sm btn-light px-2" th:title="${hotel.favorite ? 'Bỏ khỏi yêu thích' : 'Thêm vào yêu thích'}" style="z-index:11; position:relative;">
+									<i th:class="'fa-solid fa-fw fa-heart' + ${hotel.favorite ? ' text-danger' : ''}"></i>
+								</button>
+							</form>
+						</div>
+
 						<!-- Location badge -->
 						<div class="position-absolute bottom-0 start-0 p-3">
 							<div class="badge text-bg-dark fs-6 rounded-pill">
