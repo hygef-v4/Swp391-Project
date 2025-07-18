@@ -110,11 +110,11 @@ public class UserWishlistController {
             if(rooms != 1) redirect += "&rooms=" + rooms;
             return "redirect:/hotel-detail?hotelId=" + hotelId + redirect;
         }
-        // Nếu có redirectParams thì trả về hotel-list với các filter, nếu không thì về hotel-list mặc định
+        // Nếu có redirectParams thì trả về hotel-list với các filter, nếu không thì về user-wishlist mặc định
         if (!redirectParams.isEmpty()) {
             return "redirect:/hotel-list?" + redirectParams;
         }
-        return "redirect:/hotel-list";
+        return "redirect:/user-wishlist";
     }
 
     @PostMapping("/add-favorite")

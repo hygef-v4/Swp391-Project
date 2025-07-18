@@ -161,10 +161,10 @@
                       <a th:href="@{/hotel-detail(hotelId=${favorite.hotel.hotelId})}" class="btn btn-primary btn-sm">
                         Xem chi tiết
                       </a>
-                      <form th:action="@{/remove-favorite(hotelId=${favorite.hotel.hotelId})}" method="post">
-                        <button type="submit" class="btn btn-danger btn-sm">
-                          Xóa
-                        </button>
+                      <form th:action="@{/remove-favorite(hotelId=${favorite.hotel.hotelId})}" method="post" class="delete-favorite-form">
+                          <button type="button" class="btn btn-danger btn-sm btn-show-delete-modal" data-hotel-id="[[${favorite.hotel.hotelId}]]">
+                              Xóa
+                          </button>
                       </form>
 
                     </div>
@@ -211,6 +211,44 @@ Footer END -->
 
 <!-- ThemeFunctions -->
 <script src="assets/js/functions.js"></script>
+
+<!-- Modal xác nhận xoá yêu thích -->
+<div class="modal fade" id="confirmDeleteFavoriteModal" tabindex="-1" aria-labelledby="confirmDeleteFavoriteLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmDeleteFavoriteLabel">Xác nhận xoá</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+      </div>
+      <div class="modal-body">
+        Bạn có chắc chắn muốn xoá khách sạn này khỏi danh sách yêu thích?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Huỷ</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteFavoriteBtn">Xoá</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let formToSubmit = null;
+    document.querySelectorAll('.btn-show-delete-modal').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            formToSubmit = btn.closest('form');
+            const modal = new bootstrap.Modal(document.getElementById('confirmDeleteFavoriteModal'));
+            modal.show();
+        });
+    });
+    document.getElementById('confirmDeleteFavoriteBtn').addEventListener('click', function() {
+        if (formToSubmit) {
+            formToSubmit.submit();
+        }
+    });
+});
+</script>
 
 </body>
 
