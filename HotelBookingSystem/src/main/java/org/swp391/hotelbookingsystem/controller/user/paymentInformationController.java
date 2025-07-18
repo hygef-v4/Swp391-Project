@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 
 @Controller
-public class paymentInformationController {
+public class PaymentInformationController {
 
 
     @GetMapping("payment-information")
