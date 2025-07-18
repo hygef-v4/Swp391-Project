@@ -12,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.swp391.hotelbookingsystem.service.UserService;
+import org.swp391.hotelbookingsystem.service.EmailService;
 
 @Controller
 public class UpdatePasswordController {
@@ -20,9 +21,12 @@ public class UpdatePasswordController {
 
     private final PasswordEncoder passwordEncoder;
 
-    public UpdatePasswordController(UserService userService, PasswordEncoder passwordEncoder) {
+    private final EmailService emailService;
+
+    public UpdatePasswordController(UserService userService, PasswordEncoder passwordEncoder, EmailService emailService) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
+        this.emailService = emailService;
     }
 
     @GetMapping("/user-change-password")
@@ -54,6 +58,9 @@ public class UpdatePasswordController {
 
             // Cập nhật mật khẩu mới
             userService.updateUserPassword(sessionUser, newPassword);
+
+            // Gửi email xác nhận đổi mật khẩu
+            emailService.sendChangePasswordConfirmationEmail(sessionUser.getEmail());
 
             // Thay đổi trong session
             session.setAttribute("user", sessionUser);
