@@ -49,6 +49,7 @@ public class UserProfileController {
                                     @RequestParam("dob") String dob,
                                     @RequestParam("bio") String bio,
                                     @RequestParam("gender") String gender,
+                                    @RequestParam(value = "avatarUrl", required = false) String avatarUrl,
                                     HttpSession session, RedirectAttributes redirectAttributes) {
 
         User sessionUser = (User) session.getAttribute("user");
@@ -65,6 +66,11 @@ public class UserProfileController {
                 sessionUser.setDob(java.sql.Date.valueOf(dob));
                 sessionUser.setBio(bio);
                 sessionUser.setGender(gender);
+                if (avatarUrl != null && !avatarUrl.isBlank()) {
+                    sessionUser.setAvatarUrl(avatarUrl);
+                } else {
+                    sessionUser.setAvatarUrl(null); // reset về null để hiện ảnh mặc định
+                }
 
                 userService.updateUser(sessionUser);
 
