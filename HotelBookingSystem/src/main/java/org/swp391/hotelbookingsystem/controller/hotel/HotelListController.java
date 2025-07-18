@@ -104,6 +104,7 @@ public class HotelListController {
         if(!"".equals(name)) request += "&name=" + name;
         if(!"500,000".equals(min)) request += "&min=" + min;
         if(!"2,000,000".equals(max)) request += "&max=" + max;
+        request += "&page=" + page; // Đảm bảo luôn có page hiện tại
         model.addAttribute("request", request);
 
         model.addAttribute("price", price);

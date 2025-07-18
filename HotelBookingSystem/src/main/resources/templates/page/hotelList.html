@@ -110,6 +110,20 @@
 <!-- **************** MAIN CONTENT START **************** -->
 <main>
 
+<!-- Thông báo thành công/lỗi khi thêm/xoá yêu thích -->
+<div class="container mt-3">
+    <!-- Thông báo thành công -->
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <strong>Thành công!</strong> <span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <!-- Thông báo lỗi -->
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong>Lỗi!</strong> <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+</div>
+
 <!-- =======================
 Main Banner START -->
 <section class="pt-0">
@@ -336,6 +350,7 @@ Hotel grid START -->
 						<!-- Heart icon favorite -->
 						<div class="position-absolute top-0 end-0 p-2" style="z-index:10;">
 							<form th:action="${(hotel.favorite ? 'remove-favorite' : '/add-favorite') + '?hotelId=' + hotel.hotelId + '&detail=false'}" method="post" style="display: inline;">
+								<input type="hidden" name="redirect" th:value="${request}" />
 								<button type="submit" class="btn btn-sm btn-light px-2" th:title="${hotel.favorite ? 'Bỏ khỏi yêu thích' : 'Thêm vào yêu thích'}" style="z-index:11; position:relative;">
 									<i th:class="'fa-solid fa-fw fa-heart' + ${hotel.favorite ? ' text-danger' : ''}"></i>
 								</button>

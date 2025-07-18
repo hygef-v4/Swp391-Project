@@ -75,7 +75,7 @@ public class UserWishlistController {
         @RequestParam(value = "adults", defaultValue = "1") int adults,
         @RequestParam(value = "children", defaultValue = "0") int children,
         @RequestParam(value = "rooms", defaultValue = "1") int rooms,
-        
+        @RequestParam(value = "redirect", defaultValue = "") String redirectParams,
         HttpSession session, RedirectAttributes redirectAttributes
     ) {
         // Lấy thông tin người dùng từ session
@@ -108,10 +108,13 @@ public class UserWishlistController {
             if(adults != 1) redirect += "&adults=" + adults;
             if(children != 0) redirect += "&children=" + children;
             if(rooms != 1) redirect += "&rooms=" + rooms;
-
             return "redirect:/hotel-detail?hotelId=" + hotelId + redirect;
         }
-        return "redirect:/user-wishlist";
+        // Nếu có redirectParams thì trả về hotel-list với các filter, nếu không thì về hotel-list mặc định
+        if (!redirectParams.isEmpty()) {
+            return "redirect:/hotel-list?" + redirectParams;
+        }
+        return "redirect:/hotel-list";
     }
 
     @PostMapping("/add-favorite")
@@ -122,7 +125,7 @@ public class UserWishlistController {
         @RequestParam(value = "adults", defaultValue = "1") int adults,
         @RequestParam(value = "children", defaultValue = "0") int children,
         @RequestParam(value = "rooms", defaultValue = "1") int rooms,
-        
+        @RequestParam(value = "redirect", defaultValue = "") String redirectParams,
         HttpSession session, RedirectAttributes redirectAttributes
     ) {
         // Lấy thông tin người dùng từ session
@@ -153,10 +156,12 @@ public class UserWishlistController {
             if(adults != 1) redirect += "&adults=" + adults;
             if(children != 0) redirect += "&children=" + children;
             if(rooms != 1) redirect += "&rooms=" + rooms;
-
             return "redirect:/hotel-detail?hotelId=" + hotelId + redirect;
         }
-        return "redirect:/user-wishlist";
+        if (!redirectParams.isEmpty()) {
+            return "redirect:/hotel-list?" + redirectParams;
+        }
+        return "redirect:/hotel-list";
     }
 
 }
