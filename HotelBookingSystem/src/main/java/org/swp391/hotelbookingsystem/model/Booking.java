@@ -50,29 +50,35 @@ public class Booking {
         boolean hasCheckIn = false;
         boolean hasCompleted = false;
         boolean hasApproved = false;
-        boolean allCancelledOrRejected = true;
+        boolean allRejected = true;
+        boolean allCancelled = true;
 
         for (BookingUnit unit : bookingUnits) {
             String status = unit.getStatus();
-            if ("check_in".equals(status)) {
-                hasCheckIn = true;
-            } else if ("completed".equals(status)) {
-                hasCompleted = true;
-            } else if ("approved".equals(status)) {
-                hasApproved = true;
+
+            switch (status) {
+                case "check_in" -> hasCheckIn = true;
+                case "completed" -> hasCompleted = true;
+                case "approved" -> hasApproved = true;
             }
 
-            if (!"cancelled".equals(status) && !"rejected".equals(status)) {
-                allCancelledOrRejected = false;
+            if (!"rejected".equals(status)) {
+                allRejected = false;
+            }
+
+            if (!"cancelled".equals(status)) {
+                allCancelled = false;
             }
         }
 
         if (hasCheckIn) return "check_in";
         if (hasCompleted) return "completed";
         if (hasApproved) return "approved";
-        if (allCancelledOrRejected) return "cancelled";
-        return null;
+        if (allRejected) return "rejected";
+        if (allCancelled) return "cancelled";
+        return "cancelled"; // fallback for mix of rejected + cancelled
     }
+
 
     public void calculateNumberOfNights() {
         if (checkIn != null && checkOut != null) {

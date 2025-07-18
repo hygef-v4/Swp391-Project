@@ -128,4 +128,12 @@ public class RoomService {
     public void activateRoom(int roomId) {
         updateRoomStatus(roomId, "active");
     }
+
+    public boolean roomTitleExistsInHotel(String title, int hotelId) {
+        return roomRepository.roomTitleExistsInHotel(title, hotelId);
+    }
+
+    public boolean roomTitleExistsInHotelExcludingRoom(String title, int hotelId, int excludeRoomId) {
+        return roomRepository.roomTitleExistsInHotelExcludingRoom(title, hotelId, excludeRoomId);
+    }
 }

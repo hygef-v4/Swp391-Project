@@ -728,6 +728,9 @@ About hotel START -->
                                                                 <div class="form-floating">
                                                                     <input type="text" class="form-control" th:id="'roomTitle-' + ${room.roomId}" th:value="${room.title}" required>
                                                                     <label th:for="'roomTitle-' + ${room.roomId}">Tên phòng</label>
+                                                                    <div class="text-danger small" th:id="'roomTitleDuplicateError-' + ${room.roomId}" style="display: none;">
+                                                                        Tên phòng đã tồn tại trong khách sạn này
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                             <div class="col-md-4">
@@ -1257,6 +1260,48 @@ About hotel END -->
         font-weight: bold;
     }
 </style>
+
+<!-- Room Deactivate Warning Modal -->
+<div class="modal fade" id="roomDeactivateWarningModal" tabindex="-1" aria-labelledby="roomDeactivateWarningModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title" id="roomDeactivateWarningModalLabel">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Cảnh báo: Phòng có đặt phòng đang hoạt động
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning">
+                    <strong>Phòng này hiện có <span id="activeBookingsCountSpan">0</span> đặt phòng đang hoạt động.</strong>
+                </div>
+                <p>Các đặt phòng này bao gồm:</p>
+                <ul>
+                    <li>Đặt phòng đã được duyệt (approved)</li>
+                    <li>Khách đang ở (check-in)</li>
+                </ul>
+                <div class="alert alert-danger">
+                    <strong>Nếu tiếp tục vô hiệu hóa:</strong>
+                    <ul class="mb-0 mt-2">
+                        <li>Tất cả đặt phòng này sẽ bị hủy</li>
+                        <li>Bạn sẽ phải hoàn tiền toàn bộ cho khách hàng</li>
+                        <li>Điều này có thể ảnh hưởng đến uy tín của bạn</li>
+                    </ul>
+                </div>
+                <p class="mb-0"><strong>Bạn có chắc chắn muốn tiếp tục?</strong></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i>Hủy bỏ
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmRoomDeactivateBtn">
+                    <i class="bi bi-exclamation-triangle me-1"></i>Vẫn tiếp tục vô hiệu hóa
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script th:inline="javascript">
     const hotelId = /*[[${hotel.hotelId}]]*/ 0 ;
@@ -1840,6 +1885,13 @@ About hotel END -->
         const descriptionField = document.getElementById('roomDescription-' + roomId);
         const roomImagesField = document.getElementById('roomImages-' + roomId);
         
+        // Check room title duplicate validation first
+        if (roomTitleField.dataset.titleValid === 'false') {
+            showNotification('Tên phòng đã tồn tại trong khách sạn này', 'error');
+            roomTitleField.focus();
+            return;
+        }
+
         // Validate all fields
         const validations = [
             validateField(roomTitleField, {
@@ -1949,45 +2001,70 @@ About hotel END -->
         });
     }
 
-    function deactivateRoom(roomId) {
-        // Check if this is the last active room
-        const activeRooms = document.querySelectorAll('[id^="room-"]').length; // This is a simple check, more complex logic handled server-side
-        
-        if (confirm('Bạn có chắc chắn muốn vô hiệu hóa phòng này? Phòng sẽ không hiển thị cho khách hàng nhưng dữ liệu vẫn được giữ lại.')) {
-            const formData = new FormData();
-            formData.append('roomId', roomId);
-            formData.append('hotelId', hotelId);
-
-            fetch('/deactivate-room', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Deactivate room response:', data);
-                if (data.success) {
-                    showNotification(data.message);
-                    
-                    try {
-                        // Update room status in DOM
-                        updateRoomButtonStatus(roomId, 'inactive');
-                        
-                        // Update deactivate buttons for remaining active rooms
-                        updateRoomActionButtons();
-                        
-                    } catch (uiError) {
-                        console.error('UI update error after successful deactivation:', uiError);
-                        // Don't show error notification since deactivation was successful
-                    }
-                } else {
-                    showNotification(data.message, 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showNotification('Có lỗi xảy ra khi vô hiệu hóa phòng', 'error');
-            });
+    function deactivateRoom(roomId, forceDeactivate = false) {
+        if (!forceDeactivate && !confirm('Bạn có chắc chắn muốn vô hiệu hóa phòng này? Phòng sẽ không hiển thị cho khách hàng nhưng dữ liệu vẫn được giữ lại.')) {
+            return;
         }
+
+        const formData = new FormData();
+        formData.append('roomId', roomId);
+        formData.append('hotelId', hotelId);
+        if (forceDeactivate) {
+            formData.append('forceDeactivate', 'true');
+        }
+
+        fetch('/deactivate-room', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Deactivate room response:', data);
+            if (data.success) {
+                showNotification(data.message);
+
+                try {
+                    // Update room status in DOM
+                    updateRoomButtonStatus(roomId, 'inactive');
+
+                    // Update deactivate buttons for remaining active rooms
+                    updateRoomActionButtons();
+
+                } catch (uiError) {
+                    console.error('UI update error after successful deactivation:', uiError);
+                    // Don't show error notification since deactivation was successful
+                }
+            } else if (data.hasActiveBookings) {
+                // Show warning modal for active bookings
+                showRoomDeactivateWarning(roomId, data.activeBookingsCount);
+            } else {
+                showNotification(data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Có lỗi xảy ra khi vô hiệu hóa phòng', 'error');
+        });
+    }
+
+    function showRoomDeactivateWarning(roomId, activeBookingsCount) {
+        // Update modal content
+        document.getElementById('activeBookingsCountSpan').textContent = activeBookingsCount;
+
+        // Set up confirm button
+        const confirmBtn = document.getElementById('confirmRoomDeactivateBtn');
+        confirmBtn.onclick = function() {
+            // Hide modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('roomDeactivateWarningModal'));
+            modal.hide();
+
+            // Force deactivate
+            deactivateRoom(roomId, true);
+        };
+
+        // Show modal
+        const modal = new bootstrap.Modal(document.getElementById('roomDeactivateWarningModal'));
+        modal.show();
     }
 
     function activateRoom(roomId) {
@@ -3135,6 +3212,75 @@ About hotel END -->
         to { transform: rotate(360deg); }
     }
 </style>
+
+<script>
+    // Room title validation for edit forms
+    let roomTitleCheckTimeouts = {};
+
+    function setupRoomTitleValidationForEdit(roomId) {
+        const roomTitleInput = document.getElementById(`roomTitle-${roomId}`);
+        const duplicateError = document.getElementById(`roomTitleDuplicateError-${roomId}`);
+        const hotelId = [[${hotel.hotelId}]];
+
+        if (!roomTitleInput || !duplicateError) return;
+
+        roomTitleInput.addEventListener('input', function() {
+            const roomTitle = this.value.trim();
+
+            // Clear previous timeout
+            if (roomTitleCheckTimeouts[roomId]) {
+                clearTimeout(roomTitleCheckTimeouts[roomId]);
+            }
+
+            // Hide error initially
+            duplicateError.style.display = 'none';
+            roomTitleInput.classList.remove('is-invalid');
+
+            // Only check if title is not empty
+            if (roomTitle.length > 0) {
+                roomTitleCheckTimeouts[roomId] = setTimeout(() => {
+                    checkRoomTitleDuplicateForEdit(roomTitle, hotelId, roomId);
+                }, 500); // Debounce 500ms
+            }
+        });
+    }
+
+    function checkRoomTitleDuplicateForEdit(roomTitle, hotelId, roomId) {
+        const duplicateError = document.getElementById(`roomTitleDuplicateError-${roomId}`);
+        const roomTitleInput = document.getElementById(`roomTitle-${roomId}`);
+
+        const url = `/check-room-name?roomTitle=${encodeURIComponent(roomTitle)}&hotelId=${hotelId}&roomId=${roomId}`;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data.exists) {
+                    duplicateError.style.display = 'block';
+                    roomTitleInput.classList.add('is-invalid');
+                    // Store validation state
+                    roomTitleInput.dataset.titleValid = 'false';
+                } else {
+                    duplicateError.style.display = 'none';
+                    roomTitleInput.classList.remove('is-invalid');
+                    roomTitleInput.dataset.titleValid = 'true';
+                }
+            })
+            .catch(error => {
+                console.error('Error checking room title:', error);
+                roomTitleInput.dataset.titleValid = 'true'; // Allow on error
+            });
+    }
+
+    // Setup validation for all room edit forms when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        // Find all room edit forms and setup validation
+        const roomEditForms = document.querySelectorAll('[id^="roomEditForm-"]');
+        roomEditForms.forEach(form => {
+            const roomId = form.id.replace('roomEditForm-', '');
+            setupRoomTitleValidationForEdit(roomId);
+        });
+    });
+</script>
 
 </body>
 </html>
