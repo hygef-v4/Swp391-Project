@@ -135,8 +135,10 @@ public class PaymentController {
                 return "redirect:/login";
             }
 
-            bookingService.approveBooking(id, request.getParameter("vnp_TxnRef"), request.getParameter("vnp_TransactionNo"), request.getParameter("vnp_PayDate"));
-            notificationService.notifyBookingConfirmation(user.getId(), String.valueOf(id), booking.getHotelName());
+            int approved = bookingService.approveBooking(id, request.getParameter("vnp_TxnRef"), request.getParameter("vnp_TransactionNo"), request.getParameter("vnp_PayDate"));
+            if(approved > 0){
+                notificationService.notifyBookingConfirmation(user.getId(), String.valueOf(id), booking.getHotelName());
+            }
 
             model.addAttribute("booking", booking);
 

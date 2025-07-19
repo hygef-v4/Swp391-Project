@@ -173,9 +173,9 @@ public class BookingRepo {
         jdbcTemplate.update(sql, orderCode, transactionNo, Timestamp.valueOf(createdAt), bookingId);
     }
 
-    public void approveBookingUnit(int id){
-        String sql = "UPDATE BookingUnits SET status = 'approved' WHERE booking_id = ?";
-        jdbcTemplate.update(sql, id);
+    public int approveBookingUnit(int id){
+        String sql = "UPDATE BookingUnits SET status = 'approved' WHERE booking_id = ? AND status != 'approved'";
+        return jdbcTemplate.update(sql, id);
     }
 
     public void saveBookingUnit(int id, BookingUnit bookingUnit){

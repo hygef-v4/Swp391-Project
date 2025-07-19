@@ -48,7 +48,6 @@ public class SecurityConfig {
                                 "/css/**", "/js/**", "/images/**", "/assets/**",
                                 "/api/files/**", "user-profile", "user-wishlist", "/ws/**", "/api/chat/**", "/api/notifications/**", "/test-notifications", "/refund"
                         ).permitAll()
-                        .requestMatchers("/notifications").authenticated()
                         .requestMatchers("/admin-dashboard", "/admin-user-list", "/admin-user-detail", "/admin-hotel-list", "/admin/locations/add", "/admin-agent-detail", "admin-agent-list", "admin-booking-list", "/admin-review").access(AuthorizationManagers.allOf(
                                 new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
                                 new WebExpressionAuthorizationManager("hasRole('ADMIN')")

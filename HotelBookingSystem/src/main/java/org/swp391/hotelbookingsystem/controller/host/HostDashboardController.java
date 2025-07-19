@@ -1,17 +1,25 @@
 package org.swp391.hotelbookingsystem.controller.host;
 
 import java.text.DecimalFormat;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.client.RestTemplate;
 import org.swp391.hotelbookingsystem.model.Booking;
 import org.swp391.hotelbookingsystem.model.BookingUnit;
 import org.swp391.hotelbookingsystem.model.Hotel;
@@ -21,6 +29,7 @@ import org.swp391.hotelbookingsystem.service.BookingService;
 import org.swp391.hotelbookingsystem.service.CloudinaryService;
 import org.swp391.hotelbookingsystem.service.HotelService;
 import org.swp391.hotelbookingsystem.service.LocationService;
+import org.swp391.hotelbookingsystem.service.NotificationService;
 import org.swp391.hotelbookingsystem.service.ReviewService;
 import org.swp391.hotelbookingsystem.service.RoomService;
 import org.swp391.hotelbookingsystem.service.UserService;
@@ -30,6 +39,9 @@ import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class HostDashboardController {
+
+    @Value("${app.base-url}")
+    private String baseUrl;
 
     final
     LocationService locationService;
@@ -54,7 +66,10 @@ public class HostDashboardController {
     final
     ReviewService reviewService;
 
-    public HostDashboardController(LocationService locationService, AmenityService amenityService, CloudinaryService cloudinaryService, RoomService roomService, HotelService hotelService, UserService userService, BookingService bookingService, ReviewService reviewService) {
+    final
+    NotificationService notificationService;
+
+    public HostDashboardController(LocationService locationService, AmenityService amenityService, CloudinaryService cloudinaryService, RoomService roomService, HotelService hotelService, UserService userService, BookingService bookingService, ReviewService reviewService, NotificationService notificationService) {
         this.locationService = locationService;
         this.amenityService = amenityService;
         this.cloudinaryService = cloudinaryService;
@@ -63,6 +78,7 @@ public class HostDashboardController {
         this.userService = userService;
         this.bookingService = bookingService;
         this.reviewService = reviewService;
+        this.notificationService = notificationService;
     }
 
     @GetMapping("/host-dashboard")
@@ -160,9 +176,30 @@ public class HostDashboardController {
                 return response;
             }
 
-            bookingService.updateBookingStatus(booking, "rejected");
-            response.put("success", true);
-            response.put("message", "Đã từ chối toàn bộ booking thành công");
+            RestTemplate restTemplate = new RestTemplate();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+            MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+            params.add("id", String.valueOf(booking.getBookingId()));
+            params.add("trantype", "02");
+            params.add("amount", String.valueOf(booking.getTotalPrice().longValue()));
+            params.add("refundRole", "customer");
+            params.add("orderInfo", "Hủy đặt phòng " + booking.getHotelName());
+
+            HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+            String res = restTemplate.postForObject(baseUrl + "/refund", request, String.class);
+            
+            if (res != null && res.equals("00")) {
+                bookingService.updateBookingStatus(booking, "rejected");
+                notificationService.rejectNotification(booking.getCustomerId(), String.valueOf(booking.getBookingId()), booking.refundAmount());
+
+                response.put("success", true);
+                response.put("message", "Đã từ chối toàn bộ booking thành công");
+            }else{
+                response.put("success", false);
+                response.put("message", "Đã xảy ra lỗi khi hoàn tiền");
+            }
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "Lỗi khi từ chối booking: " + e.getMessage());
