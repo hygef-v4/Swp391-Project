@@ -9,6 +9,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.rememberme.InMemoryTokenRepositoryImpl;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
 import org.springframework.stereotype.Component;
 import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.repository.UserRepo;
@@ -21,9 +23,11 @@ import jakarta.servlet.http.HttpServletResponse;
 public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final UserRepo userRepo;
+    private final CustomRememberMeServices rememberMeServices;
 
-    public OAuth2LoginSuccessHandler(UserRepo userRepo) {
+    public OAuth2LoginSuccessHandler(UserRepo userRepo, CustomRememberMeServices rememberMeServices) {
         this.userRepo = userRepo;
+        this.rememberMeServices = rememberMeServices;
     }
 
     @Override
@@ -52,8 +56,9 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         }
 
         List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole()));
-        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(user, null, authorities);
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(user.getEmail(), null, authorities);
         SecurityContextHolder.getContext().setAuthentication(authToken);
+        rememberMeServices.onLoginSuccess(request, response, authToken);
 
         request.getSession().setAttribute("user", user);
 
@@ -63,7 +68,6 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
             case "HOTEL OWNER" -> response.sendRedirect("/host-dashboard");
             default -> response.sendRedirect("/home");
         }
-
     }
 }
 
