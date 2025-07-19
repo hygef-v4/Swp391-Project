@@ -191,7 +191,7 @@ Content START -->
 										</div>
 										<div class="form-check form-switch form-check-md d-flex justify-content-end text-white">
 											<label class="form-check-label ps-0 pe-2 fw-bold fs-6" th:for="'default' + ${bank.bankId}">Mặc định</label>
-											<input class="form-check-input flex-shrink-0" type="checkbox" th:id="'default' + ${bank.bankId}" th:checked="${bank.defaultAccount}">
+											<input class="form-check-input flex-shrink-0 default" type="checkbox" th:id="'default' + ${bank.bankId}" th:checked="${bank.defaultAccount}" onchange="changeDefault(this)">
 										</div>
 									</div>
 								</div>
@@ -327,6 +327,17 @@ Footer END -->
 	function mask(e){
 		e.querySelector(".unmasked").classList.add("hidden");
 		e.querySelector(".masked").classList.remove("hidden");
+	}
+
+	function changeDefault(e){
+		if(e.checked == false){
+			e.checked = true;
+			return;
+		}
+
+		document.querySelectorAll(".default").forEach(d => {
+			if(d != e) s.checked = false;
+		})
 	}
 </script>
 
