@@ -180,7 +180,14 @@ Content START -->
 												</a>               
 												<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="creditcardDropdown">
 													<li><a class="dropdown-item" href="javascript:void(0)" th:attr="data-bank-id=${bank.bankId}, data-bank-number=${bank.bankNumber}, data-user-name=${bank.userName}" onclick="editBank(this)"><i class="bi bi-calculator me-2 fw-icon"></i>Sửa thông tin</a></li>
-													<li><a class="dropdown-item text-danger" th:href="@{delete-bank(bankId=${bank.bankId})}"><i class="bi bi-trash me-2 fw-icon"></i>Xóa tài khoản</a></li>
+													<li>
+														<form action="/delete-bank" method="POST">
+															<input type="hidden" name="bankId" th:value="${bank.bankId}">
+															<input type="hidden" name="bankNumber" th:value="${bank.bankNumber}">
+															<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+															<button type="submit" class="dropdown-item text-danger"><i class="bi bi-trash me-2 fw-icon"></i>Xóa tài khoản</button>
+														</form>
+													</li>
 												</ul>
 											</div>
 											<!-- Card action END -->
@@ -336,7 +343,7 @@ Footer END -->
 		}
 
 		document.querySelectorAll(".default").forEach(d => {
-			if(d != e) s.checked = false;
+			if(d != e) d.checked = false;
 		})
 	}
 </script>

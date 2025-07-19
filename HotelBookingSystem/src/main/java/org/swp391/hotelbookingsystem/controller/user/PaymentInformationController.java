@@ -88,6 +88,7 @@ public class PaymentInformationController {
     @PostMapping("/delete-bank")
     public String deleteBank(
         @RequestParam("bankId") int bankId,
+        @RequestParam("bankNumber") String bankNumber,
 
         HttpSession session, RedirectAttributes redirectAttributes
     ){
@@ -96,7 +97,7 @@ public class PaymentInformationController {
             return "redirect:/login";
         }
 
-        bankService.deleteBank(user.getId(), bankId);
+        bankService.deleteBank(user.getId(), bankId, bankNumber);
         redirectAttributes.addFlashAttribute("successMessage", "Xóa tài khoản thành công.");
 
         return "redirect:/payment-information";

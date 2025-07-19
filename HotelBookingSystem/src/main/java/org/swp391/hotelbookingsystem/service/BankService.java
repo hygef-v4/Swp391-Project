@@ -30,7 +30,7 @@ public class BankService {
         return bankRepository.editBank(userId, bankId, bankNumber, userName, oldId, oldNumber);
     }
 
-    public int deleteBank(int userId, int bankId){
-        return bankRepository.deleteBank(userId, bankId);
+    public int deleteBank(int userId, int bankId, String bankNumber){
+        return bankRepository.deleteBank(userId, bankId, bankNumber);
     }
 }

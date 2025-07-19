@@ -91,11 +91,11 @@ public class BankRepository {
         return jdbcTemplate.update(sql, bankId, bankNumber, userName, userId, oldId, oldNumber);
     }
 
-    public int deleteBank(int userId, int bankId){
+    public int deleteBank(int userId, int bankId, String bankNumber){
         String sql = """
             DELETE FROM UserBanks 
-            WHERE user_id = ? AND bank_id = ?
+            WHERE user_id = ? AND bank_id = ? AND bank_number = ?
         """;
-        return jdbcTemplate.update(sql, userId, bankId);
+        return jdbcTemplate.update(sql, userId, bankId, bankNumber);
     }
 }
