@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" data-bs-theme="light">
+
+<head>
+    <title>Tùy chọn liên hệ - Hamora</title>
+
+    <!-- Meta Tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Tùy chọn liên hệ">
+
+    <!-- Dark mode script (required for header) -->
+    <script>
+        const storedTheme = localStorage.getItem('theme')
+        const getPreferredTheme = () => {
+            if (storedTheme) { return storedTheme }
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        }
+        const setTheme = function (theme) {
+            if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.setAttribute('data-bs-theme', 'dark')
+            } else {
+                document.documentElement.setAttribute('data-bs-theme', theme)
+            }
+        }
+        setTheme(getPreferredTheme())
+        window.addEventListener('DOMContentLoaded', () => {
+            var el = document.querySelector('.theme-icon-active');
+            if (el != 'undefined' && el != null) {
+                const showActiveTheme = theme => {
+                    const activeThemeIcon = document.querySelector('.theme-icon-active use')
+                    const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+                    const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
+                    document.querySelectorAll('[data-bs-theme-value]').forEach(element => element.classList.remove('active'))
+                    btnToActive.classList.add('active')
+                    activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+                }
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                    if (storedTheme !== 'light' || storedTheme !== 'dark') { setTheme(getPreferredTheme()) }
+                })
+                showActiveTheme(getPreferredTheme())
+                document.querySelectorAll('[data-bs-theme-value]').forEach(toggle => {
+                    toggle.addEventListener('click', () => {
+                        const theme = toggle.getAttribute('data-bs-theme-value')
+                        localStorage.setItem('theme', theme)
+                        setTheme(theme)
+                        showActiveTheme(theme)
+                    })
+                })
+            }
+        })
+    </script>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/assets/images/favicon.ico">
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+
+    <!-- Plugins CSS -->
+    <link rel="stylesheet" type="text/css" href="/assets/vendor/bootstrap-icons/bootstrap-icons.css">
+    <link rel="stylesheet" type="text/css" href="/assets/vendor/tiny-slider/tiny-slider.css">
+
+    <!-- Glightbox -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css"/>
+
+    <!-- Flatpickr -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"/>
+
+    <!-- Choices.js -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css"/>
+
+    <!-- Theme CSS -->
+    <link rel="stylesheet" type="text/css" href="/assets/css/style.css">
+
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(100deg, #8b5cf6, #ec4899);
+            --border-radius-xl: 24px;
+        }
+
+        [data-bs-theme="light"] {
+            --body-bg: #f8f9fa;
+            --card-bg: #ffffff;
+            --border-color: #e5e7eb;
+            --text-primary: #111827;
+            --text-secondary: #4b5563;
+        }
+
+        [data-bs-theme="dark"] {
+            --body-bg: #121212;
+            --card-bg: #1e1e1e;
+            --border-color: #3a3a40;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0b0;
+        }
+
+        body {
+            background-color: var(--body-bg);
+            color: var(--text-primary);
+        }
+
+        .contact-header {
+            background: var(--primary-gradient);
+            color: #ffffff;
+            border-radius: var(--border-radius-xl);
+            padding: 3rem 2rem;
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        .contact-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+            text-align: center;
+            height: 100%;
+        }
+
+        .contact-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            border-color: #8b5cf6;
+        }
+
+        .contact-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--primary-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2rem;
+            color: white;
+        }
+
+        .contact-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .contact-description {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .contact-count {
+            background-color: rgba(139, 92, 246, 0.1);
+            color: #8b5cf6;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: inline-block;
+        }
+
+        .btn-contact {
+            background: var(--primary-gradient);
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .btn-contact:hover {
+            transform: scale(1.05);
+            color: white;
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-contact:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .role-badge {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 2rem;
+            display: inline-block;
+        }
+    </style>
+</head>
+
+<body>
+<div th:replace="~{common/header :: header}"></div>
+
+<!-- Main Content START -->
+<main>
+    <section class="pt-4 pb-5">
+        <div class="container">
+            <!-- Header -->
+            <div class="contact-header">
+                <h1 class="mb-3">Tùy chọn liên hệ</h1>
+                <p class="mb-3 fs-5">Chọn loại người dùng bạn muốn liên hệ</p>
+                <div class="role-badge">
+                    <i class="bi bi-person-circle me-2"></i>
+                    <span th:if="${currentUser.role == 'CUSTOMER'}">Khách hàng</span>
+                    <span th:if="${currentUser.role == 'HOTEL_OWNER'}">Chủ khách sạn</span>
+                    <span th:if="${currentUser.role == 'ADMIN'}">Quản trị viên</span>
+                    <span th:if="${currentUser.role == 'MODERATOR'}">Moderator</span>
+                </div>
+            </div>
+
+            <!-- Contact Options -->
+            <div class="row g-4">
+                <!-- Customer Options -->
+                <div th:if="${currentUser.role == 'CUSTOMER'}" class="col-lg-4 col-md-6">
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="bi bi-building"></i>
+                        </div>
+                        <h3 class="contact-title">Chủ khách sạn</h3>
+                        <div class="contact-count" th:text="${hotelOwnerCount} + ' chủ khách sạn'">0 chủ khách sạn</div>
+                        <p class="contact-description">
+                            Liên hệ trực tiếp với chủ khách sạn để hỏi về phòng, dịch vụ hoặc đặt phòng đặc biệt.
+                        </p>
+                        <a href="/customer-hosts" class="btn-contact">
+                            <i class="bi bi-chat-dots me-2"></i>Liên hệ ngay
+                        </a>
+                    </div>
+                </div>
+
+                <div th:if="${currentUser.role == 'CUSTOMER'}" class="col-lg-4 col-md-6">
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="bi bi-shield-check"></i>
+                        </div>
+                        <h3 class="contact-title">Kiểm duyệt viên</h3>
+                        <div class="contact-count" th:text="${moderatorCount} + ' kiểm duyệt viên'">0 kiểm duyệt viên</div>
+                        <p class="contact-description">
+                            Liên hệ với kiểm duyệt viên để báo cáo vấn đề, khiếu nại hoặc cần hỗ trợ về nội dung.
+                        </p>
+                        <a href="/customer-moderators" class="btn-contact">
+                            <i class="bi bi-chat-dots me-2"></i>Liên hệ ngay
+                        </a>
+                    </div>
+                </div>
+
+                <div th:if="${currentUser.role == 'CUSTOMER'}" class="col-lg-4 col-md-6">
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="bi bi-person-gear"></i>
+                        </div>
+                        <h3 class="contact-title">Admin</h3>
+                        <div class="contact-count" th:text="${adminCount} + ' admin'">0 admin</div>
+                        <p class="contact-description">
+                            Liên hệ với admin cho các vấn đề nghiêm trọng, khiếu nại cao cấp hoặc hỗ trợ kỹ thuật.
+                        </p>
+                        <a href="/customer-admins" class="btn-contact">
+                            <i class="bi bi-chat-dots me-2"></i>Liên hệ ngay
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Hotel Owner Options -->
+                <div th:if="${currentUser.role == 'HOTEL_OWNER'}" class="col-lg-4 col-md-6">
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="bi bi-people"></i>
+                        </div>
+                        <h3 class="contact-title">Khách hàng</h3>
+                        <div class="contact-count" th:text="${customerCount} + ' khách hàng'">0 khách hàng</div>
+                        <p class="contact-description">
+                            Liên hệ với khách hàng để tư vấn, hỗ trợ đặt phòng hoặc giải đáp thắc mắc.
+                        </p>
+                        <a href="/host-customers" class="btn-contact">
+                            <i class="bi bi-chat-dots me-2"></i>Liên hệ ngay
+                        </a>
+                    </div>
+                </div>
+
+                <div th:if="${currentUser.role == 'HOTEL_OWNER'}" class="col-lg-4 col-md-6">
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="bi bi-shield-check"></i>
+                        </div>
+                        <h3 class="contact-title">Kiểm duyệt viên</h3>
+                        <div class="contact-count" th:text="${moderatorCount} + ' kiểm duyệt viên'">0 kiểm duyệt viên</div>
+                        <p class="contact-description">
+                            Liên hệ với kiểm duyệt viên để báo cáo vấn đề, khiếu nại hoặc cần hỗ trợ về nội dung.
+                        </p>
+                        <a href="/host-moderators" class="btn-contact">
+                            <i class="bi bi-chat-dots me-2"></i>Liên hệ ngay
+                        </a>
+                    </div>
+                </div>
+
+                <div th:if="${currentUser.role == 'HOTEL_OWNER'}" class="col-lg-4 col-md-6">
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="bi bi-person-gear"></i>
+                        </div>
+                        <h3 class="contact-title">Admin</h3>
+                        <div class="contact-count" th:text="${adminCount} + ' admin'">0 admin</div>
+                        <p class="contact-description">
+                            Liên hệ với admin để được hỗ trợ về tài khoản, chính sách hoặc các vấn đề kỹ thuật.
+                        </p>
+                        <a href="/host-admins" class="btn-contact">
+                            <i class="bi bi-chat-dots me-2"></i>Liên hệ ngay
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Admin Options -->
+                <div th:if="${currentUser.role == 'ADMIN'}" class="col-lg-4 col-md-6">
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="bi bi-building"></i>
+                        </div>
+                        <h3 class="contact-title">Chủ khách sạn</h3>
+                        <div class="contact-count" th:text="${hotelOwnerCount} + ' chủ khách sạn'">0 chủ khách sạn</div>
+                        <p class="contact-description">
+                            Quản lý và hỗ trợ các chủ khách sạn về chính sách, quy định và vận hành.
+                        </p>
+                        <a href="/admin-hosts" class="btn-contact">
+                            <i class="bi bi-chat-dots me-2"></i>Liên hệ ngay
+                        </a>
+                    </div>
+                </div>
+
+                <div th:if="${currentUser.role == 'ADMIN'}" class="col-lg-4 col-md-6">
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="bi bi-people"></i>
+                        </div>
+                        <h3 class="contact-title">Khách hàng</h3>
+                        <div class="contact-count" th:text="${customerCount} + ' khách hàng'">0 khách hàng</div>
+                        <p class="contact-description">
+                            Hỗ trợ khách hàng giải quyết khiếu nại, vấn đề tài khoản và các yêu cầu đặc biệt.
+                        </p>
+                        <a href="/admin-customers" class="btn-contact">
+                            <i class="bi bi-chat-dots me-2"></i>Liên hệ ngay
+                        </a>
+                    </div>
+                </div>
+
+                <div th:if="${currentUser.role == 'ADMIN'}" class="col-lg-4 col-md-6">
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="bi bi-shield-check"></i>
+                        </div>
+                        <h3 class="contact-title">Kiểm duyệt viên</h3>
+                        <div class="contact-count" th:text="${moderatorCount} + ' kiểm duyệt viên'">0 kiểm duyệt viên</div>
+                        <p class="contact-description">
+                            Quản lý và hỗ trợ kiểm duyệt viên về chính sách, quy trình và các vấn đề phức tạp.
+                        </p>
+                        <a href="/admin-moderators" class="btn-contact">
+                            <i class="bi bi-chat-dots me-2"></i>Liên hệ ngay
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Moderator Options -->
+                <div th:if="${currentUser.role == 'MODERATOR'}" class="col-lg-4 col-md-6">
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="bi bi-people"></i>
+                        </div>
+                        <h3 class="contact-title">Khách hàng</h3>
+                        <div class="contact-count" th:text="${customerCount} + ' khách hàng'">0 khách hàng</div>
+                        <p class="contact-description">
+                            Hỗ trợ khách hàng về nội dung, xử lý báo cáo và giải quyết các vấn đề kiểm duyệt.
+                        </p>
+                        <a href="/moderator-contact-users" class="btn-contact">
+                            <i class="bi bi-chat-dots me-2"></i>Liên hệ ngay
+                        </a>
+                    </div>
+                </div>
+
+                <div th:if="${currentUser.role == 'MODERATOR'}" class="col-lg-4 col-md-6">
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="bi bi-building"></i>
+                        </div>
+                        <h3 class="contact-title">Chủ khách sạn</h3>
+                        <div class="contact-count" th:text="${hotelOwnerCount} + ' chủ khách sạn'">0 chủ khách sạn</div>
+                        <p class="contact-description">
+                            Liên hệ với chủ khách sạn để kiểm duyệt nội dung, xử lý khiếu nại và hỗ trợ vận hành.
+                        </p>
+                        <a href="/moderator-hosts" class="btn-contact">
+                            <i class="bi bi-chat-dots me-2"></i>Liên hệ ngay
+                        </a>
+                    </div>
+                </div>
+
+                <div th:if="${currentUser.role == 'MODERATOR'}" class="col-lg-4 col-md-6">
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="bi bi-person-gear"></i>
+                        </div>
+                        <h3 class="contact-title">Admin</h3>
+                        <div class="contact-count" th:text="${adminCount} + ' admin'">0 admin</div>
+                        <p class="contact-description">
+                            Liên hệ với admin để báo cáo vấn đề nghiêm trọng, xin hướng dẫn hoặc hỗ trợ kỹ thuật.
+                        </p>
+                        <a href="/moderator-admins" class="btn-contact">
+                            <i class="bi bi-chat-dots me-2"></i>Liên hệ ngay
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Back Button -->
+            <div class="text-center mt-5">
+                <a href="/home" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-2"></i>Quay lại trang chủ
+                </a>
+            </div>
+        </div>
+    </section>
+</main>
+<!-- Main Content END -->
+
+<div th:replace="~{common/footer :: footer}"></div>
+
+<!-- Bootstrap JS -->
+<script src="/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Vendors -->
+<script src="/assets/vendor/tiny-slider/tiny-slider.js"></script>
+<script src="/assets/vendor/glightbox/js/glightbox.js"></script>
+<script src="/assets/vendor/flatpickr/js/flatpickr.min.js"></script>
+<script src="/assets/vendor/choices/js/choices.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="/assets/js/functions.js"></script>
+
+</body>
+</html>

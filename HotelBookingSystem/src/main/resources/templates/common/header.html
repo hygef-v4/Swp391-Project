@@ -122,6 +122,88 @@
                         </ul>
                     </li>
 
+                    <!-- Nav item Contact -->
+                    <li class="nav-item dropdown" th:if="${session.user != null}">
+                        <a class="nav-link dropdown-toggle" href="#" id="contactMenu" data-bs-toggle="dropdown"
+                           aria-haspopup="true" aria-expanded="false">Liên hệ</a>
+                        <ul class="dropdown-menu" aria-labelledby="contactMenu">
+                            <!-- Main contact options page -->
+                            <li>
+                                <a class="dropdown-item" href="/contact-options">
+                                    <i class="bi bi-grid-3x3-gap fa-fw me-2"></i>Tất cả tùy chọn liên hệ
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <!-- Customer contact options -->
+                            <li th:if="${session.user.role == 'CUSTOMER'}">
+                                <a class="dropdown-item" href="/customer-hosts">
+                                    <i class="bi bi-building fa-fw me-2"></i>Liên hệ chủ khách sạn
+                                </a>
+                            </li>
+                            <li th:if="${session.user.role == 'CUSTOMER'}">
+                                <a class="dropdown-item" href="/customer-moderators">
+                                    <i class="bi bi-shield-check fa-fw me-2"></i>Liên hệ kiểm duyệt viên
+                                </a>
+                            </li>
+                            <li th:if="${session.user.role == 'CUSTOMER'}">
+                                <a class="dropdown-item" href="/customer-admins">
+                                    <i class="bi bi-person-gear fa-fw me-2"></i>Liên hệ admin
+                                </a>
+                            </li>
+
+                            <!-- Hotel Owner contact options -->
+                            <li th:if="${session.user.role == 'HOTEL_OWNER'}">
+                                <a class="dropdown-item" href="/host-customers">
+                                    <i class="bi bi-people fa-fw me-2"></i>Liên hệ khách hàng
+                                </a>
+                            </li>
+                            <li th:if="${session.user.role == 'HOTEL_OWNER'}">
+                                <a class="dropdown-item" href="/host-moderators">
+                                    <i class="bi bi-shield-check fa-fw me-2"></i>Liên hệ kiểm duyệt viên
+                                </a>
+                            </li>
+                            <li th:if="${session.user.role == 'HOTEL_OWNER'}">
+                                <a class="dropdown-item" href="/host-admins">
+                                    <i class="bi bi-person-gear fa-fw me-2"></i>Liên hệ admin
+                                </a>
+                            </li>
+
+                            <!-- Admin contact options -->
+                            <li th:if="${session.user.role == 'ADMIN'}">
+                                <a class="dropdown-item" href="/admin-hosts">
+                                    <i class="bi bi-building fa-fw me-2"></i>Liên hệ chủ khách sạn
+                                </a>
+                            </li>
+                            <li th:if="${session.user.role == 'ADMIN'}">
+                                <a class="dropdown-item" href="/admin-customers">
+                                    <i class="bi bi-people fa-fw me-2"></i>Liên hệ khách hàng
+                                </a>
+                            </li>
+                            <li th:if="${session.user.role == 'ADMIN'}">
+                                <a class="dropdown-item" href="/admin-moderators">
+                                    <i class="bi bi-shield-check fa-fw me-2"></i>Liên hệ kiểm duyệt viên
+                                </a>
+                            </li>
+
+                            <!-- Moderator contact options -->
+                            <li th:if="${session.user.role == 'MODERATOR'}">
+                                <a class="dropdown-item" href="/moderator-contact-users">
+                                    <i class="bi bi-people fa-fw me-2"></i>Liên hệ khách hàng
+                                </a>
+                            </li>
+                            <li th:if="${session.user.role == 'MODERATOR'}">
+                                <a class="dropdown-item" href="/moderator-hosts">
+                                    <i class="bi bi-building fa-fw me-2"></i>Liên hệ chủ khách sạn
+                                </a>
+                            </li>
+                            <li th:if="${session.user.role == 'MODERATOR'}">
+                                <a class="dropdown-item" href="/moderator-admins">
+                                    <i class="bi bi-person-gear fa-fw me-2"></i>Liên hệ admin
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
                     <!-- Nav item Account -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="/user-profile" id="accounntMenu" data-bs-toggle="dropdown"
@@ -381,7 +463,7 @@
                             </a>
                         </li>
                         <li th:if="${session.user.role == 'HOTEL_OWNER'}">
-                            <a class="dropdown-item" th:href="@{/agent-admin-contact(id=${session.user.id})}">
+                            <a class="dropdown-item" th:href="@{/agent-admin-contact(userId=${session.user.id})}">
                                 <i class="bi bi-chat-dots fa-fw me-2"></i>Liên hệ admin
                             </a>
                         </li>

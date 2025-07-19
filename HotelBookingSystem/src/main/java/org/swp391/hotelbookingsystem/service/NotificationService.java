@@ -59,23 +59,25 @@ public class NotificationService {
     public void notifyNewMessage(int userId, String senderName, int senderId) {
         String title = "Tin nhắn mới 💬";
         String message = senderName + " đã gửi tin nhắn cho bạn";
-        
-        // Determine the correct action URL based on receiver's role
+
+        // Determine the correct action URL based on receiver's and sender's roles
         String actionUrl;
         try {
             User receiver = userService.findUserById(userId);
-            if (receiver != null && receiver.getRole().equals("HOTEL_OWNER")) {
-                // Host receives message from customer
-                actionUrl = "/host-customer-detail?customerId=" + senderId;
+            User sender = userService.findUserById(senderId);
+
+            if (receiver != null && sender != null) {
+                // Use the comprehensive method to determine correct URL
+                actionUrl = getChatActionUrl(sender.getRole(), receiver.getRole(), senderId, userId);
             } else {
-                // Customer receives message from host  
-                actionUrl = "/customer-host-detail?hostId=" + senderId;
+                // Fallback to generic chat URL if unable to determine roles
+                actionUrl = "/chat?userId=" + senderId;
             }
         } catch (Exception e) {
             // Fallback to generic chat URL if unable to determine role
             actionUrl = "/chat?userId=" + senderId;
         }
-        
+
         createNotification(userId, title, message, "chat", "normal", actionUrl, "bi-chat-dots",
                          Map.of("senderId", senderId, "senderName", senderName));
     }
@@ -203,6 +205,102 @@ public class NotificationService {
         String actionUrl = "/hotel-detail?hotelId=" + hotelId;
         createNotification(reviewerId, title, message, "reply", "normal", actionUrl, "bi-reply-fill",
                          Map.of("hotelId", hotelId, "hotelName", hotelName, "replierName", replierName));
+    }
+
+    // Enhanced chat notification method that determines correct action URL based on user roles
+    public void createChatNotification(int receiverId, String senderName, int senderId,
+                                     String lastMessage, String senderRole, String receiverRole) {
+        try {
+            // Check if there's an existing unread chat notification from this sender
+            Integer existingNotificationId = notificationRepository.findExistingChatNotification(
+                receiverId, senderId);
+
+            String title = "Tin nhắn mới 💬";
+            String message = senderName + " đã gửi tin nhắn: " +
+                            (lastMessage.length() > 50 ? lastMessage.substring(0, 50) + "..." : lastMessage);
+
+            // Determine the correct action URL based on roles
+            String actionUrl = getChatActionUrl(senderRole, receiverRole, senderId, receiverId);
+
+            Map<String, Object> metadata = Map.of(
+                "senderId", senderId,
+                "senderName", senderName,
+                "lastMessage", lastMessage,
+                "senderRole", senderRole,
+                "receiverRole", receiverRole
+            );
+
+            if (existingNotificationId != null) {
+                // Update existing notification with new message content
+                notificationRepository.updateNotification(existingNotificationId, title, message, actionUrl, metadata);
+
+                // Send real-time notification via WebSocket for the updated notification
+                sendRealTimeNotification(receiverId, existingNotificationId, title, message,
+                                       "chat", "normal", actionUrl, "bi-chat-dots");
+
+            } else {
+                // Create new notification
+                int notificationId = notificationRepository.createNotification(title, message, "chat", "normal",
+                                                                             actionUrl, "bi-chat-dots", metadata, false);
+                notificationRepository.assignNotificationToUser(receiverId, notificationId);
+
+                // Send real-time notification via WebSocket
+                sendRealTimeNotification(receiverId, notificationId, title, message,
+                                       "chat", "normal", actionUrl, "bi-chat-dots");
+            }
+
+        } catch (Exception e) {
+            System.err.println("Error creating chat notification: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private String getChatActionUrl(String senderRole, String receiverRole, int senderId, int receiverId) {
+        // Determine action URL based on receiver's role and sender's role
+        switch (receiverRole) {
+            case "HOTEL_OWNER":
+                if ("CUSTOMER".equals(senderRole)) {
+                    return "/host-customer-detail?customerId=" + senderId;
+                } else if ("ADMIN".equals(senderRole)) {
+                    return "/agent-admin-contact?userId=" + senderId;
+                } else if ("MODERATOR".equals(senderRole)) {
+                    return "/agent-moderator-contact?userId=" + senderId;
+                }
+                break;
+
+            case "CUSTOMER":
+                if ("HOTEL_OWNER".equals(senderRole)) {
+                    return "/customer-host-detail?hostId=" + senderId;
+                } else if ("MODERATOR".equals(senderRole)) {
+                    return "/customer-moderator-contact?userId=" + senderId;
+                } else if ("ADMIN".equals(senderRole)) {
+                    return "/customer-admin-contact?userId=" + senderId;
+                }
+                break;
+
+            case "ADMIN":
+                if ("HOTEL_OWNER".equals(senderRole)) {
+                    return "/admin-agent-contact?userId=" + senderId;
+                } else if ("CUSTOMER".equals(senderRole)) {
+                    return "/admin-customer-contact?userId=" + senderId;
+                } else if ("MODERATOR".equals(senderRole)) {
+                    return "/admin-moderator-contact?userId=" + senderId;
+                }
+                break;
+
+            case "MODERATOR":
+                if ("CUSTOMER".equals(senderRole)) {
+                    return "/moderator-customer-contact?userId=" + senderId;
+                } else if ("HOTEL_OWNER".equals(senderRole)) {
+                    return "/moderator-agent-contact?userId=" + senderId;
+                } else if ("ADMIN".equals(senderRole)) {
+                    return "/moderator-admin-contact?userId=" + senderId;
+                }
+                break;
+        }
+
+        // Fallback URL
+        return "/chat?userId=" + senderId;
     }
 
     // Get user notifications with pagination
