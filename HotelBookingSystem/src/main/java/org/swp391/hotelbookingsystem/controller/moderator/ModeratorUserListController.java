@@ -38,12 +38,13 @@ public class ModeratorUserListController {
         java.util.Map<Integer, String> flagReasons = new java.util.HashMap<>();
         for (Report r : pendingReports) {
             flaggedUserIds.add(r.getReportedUserId());
-            flagReasons.put(r.getReportedUserId(), r.getReason());
         }
         // Gắn cờ flagged và flagReason cho user
         for (User u : userList) {
             u.setFlagged(flaggedUserIds.contains(u.getId()));
-            u.setFlagReason(flagReasons.get(u.getId()));
+            if (u.isFlagged()) {
+                u.setFlagReason(reportService.getFormattedUserReportReasons(u.getId()));
+            }
         }
         List<User> flaggedUsers = userList.stream().filter(User::isFlagged).toList();
         List<User> nonFlaggedUsers = userList.stream().filter(u -> !u.isFlagged()).toList();
