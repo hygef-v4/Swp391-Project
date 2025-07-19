@@ -457,16 +457,12 @@
                                 <i class="bi bi-door-open fa-fw me-2"></i>Đăng ký cho thuê
                             </a>
                         </li>
-                        <li th:if="${session.user.role == 'CUSTOMER'}">
-                            <a class="dropdown-item" href="/customer-hosts">
-                                <i class="bi bi-chat-dots fa-fw me-2"></i>Liên hệ chủ khách sạn
+                        <li >
+                            <a class="dropdown-item" href="/contact-options">
+                                <i class="bi bi-chat-dots fa-fw me-2"></i>Liên hệ
                             </a>
                         </li>
-                        <li th:if="${session.user.role == 'HOTEL_OWNER'}">
-                            <a class="dropdown-item" th:href="@{/agent-admin-contact(userId=${session.user.id})}">
-                                <i class="bi bi-chat-dots fa-fw me-2"></i>Liên hệ admin
-                            </a>
-                        </li>
+
 
                         <li><a class="dropdown-item" href="/bookingHistory"><i class="bi bi-bookmark-check fa-fw me-2"></i>Đặt phòng của tôi</a></li>
                         <li><a class="dropdown-item" href="#"><i class="bi bi-heart fa-fw me-2"></i>Danh sách yêu thích</a></li>
