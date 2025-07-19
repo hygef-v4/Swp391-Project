@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Mirrored from stackbros.in/bookinga/landing/account-payment-details.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:07:33 GMT -->
+<head>
+	<title>Thông tin tài khoản ngân hàng</title>
+
+	<!-- Meta Tags -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="author" content="StackBros">
+	<meta name="description" content="Thông tin tài khoản ngân hàng">
+
+	<!-- Dark mode -->
+	<script>
+		const storedTheme = localStorage.getItem('theme')
+ 
+		const getPreferredTheme = () => {
+			if (storedTheme) {
+				return storedTheme
+			}
+			return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+		}
+
+		const setTheme = function (theme) {
+			if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+				document.documentElement.setAttribute('data-bs-theme', 'dark')
+			} else {
+				document.documentElement.setAttribute('data-bs-theme', theme)
+			}
+		}
+
+		setTheme(getPreferredTheme())
+
+		window.addEventListener('DOMContentLoaded', () => {
+		    var el = document.querySelector('.theme-icon-active');
+			if(el != 'undefined' && el != null) {
+				const showActiveTheme = theme => {
+				const activeThemeIcon = document.querySelector('.theme-icon-active use')
+				const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+				const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
+
+				document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+					element.classList.remove('active')
+				})
+
+				btnToActive.classList.add('active')
+				activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+			}
+
+			window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+				if (storedTheme !== 'light' || storedTheme !== 'dark') {
+					setTheme(getPreferredTheme())
+				}
+			})
+
+			showActiveTheme(getPreferredTheme())
+
+			document.querySelectorAll('[data-bs-theme-value]')
+				.forEach(toggle => {
+					toggle.addEventListener('click', () => {
+						const theme = toggle.getAttribute('data-bs-theme-value')
+						localStorage.setItem('theme', theme)
+						setTheme(theme)
+						showActiveTheme(theme)
+					})
+				})
+
+			}
+		})
+		
+		window.addEventListener('DOMContentLoaded', () => {
+			new TomSelect('#bankId', {
+				render: {
+					option: function(data, escape) {
+					return `<div><img src="${data.icon}" style="height:20px;margin-right:8px;">${escape(data.text)}</div>`;
+					},
+					item: function(data, escape) {
+					return `<div><img src="${data.icon}" style="height:20px;margin-right:8px;">${escape(data.text)}</div>`;
+					}
+				}
+			});
+		})
+	</script>
+
+	<!-- Favicon -->
+	<link rel="shortcut icon" href="assets/images/favicon.ico">
+
+	<!-- Google Font -->
+	<link rel="preconnect" href="https://fonts.googleapis.com/">
+	<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Poppins:wght@400;500;700&amp;display=swap">
+
+	<!-- Plugins CSS -->
+	<link rel="stylesheet" type="text/css" href="assets/vendor/font-awesome/css/all.min.css">
+	<link rel="stylesheet" type="text/css" href="assets/vendor/bootstrap-icons/bootstrap-icons.css">
+	<link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+
+	<!-- Theme CSS -->
+	<link rel="stylesheet" type="text/css" href="assets/css/style.css">
+
+</head>
+
+<body class="dashboard">
+
+<!-- Header START -->
+<div th:replace="~{common/header :: header}"></div>
+<!-- Header END -->
+
+<!-- **************** MAIN CONTENT START **************** -->
+<main>
+	
+<!-- =======================
+Content START -->
+<section class="pt-3">
+	<div class="container">
+		<div class="row g-2 g-lg-4">
+
+			<!-- Sidebar START -->
+			<div th:replace="~{common/sidebar-profile :: sidebar}"></div>
+			<!-- Sidebar END -->
+
+			<!-- Main content START -->
+			<div class="col-lg-8 col-xl-9 ps-xl-5">
+
+				<!-- Offcanvas menu button -->
+				<div class="d-grid mb-0 d-lg-none w-100">
+					<button class="btn btn-primary mb-4" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSidebar" aria-controls="offcanvasSidebar">
+						<i class="fas fa-sliders-h"></i> Menu
+					</button>
+				</div>
+
+				<!-- Payment detail START -->
+				<div class="card bg-transparent border">
+					<!-- Card header -->
+					<div class="card-header bg-transparent border-bottom d-flex justify-content-between">
+						<h4 class="card-header-title">Thông tin thanh toán</h4>
+						<a class="btn btn-primary" onclick="addBank()"><i class="bi bi-credit-card-2-front-fill me-2 fw-icon"></i>Thêm tài khoản</a>
+					</div>
+
+					<!-- Card body START -->
+					<div class="card-body p-2 p-sm-4">
+						<h5>Tài khoản ngân hàng đã lưu</h5>
+						<div class="row g-4">
+							<!-- Visa card -->
+							<div class="col-md-6">
+								<div class="card">
+									<div class="bg-primary p-4 rounded-3">
+										<div class="d-flex justify-content-between align-items-start">
+											<div>
+												<img class="w-40px" src="assets/images/element/visa.svg" alt="">
+												<span style="color: white; font-weight: 700; font-size: large;">VO CHIEN THANG</span>
+											</div>
+											<!-- Card action START -->
+											<div class="dropdown">
+												<a class="text-white" href="#" id="creditcardDropdown" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+													<!-- Dropdown Icon -->
+													<svg width="24" height="24" fill="none">
+														<circle fill="currentColor" cx="12.5" cy="3.5" r="2.5"></circle>
+														<circle fill="currentColor" opacity="0.5" cx="12.5" cy="11.5" r="2.5"></circle>
+														<circle fill="currentColor" opacity="0.3" cx="12.5" cy="19.5" r="2.5"></circle>
+													</svg>
+												</a>               
+												<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="creditcardDropdown">
+													<li><a class="dropdown-item" href="#"><i class="bi bi-calculator me-2 fw-icon"></i>Sửa thông tin</a></li>
+													<li><a class="dropdown-item text-danger" href="#"><i class="bi bi-trash me-2 fw-icon"></i>Xóa tài khoản</a></li>
+												</ul>
+											</div>
+											<!-- Card action END -->
+										</div>
+										<h4 class="text-white mt-4">**** **** **** 1569</h4>
+										<div class="d-flex justify-content-end text-white">
+											<button>Tài khoản mặc định</button>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Add new card START -->
+						<div class="card border mt-4 hidden" id="bankInfo">
+							<div class="card-header border-bottom">
+								<h5 class="card-header-title">Thông tin tài khoản</h5>
+							</div>
+							
+							<div class="card-body">
+								<form class="row text-start g-4">
+									<!-- Bank -->
+									<div class="col-12">
+										<label class="form-label">Ngân Hàng<span class="text-danger">*</span></label>
+										<div class="position-relative">
+											<select id="bankId" name="bankCode" class="form-control" required>
+												<option value="" disabled selected hidden>Chọn ngân hàng</option>
+												<option th:each="bank : ${banks}" 
+														th:value="${bank.bankCode}"
+														th:data-icon="${bank.icon}"
+														th:text="${bank.bankName} + ' (' + ${bank.bankCode} + ')'"
+												>
+												</option>
+											</select>
+										</div>	
+									</div>
+									<!-- Bank Account -->
+									<div class="col-md-12">
+										<label class="form-label">Số Tài Khoản<span class="text-danger">*</span></label>
+										<input type="text" name="account" class="form-control" minlength="8" maxlength="16" placeholder="Số tài khoản" required>
+									</div>
+									<!-- Account name -->
+									<div class="col-12">
+										<label class="form-label">Tên Người Dùng<span class="text-danger">*</span></label>
+										<input type="text" name="accountName" class="form-control" placeholder="Tên người dùng" required>
+									</div>
+									<!-- Button -->
+									<div class="col-12">
+										<button class="btn btn-primary mb-0">Add card</button>
+									</div>
+								</form>
+							</div>
+						</div>
+						<!-- Add new card END -->
+
+					</div>
+					<!-- Card body END -->
+				</div>
+				<!-- Payment detail END -->
+
+			</div>
+			<!-- Main content END -->
+		</div>
+	</div>
+</section>
+<!-- =======================
+Content END -->
+
+</main>
+<!-- **************** MAIN CONTENT END **************** -->
+
+<!-- =======================
+Footer START -->
+<div th:replace="~{common/footer :: footer}"></div>
+<!-- =======================
+Footer END -->
+
+<!-- Back to top -->
+<div class="back-top"></div>
+
+<!-- Bootstrap JS -->
+<script src="assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+
+<!-- ThemeFunctions -->
+<script src="assets/js/functions.js"></script>
+
+<script>
+	function addBank(){
+		let bankInfo = document.querySelector("#bankInfo");
+
+		if(bankInfo.classList.contains("hidden")){
+			bankInfo.classList.remove("hidden");
+		}else bankInfo.classList.add("hidden");
+
+		scrollToId("bankInfo");
+	}
+</script>
+
+</body>
+
+<!-- Mirrored from stackbros.in/bookinga/landing/account-payment-details.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:07:33 GMT -->
+</html>
