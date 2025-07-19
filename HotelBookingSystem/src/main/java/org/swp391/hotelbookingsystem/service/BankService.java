@@ -19,4 +19,16 @@ public class BankService {
     public List<Bank> getUserBanks(int userId){
         return bankRepository.getUserBanks(userId);
     }
+
+    public int addBank(int userId, int bankId, int bankNumber, int userName){
+        return bankRepository.addBank(userId, bankId, bankNumber, userName, true);
+    }
+
+    public int editBank(int userId, int bankId, int bankNumber, int userName){
+        return bankRepository.editBank(userId, bankId, bankNumber, userName);
+    }
+
+    public int deleteBank(int userId, int bankId){
+        return bankRepository.deleteBank(userId, bankId);
+    }
 }

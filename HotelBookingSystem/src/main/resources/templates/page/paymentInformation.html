@@ -204,15 +204,15 @@ Content START -->
 							</div>
 							
 							<div class="card-body">
-								<form action="/add-bank" class="row text-start g-4" id="addForm">
+								<form action="/add-bank" method="POST" class="row text-start g-4" id="addForm">
 									<!-- Bank -->
 									<div class="col-12">
 										<label class="form-label">Ngân Hàng<span class="text-danger">*</span></label>
 										<div class="position-relative">
-											<select name="bankCode" class="form-control tom-select" required>
+											<select name="bankId" class="form-control tom-select" th:required="${bank.isDefault}">
 												<option value="" disabled selected hidden>Chọn ngân hàng</option>
 												<option th:each="bank : ${banks}" 
-														th:value="${bank.bankCode}"
+														th:value="${bank.bankId}"
 														th:data-icon="${bank.icon}"
 														th:text="${bank.bankName} + ' (' + ${bank.bankCode} + ')'"
 												>
@@ -327,7 +327,7 @@ Footer END -->
 
 <script>
 	let currentEdit;
-	
+
 	function addBank(){
 		document.querySelector("#editInfo").classList.add("hidden");
 		currentEdit = null;

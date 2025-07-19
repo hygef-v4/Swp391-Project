@@ -41,11 +41,42 @@ public class BankRepository {
                 b.icon,
                 ub.bank_number AS bankNumber,
                 ub.user_name AS userName,
-                ub.default_account AS defaultAccount
+                ub.default_account AS isDefault
             FROM Banks b
             JOIN UserBanks ub ON b.bank_id = ub.bank_id
             JOIN Users u ON u.user_id = ub.user_id
         """;
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Bank.class));
+    }
+
+    public int addBank(int userId, int bankId, int bankNumber, int userName, boolean isDefault){
+        String sql;
+        if(isDefault){
+            sql = """
+                INSERT INTO UserBanks (user_id, bank_id, bank_number, user_name)
+                VALUES (?, ?, ?, ?)
+            """;
+        }else{
+            sql = """
+                INSERT INTO UserBanks (user_id, bank_id, bank_number, user_name, default_account)
+                VALUES (?, ?, ?, ?, 0)
+            """;
+        }return jdbcTemplate.update(sql, userId, bankId, bankNumber, userName);
+    }
+
+    public int editBank(int userId, int bankId, int bankNumber, int userName){
+        String sql = """
+            UPDATE UserBanks SET bank_number = ?, user_name = ? 
+            WHERE user_id = ? AND bank_id = ?
+        """;
+        return jdbcTemplate.update(sql, bankNumber, userName, userId, bankId);
+    }
+
+    public int deleteBank(int userId, int bankId){
+        String sql = """
+            DELETE FROM UserBanks 
+            WHERE user_id = ? AND bank_id = ?
+        """;
+        return jdbcTemplate.update(sql, userId, bankId);
     }
 }
