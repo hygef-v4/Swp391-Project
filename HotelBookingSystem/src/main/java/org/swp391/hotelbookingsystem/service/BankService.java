@@ -20,12 +20,14 @@ public class BankService {
         return bankRepository.getUserBanks(userId);
     }
 
-    public int addBank(int userId, int bankId, int bankNumber, int userName){
-        return bankRepository.addBank(userId, bankId, bankNumber, userName, true);
+    public int addBank(int userId, int bankId, String bankNumber, String userName){
+        if(!bankRepository.checkBank(userId, bankId, bankNumber)) return -1;
+        return bankRepository.addBank(userId, bankId, bankNumber, userName, bankRepository.isDefault(userId));
     }
 
-    public int editBank(int userId, int bankId, int bankNumber, int userName){
-        return bankRepository.editBank(userId, bankId, bankNumber, userName);
+    public int editBank(int userId, int bankId, String bankNumber, String userName, int oldId, String oldNumber){
+        if(!bankRepository.checkBank(userId, bankId, bankNumber)) return -1;
+        return bankRepository.editBank(userId, bankId, bankNumber, userName, oldId, oldNumber);
     }
 
     public int deleteBank(int userId, int bankId){

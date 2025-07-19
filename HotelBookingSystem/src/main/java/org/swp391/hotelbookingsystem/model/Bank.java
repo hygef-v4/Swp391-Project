@@ -15,7 +15,7 @@ public class Bank {
 
     private String bankNumber;
     private String userName;
-    private boolean isDefault;
+    private boolean defaultAccount;
 
     public String maskedCode(){
         return "*".repeat(bankNumber.length()-4) + bankNumber.substring(bankNumber.length()-4);

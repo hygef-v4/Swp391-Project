@@ -71,6 +71,7 @@
 		
 		window.addEventListener('DOMContentLoaded', () => {
 			document.querySelectorAll('.tom-select').forEach(e => {
+				console.log(e);
 				new TomSelect(e, {
 					render: {
 					option: function(data, escape) {
@@ -159,9 +160,9 @@ Content START -->
 						<h5>Tài khoản ngân hàng đã lưu</h5>
 						<div class="row g-4">
 							<!-- Visa card -->
-							<div class="col-md-6">
+							<div class="col-md-6" th:each="bank: ${user.banks}">
 								<div class="card">
-									<div class="bg-info p-4 rounded-3" th:if="user != null" th:each="bank: ${user.banks}">
+									<div class="bg-info p-4 rounded-3 mb-2" th:if="user != null">
 										<div class="d-flex justify-content-between align-items-start">
 											<div>
 												<span style="background-color: white; display: inline-block; height: 30px"><img class="w-80px" th:src="${bank.logo}" th:alt="${bank.bankCode}"></span>
@@ -178,7 +179,7 @@ Content START -->
 													</svg>
 												</a>               
 												<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="creditcardDropdown">
-													<li><a class="dropdown-item" href="javascript:void(0)" th:attr="data-bank-code=${bank.bankCode}, data-bank-number=${bank.bankNumber}, data-user-name=${bank.userName}" onclick="editBank(this)"><i class="bi bi-calculator me-2 fw-icon"></i>Sửa thông tin</a></li>
+													<li><a class="dropdown-item" href="javascript:void(0)" th:attr="data-bank-id=${bank.bankId}, data-bank-number=${bank.bankNumber}, data-user-name=${bank.userName}" onclick="editBank(this)"><i class="bi bi-calculator me-2 fw-icon"></i>Sửa thông tin</a></li>
 													<li><a class="dropdown-item text-danger" th:href="@{delete-bank(bankId=${bank.bankId})}"><i class="bi bi-trash me-2 fw-icon"></i>Xóa tài khoản</a></li>
 												</ul>
 											</div>
@@ -190,7 +191,7 @@ Content START -->
 										</div>
 										<div class="form-check form-switch form-check-md d-flex justify-content-end text-white">
 											<label class="form-check-label ps-0 pe-2 fw-bold fs-6" th:for="'default' + ${bank.bankId}">Mặc định</label>
-											<input class="form-check-input flex-shrink-0" type="checkbox" th:id="'default' + ${bank.bankId}" checked>
+											<input class="form-check-input flex-shrink-0" type="checkbox" th:id="'default' + ${bank.bankId}" th:checked="${bank.defaultAccount}">
 										</div>
 									</div>
 								</div>
@@ -209,7 +210,7 @@ Content START -->
 									<div class="col-12">
 										<label class="form-label">Ngân Hàng<span class="text-danger">*</span></label>
 										<div class="position-relative">
-											<select name="bankId" class="form-control tom-select" th:required="${bank.isDefault}">
+											<select name="bankId" class="form-control tom-select" required>
 												<option value="" disabled selected hidden>Chọn ngân hàng</option>
 												<option th:each="bank : ${banks}" 
 														th:value="${bank.bankId}"
@@ -231,8 +232,9 @@ Content START -->
 										<input type="text" name="userName" class="form-control" placeholder="Tên người dùng" required>
 									</div>
 									<!-- Button -->
-									<div class="col-12">
-										<button class="btn btn-primary mb-0">Add card</button>
+									<div class="col-12 d-flex justify-content-end">
+										<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+										<button class="btn btn-primary mb-0">Thêm tài khoản</button>
 									</div>
 								</form>
 							</div>
@@ -246,15 +248,15 @@ Content START -->
 							</div>
 							
 							<div class="card-body">
-								<form action="/edit-bank" class="row text-start g-4" id="editForm">
+								<form action="/edit-bank" method="POST" class="row text-start g-4" id="editForm">
 									<!-- Bank -->
 									<div class="col-12">
 										<label class="form-label">Ngân Hàng<span class="text-danger">*</span></label>
 										<div class="position-relative">
-											<select name="bankCode" class="form-control tom-select" required>
+											<select name="bankId" class="form-control tom-select" required>
 												<option value="" disabled selected hidden>Chọn ngân hàng</option>
 												<option th:each="bank : ${banks}" 
-														th:value="${bank.bankCode}"
+														th:value="${bank.bankId}"
 														th:data-icon="${bank.icon}"
 														th:text="${bank.bankName} + ' (' + ${bank.bankCode} + ')'"
 												>
@@ -273,13 +275,16 @@ Content START -->
 										<input type="text" name="userName" class="form-control" placeholder="Tên người dùng" required>
 									</div>
 									<!-- Button -->
-									<div class="col-12">
-										<button class="btn btn-primary mb-0">Add card</button>
+									<div class="col-12 d-flex justify-content-end">
+										<input type="hidden" name="oldId">
+										<input type="hidden" name="oldNumber">
+										<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+										<button class="btn btn-primary mb-0">Sửa thông tin</button>
 									</div>
 								</form>
 							</div>
 						</div>
-						<!-- Add new card END -->
+						<!-- Edit old card END -->
 
 					</div>
 					<!-- Card body END -->
@@ -347,9 +352,12 @@ Footer END -->
 		let editInfo = document.querySelector("#editInfo");
 		let editForm = document.querySelector("#editForm");
 		
-		editForm.elements["bankCode"].tomselect.setValue(e.getAttribute("data-bank-code"));
+		editForm.elements["bankId"].tomselect.setValue(e.getAttribute("data-bank-id"));
 		editForm.elements["bankNumber"].value = e.getAttribute("data-bank-number");
 		editForm.elements["userName"].value = e.getAttribute("data-user-name");
+
+		editForm.elements["oldId"].value = e.getAttribute("data-bank-id");
+		editForm.elements["oldNumber"].value = e.getAttribute("data-bank-number");
 
 		if(editInfo.classList.contains("hidden") && e != currentEdit){
 			editInfo.classList.remove("hidden");
