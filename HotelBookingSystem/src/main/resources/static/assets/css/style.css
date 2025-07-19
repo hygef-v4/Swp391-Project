@@ -22707,3 +22707,38 @@ html[dir=rtl] .choices__input {
     color: var(--bs-primary) !important;
     text-decoration: underline;
 }
+
+.location-cell {
+  white-space: normal !important;
+  word-break: break-word !important;
+  line-height: 1.5;
+  text-align: left !important;
+}
+.compare-hotel-img {
+  width: 260px !important;
+  height: 180px !important;
+  object-fit: contain !important;
+  border-radius: 16px;
+  display: block;
+  margin: 0 auto;
+  background: #f5f5f5;
+  max-width: unset !important;
+  max-height: unset !important;
+}
+.compare-hotel-col, .compare-hotel-td {
+  width: 320px;
+  min-width: 320px;
+  max-width: 320px;
+  vertical-align: top;
+}
+.compare-hotel-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  height: 320px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  min-height: 340px;
+}
