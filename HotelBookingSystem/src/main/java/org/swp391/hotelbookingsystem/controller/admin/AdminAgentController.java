@@ -86,31 +86,7 @@ public class AdminAgentController {
         return "admin/admin-agent-detail";
     }
 
-    @GetMapping("/admin-agent-contact")
-    public String showAgentContact(@RequestParam("id") int agentId, Model model,
-                                   HttpSession session) {
-        User host = (User) session.getAttribute("user");
-        User agent = userService.findUserById(agentId);
-        model.addAttribute("customer", agent);
-        model.addAttribute("currentUserId", host.getId());
-        return "admin/admin-agent-contact";
-    }
-
-    @GetMapping("/agent-admin-contact")
-    public String showAdminContact(@RequestParam("id") int agentId, Model model,
-                                   HttpSession session) {
-        User host = (User) session.getAttribute("user");
-        List<User> admins = userService.getUsersByRole("ADMIN");
-
-        if (admins.isEmpty()) {
-            throw new IllegalStateException("Không tìm thấy admin nào để liên hệ.");
-        }
-
-        User randomAdmin = admins.get(new Random().nextInt(admins.size()));
-
-        model.addAttribute("customer", randomAdmin);
-        model.addAttribute("currentUserId", host.getId());
-        return "admin/admin-agent-contact";
-    }
+    // Note: Chat functionality has been moved to ChatPageController
+    // These methods are kept for backward compatibility but should be deprecated
 
 }

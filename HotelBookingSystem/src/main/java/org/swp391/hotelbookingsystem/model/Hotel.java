@@ -27,4 +27,5 @@ public class Hotel {
     private int maxGuests;
     private int roomQuantity;
     private String hostName;
+    private boolean favorite;
 }

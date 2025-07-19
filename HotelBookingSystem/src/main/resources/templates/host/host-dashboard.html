@@ -375,6 +375,17 @@
             color: #6f42c1 !important;
         }
 
+        .btn-outline-purple {
+            color: #6f42c1;
+            border-color: #6f42c1;
+        }
+
+        .btn-outline-purple:hover {
+            color: #fff;
+            background-color: #6f42c1;
+            border-color: #6f42c1;
+        }
+
         /* Text truncation for hotel names */
         .hotel-name-truncate {
             max-width: 150px;
@@ -600,13 +611,22 @@
                                     </span>
                                 </a>
 
-                                <a href="/bookingHistory" class="btn btn-outline-warning quick-action-btn text-start">
-                                    <i class="bi bi-calendar-check me-3"></i>
+                                <a href="/host-reviews" class="btn quick-action-btn text-start border-0">
+                                    <i class="bi bi-star-half me-3"></i>
                                     <span>
-                                        <strong>Lịch Sử Đặt Phòng</strong><br>
-                                        <small class="text-muted">Xem tất cả đặt phòng</small>
+                                        <strong>Xem Đánh Giá</strong><br>
+                                        <small class="text-muted">Xem tất cả đánh giá của khách</small>
                                     </span>
                                 </a>
+
+                                <a href="/host-earning" class="btn btn-outline-warning quick-action-btn text-start">
+                                    <i class="bi bi-cash-stack me-3"></i>
+                                    <span>
+                                        <strong>Thống Kê Thu Nhập</strong><br>
+                                        <small class="text-muted">Xem chi tiết doanh thu và thu nhập</small>
+                                    </span>
+                                </a>
+
                             </div>
                         </div>
                     </div>
@@ -913,36 +933,29 @@
     // Helper functions for data formatting
     function formatCategoryForDisplay(category, periodKey) {
         if (!category) return 'N/A';
-        
-        // Handle different period formats
+        // Nếu là filter theo năm thì chỉ hiện tháng (T1, T2, ...)
         if (periodKey.includes('year-')) {
-            // For yearly data, category comes as "2024-12" format
             if (category.includes('-')) {
                 const [year, month] = category.split('-');
-                const monthNames = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
-                                  'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
+                const monthNames = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'];
                 const monthIndex = parseInt(month) - 1;
-                return monthNames[monthIndex] + ', ' + year;
+                return monthNames[monthIndex];
             }
         } else if (periodKey === 'last-6-months') {
-            // For monthly data, category comes as "2024-12" format
             if (category.includes('-')) {
                 const [year, month] = category.split('-');
-                const monthNames = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6',
-                                  'T7', 'T8', 'T9', 'T10', 'T11', 'T12'];
+                const monthNames = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'];
                 const monthIndex = parseInt(month) - 1;
                 return monthNames[monthIndex] + '/' + year.substring(2);
             }
         } else if (periodKey === 'last-30-days') {
-            // For daily data, category comes as date format "2024-12-18"
             if (category.includes('-')) {
-                const date = new Date(category + 'T00:00:00'); // Add time to avoid timezone issues
+                const date = new Date(category + 'T00:00:00');
                 if (!isNaN(date.getTime())) {
                     return (date.getDate()).toString().padStart(2, '0') + '/' + (date.getMonth() + 1).toString().padStart(2, '0');
                 }
             }
         }
-        
         return category;
     }
 
@@ -1424,6 +1437,9 @@
                                 <a href="/host-customer-detail?customerId=${booking.customerId}" class="btn btn-sm btn-outline-success" title="Liên hệ khách">
                                     <i class="bi bi-chat-dots"></i>
                                 </a>
+                                <button class="btn btn-sm btn-outline-danger" onclick="rejectBooking('${booking.bookingId}')" title="Từ chối toàn bộ booking">
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
                             </div>
                         </td>
                     </tr>
@@ -1467,17 +1483,7 @@
                                             </div>
                                             <div class="d-flex justify-content-between align-items-center">
                                                 <div class="d-flex align-items-center gap-2">
-                                                    <span class="badge ${unit.statusClass}" id="status-badge-${unit.unitId}">${unit.status}</span>
-                                                    <div class="dropdown">
-                                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" title="Thay đổi trạng thái">
-                                                            <i class="bi bi-gear"></i>
-                                                        </button>
-                                                        <ul class="dropdown-menu dropdown-menu-end">
-<!--                                                           <li><a class="dropdown-item" href="#" onclick="updateBookingUnitStatus(${unit.unitId}, 'approved')">Phê duyệt</a></li>-->
-
-                                                            <li><a class="dropdown-item" href="#" onclick="updateBookingUnitStatus(${unit.unitId}, 'rejected')">Từ chối</a></li>
-                                                        </ul>
-                                                    </div>
+                                                    <span class="badge ${unit.statusClass} align-middle" id="status-badge-${unit.unitId}" style="min-width: 90px; text-align: center; font-size: 0.95em; padding: 0.5em 1em; letter-spacing: 0.02em;">${unit.status}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -1636,6 +1642,37 @@
         } catch (error) {
             console.error('Error updating status:', error);
             showNotification('error', 'Lỗi', 'Không thể cập nhật trạng thái: ' + error.message);
+        }
+    }
+
+    async function rejectBooking(bookingId) {
+        if (!confirm('Bạn có chắc chắn muốn từ chối toàn bộ booking này?')) return;
+
+        try {
+            const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+            const headers = {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            };
+            if (csrfToken && csrfHeader) {
+                headers[csrfHeader] = csrfToken;
+            }
+
+            const response = await fetch('/api/host/reject-booking', {
+                method: 'POST',
+                headers: headers,
+                body: `bookingId=${bookingId}`
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                showNotification('success', 'Thành công', result.message);
+                setTimeout(() => window.location.reload(), 1500);
+            } else {
+                showNotification('error', 'Lỗi', result.message || 'Không thể từ chối booking');
+            }
+        } catch (error) {
+            showNotification('error', 'Lỗi', 'Không thể từ chối booking: ' + error.message);
         }
     }
 

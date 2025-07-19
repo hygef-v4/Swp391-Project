@@ -238,6 +238,11 @@
                                 <i class="bi bi-chat-dots"></i> Tin nhắn <span id="chatCount" class="badge bg-warning ms-1">0</span>
                             </button>
                         </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="profile-tab" data-bs-toggle="pill" data-bs-target="#profile" type="button" role="tab">
+                                <i class="bi bi-person-circle"></i> Tài khoản <span id="profileCount" class="badge bg-info ms-1">0</span>
+                            </button>
+                        </li>
                     </ul>
 
                     <!-- Notifications content (single shared area) -->
@@ -578,7 +583,8 @@ async function updateAllCounts() {
             { id: 'allCount', params: '' },
             { id: 'bookingCount', params: 'type=booking' },
             { id: 'refundCount', params: 'type=refund' }, 
-            { id: 'chatCount', params: 'type=chat' }
+            { id: 'chatCount', params: 'type=chat' },
+            { id: 'profileCount', params: 'type=profile' }
         ];
 
         for (const filter of filters) {
@@ -685,7 +691,8 @@ function showEmptyState() {
         'unread': 'Bạn không có thông báo chưa đọc.',
         'booking': 'Bạn không có thông báo đặt phòng nào.',
         'refund': 'Bạn không có thông báo hoàn tiền nào.',
-        'chat': 'Bạn không có thông báo tin nhắn nào.'
+        'chat': 'Bạn không có thông báo tin nhắn nào.',
+        'profile': 'Bạn không có thông báo tài khoản nào.'
     };
     
     if (emptyMessage) {
@@ -715,7 +722,8 @@ function getNotificationIcon(type) {
         'refund': 'bi bi-credit-card',
         'hotel': 'bi bi-building',
         'chat': 'bi bi-chat-dots',
-        'system': 'bi bi-gear'
+        'system': 'bi bi-gear',
+        'profile': 'bi bi-person-circle'
     };
     return icons[type] || 'bi bi-bell';
 }
@@ -726,7 +734,8 @@ function getNotificationIconBg(type) {
         'refund': 'bg-success',
         'hotel': 'bg-info',
         'chat': 'bg-warning',
-        'system': 'bg-secondary'
+        'system': 'bg-secondary',
+        'profile': 'bg-info'
     };
     return backgrounds[type] || 'bg-primary';
 }

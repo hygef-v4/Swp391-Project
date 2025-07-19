@@ -172,28 +172,36 @@
                             <!-- Card body START -->
                             <div class="card-body">
                                 <!-- Form START -->
-                                <form th:action="@{/update-user-profile}" method="post" class="row g-3">
+                                <form th:action="@{/update-user-profile}" method="post" class="row g-3" id="userProfileForm">
 
                                     <!-- Profile photo -->
-<!--                                    <div class="col-12">-->
-<!--                                        <label class="form-label">Upload your profile photo<span-->
-<!--                                                class="text-danger">*</span></label>-->
-<!--                                        <div class="d-flex align-items-center">-->
-<!--                                            <label class="position-relative me-4" for="uploadfile-1"-->
-<!--                                                   title="Replace this pic">-->
-<!--                                                &lt;!&ndash; Avatar place holder &ndash;&gt;-->
-<!--                                                <span class="avatar avatar-xl">-->
-<!--												<img id="uploadfile-1-preview"-->
-<!--                                                     class="avatar-img rounded-circle border border-white border-3 shadow"-->
-<!--                                                     src="assets/images/avatar/01.jpg" alt="">-->
-<!--											</span>-->
-<!--                                            </label>-->
-<!--                                            &lt;!&ndash; Upload button &ndash;&gt;-->
-<!--                                            <label class="btn btn-sm btn-primary-soft mb-0"-->
-<!--                                                   for="uploadfile-1">Change</label>-->
-<!--                                            <input id="uploadfile-1" class="form-control d-none" type="file">-->
-<!--                                        </div>-->
-<!--                                    </div>-->
+                                    <div class="col-12">
+                                        <label class="form-label">Tải lên ảnh đại diện</label>
+                                        <div class="d-flex align-items-center">
+                                            <label class="position-relative me-4" for="uploadfile-1" title="Thay đổi ảnh đại diện">
+                                                <!-- Ảnh đại diện -->
+                                                <span class="avatar avatar-xl">
+                                                    <img id="uploadfile-1-preview"
+                                                         class="avatar-img rounded-circle border border-white border-3 shadow"
+                                                         th:src="${(session.user.avatarUrl == null or session.user.avatarUrl == '') ? '/assets/images/avatar/avatar.jpg' : session.user.avatarUrl}"
+                                                         src="/assets/images/avatar/avatar.jpg" alt="Ảnh đại diện">
+                                                </span>
+                                            </label>
+                                            <!-- Nút chọn ảnh -->
+                                            <label class="btn btn-sm btn-primary-soft mb-0 me-2" for="uploadfile-1">Chọn ảnh</label>
+                                            <button type="button" id="delete-avatar-btn" class="btn btn-sm btn-outline-danger mb-0">Xoá ảnh</button>
+                                            <input id="uploadfile-1" class="form-control d-none" type="file" accept="image/*">
+                                        </div>
+                                        <!-- Thanh loading -->
+                                        <div id="avatar-upload-loading" style="display:none; align-items:center;" class="mt-2">
+                                            <div class="spinner-border text-primary" role="status" style="width: 1.2rem; height: 1.2rem;">
+                                                <span class="visually-hidden">Đang tải ảnh lên...</span>
+                                            </div>
+                                            <span class="ms-2">Đang tải ảnh lên...</span>
+                                        </div>
+                                        <!-- Input ẩn lưu avatarUrl -->
+                                        <input type="hidden" name="avatarUrl" id="avatarUrlInput">
+                                    </div>
 
                                     <!-- Tên người dùng -->
                                     <div class="col-md-6">
@@ -251,6 +259,7 @@
                                     <div class="col-12">
                                         <label class="form-label">Bio</label>
                                         <textarea class="form-control" name="bio" th:text="${session.user.bio}"></textarea>
+                                        <small class="text-muted">* Không quá 255 ký tự.</small>
                                     </div>
 
                                     <!-- Button -->
@@ -359,6 +368,199 @@ Footer END -->
 
 <!-- ThemeFunctions -->
 <script src="assets/js/functions.js"></script>
+
+<script>
+// Validation rules
+const profileRules = {
+    fullname: {
+        required: true,
+        minLength: 3,
+        maxLength: 50,
+        message: 'Tên người dùng phải từ 3-50 ký tự'
+    },
+    phone: {
+        required: true,
+        pattern: /^\d{10,15}$/,
+        message: 'Số điện thoại phải từ 10-15 chữ số'
+    },
+    dob: {
+        required: true,
+        message: 'Ngày sinh không được để trống',
+        validate: function(value) {
+            // Định dạng yyyy-mm-dd
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return 'Ngày sinh không hợp lệ (yyyy-mm-dd)';
+            const date = new Date(value);
+            const now = new Date();
+            if (isNaN(date.getTime())) return 'Ngày sinh không hợp lệ';
+            if (date > now) return 'Ngày sinh không được lớn hơn hiện tại';
+            // Tuổi tối thiểu 10
+            const age = now.getFullYear() - date.getFullYear() - (now < new Date(now.getFullYear(), date.getMonth(), date.getDate()) ? 1 : 0);
+            if (age < 10) return 'Bạn phải từ 10 tuổi trở lên';
+            return null;
+        }
+    },
+    bio: {
+        maxLength: 255,
+        message: 'Giới thiệu không quá 255 ký tự'
+    }
+};
+
+function showFieldError(element, message) {
+    element.classList.add('is-invalid');
+    let error = element.parentNode.querySelector('.invalid-feedback');
+    if (!error) {
+        error = document.createElement('div');
+        error.className = 'invalid-feedback';
+        element.parentNode.appendChild(error);
+    }
+    error.textContent = message;
+}
+function removeFieldError(element) {
+    element.classList.remove('is-invalid');
+    let error = element.parentNode.querySelector('.invalid-feedback');
+    if (error) error.remove();
+}
+function validateField(element) {
+    const name = element.name;
+    const value = element.value.trim();
+    const rule = profileRules[name];
+    removeFieldError(element);
+    if (!rule) return true;
+    if (rule.required && value === '') {
+        showFieldError(element, rule.message || 'Trường này là bắt buộc');
+        return false;
+    }
+    if (rule.minLength && value.length < rule.minLength) {
+        showFieldError(element, rule.message);
+        return false;
+    }
+    if (rule.maxLength && value.length > rule.maxLength) {
+        showFieldError(element, rule.message);
+        return false;
+    }
+    if (rule.pattern && !rule.pattern.test(value)) {
+        showFieldError(element, rule.message);
+        return false;
+    }
+    if (rule.validate) {
+        const err = rule.validate(value);
+        if (err) {
+            showFieldError(element, err);
+            return false;
+        }
+    }
+    return true;
+}
+// Real-time validation
+const form = document.getElementById('userProfileForm');
+if (form) {
+    form.querySelectorAll('input, textarea').forEach(input => {
+        input.addEventListener('input', function() {
+            validateField(this);
+        });
+    });
+    form.addEventListener('submit', function(e) {
+        let valid = true;
+        form.querySelectorAll('input, textarea').forEach(input => {
+            if (!validateField(input)) valid = false;
+        });
+        if (!valid) {
+            e.preventDefault();
+        }
+    });
+}
+
+// Avatar upload logic
+const avatarInput = document.getElementById('uploadfile-1');
+const avatarPreview = document.getElementById('uploadfile-1-preview');
+const avatarUrlInput = document.getElementById('avatarUrlInput');
+
+const submitBtn = document.querySelector('#userProfileForm button[type="submit"]');
+const avatarLoading = document.getElementById('avatar-upload-loading');
+let avatarUploading = false;
+let avatarSuccessTimeout;
+
+// Xử lý upload ảnh đại diện
+avatarInput.addEventListener('change', async function() {
+    const file = this.files[0];
+    if (!file) return;
+    // Kiểm tra định dạng và dung lượng ảnh
+    const validTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (!validTypes.includes(file.type)) {
+        alert("Chỉ chấp nhận ảnh JPG, PNG, GIF hoặc WEBP.");
+        this.value = '';
+        return;
+    }
+    if (file.size > maxSize) {
+        alert("Ảnh không được lớn hơn 5MB.");
+        this.value = '';
+        return;
+    }
+    avatarUploading = true;
+    if (submitBtn) submitBtn.disabled = true;
+    if (avatarLoading) avatarLoading.style.display = 'inline-flex';
+    // Hiển thị preview ảnh
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        avatarPreview.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+    // Gửi ảnh lên server (Cloudinary)
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('folder', 'avatars');
+    try {
+        const response = await fetch('/api/files/upload/image', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+        if (data.url) {
+            avatarUrlInput.value = data.url;
+            // Hiệu ứng thành công: viền xanh
+            avatarPreview.classList.add('border-success');
+            if (avatarSuccessTimeout) clearTimeout(avatarSuccessTimeout);
+            avatarSuccessTimeout = setTimeout(() => {
+                avatarPreview.classList.remove('border-success');
+            }, 2000);
+        } else {
+            alert('Lỗi tải ảnh đại diện!');
+        }
+    } catch (err) {
+        alert('Lỗi tải ảnh đại diện!');
+    }
+    avatarUploading = false;
+    if (submitBtn) submitBtn.disabled = false;
+    if (avatarLoading) avatarLoading.style.display = 'none';
+});
+
+// Ngăn submit khi đang upload ảnh
+form.addEventListener('submit', function(e) {
+    if (avatarUploading) {
+        e.preventDefault();
+        alert('Vui lòng chờ tải ảnh đại diện xong!');
+    }
+});
+
+// Xử lý nút xoá ảnh
+const deleteAvatarBtn = document.getElementById('delete-avatar-btn');
+const defaultAvatar = '/assets/images/avatar/avatar.jpg';
+
+deleteAvatarBtn.addEventListener('click', function() {
+    avatarPreview.src = defaultAvatar;
+    avatarUrlInput.value = '';
+    avatarInput.value = '';
+});
+
+window.addEventListener('DOMContentLoaded', function() {
+    const avatarUrlInput = document.getElementById('avatarUrlInput');
+    const avatarPreview = document.getElementById('uploadfile-1-preview');
+    if (avatarUrlInput && avatarPreview) {
+        avatarUrlInput.value = avatarPreview.src;
+    }
+});
+</script>
 
 </body>
 

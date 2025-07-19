@@ -211,10 +211,10 @@ public class UserRepo {
     public void updateUser(User user) {
         String sql = """
                       UPDATE Users 
-                      SET full_name = ?, phone = ?, gender = ?, bio = ?, date_of_birth = ? 
+                      SET full_name = ?, phone = ?, gender = ?, bio = ?, date_of_birth = ?, avatar_url = ? 
                       WHERE email = ?
                      """;
-        jdbc.update(sql, user.getFullName(), user.getPhone(), user.getGender(), user.getBio(), user.getDob(), user.getEmail());
+        jdbc.update(sql, user.getFullName(), user.getPhone(), user.getGender(), user.getBio(), user.getDob(), user.getAvatarUrl(), user.getEmail());
     }
 
 

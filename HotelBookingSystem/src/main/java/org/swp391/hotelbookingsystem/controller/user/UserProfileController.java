@@ -10,14 +10,18 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.swp391.hotelbookingsystem.service.UserService;
+import org.swp391.hotelbookingsystem.service.NotificationService;
 
 @Controller
 public class UserProfileController {
 
     private final UserService userService;
+    private final NotificationService notificationService;
 
-    public UserProfileController(UserService userService) {
+    @Autowired
+    public UserProfileController(UserService userService, NotificationService notificationService) {
         this.userService = userService;
+        this.notificationService = notificationService;
     }
 
     @GetMapping("/user-profile")
@@ -45,6 +49,7 @@ public class UserProfileController {
                                     @RequestParam("dob") String dob,
                                     @RequestParam("bio") String bio,
                                     @RequestParam("gender") String gender,
+                                    @RequestParam(value = "avatarUrl", required = false) String avatarUrl,
                                     HttpSession session, RedirectAttributes redirectAttributes) {
 
         User sessionUser = (User) session.getAttribute("user");
@@ -61,10 +66,19 @@ public class UserProfileController {
                 sessionUser.setDob(java.sql.Date.valueOf(dob));
                 sessionUser.setBio(bio);
                 sessionUser.setGender(gender);
+                // Xử lý cập nhật avatar:
+                if (avatarUrl != null) {
+                    if (avatarUrl.isBlank()) {
+                        sessionUser.setAvatarUrl(null); // Xoá avatar nếu giá trị rỗng
+                    } else if (!avatarUrl.equals(sessionUser.getAvatarUrl())) {
+                        sessionUser.setAvatarUrl(avatarUrl); // Cập nhật avatar mới nếu khác avatar hiện tại
+                    }
+                }
 
                 userService.updateUser(sessionUser);
 
                 session.setAttribute("user", sessionUser); // Cập nhật session
+                notificationService.notifyProfileUpdate(sessionUser.getId());
                 redirectAttributes.addFlashAttribute("success", "Cập nhật thông tin thành công.");
             } catch (IllegalArgumentException e) {
                 redirectAttributes.addFlashAttribute("error", e.getMessage());
