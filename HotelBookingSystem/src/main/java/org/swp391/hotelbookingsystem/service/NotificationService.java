@@ -59,25 +59,23 @@ public class NotificationService {
     public void notifyNewMessage(int userId, String senderName, int senderId) {
         String title = "Tin nhắn mới 💬";
         String message = senderName + " đã gửi tin nhắn cho bạn";
-
-        // Determine the correct action URL based on receiver's and sender's roles
+        
+        // Determine the correct action URL based on receiver's role
         String actionUrl;
         try {
             User receiver = userService.findUserById(userId);
-            User sender = userService.findUserById(senderId);
-
-            if (receiver != null && sender != null) {
-                // Use the comprehensive method to determine correct URL
-                actionUrl = getChatActionUrl(sender.getRole(), receiver.getRole(), senderId, userId);
+            if (receiver != null && receiver.getRole().equals("HOTEL_OWNER")) {
+                // Host receives message from customer
+                actionUrl = "/host-customer-detail?customerId=" + senderId;
             } else {
-                // Fallback to generic chat URL if unable to determine roles
-                actionUrl = "/chat?userId=" + senderId;
+                // Customer receives message from host  
+                actionUrl = "/customer-host-detail?hostId=" + senderId;
             }
         } catch (Exception e) {
             // Fallback to generic chat URL if unable to determine role
             actionUrl = "/chat?userId=" + senderId;
         }
-
+        
         createNotification(userId, title, message, "chat", "normal", actionUrl, "bi-chat-dots",
                          Map.of("senderId", senderId, "senderName", senderName));
     }
@@ -301,6 +299,13 @@ public class NotificationService {
 
         // Fallback URL
         return "/chat?userId=" + senderId;
+    }
+
+    public void notifyPasswordChanged(int userId) {
+        String title = "Đổi mật khẩu thành công";
+        String message = "Bạn đã đổi mật khẩu tài khoản thành công. Nếu không phải bạn thực hiện, hãy liên hệ hỗ trợ ngay!";
+        String actionUrl = "/user-change-password";
+        createNotification(userId, title, message, "profile", "high", actionUrl, "bi-shield-lock", null);
     }
 
     // Get user notifications with pagination

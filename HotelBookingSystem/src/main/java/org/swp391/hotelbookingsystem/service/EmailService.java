@@ -148,5 +148,21 @@ public class EmailService {
         mailSender.send(message);
     }
 
+    public void sendChangePasswordConfirmationEmail(String toEmail) throws MessagingException {
+        Context context = new Context();
+        // Có thể thêm biến động nếu muốn cá nhân hóa
+        String htmlContent = templateEngine.process("email/change-password-confirmation", context);
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+        helper.setTo(toEmail);
+        helper.setSubject("Xác nhận thay đổi mật khẩu");
+        helper.setText(htmlContent, true);
+        helper.setFrom("your_email@gmail.com");
+
+        mailSender.send(message);
+    }
+
 
 }

@@ -552,6 +552,14 @@ deleteAvatarBtn.addEventListener('click', function() {
     avatarUrlInput.value = '';
     avatarInput.value = '';
 });
+
+window.addEventListener('DOMContentLoaded', function() {
+    const avatarUrlInput = document.getElementById('avatarUrlInput');
+    const avatarPreview = document.getElementById('uploadfile-1-preview');
+    if (avatarUrlInput && avatarPreview) {
+        avatarUrlInput.value = avatarPreview.src;
+    }
+});
 </script>
 
 </body>
