@@ -189,6 +189,22 @@ public class NotificationService {
         createNotification(userId, title, message, "profile", "normal", actionUrl, "bi-person-circle", null);
     }
 
+    public void notifyNewReview(int hotelOwnerId, String reviewerName, String hotelName, int rating, int hotelId) {
+        String title = "Đánh giá mới cho khách sạn! ⭐";
+        String message = reviewerName + " đã đánh giá " + rating + " sao cho khách sạn \"" + hotelName + "\"";
+        String actionUrl = "/hotel-detail?hotelId=" + hotelId;
+        createNotification(hotelOwnerId, title, message, "review", "normal", actionUrl, "bi-star-fill",
+                         Map.of("hotelId", hotelId, "hotelName", hotelName, "rating", rating, "reviewerName", reviewerName));
+    }
+
+    public void notifyReviewReply(int reviewerId, String replierName, String hotelName, int hotelId) {
+        String title = "Có phản hồi cho đánh giá của bạn! 💬";
+        String message = replierName + " đã phản hồi đánh giá của bạn tại khách sạn \"" + hotelName + "\"";
+        String actionUrl = "/hotel-detail?hotelId=" + hotelId;
+        createNotification(reviewerId, title, message, "reply", "normal", actionUrl, "bi-reply-fill",
+                         Map.of("hotelId", hotelId, "hotelName", hotelName, "replierName", replierName));
+    }
+
     // Get user notifications with pagination
     public List<Map<String, Object>> getUserNotifications(int userId, int page, int size) {
         return notificationRepository.getUserNotifications(userId, page, size);
