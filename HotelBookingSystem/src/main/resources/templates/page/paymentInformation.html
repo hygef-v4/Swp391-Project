@@ -70,15 +70,17 @@
 		})
 		
 		window.addEventListener('DOMContentLoaded', () => {
-			new TomSelect('#bankId', {
-				render: {
+			document.querySelectorAll('.tom-select').forEach(e => {
+				new TomSelect(e, {
+					render: {
 					option: function(data, escape) {
-					return `<div><img src="${data.icon}" style="height:20px;margin-right:8px;">${escape(data.text)}</div>`;
+						return `<div><img src="${data.icon}" style="height:20px;margin-right:8px;">${escape(data.text)}</div>`;
 					},
 					item: function(data, escape) {
-					return `<div><img src="${data.icon}" style="height:20px;margin-right:8px;">${escape(data.text)}</div>`;
+						return `<div><img src="${data.icon}" style="height:20px;margin-right:8px;">${escape(data.text)}</div>`;
 					}
-				}
+					}
+				});
 			});
 		})
 	</script>
@@ -130,6 +132,20 @@ Content START -->
 					</button>
 				</div>
 
+				<div class="container mt-3">
+					<!-- Thông báo thành công -->
+					<div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+						<strong>Thành công!</strong> <span th:text="${successMessage}"></span>
+						<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+					</div>
+
+					<!-- Thông báo lỗi -->
+					<div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+						<strong>Lỗi!</strong> <span th:text="${errorMessage}"></span>
+						<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+					</div>
+				</div>
+
 				<!-- Payment detail START -->
 				<div class="card bg-transparent border">
 					<!-- Card header -->
@@ -145,11 +161,11 @@ Content START -->
 							<!-- Visa card -->
 							<div class="col-md-6">
 								<div class="card">
-									<div class="bg-primary p-4 rounded-3">
+									<div class="bg-info p-4 rounded-3" th:if="user != null" th:each="bank: ${user.banks}">
 										<div class="d-flex justify-content-between align-items-start">
 											<div>
-												<img class="w-40px" src="assets/images/element/visa.svg" alt="">
-												<span style="color: white; font-weight: 700; font-size: large;">VO CHIEN THANG</span>
+												<span style="background-color: white; display: inline-block; height: 30px"><img class="w-80px" th:src="${bank.logo}" th:alt="${bank.bankCode}"></span>
+												<p class="mt-2 mb-2" style="color: white; font-weight: 700; font-size: large;" th:text="${bank.userName}"></p>
 											</div>
 											<!-- Card action START -->
 											<div class="dropdown">
@@ -162,15 +178,19 @@ Content START -->
 													</svg>
 												</a>               
 												<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="creditcardDropdown">
-													<li><a class="dropdown-item" href="#"><i class="bi bi-calculator me-2 fw-icon"></i>Sửa thông tin</a></li>
-													<li><a class="dropdown-item text-danger" href="#"><i class="bi bi-trash me-2 fw-icon"></i>Xóa tài khoản</a></li>
+													<li><a class="dropdown-item" href="javascript:void(0)" th:attr="data-bank-code=${bank.bankCode}, data-bank-number=${bank.bankNumber}, data-user-name=${bank.userName}" onclick="editBank(this)"><i class="bi bi-calculator me-2 fw-icon"></i>Sửa thông tin</a></li>
+													<li><a class="dropdown-item text-danger" th:href="@{delete-bank(bankId=${bank.bankId})}"><i class="bi bi-trash me-2 fw-icon"></i>Xóa tài khoản</a></li>
 												</ul>
 											</div>
 											<!-- Card action END -->
 										</div>
-										<h4 class="text-white mt-4">**** **** **** 1569</h4>
-										<div class="d-flex justify-content-end text-white">
-											<button>Tài khoản mặc định</button>
+										<div onmouseover="unmask(this)" onmouseout="mask(this)">
+											<h4 class="text-white masked" th:text="${bank.maskedCode()}"></h4>
+											<h4 class="text-white hidden unmasked" th:text="${bank.bankNumber}"></h4>							
+										</div>
+										<div class="form-check form-switch form-check-md d-flex justify-content-end text-white">
+											<label class="form-check-label ps-0 pe-2 fw-bold fs-6" th:for="'default' + ${bank.bankId}">Mặc định</label>
+											<input class="form-check-input flex-shrink-0" type="checkbox" th:id="'default' + ${bank.bankId}" checked>
 										</div>
 									</div>
 								</div>
@@ -178,18 +198,18 @@ Content START -->
 						</div>
 
 						<!-- Add new card START -->
-						<div class="card border mt-4 hidden" id="bankInfo">
+						<div class="card border mt-4 hidden" id="addInfo">
 							<div class="card-header border-bottom">
 								<h5 class="card-header-title">Thông tin tài khoản</h5>
 							</div>
 							
 							<div class="card-body">
-								<form class="row text-start g-4">
+								<form action="/add-bank" class="row text-start g-4" id="addForm">
 									<!-- Bank -->
 									<div class="col-12">
 										<label class="form-label">Ngân Hàng<span class="text-danger">*</span></label>
 										<div class="position-relative">
-											<select id="bankId" name="bankCode" class="form-control" required>
+											<select name="bankCode" class="form-control tom-select" required>
 												<option value="" disabled selected hidden>Chọn ngân hàng</option>
 												<option th:each="bank : ${banks}" 
 														th:value="${bank.bankCode}"
@@ -203,12 +223,54 @@ Content START -->
 									<!-- Bank Account -->
 									<div class="col-md-12">
 										<label class="form-label">Số Tài Khoản<span class="text-danger">*</span></label>
-										<input type="text" name="account" class="form-control" minlength="8" maxlength="16" placeholder="Số tài khoản" required>
+										<input type="text" name="bankNumber" class="form-control" minlength="8" maxlength="16" placeholder="Số tài khoản" required>
 									</div>
 									<!-- Account name -->
 									<div class="col-12">
 										<label class="form-label">Tên Người Dùng<span class="text-danger">*</span></label>
-										<input type="text" name="accountName" class="form-control" placeholder="Tên người dùng" required>
+										<input type="text" name="userName" class="form-control" placeholder="Tên người dùng" required>
+									</div>
+									<!-- Button -->
+									<div class="col-12">
+										<button class="btn btn-primary mb-0">Add card</button>
+									</div>
+								</form>
+							</div>
+						</div>
+						<!-- Add new card END -->
+
+						<!-- Edit old card START -->
+						<div class="card border mt-4 hidden" id="editInfo">
+							<div class="card-header border-bottom">
+								<h5 class="card-header-title">Thông tin tài khoản</h5>
+							</div>
+							
+							<div class="card-body">
+								<form action="/edit-bank" class="row text-start g-4" id="editForm">
+									<!-- Bank -->
+									<div class="col-12">
+										<label class="form-label">Ngân Hàng<span class="text-danger">*</span></label>
+										<div class="position-relative">
+											<select name="bankCode" class="form-control tom-select" required>
+												<option value="" disabled selected hidden>Chọn ngân hàng</option>
+												<option th:each="bank : ${banks}" 
+														th:value="${bank.bankCode}"
+														th:data-icon="${bank.icon}"
+														th:text="${bank.bankName} + ' (' + ${bank.bankCode} + ')'"
+												>
+												</option>
+											</select>
+										</div>	
+									</div>
+									<!-- Bank Account -->
+									<div class="col-md-12">
+										<label class="form-label">Số Tài Khoản<span class="text-danger">*</span></label>
+										<input type="text" name="bankNumber" class="form-control" minlength="8" maxlength="16" placeholder="Số tài khoản" required>
+									</div>
+									<!-- Account name -->
+									<div class="col-12">
+										<label class="form-label">Tên Người Dùng<span class="text-danger">*</span></label>
+										<input type="text" name="userName" class="form-control" placeholder="Tên người dùng" required>
 									</div>
 									<!-- Button -->
 									<div class="col-12">
@@ -252,14 +314,52 @@ Footer END -->
 <script src="assets/js/functions.js"></script>
 
 <script>
+	function unmask(e){
+		e.querySelector(".masked").classList.add("hidden");
+		e.querySelector(".unmasked").classList.remove("hidden");
+	}
+
+	function mask(e){
+		e.querySelector(".unmasked").classList.add("hidden");
+		e.querySelector(".masked").classList.remove("hidden");
+	}
+</script>
+
+<script>
+	let currentEdit;
+	
 	function addBank(){
-		let bankInfo = document.querySelector("#bankInfo");
+		document.querySelector("#editInfo").classList.add("hidden");
+		currentEdit = null;
 
-		if(bankInfo.classList.contains("hidden")){
-			bankInfo.classList.remove("hidden");
-		}else bankInfo.classList.add("hidden");
+		let addInfo = document.querySelector("#addInfo");
 
-		scrollToId("bankInfo");
+		if(addInfo.classList.contains("hidden")){
+			addInfo.classList.remove("hidden");
+		}else addInfo.classList.add("hidden");
+
+		scrollToId("addInfo");
+	}
+
+	function editBank(e){
+		document.querySelector("#addInfo").classList.add("hidden");
+
+		let editInfo = document.querySelector("#editInfo");
+		let editForm = document.querySelector("#editForm");
+		
+		editForm.elements["bankCode"].tomselect.setValue(e.getAttribute("data-bank-code"));
+		editForm.elements["bankNumber"].value = e.getAttribute("data-bank-number");
+		editForm.elements["userName"].value = e.getAttribute("data-user-name");
+
+		if(editInfo.classList.contains("hidden") && e != currentEdit){
+			editInfo.classList.remove("hidden");
+			currentEdit = e;
+		}else{
+			editInfo.classList.add("hidden");
+			currentEdit = null;
+		}
+		
+		scrollToId("editInfo");
 	}
 </script>
 

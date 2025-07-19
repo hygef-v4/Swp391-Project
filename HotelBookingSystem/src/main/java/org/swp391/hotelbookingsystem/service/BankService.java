@@ -15,4 +15,8 @@ public class BankService {
     public List<Bank> getAllBank(){
         return bankRepository.getAllBank();
     }
+
+    public List<Bank> getUserBanks(int userId){
+        return bankRepository.getUserBanks(userId);
+    }
 }

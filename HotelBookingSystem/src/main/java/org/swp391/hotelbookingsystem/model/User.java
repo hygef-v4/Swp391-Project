@@ -3,6 +3,7 @@ package org.swp391.hotelbookingsystem.model;
 import lombok.*;
 
 import java.sql.Date;
+import java.util.List;
 
 @Builder
 @Data
@@ -28,6 +29,8 @@ public class User {
     private transient boolean flagged;
     @lombok.Getter @lombok.Setter
     private transient String flagReason;
+
+    private List<Bank> banks;
 
     public User(String email, String password) {
         this.email = email;

@@ -31,7 +31,7 @@ public class BankRepository {
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Bank.class));
     }
 
-    public List<Bank> getUserBank(int userId){
+    public List<Bank> getUserBanks(int userId){
         String sql = """
             SELECT 
                 b.bank_id AS bankId,
@@ -39,10 +39,12 @@ public class BankRepository {
                 b.bank_code AS bankCode,
                 b.logo,
                 b.icon,
+                ub.bank_number AS bankNumber,
+                ub.user_name AS userName,
                 ub.default_account AS defaultAccount
             FROM Banks b
             JOIN UserBanks ub ON b.bank_id = ub.bank_id
-            JOIN Users u ON u.user_id = b.user_id
+            JOIN Users u ON u.user_id = ub.user_id
         """;
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Bank.class));
     }
