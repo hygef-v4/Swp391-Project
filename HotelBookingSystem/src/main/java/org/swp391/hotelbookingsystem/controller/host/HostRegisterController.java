@@ -80,7 +80,31 @@ public class HostRegisterController {
             @RequestParam(required = false) Integer partialRefundDays,
             @RequestParam(required = false) Integer partialRefundPercent,
             @RequestParam(required = false) Integer noRefundWithinDays) {
-        
+
+        // Check if user is logged in
+        User currentUser = (User) session.getAttribute("user");
+        if (currentUser == null) {
+            return "redirect:/login";
+        }
+
+        // Skip validation if user just completed profile update
+        String profileJustUpdated = (String) session.getAttribute("profileJustUpdated");
+        if (!"true".equals(profileJustUpdated)) {
+            // Validate profile completeness before allowing hotel registration
+            UserService.ProfileValidationResult validationResult = userService.validateProfileCompleteness(currentUser);
+            if (!validationResult.isComplete()) {
+                // Add validation result to flash attributes for display on profile page
+                session.setAttribute("profileValidationMessage", validationResult.getMessage());
+                session.setAttribute("missingFields", validationResult.getMissingFields());
+                session.setAttribute("redirectReason", "hotel_registration");
+                session.setAttribute("returnToAfterProfileUpdate", "hotel_registration");
+                return "redirect:/user-profile?incomplete=true&reason=hotel_registration";
+            }
+        } else {
+            // Clear the flag after use
+            session.removeAttribute("profileJustUpdated");
+        }
+
         session.setAttribute("locations", locationService.getAllLocations());
 
         //  Get amenities with joined category
