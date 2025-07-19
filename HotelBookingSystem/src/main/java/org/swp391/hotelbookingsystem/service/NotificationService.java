@@ -172,14 +172,14 @@ public class NotificationService {
         String title = "Đã thêm vào yêu thích ❤️";
         String message = "Bạn đã thêm khách sạn '" + hotelName + "' vào danh sách yêu thích.";
         String actionUrl = "/user-wishlist";
-        createNotification(userId, title, message, "wishlist", "normal", actionUrl, "bi-heart", Map.of("hotelId", hotelId, "hotelName", hotelName));
+        createNotification(userId, title, message, "profile", "normal", actionUrl, "bi-heart", Map.of("hotelId", hotelId, "hotelName", hotelName));
     }
 
     public void notifyWishlistRemove(int userId, String hotelName, int hotelId) {
         String title = "Đã xoá khỏi yêu thích 💔";
         String message = "Bạn đã xoá khách sạn '" + hotelName + "' khỏi danh sách yêu thích.";
         String actionUrl = "/user-wishlist";
-        createNotification(userId, title, message, "wishlist", "normal", actionUrl, "bi-heartbreak", Map.of("hotelId", hotelId, "hotelName", hotelName));
+        createNotification(userId, title, message, "profile", "normal", actionUrl, "bi-heartbreak", Map.of("hotelId", hotelId, "hotelName", hotelName));
     }
 
     public void notifyProfileUpdate(int userId) {
@@ -187,6 +187,13 @@ public class NotificationService {
         String message = "Bạn đã cập nhật thông tin cá nhân thành công.";
         String actionUrl = "/user-profile";
         createNotification(userId, title, message, "profile", "normal", actionUrl, "bi-person-circle", null);
+    }
+
+    public void notifyPasswordChanged(int userId) {
+        String title = "Đổi mật khẩu thành công";
+        String message = "Bạn đã đổi mật khẩu tài khoản thành công. Nếu không phải bạn thực hiện, hãy liên hệ hỗ trợ ngay!";
+        String actionUrl = "/user-change-password";
+        createNotification(userId, title, message, "profile", "high", actionUrl, "bi-shield-lock", null);
     }
 
     // Get user notifications with pagination

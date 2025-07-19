@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.swp391.hotelbookingsystem.service.UserService;
 import org.swp391.hotelbookingsystem.service.EmailService;
+import org.swp391.hotelbookingsystem.service.NotificationService;
 
 @Controller
 public class UpdatePasswordController {
@@ -23,10 +24,13 @@ public class UpdatePasswordController {
 
     private final EmailService emailService;
 
-    public UpdatePasswordController(UserService userService, PasswordEncoder passwordEncoder, EmailService emailService) {
+    private final NotificationService notificationService;
+
+    public UpdatePasswordController(UserService userService, PasswordEncoder passwordEncoder, EmailService emailService, NotificationService notificationService) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
         this.emailService = emailService;
+        this.notificationService = notificationService;
     }
 
     @GetMapping("/user-change-password")
@@ -61,6 +65,9 @@ public class UpdatePasswordController {
 
             // Gửi email xác nhận đổi mật khẩu
             emailService.sendChangePasswordConfirmationEmail(sessionUser.getEmail());
+
+            // Gửi notification đổi mật khẩu thành công
+            notificationService.notifyPasswordChanged(sessionUser.getId());
 
             // Thay đổi trong session
             session.setAttribute("user", sessionUser);
