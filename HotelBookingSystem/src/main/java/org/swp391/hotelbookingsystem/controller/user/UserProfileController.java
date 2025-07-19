@@ -66,11 +66,13 @@ public class UserProfileController {
                 sessionUser.setDob(java.sql.Date.valueOf(dob));
                 sessionUser.setBio(bio);
                 sessionUser.setGender(gender);
-                // Xử lý cập nhật avatar: Nếu avatarUrl có giá trị thì cập nhật, nếu không thì đặt về null để hiển thị ảnh mặc định
-                if (avatarUrl != null && !avatarUrl.isBlank()) {
-                    sessionUser.setAvatarUrl(avatarUrl);
-                } else {
-                    sessionUser.setAvatarUrl(null); // Nếu không có avatar, đặt về null để dùng ảnh mặc định
+                // Xử lý cập nhật avatar:
+                if (avatarUrl != null) {
+                    if (avatarUrl.isBlank()) {
+                        sessionUser.setAvatarUrl(null); // Xoá avatar nếu giá trị rỗng
+                    } else if (!avatarUrl.equals(sessionUser.getAvatarUrl())) {
+                        sessionUser.setAvatarUrl(avatarUrl); // Cập nhật avatar mới nếu khác avatar hiện tại
+                    }
                 }
 
                 userService.updateUser(sessionUser);

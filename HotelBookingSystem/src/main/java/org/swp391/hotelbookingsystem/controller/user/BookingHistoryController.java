@@ -154,7 +154,7 @@ public class BookingHistoryController {
         if (booking.getCustomerId() == user.getId() && response != null && response.equals("00")) {
             if (booking.getCheckIn().isAfter(LocalDate.now().atStartOfDay())) {
                 bookingService.updateBookingStatus(booking, "cancelled");
-                notificationService.notifyRefundSuccess(user.getId(), String.valueOf(booking.getBookingId()), booking.getTotalPrice());
+                notificationService.notifyRefundSuccess(user.getId(), String.valueOf(booking.getBookingId()), booking.refundAmount());
             }
         }
 
