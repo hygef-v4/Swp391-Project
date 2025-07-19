@@ -12,6 +12,7 @@ import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.service.HotelService;
 import org.swp391.hotelbookingsystem.service.LocationService;
 import org.swp391.hotelbookingsystem.service.ReviewService;
+import org.swp391.hotelbookingsystem.service.UserService;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -23,10 +24,13 @@ public class HomeController {
 
     final ReviewService reviewService;
 
-    public HomeController(LocationService locationService, HotelService hotelService, ReviewService reviewService) {
+    final UserService userService;
+
+    public HomeController(LocationService locationService, HotelService hotelService, ReviewService reviewService, UserService userService) {
         this.locationService = locationService;
         this.hotelService = hotelService;
         this.reviewService = reviewService;
+        this.userService = userService;
     }
 
     @GetMapping({"/", "/home"})
@@ -42,6 +46,18 @@ public class HomeController {
         // Fetch top 5 public positive reviews and add to model
         List<Review> top5Reviews = reviewService.getTop5PublicPositiveReviews();
         model.addAttribute("top5Reviews", top5Reviews);
+
+        // Add customer statistics for the hero section
+        List<User> customers = userService.getUsersByRole("CUSTOMER");
+        model.addAttribute("customerCount", customers.size());
+
+        // Get top 5 customers with avatars for display
+        List<User> topCustomers = customers.size() > 5 ? customers.subList(0, 5) : customers;
+        model.addAttribute("topCustomers", topCustomers);
+
+        // Add overall average rating
+        double overallRating = reviewService.getOverallAverageRating();
+        model.addAttribute("overallRating", String.format("%.1f", overallRating));
 
         return "page/homepage";
     }

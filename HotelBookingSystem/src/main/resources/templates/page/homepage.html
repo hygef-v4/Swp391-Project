@@ -620,25 +620,15 @@
                                 <h6 class="fw-light">Khách hàng</h6>
                                 <!-- Avatar group -->
                                 <ul class="avatar-group mb-0">
-                                    <li class="avatar avatar-sm">
-                                        <img class="avatar-img rounded-circle" src="/assets/images/avatar/01.jpg"
-                                             alt="avatar">
+                                    <li class="avatar avatar-sm" th:each="customer, iterStat : ${topCustomers}" th:if="${iterStat.index < 4}">
+                                        <img class="avatar-img rounded-circle"
+                                             th:src="${customer.avatarUrl != null ? customer.avatarUrl : '/assets/images/avatar/default.jpg'}"
+                                             th:alt="${customer.fullName}">
                                     </li>
-                                    <li class="avatar avatar-sm">
-                                        <img class="avatar-img rounded-circle" src="/assets/images/avatar/02.jpg"
-                                             alt="avatar">
-                                    </li>
-                                    <li class="avatar avatar-sm">
-                                        <img class="avatar-img rounded-circle" src="/assets/images/avatar/03.jpg"
-                                             alt="avatar">
-                                    </li>
-                                    <li class="avatar avatar-sm">
-                                        <img class="avatar-img rounded-circle" src="/assets/images/avatar/04.jpg"
-                                             alt="avatar">
-                                    </li>
-                                    <li class="avatar avatar-sm">
+                                    <li class="avatar avatar-sm" th:if="${customerCount > 4}">
                                         <div class="avatar-img rounded-circle bg-primary">
-                                            <span class="text-white position-absolute top-50 start-50 translate-middle small">1K+</span>
+                                            <span class="text-white position-absolute top-50 start-50 translate-middle small"
+                                                  th:text="${customerCount > 999 ? (customerCount/1000) + 'K+' : customerCount + '+'}">1K+</span>
                                         </div>
                                     </li>
                                 </ul>
@@ -647,7 +637,9 @@
                             <!-- Rating -->
                             <div>
                                 <h6 class="fw-light mb-3">Đánh giá</h6>
-                                <h6 class="m-0">4.5<i class="fa-solid fa-star text-warning ms-1"></i></h6>
+                                <h6 class="m-0">
+                                    <span th:text="${overallRating}">4.5</span><i class="fa-solid fa-star text-warning ms-1"></i>
+                                </h6>
                             </div>
                         </div>
                     </div>

@@ -287,9 +287,19 @@ public class ReviewRepository {
 
     public double getAverageRatingThisYear() {
         String sql = """
-        SELECT AVG(CAST(rating AS FLOAT)) 
-        FROM Reviews 
+        SELECT AVG(CAST(rating AS FLOAT))
+        FROM Reviews
         WHERE YEAR(created_at) = YEAR(GETDATE())
+    """;
+        Double result = jdbcTemplate.queryForObject(sql, Double.class);
+        return result != null ? result : 0.0;
+    }
+
+    public double getOverallAverageRating() {
+        String sql = """
+        SELECT AVG(CAST(rating AS FLOAT))
+        FROM Reviews
+        WHERE is_public = 1 AND comment IS NOT NULL
     """;
         Double result = jdbcTemplate.queryForObject(sql, Double.class);
         return result != null ? result : 0.0;
