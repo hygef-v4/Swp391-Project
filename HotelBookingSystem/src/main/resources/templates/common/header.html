@@ -122,9 +122,94 @@
                         </ul>
                     </li>
 
+                    <!-- Nav item Contact -->
+                    <li class="nav-item dropdown" th:if="${session.user != null}">
+                        <a class="nav-link dropdown-toggle" href="#" id="contactMenu" data-bs-toggle="dropdown"
+                           aria-haspopup="true" aria-expanded="false">Liên hệ</a>
+                        <ul class="dropdown-menu" aria-labelledby="contactMenu">
+                            <!-- Main contact options page -->
+                            <li>
+                                <a class="dropdown-item" href="/contact-options">
+                                    <i class="bi bi-grid-3x3-gap fa-fw me-2"></i>Tất cả tùy chọn liên hệ
+                                </a>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <!-- Customer contact options -->
+                            <li th:if="${session.user.role == 'CUSTOMER'}">
+                                <a class="dropdown-item" href="/customer-hosts">
+                                    <i class="bi bi-building fa-fw me-2"></i>Liên hệ chủ khách sạn
+                                </a>
+                            </li>
+                            <li th:if="${session.user.role == 'CUSTOMER'}">
+                                <a class="dropdown-item" href="/customer-moderators">
+                                    <i class="bi bi-shield-check fa-fw me-2"></i>Liên hệ kiểm duyệt viên
+                                </a>
+                            </li>
+                            <li th:if="${session.user.role == 'CUSTOMER'}">
+                                <a class="dropdown-item" href="/customer-admins">
+                                    <i class="bi bi-person-gear fa-fw me-2"></i>Liên hệ admin
+                                </a>
+                            </li>
+
+                            <!-- Hotel Owner contact options -->
+                            <li th:if="${session.user.role == 'HOTEL_OWNER'}">
+                                <a class="dropdown-item" href="/host-customers">
+                                    <i class="bi bi-people fa-fw me-2"></i>Liên hệ khách hàng
+                                </a>
+                            </li>
+                            <li th:if="${session.user.role == 'HOTEL_OWNER'}">
+                                <a class="dropdown-item" href="/host-moderators">
+                                    <i class="bi bi-shield-check fa-fw me-2"></i>Liên hệ kiểm duyệt viên
+                                </a>
+                            </li>
+                            <li th:if="${session.user.role == 'HOTEL_OWNER'}">
+                                <a class="dropdown-item" href="/host-admins">
+                                    <i class="bi bi-person-gear fa-fw me-2"></i>Liên hệ admin
+                                </a>
+                            </li>
+
+                            <!-- Admin contact options -->
+                            <li th:if="${session.user.role == 'ADMIN'}">
+                                <a class="dropdown-item" href="/admin-hosts">
+                                    <i class="bi bi-building fa-fw me-2"></i>Liên hệ chủ khách sạn
+                                </a>
+                            </li>
+                            <li th:if="${session.user.role == 'ADMIN'}">
+                                <a class="dropdown-item" href="/admin-customers">
+                                    <i class="bi bi-people fa-fw me-2"></i>Liên hệ khách hàng
+                                </a>
+                            </li>
+                            <li th:if="${session.user.role == 'ADMIN'}">
+                                <a class="dropdown-item" href="/admin-moderators">
+                                    <i class="bi bi-shield-check fa-fw me-2"></i>Liên hệ kiểm duyệt viên
+                                </a>
+                            </li>
+
+                            <!-- Moderator contact options -->
+                            <li th:if="${session.user.role == 'MODERATOR'}">
+                                <a class="dropdown-item" href="/moderator-contact-users">
+                                    <i class="bi bi-people fa-fw me-2"></i>Liên hệ khách hàng
+                                </a>
+                            </li>
+                            <li th:if="${session.user.role == 'MODERATOR'}">
+                                <a class="dropdown-item" href="/moderator-hosts">
+                                    <i class="bi bi-building fa-fw me-2"></i>Liên hệ chủ khách sạn
+                                </a>
+                            </li>
+                            <li th:if="${session.user.role == 'MODERATOR'}">
+                                <a class="dropdown-item" href="/moderator-admins">
+                                    <i class="bi bi-person-gear fa-fw me-2"></i>Liên hệ admin
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
                     <!-- Nav item Account -->
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="/user-profile" id="accounntMenu" data-bs-toggle="dropdown"
+                        <a class="nav-link dropdown-toggle" href="/user-profile" id="accounntMenu"
+                           data-bs-toggle="dropdown"
                            aria-haspopup="true" aria-expanded="false">Tài khoản</a>
                         <ul class="dropdown-menu" aria-labelledby="accounntMenu">
                             <!-- Dropdown submenu -->
@@ -160,9 +245,13 @@
                             </li>
 
                             <!-- Quản trị viên -->
-                            <li><a class="dropdown-item" th:if="${session.user != null and session.user.role.equals('ADMIN')}" th:href="@{/admin-dashboard}">Quản trị viên</a></li>
+                            <li><a class="dropdown-item"
+                                   th:if="${session.user != null and session.user.role.equals('ADMIN')}"
+                                   th:href="@{/admin-dashboard}">Quản trị viên</a></li>
                             <!-- Quản lý -->
-                            <li><a class="dropdown-item" th:if="${session.user != null and session.user.role.equals('MODERATOR')}" th:href="@{/moderator-dashboard}">Quản lý</a></li>
+                            <li><a class="dropdown-item"
+                                   th:if="${session.user != null and session.user.role.equals('MODERATOR')}"
+                                   th:href="@{/moderator-dashboard}">Quản lý</a></li>
 
                         </ul>
                     </li>
@@ -213,48 +302,58 @@
 
             <!-- Profile and Notification START -->
             <ul class="nav flex-row align-items-center list-unstyled ms-xl-auto">
-				<!-- Dark mode options START -->
-				<li class="nav-item dropdown me-2">
-					<button class="btn btn-link text-warning p-0 mb-0" id="bd-theme"
-					type="button"
-					aria-expanded="false"
-					data-bs-toggle="dropdown"
-					data-bs-display="static">
-					<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-circle-half theme-icon-active fa-fw" viewBox="0 0 16 16">
-						<path d="M8 15A7 7 0 1 0 8 1v14zm0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16z"/>
-						<use href="#"></use>
-					</svg>
-					</button>
+                <!-- Dark mode options START -->
+                <li class="nav-item dropdown me-2">
+                    <button class="btn btn-link text-warning p-0 mb-0" id="bd-theme"
+                            type="button"
+                            aria-expanded="false"
+                            data-bs-toggle="dropdown"
+                            data-bs-display="static">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                             class="bi bi-circle-half theme-icon-active fa-fw" viewBox="0 0 16 16">
+                            <path d="M8 15A7 7 0 1 0 8 1v14zm0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16z"/>
+                            <use href="#"></use>
+                        </svg>
+                    </button>
 
-					<ul class="dropdown-menu min-w-auto dropdown-menu-end" aria-labelledby="bd-theme">
-						<li class="mb-1">
-							<button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light">
-								<svg width="16" height="16" fill="currentColor" class="bi bi-brightness-high-fill fa-fw mode-switch me-1" viewBox="0 0 16 16">
-									<path d="M12 8a4 4 0 1 1-8 0 4 4 0 0 1 8 0zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/>
-									<use href="#"></use>
-								</svg>Light
-							</button>
-						</li>
-						<li class="mb-1">
-							<button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark">
-								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-moon-stars-fill fa-fw mode-switch me-1" viewBox="0 0 16 16">
-									<path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z"/>
-									<path d="M10.794 3.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387a1.734 1.734 0 0 0-1.097 1.097l-.387 1.162a.217.217 0 0 1-.412 0l-.387-1.162A1.734 1.734 0 0 0 9.31 6.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387a1.734 1.734 0 0 0 1.097-1.097l.387-1.162zM13.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.156 1.156 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.156 1.156 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732L13.863.1z"/>
-									<use href="#"></use>
-								</svg>Dark
-							</button>
-						</li>
-						<li>
-							<button type="button" class="dropdown-item d-flex align-items-center active" data-bs-theme-value="auto">
-								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle-half fa-fw mode-switch me-1" viewBox="0 0 16 16">
-									<path d="M8 15A7 7 0 1 0 8 1v14zm0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16z"/>
-									<use href="#"></use>
-								</svg>Auto
-							</button>
-						</li>
-					</ul>
-				</li>
-				<!-- Dark mode options END -->
+                    <ul class="dropdown-menu min-w-auto dropdown-menu-end" aria-labelledby="bd-theme">
+                        <li class="mb-1">
+                            <button type="button" class="dropdown-item d-flex align-items-center"
+                                    data-bs-theme-value="light">
+                                <svg width="16" height="16" fill="currentColor"
+                                     class="bi bi-brightness-high-fill fa-fw mode-switch me-1" viewBox="0 0 16 16">
+                                    <path d="M12 8a4 4 0 1 1-8 0 4 4 0 0 1 8 0zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/>
+                                    <use href="#"></use>
+                                </svg>
+                                Light
+                            </button>
+                        </li>
+                        <li class="mb-1">
+                            <button type="button" class="dropdown-item d-flex align-items-center"
+                                    data-bs-theme-value="dark">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                     class="bi bi-moon-stars-fill fa-fw mode-switch me-1" viewBox="0 0 16 16">
+                                    <path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z"/>
+                                    <path d="M10.794 3.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387a1.734 1.734 0 0 0-1.097 1.097l-.387 1.162a.217.217 0 0 1-.412 0l-.387-1.162A1.734 1.734 0 0 0 9.31 6.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387a1.734 1.734 0 0 0 1.097-1.097l.387-1.162zM13.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.156 1.156 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.156 1.156 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732L13.863.1z"/>
+                                    <use href="#"></use>
+                                </svg>
+                                Dark
+                            </button>
+                        </li>
+                        <li>
+                            <button type="button" class="dropdown-item d-flex align-items-center active"
+                                    data-bs-theme-value="auto">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                     class="bi bi-circle-half fa-fw mode-switch me-1" viewBox="0 0 16 16">
+                                    <path d="M8 15A7 7 0 1 0 8 1v14zm0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16z"/>
+                                    <use href="#"></use>
+                                </svg>
+                                Auto
+                            </button>
+                        </li>
+                    </ul>
+                </li>
+                <!-- Dark mode options END -->
 
                 <!-- Search dropdown START -->
                 <li class="nav-item dropdown nav-search me-3 d-none d-sm-block">
@@ -291,7 +390,7 @@
                         <i class="bi bi-bell fa-fw"></i>
                     </a>
                     <!-- Notification badge -->
-                    <span class="notif-badge animation-blink position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" 
+                    <span class="notif-badge animation-blink position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
                           id="notificationBadge" style="display: none;">0</span>
 
                     <!-- Notification dropdown menu START -->
@@ -315,7 +414,7 @@
                                             <p class="mb-0 small mt-2">Đang tải thông báo...</p>
                                         </div>
                                     </li>
-                                    
+
                                     <!-- Empty state -->
                                     <li id="notificationEmpty" style="display: none;">
                                         <div class="text-center p-4">
@@ -343,7 +442,9 @@
                     <a class="avatar avatar-sm p-0" href="/user-profile" id="profileDropdown" role="button"
                        data-bs-auto-close="outside" data-bs-display="static" data-bs-toggle="dropdown"
                        aria-expanded="false">
-                        <img class="avatar-img rounded-2" th:src="${(session.user.avatarUrl == null) ? '/assets/images/avatar/avatar.jpg' : session.user.avatarUrl}" alt="avatar">
+                        <img class="avatar-img rounded-2"
+                             th:src="${(session.user.avatarUrl == null) ? '/assets/images/avatar/avatar.jpg' : session.user.avatarUrl}"
+                             alt="avatar">
                     </a>
 
                     <ul class="dropdown-menu dropdown-animation dropdown-menu-end shadow pt-3"
@@ -351,7 +452,11 @@
                         <li class="px-3 mb-3">
                             <div class="d-flex align-items-center">
                                 <div class="avatar me-3">
-                                    <img class="avatar-img rounded-circle shadow" th:src="${(session.user.avatarUrl == null) ? '/assets/images/avatar/avatar.jpg' : session.user.avatarUrl}" alt="avatar">
+                                    <a href="/user-profile">
+                                        <img class="avatar-img rounded-circle shadow"
+                                             th:src="${(session.user.avatarUrl == null) ? '/assets/images/avatar/avatar.jpg' : session.user.avatarUrl}"
+                                             alt="avatar">
+                                    </a>
                                 </div>
                                 <div>
                                     <a class="h6 mt-2 mt-sm-0" href="/user-profile">
@@ -364,7 +469,9 @@
                             </div>
                         </li>
 
-                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
                         <li th:if="${session.user.role == 'HOTEL_OWNER'}">
                             <a class="dropdown-item" href="/host-dashboard">
                                 <i class="bi bi-buildings fa-fw me-2"></i>Quản lý khách sạn
@@ -375,24 +482,26 @@
                                 <i class="bi bi-door-open fa-fw me-2"></i>Đăng ký cho thuê
                             </a>
                         </li>
-                        <li th:if="${session.user.role == 'CUSTOMER'}">
-                            <a class="dropdown-item" href="/customer-hosts">
-                                <i class="bi bi-chat-dots fa-fw me-2"></i>Liên hệ chủ khách sạn
-                            </a>
-                        </li>
-                        <li th:if="${session.user.role == 'HOTEL_OWNER'}">
-                            <a class="dropdown-item" th:href="@{/agent-admin-contact(id=${session.user.id})}">
-                                <i class="bi bi-chat-dots fa-fw me-2"></i>Liên hệ admin
+                        <li>
+                            <a class="dropdown-item" href="/contact-options">
+                                <i class="bi bi-chat-dots fa-fw me-2"></i>Liên hệ
                             </a>
                         </li>
 
-                        <li><a class="dropdown-item" href="/bookingHistory"><i class="bi bi-bookmark-check fa-fw me-2"></i>Đặt phòng của tôi</a></li>
-                        <li><a class="dropdown-item" href="#"><i class="bi bi-heart fa-fw me-2"></i>Danh sách yêu thích</a></li>
+
+                        <li><a class="dropdown-item" href="/bookingHistory"><i
+                                class="bi bi-bookmark-check fa-fw me-2"></i>Đặt phòng của tôi</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-heart fa-fw me-2"></i>Danh sách yêu thích</a>
+                        </li>
                         <li><a class="dropdown-item" href="#"><i class="bi bi-gear fa-fw me-2"></i>Cài đặt</a></li>
-                        <li><a class="dropdown-item" href="#"><i class="bi bi-info-circle fa-fw me-2"></i>Trung tâm trợ giúp</a></li>
-                        <li><a class="dropdown-item bg-danger-soft-hover" href="/logout"><i class="bi bi-power fa-fw me-2"></i>Đăng xuất</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-info-circle fa-fw me-2"></i>Trung tâm trợ
+                            giúp</a></li>
+                        <li><a class="dropdown-item bg-danger-soft-hover" href="/logout"><i
+                                class="bi bi-power fa-fw me-2"></i>Đăng xuất</a></li>
 
-                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
                         <!-- Dark mode options can go here -->
                     </ul>
                 </li>
@@ -403,7 +512,6 @@
                         <i class="bi bi-box-arrow-in-right me-1"></i> Đăng nhập
                     </a>
                 </li>
-
 
 
             </ul>

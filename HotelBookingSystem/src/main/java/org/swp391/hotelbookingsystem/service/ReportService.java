@@ -44,4 +44,25 @@ public class ReportService {
     public void acceptUserReports(int userId) {
         reportRepository.acceptPendingReportsByUserId(userId);
     }
-} 
+
+    public List<Report> getAllPendingReportsByUserId(int userId) {
+        return reportRepository.findPendingReportsByUserId(userId);
+    }
+
+    public String getFormattedUserReportReasons(int userId) {
+        List<Report> reports = reportRepository.findPendingReportsByUserId(userId);
+        if (reports.isEmpty()) {
+            return "No reports found";
+        }
+
+        StringBuilder formattedReasons = new StringBuilder();
+        for (int i = 0; i < reports.size(); i++) {
+            formattedReasons.append("Lần ").append(i + 1).append(": ")
+                           .append(reports.get(i).getReason());
+            if (i < reports.size() - 1) {
+                formattedReasons.append(", ");
+            }
+        }
+        return formattedReasons.toString();
+    }
+}

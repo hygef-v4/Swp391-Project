@@ -189,6 +189,125 @@ public class NotificationService {
         createNotification(userId, title, message, "profile", "normal", actionUrl, "bi-person-circle", null);
     }
 
+    public void notifyNewReview(int hotelOwnerId, String reviewerName, String hotelName, int rating, int hotelId) {
+        String title = "Đánh giá mới cho khách sạn! ⭐";
+        String message = reviewerName + " đã đánh giá " + rating + " sao cho khách sạn \"" + hotelName + "\"";
+        String actionUrl = "/hotel-detail?hotelId=" + hotelId;
+        createNotification(hotelOwnerId, title, message, "review", "normal", actionUrl, "bi-star-fill",
+                         Map.of("hotelId", hotelId, "hotelName", hotelName, "rating", rating, "reviewerName", reviewerName));
+    }
+
+    public void notifyReviewReply(int reviewerId, String replierName, String hotelName, int hotelId) {
+        String title = "Có phản hồi cho đánh giá của bạn! 💬";
+        String message = replierName + " đã phản hồi đánh giá của bạn tại khách sạn \"" + hotelName + "\"";
+        String actionUrl = "/hotel-detail?hotelId=" + hotelId;
+        createNotification(reviewerId, title, message, "reply", "normal", actionUrl, "bi-reply-fill",
+                         Map.of("hotelId", hotelId, "hotelName", hotelName, "replierName", replierName));
+    }
+
+    // Enhanced chat notification method that determines correct action URL based on user roles
+    public void createChatNotification(int receiverId, String senderName, int senderId,
+                                     String lastMessage, String senderRole, String receiverRole) {
+        try {
+            // Check if there's an existing unread chat notification from this sender
+            Integer existingNotificationId = notificationRepository.findExistingChatNotification(
+                receiverId, senderId);
+
+            String title = "Tin nhắn mới 💬";
+            String message = senderName + " đã gửi tin nhắn: " +
+                            (lastMessage.length() > 50 ? lastMessage.substring(0, 50) + "..." : lastMessage);
+
+            // Determine the correct action URL based on roles
+            String actionUrl = getChatActionUrl(senderRole, receiverRole, senderId, receiverId);
+
+            Map<String, Object> metadata = Map.of(
+                "senderId", senderId,
+                "senderName", senderName,
+                "lastMessage", lastMessage,
+                "senderRole", senderRole,
+                "receiverRole", receiverRole
+            );
+
+            if (existingNotificationId != null) {
+                // Update existing notification with new message content
+                notificationRepository.updateNotification(existingNotificationId, title, message, actionUrl, metadata);
+
+                // Send real-time notification via WebSocket for the updated notification
+                sendRealTimeNotification(receiverId, existingNotificationId, title, message,
+                                       "chat", "normal", actionUrl, "bi-chat-dots");
+
+            } else {
+                // Create new notification
+                int notificationId = notificationRepository.createNotification(title, message, "chat", "normal",
+                                                                             actionUrl, "bi-chat-dots", metadata, false);
+                notificationRepository.assignNotificationToUser(receiverId, notificationId);
+
+                // Send real-time notification via WebSocket
+                sendRealTimeNotification(receiverId, notificationId, title, message,
+                                       "chat", "normal", actionUrl, "bi-chat-dots");
+            }
+
+        } catch (Exception e) {
+            System.err.println("Error creating chat notification: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private String getChatActionUrl(String senderRole, String receiverRole, int senderId, int receiverId) {
+        // Determine action URL based on receiver's role and sender's role
+        switch (receiverRole) {
+            case "HOTEL_OWNER":
+                if ("CUSTOMER".equals(senderRole)) {
+                    return "/host-customer-detail?customerId=" + senderId;
+                } else if ("ADMIN".equals(senderRole)) {
+                    return "/agent-admin-contact?userId=" + senderId;
+                } else if ("MODERATOR".equals(senderRole)) {
+                    return "/agent-moderator-contact?userId=" + senderId;
+                }
+                break;
+
+            case "CUSTOMER":
+                if ("HOTEL_OWNER".equals(senderRole)) {
+                    return "/customer-host-detail?hostId=" + senderId;
+                } else if ("MODERATOR".equals(senderRole)) {
+                    return "/customer-moderator-contact?userId=" + senderId;
+                } else if ("ADMIN".equals(senderRole)) {
+                    return "/customer-admin-contact?userId=" + senderId;
+                }
+                break;
+
+            case "ADMIN":
+                if ("HOTEL_OWNER".equals(senderRole)) {
+                    return "/admin-agent-contact?userId=" + senderId;
+                } else if ("CUSTOMER".equals(senderRole)) {
+                    return "/admin-customer-contact?userId=" + senderId;
+                } else if ("MODERATOR".equals(senderRole)) {
+                    return "/admin-moderator-contact?userId=" + senderId;
+                }
+                break;
+
+            case "MODERATOR":
+                if ("CUSTOMER".equals(senderRole)) {
+                    return "/moderator-customer-contact?userId=" + senderId;
+                } else if ("HOTEL_OWNER".equals(senderRole)) {
+                    return "/moderator-agent-contact?userId=" + senderId;
+                } else if ("ADMIN".equals(senderRole)) {
+                    return "/moderator-admin-contact?userId=" + senderId;
+                }
+                break;
+        }
+
+        // Fallback URL
+        return "/chat?userId=" + senderId;
+    }
+
+    public void notifyPasswordChanged(int userId) {
+        String title = "Đổi mật khẩu thành công";
+        String message = "Bạn đã đổi mật khẩu tài khoản thành công. Nếu không phải bạn thực hiện, hãy liên hệ hỗ trợ ngay!";
+        String actionUrl = "/user-change-password";
+        createNotification(userId, title, message, "profile", "high", actionUrl, "bi-shield-lock", null);
+    }
+
     // Get user notifications with pagination
     public List<Map<String, Object>> getUserNotifications(int userId, int page, int size) {
         return notificationRepository.getUserNotifications(userId, page, size);

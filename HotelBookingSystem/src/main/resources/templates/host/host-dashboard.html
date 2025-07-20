@@ -1437,7 +1437,7 @@
                                 <a href="/host-customer-detail?customerId=${booking.customerId}" class="btn btn-sm btn-outline-success" title="Liên hệ khách">
                                     <i class="bi bi-chat-dots"></i>
                                 </a>
-                                <button class="btn btn-sm btn-outline-danger" onclick="rejectBooking('${booking.bookingId}')" title="Từ chối toàn bộ booking">
+                                <button class="btn btn-sm btn-outline-danger" onclick="rejectBooking('${booking.bookingId}')" title="Từ chối các phòng đã duyệt (không ảnh hưởng khách đã check-in)">
                                     <i class="bi bi-x-circle"></i>
                                 </button>
                             </div>
@@ -1646,7 +1646,9 @@
     }
 
     async function rejectBooking(bookingId) {
-        if (!confirm('Bạn có chắc chắn muốn từ chối toàn bộ booking này?')) return;
+        if (!confirm('Bạn có chắc chắn muốn từ chối các phòng đã được duyệt trong booking này?\n\n' +
+                    'Lưu ý: Chỉ các phòng có trạng thái "Đã duyệt" sẽ bị từ chối.\n' +
+                    'Khách đã check-in sẽ không bị ảnh hưởng.')) return;
 
         try {
             const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
@@ -1666,8 +1668,13 @@
 
             const result = await response.json();
             if (result.success) {
-                showNotification('success', 'Thành công', result.message);
-                setTimeout(() => window.location.reload(), 1500);
+                // Show different notifications based on whether refund is needed
+                if (result.needsRefund) {
+                    showNotification('warning', 'Cần hoàn tiền!', result.message);
+                } else {
+                    showNotification('info', 'Thông báo', result.message);
+                }
+                setTimeout(() => window.location.reload(), 2500);
             } else {
                 showNotification('error', 'Lỗi', result.message || 'Không thể từ chối booking');
             }
@@ -1678,22 +1685,39 @@
 
     // Simple notification function
     function showNotification(type, title, message) {
-        const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+        let alertClass;
+        switch(type) {
+            case 'success':
+                alertClass = 'alert-success';
+                break;
+            case 'warning':
+                alertClass = 'alert-warning';
+                break;
+            case 'info':
+                alertClass = 'alert-info';
+                break;
+            case 'error':
+            default:
+                alertClass = 'alert-danger';
+                break;
+        }
+
         const notification = document.createElement('div');
         notification.className = `alert ${alertClass} alert-dismissible fade show position-fixed`;
-        notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; max-width: 350px;';
+        notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; max-width: 400px;';
         notification.innerHTML = `
             <strong>${title}:</strong> ${message}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         `;
         document.body.appendChild(notification);
 
-        // Auto remove after 5 seconds
+        // Auto remove after longer time for warning/info messages
+        const autoRemoveTime = (type === 'warning' || type === 'info') ? 8000 : 5000;
         setTimeout(() => {
             if (notification.parentNode) {
                 notification.remove();
             }
-        }, 5000);
+        }, autoRemoveTime);
     }
 </script>
 

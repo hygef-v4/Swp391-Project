@@ -478,16 +478,18 @@ public class HostHotelController {
                 return response;
             }
 
-            // 3. Check for active bookings if not force deactivate
+            // 3. Check for approved bookings if not force deactivate
             if (!forceDeactivate) {
-                int activeBookingsCount = bookingService.countActiveBookingsByRoomId(roomId);
-                if (activeBookingsCount > 0) {
+                int totalApprovedUnitsToReject = bookingService.countAllApprovedBookingUnitsInAffectedBookings(roomId);
+                if (totalApprovedUnitsToReject > 0) {
                     response.put("success", false);
                     response.put("hasActiveBookings", true);
-                    response.put("activeBookingsCount", activeBookingsCount);
+                    response.put("activeBookingsCount", totalApprovedUnitsToReject);
                     response.put("roomId", roomId);
-                    response.put("message", "Phòng này hiện có " + activeBookingsCount + " đặt phòng đang hoạt động (đã được duyệt hoặc đang check-in). " +
-                            "Nếu tiếp tục vô hiệu hóa, tất cả các đặt phòng này sẽ bị hủy và bạn sẽ phải hoàn tiền toàn bộ cho khách hàng.");
+                    response.put("message", "Vô hiệu hóa phòng này sẽ ảnh hưởng đến " + totalApprovedUnitsToReject + " phòng đã được duyệt " +
+                            "(bao gồm tất cả phòng trong các booking có chứa phòng này). " +
+                            "Nếu tiếp tục vô hiệu hóa, tất cả các phòng đã duyệt trong các booking bị ảnh hưởng sẽ bị hủy " +
+                            "và bạn sẽ phải hoàn tiền cho khách hàng. Khách đã check-in sẽ không bị ảnh hưởng.");
                     return response;
                 }
             }
@@ -512,32 +514,32 @@ public class HostHotelController {
                 return response;
             }
 
-            // 4. Check if the room has active booking units (approved)
+            // 5. Always reject approved bookings when deactivating (only 'approved', not 'check_in')
+            int rejectedBookings = 0;
             try {
-                if (roomService.hasActiveBookingUnits(roomId)) {
-                    response.put("success", false);
-                    response.put("message", "Không thể vô hiệu hóa phòng này vì có khách đang đặt phòng.");
-                    return response;
+                System.out.println("=== ROOM DEACTIVATION: About to reject bookings for room " + roomId + " ===");
+
+                // First check how many approved booking units will be affected (all units in bookings containing this room)
+                int totalApprovedUnitsToReject = bookingService.countAllApprovedBookingUnitsInAffectedBookings(roomId);
+                System.out.println("Found " + totalApprovedUnitsToReject + " total approved booking units to reject (all units in affected bookings)");
+
+                rejectedBookings = bookingService.rejectAllActiveBookingsByRoomId(roomId);
+                System.out.println("Bulk rejection: " + rejectedBookings + " approved booking units rejected (all units in affected bookings)");
+
+                if (rejectedBookings != totalApprovedUnitsToReject) {
+                    System.err.println("WARNING: Expected to reject " + totalApprovedUnitsToReject + " but only rejected " + rejectedBookings);
+                    System.out.println("Trying individual rejection method as fallback...");
+
+                    int individualRejected = bookingService.rejectAllActiveBookingsByRoomIdIndividual(roomId);
+                    System.out.println("Individual rejection: " + individualRejected + " additional booking units rejected");
+                    rejectedBookings += individualRejected;
                 }
             } catch (Exception e) {
-                System.err.println("Error checking active bookings for roomId " + roomId + ": " + e.getMessage());
+                System.err.println("Error rejecting bookings for room " + roomId + ": " + e.getMessage());
+                e.printStackTrace();
                 response.put("success", false);
-                response.put("message", "Lỗi khi kiểm tra booking đang hoạt động");
+                response.put("message", "Lỗi khi hủy đặt phòng: " + e.getMessage());
                 return response;
-            }
-
-            // 5. Reject active bookings if force deactivate
-            int rejectedBookings = 0;
-            if (forceDeactivate) {
-                try {
-                    rejectedBookings = bookingService.rejectAllActiveBookingsByRoomId(roomId);
-                    System.out.println("Rejected " + rejectedBookings + " active bookings for room " + roomId);
-                } catch (Exception e) {
-                    System.err.println("Error rejecting bookings for room " + roomId + ": " + e.getMessage());
-                    response.put("success", false);
-                    response.put("message", "Lỗi khi hủy đặt phòng: " + e.getMessage());
-                    return response;
-                }
             }
 
             // 6. Deactivate the room
@@ -555,7 +557,7 @@ public class HostHotelController {
             // 7. Success response
             String message = "Vô hiệu hóa phòng thành công";
             if (rejectedBookings > 0) {
-                message += ". Đã hủy " + rejectedBookings + " đặt phòng đang hoạt động. Vui lòng liên hệ với khách hàng để hoàn tiền.";
+                message += ". Đã hủy " + rejectedBookings + " đặt phòng đã được duyệt. Khách đã check-in không bị ảnh hưởng.";
             }
             response.put("success", true);
             response.put("message", message);

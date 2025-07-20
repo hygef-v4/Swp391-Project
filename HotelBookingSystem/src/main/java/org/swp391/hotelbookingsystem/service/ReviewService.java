@@ -93,6 +93,10 @@ public class ReviewService {
         return reviewRepository.getAverageRatingThisYear();
     }
 
+    public double getOverallAverageRating() {
+        return reviewRepository.getOverallAverageRating();
+    }
+
 
     public List<Integer> getRatingDistribution() {
         return reviewRepository.getRatingDistribution();

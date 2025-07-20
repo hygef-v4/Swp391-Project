@@ -80,7 +80,47 @@ public class HostRegisterController {
             @RequestParam(required = false) Integer partialRefundDays,
             @RequestParam(required = false) Integer partialRefundPercent,
             @RequestParam(required = false) Integer noRefundWithinDays) {
-        
+
+        // Check if user is logged in
+        User currentUser = (User) session.getAttribute("user");
+        if (currentUser == null) {
+            return "redirect:/login";
+        }
+
+        // Skip validation if user just completed profile update
+        String profileJustUpdated = (String) session.getAttribute("profileJustUpdated");
+        if (!"true".equals(profileJustUpdated)) {
+            // Validate profile completeness before allowing hotel registration
+            UserService.ProfileValidationResult validationResult = userService.validateProfileCompleteness(currentUser);
+            if (!validationResult.isComplete()) {
+                // Debug logging
+                System.out.println("=== HOTEL REGISTRATION VALIDATION ===");
+                System.out.println("User ID: " + currentUser.getId());
+                System.out.println("Missing Fields: " + validationResult.getMissingFields());
+                System.out.println("Message: " + validationResult.getMessage());
+
+                // Check if only payment information is missing
+                List<String> missingFields = validationResult.getMissingFields();
+                if (missingFields.size() == 1 && missingFields.get(0).contains("thanh toán")) {
+                    // Only payment info missing - redirect directly to payment page
+                    System.out.println("Redirecting to payment page - only payment missing");
+                    session.setAttribute("returnToAfterProfileUpdate", "hotel_registration");
+                    return "redirect:/payment-information?incomplete=true&reason=hotel_registration";
+                } else {
+                    // Multiple fields missing - redirect to profile page
+                    System.out.println("Redirecting to profile page - multiple fields missing");
+                    session.setAttribute("profileValidationMessage", validationResult.getMessage());
+                    session.setAttribute("missingFields", validationResult.getMissingFields());
+                    session.setAttribute("redirectReason", "hotel_registration");
+                    session.setAttribute("returnToAfterProfileUpdate", "hotel_registration");
+                    return "redirect:/user-profile?incomplete=true&reason=hotel_registration";
+                }
+            }
+        } else {
+            // Clear the flag after use
+            session.removeAttribute("profileJustUpdated");
+        }
+
         session.setAttribute("locations", locationService.getAllLocations());
 
         //  Get amenities with joined category

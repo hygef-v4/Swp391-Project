@@ -222,7 +222,16 @@ public class RoomRepository {
     public boolean hasActiveBookingUnits(int roomId) {
         String sql = """
             SELECT COUNT(*) FROM BookingUnits
-            WHERE room_id = ? AND status IN ('approved')
+            WHERE room_id = ? AND status = 'approved'
+        """;
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, roomId);
+        return count != null && count > 0;
+    }
+
+    public boolean hasCheckedInBookingUnits(int roomId) {
+        String sql = """
+            SELECT COUNT(*) FROM BookingUnits
+            WHERE room_id = ? AND status = 'check_in'
         """;
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, roomId);
         return count != null && count > 0;

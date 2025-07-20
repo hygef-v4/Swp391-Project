@@ -63,6 +63,11 @@ public class SecurityConfig {
                                 new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
                                 new WebExpressionAuthorizationManager("hasAnyRole('HOTEL_OWNER', 'ADMIN')")
                         ))
+                        .requestMatchers("/contact-options", "/customer-moderators", "/customer-admins", "/host-moderators", "/host-admins",
+                                "/admin-hosts", "/admin-customers", "/admin-moderators", "/moderator-hosts", "/moderator-admins", "/moderator-contact-users",
+                                "/customer-moderator-contact", "/customer-admin-contact", "/agent-moderator-contact", "/agent-admin-contact",
+                                "/admin-agent-contact", "/admin-customer-contact", "/admin-moderator-contact", "/moderator-customer-contact",
+                                "/moderator-agent-contact", "/moderator-admin-contact").authenticated()
                         .requestMatchers("/moderator-dashboard", "/moderator-user-list").access(AuthorizationManagers.allOf(
                                 new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
                                 new WebExpressionAuthorizationManager("hasAnyRole('MODERATOR', 'ADMIN')")

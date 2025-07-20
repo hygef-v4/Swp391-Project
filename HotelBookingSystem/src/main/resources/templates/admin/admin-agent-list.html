@@ -229,7 +229,7 @@
                         <!-- Footer -->
                         <div class="card-footer d-flex gap-3 align-items-center">
                             <a th:href="@{/admin-agent-detail(id=${agent.id})}" class="btn btn-sm btn-primary-soft mb-0 w-100">Xem chi tiết</a>
-                            <a th:href="@{/admin-agent-contact(id=${agent.id})}" class="btn btn-sm btn-light flex-shrink-0 mb-0"><i class="bi bi-envelope"></i></a>
+                            <a th:href="@{/admin-agent-contact(userId=${agent.id})}" class="btn btn-sm btn-light flex-shrink-0 mb-0"><i class="bi bi-envelope"></i></a>
                         </div>
                     </div>
                 </div>

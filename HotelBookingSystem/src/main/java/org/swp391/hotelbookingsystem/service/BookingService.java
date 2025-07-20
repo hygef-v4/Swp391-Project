@@ -41,6 +41,25 @@ public class BookingService {
         booking.setStatus(status);
     }
 
+    /**
+     * Reject only approved booking units, leave other statuses unchanged
+     * @param booking The booking to process
+     * @return Number of booking units that were actually rejected
+     */
+    public int rejectApprovedBookingUnits(Booking booking) {
+        int rejectedCount = 0;
+        for(BookingUnit unit : booking.getBookingUnits()){
+            if("approved".equals(unit.getStatus())) {
+                bookingRepo.updateStatus(unit.getBookingUnitId(), "rejected");
+                rejectedCount++;
+            }
+        }
+        // Update booking status based on remaining units
+        booking.setBookingUnits(bookingRepo.findBookingUnitsByBookingId(booking.getBookingId()));
+        booking.setStatus(booking.determineStatus());
+        return rejectedCount;
+    }
+
     public void updateStatus(BookingUnit bookingUnit, String status){
         bookingRepo.updateStatus(bookingUnit.getBookingUnitId(), status);
     }
@@ -135,6 +154,14 @@ public class BookingService {
         return bookingRepo.countActiveBookingsByHotelId(hotelId);
     }
 
+    public int countApprovedBookingsByHotelId(int hotelId) {
+        return bookingRepo.countApprovedBookingsByHotelId(hotelId);
+    }
+
+    public int countCheckedInBookingsByHotelId(int hotelId) {
+        return bookingRepo.countCheckedInBookingsByHotelId(hotelId);
+    }
+
     public List<Booking> findActiveBookingsByHotelId(int hotelId) {
         return bookingRepo.findActiveBookingsByHotelId(hotelId);
     }
@@ -147,12 +174,28 @@ public class BookingService {
         return bookingRepo.countActiveBookingsByRoomId(roomId);
     }
 
+    public int countApprovedBookingsByRoomId(int roomId) {
+        return bookingRepo.countApprovedBookingsByRoomId(roomId);
+    }
+
+    public int countAllApprovedBookingUnitsInAffectedBookings(int roomId) {
+        return bookingRepo.countAllApprovedBookingUnitsInAffectedBookings(roomId);
+    }
+
+    public int countCheckedInBookingsByRoomId(int roomId) {
+        return bookingRepo.countCheckedInBookingsByRoomId(roomId);
+    }
+
     public List<Booking> findActiveBookingsByRoomId(int roomId) {
         return bookingRepo.findActiveBookingsByRoomId(roomId);
     }
 
     public int rejectAllActiveBookingsByRoomId(int roomId) {
         return bookingRepo.rejectAllActiveBookingsByRoomId(roomId);
+    }
+
+    public int rejectAllActiveBookingsByRoomIdIndividual(int roomId) {
+        return bookingRepo.rejectAllActiveBookingsByRoomIdIndividual(roomId);
     }
 
     public double getMonthlyRevenueByHostId(int hostId) {

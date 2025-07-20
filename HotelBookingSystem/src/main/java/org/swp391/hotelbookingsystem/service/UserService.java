@@ -8,9 +8,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.ArrayList;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.swp391.hotelbookingsystem.service.ReportService;
 import org.swp391.hotelbookingsystem.model.Report;
+import org.swp391.hotelbookingsystem.service.BankService;
+import org.swp391.hotelbookingsystem.model.Bank;
 
 @Service
 public class UserService {
@@ -21,12 +24,14 @@ public class UserService {
 
     private final ReportService reportService;
 
+    private final BankService bankService;
 
     @Autowired
-    public UserService(UserRepo userRepo, PasswordEncoder passwordEncoder, ReportService reportService) {
+    public UserService(UserRepo userRepo, PasswordEncoder passwordEncoder, ReportService reportService, BankService bankService) {
         this.userRepo = userRepo;
         this.passwordEncoder = passwordEncoder;
         this.reportService = reportService;
+        this.bankService = bankService;
     }
 
     public void updateUserRole(int userId, String newRole) {
@@ -84,6 +89,79 @@ public class UserService {
     public List<User> getTop5Users() {
         List<User> allUsers = userRepo.getAllUsersWithProfile();
         return allUsers.size() > 5 ? allUsers.subList(0, 5) : allUsers;
+    }
+
+    /**
+     * Validates if a user's profile is complete enough for hotel owner registration
+     * @param user The user to validate
+     * @return ProfileValidationResult containing validation status and missing fields
+     */
+    public ProfileValidationResult validateProfileCompleteness(User user) {
+        List<String> missingFields = new ArrayList<>();
+
+        if (user == null) {
+            missingFields.add("Thông tin người dùng");
+            return new ProfileValidationResult(false, missingFields, "Người dùng không tồn tại");
+        }
+
+        // Debug logging - remove in production
+        System.out.println("=== PROFILE VALIDATION DEBUG ===");
+        System.out.println("Full Name: '" + user.getFullName() + "'");
+        System.out.println("Phone: '" + user.getPhone() + "'");
+        System.out.println("DOB: " + user.getDob());
+        System.out.println("Avatar URL: '" + user.getAvatarUrl() + "'");
+
+        // Check required fields for hotel owner registration
+        if (user.getFullName() == null || user.getFullName().trim().isEmpty()) {
+            missingFields.add("Tên đầy đủ");
+            System.out.println("Missing: Full Name");
+        }
+
+        if (user.getPhone() == null || user.getPhone().trim().isEmpty()) {
+            missingFields.add("Số điện thoại");
+            System.out.println("Missing: Phone (empty)");
+        } else {
+            String cleanPhone = user.getPhone().trim();
+            if (!cleanPhone.matches("\\d{10,15}")) {
+                missingFields.add("Số điện thoại hợp lệ (10-15 chữ số)");
+                System.out.println("Missing: Phone (invalid format) - '" + cleanPhone + "'");
+            }
+        }
+
+        if (user.getDob() == null) {
+            missingFields.add("Ngày sinh");
+            System.out.println("Missing: Date of Birth");
+        }
+
+        // Avatar is recommended for hotel owners for trust and credibility
+        if (user.getAvatarUrl() == null || user.getAvatarUrl().trim().isEmpty() ||
+            user.getAvatarUrl().equals("/assets/images/avatar/avatar.jpg") ||
+            user.getAvatarUrl().contains("avatar.jpg")) {
+            missingFields.add("Ảnh đại diện");
+        }
+
+        // Payment information is required for hotel owners to receive payments
+        List<Bank> userBanks = bankService.getUserBanks(user.getId());
+        if (userBanks == null || userBanks.isEmpty()) {
+            missingFields.add("Thông tin thanh toán");
+        }
+
+        boolean isComplete = missingFields.isEmpty();
+        String message = isComplete ?
+            "Hồ sơ đã đầy đủ" :
+            "Vui lòng hoàn thiện các thông tin sau: " + String.join(", ", missingFields);
+
+        return new ProfileValidationResult(isComplete, missingFields, message);
+    }
+
+    /**
+     * Check if user has payment information set up
+     * @param userId The user ID to check
+     * @return true if user has at least one bank account, false otherwise
+     */
+    public boolean hasPaymentInformation(int userId) {
+        List<Bank> userBanks = bankService.getUserBanks(userId);
+        return userBanks != null && !userBanks.isEmpty();
     }
 
     public void saveEmailOtpToken(String email, String otp) {
@@ -218,6 +296,25 @@ public class UserService {
     // New: Unflag user
     public void unflagUser(int userId) {
         reportService.unflagUser(userId);
+    }
+
+    /**
+     * Inner class to hold profile validation results
+     */
+    public static class ProfileValidationResult {
+        private final boolean isComplete;
+        private final List<String> missingFields;
+        private final String message;
+
+        public ProfileValidationResult(boolean isComplete, List<String> missingFields, String message) {
+            this.isComplete = isComplete;
+            this.missingFields = missingFields;
+            this.message = message;
+        }
+
+        public boolean isComplete() { return isComplete; }
+        public List<String> getMissingFields() { return missingFields; }
+        public String getMessage() { return message; }
     }
 
 }

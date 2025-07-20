@@ -163,6 +163,50 @@
                         <!--                            </div>-->
                         <!--                        </div>-->
 
+                        <!-- Profile Completeness Warning -->
+                        <div th:if="${profileIncompleteWarning}" class="alert alert-info border-start border-4 border-primary bg-light shadow-sm" role="alert" style="border-left-color: #0d6efd !important;">
+                            <div class="d-flex align-items-start">
+                                <div class="flex-shrink-0 me-3">
+                                    <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                        <i class="bi bi-person-check text-white"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h5 class="alert-heading text-primary mb-2">
+                                        <i class="bi bi-shield-check me-2"></i>Hoàn thiện hồ sơ để đăng ký khách sạn
+                                    </h5>
+                                    <p class="mb-3 text-dark" style="line-height: 1.6;">
+                                        Để đảm bảo chất lượng dịch vụ và tăng độ tin cậy với khách hàng, vui lòng hoàn thiện các thông tin bắt buộc dưới đây.
+                                    </p>
+                                    <div th:if="${missingFields != null and !missingFields.isEmpty()}" class="mb-3">
+                                        <h6 class="text-primary mb-2">
+                                            <i class="bi bi-list-check me-2"></i>Thông tin cần bổ sung:
+                                        </h6>
+                                        <div class="row g-2">
+                                            <div th:each="field : ${missingFields}" class="col-md-6">
+                                                <div class="d-flex align-items-center p-2 bg-white rounded border">
+                                                    <i class="bi bi-circle text-primary me-2" style="font-size: 8px;"></i>
+                                                    <span th:text="${field}" class="text-dark fw-medium"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div th:if="${redirectReason == 'hotel_registration'}" class="d-flex align-items-center justify-content-between bg-white p-3 rounded border">
+                                        <div class="d-flex align-items-center">
+                                            <i class="bi bi-info-circle text-primary me-2"></i>
+                                            <small class="text-muted mb-0">
+                                                Sau khi hoàn thiện, hệ thống sẽ tự động chuyển bạn đến trang đăng ký khách sạn.
+                                            </small>
+                                        </div>
+                                        <a href="/register-host" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-building me-1"></i>Đăng ký ngay
+                                        </a>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        </div>
+
                         <!-- Personal info START -->
                         <div class="card border">
                             <!-- Card header -->
@@ -551,6 +595,14 @@ deleteAvatarBtn.addEventListener('click', function() {
     avatarPreview.src = defaultAvatar;
     avatarUrlInput.value = '';
     avatarInput.value = '';
+});
+
+window.addEventListener('DOMContentLoaded', function() {
+    const avatarUrlInput = document.getElementById('avatarUrlInput');
+    const avatarPreview = document.getElementById('uploadfile-1-preview');
+    if (avatarUrlInput && avatarPreview) {
+        avatarUrlInput.value = avatarPreview.src;
+    }
 });
 </script>
 
