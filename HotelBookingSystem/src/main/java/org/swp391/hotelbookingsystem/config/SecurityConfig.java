@@ -11,6 +11,9 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
+import org.springframework.security.web.authentication.rememberme.InMemoryTokenRepositoryImpl;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
+import org.swp391.hotelbookingsystem.handler.CustomRememberMeServices;
 import org.swp391.hotelbookingsystem.handler.CustomUserDetailsService;
 import org.swp391.hotelbookingsystem.handler.FormLoginSuccessHandler;
 import org.swp391.hotelbookingsystem.handler.OAuth2LoginSuccessHandler;
@@ -25,10 +28,13 @@ public class SecurityConfig {
 
     private final CustomUserDetailsService customUserDetailsService;
 
-    public SecurityConfig(OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler, FormLoginSuccessHandler formLoginSuccessHandler, CustomUserDetailsService customUserDetailsService) {
+    private final CustomRememberMeServices customRememberMeServices;
+
+    public SecurityConfig(OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler, FormLoginSuccessHandler formLoginSuccessHandler, CustomUserDetailsService customUserDetailsService, CustomRememberMeServices customRememberMeServices) {
         this.oAuth2LoginSuccessHandler = oAuth2LoginSuccessHandler;
         this.formLoginSuccessHandler = formLoginSuccessHandler;
         this.customUserDetailsService = customUserDetailsService;
+        this.customRememberMeServices =  customRememberMeServices;
     }
 
     @Bean
@@ -48,7 +54,6 @@ public class SecurityConfig {
                                 "/css/**", "/js/**", "/images/**", "/assets/**",
                                 "/api/files/**", "user-profile", "user-wishlist", "/ws/**", "/api/chat/**", "/api/notifications/**", "/test-notifications", "/refund"
                         ).permitAll()
-                        .requestMatchers("/notifications").authenticated()
                         .requestMatchers("/admin-dashboard", "/admin-user-list", "/admin-user-detail", "/admin-hotel-list", "/admin/locations/add", "/admin-agent-detail", "admin-agent-list", "admin-booking-list", "/admin-review").access(AuthorizationManagers.allOf(
                                 new WebExpressionAuthorizationManager("isFullyAuthenticated()"),
                                 new WebExpressionAuthorizationManager("hasRole('ADMIN')")
@@ -91,14 +96,12 @@ public class SecurityConfig {
                         .successHandler(formLoginSuccessHandler)
                         .failureUrl("/login?error=true")
                 )
-                .rememberMe(r -> r
-                        .key("bKJHkjsdf8723hJKH8sd89fjsd0239JKLHkjasdf987sdf")
-                        .tokenValiditySeconds(7 * 24 * 60 * 60)
-                        .userDetailsService(customUserDetailsService)
-                )
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/login")
                         .successHandler(oAuth2LoginSuccessHandler)
+                )
+                .rememberMe(r -> r
+                        .rememberMeServices(customRememberMeServices)
                 )
                 .logout(logout -> logout.permitAll())
                 .exceptionHandling(ex -> ex

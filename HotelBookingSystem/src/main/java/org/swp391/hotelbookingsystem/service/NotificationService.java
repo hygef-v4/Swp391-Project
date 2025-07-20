@@ -26,8 +26,12 @@ public class NotificationService {
         createNotification(userId, "Thông báo", message, "system", "normal", null, null, null);
     }
 
-    public void refundNotification(int userId, String message,  String priority, String actionUrl, String icon, Map<String, Object> metadata){
-
+    public void rejectNotification(int userId, String bookingId, double amount){
+        String title = "Đặt phòng đã bị hủy";
+        String message = "Hoàn " + String.format("%,.0f", amount) + "₫ về tài khoản cua bạn";
+        String actionUrl = "/bookingHistory";
+        createNotification(userId, title, message, "refund", "high", actionUrl, "bi-credit-card",
+                         Map.of("bookingId", bookingId, "amount", amount));
     }
 
     // Enhanced notification method

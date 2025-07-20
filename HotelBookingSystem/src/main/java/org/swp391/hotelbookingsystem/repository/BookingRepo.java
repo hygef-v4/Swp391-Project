@@ -174,9 +174,9 @@ public class BookingRepo {
         jdbcTemplate.update(sql, orderCode, transactionNo, Timestamp.valueOf(createdAt), bookingId);
     }
 
-    public void approveBookingUnit(int id){
-        String sql = "UPDATE BookingUnits SET status = 'approved' WHERE booking_id = ?";
-        jdbcTemplate.update(sql, id);
+    public int approveBookingUnit(int id){
+        String sql = "UPDATE BookingUnits SET status = 'approved' WHERE booking_id = ? AND status != 'approved'";
+        return jdbcTemplate.update(sql, id);
     }
 
     public void saveBookingUnit(int id, BookingUnit bookingUnit){
@@ -1030,9 +1030,8 @@ public class BookingRepo {
             AND EXISTS (
                 SELECT 1 FROM BookingUnits bu
                 WHERE bu.booking_id = b.booking_id
-                AND bu.status IN ('approved', 'check_in')
+                AND bu.status = 'approved'
             )
-            ORDER BY b.created_at DESC
         """;
 
         return jdbcTemplate.query(sql, ps -> ps.setInt(1, hotelId), (rs, rowNum) -> {
@@ -1075,7 +1074,7 @@ public class BookingRepo {
             SELECT COUNT(DISTINCT bu.booking_id)
             FROM BookingUnits bu
             WHERE bu.room_id = ?
-            AND bu.status IN ('approved', 'check_in')
+            AND bu.status = 'approved'
         """;
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, roomId);
         return count != null ? count : 0;
@@ -1138,8 +1137,7 @@ public class BookingRepo {
             JOIN Users u ON b.customer_id = u.user_id
             JOIN BookingUnits bu ON b.booking_id = bu.booking_id
             WHERE bu.room_id = ?
-            AND bu.status IN ('approved', 'check_in')
-            ORDER BY b.created_at DESC
+            AND bu.status = 'approved'
         """;
 
         return jdbcTemplate.query(sql, ps -> ps.setInt(1, roomId), (rs, rowNum) -> {
@@ -1163,42 +1161,7 @@ public class BookingRepo {
         });
     }
 
-    @Transactional
     public int rejectAllActiveBookingsByRoomId(int roomId) {
-        // First, find all bookings that contain the deactivated room
-        String findBookingsSql = """
-            SELECT DISTINCT booking_id
-            FROM BookingUnits
-            WHERE room_id = ? AND status = 'approved'
-        """;
-
-        List<Integer> affectedBookingIds = jdbcTemplate.queryForList(findBookingsSql, Integer.class, roomId);
-        System.out.println("=== DEBUG: Found " + affectedBookingIds.size() + " bookings affected by room " + roomId + " deactivation ===");
-
-        if (affectedBookingIds.isEmpty()) {
-            System.out.println("No approved booking units found for room " + roomId);
-            return 0;
-        }
-
-        // Show all booking units in affected bookings before update
-        for (Integer bookingId : affectedBookingIds) {
-            String checkSql = """
-                SELECT bu.booking_unit_id, bu.booking_id, bu.room_id, bu.status, bu.quantity, r.title as room_title
-                FROM BookingUnits bu
-                JOIN Rooms r ON bu.room_id = r.room_id
-                WHERE bu.booking_id = ?
-            """;
-
-            System.out.println("--- Booking " + bookingId + " units before rejection ---");
-            jdbcTemplate.query(checkSql, (rs, rowNum) -> {
-                System.out.println("  BookingUnit ID: " + rs.getInt("booking_unit_id") +
-                                 ", Room ID: " + rs.getInt("room_id") +
-                                 ", Room Title: " + rs.getString("room_title") +
-                                 ", Status: " + rs.getString("status"));
-                return null;
-            }, bookingId);
-        }
-
         // Reject ALL approved booking units in bookings that contain the deactivated room
         String sql = """
             UPDATE BookingUnits
@@ -1212,69 +1175,8 @@ public class BookingRepo {
         """;
 
         int updatedRows = jdbcTemplate.update(sql, roomId);
-        System.out.println("=== DEBUG: Updated " + updatedRows + " booking units to rejected (all units in affected bookings) ===");
-
-        // Show results after update
-        for (Integer bookingId : affectedBookingIds) {
-            String checkSql = """
-                SELECT bu.booking_unit_id, bu.booking_id, bu.room_id, bu.status, r.title as room_title
-                FROM BookingUnits bu
-                JOIN Rooms r ON bu.room_id = r.room_id
-                WHERE bu.booking_id = ?
-            """;
-
-            System.out.println("--- Booking " + bookingId + " units after rejection ---");
-            jdbcTemplate.query(checkSql, (rs, rowNum) -> {
-                System.out.println("  BookingUnit ID: " + rs.getInt("booking_unit_id") +
-                                 ", Room ID: " + rs.getInt("room_id") +
-                                 ", Room Title: " + rs.getString("room_title") +
-                                 ", Status: " + rs.getString("status"));
-                return null;
-            }, bookingId);
-        }
 
         return updatedRows;
-    }
-
-    /**
-     * Alternative method that processes booking units individually to ensure all are updated
-     * Rejects ALL approved booking units in bookings that contain the deactivated room
-     */
-    @Transactional
-    public int rejectAllActiveBookingsByRoomIdIndividual(int roomId) {
-        // Get all approved booking units in bookings that contain the deactivated room
-        String selectSql = """
-            SELECT booking_unit_id FROM BookingUnits
-            WHERE booking_id IN (
-                SELECT DISTINCT booking_id
-                FROM BookingUnits
-                WHERE room_id = ? AND status = 'approved'
-            )
-            AND status = 'approved'
-        """;
-
-        List<Integer> approvedBookingUnitIds = jdbcTemplate.queryForList(selectSql, Integer.class, roomId);
-        System.out.println("Found " + approvedBookingUnitIds.size() + " approved booking units to reject individually (all units in affected bookings)");
-
-        int rejectedCount = 0;
-        String updateSql = "UPDATE BookingUnits SET status = 'rejected' WHERE booking_unit_id = ?";
-
-        for (Integer bookingUnitId : approvedBookingUnitIds) {
-            try {
-                int updated = jdbcTemplate.update(updateSql, bookingUnitId);
-                if (updated > 0) {
-                    rejectedCount++;
-                    System.out.println("Successfully rejected booking unit " + bookingUnitId);
-                } else {
-                    System.err.println("Failed to reject booking unit " + bookingUnitId);
-                }
-            } catch (Exception e) {
-                System.err.println("Error rejecting booking unit " + bookingUnitId + ": " + e.getMessage());
-            }
-        }
-
-        System.out.println("Individual rejection completed: " + rejectedCount + " out of " + approvedBookingUnitIds.size() + " booking units rejected");
-        return rejectedCount;
     }
 
     public Double getMonthlyRevenueByHostId(int hostId) {

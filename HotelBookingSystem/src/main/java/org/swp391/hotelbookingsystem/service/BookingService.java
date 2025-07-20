@@ -72,12 +72,12 @@ public class BookingService {
         return bookingRepo.remainPendingTime(bookingId);
     }
 
-    public void approveBooking(int id, String orderCode, String transactionNo, String payDate){
+    public int approveBooking(int id, String orderCode, String transactionNo, String payDate){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
         LocalDateTime createdAt = LocalDateTime.parse(payDate, formatter);
         
         bookingRepo.setTransactionDetails(id, orderCode, transactionNo, createdAt);
-        bookingRepo.approveBookingUnit(id);
+        return bookingRepo.approveBookingUnit(id);
     }
 
     public void deletePendingBooking(int id, int userId){
@@ -192,10 +192,6 @@ public class BookingService {
 
     public int rejectAllActiveBookingsByRoomId(int roomId) {
         return bookingRepo.rejectAllActiveBookingsByRoomId(roomId);
-    }
-
-    public int rejectAllActiveBookingsByRoomIdIndividual(int roomId) {
-        return bookingRepo.rejectAllActiveBookingsByRoomIdIndividual(roomId);
     }
 
     public double getMonthlyRevenueByHostId(int hostId) {

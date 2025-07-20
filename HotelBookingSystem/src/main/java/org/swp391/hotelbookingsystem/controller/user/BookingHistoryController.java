@@ -133,6 +133,10 @@ public class BookingHistoryController {
         }
 
         Booking booking = bookingService.findById(bookingId);
+        if (!booking.getCheckIn().isAfter(LocalDate.now().atStartOfDay()) || !(booking.getCustomerId() == user.getId())){
+            redirectAttributes.addFlashAttribute("errorMessage", "Không thể hủy đặt phòng");
+            return "redirect:/bookingHistory";
+        }
 
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
@@ -145,36 +149,18 @@ public class BookingHistoryController {
         }else{
             params.add("trantype", "03");
         }params.add("amount", String.valueOf(booking.refundAmount()));
-        params.add("refundRole", "customer");
+        params.add("refundRole", "Customer");
         params.add("orderInfo", "Hủy đặt phòng " + booking.getHotelName());
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
         String response = restTemplate.postForObject(baseUrl + "/refund", request, String.class);
         
-        if (booking.getCustomerId() == user.getId() && response != null && response.equals("00")) {
-            if (booking.getCheckIn().isAfter(LocalDate.now().atStartOfDay())) {
-                bookingService.updateBookingStatus(booking, "cancelled");
-                notificationService.notifyRefundSuccess(user.getId(), String.valueOf(booking.getBookingId()), booking.refundAmount());
-            }
-        }
-
-        if(response != null){
-            switch(response){
-                case "00":
-                    redirectAttributes.addFlashAttribute("successMessage", "Hủy đặt phòng thành công");
-                    break;
-                case "94":
-                    redirectAttributes.addFlashAttribute("errorMessage", "Đang xử lý yêu cầu hoàn tiền trước đó");
-                    break;
-                case "95":
-                    redirectAttributes.addFlashAttribute("errorMessage", "VNPAY từ chối xử lý yêu cầu");
-                    break;
-                default:
-                    redirectAttributes.addFlashAttribute("errorMessage", "Đã xảy ra lỗi không xác định");
-                    break;
-            }
+        if(response != null && response.equals("00")){
+            bookingService.updateBookingStatus(booking, "cancelled");
+            notificationService.notifyRefundSuccess(user.getId(), String.valueOf(booking.getBookingId()), booking.refundAmount());
+            redirectAttributes.addFlashAttribute("successMessage", "Hủy đặt phòng thành công");
         }else{
-            redirectAttributes.addFlashAttribute("errorMessage", "Đã xảy ra lỗi không xác định");
+            redirectAttributes.addFlashAttribute("errorMessage", "Hoàn tiền thất bại");
         }
 
         return "redirect:/bookingHistory";

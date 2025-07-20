@@ -290,7 +290,7 @@ Page content START -->
                                     <div class="vstack gap-4">
 
                                         <!-- Room item START -->
-                                        <div class="card shadow p-3 hidden" th:id="'booked' + ${room.roomId}" th:each="room: ${rooms}">
+                                        <div class="card shadow p-3 hidden" th:id="'booked' + ${room.roomId}" th:each="room: ${rooms}" th:if="${room.status != 'inactive' && room.quantity > 0}">
                                             <div class="row g-4">
                                                 <!-- Card img -->
                                                 <div class="col-md-5 position-relative d-flex flex-column justify-content-center">
@@ -365,7 +365,7 @@ Page content START -->
                                     <div class="vstack gap-4">
 
                                         <!-- Room item START -->
-                                        <div class="card shadow p-3" th:id="'more' + ${room.roomId}" th:each="room: ${rooms}">
+                                        <div class="card shadow p-3" th:id="'more' + ${room.roomId}" th:each="room: ${rooms}" th:if="${room.status != 'inactive' && room.quantity > 0}">
                                             <div class="row g-4">
                                                 <!-- Card img -->
                                                 <div class="col-md-5 position-relative d-flex flex-column justify-content-center">
@@ -449,7 +449,11 @@ Page content START -->
                                         <li class="list-group-item d-flex justify-content-between align-items-center">
                                             <span class="h6 fw-light mb-0">Tổng tiền</span>
                                             <span class="fs-5"><span id="totalPrice">0</span>₫</span>
-                                        </li>                                    
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span class="h6 fw-light mb-0">Lưu trú</span>
+                                            <span class="fs-5"><span id="totalNight" th:text="${night}"></span></span>
+                                        </li>
                                         <li class="list-group-item d-flex justify-content-between align-items-center">
                                             <span class="h6 fw-light mb-0">Ưu đãi</span>
                                             <span class="fs-5 text-success">-<span id="totalDiscount">0</span>₫</span>
@@ -591,18 +595,20 @@ Footer END -->
 
 <script>
     // Khai báo trước ở phạm vi global
-    let total, discount, paid;
-    let totalPrice, totalDiscount, paidPrice;
+    let total, discount, night, paid;
+    let totalPrice, totalDiscount, totalNight, paidPrice;
     let paidInput, payButton;
 
     // Khi DOM load xong thì gán giá trị
     window.addEventListener("DOMContentLoaded", function () {
         totalPrice = document.getElementById('totalPrice');
         totalDiscount = document.getElementById('totalDiscount');
+        totalNight = document.getElementById('totalNight');
         paidPrice = document.getElementById('paidPrice');
 
         total = parseInt(totalPrice.textContent.replace(/[^\d]/g, "")) || 0;
         discount = parseInt(totalDiscount.textContent.replace(/[^\d]/g, "")) || 0;
+        night = parseInt(totalNight.textContent);
         paid = parseInt(paidPrice.textContent.replace(/[^\d]/g, "")) || 0;
 
         paidInput = document.getElementById('paidInput');
@@ -617,7 +623,7 @@ Footer END -->
         if(roomId){
             const room = document.getElementById('booked' + roomId);
 
-            if(room.querySelector(".bookedQuantity").max > 0){
+            if(room.querySelector(".bookedQuantity").max >= amount){
                 room.querySelector(".bookedQuantity").value = amount;
                 booking(roomId, false);
             }else{
@@ -635,7 +641,7 @@ Footer END -->
                 const room = document.getElementById('booked' + id);
 
                 if(id != roomId){
-                    if(room.querySelector(".bookedQuantity").max > 0){
+                    if(room != null && room.querySelector(".bookedQuantity").max >= quantity){
                         room.querySelector(".bookedQuantity").value = quantity;
                         booking(id, false);
                     }else{
@@ -645,13 +651,13 @@ Footer END -->
             });
         }
 
-        if(msBox) alert("Đã hết phòng, vui lòng chọn phòng khác");
+        if(msBox) alert("Phòng đã chọn hiện không đủ phòng");
     });
 
     function updatePaid(t, d){
         total = t;
         discount = d;
-        paid = total - discount;
+        paid = (total * night) - discount;
 
         // Cập nhật giá trị hiển thị
         totalPrice.textContent = total.toLocaleString();

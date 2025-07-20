@@ -7,14 +7,22 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import org.swp391.hotelbookingsystem.model.Amenity;
+import org.swp391.hotelbookingsystem.model.Booking;
 import org.swp391.hotelbookingsystem.model.CancellationPolicy;
 import org.swp391.hotelbookingsystem.model.Hotel;
 import org.swp391.hotelbookingsystem.model.Room;
@@ -34,6 +42,9 @@ import jakarta.servlet.http.HttpSession;
 @Controller
 public class HostHotelController {
 
+    @Value("${app.base-url}")
+    private String baseUrl;
+
     final
     LocationService locationService;
 
@@ -50,11 +61,15 @@ public class HostHotelController {
 
     final
     UserService userService;
-    final NotificationService notificationService;
 
-    final CancellationPolicyService cancellationPolicyService;
+    final 
+    NotificationService notificationService;
 
-    final BookingService bookingService;
+    final 
+    CancellationPolicyService cancellationPolicyService;
+
+    final 
+    BookingService bookingService;
 
     public HostHotelController(LocationService locationService, AmenityService amenityService, CloudinaryService cloudinaryService, RoomService roomService, HotelService hotelService, UserService userService, CancellationPolicyService cancellationPolicyService, NotificationService notificationService, BookingService bookingService) {
         this.locationService = locationService;
@@ -514,28 +529,36 @@ public class HostHotelController {
                 return response;
             }
 
-            // 5. Always reject approved bookings when deactivating (only 'approved', not 'check_in')
+            // 5. Always reject approved bookings when deactivating
             int rejectedBookings = 0;
             try {
-                System.out.println("=== ROOM DEACTIVATION: About to reject bookings for room " + roomId + " ===");
+                RestTemplate restTemplate = new RestTemplate();
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-                // First check how many approved booking units will be affected (all units in bookings containing this room)
-                int totalApprovedUnitsToReject = bookingService.countAllApprovedBookingUnitsInAffectedBookings(roomId);
-                System.out.println("Found " + totalApprovedUnitsToReject + " total approved booking units to reject (all units in affected bookings)");
+                List<Booking> bookings = bookingService.findActiveBookingsByRoomId(roomId);
+                
+                for(Booking booking : bookings){
+                    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+                    params.add("id", String.valueOf(booking.getBookingId()));
+                    params.add("trantype", "02");
+                    params.add("amount", String.valueOf(booking.getTotalPrice().longValue()));
+                    params.add("refundRole", "Hotel Owner");
+                    params.add("orderInfo", "Hủy đặt phòng " + booking.getHotelName());
 
-                rejectedBookings = bookingService.rejectAllActiveBookingsByRoomId(roomId);
-                System.out.println("Bulk rejection: " + rejectedBookings + " approved booking units rejected (all units in affected bookings)");
+                    HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+                    String res = restTemplate.postForObject(baseUrl + "/refund", request, String.class);
 
-                if (rejectedBookings != totalApprovedUnitsToReject) {
-                    System.err.println("WARNING: Expected to reject " + totalApprovedUnitsToReject + " but only rejected " + rejectedBookings);
-                    System.out.println("Trying individual rejection method as fallback...");
-
-                    int individualRejected = bookingService.rejectAllActiveBookingsByRoomIdIndividual(roomId);
-                    System.out.println("Individual rejection: " + individualRejected + " additional booking units rejected");
-                    rejectedBookings += individualRejected;
+                    if(res != null && res.equals("00")){
+                        rejectedBookings = bookingService.rejectAllActiveBookingsByRoomId(roomId);
+                        notificationService.rejectNotification(booking.getCustomerId(), String.valueOf(booking.getBookingId()), booking.refundAmount());
+                    }else{
+                        response.put("success", false);
+                        response.put("message", "Hoàn tiền thất bại");
+                        return response;
+                    }
                 }
             } catch (Exception e) {
-                System.err.println("Error rejecting bookings for room " + roomId + ": " + e.getMessage());
                 e.printStackTrace();
                 response.put("success", false);
                 response.put("message", "Lỗi khi hủy đặt phòng: " + e.getMessage());
@@ -545,7 +568,6 @@ public class HostHotelController {
             // 6. Deactivate the room
             try {
                 roomService.deactivateRoom(roomId);
-                System.out.println("Successfully deactivated room " + roomId);
             } catch (Exception e) {
                 System.err.println("Error deactivating room " + roomId + ": " + e.getMessage());
                 e.printStackTrace();
@@ -557,14 +579,13 @@ public class HostHotelController {
             // 7. Success response
             String message = "Vô hiệu hóa phòng thành công";
             if (rejectedBookings > 0) {
-                message += ". Đã hủy " + rejectedBookings + " đặt phòng đã được duyệt. Khách đã check-in không bị ảnh hưởng.";
+                message += ". Đã hủy " + rejectedBookings + " phòng thành công.";
             }
             response.put("success", true);
             response.put("message", message);
             
         } catch (Exception e) {
             // Catch any unexpected errors
-            System.err.println("Unexpected error in deactivateRoom for roomId " + roomId + ": " + e.getMessage());
             e.printStackTrace();
             response.put("success", false);
             response.put("message", "Lỗi không mong muốn khi vô hiệu hóa phòng");
