@@ -273,18 +273,20 @@ Search END -->
 <!-- =======================
 Main Title START -->
 	<div class="container mt-3">
+		<!-- Thông báo khách sạn bị từ chối -->
+		<div th:if="${hotel.status == 'rejected'}" class="alert alert-danger alert-dismissible fade show" role="alert" style="font-size:1.2rem;">
+			<strong>Khách sạn này đã bị từ chối bởi quản trị viên và không thể đặt phòng!</strong>
+		</div>
 		<!-- Thông báo thành công -->
 		<div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
 			<strong>Thành công!</strong> <span th:text="${successMessage}"></span>
 			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 		</div>
-
 		<!-- Thông báo lỗi -->
 		<div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
 			<strong>Lỗi!</strong> <span th:text="${errorMessage}"></span>
 			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 		</div>
-
 		<div th:if="${banMessage}" class="alert alert-danger alert-dismissible show" role="alert">
 			<span th:text="${banMessage}"></span>
 		</div>
@@ -522,7 +524,7 @@ About hotel START -->
 													</div>
 													<!-- Price -->
 													<div class="mt-3 mt-sm-0">
-														<a th:class="'btn btn-sm btn-primary mb-0' + ${(room.quantity <= 0 || banMessage != null) ? ' disabled' : ''}" data-bs-toggle="modal" th:data-bs-target="'#bookingModal' + ${room.roomId}">Đặt Phòng</a>    
+														<a th:if="${hotel.status != 'rejected'}" th:class="'btn btn-sm btn-primary mb-0' + ${(room.quantity <= 0 || banMessage != null) ? ' disabled' : ''}" data-bs-toggle="modal" th:data-bs-target="'#bookingModal' + ${room.roomId}">Đặt Phòng</a>    
 													</div>                  
 												</div>
 											</div>
@@ -750,7 +752,8 @@ About hotel START -->
 
 						<!-- Button -->
 						<div class="d-grid">
-							<a href="#room-options" class="btn btn-lg btn-primary-soft mb-0">Xem <span th:text="${rooms.size()}"></span> lựa chọn phòng</a>
+							<!-- Ẩn nút đặt phòng nếu bị rejected -->
+							<a th:if="${hotel.status != 'rejected'}" href="#room-options" class="btn btn-lg btn-primary-soft mb-0">Xem <span th:text="${rooms.size()}"></span> lựa chọn phòng</a>
 						</div>
 
 						<div class="d-grid mt-2">
@@ -869,7 +872,8 @@ Footer END -->
 								</div>
 								<!-- Price -->
 								<div class="mt-3 mt-sm-0">
-									<a href="" th:class="'btn btn-sm btn-primary mb-0' + ${room.quantity <= 0 ? ' disabled' : ''}" data-bs-toggle="modal" th:data-bs-target="'#bookingModal' + ${room.roomId}">Chọn Phòng</a>    
+									<!-- Ẩn nút đặt phòng trong từng phòng nếu bị rejected -->
+									<a th:if="${hotel.status != 'rejected'}" th:class="'btn btn-sm btn-primary mb-0' + ${(room.quantity <= 0 || banMessage != null) ? ' disabled' : ''}" data-bs-toggle="modal" th:data-bs-target="'#bookingModal' + ${room.roomId}">Chọn Phòng</a>    
 								</div>                  
 							</div>
 						</div> <!-- Row END -->
