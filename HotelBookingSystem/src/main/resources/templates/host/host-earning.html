@@ -412,7 +412,7 @@
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    <tr th:each="booking : ${earningBookings}" th:if="${booking.totalPrice > 0}">
+                                    <tr th:each="booking : ${earningBookings}">
                                         <td>
                                             <span class="fw-bold text-primary" th:text="'#BK' + ${booking.bookingId}">
                                                 #BK001
@@ -444,9 +444,14 @@
                                             <span th:text="${#temporals.format(booking.checkOut, 'dd/MM/yyyy')}">02/01/2024</span>
                                         </td>
                                         <td>
-                                            <span class="fw-bold text-success"
+                                            <span th:if="${booking.totalPrice > 0 and booking.status != 'cancelled' and booking.status != 'rejected'}"
+                                                  class="fw-bold text-success"
                                                   th:text="${#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
                                                 1,000,000 ₫
+                                            </span>
+                                            <span th:if="${booking.totalPrice <= 0 or booking.status == 'cancelled' or booking.status == 'rejected'}"
+                                                  class="fw-bold text-muted">
+                                                Đã hủy/ Từ chối
                                             </span>
                                         </td>
                                         <td>

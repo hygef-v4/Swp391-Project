@@ -263,23 +263,21 @@ public class AdminUserController {
                             // Set the filtered booking units
                             booking.setBookingUnits(nonPendingUnits);
                             
-                            // Calculate overall status based on non-pending units
-                            String overallStatus = bookingService.calculateBookingStatus(nonPendingUnits);
+                            // Calculate number of nights (same as host dashboard)
+                            booking.calculateNumberOfNights();
+
+                            // Determine booking status (same as host dashboard)
+                            String overallStatus = booking.determineStatus();
                             booking.setStatus(overallStatus);
-                            
-                            // Calculate total price - only count approved, completed, and check_in booking units
-                            double totalPrice = nonPendingUnits.stream()
-                                    .filter(unit -> unit.getPrice() != null && unit.getPrice() > 0)
-                                    .filter(unit -> {
-                                        String unitStatus = (unit.getStatus() != null) ? unit.getStatus().toLowerCase() : "";
-                                        return "approved".equals(unitStatus) || "completed".equals(unitStatus) || "check_in".equals(unitStatus);
-                                    })
-                                    .mapToDouble(unit -> {
-                                        int qty = unit.getQuantity() <= 0 ? 1 : unit.getQuantity();
-                                        return unit.getPrice() * qty;
-                                    })
-                                    .sum();
-                            booking.setTotalPrice(totalPrice);
+
+                            // Calculate total price using same method as host dashboard
+                            if ("cancelled".equals(overallStatus) || "rejected".equals(overallStatus)) {
+                                booking.setTotalPrice(0.0);
+                            } else {
+                                // Use calculateTotalPrice() method which properly calculates: price * quantity * numberOfNights
+                                double calculatedPrice = booking.calculateTotalPrice();
+                                booking.setTotalPrice(calculatedPrice);
+                            }
                             
                             return true;
                         }
@@ -321,22 +319,22 @@ public class AdminUserController {
                                 .toList();
                         
                         booking.setBookingUnits(nonPendingUnits);
-                        String overallStatus = bookingService.calculateBookingStatus(nonPendingUnits);
+
+                        // Calculate number of nights (same as host dashboard)
+                        booking.calculateNumberOfNights();
+
+                        // Determine booking status (same as host dashboard)
+                        String overallStatus = booking.determineStatus();
                         booking.setStatus(overallStatus);
-                        
-                        // Calculate total price - only count approved, completed, and check_in booking units (same as host dashboard)
-                        double totalPrice = nonPendingUnits.stream()
-                                .filter(unit -> unit.getPrice() != null && unit.getPrice() > 0)
-                                .filter(unit -> {
-                                    String unitStatus = (unit.getStatus() != null) ? unit.getStatus().toLowerCase() : "";
-                                    return "approved".equals(unitStatus) || "completed".equals(unitStatus) || "check_in".equals(unitStatus);
-                                })
-                                .mapToDouble(unit -> {
-                                    int qty = unit.getQuantity() <= 0 ? 1 : unit.getQuantity();
-                                    return unit.getPrice() * qty;
-                                })
-                                .sum();
-                        booking.setTotalPrice(totalPrice);
+
+                        // Calculate total price using same method as host dashboard
+                        if ("cancelled".equals(overallStatus) || "rejected".equals(overallStatus)) {
+                            booking.setTotalPrice(0.0);
+                        } else {
+                            // Use calculateTotalPrice() method which properly calculates: price * quantity * numberOfNights
+                            double calculatedPrice = booking.calculateTotalPrice();
+                            booking.setTotalPrice(calculatedPrice);
+                        }
                         
                         return booking;
                     })

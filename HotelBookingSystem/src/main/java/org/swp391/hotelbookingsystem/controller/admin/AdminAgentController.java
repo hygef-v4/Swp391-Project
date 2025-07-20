@@ -29,7 +29,6 @@ public class AdminAgentController {
         this.bookingService = bookingService;
     }
 
-
     @GetMapping("/admin-agent-list")
     public String showAgentList(@RequestParam(defaultValue = "1") int page,
                                 @RequestParam(defaultValue = "8") int size,

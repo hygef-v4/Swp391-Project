@@ -22,15 +22,36 @@ public class AdminReviewController {
     @GetMapping("/admin-review")
     public String showReviewList(@RequestParam(defaultValue = "all") String filter,
                                  @RequestParam(defaultValue = "1") int page,
+                                 @RequestParam(required = false) String search,
                                  @RequestParam(required = false) String hotelName,
                                  Model model) {
         int pageSize = 5;
 
         List<Review> allReviews = reviewService.getReviewsByStatus(filter);
 
+        for (Review review : allReviews) {
+            boolean hasOtherPublicReview = allReviews.stream()
+                    .anyMatch(r -> r.getReviewId() != review.getReviewId()
+                            && r.getReviewerId() == review.getReviewerId()
+                            && r.getHotelId() == review.getHotelId()
+                            && r.isPublic());
+            review.setCanRestore(!hasOtherPublicReview);
+        }
+
         if (hotelName != null && !hotelName.isEmpty()) {
             allReviews = allReviews.stream()
                     .filter(r -> hotelName.equals(r.getHotelName()))
+                    .toList();
+        }
+
+        if (search != null && !search.isEmpty()) {
+            String lowerSearch = search.toLowerCase();
+            allReviews = allReviews.stream()
+                    .filter(r ->
+                            (r.getHotelName() != null && r.getHotelName().toLowerCase().contains(lowerSearch)) ||
+                            (r.getComment() != null && r.getComment().toLowerCase().contains(lowerSearch)) ||
+                            (r.getFullName() != null && r.getFullName().toLowerCase().contains(lowerSearch))
+                    )
                     .toList();
         }
 
@@ -70,6 +91,8 @@ public class AdminReviewController {
         model.addAttribute("totalPublicReviews", totalPublicReviews);
         model.addAttribute("hotelNames", hotelNames);
         model.addAttribute("selectedHotelName", hotelName);
+        model.addAttribute("search", search);
+
 
         return "admin/admin-review";
     }

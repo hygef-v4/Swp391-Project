@@ -215,21 +215,21 @@
                         <li class="nav-item hover-card" role="presentation">
                             <a class="nav-link mb-0 me-sm-2"
                                th:classappend="${filter == 'all'} ? ' active'"
-                               th:href="@{/admin-review(filter='all', hotelName=${selectedHotelName})}">
+                               th:href="@{/admin-review(filter='all', hotelName=${selectedHotelName}, search=${search})}">
                                 Tất cả
                             </a>
                         </li>
                         <li class="nav-item" role="presentation">
                             <a class="nav-link hover-card mb-0 me-sm-2"
                                th:classappend="${filter == 'published'} ? ' active'"
-                               th:href="@{/admin-review(filter='published', hotelName=${selectedHotelName})}">
+                               th:href="@{/admin-review(filter='published', hotelName=${selectedHotelName}, search=${search})}">
                                 Công khai
                             </a>
                         </li>
                         <li class="nav-item" role="presentation">
                             <a class="nav-link mb-0 hover-card"
                                th:classappend="${filter == 'deleted'} ? ' active'"
-                               th:href="@{/admin-review(filter='deleted', hotelName=${selectedHotelName})}">
+                               th:href="@{/admin-review(filter='deleted', hotelName=${selectedHotelName}, search=${search})}">
                                 Đã xoá
                             </a>
                         </li>
@@ -237,24 +237,26 @@
                 </div>
 
                 <!-- Search -->
-<!--                <div class="col-md-6 col-lg-4 hover-card">-->
-<!--                    <form class="rounded position-relative" th:action="@{/admin-booking-list}" method="get">-->
-<!--                        <input class="form-control bg-transparent"-->
-<!--                               type="text"-->
-<!--                               name="search"-->
-<!--                               th:value="${search}"-->
-<!--                               placeholder="Tìm kiếm">-->
-<!--                        <input type="hidden" name="status" th:value="${filter}">-->
-<!--                        <button class="bg-transparent p-2 position-absolute top-50 end-0 translate-middle-y border-0 text-primary-hover text-reset" type="submit">-->
-<!--                            <i class="fas fa-search fs-6"></i>-->
-<!--                        </button>-->
-<!--                    </form>-->
-<!--                </div>-->
+                <div class="col-md-6 col-lg-4 hover-card">
+                    <form class="rounded position-relative" th:action="@{/admin-review}" method="get">
+                        <input class="form-control bg-transparent"
+                               type="text"
+                               name="search"
+                               th:value="${search}"
+                               placeholder="Tìm kiếm">
+                        <input type="hidden" name="filter" th:value="${filter}">
+                        <input type="hidden" name="hotelName" th:value="${selectedHotelName}">
+                        <button class="bg-transparent p-2 position-absolute top-50 end-0 translate-middle-y border-0 text-primary-hover text-reset" type="submit">
+                            <i class="fas fa-search fs-6"></i>
+                        </button>
+                    </form>
+                </div>
 
                 <!-- Select -->
                 <div class="col-md-6 col-lg-3 hover-card">
                     <form method="get" action="/admin-review">
                         <input type="hidden" name="filter" th:value="${filter}" />
+                        <input type="hidden" name="search" th:value="${search}" />
                         <select class="form-select js-choice" name="hotelName" onchange="this.form.submit()">
                             <option value="">Tất cả khách sạn</option>
                             <option th:each="hotelName : ${hotelNames}"
@@ -293,26 +295,31 @@
                         </ul>
                         <h6>
                             <span class="text-body fw-light">Đánh giá trên:</span>
-                            <span th:text="${review.hotelName}">Tên phòng</span>
+                            <a th:href="@{/hotel-detail(hotelId=${review.hotelId})}" th:text="${review.hotelName}" class="text-decoration-none"></a>
                             <span class="badge bg-danger ms-2" th:if="${!review.isPublic}">Đã xóa</span>
                         </h6>
                         <p th:text="${review.comment}">Nội dung đánh giá</p>
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <a th:href="'/hotel-detail?hotelId=' + ${review.hotelId} + '#review' + ${review.reviewId}" class="btn btn-sm btn-primary-soft mb-0">Đến trang đánh giá</a>
-                                <a class="btn btn-sm btn-light mb-0"
-                                   data-bs-toggle="collapse"
-                                   th:href="'#collapseComment__' + ${review.reviewId}"
-                                   role="button"
-                                   aria-expanded="false"
-                                   th:attr="aria-controls='collapseComment__' + ${review.reviewId}">
-                                    Phản hồi
-                                </a>
+                                <div th:if="${review != null and review.isPublic}">
+                                    <a th:href="'/hotel-detail?hotelId=' + ${review.hotelId} + '#review' + ${review.reviewId}" class="btn btn-sm btn-primary-soft mb-0">Đến trang đánh giá</a>
+                                    <a class="btn btn-sm btn-light mb-0"
+                                       data-bs-toggle="collapse"
+                                       th:href="'#collapseComment__' + ${review.reviewId}"
+                                       role="button"
+                                       aria-expanded="false"
+                                       th:attr="aria-controls='collapseComment__' + ${review.reviewId}">
+                                        Phản hồi
+                                    </a>
+                                </div>
                                 <a class="btn btn-sm btn-warning-soft mb-0"
-                                   th:if="${review != null and !review.isPublic}"
+                                   th:if="${review != null and !review.isPublic and review.canRestore}"
                                    th:href="@{'/admin-review/restore/' + ${review.reviewId}}">
                                     <i class="bi bi-arrow-clockwise me-1"></i>Khôi phục
                                 </a>
+                                <span class="text-muted small fst-italic" th:if="${review != null and !review.isPublic and !review.canRestore}">
+                                    Đã có đánh giá mới, không thể khôi phục
+                                </span>
                             </div>
                             <a href="#"
                                class="text-primary-hover"
@@ -385,7 +392,7 @@
                                 <!-- Previous -->
                                 <li th:if="${totalPages >= 2}" th:class="'page-item mb-0 hover-card' + (${page == 1} ? ' disabled' : '')">
                                     <a class="page-link"
-                                       th:href="@{'/admin-review'(page=${page - 1}, filter=${filter}, hotelName=${selectedHotelName})}">
+                                       th:href="@{'/admin-review'(page=${page - 1}, filter=${filter}, search=${search}, hotelName=${selectedHotelName})}">
                                         <i class="fa-solid fa-angle-left"></i>
                                     </a>
                                 </li>
@@ -393,13 +400,13 @@
                                 <!-- Page 1 -->
                                 <li th:if="${totalPages >= 1}" th:class="'page-item mb-0 hover-card' + (${page == 1} ? ' active disabled' : '')">
                                     <a class="page-link"
-                                       th:href="@{'/admin-review'(page=1, filter=${filter}, hotelName=${selectedHotelName})}">1</a>
+                                       th:href="@{'/admin-review'(page=1, filter=${filter}, search=${search}, hotelName=${selectedHotelName})}">1</a>
                                 </li>
 
                                 <!-- Page 2 -->
                                 <li th:if="${totalPages >= 2}" th:class="'page-item mb-0 hover-card' + (${page == 2} ? ' active disabled' : '')">
                                     <a class="page-link"
-                                       th:href="@{'/admin-review'(page=2, filter=${filter}, hotelName=${selectedHotelName})}">2</a>
+                                       th:href="@{'/admin-review'(page=2, filter=${filter}, search=${search}, hotelName=${selectedHotelName})}">2</a>
                                 </li>
 
                                 <!-- Left ellipsis -->
@@ -410,7 +417,7 @@
                                 <!-- Page -1 -->
                                 <li th:if="${totalPages >= 4 and page != 1 and page - 1 != 1 and page - 1 != 2}" class="page-item hover-card mb-0">
                                     <a class="page-link"
-                                       th:href="@{'/admin-review'(page=${page - 1}, filter=${filter}, hotelName=${selectedHotelName})}"
+                                       th:href="@{'/admin-review'(page=${page - 1}, filter=${filter}, search=${search}, hotelName=${selectedHotelName})}"
                                        th:text="${page - 1}"></a>
                                 </li>
 
@@ -422,7 +429,7 @@
                                 <!-- Page +1 -->
                                 <li th:if="${totalPages >= 4 and page + 1 != 2 and page + 1 != totalPages and page != totalPages}" class="page-item hover-card mb-0">
                                     <a class="page-link"
-                                       th:href="@{'/admin-review'(page=${page + 1}, filter=${filter}, hotelName=${selectedHotelName})}"
+                                       th:href="@{'/admin-review'(page=${page + 1}, filter=${filter}, search=${search}, hotelName=${selectedHotelName})}"
                                        th:text="${page + 1}"></a>
                                 </li>
 
@@ -434,14 +441,14 @@
                                 <!-- Last Page -->
                                 <li th:if="${totalPages >= 3}" th:class="'page-item mb-0 hover-card' + (${page == totalPages} ? ' active disabled' : '')">
                                     <a class="page-link"
-                                       th:href="@{'/admin-review'(page=${totalPages}, filter=${filter}, hotelName=${selectedHotelName})}"
+                                       th:href="@{'/admin-review'(page=${totalPages}, filter=${filter}, search=${search}, hotelName=${selectedHotelName})}"
                                        th:text="${totalPages}"></a>
                                 </li>
 
                                 <!-- Next -->
                                 <li th:if="${totalPages >= 2}" th:class="'page-item mb-0 hover-card' + (${page == totalPages} ? ' disabled' : '')">
                                     <a class="page-link"
-                                       th:href="@{'/admin-review'(page=${page + 1}, filter=${filter}, hotelName=${selectedHotelName})}">
+                                       th:href="@{'/admin-review'(page=${page + 1}, filter=${filter}, search=${search}, hotelName=${selectedHotelName})}">
                                         <i class="fa-solid fa-angle-right"></i>
                                     </a>
                                 </li>

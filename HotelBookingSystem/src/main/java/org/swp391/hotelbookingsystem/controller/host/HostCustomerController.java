@@ -46,29 +46,20 @@ public class HostCustomerController {
             List<Booking> allBookings = bookingService.getBookingsByHostId(host.getId());
             log.debug("Found {} bookings for host {}", allBookings.size(), host.getId());
 
-            // Calculate total price and status for each booking
+            // Calculate status and total price for each booking
             for (Booking booking : allBookings) {
                 if (booking.getBookingUnits() != null && !booking.getBookingUnits().isEmpty()) {
                     // Calculate booking status based on booking units
                     String status = bookingService.calculateBookingStatus(booking.getBookingUnits());
                     booking.setStatus(status);
+
+                    // Calculate total price correctly including number of days
+                    booking.calculateNumberOfNights();
+                    double calculatedPrice = booking.calculateTotalPrice();
+                    booking.setTotalPrice(calculatedPrice);
                     
-                    // Calculate total price - only count approved, completed, and check_in booking units for revenue
-                    double sum = booking.getBookingUnits().stream()
-                            .filter(u -> u.getPrice() != null && u.getPrice() > 0)
-                            .filter(u -> {
-                                String unitStatus = (u.getStatus() != null) ? u.getStatus().toLowerCase() : "";
-                                return "approved".equals(unitStatus) || "completed".equals(unitStatus) || "check_in".equals(unitStatus);
-                            })
-                            .mapToDouble(u -> {
-                                int qty = u.getQuantity() <= 0 ? 1 : u.getQuantity();
-                                return u.getPrice() * qty;
-                            })
-                            .sum();
-                    booking.setTotalPrice(sum);
-                    
-                    log.debug("Booking {} - price: {}, status: {}, units: {}", 
-                        booking.getBookingId(), sum, status, booking.getBookingUnits().size());
+                    log.debug("Booking {} - price: {}, status: {}, units: {}",
+                        booking.getBookingId(), calculatedPrice, status, booking.getBookingUnits().size());
                 } else {
                     booking.setTotalPrice(0.0);
                     booking.setStatus("unknown");
@@ -205,16 +196,22 @@ public class HostCustomerController {
                     if (!nonPendingUnits.isEmpty()) {
                         String status = bookingService.calculateBookingStatus(nonPendingUnits);
                         booking.setStatus(status);
-                        
-                        double sum = nonPendingUnits.stream()
-                                .filter(u -> u.getPrice() != null && u.getPrice() > 0)
-                                .filter(u -> {
+
+                        // Calculate total price correctly including number of days
+                        booking.calculateNumberOfNights();
+                        double calculatedPrice = booking.calculateTotalPrice();
+                        booking.setTotalPrice(calculatedPrice);
+
+                        // Check if booking has revenue-generating units
+                        boolean hasRevenueUnits = nonPendingUnits.stream()
+                                .anyMatch(u -> {
                                     String unitStatus = (u.getStatus() != null) ? u.getStatus().toLowerCase() : "";
                                     return "approved".equals(unitStatus) || "completed".equals(unitStatus) || "check_in".equals(unitStatus);
-                                })
-                                .mapToDouble(u -> u.getPrice() * (u.getQuantity() == 0 ? 1 : u.getQuantity()))
-                                .sum();
-                        booking.setTotalPrice(sum);
+                                });
+
+                        if (!hasRevenueUnits) {
+                            booking.setTotalPrice(0.0);
+                        }
                     } else {
                         // If no non-pending units, set booking as having no valid units
                         booking.setTotalPrice(0.0);

@@ -17,6 +17,7 @@ public class Review {
     private String comment;
     private boolean isPublic;
     private LocalDateTime createdAt;
+    private boolean canRestore;
 
     // for User
     private int userId;

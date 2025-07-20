@@ -15,10 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.swp391.hotelbookingsystem.model.Booking;
 import org.swp391.hotelbookingsystem.model.BookingUnit;
@@ -35,8 +32,10 @@ import org.swp391.hotelbookingsystem.service.RoomService;
 import org.swp391.hotelbookingsystem.service.UserService;
 
 import jakarta.servlet.http.HttpSession;
+import lombok.extern.slf4j.Slf4j;
 
 
+@Slf4j
 @Controller
 public class HostDashboardController {
 
@@ -110,14 +109,14 @@ public class HostDashboardController {
                     if (booking.getBookingUnits() == null || booking.getBookingUnits().isEmpty()) {
                         return false;
                     }
-                    
+
                     // Check if booking has at least one non-pending booking unit
                     boolean hasNonPendingUnit = booking.getBookingUnits().stream()
                             .anyMatch(unit -> {
                                 String unitStatus = (unit.getStatus() != null) ? unit.getStatus().toLowerCase() : "";
                                 return !"pending".equals(unitStatus);
                             });
-                    
+
                     if (hasNonPendingUnit) {
                         // Filter out pending booking units for this booking
                         List<BookingUnit> nonPendingUnits = booking.getBookingUnits().stream()
@@ -126,17 +125,20 @@ public class HostDashboardController {
                                     return !"pending".equals(unitStatus);
                                 })
                                 .collect(Collectors.toList());
-                        
+
                         // Set the filtered booking units
                         booking.setBookingUnits(nonPendingUnits);
-                        
+
                         // Calculate overall status based on non-pending units
                         String overallStatus = bookingService.calculateBookingStatus(nonPendingUnits);
                         booking.setStatus(overallStatus);
-                        
+
+                        // Calculate number of nights for correct pricing
+                        booking.calculateNumberOfNights();
+
                         return true;
                     }
-                    
+
                     return false; // Hide bookings with only pending units
                 })
                 .collect(Collectors.toList());
@@ -167,6 +169,10 @@ public class HostDashboardController {
                 return response;
             }
 
+            log.info("Fetched booking {} - totalPrice: {}, checkIn: {}, partialRefundDay: {}, partialRefundPercent: {}, noRefund: {}",
+                booking.getBookingId(), booking.getTotalPrice(), booking.getCheckIn(),
+                booking.getPartialRefundDay(), booking.getPartialRefundPercent(), booking.getNoRefund());
+
             // Check if booking belongs to host
             List<Hotel> hostHotels = hotelService.getHotelsByHostId(host.getId());
             boolean isHostHotel = hostHotels.stream().anyMatch(h -> h.getHotelId() == booking.getHotelId());
@@ -191,9 +197,20 @@ public class HostDashboardController {
             String res = restTemplate.postForObject(baseUrl + "/refund", request, String.class);
             
             if(res != null && res.equals("00")){
+                // Get original total price directly from database to ensure accuracy
+                Double originalTotalPriceFromDB = bookingService.getOriginalTotalPrice(booking.getBookingId());
+                double originalTotalPrice = originalTotalPriceFromDB != null ? originalTotalPriceFromDB : 0.0;
+
+                // Host-initiated rejection = 100% refund (ignore cancellation policy)
+                long refundAmount = booking.hostInitiatedRefundAmount(originalTotalPrice);
+
+                log.info("Host-initiated booking rejection for booking {}", booking.getBookingId());
+                log.info("  - Original total price from DB: {}", originalTotalPrice);
+                log.info("  - Full refund amount (100%): {}", refundAmount);
+
                 // Only reject approved booking units, leave others unchanged
                 int rejectedCount = bookingService.rejectApprovedBookingUnits(booking);
-                notificationService.rejectNotification(booking.getCustomerId(), String.valueOf(booking.getBookingId()), booking.refundAmount());
+                notificationService.rejectNotification(booking.getCustomerId(), String.valueOf(booking.getBookingId()), refundAmount);
 
                 response.put("success", true);
                 if (rejectedCount > 0) {
@@ -324,39 +341,80 @@ public class HostDashboardController {
         // Get recent bookings for earnings details
         List<Booking> recentBookings = bookingService.getBookingsByHostId(host.getId());
 
-        // Filter and process bookings for earnings (only approved, completed, check_in)
+        // Process all bookings for earnings display
         List<Booking> earningBookings = recentBookings.stream()
-                .filter(booking -> {
-                    if (booking.getBookingUnits() == null || booking.getBookingUnits().isEmpty()) {
-                        return false;
-                    }
-
-                    // Check if booking has any revenue-generating units
-                    boolean hasRevenueUnits = booking.getBookingUnits().stream()
-                            .anyMatch(unit -> {
-                                String unitStatus = (unit.getStatus() != null) ? unit.getStatus().toLowerCase() : "";
-                                return "approved".equals(unitStatus) || "completed".equals(unitStatus) || "check_in".equals(unitStatus);
-                            });
-
-                    return hasRevenueUnits;
-                })
+                .filter(booking -> booking.getBookingUnits() != null && !booking.getBookingUnits().isEmpty())
                 .peek(booking -> {
-                    // Calculate revenue for this booking
-                    double bookingRevenue = booking.getBookingUnits().stream()
-                            .filter(unit -> {
-                                String unitStatus = (unit.getStatus() != null) ? unit.getStatus().toLowerCase() : "";
-                                return "approved".equals(unitStatus) || "completed".equals(unitStatus) || "check_in".equals(unitStatus);
-                            })
-                            .mapToDouble(unit -> (unit.getPrice() != null ? unit.getPrice() : 0.0) * (unit.getQuantity() > 0 ? unit.getQuantity() : 1))
-                            .sum();
+                    // Calculate number of nights and determine status
+                    booking.calculateNumberOfNights();
 
-                    booking.setTotalPrice(bookingRevenue);
+                    // Use determineStatus() to get the overall booking status
+                    String overallStatus = booking.determineStatus();
+                    booking.setStatus(overallStatus);
+
+                    // Only calculate total price for bookings that are not cancelled or rejected
+                    if ("cancelled".equals(overallStatus) || "rejected".equals(overallStatus)) {
+                        booking.setTotalPrice(0.0);
+                        log.debug("Booking {} has status '{}' - setting total price to 0",
+                            booking.getBookingId(), overallStatus);
+                    } else {
+                        // Use calculateTotalPrice() method which properly calculates: price * quantity * numberOfNights
+                        double calculatedPrice = booking.calculateTotalPrice();
+                        booking.setTotalPrice(calculatedPrice);
+                        log.debug("Booking {} has status '{}' - calculated price: {}",
+                            booking.getBookingId(), overallStatus, calculatedPrice);
+                    }
                 })
                 .collect(Collectors.toList());
 
         model.addAttribute("earningBookings", earningBookings);
 
         return "host/host-earning";
+    }
+
+    @GetMapping("/api/host/test-refund/{bookingId}")
+    @ResponseBody
+    public Map<String, Object> testRefundCalculation(@PathVariable int bookingId, HttpSession session) {
+        Map<String, Object> result = new HashMap<>();
+
+        try {
+            // Get booking from database
+            Booking booking = bookingService.findById(bookingId);
+            if (booking == null) {
+                result.put("error", "Booking not found");
+                return result;
+            }
+
+            // Get original total price directly from database
+            Double originalTotalPriceFromDB = bookingService.getOriginalTotalPrice(bookingId);
+
+            // Calculate refund (customer-initiated vs host-initiated)
+            long customerRefund = booking.refundAmountWithOriginalPrice(originalTotalPriceFromDB);
+            long hostRefund = booking.hostInitiatedRefundAmount(originalTotalPriceFromDB);
+
+            // Get days until check-in
+            long daysUntilCheckIn = java.time.temporal.ChronoUnit.DAYS.between(
+                java.time.LocalDateTime.now().toLocalDate(),
+                booking.getCheckIn().toLocalDate()
+            );
+
+            result.put("bookingId", bookingId);
+            result.put("totalPriceFromObject", booking.getTotalPrice());
+            result.put("totalPriceFromDB", originalTotalPriceFromDB);
+            result.put("checkInDate", booking.getCheckIn().toString());
+            result.put("daysUntilCheckIn", daysUntilCheckIn);
+            result.put("partialRefundDay", booking.getPartialRefundDay());
+            result.put("partialRefundPercent", booking.getPartialRefundPercent());
+            result.put("noRefund", booking.getNoRefund());
+            result.put("customerInitiatedRefund", customerRefund);
+            result.put("hostInitiatedRefund", hostRefund);
+
+        } catch (Exception e) {
+            result.put("error", e.getMessage());
+            e.printStackTrace();
+        }
+
+        return result;
     }
 
     @GetMapping("/api/host/revenue-stats")
