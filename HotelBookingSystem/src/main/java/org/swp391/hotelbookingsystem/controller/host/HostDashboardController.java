@@ -198,7 +198,7 @@ public class HostDashboardController {
                 response.put("message", "Đã từ chối toàn bộ booking thành công");
             }else{
                 response.put("success", false);
-                response.put("message", "Đã xảy ra lỗi khi hoàn tiền");
+                response.put("message", "Hoàn tiền thất bại");
             }
         } catch (Exception e) {
             response.put("success", false);

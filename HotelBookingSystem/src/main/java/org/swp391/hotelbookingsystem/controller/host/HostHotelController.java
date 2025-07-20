@@ -61,11 +61,15 @@ public class HostHotelController {
 
     final
     UserService userService;
-    final NotificationService notificationService;
 
-    final CancellationPolicyService cancellationPolicyService;
+    final 
+    NotificationService notificationService;
 
-    final BookingService bookingService;
+    final 
+    CancellationPolicyService cancellationPolicyService;
+
+    final 
+    BookingService bookingService;
 
     public HostHotelController(LocationService locationService, AmenityService amenityService, CloudinaryService cloudinaryService, RoomService roomService, HotelService hotelService, UserService userService, CancellationPolicyService cancellationPolicyService, NotificationService notificationService, BookingService bookingService) {
         this.locationService = locationService;
@@ -549,7 +553,7 @@ public class HostHotelController {
                             notificationService.rejectNotification(booking.getCustomerId(), String.valueOf(booking.getBookingId()), booking.refundAmount());
                         }else{
                             response.put("success", false);
-                            response.put("message", "Đã xảy ra lỗi khi hoàn tiền");
+                            response.put("message", "Hoàn tiền thất bại");
                             return response;
                         }
                     }

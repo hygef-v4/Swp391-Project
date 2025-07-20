@@ -160,7 +160,7 @@ public class BookingHistoryController {
             notificationService.notifyRefundSuccess(user.getId(), String.valueOf(booking.getBookingId()), booking.refundAmount());
             redirectAttributes.addFlashAttribute("successMessage", "Hủy đặt phòng thành công");
         }else{
-            redirectAttributes.addFlashAttribute("errorMessage", "Đã xảy ra lỗi khi hoàn tiền");
+            redirectAttributes.addFlashAttribute("errorMessage", "Hoàn tiền thất bại");
         }
 
         return "redirect:/bookingHistory";

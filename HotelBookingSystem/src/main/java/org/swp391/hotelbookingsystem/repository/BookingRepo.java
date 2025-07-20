@@ -1034,7 +1034,7 @@ public class BookingRepo {
                 FROM Bookings b
                 WHERE b.hotel_id = ?
             )
-            AND status IN ('approved', 'check_in')
+            AND status IN ('approved')
         """;
         return jdbcTemplate.update(sql, hotelId);
     }
@@ -1044,7 +1044,7 @@ public class BookingRepo {
             SELECT COUNT(DISTINCT bu.booking_id)
             FROM BookingUnits bu
             WHERE bu.room_id = ?
-            AND bu.status IN ('approved', 'check_in')
+            AND bu.status IN ('approved')
         """;
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, roomId);
         return count != null ? count : 0;
