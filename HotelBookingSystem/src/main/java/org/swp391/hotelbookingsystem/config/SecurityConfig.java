@@ -102,7 +102,6 @@ public class SecurityConfig {
                 )
                 .rememberMe(r -> r
                         .rememberMeServices(customRememberMeServices)
-                        .tokenValiditySeconds(7 * 24 * 60 * 60)
                 )
                 .logout(logout -> logout.permitAll())
                 .exceptionHandling(ex -> ex

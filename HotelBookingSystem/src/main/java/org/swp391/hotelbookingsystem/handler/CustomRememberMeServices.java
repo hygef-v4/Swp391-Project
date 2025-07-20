@@ -20,7 +20,7 @@ public class CustomRememberMeServices extends PersistentTokenBasedRememberMeServ
     public void onLoginSuccess(HttpServletRequest request,
                                HttpServletResponse response,
                                Authentication successfulAuthentication) {
-        // Gọi hàm gốc — và vì bạn đã override, giờ nó là public
+
         super.onLoginSuccess(request, response, successfulAuthentication);
     }
 }

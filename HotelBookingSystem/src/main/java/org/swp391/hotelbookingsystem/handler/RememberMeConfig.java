@@ -27,7 +27,7 @@ public class RememberMeConfig {
             userDetailsService,
             tokenRepository()
         );
-        services.setAlwaysRemember(true);
+        services.setTokenValiditySeconds(7 * 24 * 60 * 60);
         return services;
     }
 }
