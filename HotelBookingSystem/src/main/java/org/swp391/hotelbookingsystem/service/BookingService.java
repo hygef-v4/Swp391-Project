@@ -194,6 +194,15 @@ public class BookingService {
         return bookingRepo.rejectAllActiveBookingsByRoomId(roomId);
     }
 
+    /**
+     * Get the original total price from the booking table for refund calculation
+     * @param bookingId The booking ID
+     * @return The original total price paid by customer
+     */
+    public Double getOriginalTotalPrice(int bookingId) {
+        return bookingRepo.getOriginalTotalPrice(bookingId);
+    }
+
     public double getMonthlyRevenueByHostId(int hostId) {
         return bookingRepo.getMonthlyRevenueByHostId(hostId);
     }

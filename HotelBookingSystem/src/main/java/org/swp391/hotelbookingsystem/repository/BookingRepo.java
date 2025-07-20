@@ -254,7 +254,7 @@ public class BookingRepo {
 				cp.no_refund_within_days
             FROM Bookings b
             JOIN Hotels h ON b.hotel_id = h.hotel_id
-            JOIN CancellationPolicies cp ON cp.hotel_id = h.hotel_id
+            LEFT JOIN CancellationPolicies cp ON cp.hotel_id = h.hotel_id
             WHERE booking_id = ?
         """;
 
@@ -274,9 +274,9 @@ public class BookingRepo {
                     .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
                     .hotelName(rs.getString("hotel_name"))
                     .imageUrl(rs.getString("hotel_image_url"))
-                    .partialRefundDay(rs.getInt("partial_refund_days"))
-                    .partialRefundPercent(rs.getInt("partial_refund_percent"))
-                    .noRefund(rs.getInt("no_refund_within_days"))
+                    .partialRefundDay(rs.getObject("partial_refund_days") != null ? rs.getInt("partial_refund_days") : 7)
+                    .partialRefundPercent(rs.getObject("partial_refund_percent") != null ? rs.getInt("partial_refund_percent") : 50)
+                    .noRefund(rs.getObject("no_refund_within_days") != null ? rs.getInt("no_refund_within_days") : 1)
                     .build();
             
             booking.setBookingUnits(findBookingUnitsByBookingId(bookingId));
@@ -1179,9 +1179,21 @@ public class BookingRepo {
         return updatedRows;
     }
 
+    /**
+     * Get the original total price from the booking table for refund calculation
+     * @param bookingId The booking ID
+     * @return The original total price paid by customer
+     */
+    public Double getOriginalTotalPrice(int bookingId) {
+        String sql = "SELECT total_price FROM Bookings WHERE booking_id = ?";
+        Double totalPrice = jdbcTemplate.queryForObject(sql, Double.class, bookingId);
+        System.out.println("Database query for booking " + bookingId + " returned total_price: " + totalPrice);
+        return totalPrice;
+    }
+
     public Double getMonthlyRevenueByHostId(int hostId) {
         String sql = """
-            SELECT SUM(bu.price * bu.quantity)
+            SELECT SUM(bu.price * bu.quantity * DATEDIFF(day, b.check_in, b.check_out))
             FROM BookingUnits bu
             JOIN Bookings b ON bu.booking_id = b.booking_id
             JOIN Hotels h ON b.hotel_id = h.hotel_id
@@ -1196,7 +1208,7 @@ public class BookingRepo {
 
     public Double getTotalRevenueByHostId(int hostId) {
         String sql = """
-            SELECT SUM(bu.price * bu.quantity)
+            SELECT SUM(bu.price * bu.quantity * DATEDIFF(day, b.check_in, b.check_out))
             FROM BookingUnits bu
             JOIN Bookings b ON bu.booking_id = b.booking_id
             JOIN Hotels h ON b.hotel_id = h.hotel_id
@@ -1245,7 +1257,7 @@ public class BookingRepo {
         }
 
         String sql = String.format("""
-            SELECT %s as category, SUM(bu.price * bu.quantity) as revenue
+            SELECT %s as category, SUM(bu.price * bu.quantity * DATEDIFF(day, b.check_in, b.check_out)) as revenue
             FROM Bookings b
             JOIN BookingUnits bu ON b.booking_id = bu.booking_id
             JOIN Hotels h ON b.hotel_id = h.hotel_id
@@ -1390,7 +1402,7 @@ public class BookingRepo {
             cp.no_refund_within_days
         FROM Bookings b
         JOIN Hotels h ON b.hotel_id = h.hotel_id
-        JOIN CancellationPolicies cp ON cp.hotel_id = h.hotel_id
+        LEFT JOIN CancellationPolicies cp ON cp.hotel_id = h.hotel_id
         WHERE b.customer_id = ?
     """);
 
@@ -1427,9 +1439,9 @@ public class BookingRepo {
                     .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
                     .hotelName(rs.getString("hotel_name"))
                     .imageUrl(rs.getString("hotel_image_url"))
-                    .partialRefundDay(rs.getInt("partial_refund_days"))
-                    .partialRefundPercent(rs.getInt("partial_refund_percent"))
-                    .noRefund(rs.getInt("no_refund_within_days"))
+                    .partialRefundDay(rs.getObject("partial_refund_days") != null ? rs.getInt("partial_refund_days") : 7)
+                    .partialRefundPercent(rs.getObject("partial_refund_percent") != null ? rs.getInt("partial_refund_percent") : 50)
+                    .noRefund(rs.getObject("no_refund_within_days") != null ? rs.getInt("no_refund_within_days") : 1)
                     .build();
 
             // Lấy booking units từ bookingId

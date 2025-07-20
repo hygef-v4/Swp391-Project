@@ -111,23 +111,24 @@ public class CustomerHostController {
                             
                             long totalBookings = hostValidBookings.size();
                             
-                            // Calculate total spent - only count approved, completed, and check_in booking units for revenue
+                            // Calculate total spent using calculated total prices (includes days multiplication)
                             double totalSpent = hostValidBookings.stream()
-                                    .mapToDouble(b -> {
+                                    .filter(b -> {
+                                        // Only count bookings with revenue-generating units
                                         if (b.getBookingUnits() == null || b.getBookingUnits().isEmpty()) {
-                                            return 0.0;
+                                            return false;
                                         }
-                                        
-                                        // Only count approved, completed, and check_in booking units
-                                        double sum = b.getBookingUnits().stream()
-                                                .filter(u -> u.getPrice() != null && u.getPrice() > 0)
-                                                .filter(u -> {
+
+                                        return b.getBookingUnits().stream()
+                                                .anyMatch(u -> {
                                                     String unitStatus = (u.getStatus() != null) ? u.getStatus().toLowerCase() : "";
                                                     return "approved".equals(unitStatus) || "completed".equals(unitStatus) || "check_in".equals(unitStatus);
-                                                })
-                                                .mapToDouble(u -> u.getPrice() * (u.getQuantity() == 0 ? 1 : u.getQuantity()))
-                                                .sum();
-                                        return sum;
+                                                });
+                                    })
+                                    .mapToDouble(b -> {
+                                        // Calculate total price correctly including number of days
+                                        b.calculateNumberOfNights();
+                                        return b.calculateTotalPrice();
                                     })
                                     .sum();
 

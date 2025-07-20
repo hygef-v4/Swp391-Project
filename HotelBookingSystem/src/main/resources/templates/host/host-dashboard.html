@@ -807,18 +807,26 @@
     };
 
 
+    // Function to calculate days between check-in and check-out
+    function calculateDays(checkInDate, checkOutDate) {
+        if (!checkInDate || !checkOutDate) return 0;
+        const checkIn = new Date(checkInDate);
+        const checkOut = new Date(checkOutDate);
+        const timeDiff = checkOut.getTime() - checkIn.getTime();
+        const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+        return daysDiff > 0 ? daysDiff : 0;
+    }
+
     // Group bookings and create hierarchical structure
     bookings.forEach(booking => {
         const units = booking.bookingUnits || [];
-        // Calculate total price correctly: sum of (unit price * quantity) for each unit
-        // Only count approved and completed booking units, exclude rejected and cancelled
-        const totalPriceRaw = units.reduce((sum, u) => {
-            const status = (u.status || '').toLowerCase();
-            if (status === 'approved' || status === 'completed' || status === 'check_in') {
-                return sum + ((u.price || 0) * (u.quantity || 1));
-            }
-            return sum;
-        }, 0);
+        // Calculate number of days for this booking
+        const numberOfDays = booking.numberOfNights || calculateDays(booking.checkIn, booking.checkOut);
+
+        // Use the calculated total price from backend (includes days multiplication)
+        // The backend calculateTotalPrice() method properly calculates: price * quantity * numberOfNights
+        const totalPriceRaw = booking.totalPrice || 0;
+        const bookingStatus = booking.status || 'unknown';
         const bookingItem = {
             id: `#BK${booking.bookingId}`,
             bookingId: booking.bookingId,
@@ -832,7 +840,10 @@
             checkIn: formatDate(booking.checkIn),
             checkOut: formatDate(booking.checkOut),
             checkInTime: new Date(booking.checkIn).getTime(), // numeric timestamp for sorting
-            totalAmount: totalPriceRaw > 0 ? formatCurrency(totalPriceRaw) : 'Đã hủy/ Từ chối',
+            numberOfDays: numberOfDays,
+            totalAmount: (totalPriceRaw > 0 && bookingStatus !== 'cancelled' && bookingStatus !== 'rejected')
+                        ? formatCurrency(totalPriceRaw)
+                        : 'Đã hủy/ Từ chối',
             totalPrice: totalPriceRaw, // numeric for sorting
             totalUnits: units.length,
             bookingStatus: booking.status || 'unknown',
@@ -847,7 +858,7 @@
                     statusClass: getStatusClass(unit.status),
                     quantity: unit.quantity || 1,
                     unitPrice: formatCurrency(unit.price || 0),
-                    totalUnitPrice: formatCurrency((unit.price || 0) * (unit.quantity || 1)),
+                    totalUnitPrice: formatCurrency((unit.price || 0) * (unit.quantity || 1) * numberOfDays),
                     isCountedInTotal: isCountedInTotal,
                     roomCapacity: unit.roomCapacity > 0 ? `${unit.roomCapacity} khách` : 'Chưa cập nhật',
                     roomAmenities: unit.roomAmenities || []
@@ -1452,6 +1463,7 @@
                             <div class="bg-light p-3 border-start border-primary border-3">
                                 <h6 class="mb-3 text-primary">
                                     <i class="bi bi-door-open me-2"></i>Chi Tiết Phòng Đặt
+                                    <span class="badge bg-primary ms-2">${booking.numberOfDays} ngày</span>
                                 </h6>
                                 <div class="row g-3">
                 `;
@@ -1475,7 +1487,7 @@
                                                 </p>
                                             </div>
                                             <div class="mb-2">
-                                                <small class="text-muted d-block">Giá 1 phòng: ${unit.unitPrice}</small>
+                                                <small class="text-muted d-block">Giá 1 phòng/ngày: ${unit.unitPrice}</small>
                                                 <small class="fw-bold ${unit.isCountedInTotal ? 'text-success' : 'text-muted'}">
                                                     Tổng tiền: ${unit.totalUnitPrice}
 
