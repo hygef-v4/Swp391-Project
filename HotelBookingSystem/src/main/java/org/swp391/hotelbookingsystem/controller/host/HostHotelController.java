@@ -523,20 +523,6 @@ public class HostHotelController {
                 return response;
             }
 
-            // 4. Check if the room has active booking units (approved)
-            try {
-                if (roomService.hasActiveBookingUnits(roomId)) {
-                    response.put("success", false);
-                    response.put("message", "Không thể vô hiệu hóa phòng này vì có khách đang đặt phòng.");
-                    return response;
-                }
-            } catch (Exception e) {
-                System.err.println("Error checking active bookings for roomId " + roomId + ": " + e.getMessage());
-                response.put("success", false);
-                response.put("message", "Lỗi khi kiểm tra booking đang hoạt động");
-                return response;
-            }
-
             // 5. Reject active bookings if force deactivate
             int rejectedBookings = 0;
             if (forceDeactivate) {
@@ -545,23 +531,27 @@ public class HostHotelController {
                     HttpHeaders headers = new HttpHeaders();
                     headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-                    Booking booking = bookingService.findBooking(roomId);
-                    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-                    params.add("id", String.valueOf(booking.getBookingId()));
-                    params.add("trantype", "02");
-                    params.add("amount", String.valueOf(booking.getTotalPrice().longValue()));
-                    params.add("refundRole", "Hotel Owner");
-                    params.add("orderInfo", "Hủy đặt phòng " + booking.getHotelName());
+                    List<Booking> bookings = bookingService.findActiveBookingsByRoomId(roomId);
+                    
+                    for(Booking booking : bookings){
+                        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+                        params.add("id", String.valueOf(booking.getBookingId()));
+                        params.add("trantype", "02");
+                        params.add("amount", String.valueOf(booking.getTotalPrice().longValue()));
+                        params.add("refundRole", "Hotel Owner");
+                        params.add("orderInfo", "Hủy đặt phòng " + booking.getHotelName());
 
-                    HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
-                    String res = restTemplate.postForObject(baseUrl + "/refund", request, String.class);
+                        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+                        String res = restTemplate.postForObject(baseUrl + "/refund", request, String.class);
 
-                    if(res != null && res.equals("00")){
-                        rejectedBookings = bookingService.rejectAllActiveBookingsByRoomId(roomId);
-                        notificationService.rejectNotification(booking.getCustomerId(), String.valueOf(booking.getBookingId()), booking.refundAmount());
-                    }else{
-                        response.put("success", false);
-                        response.put("message", "Đã xảy ra lỗi khi hoàn tiền");
+                        if(res != null && res.equals("00")){
+                            rejectedBookings = bookingService.rejectAllActiveBookingsByRoomId(roomId);
+                            notificationService.rejectNotification(booking.getCustomerId(), String.valueOf(booking.getBookingId()), booking.refundAmount());
+                        }else{
+                            response.put("success", false);
+                            response.put("message", "Đã xảy ra lỗi khi hoàn tiền");
+                            return response;
+                        }
                     }
                 } catch (Exception e) {
                     System.err.println("Error rejecting bookings for room " + roomId + ": " + e.getMessage());

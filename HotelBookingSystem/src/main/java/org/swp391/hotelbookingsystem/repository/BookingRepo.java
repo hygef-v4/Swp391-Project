@@ -1067,7 +1067,7 @@ public class BookingRepo {
             JOIN Users u ON b.customer_id = u.user_id
             JOIN BookingUnits bu ON b.booking_id = bu.booking_id
             WHERE bu.room_id = ?
-            AND bu.status IN ('approved', 'check_in')
+            AND bu.status IN ('approved')
             ORDER BY b.created_at DESC
         """;
 
@@ -1097,7 +1097,7 @@ public class BookingRepo {
             UPDATE BookingUnits
             SET status = 'rejected'
             WHERE room_id = ?
-            AND status IN ('approved', 'check_in')
+            AND status IN ('approved')
         """;
         return jdbcTemplate.update(sql, roomId);
     }
