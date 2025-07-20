@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.swp391.hotelbookingsystem.service.ReportService;
 import org.swp391.hotelbookingsystem.model.Report;
+import org.swp391.hotelbookingsystem.service.BankService;
+import org.swp391.hotelbookingsystem.model.Bank;
 
 @Service
 public class UserService {
@@ -22,12 +24,14 @@ public class UserService {
 
     private final ReportService reportService;
 
+    private final BankService bankService;
 
     @Autowired
-    public UserService(UserRepo userRepo, PasswordEncoder passwordEncoder, ReportService reportService) {
+    public UserService(UserRepo userRepo, PasswordEncoder passwordEncoder, ReportService reportService, BankService bankService) {
         this.userRepo = userRepo;
         this.passwordEncoder = passwordEncoder;
         this.reportService = reportService;
+        this.bankService = bankService;
     }
 
     public void updateUserRole(int userId, String newRole) {
@@ -134,7 +138,12 @@ public class UserService {
             user.getAvatarUrl().equals("/assets/images/avatar/avatar.jpg") ||
             user.getAvatarUrl().contains("avatar.jpg")) {
             missingFields.add("Ảnh đại diện");
-            System.out.println("Missing: Avatar");
+        }
+
+        // Payment information is required for hotel owners to receive payments
+        List<Bank> userBanks = bankService.getUserBanks(user.getId());
+        if (userBanks == null || userBanks.isEmpty()) {
+            missingFields.add("Thông tin thanh toán");
         }
 
         boolean isComplete = missingFields.isEmpty();
@@ -142,11 +151,17 @@ public class UserService {
             "Hồ sơ đã đầy đủ" :
             "Vui lòng hoàn thiện các thông tin sau: " + String.join(", ", missingFields);
 
-        System.out.println("Validation Result: " + (isComplete ? "COMPLETE" : "INCOMPLETE"));
-        System.out.println("Missing Fields: " + missingFields);
-        System.out.println("=== END DEBUG ===");
-
         return new ProfileValidationResult(isComplete, missingFields, message);
+    }
+
+    /**
+     * Check if user has payment information set up
+     * @param userId The user ID to check
+     * @return true if user has at least one bank account, false otherwise
+     */
+    public boolean hasPaymentInformation(int userId) {
+        List<Bank> userBanks = bankService.getUserBanks(userId);
+        return userBanks != null && !userBanks.isEmpty();
     }
 
     public void saveEmailOtpToken(String email, String otp) {
