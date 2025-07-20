@@ -296,6 +296,92 @@
         border: 1px solid rgba(255,255,255,0.2);
     }
   </style>
+  <style>
+    /* Responsive fix for dashboard statistic cards */
+    @media (max-width: 575.98px) {
+      .row.g-4.mb-4 > [class^="col-"] {
+        flex: 0 0 100%;
+        max-width: 100%;
+        margin-bottom: 1rem;
+      }
+      .card.card-body.border {
+        padding: 1rem 0.5rem;
+      }
+      .d-flex.align-items-center {
+        flex-direction: row;
+        align-items: flex-start !important;
+        flex-wrap: wrap;
+      }
+      .icon-xl {
+        font-size: 2rem !important;
+        min-width: 48px;
+        min-height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .ms-3 {
+        margin-left: 0.75rem !important;
+        min-width: 0;
+        flex: 1 1 0%;
+      }
+      .card .badge {
+        display: block;
+        margin-top: 0.5rem;
+        font-size: 0.85rem;
+        white-space: normal;
+        word-break: break-word;
+        padding: 0.3em 0.6em;
+        max-width: 100%;
+        overflow-wrap: break-word;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .card h3.mb-0 {
+        font-size: 1.5rem;
+        word-break: break-word;
+        white-space: normal;
+      }
+      .card h6.mb-0 {
+        font-size: 1rem;
+        word-break: break-word;
+        white-space: normal;
+      }
+    }
+    @media (max-width: 400px) {
+      .card .badge {
+        font-size: 0.75rem;
+        padding: 0.2em 0.4em;
+      }
+      .card h3.mb-0 {
+        font-size: 1.1rem;
+      }
+      .card h6.mb-0 {
+        font-size: 0.9rem;
+      }
+    }
+    /* Luôn cho phép badge và text xuống dòng, không tràn card */
+    .card .badge, .card h6, .card h3 {
+      white-space: normal !important;
+      word-break: break-word !important;
+      overflow-wrap: break-word !important;
+    }
+    .card .badge {
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: inline-block;
+    }
+  </style>
+  <style>
+    /* Override triệt để: badge-role luôn nằm trên một dòng, không bị ảnh hưởng bởi bất kỳ class nào khác */
+    .badge-role, .badge-role.badge, .badge-role.text-wrap, .badge-role.text-nowrap {
+      white-space: nowrap !important;
+      display: inline-block !important;
+      word-break: normal !important;
+      overflow-wrap: normal !important;
+    }
+  </style>
 </head>
 
 <body>
@@ -435,10 +521,10 @@
                     </td>
                     <td th:text="*{email}">user@email.com</td>
                     <td>
-                      <span class="badge bg-success" th:if="*{role == 'CUSTOMER'}">KHÁCH HÀNG</span>
-                      <span class="badge bg-info" th:if="*{role == 'HOTEL_OWNER'}">CHỦ KHÁCH SẠN</span>
-                      <span class="badge bg-warning" th:if="*{role == 'MODERATOR'}">QUẢN LÝ</span>
-                      <span class="badge bg-primary" th:if="*{role != 'CUSTOMER' and role != 'HOTEL_OWNER' and role != 'MODERATOR'}">ADMIN</span>
+                      <span class="badge bg-success badge-role" th:if="*{role == 'CUSTOMER'}">KHÁCH HÀNG</span>
+                      <span class="badge bg-info badge-role" th:if="*{role == 'HOTEL_OWNER'}">CHỦ KHÁCH SẠN</span>
+                      <span class="badge bg-warning badge-role" th:if="*{role == 'MODERATOR'}">QUẢN LÝ</span>
+                      <span class="badge bg-primary badge-role" th:if="*{role != 'CUSTOMER' and role != 'HOTEL_OWNER' and role != 'MODERATOR'}">ADMIN</span>
                     </td>
                     <td>
                       <span class="badge bg-danger">Bị flagged</span>
