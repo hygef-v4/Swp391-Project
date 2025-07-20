@@ -449,7 +449,11 @@ Page content START -->
                                         <li class="list-group-item d-flex justify-content-between align-items-center">
                                             <span class="h6 fw-light mb-0">Tổng tiền</span>
                                             <span class="fs-5"><span id="totalPrice">0</span>₫</span>
-                                        </li>                                    
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span class="h6 fw-light mb-0">Lưu trú</span>
+                                            <span class="fs-5"><span id="totalNight" th:text="${night}"></span></span>
+                                        </li>
                                         <li class="list-group-item d-flex justify-content-between align-items-center">
                                             <span class="h6 fw-light mb-0">Ưu đãi</span>
                                             <span class="fs-5 text-success">-<span id="totalDiscount">0</span>₫</span>
@@ -591,18 +595,20 @@ Footer END -->
 
 <script>
     // Khai báo trước ở phạm vi global
-    let total, discount, paid;
-    let totalPrice, totalDiscount, paidPrice;
+    let total, discount, night, paid;
+    let totalPrice, totalDiscount, totalNight, paidPrice;
     let paidInput, payButton;
 
     // Khi DOM load xong thì gán giá trị
     window.addEventListener("DOMContentLoaded", function () {
         totalPrice = document.getElementById('totalPrice');
         totalDiscount = document.getElementById('totalDiscount');
+        totalNight = document.getElementById('totalNight');
         paidPrice = document.getElementById('paidPrice');
 
         total = parseInt(totalPrice.textContent.replace(/[^\d]/g, "")) || 0;
         discount = parseInt(totalDiscount.textContent.replace(/[^\d]/g, "")) || 0;
+        night = parseInt(totalNight.textContent);
         paid = parseInt(paidPrice.textContent.replace(/[^\d]/g, "")) || 0;
 
         paidInput = document.getElementById('paidInput');
@@ -651,7 +657,7 @@ Footer END -->
     function updatePaid(t, d){
         total = t;
         discount = d;
-        paid = total - discount;
+        paid = (total * night) - discount;
 
         // Cập nhật giá trị hiển thị
         totalPrice.textContent = total.toLocaleString();

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -75,11 +76,13 @@ public class PaymentController {
         double price = 0;
         for(BookingUnit bookingUnit : booking.getBookingUnits()) {
             price += bookingUnit.getPrice() * bookingUnit.getQuantity();
-        }double discount = price - booking.getTotalPrice();
+        }long night = ChronoUnit.DAYS.between(booking.getCheckIn().toLocalDate(), booking.getCheckOut().toLocalDate()) + 1;
+        double discount = price - booking.getTotalPrice();
 
         model.addAttribute("id", id);
         model.addAttribute("booking", booking);
         model.addAttribute("price", price);
+        model.addAttribute("night", night);
         model.addAttribute("discount", discount);
 
         int remainTime = (60 * 15) - bookingService.remainPendingTime(id);
