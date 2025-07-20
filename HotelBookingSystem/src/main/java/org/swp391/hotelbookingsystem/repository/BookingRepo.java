@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import org.swp391.hotelbookingsystem.model.Booking;
 import org.swp391.hotelbookingsystem.model.BookingUnit;
 
@@ -980,6 +981,36 @@ public class BookingRepo {
         return count != null ? count : 0;
     }
 
+    public int countApprovedBookingsByHotelId(int hotelId) {
+        String sql = """
+            SELECT COUNT(DISTINCT b.booking_id)
+            FROM Bookings b
+            WHERE b.hotel_id = ?
+            AND EXISTS (
+                SELECT 1 FROM BookingUnits bu
+                WHERE bu.booking_id = b.booking_id
+                AND bu.status = 'approved'
+            )
+        """;
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, hotelId);
+        return count != null ? count : 0;
+    }
+
+    public int countCheckedInBookingsByHotelId(int hotelId) {
+        String sql = """
+            SELECT COUNT(DISTINCT b.booking_id)
+            FROM Bookings b
+            WHERE b.hotel_id = ?
+            AND EXISTS (
+                SELECT 1 FROM BookingUnits bu
+                WHERE bu.booking_id = b.booking_id
+                AND bu.status = 'check_in'
+            )
+        """;
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, hotelId);
+        return count != null ? count : 0;
+    }
+
     public List<Booking> findActiveBookingsByHotelId(int hotelId) {
         String sql = """
             SELECT DISTINCT
@@ -999,9 +1030,8 @@ public class BookingRepo {
             AND EXISTS (
                 SELECT 1 FROM BookingUnits bu
                 WHERE bu.booking_id = b.booking_id
-                AND bu.status IN ('approved', 'check_in')
+                AND bu.status = 'approved'
             )
-            ORDER BY b.created_at DESC
         """;
 
         return jdbcTemplate.query(sql, ps -> ps.setInt(1, hotelId), (rs, rowNum) -> {
@@ -1034,7 +1064,7 @@ public class BookingRepo {
                 FROM Bookings b
                 WHERE b.hotel_id = ?
             )
-            AND status IN ('approved')
+            AND status = 'approved'
         """;
         return jdbcTemplate.update(sql, hotelId);
     }
@@ -1044,7 +1074,47 @@ public class BookingRepo {
             SELECT COUNT(DISTINCT bu.booking_id)
             FROM BookingUnits bu
             WHERE bu.room_id = ?
-            AND bu.status IN ('approved')
+            AND bu.status = 'approved'
+        """;
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, roomId);
+        return count != null ? count : 0;
+    }
+
+    public int countApprovedBookingsByRoomId(int roomId) {
+        String sql = """
+            SELECT COUNT(DISTINCT bu.booking_id)
+            FROM BookingUnits bu
+            WHERE bu.room_id = ?
+            AND bu.status = 'approved'
+        """;
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, roomId);
+        return count != null ? count : 0;
+    }
+
+    /**
+     * Count all approved booking units in bookings that contain the specified room
+     */
+    public int countAllApprovedBookingUnitsInAffectedBookings(int roomId) {
+        String sql = """
+            SELECT COUNT(*)
+            FROM BookingUnits
+            WHERE booking_id IN (
+                SELECT DISTINCT booking_id
+                FROM BookingUnits
+                WHERE room_id = ? AND status = 'approved'
+            )
+            AND status = 'approved'
+        """;
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, roomId);
+        return count != null ? count : 0;
+    }
+
+    public int countCheckedInBookingsByRoomId(int roomId) {
+        String sql = """
+            SELECT COUNT(DISTINCT bu.booking_id)
+            FROM BookingUnits bu
+            WHERE bu.room_id = ?
+            AND bu.status = 'check_in'
         """;
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, roomId);
         return count != null ? count : 0;
@@ -1067,8 +1137,7 @@ public class BookingRepo {
             JOIN Users u ON b.customer_id = u.user_id
             JOIN BookingUnits bu ON b.booking_id = bu.booking_id
             WHERE bu.room_id = ?
-            AND bu.status IN ('approved')
-            ORDER BY b.created_at DESC
+            AND bu.status = 'approved'
         """;
 
         return jdbcTemplate.query(sql, ps -> ps.setInt(1, roomId), (rs, rowNum) -> {
@@ -1093,13 +1162,21 @@ public class BookingRepo {
     }
 
     public int rejectAllActiveBookingsByRoomId(int roomId) {
+        // Reject ALL approved booking units in bookings that contain the deactivated room
         String sql = """
             UPDATE BookingUnits
             SET status = 'rejected'
-            WHERE room_id = ?
-            AND status IN ('approved')
+            WHERE booking_id IN (
+                SELECT DISTINCT booking_id
+                FROM BookingUnits
+                WHERE room_id = ? AND status = 'approved'
+            )
+            AND status = 'approved'
         """;
-        return jdbcTemplate.update(sql, roomId);
+
+        int updatedRows = jdbcTemplate.update(sql, roomId);
+
+        return updatedRows;
     }
 
     public Double getMonthlyRevenueByHostId(int hostId) {

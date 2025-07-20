@@ -66,16 +66,17 @@ public class HotelDeactivateController {
             return "redirect:/host-listing";
         }
 
-        // Check for active bookings
-        int activeBookingsCount = bookingService.countActiveBookingsByHotelId(hotelId);
-        if (activeBookingsCount > 0) {
+        // Check for approved bookings (will be cancelled during deactivation)
+        int approvedBookingsCount = bookingService.countApprovedBookingsByHotelId(hotelId);
+        if (approvedBookingsCount > 0) {
             redirectAttributes.addFlashAttribute("hasActiveBookings", true);
-            redirectAttributes.addFlashAttribute("activeBookingsCount", activeBookingsCount);
+            redirectAttributes.addFlashAttribute("activeBookingsCount", approvedBookingsCount);
             redirectAttributes.addFlashAttribute("hotelIdWithBookings", hotelId);
             redirectAttributes.addFlashAttribute("hotelNameWithBookings", hotel.getHotelName());
             redirectAttributes.addFlashAttribute("warning",
-                "Khách sạn này hiện có " + activeBookingsCount + " đặt phòng đang hoạt động (đã được duyệt hoặc đang check-in). " +
-                "Nếu tiếp tục vô hiệu hóa, tất cả các đặt phòng này sẽ bị hủy và bạn sẽ phải hoàn tiền toàn bộ cho khách hàng.");
+                "Khách sạn này hiện có " + approvedBookingsCount + " đặt phòng đã được duyệt. " +
+                "Nếu tiếp tục vô hiệu hóa, các đặt phòng đã duyệt sẽ bị hủy và bạn sẽ phải hoàn tiền cho khách hàng. " +
+                "Khách đã check-in sẽ không bị ảnh hưởng.");
             return "redirect:/host-listing";
         }
 
@@ -124,15 +125,15 @@ public class HotelDeactivateController {
 
             hotelService.insertHotelDeletionToken(user.getId(), token, expiry, tokenType);
 
-            // Get active bookings count for email
-            int activeBookingsCount = bookingService.countActiveBookingsByHotelId(hotelId);
+            // Get approved bookings count for email
+            int approvedBookingsCount = bookingService.countApprovedBookingsByHotelId(hotelId);
 
-            // Send email with warning about active bookings
-            emailService.sendHotelForceDeactivateConfirmationEmail(user.getEmail(), hotel.getHotelName(), otp, activeBookingsCount);
+            // Send email with warning about approved bookings
+            emailService.sendHotelForceDeactivateConfirmationEmail(user.getEmail(), hotel.getHotelName(), otp, approvedBookingsCount);
 
             redirectAttributes.addFlashAttribute("showOtpModalForHotelId", hotelId);
             redirectAttributes.addFlashAttribute("isForceDeactivate", true);
-            redirectAttributes.addFlashAttribute("activeBookingsCount", activeBookingsCount);
+            redirectAttributes.addFlashAttribute("activeBookingsCount", approvedBookingsCount);
             redirectAttributes.addFlashAttribute("message", "Mã xác nhận đã được gửi tới email của bạn. Vui lòng nhập mã OTP để hoàn tất vô hiệu hóa khách sạn.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Đã xảy ra lỗi khi yêu cầu vô hiệu hóa khách sạn: " + e.getMessage());
@@ -211,6 +212,7 @@ public class HotelDeactivateController {
                     redirectAttributes.addFlashAttribute("message", message);
                 }else{
                     redirectAttributes.addFlashAttribute("error", "Hoàn tiền thất bại");
+                    return "redirect:/host-listing";
                 }
             }
         } catch (EmptyResultDataAccessException e) {

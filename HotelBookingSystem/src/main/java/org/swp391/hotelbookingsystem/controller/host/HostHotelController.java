@@ -493,16 +493,18 @@ public class HostHotelController {
                 return response;
             }
 
-            // 3. Check for active bookings if not force deactivate
+            // 3. Check for approved bookings if not force deactivate
             if (!forceDeactivate) {
-                int activeBookingsCount = bookingService.countActiveBookingsByRoomId(roomId);
-                if (activeBookingsCount > 0) {
+                int totalApprovedUnitsToReject = bookingService.countAllApprovedBookingUnitsInAffectedBookings(roomId);
+                if (totalApprovedUnitsToReject > 0) {
                     response.put("success", false);
                     response.put("hasActiveBookings", true);
-                    response.put("activeBookingsCount", activeBookingsCount);
+                    response.put("activeBookingsCount", totalApprovedUnitsToReject);
                     response.put("roomId", roomId);
-                    response.put("message", "Phòng này hiện có " + activeBookingsCount + " đặt phòng đang hoạt động (đã được duyệt hoặc đang check-in). " +
-                            "Nếu tiếp tục vô hiệu hóa, tất cả các đặt phòng này sẽ bị hủy và bạn sẽ phải hoàn tiền toàn bộ cho khách hàng.");
+                    response.put("message", "Vô hiệu hóa phòng này sẽ ảnh hưởng đến " + totalApprovedUnitsToReject + " phòng đã được duyệt " +
+                            "(bao gồm tất cả phòng trong các booking có chứa phòng này). " +
+                            "Nếu tiếp tục vô hiệu hóa, tất cả các phòng đã duyệt trong các booking bị ảnh hưởng sẽ bị hủy " +
+                            "và bạn sẽ phải hoàn tiền cho khách hàng. Khách đã check-in sẽ không bị ảnh hưởng.");
                     return response;
                 }
             }
@@ -527,42 +529,40 @@ public class HostHotelController {
                 return response;
             }
 
-            // 5. Reject active bookings if force deactivate
+            // 5. Always reject approved bookings when deactivating
             int rejectedBookings = 0;
-            if (forceDeactivate) {
-                try {
-                    RestTemplate restTemplate = new RestTemplate();
-                    HttpHeaders headers = new HttpHeaders();
-                    headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+            try {
+                RestTemplate restTemplate = new RestTemplate();
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-                    List<Booking> bookings = bookingService.findActiveBookingsByRoomId(roomId);
-                    
-                    for(Booking booking : bookings){
-                        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-                        params.add("id", String.valueOf(booking.getBookingId()));
-                        params.add("trantype", "02");
-                        params.add("amount", String.valueOf(booking.getTotalPrice().longValue()));
-                        params.add("refundRole", "Hotel Owner");
-                        params.add("orderInfo", "Hủy đặt phòng " + booking.getHotelName());
+                List<Booking> bookings = bookingService.findActiveBookingsByRoomId(roomId);
+                
+                for(Booking booking : bookings){
+                    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+                    params.add("id", String.valueOf(booking.getBookingId()));
+                    params.add("trantype", "02");
+                    params.add("amount", String.valueOf(booking.getTotalPrice().longValue()));
+                    params.add("refundRole", "Hotel Owner");
+                    params.add("orderInfo", "Hủy đặt phòng " + booking.getHotelName());
 
-                        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
-                        String res = restTemplate.postForObject(baseUrl + "/refund", request, String.class);
+                    HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+                    String res = restTemplate.postForObject(baseUrl + "/refund", request, String.class);
 
-                        if(res != null && res.equals("00")){
-                            rejectedBookings = bookingService.rejectAllActiveBookingsByRoomId(roomId);
-                            notificationService.rejectNotification(booking.getCustomerId(), String.valueOf(booking.getBookingId()), booking.refundAmount());
-                        }else{
-                            response.put("success", false);
-                            response.put("message", "Hoàn tiền thất bại");
-                            return response;
-                        }
+                    if(res != null && res.equals("00")){
+                        rejectedBookings = bookingService.rejectAllActiveBookingsByRoomId(roomId);
+                        notificationService.rejectNotification(booking.getCustomerId(), String.valueOf(booking.getBookingId()), booking.refundAmount());
+                    }else{
+                        response.put("success", false);
+                        response.put("message", "Hoàn tiền thất bại");
+                        return response;
                     }
-                } catch (Exception e) {
-                    System.err.println("Error rejecting bookings for room " + roomId + ": " + e.getMessage());
-                    response.put("success", false);
-                    response.put("message", "Lỗi khi hủy đặt phòng: " + e.getMessage());
-                    return response;
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
+                response.put("success", false);
+                response.put("message", "Lỗi khi hủy đặt phòng: " + e.getMessage());
+                return response;
             }
 
             // 6. Deactivate the room
@@ -579,7 +579,7 @@ public class HostHotelController {
             // 7. Success response
             String message = "Vô hiệu hóa phòng thành công";
             if (rejectedBookings > 0) {
-                message += ". Đã hủy " + rejectedBookings + " đặt phòng đang hoạt động. Vui lòng liên hệ với khách hàng để hoàn tiền.";
+                message += ". Đã hủy " + rejectedBookings + " phòng thành công.";
             }
             response.put("success", true);
             response.put("message", message);

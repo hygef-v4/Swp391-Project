@@ -191,11 +191,21 @@ public class HostDashboardController {
             String res = restTemplate.postForObject(baseUrl + "/refund", request, String.class);
             
             if(res != null && res.equals("00")){
-                bookingService.updateBookingStatus(booking, "rejected");
+                // Only reject approved booking units, leave others unchanged
+                int rejectedCount = bookingService.rejectApprovedBookingUnits(booking);
                 notificationService.rejectNotification(booking.getCustomerId(), String.valueOf(booking.getBookingId()), booking.refundAmount());
 
                 response.put("success", true);
-                response.put("message", "Đã từ chối toàn bộ booking thành công");
+                if (rejectedCount > 0) {
+                    response.put("message", "Đã từ chối " + rejectedCount + " phòng đã được duyệt. " +
+                            "Vui lòng liên hệ khách hàng để hoàn tiền. " +
+                            "Các phòng đã check-in không bị ảnh hưởng.");
+                    response.put("needsRefund", true);
+                    response.put("rejectedCount", rejectedCount);
+                } else {
+                    response.put("message", "Không có phòng nào cần từ chối (chỉ từ chối được phòng đã duyệt).");
+                    response.put("needsRefund", false);
+                }
             }else{
                 response.put("success", false);
                 response.put("message", "Hoàn tiền thất bại");

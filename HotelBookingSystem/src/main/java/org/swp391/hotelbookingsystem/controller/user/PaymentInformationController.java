@@ -15,13 +15,17 @@ import org.swp391.hotelbookingsystem.service.BankService;
 
 import jakarta.servlet.http.HttpSession;
 
+import jakarta.servlet.http.HttpSession;
+
 @Controller
 public class PaymentInformationController {
     @Autowired
     private BankService bankService;
 
     @GetMapping("/payment-information")
-    public String paymentInformation(Model model, HttpSession session){
+    public String paymentInformation(Model model, HttpSession session,
+                                   @RequestParam(required = false) String incomplete,
+                                   @RequestParam(required = false) String reason){
         List<Bank> banks = bankService.getAllBank();
         model.addAttribute("banks", banks);
 
@@ -32,6 +36,16 @@ public class PaymentInformationController {
 
         user.setBanks(bankService.getUserBanks(user.getId()));
         model.addAttribute("user", user);
+
+        // Handle redirect from hotel registration
+        if ("true".equals(incomplete) && "hotel_registration".equals(reason)) {
+            System.out.println("=== PAYMENT PAGE REDIRECT ===");
+            System.out.println("Incomplete: " + incomplete);
+            System.out.println("Reason: " + reason);
+            System.out.println("Setting hotelRegistrationRedirect = true");
+            model.addAttribute("hotelRegistrationRedirect", true);
+            model.addAttribute("redirectMessage", "Vui lòng thêm thông tin thanh toán để tiếp tục đăng ký khách sạn.");
+        }
 
         return "page/paymentInformation.html";
     }
@@ -54,6 +68,15 @@ public class PaymentInformationController {
             redirectAttributes.addFlashAttribute("errorMessage", "Tài khoản này đã được lưu trước đó.");
         }else{
             redirectAttributes.addFlashAttribute("successMessage", "Lưu tài khoản thành công.");
+
+            // Check if user was redirected from hotel registration
+            String returnTo = (String) session.getAttribute("returnToAfterProfileUpdate");
+            if ("hotel_registration".equals(returnTo)) {
+                session.removeAttribute("returnToAfterProfileUpdate");
+                session.setAttribute("profileJustUpdated", "true");
+                redirectAttributes.addFlashAttribute("success", "Thông tin thanh toán đã được thêm! Bạn có thể tiếp tục đăng ký khách sạn.");
+                return "redirect:/register-host?from=payment";
+            }
         }
 
         return "redirect:/payment-information";

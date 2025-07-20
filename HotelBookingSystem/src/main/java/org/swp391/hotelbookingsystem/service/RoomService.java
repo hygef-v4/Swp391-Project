@@ -113,6 +113,10 @@ public class RoomService {
         return roomRepository.hasActiveBookingUnits(roomId);
     }
 
+    public boolean hasCheckedInBookingUnits(int roomId) {
+        return roomRepository.hasCheckedInBookingUnits(roomId);
+    }
+
     public void updateRoomStatus(int roomId, String status) {
         Room room = roomRepository.getRoomById(roomId);
         if (room != null) {
