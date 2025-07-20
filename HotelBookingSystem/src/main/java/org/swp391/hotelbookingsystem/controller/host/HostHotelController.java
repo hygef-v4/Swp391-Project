@@ -550,14 +550,13 @@ public class HostHotelController {
                     String res = restTemplate.postForObject(baseUrl + "/refund", request, String.class);
 
                     if(res != null && res.equals("00")){
-                        rejectedBookings = bookingService.rejectAllActiveBookingsByRoomId(roomId);
                         notificationService.rejectNotification(booking.getCustomerId(), String.valueOf(booking.getBookingId()), booking.refundAmount());
                     }else{
                         response.put("success", false);
                         response.put("message", "Hoàn tiền thất bại");
                         return response;
                     }
-                }
+                }rejectedBookings = bookingService.rejectAllActiveBookingsByRoomId(roomId);
             } catch (Exception e) {
                 e.printStackTrace();
                 response.put("success", false);

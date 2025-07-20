@@ -203,7 +203,7 @@ public class HostDashboardController {
                     response.put("needsRefund", true);
                     response.put("rejectedCount", rejectedCount);
                 } else {
-                    response.put("message", "Không có phòng nào cần từ chối (chỉ từ chối được phòng đã duyệt).");
+                    response.put("message", "Không có phòng nào cần từ chối.");
                     response.put("needsRefund", false);
                 }
             }else{

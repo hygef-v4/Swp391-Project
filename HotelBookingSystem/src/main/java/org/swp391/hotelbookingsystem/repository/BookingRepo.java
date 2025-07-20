@@ -247,12 +247,14 @@ public class BookingRepo {
                 b.order_code,
                 b.transaction_no,
                 b.created_at,
+                u.full_name AS customer_name,
                 h.hotel_name,
                 h.hotel_image_url,
 				cp.partial_refund_days,
 				cp.partial_refund_percent,
 				cp.no_refund_within_days
             FROM Bookings b
+            JOIN Users u ON b.customer_id = u.user_id
             JOIN Hotels h ON b.hotel_id = h.hotel_id
             JOIN CancellationPolicies cp ON cp.hotel_id = h.hotel_id
             WHERE booking_id = ?
@@ -271,6 +273,7 @@ public class BookingRepo {
                     .totalPrice(rs.getDouble("total_price"))
                     .orderCode(rs.getString("order_code"))
                     .transactionNo(rs.getString("transaction_no"))
+                    .customerName(rs.getString("customer_name"))
                     .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
                     .hotelName(rs.getString("hotel_name"))
                     .imageUrl(rs.getString("hotel_image_url"))
