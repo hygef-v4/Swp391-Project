@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.swp391.hotelbookingsystem.model.Amenity;
 import org.swp391.hotelbookingsystem.model.CancellationPolicy;
 import org.swp391.hotelbookingsystem.model.Hotel;
+import org.swp391.hotelbookingsystem.model.Review;
 import org.swp391.hotelbookingsystem.model.Room;
 import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.service.AmenityService;
@@ -27,6 +28,7 @@ import org.swp391.hotelbookingsystem.service.CloudinaryService;
 import org.swp391.hotelbookingsystem.service.HotelService;
 import org.swp391.hotelbookingsystem.service.LocationService;
 import org.swp391.hotelbookingsystem.service.NotificationService;
+import org.swp391.hotelbookingsystem.service.ReviewService;
 import org.swp391.hotelbookingsystem.service.RoomService;
 import org.swp391.hotelbookingsystem.service.UserService;
 
@@ -42,10 +44,12 @@ public class HostRegisterController {
     final UserService userService;
     final CancellationPolicyService cancellationPolicyService;
     final NotificationService notificationService;
+    final ReviewService reviewService;
 
-    public HostRegisterController(LocationService locationService, AmenityService amenityService, 
-            CloudinaryService cloudinaryService, RoomService roomService, HotelService hotelService, 
-            UserService userService, CancellationPolicyService cancellationPolicyService, NotificationService notificationService) {
+    public HostRegisterController(LocationService locationService, AmenityService amenityService,
+            CloudinaryService cloudinaryService, RoomService roomService, HotelService hotelService,
+            UserService userService, CancellationPolicyService cancellationPolicyService, NotificationService notificationService,
+            ReviewService reviewService) {
         this.locationService = locationService;
         this.amenityService = amenityService;
         this.cloudinaryService = cloudinaryService;
@@ -54,10 +58,15 @@ public class HostRegisterController {
         this.userService = userService;
         this.cancellationPolicyService = cancellationPolicyService;
         this.notificationService = notificationService;
+        this.reviewService = reviewService;
     }
 
     @GetMapping("/host-intro")
-    public String showHostIntroPage() {
+    public String showHostIntroPage(Model model) {
+        // Fetch top 5 public positive reviews and add to model (same as homepage)
+        List<Review> top5Reviews = reviewService.getTop5PublicPositiveReviews();
+        model.addAttribute("top5Reviews", top5Reviews);
+
         return "page/host-intro";
     }
 
