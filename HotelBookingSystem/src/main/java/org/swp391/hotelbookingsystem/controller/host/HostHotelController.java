@@ -550,8 +550,15 @@ public class HostHotelController {
                     String res = restTemplate.postForObject(baseUrl + "/refund", request, String.class);
 
                     if(res != null && res.equals("00")){
+                        // Get original total price directly from database to ensure accuracy
+                        Double originalTotalPriceFromDB = bookingService.getOriginalTotalPrice(booking.getBookingId());
+                        double originalTotalPrice = originalTotalPriceFromDB != null ? originalTotalPriceFromDB : 0.0;
+
+                        // Room deactivation = 100% refund (ignore cancellation policy)
+                        long refundAmount = booking.hostInitiatedRefundAmount(originalTotalPrice);
+
                         rejectedBookings = bookingService.rejectAllActiveBookingsByRoomId(roomId);
-                        notificationService.rejectNotification(booking.getCustomerId(), String.valueOf(booking.getBookingId()), booking.refundAmount());
+                        notificationService.rejectNotification(booking.getCustomerId(), String.valueOf(booking.getBookingId()), refundAmount);
                     }else{
                         response.put("success", false);
                         response.put("message", "Hoàn tiền thất bại");

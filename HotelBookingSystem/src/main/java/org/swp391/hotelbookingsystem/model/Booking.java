@@ -109,4 +109,35 @@ public class Booking {
         if(day <= partialRefundDay) return (long)(totalPrice.longValue() * ((float)partialRefundPercent / 100));
         return totalPrice.longValue();
     }
+
+    /**
+     * Calculate refund amount using a specific total price (useful when totalPrice has been modified)
+     * @param originalTotalPrice The original total price paid by customer
+     * @return Refund amount based on cancellation policy
+     */
+    public long refundAmountWithOriginalPrice(double originalTotalPrice){
+        long day = ChronoUnit.DAYS.between(LocalDateTime.now().toLocalDate(), checkIn.toLocalDate());
+
+        if(day <= noRefund) {
+            return 0;
+        }
+        if(day <= partialRefundDay) {
+            long partialRefund = (long)(originalTotalPrice * ((float)partialRefundPercent / 100));
+            return partialRefund;
+        }
+        return (long)originalTotalPrice;
+    }
+
+    /**
+     * Calculate refund amount for host-initiated cancellations (always 100% refund)
+     * @param originalTotalPrice The original total price paid by customer
+     * @return Full refund amount (100% of original price)
+     */
+    public long hostInitiatedRefundAmount(double originalTotalPrice){
+        System.out.println("=== HOST-INITIATED REFUND ===");
+        System.out.println("Booking ID: " + bookingId);
+        System.out.println("Original Total Price: " + originalTotalPrice);
+        System.out.println("RESULT: Full refund (100%) = " + (long)originalTotalPrice);
+        return (long)originalTotalPrice;
+    }
 }
