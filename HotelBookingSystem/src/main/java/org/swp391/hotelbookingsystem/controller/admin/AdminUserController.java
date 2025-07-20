@@ -45,6 +45,7 @@ public class AdminUserController {
                               @RequestParam(value = "role", required = false) String role,
                               @RequestParam(value = "status", required = false) String status,
                               @RequestParam(value = "page", defaultValue = "1") int page,
+                              @RequestParam(value = "error", required = false) String error,
                               Model model, HttpSession session) {
         User user = (User) session.getAttribute("user");
         if (user == null || !user.getRole().equals("ADMIN")) {
@@ -102,6 +103,10 @@ public class AdminUserController {
         model.addAttribute("page", page);
         model.addAttribute("pagination", (int) Math.ceil((double) totalUsers / pageSize));
 
+        if (error != null && !error.isBlank()) {
+            model.addAttribute("errorMessage", error);
+        }
+
         return "admin/admin-user-list";
     }
 
@@ -122,16 +127,23 @@ public class AdminUserController {
                                    @RequestParam(value = "status", required = false) String status) {
         User user = userService.findUserById(userId);
         boolean wasActive = user.isActive();
+
+        // If banning, require a non-blank reason BEFORE toggling status
+        if (wasActive) {
+            if (reason == null || reason.trim().isEmpty()) {
+                String errorMsg = "Lý do khóa tài khoản không được để trống hoặc chỉ chứa khoảng trắng.";
+                String redirectUrl = buildRedirectUrl("/admin-user-list", search, role, status);
+                String separator = redirectUrl.contains("?") ? "&" : "?";
+                return "redirect:" + redirectUrl + separator + "error=" + java.net.URLEncoder.encode(errorMsg, java.nio.charset.StandardCharsets.UTF_8);
+            }
+        }
+
         userService.toggleUserStatus(userId);
         // Refresh user object after status change
         User updatedUser = userService.findUserById(userId);
         try {
             if (wasActive && !updatedUser.isActive()) {
-                // Ban: require reason and send ban email
-                if (reason == null || reason.trim().isEmpty()) {
-                    // Optionally, handle error (redirect with error message)
-                    return "redirect:" + buildRedirectUrl("/admin-user-list", search, role, status);
-                }
+                // Ban: send ban email
                 emailService.sendUserBanEmail(updatedUser.getEmail(), reason);
                 // Accept reports if flagged
                 if (reportService.isUserFlagged(userId)) {
