@@ -198,6 +198,7 @@ public class ModeratorHotelListController {
             }else{
                 res.put("success", false);
                 res.put("message", "Hoàn tiền thất bại");
+                return res;
             }
         }
         
