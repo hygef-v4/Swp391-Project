@@ -71,4 +71,5 @@ public class ReportRepository {
         String sql = "UPDATE Reports SET status = 'accepted' WHERE reported_user_id = ? AND status = 'pending'";
         jdbc.update(sql, userId);
     }
+
 } 
