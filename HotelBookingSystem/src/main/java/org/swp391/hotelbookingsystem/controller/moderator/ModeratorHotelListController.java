@@ -47,6 +47,9 @@ public class ModeratorHotelListController {
         List<Hotel> bannedHotels = hotels.stream()
             .filter(h -> "banned".equals(h.getStatus()))
             .toList();
+        List<Hotel> rejectedHotels = hotels.stream()
+            .filter(h -> "rejected".equals(h.getStatus()))
+            .toList();
 
         // Ghép các danh sách theo thứ tự ưu tiên
         List<Hotel> sortedHotels = new ArrayList<>();
@@ -54,6 +57,7 @@ public class ModeratorHotelListController {
         sortedHotels.addAll(activeHotels);
         sortedHotels.addAll(inactiveHotels);
         sortedHotels.addAll(bannedHotels);
+        sortedHotels.addAll(rejectedHotels);
 
         // Lấy danh sách thành phố duy nhất và sắp xếp theo alphabet
         List<String> cities = hotels.stream()
@@ -66,7 +70,7 @@ public class ModeratorHotelListController {
         Map<Integer, User> hostMap = new HashMap<>();
         int pendingCount = pendingHotels.size();
         int approvedCount = activeHotels.size();
-        int rejectedCount = inactiveHotels.size(); // dừng hoạt động
+        int rejectedCount = rejectedHotels.size(); // Đếm đúng số lượng bị từ chối
         int bannedCount = bannedHotels.size(); // bị khóa
 
         // Get host info
@@ -107,7 +111,7 @@ public class ModeratorHotelListController {
     @ResponseBody
     public Map<String, Object> rejectHotel(@PathVariable int id, @RequestBody Map<String, String> body) {
         String reason = body.get("reason");
-        hotelService.updateHotelStatus(id, "banned");
+        hotelService.updateHotelStatus(id, "rejected"); // Đổi từ 'banned' thành 'rejected'
         // Notify hotel owner
         Hotel hotel = hotelService.getHotelById(id);
         if (hotel != null) {
@@ -150,6 +154,32 @@ public class ModeratorHotelListController {
         Map<String, Object> res = new HashMap<>();
         res.put("success", true);
         res.put("message", "Mở khóa khách sạn thành công!");
+        return res;
+    }
+
+    @PostMapping("/api/moderator/hotels/{id}/ban")
+    @ResponseBody
+    public Map<String, Object> banHotel(@PathVariable int id, @RequestBody Map<String, String> body) {
+        String reason = body.get("reason");
+        hotelService.updateHotelStatus(id, "banned");
+        // Notify hotel owner
+        Hotel hotel = hotelService.getHotelById(id);
+        if (hotel != null) {
+            String message = "Khách sạn của bạn đã bị thu hồi. Lý do: " + (reason != null ? reason : "Không xác định");
+            notificationService.createNotification(
+                hotel.getHostId(),
+                "Khách sạn bị thu hồi",
+                message,
+                "hotel",
+                "high",
+                "/host-listing",
+                "bi-x-octagon",
+                Map.of("hotelId", hotel.getHotelId(), "hotelName", hotel.getHotelName(), "reason", reason)
+            );
+        }
+        Map<String, Object> res = new HashMap<>();
+        res.put("success", true);
+        res.put("message", "Thu hồi khách sạn thành công!");
         return res;
     }
 

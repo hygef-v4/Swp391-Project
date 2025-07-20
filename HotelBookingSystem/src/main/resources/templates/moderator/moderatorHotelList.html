@@ -118,6 +118,10 @@
       .box-shadow-warning {
           box-shadow: 0 0 10px rgba(255, 193, 7, 0.3) !important;
       }
+      .box-shadow-rejected {
+        box-shadow: 0 0 16px 2px rgba(33, 37, 41, 0.25) !important;
+        border-color: #212529 !important;
+      }
     </style>
 </head>
 
@@ -152,6 +156,7 @@
                             <span class="badge bg-warning me-2" th:text="${pendingCount} + ' chờ duyệt'">15 chờ duyệt</span>
                             <span class="badge bg-success me-2" th:text="${approvedCount} + ' đang hoạt động'">324 đang hoạt động</span>
                             <span class="badge bg-secondary me-2" th:text="${rejectedCount} + ' dừng hoạt động'">8 dừng hoạt động</span>
+                            <span class="badge bg-dark me-2" th:text="${rejectedCount} + ' bị từ chối'">0 bị từ chối</span>
                             <span class="badge bg-danger" th:text="${bannedCount} + ' bị khóa'">5 bị khóa</span>
                         </div>
                     </div>
@@ -187,6 +192,7 @@
                                         <option value="active">Đang hoạt động</option>
                                         <option value="inactive">Dừng hoạt động</option>
                                         <option value="banned">Bị khóa</option>
+                                        <option value="rejected">Bị từ chối</option>
                                     </select>
                                 </div>
 
@@ -222,14 +228,14 @@
                      th:data-city="${hotel.cityName != null ? hotel.cityName.toLowerCase().replace(' ', '').replace('.', '') : ''}"
                      th:data-hotel-id="${hotel.hotelId}">
                     <div class="card shadow h-100"
-                         th:classappend="${hotel.status == 'banned' ? ' border-danger border-2 box-shadow-danger' : (hotel.status == 'inactive' ? ' border-secondary border-2' : (hotel.status == 'pending' ? ' border-warning border-2 box-shadow-warning' : ''))}">
+                         th:classappend="${hotel.status == 'banned' ? ' border-danger border-2 box-shadow-danger' : (hotel.status == 'inactive' ? ' border-secondary border-2' : (hotel.status == 'pending' ? ' border-warning border-2 box-shadow-warning' : (hotel.status == 'rejected' ? ' border-dark border-2 box-shadow-rejected' : '')))}">
                         <div class="position-relative">
                             <img th:src="${hotel.hotelImageUrl != null ? hotel.hotelImageUrl : 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=200&fit=crop'}"
                                  class="card-img-top" th:alt="${hotel.hotelName}" style="height: 200px; object-fit: cover;">
                             <div class="position-absolute top-0 end-0 m-2">
                                 <span class="badge"
-                                      th:classappend="${hotel.status == 'pending' ? 'bg-warning border border-warning border-2 shadow' : (hotel.status == 'active' ? 'bg-success' : (hotel.status == 'banned' ? 'bg-danger border border-danger border-2 shadow' : (hotel.status == 'inactive' ? 'bg-secondary border border-secondary border-2 shadow' : '')))}"
-                                      th:text="${hotel.status == 'pending' ? 'Chờ duyệt' : (hotel.status == 'active' ? 'Đang hoạt động' : (hotel.status == 'banned' ? 'Bị khóa' : 'Dừng hoạt động'))}">
+                                      th:classappend="${hotel.status == 'pending' ? 'bg-warning border border-warning border-2 shadow' : (hotel.status == 'active' ? 'bg-success' : (hotel.status == 'banned' ? 'bg-danger border border-danger border-2 shadow' : (hotel.status == 'inactive' ? 'bg-secondary border border-secondary border-2 shadow' : (hotel.status == 'rejected' ? 'bg-dark border border-dark border-2 shadow' : ''))))}"
+                                      th:text="${hotel.status == 'pending' ? 'Chờ duyệt' : (hotel.status == 'active' ? 'Đang hoạt động' : (hotel.status == 'banned' ? 'Bị khóa' : (hotel.status == 'inactive' ? 'Dừng hoạt động' : (hotel.status == 'rejected' ? 'Đã bị từ chối' : ''))))}">
                                     Chờ duyệt
                                 </span>
                             </div>
@@ -280,6 +286,11 @@
                                         th:if="${hotel.status == 'active'}"
                                         th:data-hotel-id="${hotel.hotelId}">
                                     <i class="bi bi-arrow-clockwise me-1"></i>Thu hồi
+                                </button>
+                                <!-- Nếu rejected -->
+                                <button class="btn btn-secondary flex-fill" disabled
+                                        th:if="${hotel.status == 'rejected'}">
+                                    <i class="bi bi-x-octagon me-1"></i>Đã bị từ chối
                                 </button>
                                 <!-- Nếu inactive -->
                                 <button class="btn btn-success flex-fill approve-btn"
@@ -728,7 +739,7 @@
                     showToast('Lỗi', 'Đã xảy ra lỗi không mong muốn', false);
                 });
             } else if (pendingActionType === 'revoke') {
-                fetch(`/moderator-hotel-list/api/moderator/hotels/${pendingActionHotelId}/reject`, {
+                fetch(`/moderator-hotel-list/api/moderator/hotels/${pendingActionHotelId}/ban`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
