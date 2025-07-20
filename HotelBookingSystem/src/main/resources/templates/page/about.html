@@ -65,6 +65,23 @@
 	<link rel="stylesheet" type="text/css" href="/assets/vendor/bootstrap-icons/bootstrap-icons.css">
 	<!-- Theme CSS -->
 	<link rel="stylesheet" type="text/css" href="/assets/css/style.css">
+	<style>
+	.team-row {
+	  display: flex;
+	  flex-wrap: nowrap;
+	  justify-content: center;
+	  gap: 2rem;
+	}
+	.team-row > div {
+	  flex: 1 1 0;
+	  max-width: 220px;
+	}
+	@media (max-width: 1200px) {
+	  .team-row {
+	    flex-wrap: wrap;
+	  }
+	}
+	</style>
 </head>
 <body>
 <!-- Header START -->
@@ -181,13 +198,13 @@ Team START -->
 			</div>
 		</div>
 		<!-- Team START -->
-		<div class="row g-4">
+		<div class="row g-4 team-row">
 			<!-- Team item START -->
 			<div class="col-sm-6 col-lg-3">
 				<div class="card card-element-hover bg-transparent">
 					<div class="position-relative">
 						<!-- Image -->
-						<img src="/assets/images/team/03.jpg" class="card-img" alt="">
+						<img src="/assets/images/team/tai.jpg" class="card-img" alt="">
 						<div class="card-img-overlay hover-element d-flex p-3">
 							<!-- Category -->
 							<div class="btn-group mt-auto">
@@ -199,7 +216,7 @@ Team START -->
 					</div>
 					<!-- Card body -->
 					<div class="card-body px-2 pb-0">
-						<h5 class="card-title"><a href="#">Larry Lawson</a></h5>
+						<h5 class="card-title"><a href="#">Võ Minh Tài</a></h5>
 						<span>Editor in Chief</span>
 					</div>
 				</div>
@@ -210,7 +227,7 @@ Team START -->
 				<div class="card card-element-hover bg-transparent">
 					<div class="position-relative">
 						<!-- Image -->
-						<img src="/assets/images/team/04.jpg" class="card-img" alt="">
+						<img src="/assets/images/team/thang.jpg" class="card-img" alt="">
 						<div class="card-img-overlay hover-element d-flex p-3">
 							<!-- Category -->
 							<div class="btn-group mt-auto">
@@ -222,7 +239,7 @@ Team START -->
 					</div>
 					<!-- Card body -->
 					<div class="card-body px-2 pb-0">
-						<h5 class="card-title"><a href="#">Louis Ferguson</a></h5>
+						<h5 class="card-title"><a href="#">Võ Chiến Thắng</a></h5>
 						<span>Director Graphics</span>
 					</div>
 				</div>
@@ -270,6 +287,29 @@ Team START -->
 					<div class="card-body px-2 pb-0">
 						<h5 class="card-title"><a href="#">Frances Guerrero</a></h5>
 						<span>CEO, Coverage</span>
+					</div>
+				</div>
+			</div>
+			<!-- Team item END -->
+			<!-- Team item START -->
+			<div class="col-sm-6 col-lg-3">
+				<div class="card card-element-hover bg-transparent">
+					<div class="position-relative">
+						<!-- Image -->
+						<img src="/assets/images/team/07.jpg" class="card-img" alt="">
+						<div class="card-img-overlay hover-element d-flex p-3">
+							<!-- Category -->
+							<div class="btn-group mt-auto">
+								<a href="#" class="btn btn-white mb-0"><i class="fa-brands fa-facebook-f text-facebook"></i></a>
+								<a href="#" class="btn btn-white mb-0"><i class="fa-brands fa-instagram text-instagram"></i></a>
+								<a href="#" class="btn btn-white mb-0"><i class="fa-brands fa-twitter text-twitter"></i></a>
+							</div>
+						</div>
+					</div>
+					<!-- Card body -->
+					<div class="card-body px-2 pb-0">
+						<h5 class="card-title"><a href="#">Nguyen Van B</a></h5>
+						<span>Developer</span>
 					</div>
 				</div>
 			</div>

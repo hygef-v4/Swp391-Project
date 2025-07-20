@@ -78,6 +78,24 @@ public class EmailService {
         mailSender.send(message); // Opens a connection to Gmail SMTP at smtp.gmail.com:587
     }
 
+    public void sendHotelForceDeactivateConfirmationEmail(String toEmail, String hotelName, String otp, int activeBookingsCount) throws MessagingException {
+        Context context = new Context();
+        context.setVariable("hotelName", hotelName);
+        context.setVariable("otp", otp);
+        context.setVariable("activeBookingsCount", activeBookingsCount);
+
+        String htmlContent = templateEngine.process("email/confirm-hotel-force-deactivate", context);
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+        helper.setTo(toEmail);
+        helper.setSubject("⚠️ Xác nhận vô hiệu hóa khách sạn có đặt phòng đang hoạt động - " + hotelName);
+        helper.setText(htmlContent, true);
+
+        mailSender.send(message);
+    }
+
     public void sendContactMessage(String name, String email, String phone, String messageContent) throws MessagingException {
         Context context = new Context();
         context.setVariable("name", name);
@@ -124,6 +142,22 @@ public class EmailService {
 
         helper.setTo(to);
         helper.setSubject("Tài khoản của bạn đã được mở khóa");
+        helper.setText(htmlContent, true);
+        helper.setFrom("your_email@gmail.com");
+
+        mailSender.send(message);
+    }
+
+    public void sendChangePasswordConfirmationEmail(String toEmail) throws MessagingException {
+        Context context = new Context();
+        // Có thể thêm biến động nếu muốn cá nhân hóa
+        String htmlContent = templateEngine.process("email/change-password-confirmation", context);
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+        helper.setTo(toEmail);
+        helper.setSubject("Xác nhận thay đổi mật khẩu");
         helper.setText(htmlContent, true);
         helper.setFrom("your_email@gmail.com");
 

@@ -32,7 +32,7 @@ public class ReviewRepository {
                     u.date_of_birth AS dob
                 FROM Reviews r
                 JOIN Users u ON r.reviewer_id = u.user_id
-                WHERE r.is_public = 1 AND r.rating >= 4 AND u.role = 'CUSTOMER'
+                WHERE r.is_public = 1 AND r.rating >= 4 AND u.role = 'CUSTOMER' AND r.comment IS NOT NULL
                 ORDER BY r.rating DESC, r.created_at DESC
             """;
 
@@ -54,7 +54,7 @@ public class ReviewRepository {
             u.date_of_birth AS dob
         FROM Reviews r
         JOIN Users u ON r.reviewer_id = u.user_id
-        WHERE  r.is_public = 1 AND u.role = 'CUSTOMER'
+        WHERE r.is_public = 1 AND u.role = 'CUSTOMER' AND r.comment IS NOT NULL
         ORDER BY r.created_at DESC
     """;
 
@@ -79,7 +79,7 @@ public class ReviewRepository {
                 u.full_name, u.avatar_url
             FROM Reviews r
             JOIN Users u ON r.reviewer_id = u.user_id
-            WHERE r.is_public = 1
+            WHERE r.is_public = 1 AND r.comment IS NOT NULL
             ORDER BY r.created_at DESC
         """;
         return jdbcTemplate.query(sql, (rs, rowNum) ->
@@ -104,7 +104,7 @@ public class ReviewRepository {
                 u.full_name, u.avatar_url
             FROM Reviews r
             JOIN Users u ON r.reviewer_id = u.user_id
-            WHERE r.is_public = 1 AND r.rating >= 4
+            WHERE r.is_public = 1 AND r.rating >= 4 AND r.comment IS NOT NULL
             ORDER BY r.rating DESC
         """;
         return jdbcTemplate.query(sql, (rs, rowNum) ->
@@ -125,7 +125,7 @@ public class ReviewRepository {
     public boolean checkReview(int hotelId, int userId){
         String query = """
             SELECT * FROM Reviews
-            WHERE hotel_id = ? AND reviewer_id = ? AND is_public = 1     
+            WHERE hotel_id = ? AND reviewer_id = ? AND is_public = 1 AND comment IS NOT NULL  
         """;
         return !jdbcTemplate.query(query, ps -> {
             ps.setInt(1, hotelId);
@@ -150,7 +150,7 @@ public class ReviewRepository {
                 u.date_of_birth AS dob
             FROM Reviews r
             JOIN Users u ON r.reviewer_id = u.user_id
-            WHERE r.is_public = 1 AND r.hotel_id = ? AND r.reviewer_id = ?
+            WHERE r.is_public = 1 AND r.hotel_id = ? AND r.reviewer_id = ? AND r.comment IS NOT NULL
         """;
         return jdbcTemplate.queryForObject(query, REVIEW_MAPPER, hotelId, userId);
     }
@@ -199,7 +199,7 @@ public class ReviewRepository {
                 u.date_of_birth AS dob
             FROM Reviews r
             JOIN Users u ON r.reviewer_id = u.user_id
-            WHERE r.is_public = 1 AND r.review_id = ?
+            WHERE r.is_public = 1 AND r.review_id = ? AND r.comment IS NOT NULL
         """;
         return jdbcTemplate.queryForObject(query, REVIEW_MAPPER, id);
     }
@@ -221,7 +221,7 @@ public class ReviewRepository {
                 u.date_of_birth AS dob
             FROM Reviews r
             JOIN Users u ON r.reviewer_id = u.user_id
-            WHERE r.is_public = 1 AND r.hotel_id = ?
+            WHERE r.is_public = 1 AND r.hotel_id = ? AND r.comment IS NOT NULL
             ORDER BY r.created_at DESC
         """;
         return jdbcTemplate.query(query, REVIEW_MAPPER, hotelId);
@@ -238,7 +238,7 @@ public class ReviewRepository {
     }
 
     public int deleteReply(int replyId){
-        String query = "DELETE FROM Replies OUTPUT deleted.reply_id WHERE reply_id = ?";
+        String query = "UPDATE Replies SET is_public = 0 OUTPUT deleted.reply_id WHERE reply_id = ?";
         return jdbcTemplate.queryForObject(query, Integer.class, replyId);
     }
 
@@ -258,7 +258,7 @@ public class ReviewRepository {
                 u.date_of_birth AS dob
             FROM Replies r
             JOIN Users u ON r.replier_id = u.user_id
-            WHERE r.is_public = 1 AND r.reply_id = ?
+            WHERE r.is_public = 1 AND r.reply_id = ? AND r.comment IS NOT NULL
         """;
         return jdbcTemplate.queryForObject(query, REPLY_MAPPER, id);
     }
@@ -279,7 +279,7 @@ public class ReviewRepository {
                 u.date_of_birth AS dob
             FROM Replies r
             JOIN Users u ON r.replier_id = u.user_id
-            WHERE r.is_public = 1 AND r.review_id = ?
+            WHERE r.is_public = 1 AND r.review_id = ? AND r.comment IS NOT NULL
             ORDER BY r.created_at ASC
         """;
         return jdbcTemplate.query(query, REPLY_MAPPER, reviewId);
@@ -287,9 +287,19 @@ public class ReviewRepository {
 
     public double getAverageRatingThisYear() {
         String sql = """
-        SELECT AVG(CAST(rating AS FLOAT)) 
-        FROM Reviews 
+        SELECT AVG(CAST(rating AS FLOAT))
+        FROM Reviews
         WHERE YEAR(created_at) = YEAR(GETDATE())
+    """;
+        Double result = jdbcTemplate.queryForObject(sql, Double.class);
+        return result != null ? result : 0.0;
+    }
+
+    public double getOverallAverageRating() {
+        String sql = """
+        SELECT AVG(CAST(rating AS FLOAT))
+        FROM Reviews
+        WHERE is_public = 1 AND comment IS NOT NULL
     """;
         Double result = jdbcTemplate.queryForObject(sql, Double.class);
         return result != null ? result : 0.0;
@@ -306,6 +316,7 @@ public class ReviewRepository {
         FROM Reviews 
         WHERE is_public = 1 
           AND YEAR(created_at) = YEAR(GETDATE())
+          AND comment IS NOT NULL
     """;
         Integer result = jdbcTemplate.queryForObject(sql, Integer.class);
         return result != null ? result : 0;
@@ -317,6 +328,7 @@ public class ReviewRepository {
         FROM Reviews 
         WHERE is_public = 1 
           AND YEAR(created_at) = YEAR(GETDATE()) - 1
+          AND comment IS NOT NULL
     """;
         Integer result = jdbcTemplate.queryForObject(sql, Integer.class);
         return result != null ? result : 0;
@@ -328,7 +340,7 @@ public class ReviewRepository {
         String sql = """
         SELECT rating, COUNT(*) AS count 
         FROM Reviews 
-        WHERE is_public = 1 
+        WHERE is_public = 1 AND comment IS NOT NULL
         GROUP BY rating
     """;
 
@@ -367,7 +379,7 @@ public class ReviewRepository {
             FROM Reviews r
             JOIN Users u ON r.reviewer_id = u.user_id
             JOIN Hotels h ON r.hotel_id = h.hotel_id
-            WHERE r.is_public = 1
+            WHERE r.is_public = 1 AND r.comment IS NOT NULL
             ORDER BY r.created_at DESC
         """;
         return jdbcTemplate.query(sql, (rs, rowNum) -> Review.builder()
@@ -385,7 +397,7 @@ public class ReviewRepository {
     }
     public List<Review> getReviewsByStatus(String status) {
         String condition = switch (status.toLowerCase()) {
-            case "published" -> "r.is_public = 1";
+            case "published" -> "r.is_public = 1 AND r.comment IS NOT NULL";
             case "deleted" -> "r.is_public = 0";
             default -> "1=1";
         };
@@ -459,7 +471,7 @@ public class ReviewRepository {
         FROM Reviews r
         JOIN Hotels h ON r.hotel_id = h.hotel_id
         JOIN Users u ON r.reviewer_id = u.user_id
-        WHERE h.host_id = ?
+        WHERE h.host_id = ? AND r.is_public = 1 AND r.comment IS NOT NULL
         ORDER BY r.created_at DESC
     """;
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Review.class), hostId);

@@ -392,6 +392,24 @@
     Steps START -->
     <section>
         <div class="container">
+            <!-- Success Message for Profile Completion -->
+            <div th:if="${success}" class="alert alert-success border-start border-4 border-success bg-light shadow-sm mb-4" role="alert" style="border-left-color: #198754 !important;">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0 me-3">
+                        <div class="bg-success rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                            <i class="bi bi-check-circle text-white fs-5"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h5 class="alert-heading text-success mb-2">
+                            <i class="bi bi-shield-check me-2"></i>Hồ sơ đã hoàn thiện!
+                        </h5>
+                        <p class="mb-0 text-dark" th:text="${success}">Thông báo thành công</p>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </div>
+
             <!-- Draft Management Section -->
             <div id="draftManagementSection" class="row mb-4" style="display: none;">
                 <div class="col-12">
@@ -990,7 +1008,72 @@ updateInputFiles() - Syncs file list with actual form input for submission-->
         document.getElementById('exampleNoDays').textContent = noDays;
     }
 
+    // Client-side profile completeness validation - DISABLED
+    // Server-side validation is the primary and sufficient validation
+    function checkProfileCompleteness() {
+        // This function is now disabled as server-side validation handles everything
+        // If user reaches this page, their profile is complete
+        return;
+    }
+
+    function showProfileIncompleteWarning(missingFields) {
+        const warningHtml = `
+            <div class="alert alert-info border-start border-4 border-primary bg-light shadow-sm mb-4" role="alert" style="border-left-color: #0d6efd !important;">
+                <div class="d-flex align-items-start">
+                    <div class="flex-shrink-0 me-3">
+                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                            <i class="bi bi-person-check text-white fs-5"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h5 class="alert-heading text-primary mb-2">
+                            <i class="bi bi-shield-check me-2"></i>Hoàn thiện hồ sơ để tiếp tục
+                        </h5>
+                        <p class="mb-3 text-dark" style="line-height: 1.6;">
+                            Để đảm bảo chất lượng dịch vụ và tăng độ tin cậy, vui lòng hoàn thiện thông tin cá nhân trước khi đăng ký khách sạn.
+                        </p>
+                        <div class="mb-3">
+                            <h6 class="text-primary mb-2">
+                                <i class="bi bi-list-check me-2"></i>Thông tin cần bổ sung:
+                            </h6>
+                            <div class="row g-2">
+                                ${missingFields.map(field => `
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center p-2 bg-white rounded border">
+                                            <i class="bi bi-circle text-primary me-2" style="font-size: 8px;"></i>
+                                            <span class="text-dark fw-medium">${field}</span>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-3">
+                            <a href="/user-profile?incomplete=true&reason=hotel_registration" class="btn btn-primary">
+                                <i class="bi bi-person-fill me-2"></i>Hoàn thiện hồ sơ ngay
+                            </a>
+                            <small class="text-muted">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Sau khi hoàn thiện, bạn sẽ được chuyển về trang này tự động.
+                            </small>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </div>
+        `;
+
+        // Insert warning at the top of the main content
+        const mainContent = document.querySelector('main');
+        if (mainContent) {
+            mainContent.insertAdjacentHTML('afterbegin', warningHtml);
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
+        // Only run client-side validation if server-side validation failed
+        // If we're on this page, it means server validation passed, so skip client validation
+        // checkProfileCompleteness(); // Commented out - server validation is sufficient
+
         var stepperEl = document.querySelector('#hostStepper');
         var stepper;
 

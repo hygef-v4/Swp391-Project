@@ -113,6 +113,10 @@ public class RoomService {
         return roomRepository.hasActiveBookingUnits(roomId);
     }
 
+    public boolean hasCheckedInBookingUnits(int roomId) {
+        return roomRepository.hasCheckedInBookingUnits(roomId);
+    }
+
     public void updateRoomStatus(int roomId, String status) {
         Room room = roomRepository.getRoomById(roomId);
         if (room != null) {
@@ -127,5 +131,13 @@ public class RoomService {
 
     public void activateRoom(int roomId) {
         updateRoomStatus(roomId, "active");
+    }
+
+    public boolean roomTitleExistsInHotel(String title, int hotelId) {
+        return roomRepository.roomTitleExistsInHotel(title, hotelId);
+    }
+
+    public boolean roomTitleExistsInHotelExcludingRoom(String title, int hotelId, int excludeRoomId) {
+        return roomRepository.roomTitleExistsInHotelExcludingRoom(title, hotelId, excludeRoomId);
     }
 }

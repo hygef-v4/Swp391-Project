@@ -229,13 +229,18 @@
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="payment-tab" data-bs-toggle="pill" data-bs-target="#payment" type="button" role="tab">
-                                <i class="bi bi-credit-card"></i> Thanh toán <span id="paymentCount" class="badge bg-success ms-1">0</span>
+                            <button class="nav-link" id="refund-tab" data-bs-toggle="pill" data-bs-target="#refund" type="button" role="tab">
+                                <i class="bi bi-credit-card"></i> Hoàn tiền <span id="refundCount" class="badge bg-success ms-1">0</span>
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="chat-tab" data-bs-toggle="pill" data-bs-target="#chat" type="button" role="tab">
                                 <i class="bi bi-chat-dots"></i> Tin nhắn <span id="chatCount" class="badge bg-warning ms-1">0</span>
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="profile-tab" data-bs-toggle="pill" data-bs-target="#profile" type="button" role="tab">
+                                <i class="bi bi-person-circle"></i> Tài khoản <span id="profileCount" class="badge bg-info ms-1">0</span>
                             </button>
                         </li>
                     </ul>
@@ -296,13 +301,13 @@
 <script th:src="@{/assets/js/functions.js}"></script>
 
 <!-- Notifications JavaScript -->
-<script>
+<script th:inline="javascript">
 // Global variables
 let currentPage = 1;
 let currentFilter = 'all';
 const notificationsPerPage = 10;
 let totalNotifications = 0;
-const currentUserId = [[${session.user?.id}]];
+const currentUserId = /*[[${session.user?.id}]]*/ 0;
 
 // Initialize page
 document.addEventListener('DOMContentLoaded', function() {
@@ -577,8 +582,9 @@ async function updateAllCounts() {
         const filters = [
             { id: 'allCount', params: '' },
             { id: 'bookingCount', params: 'type=booking' },
-            { id: 'paymentCount', params: 'type=payment' }, 
-            { id: 'chatCount', params: 'type=chat' }
+            { id: 'refundCount', params: 'type=refund' }, 
+            { id: 'chatCount', params: 'type=chat' },
+            { id: 'profileCount', params: 'type=profile' }
         ];
 
         for (const filter of filters) {
@@ -684,8 +690,9 @@ function showEmptyState() {
         'all': 'Bạn chưa có thông báo nào.',
         'unread': 'Bạn không có thông báo chưa đọc.',
         'booking': 'Bạn không có thông báo đặt phòng nào.',
-        'payment': 'Bạn không có thông báo thanh toán nào.',
-        'chat': 'Bạn không có thông báo tin nhắn nào.'
+        'refund': 'Bạn không có thông báo hoàn tiền nào.',
+        'chat': 'Bạn không có thông báo tin nhắn nào.',
+        'profile': 'Bạn không có thông báo tài khoản nào.'
     };
     
     if (emptyMessage) {
@@ -712,10 +719,11 @@ function hideErrorState() {
 function getNotificationIcon(type) {
     const icons = {
         'booking': 'bi bi-calendar-check',
-        'payment': 'bi bi-credit-card',
+        'refund': 'bi bi-credit-card',
         'hotel': 'bi bi-building',
         'chat': 'bi bi-chat-dots',
-        'system': 'bi bi-gear'
+        'system': 'bi bi-gear',
+        'profile': 'bi bi-person-circle'
     };
     return icons[type] || 'bi bi-bell';
 }
@@ -723,10 +731,11 @@ function getNotificationIcon(type) {
 function getNotificationIconBg(type) {
     const backgrounds = {
         'booking': 'bg-primary',
-        'payment': 'bg-success',
+        'refund': 'bg-success',
         'hotel': 'bg-info',
         'chat': 'bg-warning',
-        'system': 'bg-secondary'
+        'system': 'bg-secondary',
+        'profile': 'bg-info'
     };
     return backgrounds[type] || 'bg-primary';
 }

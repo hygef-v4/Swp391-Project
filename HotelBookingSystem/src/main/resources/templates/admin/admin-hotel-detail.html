@@ -274,8 +274,7 @@
                     <div class="row mb-2">
                         <div class="col-md-4"><strong>ID khách sạn:</strong> <span th:text="${hotel.hotelId}"></span>
                         </div>
-                        <div class="col-md-4"><strong>Chủ sở hữu (User ID):</strong> <span
-                                th:text="${hotel.hostId}"></span></div>
+                        <div class="col-md-4"><strong>Chủ sở hữu:</strong> <span th:text="${hotel.hostName}"></span></div>
                         <div class="col-md-4">
                             <strong>Trạng thái hiện tại:</strong>
                             <span th:switch="${hotel.status}">
@@ -294,7 +293,7 @@
                         <div class="col-md-4"><strong>Tổng số phòng:</strong> <span th:text="${roomCount}"></span></div>
                     </div>
                     <div class="row mb-2">
-                        <div class="col-md-4"><strong>Tổng lượt đặt phòng:</strong> <span
+                        <div class="col-md-4"><strong>Lượt đặt phòng thành công:</strong> <span
                                 th:text="${totalBookings}"></span></div>
                         <div class="col-md-4"><strong>Xếp hạng trung bình:</strong> <span
                                 th:text="${hotel.rating}"></span> ⭐
@@ -307,7 +306,7 @@
                                 Xem chi tiết chủ khách sạn
                             </a>
                             <a class="btn btn-outline-primary btn-sm ms-2"
-                               th:href="@{'/admin/booking/list?hotelId=' + ${hotel.hotelId}}">
+                               th:href="@{'/admin/bookings?hotelId=' + ${hotel.hotelId}}">
                                 Xem lịch sử đặt phòng
                             </a>
                         </div>

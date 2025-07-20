@@ -20,6 +20,7 @@ import org.swp391.hotelbookingsystem.model.Hotel;
 import org.swp391.hotelbookingsystem.model.Room;
 import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.service.AmenityService;
+import org.swp391.hotelbookingsystem.service.BookingService;
 import org.swp391.hotelbookingsystem.service.CancellationPolicyService;
 import org.swp391.hotelbookingsystem.service.CloudinaryService;
 import org.swp391.hotelbookingsystem.service.HotelService;
@@ -53,7 +54,9 @@ public class HostHotelController {
 
     final CancellationPolicyService cancellationPolicyService;
 
-    public HostHotelController(LocationService locationService, AmenityService amenityService, CloudinaryService cloudinaryService, RoomService roomService, HotelService hotelService, UserService userService, CancellationPolicyService cancellationPolicyService, NotificationService notificationService) {
+    final BookingService bookingService;
+
+    public HostHotelController(LocationService locationService, AmenityService amenityService, CloudinaryService cloudinaryService, RoomService roomService, HotelService hotelService, UserService userService, CancellationPolicyService cancellationPolicyService, NotificationService notificationService, BookingService bookingService) {
         this.locationService = locationService;
         this.amenityService = amenityService;
         this.cloudinaryService = cloudinaryService;
@@ -62,18 +65,46 @@ public class HostHotelController {
         this.userService = userService;
         this.cancellationPolicyService = cancellationPolicyService;
         this.notificationService = notificationService;
+        this.bookingService = bookingService;
     }
 
     @GetMapping("/host-listing")
-    public String viewHostListings(HttpSession session, Model model) {
+    public String viewHostListings(
+            @RequestParam(value = "search", defaultValue = "") String search,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            HttpSession session,
+            Model model) {
         User host = (User) session.getAttribute("user");
 
         if (host == null || !host.getRole().equalsIgnoreCase("HOTEL_OWNER")) {
             return "redirect:/login"; // not logged in
         }
 
-        List<Hotel> hotels = hotelService.getHotelsByHostId(host.getId());
+        // Pagination settings
+        int pageSize = 6; // Number of hotels per page
+        int offset = (page - 1) * pageSize;
+
+        // Get hotels with search and pagination
+        List<Hotel> hotels;
+        int totalHotels;
+
+        if (search != null && !search.trim().isEmpty()) {
+            hotels = hotelService.getHotelsByHostIdWithSearchAndPagination(host.getId(), search, offset, pageSize);
+            totalHotels = hotelService.countHotelsByHostIdAndSearch(host.getId(), search);
+        } else {
+            hotels = hotelService.getHotelsByHostIdWithSearchAndPagination(host.getId(), "", offset, pageSize);
+            totalHotels = hotelService.countHotelsByHostIdAndSearch(host.getId(), "");
+        }
+
+        // Calculate pagination data
+        int totalPages = (int) Math.ceil((double) totalHotels / pageSize);
+
         model.addAttribute("hotels", hotels);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("totalHotels", totalHotels);
+        model.addAttribute("search", search);
+        model.addAttribute("pageSize", pageSize);
 
         return "host/host-listing";
     }
@@ -193,6 +224,12 @@ public class HostHotelController {
             Model model
     ) {
         try {
+            // Check for duplicate room title
+            if (roomService.roomTitleExistsInHotel(roomTitle, hotelId)) {
+                model.addAttribute("error", "Tên phòng đã tồn tại trong khách sạn này");
+                return "redirect:/add-room?hotelId=" + hotelId + "&error=duplicate_name";
+            }
+
             // Upload room images
             List<String> roomImageUrls = new ArrayList<>();
             if (roomImageFiles != null) {
@@ -354,6 +391,13 @@ public class HostHotelController {
                 return response;
             }
 
+            // Check for duplicate room title (excluding current room)
+            if (roomService.roomTitleExistsInHotelExcludingRoom(roomTitle, hotelId, roomId)) {
+                response.put("success", false);
+                response.put("message", "Tên phòng đã tồn tại trong khách sạn này");
+                return response;
+            }
+
             Hotel hotel = hotelService.getHotelById(hotelId);
             if (hotel == null || hotel.getHostId() != host.getId()) {
                 response.put("success", false);
@@ -404,6 +448,7 @@ public class HostHotelController {
     public Map<String, Object> deactivateRoom(
             @RequestParam("roomId") int roomId,
             @RequestParam("hotelId") int hotelId,
+            @RequestParam(value = "forceDeactivate", defaultValue = "false") boolean forceDeactivate,
             HttpSession session
     ) {
         Map<String, Object> response = new HashMap<>();
@@ -433,14 +478,30 @@ public class HostHotelController {
                 return response;
             }
 
-            // 3. Check if this would leave no active rooms in the hotel
+            // 3. Check for approved bookings if not force deactivate
+            if (!forceDeactivate) {
+                int totalApprovedUnitsToReject = bookingService.countAllApprovedBookingUnitsInAffectedBookings(roomId);
+                if (totalApprovedUnitsToReject > 0) {
+                    response.put("success", false);
+                    response.put("hasActiveBookings", true);
+                    response.put("activeBookingsCount", totalApprovedUnitsToReject);
+                    response.put("roomId", roomId);
+                    response.put("message", "Vô hiệu hóa phòng này sẽ ảnh hưởng đến " + totalApprovedUnitsToReject + " phòng đã được duyệt " +
+                            "(bao gồm tất cả phòng trong các booking có chứa phòng này). " +
+                            "Nếu tiếp tục vô hiệu hóa, tất cả các phòng đã duyệt trong các booking bị ảnh hưởng sẽ bị hủy " +
+                            "và bạn sẽ phải hoàn tiền cho khách hàng. Khách đã check-in sẽ không bị ảnh hưởng.");
+                    return response;
+                }
+            }
+
+            // 4. Check if this would leave no active rooms in the hotel
             List<Room> currentRooms;
             try {
                 currentRooms = roomService.getRoomsByHotelId(hotelId);
                 long activeRooms = currentRooms.stream()
                         .filter(room -> "active".equals(room.getStatus()))
                         .count();
-                
+
                 if (activeRooms <= 1) {
                     response.put("success", false);
                     response.put("message", "Không thể vô hiệu hóa phòng cuối cùng đang hoạt động. Khách sạn phải có ít nhất 1 phòng hoạt động.");
@@ -453,21 +514,35 @@ public class HostHotelController {
                 return response;
             }
 
-            // 4. Check if the room has active booking units (approved)
+            // 5. Always reject approved bookings when deactivating (only 'approved', not 'check_in')
+            int rejectedBookings = 0;
             try {
-                if (roomService.hasActiveBookingUnits(roomId)) {
-                    response.put("success", false);
-                    response.put("message", "Không thể vô hiệu hóa phòng này vì có khách đang đặt phòng.");
-                    return response;
+                System.out.println("=== ROOM DEACTIVATION: About to reject bookings for room " + roomId + " ===");
+
+                // First check how many approved booking units will be affected (all units in bookings containing this room)
+                int totalApprovedUnitsToReject = bookingService.countAllApprovedBookingUnitsInAffectedBookings(roomId);
+                System.out.println("Found " + totalApprovedUnitsToReject + " total approved booking units to reject (all units in affected bookings)");
+
+                rejectedBookings = bookingService.rejectAllActiveBookingsByRoomId(roomId);
+                System.out.println("Bulk rejection: " + rejectedBookings + " approved booking units rejected (all units in affected bookings)");
+
+                if (rejectedBookings != totalApprovedUnitsToReject) {
+                    System.err.println("WARNING: Expected to reject " + totalApprovedUnitsToReject + " but only rejected " + rejectedBookings);
+                    System.out.println("Trying individual rejection method as fallback...");
+
+                    int individualRejected = bookingService.rejectAllActiveBookingsByRoomIdIndividual(roomId);
+                    System.out.println("Individual rejection: " + individualRejected + " additional booking units rejected");
+                    rejectedBookings += individualRejected;
                 }
             } catch (Exception e) {
-                System.err.println("Error checking active bookings for roomId " + roomId + ": " + e.getMessage());
+                System.err.println("Error rejecting bookings for room " + roomId + ": " + e.getMessage());
+                e.printStackTrace();
                 response.put("success", false);
-                response.put("message", "Lỗi khi kiểm tra booking đang hoạt động");
+                response.put("message", "Lỗi khi hủy đặt phòng: " + e.getMessage());
                 return response;
             }
 
-            // 5. Deactivate the room
+            // 6. Deactivate the room
             try {
                 roomService.deactivateRoom(roomId);
                 System.out.println("Successfully deactivated room " + roomId);
@@ -479,9 +554,13 @@ public class HostHotelController {
                 return response;
             }
 
-            // 6. Success response
+            // 7. Success response
+            String message = "Vô hiệu hóa phòng thành công";
+            if (rejectedBookings > 0) {
+                message += ". Đã hủy " + rejectedBookings + " đặt phòng đã được duyệt. Khách đã check-in không bị ảnh hưởng.";
+            }
             response.put("success", true);
-            response.put("message", "Vô hiệu hóa phòng thành công");
+            response.put("message", message);
             
         } catch (Exception e) {
             // Catch any unexpected errors
@@ -606,6 +685,55 @@ public class HostHotelController {
             response.put("message", "Lỗi khi cập nhật chính sách: " + e.getMessage());
         }
         
+        return response;
+    }
+
+    @GetMapping("/check-room-name")
+    @ResponseBody
+    public Map<String, Object> checkRoomName(
+            @RequestParam("roomTitle") String roomTitle,
+            @RequestParam("hotelId") int hotelId,
+            @RequestParam(value = "roomId", required = false) Integer roomId,
+            HttpSession session
+    ) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            // Check authentication
+            User host = (User) session.getAttribute("user");
+            if (host == null || !host.getRole().equalsIgnoreCase("HOTEL_OWNER")) {
+                response.put("exists", false);
+                response.put("message", "Unauthorized");
+                return response;
+            }
+
+            // Check hotel ownership
+            Hotel hotel = hotelService.getHotelById(hotelId);
+            if (hotel == null || hotel.getHostId() != host.getId()) {
+                response.put("exists", false);
+                response.put("message", "Unauthorized hotel access");
+                return response;
+            }
+
+            boolean exists;
+            if (roomId != null) {
+                // For editing existing room - exclude current room from check
+                exists = roomService.roomTitleExistsInHotelExcludingRoom(roomTitle, hotelId, roomId);
+            } else {
+                // For adding new room
+                exists = roomService.roomTitleExistsInHotel(roomTitle, hotelId);
+            }
+
+            response.put("exists", exists);
+            if (exists) {
+                response.put("message", "Tên phòng đã tồn tại trong khách sạn này");
+            }
+
+        } catch (Exception e) {
+            response.put("exists", false);
+            response.put("message", "Error checking room name: " + e.getMessage());
+        }
+
         return response;
     }
 

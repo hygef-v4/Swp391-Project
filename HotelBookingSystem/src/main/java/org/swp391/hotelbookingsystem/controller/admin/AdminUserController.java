@@ -358,10 +358,10 @@ public class AdminUserController {
         // Check if user is flagged
         boolean isFlagged = reportService.isUserFlagged(userId);
         model.addAttribute("isFlagged", isFlagged);
-        
+
         if (isFlagged) {
-            Report latestReport = reportService.getLatestPendingReport(userId);
-            model.addAttribute("flagReason", latestReport != null ? latestReport.getReason() : "No reason specified");
+            String formattedReasons = reportService.getFormattedUserReportReasons(userId);
+            model.addAttribute("flagReason", formattedReasons);
         }
 
         return "admin/admin-user-detail";

@@ -1,13 +1,16 @@
 package org.swp391.hotelbookingsystem.repository;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import org.swp391.hotelbookingsystem.model.Booking;
 import org.swp391.hotelbookingsystem.model.BookingUnit;
 
@@ -122,6 +125,8 @@ public class BookingRepo {
             booking.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
             booking.setHotelName(rs.getString("hotel_name"));
             booking.setImageUrl(rs.getString("hotel_image_url"));
+
+            booking.setBookingUnits(findBookingUnitsByBookingId(rs.getInt("booking_id")));
             return booking;
         }, bookingUnitId);
     }
@@ -162,6 +167,11 @@ public class BookingRepo {
             "pending",
             (Object) bookingUnit.getRefundAmount()
         );
+    }
+
+    public void setTransactionDetails(int bookingId, String orderCode, String transactionNo, LocalDateTime createdAt){
+        String sql = "UPDATE Bookings SET order_code = ?, transaction_no = ?, created_at = ? WHERE booking_id = ?";
+        jdbcTemplate.update(sql, orderCode, transactionNo, Timestamp.valueOf(createdAt), bookingId);
     }
 
     public void approveBookingUnit(int id){
@@ -234,11 +244,17 @@ public class BookingRepo {
                 b.check_in,
                 b.check_out,
                 b.total_price,
+                b.order_code,
+                b.transaction_no,
                 b.created_at,
                 h.hotel_name,
-                h.hotel_image_url
+                h.hotel_image_url,
+				cp.partial_refund_days,
+				cp.partial_refund_percent,
+				cp.no_refund_within_days
             FROM Bookings b
             JOIN Hotels h ON b.hotel_id = h.hotel_id
+            JOIN CancellationPolicies cp ON cp.hotel_id = h.hotel_id
             WHERE booking_id = ?
         """;
 
@@ -253,11 +269,16 @@ public class BookingRepo {
                     .checkIn(rs.getTimestamp("check_in").toLocalDateTime())
                     .checkOut(rs.getTimestamp("check_out").toLocalDateTime())
                     .totalPrice(rs.getDouble("total_price"))
+                    .orderCode(rs.getString("order_code"))
+                    .transactionNo(rs.getString("transaction_no"))
                     .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
                     .hotelName(rs.getString("hotel_name"))
                     .imageUrl(rs.getString("hotel_image_url"))
+                    .partialRefundDay(rs.getInt("partial_refund_days"))
+                    .partialRefundPercent(rs.getInt("partial_refund_percent"))
+                    .noRefund(rs.getInt("no_refund_within_days"))
                     .build();
-
+            
             booking.setBookingUnits(findBookingUnitsByBookingId(bookingId));
             booking.setStatus(booking.determineStatus());
             return booking;
@@ -929,6 +950,333 @@ public class BookingRepo {
         return count != null ? count : 0;
     }
 
+    public int countPaidBookingsByHostId(int hostId) {
+        String sql = """
+            SELECT COUNT(DISTINCT b.booking_id)
+            FROM Bookings b
+            JOIN Hotels h ON b.hotel_id = h.hotel_id
+            WHERE h.host_id = ?
+            AND EXISTS (
+                SELECT 1 FROM BookingUnits bu
+                WHERE bu.booking_id = b.booking_id
+                AND bu.status IN ('approved', 'completed', 'check_in')
+            )
+        """;
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, hostId);
+        return count != null ? count : 0;
+    }
+
+    public int countActiveBookingsByHotelId(int hotelId) {
+        String sql = """
+            SELECT COUNT(DISTINCT b.booking_id)
+            FROM Bookings b
+            WHERE b.hotel_id = ?
+            AND EXISTS (
+                SELECT 1 FROM BookingUnits bu
+                WHERE bu.booking_id = b.booking_id
+                AND bu.status IN ('approved', 'check_in')
+            )
+        """;
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, hotelId);
+        return count != null ? count : 0;
+    }
+
+    public int countApprovedBookingsByHotelId(int hotelId) {
+        String sql = """
+            SELECT COUNT(DISTINCT b.booking_id)
+            FROM Bookings b
+            WHERE b.hotel_id = ?
+            AND EXISTS (
+                SELECT 1 FROM BookingUnits bu
+                WHERE bu.booking_id = b.booking_id
+                AND bu.status = 'approved'
+            )
+        """;
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, hotelId);
+        return count != null ? count : 0;
+    }
+
+    public int countCheckedInBookingsByHotelId(int hotelId) {
+        String sql = """
+            SELECT COUNT(DISTINCT b.booking_id)
+            FROM Bookings b
+            WHERE b.hotel_id = ?
+            AND EXISTS (
+                SELECT 1 FROM BookingUnits bu
+                WHERE bu.booking_id = b.booking_id
+                AND bu.status = 'check_in'
+            )
+        """;
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, hotelId);
+        return count != null ? count : 0;
+    }
+
+    public List<Booking> findActiveBookingsByHotelId(int hotelId) {
+        String sql = """
+            SELECT DISTINCT
+                b.booking_id,
+                b.hotel_id,
+                b.customer_id,
+                b.coupon_id,
+                b.check_in,
+                b.check_out,
+                b.total_price,
+                b.created_at,
+                u.full_name AS customer_name,
+                u.email AS customer_email
+            FROM Bookings b
+            JOIN Users u ON b.customer_id = u.user_id
+            WHERE b.hotel_id = ?
+            AND EXISTS (
+                SELECT 1 FROM BookingUnits bu
+                WHERE bu.booking_id = b.booking_id
+                AND bu.status IN ('approved', 'check_in')
+            )
+            ORDER BY b.created_at DESC
+        """;
+
+        return jdbcTemplate.query(sql, ps -> ps.setInt(1, hotelId), (rs, rowNum) -> {
+            int bookingId = rs.getInt("booking_id");
+
+            Booking booking = Booking.builder()
+                    .bookingId(bookingId)
+                    .hotelId(rs.getInt("hotel_id"))
+                    .customerId(rs.getInt("customer_id"))
+                    .couponId((Integer) rs.getObject("coupon_id"))
+                    .checkIn(rs.getTimestamp("check_in").toLocalDateTime())
+                    .checkOut(rs.getTimestamp("check_out").toLocalDateTime())
+                    .totalPrice(rs.getDouble("total_price"))
+                    .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
+                    .customerName(rs.getString("customer_name"))
+                    .customerEmail(rs.getString("customer_email"))
+                    .build();
+
+            booking.setBookingUnits(findBookingUnitsByBookingId(bookingId));
+            return booking;
+        });
+    }
+
+    public int rejectAllActiveBookingsByHotelId(int hotelId) {
+        String sql = """
+            UPDATE BookingUnits
+            SET status = 'rejected'
+            WHERE booking_id IN (
+                SELECT b.booking_id
+                FROM Bookings b
+                WHERE b.hotel_id = ?
+            )
+            AND status = 'approved'
+        """;
+        return jdbcTemplate.update(sql, hotelId);
+    }
+
+    public int countActiveBookingsByRoomId(int roomId) {
+        String sql = """
+            SELECT COUNT(DISTINCT bu.booking_id)
+            FROM BookingUnits bu
+            WHERE bu.room_id = ?
+            AND bu.status IN ('approved', 'check_in')
+        """;
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, roomId);
+        return count != null ? count : 0;
+    }
+
+    public int countApprovedBookingsByRoomId(int roomId) {
+        String sql = """
+            SELECT COUNT(DISTINCT bu.booking_id)
+            FROM BookingUnits bu
+            WHERE bu.room_id = ?
+            AND bu.status = 'approved'
+        """;
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, roomId);
+        return count != null ? count : 0;
+    }
+
+    /**
+     * Count all approved booking units in bookings that contain the specified room
+     */
+    public int countAllApprovedBookingUnitsInAffectedBookings(int roomId) {
+        String sql = """
+            SELECT COUNT(*)
+            FROM BookingUnits
+            WHERE booking_id IN (
+                SELECT DISTINCT booking_id
+                FROM BookingUnits
+                WHERE room_id = ? AND status = 'approved'
+            )
+            AND status = 'approved'
+        """;
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, roomId);
+        return count != null ? count : 0;
+    }
+
+    public int countCheckedInBookingsByRoomId(int roomId) {
+        String sql = """
+            SELECT COUNT(DISTINCT bu.booking_id)
+            FROM BookingUnits bu
+            WHERE bu.room_id = ?
+            AND bu.status = 'check_in'
+        """;
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, roomId);
+        return count != null ? count : 0;
+    }
+
+    public List<Booking> findActiveBookingsByRoomId(int roomId) {
+        String sql = """
+            SELECT DISTINCT
+                b.booking_id,
+                b.hotel_id,
+                b.customer_id,
+                b.coupon_id,
+                b.check_in,
+                b.check_out,
+                b.total_price,
+                b.created_at,
+                u.full_name AS customer_name,
+                u.email AS customer_email
+            FROM Bookings b
+            JOIN Users u ON b.customer_id = u.user_id
+            JOIN BookingUnits bu ON b.booking_id = bu.booking_id
+            WHERE bu.room_id = ?
+            AND bu.status IN ('approved', 'check_in')
+            ORDER BY b.created_at DESC
+        """;
+
+        return jdbcTemplate.query(sql, ps -> ps.setInt(1, roomId), (rs, rowNum) -> {
+            int bookingId = rs.getInt("booking_id");
+
+            Booking booking = Booking.builder()
+                    .bookingId(bookingId)
+                    .hotelId(rs.getInt("hotel_id"))
+                    .customerId(rs.getInt("customer_id"))
+                    .couponId((Integer) rs.getObject("coupon_id"))
+                    .checkIn(rs.getTimestamp("check_in").toLocalDateTime())
+                    .checkOut(rs.getTimestamp("check_out").toLocalDateTime())
+                    .totalPrice(rs.getDouble("total_price"))
+                    .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
+                    .customerName(rs.getString("customer_name"))
+                    .customerEmail(rs.getString("customer_email"))
+                    .build();
+
+            booking.setBookingUnits(findBookingUnitsByBookingId(bookingId));
+            return booking;
+        });
+    }
+
+    @Transactional
+    public int rejectAllActiveBookingsByRoomId(int roomId) {
+        // First, find all bookings that contain the deactivated room
+        String findBookingsSql = """
+            SELECT DISTINCT booking_id
+            FROM BookingUnits
+            WHERE room_id = ? AND status = 'approved'
+        """;
+
+        List<Integer> affectedBookingIds = jdbcTemplate.queryForList(findBookingsSql, Integer.class, roomId);
+        System.out.println("=== DEBUG: Found " + affectedBookingIds.size() + " bookings affected by room " + roomId + " deactivation ===");
+
+        if (affectedBookingIds.isEmpty()) {
+            System.out.println("No approved booking units found for room " + roomId);
+            return 0;
+        }
+
+        // Show all booking units in affected bookings before update
+        for (Integer bookingId : affectedBookingIds) {
+            String checkSql = """
+                SELECT bu.booking_unit_id, bu.booking_id, bu.room_id, bu.status, bu.quantity, r.title as room_title
+                FROM BookingUnits bu
+                JOIN Rooms r ON bu.room_id = r.room_id
+                WHERE bu.booking_id = ?
+            """;
+
+            System.out.println("--- Booking " + bookingId + " units before rejection ---");
+            jdbcTemplate.query(checkSql, (rs, rowNum) -> {
+                System.out.println("  BookingUnit ID: " + rs.getInt("booking_unit_id") +
+                                 ", Room ID: " + rs.getInt("room_id") +
+                                 ", Room Title: " + rs.getString("room_title") +
+                                 ", Status: " + rs.getString("status"));
+                return null;
+            }, bookingId);
+        }
+
+        // Reject ALL approved booking units in bookings that contain the deactivated room
+        String sql = """
+            UPDATE BookingUnits
+            SET status = 'rejected'
+            WHERE booking_id IN (
+                SELECT DISTINCT booking_id
+                FROM BookingUnits
+                WHERE room_id = ? AND status = 'approved'
+            )
+            AND status = 'approved'
+        """;
+
+        int updatedRows = jdbcTemplate.update(sql, roomId);
+        System.out.println("=== DEBUG: Updated " + updatedRows + " booking units to rejected (all units in affected bookings) ===");
+
+        // Show results after update
+        for (Integer bookingId : affectedBookingIds) {
+            String checkSql = """
+                SELECT bu.booking_unit_id, bu.booking_id, bu.room_id, bu.status, r.title as room_title
+                FROM BookingUnits bu
+                JOIN Rooms r ON bu.room_id = r.room_id
+                WHERE bu.booking_id = ?
+            """;
+
+            System.out.println("--- Booking " + bookingId + " units after rejection ---");
+            jdbcTemplate.query(checkSql, (rs, rowNum) -> {
+                System.out.println("  BookingUnit ID: " + rs.getInt("booking_unit_id") +
+                                 ", Room ID: " + rs.getInt("room_id") +
+                                 ", Room Title: " + rs.getString("room_title") +
+                                 ", Status: " + rs.getString("status"));
+                return null;
+            }, bookingId);
+        }
+
+        return updatedRows;
+    }
+
+    /**
+     * Alternative method that processes booking units individually to ensure all are updated
+     * Rejects ALL approved booking units in bookings that contain the deactivated room
+     */
+    @Transactional
+    public int rejectAllActiveBookingsByRoomIdIndividual(int roomId) {
+        // Get all approved booking units in bookings that contain the deactivated room
+        String selectSql = """
+            SELECT booking_unit_id FROM BookingUnits
+            WHERE booking_id IN (
+                SELECT DISTINCT booking_id
+                FROM BookingUnits
+                WHERE room_id = ? AND status = 'approved'
+            )
+            AND status = 'approved'
+        """;
+
+        List<Integer> approvedBookingUnitIds = jdbcTemplate.queryForList(selectSql, Integer.class, roomId);
+        System.out.println("Found " + approvedBookingUnitIds.size() + " approved booking units to reject individually (all units in affected bookings)");
+
+        int rejectedCount = 0;
+        String updateSql = "UPDATE BookingUnits SET status = 'rejected' WHERE booking_unit_id = ?";
+
+        for (Integer bookingUnitId : approvedBookingUnitIds) {
+            try {
+                int updated = jdbcTemplate.update(updateSql, bookingUnitId);
+                if (updated > 0) {
+                    rejectedCount++;
+                    System.out.println("Successfully rejected booking unit " + bookingUnitId);
+                } else {
+                    System.err.println("Failed to reject booking unit " + bookingUnitId);
+                }
+            } catch (Exception e) {
+                System.err.println("Error rejecting booking unit " + bookingUnitId + ": " + e.getMessage());
+            }
+        }
+
+        System.out.println("Individual rejection completed: " + rejectedCount + " out of " + approvedBookingUnitIds.size() + " booking units rejected");
+        return rejectedCount;
+    }
+
     public Double getMonthlyRevenueByHostId(int hostId) {
         String sql = """
             SELECT SUM(bu.price * bu.quantity)
@@ -936,7 +1284,7 @@ public class BookingRepo {
             JOIN Bookings b ON bu.booking_id = b.booking_id
             JOIN Hotels h ON b.hotel_id = h.hotel_id
             WHERE h.host_id = ?
-            AND bu.status IN ('approved', 'completed')
+            AND bu.status IN ('approved', 'completed', 'check_in')
             AND b.created_at >= DATEADD(month, DATEDIFF(month, 0, GETDATE()), 0)
             AND b.created_at < DATEADD(month, DATEDIFF(month, 0, GETDATE()) + 1, 0)
         """;
@@ -955,6 +1303,61 @@ public class BookingRepo {
         """;
         Double revenue = jdbcTemplate.queryForObject(sql, Double.class, hostId);
         return revenue != null ? revenue : 0.0;
+    }
+
+    public List<Map<String, Object>> getRevenueStatsByHostId(int hostId, String period) {
+        String dateTrunc;
+        String groupBy;
+        String whereClause = "WHERE h.host_id = ? AND bu.status IN ('approved', 'completed', 'check_in')";
+
+        switch (period) {
+            case "30days":
+                dateTrunc = "CAST(b.created_at AS DATE)";
+                groupBy = "CAST(b.created_at AS DATE)";
+                whereClause += " AND b.created_at >= DATEADD(day, -30, GETDATE())";
+                break;
+            case "6months":
+                dateTrunc = "FORMAT(b.created_at, 'yyyy-MM')";
+                groupBy = "FORMAT(b.created_at, 'yyyy-MM')";
+                whereClause += " AND b.created_at >= DATEADD(month, -6, GETDATE())";
+                break;
+            case "year2024":
+                dateTrunc = "FORMAT(b.created_at, 'yyyy-MM')";
+                groupBy = "FORMAT(b.created_at, 'yyyy-MM')";
+                whereClause += " AND YEAR(b.created_at) = 2024";
+                break;
+            case "year2023":
+                dateTrunc = "FORMAT(b.created_at, 'yyyy-MM')";
+                groupBy = "FORMAT(b.created_at, 'yyyy-MM')";
+                whereClause += " AND YEAR(b.created_at) = 2023";
+                break;
+            case "year2022":
+                dateTrunc = "FORMAT(b.created_at, 'yyyy-MM')";
+                groupBy = "FORMAT(b.created_at, 'yyyy-MM')";
+                whereClause += " AND YEAR(b.created_at) = 2022";
+                break;
+            default:
+                dateTrunc = "FORMAT(b.created_at, 'yyyy-MM')";
+                groupBy = "FORMAT(b.created_at, 'yyyy-MM')";
+                whereClause += " AND b.created_at >= DATEADD(month, -6, GETDATE())";
+        }
+
+        String sql = String.format("""
+            SELECT %s as category, SUM(bu.price * bu.quantity) as revenue
+            FROM Bookings b
+            JOIN BookingUnits bu ON b.booking_id = bu.booking_id
+            JOIN Hotels h ON b.hotel_id = h.hotel_id
+            %s
+            GROUP BY %s
+            ORDER BY %s
+            """, dateTrunc, whereClause, groupBy, groupBy);
+
+        return jdbcTemplate.query(sql, ps -> ps.setInt(1, hostId), (rs, rowNum) -> {
+            Map<String, Object> result = new HashMap<>();
+            result.put("category", rs.getString("category"));
+            result.put("revenue", rs.getDouble("revenue"));
+            return result;
+        });
     }
 
     public List<Map<String, Object>> getBookingStatsByHostId(int hostId, String period) {
@@ -1080,28 +1483,16 @@ public class BookingRepo {
             b.created_at,
             h.hotel_name,
             h.hotel_image_url,
-            (
-                SELECT SUM(price) 
-                FROM BookingUnits bu 
-                WHERE bu.booking_id = b.booking_id
-    """);
-
-        List<Object> params = new ArrayList<>();
-
-        if (!"cancelled_or_rejected".equals(status)) {
-            sql.append(" AND bu.status = ?");
-            params.add(status);
-        } else {
-            sql.append(" AND bu.status IN ('cancelled', 'rejected')");
-        }
-
-        sql.append("""
-            ) AS total_price
+            cp.partial_refund_days,
+            cp.partial_refund_percent,
+            cp.no_refund_within_days
         FROM Bookings b
         JOIN Hotels h ON b.hotel_id = h.hotel_id
+        JOIN CancellationPolicies cp ON cp.hotel_id = h.hotel_id
         WHERE b.customer_id = ?
     """);
 
+        List<Object> params = new ArrayList<>();
         params.add(customerId);
 
         if (!timeFilter.isEmpty()) {
@@ -1112,7 +1503,7 @@ public class BookingRepo {
 
         if (!"cancelled_or_rejected".equals(status)) {
             sql.append(" AND bu.status = ?)");
-            params.add(status); // thêm lần 2 cho EXISTS
+            params.add(status);
         } else {
             sql.append(" AND bu.status IN ('cancelled', 'rejected'))");
         }
@@ -1132,12 +1523,19 @@ public class BookingRepo {
                     .checkIn(rs.getTimestamp("check_in").toLocalDateTime())
                     .checkOut(rs.getTimestamp("check_out").toLocalDateTime())
                     .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
-                    .totalPrice(rs.getDouble("total_price"))
                     .hotelName(rs.getString("hotel_name"))
                     .imageUrl(rs.getString("hotel_image_url"))
+                    .partialRefundDay(rs.getInt("partial_refund_days"))
+                    .partialRefundPercent(rs.getInt("partial_refund_percent"))
+                    .noRefund(rs.getInt("no_refund_within_days"))
                     .build();
 
-            booking.setBookingUnits(findBookingUnitsByBookingId(bookingId));
+            // Lấy booking units từ bookingId
+            List<BookingUnit> units = findBookingUnitsByBookingId(bookingId);
+            booking.setBookingUnits(units != null ? units : new ArrayList<>());
+
+            // Tính totalPrice từ logic Java
+            booking.setTotalPrice(booking.calculateTotalPrice());
 
             return booking;
         });

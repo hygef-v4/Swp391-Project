@@ -1,7 +1,10 @@
 package org.swp391.hotelbookingsystem.service;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +34,32 @@ public class BookingService {
         }return true;
     }
 
+    public void updateBookingStatus(Booking booking, String status){
+        for(BookingUnit unit : booking.getBookingUnits()){
+            bookingRepo.updateStatus(unit.getBookingUnitId(), status);
+        }
+        booking.setStatus(status);
+    }
+
+    /**
+     * Reject only approved booking units, leave other statuses unchanged
+     * @param booking The booking to process
+     * @return Number of booking units that were actually rejected
+     */
+    public int rejectApprovedBookingUnits(Booking booking) {
+        int rejectedCount = 0;
+        for(BookingUnit unit : booking.getBookingUnits()){
+            if("approved".equals(unit.getStatus())) {
+                bookingRepo.updateStatus(unit.getBookingUnitId(), "rejected");
+                rejectedCount++;
+            }
+        }
+        // Update booking status based on remaining units
+        booking.setBookingUnits(bookingRepo.findBookingUnitsByBookingId(booking.getBookingId()));
+        booking.setStatus(booking.determineStatus());
+        return rejectedCount;
+    }
+
     public void updateStatus(BookingUnit bookingUnit, String status){
         bookingRepo.updateStatus(bookingUnit.getBookingUnitId(), status);
     }
@@ -43,7 +72,11 @@ public class BookingService {
         return bookingRepo.remainPendingTime(bookingId);
     }
 
-    public void approveBooking(int id){
+    public void approveBooking(int id, String orderCode, String transactionNo, String payDate){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+        LocalDateTime createdAt = LocalDateTime.parse(payDate, formatter);
+        
+        bookingRepo.setTransactionDetails(id, orderCode, transactionNo, createdAt);
         bookingRepo.approveBookingUnit(id);
     }
 
@@ -58,11 +91,7 @@ public class BookingService {
     }
 
     public Booking findById(int id){
-        try{
-            return bookingRepo.findById(id);
-        }catch(Exception e){
-            return null;
-        }
+        return bookingRepo.findById(id);
     }
 
     public Booking findBooking(int id) {
@@ -117,6 +146,58 @@ public class BookingService {
         return bookingRepo.countBookingsByHostIdAndStatus(hostId, "completed");
     }
 
+    public int countPaidBookingsByHostId(int hostId) {
+        return bookingRepo.countPaidBookingsByHostId(hostId);
+    }
+
+    public int countActiveBookingsByHotelId(int hotelId) {
+        return bookingRepo.countActiveBookingsByHotelId(hotelId);
+    }
+
+    public int countApprovedBookingsByHotelId(int hotelId) {
+        return bookingRepo.countApprovedBookingsByHotelId(hotelId);
+    }
+
+    public int countCheckedInBookingsByHotelId(int hotelId) {
+        return bookingRepo.countCheckedInBookingsByHotelId(hotelId);
+    }
+
+    public List<Booking> findActiveBookingsByHotelId(int hotelId) {
+        return bookingRepo.findActiveBookingsByHotelId(hotelId);
+    }
+
+    public int rejectAllActiveBookingsByHotelId(int hotelId) {
+        return bookingRepo.rejectAllActiveBookingsByHotelId(hotelId);
+    }
+
+    public int countActiveBookingsByRoomId(int roomId) {
+        return bookingRepo.countActiveBookingsByRoomId(roomId);
+    }
+
+    public int countApprovedBookingsByRoomId(int roomId) {
+        return bookingRepo.countApprovedBookingsByRoomId(roomId);
+    }
+
+    public int countAllApprovedBookingUnitsInAffectedBookings(int roomId) {
+        return bookingRepo.countAllApprovedBookingUnitsInAffectedBookings(roomId);
+    }
+
+    public int countCheckedInBookingsByRoomId(int roomId) {
+        return bookingRepo.countCheckedInBookingsByRoomId(roomId);
+    }
+
+    public List<Booking> findActiveBookingsByRoomId(int roomId) {
+        return bookingRepo.findActiveBookingsByRoomId(roomId);
+    }
+
+    public int rejectAllActiveBookingsByRoomId(int roomId) {
+        return bookingRepo.rejectAllActiveBookingsByRoomId(roomId);
+    }
+
+    public int rejectAllActiveBookingsByRoomIdIndividual(int roomId) {
+        return bookingRepo.rejectAllActiveBookingsByRoomIdIndividual(roomId);
+    }
+
     public double getMonthlyRevenueByHostId(int hostId) {
         return bookingRepo.getMonthlyRevenueByHostId(hostId);
     }
@@ -126,7 +207,57 @@ public class BookingService {
     }
 
     public List<Map<String, Object>> getBookingStatsByHostId(int hostId, String period) {
-        return bookingRepo.getBookingStatsByHostId(hostId, period);
+        List<Map<String, Object>> rawStats = bookingRepo.getBookingStatsByHostId(hostId, period);
+        if (!"6months".equals(period)) {
+            return rawStats;
+        }
+        // Build a map for quick lookup
+        Map<String, Integer> monthToCount = new HashMap<>();
+        for (Map<String, Object> stat : rawStats) {
+            String category = String.valueOf(stat.get("category"));
+            Integer count = stat.get("count") == null ? 0 : Integer.parseInt(stat.get("count").toString());
+            monthToCount.put(category, count);
+        }
+        // Generate last 6 months (including current month)
+        List<Map<String, Object>> result = new ArrayList<>();
+        java.time.YearMonth now = java.time.YearMonth.now();
+        java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM");
+        for (int i = 5; i >= 0; i--) {
+            java.time.YearMonth ym = now.minusMonths(i);
+            String key = ym.format(formatter);
+            Map<String, Object> item = new HashMap<>();
+            item.put("category", key);
+            item.put("count", monthToCount.getOrDefault(key, 0));
+            result.add(item);
+        }
+        return result;
+    }
+
+    public List<Map<String, Object>> getRevenueStatsByHostId(int hostId, String period) {
+        List<Map<String, Object>> rawStats = bookingRepo.getRevenueStatsByHostId(hostId, period);
+        if (!"6months".equals(period)) {
+            return rawStats;
+        }
+        // Build a map for quick lookup
+        Map<String, Double> monthToRevenue = new HashMap<>();
+        for (Map<String, Object> stat : rawStats) {
+            String category = String.valueOf(stat.get("category"));
+            Double revenue = stat.get("revenue") == null ? 0.0 : Double.parseDouble(stat.get("revenue").toString());
+            monthToRevenue.put(category, revenue);
+        }
+        // Generate last 6 months (including current month)
+        List<Map<String, Object>> result = new ArrayList<>();
+        java.time.YearMonth now = java.time.YearMonth.now();
+        java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM");
+        for (int i = 5; i >= 0; i--) {
+            java.time.YearMonth ym = now.minusMonths(i);
+            String key = ym.format(formatter);
+            Map<String, Object> item = new HashMap<>();
+            item.put("category", key);
+            item.put("revenue", monthToRevenue.getOrDefault(key, 0.0));
+            result.add(item);
+        }
+        return result;
     }
 
     // Calculate overall booking status based on booking units
@@ -146,17 +277,22 @@ public class BookingService {
             return statuses.get(0);
         }
 
-        // If multiple statuses, prioritize in order: completed > approved > pending > cancelled
+        // Prioritized status logic
         if (statuses.contains("completed")) {
             return "completed";
+        } else if (statuses.contains("check_in")) {
+            return "check_in";
         } else if (statuses.contains("approved")) {
             return "approved";
         } else if (statuses.contains("pending")) {
             return "pending";
+        } else if (statuses.contains("rejected")) {
+            return "rejected";
         } else {
-            return "cancelled";
+            return "cancelled"; // fallback
         }
     }
+
 
     public void updateBookingUnitStatus(int bookingUnitId, String status) {
         bookingRepo.updateStatus(bookingUnitId, status);
@@ -268,4 +404,6 @@ public class BookingService {
     public int countBookingsByHotelId(int hotelId) {
         return bookingRepo.countBookingsByHotelId(hotelId);
     }
+
+
 }

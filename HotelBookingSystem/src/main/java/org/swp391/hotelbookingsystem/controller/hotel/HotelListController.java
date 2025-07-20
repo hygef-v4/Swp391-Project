@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Date;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -16,6 +17,9 @@ import org.swp391.hotelbookingsystem.model.Location;
 import org.swp391.hotelbookingsystem.service.AmenityService;
 import org.swp391.hotelbookingsystem.service.HotelService;
 import org.swp391.hotelbookingsystem.service.LocationService;
+import jakarta.servlet.http.HttpSession;
+import org.swp391.hotelbookingsystem.model.User;
+import org.swp391.hotelbookingsystem.repository.UserWishlistRepository;
 
 
 @Controller
@@ -26,6 +30,8 @@ public class HotelListController {
     LocationService locationService;
     @Autowired
     AmenityService amenityService;
+    @Autowired
+    UserWishlistRepository userWishlistRepository;
 
     @GetMapping("/hotel-list")
     public String hotelList(
@@ -41,7 +47,8 @@ public class HotelListController {
         @RequestParam(value = "price", defaultValue = "true") boolean price,
 
         @RequestParam(value = "page", defaultValue = "1") int page,
-        Model model
+        Model model,
+        HttpSession session
     ){
         List<Location> location = locationService.getLocationById(locationId);
         if (locationId == -1 || location.isEmpty()) {
@@ -74,6 +81,12 @@ public class HotelListController {
         if(hotel.size() < item){
             current = hotel.subList((page-1) * 12, hotel.size());
         }else current = hotel.subList((page-1) * 12, item);
+
+        // Set trạng thái favorite nếu user đã đăng nhập
+        User user = (User) session.getAttribute("user");
+        if (user != null) {
+            hotelService.setFavoriteStatusForHotels(current, user.getId(), userWishlistRepository);
+        }
         model.addAttribute("hotels", current);
 
         model.addAttribute("page", page);
@@ -91,6 +104,7 @@ public class HotelListController {
         if(!"".equals(name)) request += "&name=" + name;
         if(!"500,000".equals(min)) request += "&min=" + min;
         if(!"2,000,000".equals(max)) request += "&max=" + max;
+        request += "&page=" + page; // Đảm bảo luôn có page hiện tại
         model.addAttribute("request", request);
 
         model.addAttribute("price", price);

@@ -2,7 +2,7 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org" data-bs-theme="light">
 
 <head>
-    <title th:text="'Chi Tiết Đối Tác - ' + ${customer.fullName} + ' - Hamora'">Chi Tiết Khách Hàng - Hamora</title>
+    <title th:text="'Liên Hệ - ' + ${customer.fullName} + ' - Hamora'">Liên Hệ - Hamora</title>
 
     <!-- Meta Tags -->
     <meta charset="utf-8">
@@ -332,10 +332,20 @@
                                 </div>
                             </div>
                         </div>
-                        <a th:if="${session.user.role == 'ADMIN'}" href="/admin-agent-list" class="btn btn-back">
+                        <!-- Dynamic back button based on user role and chat type -->
+                        <a th:if="${session.user.role == 'ADMIN' and (chatType == 'admin-agent' or chatType == null)}" href="/admin-agent-list" class="btn btn-back">
+                            <i class="bi bi-arrow-left me-2"></i> Quay Lại
+                        </a>
+                        <a th:if="${session.user.role == 'ADMIN' and chatType == 'admin-customer'}" href="/admin-user-list" class="btn btn-back">
                             <i class="bi bi-arrow-left me-2"></i> Quay Lại
                         </a>
                         <a th:if="${session.user.role == 'HOTEL_OWNER'}" href="/home" class="btn btn-back">
+                            <i class="bi bi-arrow-left me-2"></i> Quay Lại
+                        </a>
+                        <a th:if="${session.user.role == 'CUSTOMER'}" href="/home" class="btn btn-back">
+                            <i class="bi bi-arrow-left me-2"></i> Quay Lại
+                        </a>
+                        <a th:if="${session.user.role == 'MODERATOR' and chatType == 'moderator-customer'}" href="/moderator-user-list" class="btn btn-back">
                             <i class="bi bi-arrow-left me-2"></i> Quay Lại
                         </a>
                     </div>

@@ -10,6 +10,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.swp391.hotelbookingsystem.model.Favorites;
 import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.repository.UserWishlistRepository;
+import org.swp391.hotelbookingsystem.service.HotelService;
+import org.swp391.hotelbookingsystem.service.NotificationService;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -21,9 +23,14 @@ import java.util.List;
 public class UserWishlistController {
 
     private final UserWishlistRepository userWishlistRepository;
+    private final HotelService hotelService;
+    private final NotificationService notificationService;
 
-    public UserWishlistController(UserWishlistRepository userWishlistRepository) {
+    @Autowired
+    public UserWishlistController(UserWishlistRepository userWishlistRepository, HotelService hotelService, NotificationService notificationService) {
         this.userWishlistRepository = userWishlistRepository;
+        this.hotelService = hotelService;
+        this.notificationService = notificationService;
     }
 
     @GetMapping("/user-wishlist")
@@ -68,7 +75,7 @@ public class UserWishlistController {
         @RequestParam(value = "adults", defaultValue = "1") int adults,
         @RequestParam(value = "children", defaultValue = "0") int children,
         @RequestParam(value = "rooms", defaultValue = "1") int rooms,
-        
+        @RequestParam(value = "redirect", defaultValue = "") String redirectParams,
         HttpSession session, RedirectAttributes redirectAttributes
     ) {
         // Lấy thông tin người dùng từ session
@@ -83,6 +90,11 @@ public class UserWishlistController {
         try {
             // Xoá mục yêu thích
             userWishlistRepository.deleteFavorite(sessionUser.getId(), hotelId);
+            // Notification
+            var hotel = hotelService.getHotelById(hotelId);
+            if (hotel != null) {
+                notificationService.notifyWishlistRemove(sessionUser.getId(), hotel.getHotelName(), hotelId);
+            }
             redirectAttributes.addFlashAttribute("successMessage", "Xoá thành công mục yêu thích.");
         } catch (Exception e) {
             // Xử lý lỗi khi xoá
@@ -96,8 +108,11 @@ public class UserWishlistController {
             if(adults != 1) redirect += "&adults=" + adults;
             if(children != 0) redirect += "&children=" + children;
             if(rooms != 1) redirect += "&rooms=" + rooms;
-
             return "redirect:/hotel-detail?hotelId=" + hotelId + redirect;
+        }
+        // Nếu có redirectParams thì trả về hotel-list với các filter, nếu không thì về user-wishlist mặc định
+        if (!redirectParams.isEmpty()) {
+            return "redirect:/hotel-list?" + redirectParams;
         }
         return "redirect:/user-wishlist";
     }
@@ -110,7 +125,7 @@ public class UserWishlistController {
         @RequestParam(value = "adults", defaultValue = "1") int adults,
         @RequestParam(value = "children", defaultValue = "0") int children,
         @RequestParam(value = "rooms", defaultValue = "1") int rooms,
-        
+        @RequestParam(value = "redirect", defaultValue = "") String redirectParams,
         HttpSession session, RedirectAttributes redirectAttributes
     ) {
         // Lấy thông tin người dùng từ session
@@ -124,6 +139,11 @@ public class UserWishlistController {
         try {
             // Gọi repository để thêm khách sạn vào danh sách yêu thích
             userWishlistRepository.addFavorite(sessionUser.getId(), hotelId);
+            // Notification
+            var hotel = hotelService.getHotelById(hotelId);
+            if (hotel != null) {
+                notificationService.notifyWishlistAdd(sessionUser.getId(), hotel.getHotelName(), hotelId);
+            }
             redirectAttributes.addFlashAttribute("successMessage", "Khách sạn đã được thêm vào danh sách yêu thích.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Xảy ra lỗi khi thêm vào danh sách yêu thích.");
@@ -136,10 +156,12 @@ public class UserWishlistController {
             if(adults != 1) redirect += "&adults=" + adults;
             if(children != 0) redirect += "&children=" + children;
             if(rooms != 1) redirect += "&rooms=" + rooms;
-
             return "redirect:/hotel-detail?hotelId=" + hotelId + redirect;
         }
-        return "redirect:/user-wishlist";
+        if (!redirectParams.isEmpty()) {
+            return "redirect:/hotel-list?" + redirectParams;
+        }
+        return "redirect:/hotel-list";
     }
 
 }

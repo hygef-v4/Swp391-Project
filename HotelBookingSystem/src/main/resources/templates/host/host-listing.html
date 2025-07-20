@@ -129,6 +129,40 @@
             </div>
             <!-- Title END -->
 
+            <!-- Search Form START -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card border">
+                        <div class="card-body">
+                            <form method="GET" action="/host-listing" class="row g-3 align-items-center">
+                                <div class="col-md-8">
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                        <input type="text"
+                                               class="form-control"
+                                               name="search"
+                                               th:value="${search}"
+                                               placeholder="Tìm kiếm khách sạn theo tên..."
+                                               autocomplete="off">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="d-flex gap-2">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="bi bi-search me-1"></i>Tìm kiếm
+                                        </button>
+                                        <a href="/host-listing" class="btn btn-outline-secondary">
+                                            <i class="bi bi-arrow-clockwise me-1"></i>Đặt lại
+                                        </a>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Search Form END -->
+
             <!-- Listing table START -->
             <div class="row">
                 <div class="col-12">
@@ -137,8 +171,14 @@
                         <!-- Card header -->
                         <div class="card-header border-bottom d-flex justify-content-between align-items-center">
                             <h5 class="card-header-title mb-0">
-                                Khách sạn của tôi
-                                <span class="badge bg-primary bg-opacity-10 text-primary ms-2">[[${hotels.size()}]]</span>
+                                <span th:if="${search != null and !search.isEmpty()}">
+                                    Kết quả tìm kiếm: "<span th:text="${search}"></span>"
+                                    <span class="badge bg-primary bg-opacity-10 text-primary ms-2" th:text="${totalHotels}"></span>
+                                </span>
+                                <span th:unless="${search != null and !search.isEmpty()}">
+                                    Khách sạn của tôi
+                                    <span class="badge bg-primary bg-opacity-10 text-primary ms-2" th:text="${totalHotels}"></span>
+                                </span>
                             </h5>
 
                             <a href="/add-hotel" class="btn btn-sm btn-primary-soft">
@@ -149,6 +189,21 @@
 
                         <!-- Card body START -->
                         <div class="card-body vstack gap-3">
+                            <!-- No results message -->
+                            <div th:if="${hotels.isEmpty()}" class="text-center py-5">
+                                <i class="bi bi-search display-1 text-muted"></i>
+                                <h4 class="mt-3 text-muted">Không tìm thấy khách sạn nào</h4>
+                                <p class="text-muted" th:if="${search != null and !search.isEmpty()}">
+                                    Không có khách sạn nào phù hợp với từ khóa "<span th:text="${search}"></span>"
+                                </p>
+                                <p class="text-muted" th:unless="${search != null and !search.isEmpty()}">
+                                    Bạn chưa có khách sạn nào. Hãy thêm khách sạn đầu tiên của bạn!
+                                </p>
+                                <a href="/add-hotel" class="btn btn-primary">
+                                    <i class="bi bi-plus-lg me-1"></i> Thêm khách sạn mới
+                                </a>
+                            </div>
+
                             <!-- Listing item START -->
                             <div th:each="hotel : ${hotels}" class="card border p-2 mb-3">
                                 <div class="row g-4">
@@ -289,6 +344,55 @@
                                                         </span>
                                                     </div>
 
+                                                    <!-- Active Bookings Warning Modal -->
+                                                    <div class="modal fade" id="activeBookingsModal" tabindex="-1"
+                                                         aria-labelledby="activeBookingsModalLabel" aria-hidden="true">
+                                                        <div class="modal-dialog">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header bg-warning">
+                                                                    <h5 class="modal-title" id="activeBookingsModalLabel">
+                                                                        <i class="bi bi-exclamation-triangle me-2"></i>
+                                                                        Cảnh báo: Có đặt phòng đang hoạt động
+                                                                    </h5>
+                                                                    <button type="button" class="btn-close"
+                                                                            data-bs-dismiss="modal"
+                                                                            aria-label="Đóng"></button>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                    <div class="alert alert-warning">
+                                                                        <strong>Khách sạn "<span th:text="${hotelNameWithBookings}"></span>" hiện có
+                                                                        <span th:text="${activeBookingsCount}"></span> đặt phòng đang hoạt động.</strong>
+                                                                    </div>
+                                                                    <p>Các đặt phòng này bao gồm:</p>
+                                                                    <ul>
+                                                                        <li>Đặt phòng đã được duyệt (approved)</li>
+                                                                        <li>Khách đang ở (check-in)</li>
+                                                                    </ul>
+                                                                    <div class="alert alert-danger">
+                                                                        <strong>Nếu tiếp tục vô hiệu hóa:</strong>
+                                                                        <ul class="mb-0 mt-2">
+                                                                            <li>Tất cả đặt phòng này sẽ bị hủy</li>
+                                                                            <li>Bạn sẽ phải hoàn tiền toàn bộ cho khách hàng</li>
+                                                                            <li>Điều này có thể ảnh hưởng đến uy tín của bạn</li>
+                                                                        </ul>
+                                                                    </div>
+                                                                    <p class="mb-0"><strong>Bạn có chắc chắn muốn tiếp tục?</strong></p>
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                                                        <i class="bi bi-x-circle me-1"></i>Hủy bỏ
+                                                                    </button>
+                                                                    <form th:action="@{/host/force-deactivate-hotel}" method="post" class="d-inline">
+                                                                        <input type="hidden" name="hotelId" th:value="${hotelIdWithBookings}">
+                                                                        <button type="submit" class="btn btn-danger">
+                                                                            <i class="bi bi-exclamation-triangle me-1"></i>Vẫn tiếp tục vô hiệu hóa
+                                                                        </button>
+                                                                    </form>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
                                                     <!-- OTP Modal (Ensure it's on the page you redirect to, e.g., host-listing.html) -->
                                                     <div class="modal fade" id="otpModal" tabindex="-1"
                                                          aria-labelledby="otpModalLabel" aria-hidden="true">
@@ -304,6 +408,13 @@
                                                                                 aria-label="Đóng"></button>
                                                                     </div>
                                                                     <div class="modal-body">
+                                                                        <!-- Show different message for force deactivate -->
+                                                                        <div th:if="${isForceDeactivate}" class="alert alert-warning">
+                                                                            <h6><i class="bi bi-exclamation-triangle me-2"></i>Cảnh báo: Vô hiệu hóa khách sạn có đặt phòng đang hoạt động</h6>
+                                                                            <p class="mb-2">Khách sạn này có <strong th:text="${activeBookingsCount}">0</strong> đặt phòng đang hoạt động.</p>
+                                                                            <p class="mb-0"><strong>Tất cả đặt phòng này sẽ bị hủy và bạn phải hoàn tiền cho khách hàng.</strong></p>
+                                                                        </div>
+
                                                                         <p>Mã xác nhận đã được gửi tới email của bạn.
                                                                             Vui lòng nhập mã để xác nhận vô hiệu hóa khách
                                                                             sạn.</p>
@@ -355,6 +466,66 @@
                 </div>
             </div>
             <!-- Listing table END -->
+
+            <!-- Pagination START -->
+            <div class="row" th:if="${totalPages > 1}">
+                <div class="col-12">
+                    <nav aria-label="Pagination">
+                        <ul class="pagination pagination-primary-soft d-flex justify-content-center">
+                            <!-- Previous button -->
+                            <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled' : ''">
+                                <a class="page-link"
+                                   th:href="@{/host-listing(page=${currentPage - 1}, search=${search})}"
+                                   th:if="${currentPage > 1}">
+                                    <i class="bi bi-arrow-left"></i>
+                                </a>
+                                <span class="page-link" th:unless="${currentPage > 1}">
+                                    <i class="bi bi-arrow-left"></i>
+                                </span>
+                            </li>
+
+                            <!-- Page numbers -->
+                            <li th:each="pageNum : ${#numbers.sequence(1, totalPages)}"
+                                class="page-item"
+                                th:classappend="${pageNum == currentPage} ? 'active' : ''">
+                                <a class="page-link"
+                                   th:href="@{/host-listing(page=${pageNum}, search=${search})}"
+                                   th:text="${pageNum}"
+                                   th:if="${pageNum != currentPage}">1</a>
+                                <span class="page-link"
+                                      th:text="${pageNum}"
+                                      th:if="${pageNum == currentPage}">1</span>
+                            </li>
+
+                            <!-- Next button -->
+                            <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled' : ''">
+                                <a class="page-link"
+                                   th:href="@{/host-listing(page=${currentPage + 1}, search=${search})}"
+                                   th:if="${currentPage < totalPages}">
+                                    <i class="bi bi-arrow-right"></i>
+                                </a>
+                                <span class="page-link" th:unless="${currentPage < totalPages}">
+                                    <i class="bi bi-arrow-right"></i>
+                                </span>
+                            </li>
+                        </ul>
+                    </nav>
+
+                    <!-- Pagination info -->
+                    <div class="text-center mt-3">
+                        <small class="text-muted">
+                            Hiển thị
+                            <span th:text="${(currentPage - 1) * pageSize + 1}">1</span>
+                            -
+                            <span th:text="${#numbers.formatInteger(T(java.lang.Math).min(currentPage * pageSize, totalHotels), 0, 'COMMA')}">6</span>
+                            trong tổng số
+                            <span th:text="${#numbers.formatInteger(totalHotels, 0, 'COMMA')}">10</span>
+                            khách sạn
+                        </small>
+                    </div>
+                </div>
+            </div>
+            <!-- Pagination END -->
         </div>
     </section>
     <!-- =======================
@@ -389,9 +560,17 @@
 <script th:inline="javascript">
     /*<![CDATA[*/
     document.addEventListener('DOMContentLoaded', function () {
+        // Check for active bookings warning
+        const hasActiveBookings = /*[[${hasActiveBookings}]]*/ false;
+        if (hasActiveBookings) {
+            const activeBookingsModal = new bootstrap.Modal(document.getElementById('activeBookingsModal'));
+            activeBookingsModal.show();
+        }
+
         // Thymeleaf will replace [[${showOtpModalForHotelId}]] with the actual value or null if not present
         const hotelIdForOtp = /*[[${showOtpModalForHotelId}]]*/ null;
         const otpErrorMessage = /*[[${otpError}]]*/ null; // Get OTP specific error
+        const isForceDeactivate = /*[[${isForceDeactivate}]]*/ false;
 
         if (hotelIdForOtp) {
             const otpModalElement = document.getElementById('otpModal');
@@ -400,6 +579,14 @@
 
             if (otpModalElement && otpHotelIdInput) {
                 otpHotelIdInput.value = hotelIdForOtp; // Set the hidden hotelId field
+
+                // Update modal title for force deactivate
+                if (isForceDeactivate) {
+                    const modalTitle = otpModalElement.querySelector('.modal-title');
+                    if (modalTitle) {
+                        modalTitle.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>Xác nhận vô hiệu hóa khách sạn';
+                    }
+                }
 
                 const modal = new bootstrap.Modal(otpModalElement);
                 modal.show();
@@ -419,6 +606,39 @@
             }
         }
 
+    });
+</script>
+
+<!-- Search Enhancement Script -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.querySelector('input[name="search"]');
+        const searchForm = document.querySelector('form[action="/host-listing"]');
+
+        // Auto-submit on Enter key
+        if (searchInput) {
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    searchForm.submit();
+                }
+            });
+
+            // Focus search input if there's a search term
+            const urlParams = new URLSearchParams(window.location.search);
+            const searchTerm = urlParams.get('search');
+            if (searchTerm) {
+                searchInput.focus();
+                // Move cursor to end of input
+                searchInput.setSelectionRange(searchInput.value.length, searchInput.value.length);
+            }
+        }
+
+        // Smooth scroll to results after search
+        const resultsSection = document.querySelector('.card-body .vstack');
+        if (resultsSection && window.location.search.includes('search=')) {
+            resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
     });
 </script>
 

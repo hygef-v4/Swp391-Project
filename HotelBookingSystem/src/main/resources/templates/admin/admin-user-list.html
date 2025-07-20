@@ -273,18 +273,18 @@
                         <div class="col-2 text-center">
                             <button class="btn btn-sm px-3 toggle-status-btn"
                                     th:classappend="${user.active} ? 'btn-success' : 'btn-danger'"
-                                    th:title="${user.active} ? 'Click to deactivate' : 'Click to activate'"
+                                    th:title="${user.active} ? 'Cấm' : 'Khôi phục'"
                                     th:attr="data-user-id=${user.id},data-user-active=${user.active}">
                                 <i class="bi"
                                    th:classappend="${user.active} ? 'bi-check-circle' : 'bi-slash-circle'"></i>
-                                <span th:text="${user.active} ? 'Active' : 'Inactive'"></span>
+                                <span th:text="${user.active} ? 'Hoạt động' : 'Bị cấm'"></span>
                             </button>
                             <form th:if="${user.flagged}" th:action="@{'/admin/user/unflag/' + ${user.id}}" method="post" style="display:inline; margin-left: 4px;">
                                 <input type="hidden" name="search" th:value="${search}" />
                                 <input type="hidden" name="role" th:value="${role}" />
                                 <input type="hidden" name="status" th:value="${status}" />
                                 <button type="submit" class="btn btn-warning btn-sm" title="Unflag user">
-                                    <i class="bi bi-flag-slash"></i> Unflag
+                                    <i class="bi bi-flag-slash"></i> Bỏ báo cáo
                                 </button>
                             </form>
                         </div>

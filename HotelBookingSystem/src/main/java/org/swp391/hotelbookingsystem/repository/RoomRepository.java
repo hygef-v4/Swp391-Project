@@ -221,10 +221,31 @@ public class RoomRepository {
 
     public boolean hasActiveBookingUnits(int roomId) {
         String sql = """
-            SELECT COUNT(*) FROM BookingUnits 
-            WHERE room_id = ? AND status IN ('approved')
+            SELECT COUNT(*) FROM BookingUnits
+            WHERE room_id = ? AND status = 'approved'
         """;
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, roomId);
+        return count != null && count > 0;
+    }
+
+    public boolean hasCheckedInBookingUnits(int roomId) {
+        String sql = """
+            SELECT COUNT(*) FROM BookingUnits
+            WHERE room_id = ? AND status = 'check_in'
+        """;
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, roomId);
+        return count != null && count > 0;
+    }
+
+    public boolean roomTitleExistsInHotel(String title, int hotelId) {
+        String sql = "SELECT COUNT(*) FROM Rooms WHERE LOWER(title) = LOWER(?) AND hotel_id = ?";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, title.trim(), hotelId);
+        return count != null && count > 0;
+    }
+
+    public boolean roomTitleExistsInHotelExcludingRoom(String title, int hotelId, int excludeRoomId) {
+        String sql = "SELECT COUNT(*) FROM Rooms WHERE LOWER(title) = LOWER(?) AND hotel_id = ? AND room_id != ?";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, title.trim(), hotelId, excludeRoomId);
         return count != null && count > 0;
     }
 

@@ -10,18 +10,25 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.swp391.hotelbookingsystem.service.UserService;
+import org.swp391.hotelbookingsystem.service.NotificationService;
+import java.util.List;
 
 @Controller
 public class UserProfileController {
 
     private final UserService userService;
+    private final NotificationService notificationService;
 
-    public UserProfileController(UserService userService) {
+    @Autowired
+    public UserProfileController(UserService userService, NotificationService notificationService) {
         this.userService = userService;
+        this.notificationService = notificationService;
     }
 
     @GetMapping("/user-profile")
-    public String showUserProfile(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
+    public String showUserProfile(Model model, HttpSession session, RedirectAttributes redirectAttributes,
+                                @RequestParam(required = false) String incomplete,
+                                @RequestParam(required = false) String reason) {
         User sessionUser = (User) session.getAttribute("user");
 
         if (sessionUser != null) {
@@ -31,6 +38,24 @@ public class UserProfileController {
             model.addAttribute("dob", sessionUser.getDob());
             model.addAttribute("bio", sessionUser.getBio());
             model.addAttribute("gender", sessionUser.getGender());
+
+            // Handle profile completeness validation messages
+            if ("true".equals(incomplete) && "hotel_registration".equals(reason)) {
+                String validationMessage = (String) session.getAttribute("profileValidationMessage");
+                @SuppressWarnings("unchecked")
+                List<String> missingFields = (List<String>) session.getAttribute("missingFields");
+
+                if (validationMessage != null) {
+                    model.addAttribute("profileIncompleteWarning", validationMessage);
+                    model.addAttribute("missingFields", missingFields);
+                    model.addAttribute("redirectReason", "hotel_registration");
+
+                    // Clear session attributes after use
+                    session.removeAttribute("profileValidationMessage");
+                    session.removeAttribute("missingFields");
+                    session.removeAttribute("redirectReason");
+                }
+            }
         } else {
             redirectAttributes.addFlashAttribute("error", "Người dùng chưa đăng nhập. Vui lòng đăng nhập để truy cập thông tin cá nhân.");
             return "redirect:/login";
@@ -45,6 +70,7 @@ public class UserProfileController {
                                     @RequestParam("dob") String dob,
                                     @RequestParam("bio") String bio,
                                     @RequestParam("gender") String gender,
+                                    @RequestParam(value = "avatarUrl", required = false) String avatarUrl,
                                     HttpSession session, RedirectAttributes redirectAttributes) {
 
         User sessionUser = (User) session.getAttribute("user");
@@ -61,11 +87,38 @@ public class UserProfileController {
                 sessionUser.setDob(java.sql.Date.valueOf(dob));
                 sessionUser.setBio(bio);
                 sessionUser.setGender(gender);
+                // Xử lý cập nhật avatar:
+                if (avatarUrl != null) {
+                    if (avatarUrl.isBlank()) {
+                        sessionUser.setAvatarUrl(null); // Xoá avatar nếu giá trị rỗng
+                    } else if (!avatarUrl.equals(sessionUser.getAvatarUrl())) {
+                        sessionUser.setAvatarUrl(avatarUrl); // Cập nhật avatar mới nếu khác avatar hiện tại
+                    }
+                }
 
                 userService.updateUser(sessionUser);
 
                 session.setAttribute("user", sessionUser); // Cập nhật session
-                redirectAttributes.addFlashAttribute("success", "Cập nhật thông tin thành công.");
+                notificationService.notifyProfileUpdate(sessionUser.getId());
+
+                // Check if user was redirected from hotel registration
+                String returnTo = (String) session.getAttribute("returnToAfterProfileUpdate");
+                if ("hotel_registration".equals(returnTo)) {
+                    session.removeAttribute("returnToAfterProfileUpdate");
+
+                    // Validate profile completeness again
+                    UserService.ProfileValidationResult validationResult = userService.validateProfileCompleteness(sessionUser);
+                    if (validationResult.isComplete()) {
+                        // Set flag to skip validation on next register-host access
+                        session.setAttribute("profileJustUpdated", "true");
+                        redirectAttributes.addFlashAttribute("success", "Hồ sơ đã được hoàn thiện! Bạn có thể tiếp tục đăng ký khách sạn.");
+                        return "redirect:/register-host?from=profile";
+                    } else {
+                        redirectAttributes.addFlashAttribute("warning", "Hồ sơ vẫn chưa đầy đủ. " + validationResult.getMessage());
+                    }
+                } else {
+                    redirectAttributes.addFlashAttribute("success", "Cập nhật thông tin thành công.");
+                }
             } catch (IllegalArgumentException e) {
                 redirectAttributes.addFlashAttribute("error", e.getMessage());
             } catch (Exception e) {

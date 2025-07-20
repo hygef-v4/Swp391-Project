@@ -22,7 +22,13 @@ public class Booking {
     private LocalDateTime checkIn;
     private LocalDateTime checkOut;
     private Double totalPrice;
+    private String orderCode;
+    private String transactionNo;
     private LocalDateTime createdAt;
+
+    private int partialRefundDay;
+    private int partialRefundPercent;
+    private int noRefund;
     
     private String hotelName;
     private String imageUrl;
@@ -32,7 +38,6 @@ public class Booking {
     private String customerEmail;
     private String customerAvatar;
     private long numberOfNights;
-
 
     public int getBookingUnitSize(){
         int size = 0;
@@ -45,28 +50,33 @@ public class Booking {
         boolean hasCheckIn = false;
         boolean hasCompleted = false;
         boolean hasApproved = false;
-        boolean allCancelledOrRejected = true;
+        boolean allRejected = true;
+        boolean allCancelled = true;
 
         for (BookingUnit unit : bookingUnits) {
             String status = unit.getStatus();
-            if ("check_in".equals(status)) {
-                hasCheckIn = true;
-            } else if ("completed".equals(status)) {
-                hasCompleted = true;
-            } else if ("approved".equals(status)) {
-                hasApproved = true;
+
+            switch (status) {
+                case "check_in" -> hasCheckIn = true;
+                case "completed" -> hasCompleted = true;
+                case "approved" -> hasApproved = true;
             }
 
-            if (!"cancelled".equals(status) && !"rejected".equals(status)) {
-                allCancelledOrRejected = false;
+            if (!"rejected".equals(status)) {
+                allRejected = false;
+            }
+
+            if (!"cancelled".equals(status)) {
+                allCancelled = false;
             }
         }
 
         if (hasCheckIn) return "check_in";
         if (hasCompleted) return "completed";
         if (hasApproved) return "approved";
-        if (allCancelledOrRejected) return "cancelled";
-        return null;
+        if (allRejected) return "rejected";
+        if (allCancelled) return "cancelled";
+        return "cancelled"; // fallback for mix of rejected + cancelled
     }
 
     public void calculateNumberOfNights() {
@@ -92,5 +102,11 @@ public class Booking {
                 .sum();
     }
 
+    public long refundAmount(){
+        long day = ChronoUnit.DAYS.between(LocalDateTime.now().toLocalDate(), checkIn.toLocalDate());
 
+        if(day <= noRefund) return 0;
+        if(day <= partialRefundDay) return (long)(totalPrice.longValue() * ((float)partialRefundPercent / 100));
+        return totalPrice.longValue();
+    }
 }

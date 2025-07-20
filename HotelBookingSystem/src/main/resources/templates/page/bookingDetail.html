@@ -96,10 +96,18 @@
                 <div th:replace="~{common/sidebar-profile :: sidebar}"></div>
 
                 <div class="col-lg-8 col-xl-9 ps-xl-5">
+                    <div class="d-flex justify-content-end mb-2">
+                        <a th:href="@{/bookingHistory}" class="btn btn-sm btn-light"><i class="fa fa-arrow-left me-1"></i>Quay lại trang lịch sử đặt phòng</a>
+                    </div>
                     <div class="card border">
                         <div class="card-header border-bottom d-flex justify-content-between align-items-center">
                             <h4 class="card-title mb-0">Chi tiết đặt phòng</h4>
-                            <a th:href="@{/bookingHistory}" class="btn btn-sm btn-light"><i class="fa fa-arrow-left me-1"></i>Quay lại trang lịch sử đặt phòng</a>
+                            <div class="text-center">
+                                <a th:if="${cancelable}"
+                                   th:attr="data-cancel-url=@{'/cancel-booking/' + ${booking.bookingId}}"
+                                   class="btn btn-danger"
+                                   onclick="confirmCancel(this)">Huỷ đặt phòng</a>
+                            </div>
                         </div>
 
                         <div class="card-body" th:each="bookingUnit : ${booking.bookingUnits}" th:if="${(upcoming && bookingUnit.status == 'approved') || (cancelled && bookingUnit.status == 'cancelled') || (cancelled && bookingUnit.status == 'rejected') || (completed && bookingUnit.status == 'completed') || (checkin && bookingUnit.status == 'check_in')}">
@@ -144,13 +152,6 @@
                                     <h6 th:text="${#numbers.formatDecimal(bookingUnit.price, 0, 'COMMA', 0, 'POINT')} + '₫'"></h6>
                                 </div>
                             </div>
-
-                            <div class="text-center mt-4">
-                                <a th:if="${bookingUnit.cancelable}"
-                                   th:attr="data-cancel-url=@{'/cancel-booking/' + ${bookingUnit.bookingUnitId}}"
-                                   class="btn btn-danger"
-                                   onclick="confirmCancel(this)">Huỷ đặt phòng</a>
-                            </div>
                         </div>
 
                     </div>
@@ -184,6 +185,7 @@ Footer END -->
     <div class="bg-white p-4 rounded shadow text-center" style="min-width: 300px;">
         <h5 class="mb-3">Xác nhận huỷ</h5>
         <p>Bạn có chắc chắn muốn huỷ đặt phòng này?</p>
+        <p>Bạn sẽ được hoàn trả <span th:text="${#numbers.formatDecimal(booking.refundAmount(), 0, 'COMMA', 0, 'POINT')} + '₫'"></span></p>
         <div class="d-flex justify-content-center gap-2 mt-3">
             <button class="btn btn-danger" onclick="proceedCancel()">Xác nhận</button>
             <button class="btn btn-secondary" onclick="closeModal()">Đóng</button>

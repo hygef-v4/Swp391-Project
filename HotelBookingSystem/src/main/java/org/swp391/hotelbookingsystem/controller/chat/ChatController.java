@@ -64,24 +64,17 @@ public class ChatController {
                 
                 if (sender != null && receiver != null) {
                     String senderName = sender.getFullName();
-                    
-                    // Determine the correct action URL based on receiver's role
-                    String actionUrl;
-                    if (receiver.getRole().equals("HOST")) {
-                        // Host receives message from customer
-                        actionUrl = "/host-customer-detail?customerId=" + chatMessage.getSenderId();
-                    } else {
-                        // Customer receives message from host  
-                        actionUrl = "/customer-host-detail?hostId=" + chatMessage.getSenderId();
-                    }
-                    
-                    // Use enhanced notification method that merges notifications from same sender
-                    notificationService.createOrUpdateChatNotification(
+                    String messageContent = chatMessage.getContent() != null ? chatMessage.getContent() :
+                                          (chatMessage.getMessageType().equals("IMAGE") ? "Đã gửi một hình ảnh" : "");
+
+                    // Use the new comprehensive chat notification method
+                    notificationService.createChatNotification(
                         chatMessage.getReceiverId(),
                         senderName,
                         chatMessage.getSenderId(),
-                        chatMessage.getContent(),
-                        actionUrl
+                        messageContent,
+                        sender.getRole(),
+                        receiver.getRole()
                     );
                     
                     log.info("Chat notification created/updated for user {} from sender {}", 
