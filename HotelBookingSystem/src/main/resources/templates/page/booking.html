@@ -290,7 +290,7 @@ Page content START -->
                                     <div class="vstack gap-4">
 
                                         <!-- Room item START -->
-                                        <div class="card shadow p-3 hidden" th:id="'booked' + ${room.roomId}" th:each="room: ${rooms}">
+                                        <div class="card shadow p-3 hidden" th:id="'booked' + ${room.roomId}" th:each="room: ${rooms}" th:if="${room.status != 'inactive' && room.quantity > 0}">
                                             <div class="row g-4">
                                                 <!-- Card img -->
                                                 <div class="col-md-5 position-relative d-flex flex-column justify-content-center">
@@ -365,7 +365,7 @@ Page content START -->
                                     <div class="vstack gap-4">
 
                                         <!-- Room item START -->
-                                        <div class="card shadow p-3" th:id="'more' + ${room.roomId}" th:each="room: ${rooms}">
+                                        <div class="card shadow p-3" th:id="'more' + ${room.roomId}" th:each="room: ${rooms}" th:if="${room.status != 'inactive' && room.quantity > 0}">
                                             <div class="row g-4">
                                                 <!-- Card img -->
                                                 <div class="col-md-5 position-relative d-flex flex-column justify-content-center">
@@ -635,7 +635,7 @@ Footer END -->
                 const room = document.getElementById('booked' + id);
 
                 if(id != roomId){
-                    if(room.querySelector(".bookedQuantity").max >= quantity){
+                    if(room != null && room.querySelector(".bookedQuantity").max >= quantity){
                         room.querySelector(".bookedQuantity").value = quantity;
                         booking(id, false);
                     }else{
