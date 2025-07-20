@@ -291,7 +291,7 @@
 
                         <!-- Detail button -->
                         <div class="col-1 text-center">
-                            <a th:href="@{/admin-user-detail(id=${user.id})}" 
+                            <a th:href="${user.role == 'HOTEL_OWNER' ? '/admin-agent-detail?id=' + user.id : '/admin-user-detail?id=' + user.id}"
                                class="btn btn-outline-primary btn-sm"
                                title="Xem chi tiết">
                                 <i class="bi bi-eye"></i>

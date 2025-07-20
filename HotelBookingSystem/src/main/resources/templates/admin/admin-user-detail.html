@@ -381,9 +381,16 @@
                                             </td>
                                             <td th:text="${hotel.cityName}">Location</td>
                                             <td>
-                                                <span class="badge" 
-                                                      th:classappend="${hotel.status == 'active' ? 'bg-success' : 'bg-danger'}"
-                                                      th:text="${hotel.status == 'active' ? 'Hoạt động' : 'Bị khóa'}">
+                                                <span class="badge"
+                                                      th:classappend="${hotel.status == 'active' ? 'bg-success' :
+                                                                       (hotel.status == 'rejected' ? 'bg-warning' :
+                                                                       (hotel.status == 'pending' ? 'bg-info' :
+                                                                       (hotel.status == 'inactive' ? 'bg-secondary' : 'bg-danger')))}"
+                                                      th:text="${hotel.status == 'active' ? 'Hoạt động' :
+                                                                (hotel.status == 'rejected' ? 'Bị từ chối' :
+                                                                (hotel.status == 'pending' ? 'Chờ duyệt' :
+                                                                (hotel.status == 'inactive' ? 'Không hoạt động' :
+                                                                (hotel.status == 'banned' ? 'Bị cấm' : 'Bị khóa'))))}">
                                                     Status
                                                 </span>
                                             </td>
@@ -420,6 +427,7 @@
                                             <th th:if="${user.role == 'HOTEL_OWNER'}">Khách hàng</th>
                                             <th>Check-in</th>
                                             <th>Check-out</th>
+                                            <th>Số đêm</th>
                                             <th>Tổng tiền</th>
                                             <th>Thao tác</th>
                                         </tr>
@@ -451,6 +459,9 @@
                                                 <td th:text="${#temporals.format(booking.checkIn, 'dd/MM/yyyy')}">Check-in</td>
                                                 <td th:text="${#temporals.format(booking.checkOut, 'dd/MM/yyyy')}">Check-out</td>
                                                 <td>
+                                                    <span class="badge bg-info" th:text="${booking.numberOfNights + ' đêm'}">Nights</span>
+                                                </td>
+                                                <td>
                                                     <strong th:text="${booking.totalPrice > 0 ? (#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 0, 'POINT') + ' VNĐ') : 'Đã hủy/ Từ chối'}">Total</strong>
                                                 </td>
                                                 <td>
@@ -463,7 +474,7 @@
                                             </tr>
                                             <!-- Expandable booking details row -->
                                             <tr th:id="'expand-' + ${booking.bookingId}" class="booking-details-row d-none">
-                                                <td th:colspan="${user.role == 'HOTEL_OWNER' ? '7' : '6'}" class="p-0">
+                                                <td th:colspan="${user.role == 'HOTEL_OWNER' ? '8' : '7'}" class="p-0">
                                                     <div class="bg-light p-3 border-start border-primary border-3" style="overflow-x: auto;">
                                                         <h6 class="mb-3 text-primary">
                                                             <i class="bi bi-door-open me-2"></i>Chi Tiết Phòng Đặt
