@@ -248,15 +248,17 @@
                                             
                                             <!-- Hotel Status -->
                                             <div class="mt-2">
-                                                <span class="badge" 
-                                                      th:classappend="${hotel.status == 'active' ? 'bg-success' : 
-                                                                       hotel.status == 'inactive' ? 'bg-warning' : 
-                                                                       hotel.status == 'banned' ? 'bg-danger' : 
-                                                                       hotel.status == 'pending' ? 'bg-info' : 'bg-secondary'}"
-                                                      th:text="${hotel.status == 'active' ? 'Đang hoạt động' : 
-                                                                hotel.status == 'inactive' ? 'Vô hiệu hóa' : 
-                                                                hotel.status == 'banned' ? 'Bị cấm' : 
-                                                                hotel.status == 'pending' ? 'Chờ duyệt' : 'Không xác định'}">
+                                                <span class="badge"
+                                                      th:classappend="${hotel.status == 'active' ? 'bg-success' :
+                                                                       hotel.status == 'inactive' ? 'bg-warning' :
+                                                                       hotel.status == 'banned' ? 'bg-danger' :
+                                                                       hotel.status == 'pending' ? 'bg-info' :
+                                                                       hotel.status == 'rejected' ? 'bg-danger' : 'bg-secondary'}"
+                                                      th:text="${hotel.status == 'active' ? 'Đang hoạt động' :
+                                                                hotel.status == 'inactive' ? 'Vô hiệu hóa' :
+                                                                hotel.status == 'banned' ? 'Bị cấm' :
+                                                                hotel.status == 'pending' ? 'Chờ duyệt' :
+                                                                hotel.status == 'rejected' ? 'Đã bị từ chối' : 'Không xác định'}">
                                                     Trạng thái
                                                 </span>
                                             </div>
@@ -294,9 +296,10 @@
                                                     <!-- Manage - Only for active and inactive hotels -->
                                                     <a th:href="@{/manage-hotel(hotelId=${hotel.hotelId})}"
                                                        class="btn btn-sm btn-outline-warning mb-0"
-                                                       th:classappend="${hotel.status == 'banned' or hotel.status == 'pending'} ? 'disabled' : ''"
-                                                       th:title="${hotel.status == 'banned' ? 'Không thể quản lý khách sạn bị cấm' : 
-                                                                  hotel.status == 'pending' ? 'Không thể quản lý khách sạn đang chờ duyệt' : ''}">
+                                                       th:classappend="${hotel.status == 'banned' or hotel.status == 'pending' or hotel.status == 'rejected'} ? 'disabled' : ''"
+                                                       th:title="${hotel.status == 'banned' ? 'Không thể quản lý khách sạn bị cấm' :
+                                                                  hotel.status == 'pending' ? 'Không thể quản lý khách sạn đang chờ duyệt' :
+                                                                  hotel.status == 'rejected' ? 'Không thể quản lý khách sạn đã bị từ chối' : ''}">
                                                         <i class="bi bi-gear fa-fw me-1"></i> Quản lý
                                                     </a>
 
@@ -341,6 +344,13 @@
                                                         <!-- Pending Status Info -->
                                                         <span class="btn btn-sm btn-outline-info mb-0 disabled">
                                                             <i class="bi bi-clock fa-fw me-1"></i> Chờ duyệt
+                                                        </span>
+                                                    </div>
+
+                                                    <div th:if="${hotel.status == 'rejected'}">
+                                                        <!-- Rejected Status Info -->
+                                                        <span class="btn btn-sm btn-outline-danger mb-0 disabled">
+                                                            <i class="bi bi-x-circle fa-fw me-1"></i> Đã bị từ chối
                                                         </span>
                                                     </div>
 
