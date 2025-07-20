@@ -184,13 +184,13 @@ public class HostDashboardController {
             params.add("id", String.valueOf(booking.getBookingId()));
             params.add("trantype", "02");
             params.add("amount", String.valueOf(booking.getTotalPrice().longValue()));
-            params.add("refundRole", "customer");
+            params.add("refundRole", "Hotel Owner");
             params.add("orderInfo", "Hủy đặt phòng " + booking.getHotelName());
 
             HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
             String res = restTemplate.postForObject(baseUrl + "/refund", request, String.class);
             
-            if (res != null && res.equals("00")) {
+            if(res != null && res.equals("00")){
                 bookingService.updateBookingStatus(booking, "rejected");
                 notificationService.rejectNotification(booking.getCustomerId(), String.valueOf(booking.getBookingId()), booking.refundAmount());
 

@@ -617,7 +617,7 @@ Footer END -->
         if(roomId){
             const room = document.getElementById('booked' + roomId);
 
-            if(room.querySelector(".bookedQuantity").max > 0){
+            if(room.querySelector(".bookedQuantity").max >= amount){
                 room.querySelector(".bookedQuantity").value = amount;
                 booking(roomId, false);
             }else{
@@ -635,7 +635,7 @@ Footer END -->
                 const room = document.getElementById('booked' + id);
 
                 if(id != roomId){
-                    if(room.querySelector(".bookedQuantity").max > 0){
+                    if(room.querySelector(".bookedQuantity").max >= quantity){
                         room.querySelector(".bookedQuantity").value = quantity;
                         booking(id, false);
                     }else{
@@ -645,7 +645,7 @@ Footer END -->
             });
         }
 
-        if(msBox) alert("Đã hết phòng, vui lòng chọn phòng khác");
+        if(msBox) alert("Phòng đã chọn hiện không đủ phòng");
     });
 
     function updatePaid(t, d){

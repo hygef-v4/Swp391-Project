@@ -7,14 +7,22 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import org.swp391.hotelbookingsystem.model.Amenity;
+import org.swp391.hotelbookingsystem.model.Booking;
 import org.swp391.hotelbookingsystem.model.CancellationPolicy;
 import org.swp391.hotelbookingsystem.model.Hotel;
 import org.swp391.hotelbookingsystem.model.Room;
@@ -33,6 +41,9 @@ import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class HostHotelController {
+
+    @Value("${app.base-url}")
+    private String baseUrl;
 
     final
     LocationService locationService;
@@ -530,8 +541,28 @@ public class HostHotelController {
             int rejectedBookings = 0;
             if (forceDeactivate) {
                 try {
-                    rejectedBookings = bookingService.rejectAllActiveBookingsByRoomId(roomId);
-                    System.out.println("Rejected " + rejectedBookings + " active bookings for room " + roomId);
+                    RestTemplate restTemplate = new RestTemplate();
+                    HttpHeaders headers = new HttpHeaders();
+                    headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+                    Booking booking = bookingService.findBooking(roomId);
+                    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+                    params.add("id", String.valueOf(booking.getBookingId()));
+                    params.add("trantype", "02");
+                    params.add("amount", String.valueOf(booking.getTotalPrice().longValue()));
+                    params.add("refundRole", "Hotel Owner");
+                    params.add("orderInfo", "Hủy đặt phòng " + booking.getHotelName());
+
+                    HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+                    String res = restTemplate.postForObject(baseUrl + "/refund", request, String.class);
+
+                    if(res != null && res.equals("00")){
+                        rejectedBookings = bookingService.rejectAllActiveBookingsByRoomId(roomId);
+                        notificationService.rejectNotification(booking.getCustomerId(), String.valueOf(booking.getBookingId()), booking.refundAmount());
+                    }else{
+                        response.put("success", false);
+                        response.put("message", "Đã xảy ra lỗi khi hoàn tiền");
+                    }
                 } catch (Exception e) {
                     System.err.println("Error rejecting bookings for room " + roomId + ": " + e.getMessage());
                     response.put("success", false);
@@ -543,7 +574,6 @@ public class HostHotelController {
             // 6. Deactivate the room
             try {
                 roomService.deactivateRoom(roomId);
-                System.out.println("Successfully deactivated room " + roomId);
             } catch (Exception e) {
                 System.err.println("Error deactivating room " + roomId + ": " + e.getMessage());
                 e.printStackTrace();
@@ -562,7 +592,6 @@ public class HostHotelController {
             
         } catch (Exception e) {
             // Catch any unexpected errors
-            System.err.println("Unexpected error in deactivateRoom for roomId " + roomId + ": " + e.getMessage());
             e.printStackTrace();
             response.put("success", false);
             response.put("message", "Lỗi không mong muốn khi vô hiệu hóa phòng");

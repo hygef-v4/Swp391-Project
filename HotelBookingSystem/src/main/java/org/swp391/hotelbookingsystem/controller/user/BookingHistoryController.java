@@ -133,7 +133,7 @@ public class BookingHistoryController {
         }
 
         Booking booking = bookingService.findById(bookingId);
-        if (!booking.getCheckIn().isAfter(LocalDate.now().atStartOfDay())){
+        if (!booking.getCheckIn().isAfter(LocalDate.now().atStartOfDay()) || !(booking.getCustomerId() == user.getId())){
             redirectAttributes.addFlashAttribute("errorMessage", "Không thể hủy đặt phòng");
             return "redirect:/bookingHistory";
         }
@@ -149,13 +149,13 @@ public class BookingHistoryController {
         }else{
             params.add("trantype", "03");
         }params.add("amount", String.valueOf(booking.refundAmount()));
-        params.add("refundRole", "customer");
+        params.add("refundRole", "Customer");
         params.add("orderInfo", "Hủy đặt phòng " + booking.getHotelName());
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
         String response = restTemplate.postForObject(baseUrl + "/refund", request, String.class);
         
-        if (booking.getCustomerId() == user.getId() && response != null && response.equals("00")) {
+        if(response != null && response.equals("00")){
             bookingService.updateBookingStatus(booking, "cancelled");
             notificationService.notifyRefundSuccess(user.getId(), String.valueOf(booking.getBookingId()), booking.refundAmount());
             redirectAttributes.addFlashAttribute("successMessage", "Hủy đặt phòng thành công");
