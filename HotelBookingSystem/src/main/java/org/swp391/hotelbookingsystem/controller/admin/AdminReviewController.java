@@ -29,6 +29,15 @@ public class AdminReviewController {
 
         List<Review> allReviews = reviewService.getReviewsByStatus(filter);
 
+        for (Review review : allReviews) {
+            boolean hasOtherPublicReview = allReviews.stream()
+                    .anyMatch(r -> r.getReviewId() != review.getReviewId()
+                            && r.getReviewerId() == review.getReviewerId()
+                            && r.getHotelId() == review.getHotelId()
+                            && r.isPublic());
+            review.setCanRestore(!hasOtherPublicReview);
+        }
+
         if (hotelName != null && !hotelName.isEmpty()) {
             allReviews = allReviews.stream()
                     .filter(r -> hotelName.equals(r.getHotelName()))

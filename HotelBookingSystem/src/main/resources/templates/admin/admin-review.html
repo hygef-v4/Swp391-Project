@@ -295,26 +295,31 @@
                         </ul>
                         <h6>
                             <span class="text-body fw-light">Đánh giá trên:</span>
-                            <span th:text="${review.hotelName}">Tên phòng</span>
+                            <a th:href="@{/hotel-detail(hotelId=${review.hotelId})}" th:text="${review.hotelName}" class="text-decoration-none"></a>
                             <span class="badge bg-danger ms-2" th:if="${!review.isPublic}">Đã xóa</span>
                         </h6>
                         <p th:text="${review.comment}">Nội dung đánh giá</p>
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <a th:href="'/hotel-detail?hotelId=' + ${review.hotelId} + '#review' + ${review.reviewId}" class="btn btn-sm btn-primary-soft mb-0">Đến trang đánh giá</a>
-                                <a class="btn btn-sm btn-light mb-0"
-                                   data-bs-toggle="collapse"
-                                   th:href="'#collapseComment__' + ${review.reviewId}"
-                                   role="button"
-                                   aria-expanded="false"
-                                   th:attr="aria-controls='collapseComment__' + ${review.reviewId}">
-                                    Phản hồi
-                                </a>
+                                <div th:if="${review != null and review.isPublic}">
+                                    <a th:href="'/hotel-detail?hotelId=' + ${review.hotelId} + '#review' + ${review.reviewId}" class="btn btn-sm btn-primary-soft mb-0">Đến trang đánh giá</a>
+                                    <a class="btn btn-sm btn-light mb-0"
+                                       data-bs-toggle="collapse"
+                                       th:href="'#collapseComment__' + ${review.reviewId}"
+                                       role="button"
+                                       aria-expanded="false"
+                                       th:attr="aria-controls='collapseComment__' + ${review.reviewId}">
+                                        Phản hồi
+                                    </a>
+                                </div>
                                 <a class="btn btn-sm btn-warning-soft mb-0"
-                                   th:if="${review != null and !review.isPublic}"
+                                   th:if="${review != null and !review.isPublic and review.canRestore}"
                                    th:href="@{'/admin-review/restore/' + ${review.reviewId}}">
                                     <i class="bi bi-arrow-clockwise me-1"></i>Khôi phục
                                 </a>
+                                <span class="text-muted small fst-italic" th:if="${review != null and !review.isPublic and !review.canRestore}">
+                                    Đã có đánh giá mới, không thể khôi phục
+                                </span>
                             </div>
                             <a href="#"
                                class="text-primary-hover"
