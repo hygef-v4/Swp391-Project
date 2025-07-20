@@ -81,7 +81,7 @@ public class Booking {
 
     public void calculateNumberOfNights() {
         if (checkIn != null && checkOut != null) {
-            this.numberOfNights = ChronoUnit.DAYS.between(checkIn.toLocalDate(), checkOut.toLocalDate()) + 1;
+            this.numberOfNights = ChronoUnit.DAYS.between(checkIn.toLocalDate(), checkOut.toLocalDate());
         } else {
             this.numberOfNights = 0;
         }
