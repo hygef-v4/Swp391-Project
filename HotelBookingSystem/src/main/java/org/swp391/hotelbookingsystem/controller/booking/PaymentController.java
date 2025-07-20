@@ -76,7 +76,7 @@ public class PaymentController {
         double price = 0;
         for(BookingUnit bookingUnit : booking.getBookingUnits()) {
             price += bookingUnit.getPrice() * bookingUnit.getQuantity();
-        }long night = ChronoUnit.DAYS.between(booking.getCheckIn().toLocalDate(), booking.getCheckOut().toLocalDate()) + 1;
+        }long night = ChronoUnit.DAYS.between(booking.getCheckIn().toLocalDate(), booking.getCheckOut().toLocalDate());
         double discount = price * night - booking.getTotalPrice();
 
         model.addAttribute("id", id);

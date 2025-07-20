@@ -91,7 +91,7 @@ public class BookingController {
         model.addAttribute("checkIn", date[0]);
         model.addAttribute("checkOut", date.length > 1 ? date[1] : date[0]);
 
-        long night = ChronoUnit.DAYS.between(checkin.toLocalDate(), checkout.toLocalDate()) + 1;
+        long night = ChronoUnit.DAYS.between(checkin.toLocalDate(), checkout.toLocalDate());
         model.addAttribute("night", night);
 
         model.addAttribute("guests", guests);
