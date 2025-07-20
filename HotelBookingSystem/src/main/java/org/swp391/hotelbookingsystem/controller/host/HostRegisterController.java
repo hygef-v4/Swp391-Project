@@ -93,12 +93,20 @@ public class HostRegisterController {
             // Validate profile completeness before allowing hotel registration
             UserService.ProfileValidationResult validationResult = userService.validateProfileCompleteness(currentUser);
             if (!validationResult.isComplete()) {
-                // Add validation result to flash attributes for display on profile page
-                session.setAttribute("profileValidationMessage", validationResult.getMessage());
-                session.setAttribute("missingFields", validationResult.getMissingFields());
-                session.setAttribute("redirectReason", "hotel_registration");
-                session.setAttribute("returnToAfterProfileUpdate", "hotel_registration");
-                return "redirect:/user-profile?incomplete=true&reason=hotel_registration";
+                // Check if only payment information is missing
+                List<String> missingFields = validationResult.getMissingFields();
+                if (missingFields.size() == 1 && missingFields.get(0).contains("thanh toán")) {
+                    // Only payment info missing - redirect directly to payment page
+                    session.setAttribute("returnToAfterProfileUpdate", "hotel_registration");
+                    return "redirect:/payment-information?incomplete=true&reason=hotel_registration";
+                } else {
+                    // Multiple fields missing - redirect to profile page
+                    session.setAttribute("profileValidationMessage", validationResult.getMessage());
+                    session.setAttribute("missingFields", validationResult.getMissingFields());
+                    session.setAttribute("redirectReason", "hotel_registration");
+                    session.setAttribute("returnToAfterProfileUpdate", "hotel_registration");
+                    return "redirect:/user-profile?incomplete=true&reason=hotel_registration";
+                }
             }
         } else {
             // Clear the flag after use

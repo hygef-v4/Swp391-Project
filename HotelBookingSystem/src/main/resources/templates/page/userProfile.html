@@ -187,6 +187,12 @@
                                                 <div class="d-flex align-items-center p-2 bg-white rounded border">
                                                     <i class="bi bi-circle text-primary me-2" style="font-size: 8px;"></i>
                                                     <span th:text="${field}" class="text-dark fw-medium"></span>
+                                                    <span th:if="${field.contains('thanh toán')}" class="ms-auto">
+                                                        <a href="/payment-information?incomplete=true&reason=hotel_registration"
+                                                           class="btn btn-sm btn-outline-primary">
+                                                            <i class="bi bi-wallet me-1"></i>Thêm ngay
+                                                        </a>
+                                                    </span>
                                                 </div>
                                             </div>
                                         </div>

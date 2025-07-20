@@ -50,6 +50,11 @@ public class UserProfileController {
                     model.addAttribute("missingFields", missingFields);
                     model.addAttribute("redirectReason", "hotel_registration");
 
+                    // Check if payment information is missing
+                    boolean needsPaymentInfo = missingFields != null &&
+                        missingFields.stream().anyMatch(field -> field.contains("thanh toán"));
+                    model.addAttribute("needsPaymentInfo", needsPaymentInfo);
+
                     // Clear session attributes after use
                     session.removeAttribute("profileValidationMessage");
                     session.removeAttribute("missingFields");

@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.swp391.hotelbookingsystem.service.ReportService;
 import org.swp391.hotelbookingsystem.model.Report;
+import org.swp391.hotelbookingsystem.service.BankService;
+import org.swp391.hotelbookingsystem.model.Bank;
 
 @Service
 public class UserService {
@@ -22,12 +24,14 @@ public class UserService {
 
     private final ReportService reportService;
 
+    private final BankService bankService;
 
     @Autowired
-    public UserService(UserRepo userRepo, PasswordEncoder passwordEncoder, ReportService reportService) {
+    public UserService(UserRepo userRepo, PasswordEncoder passwordEncoder, ReportService reportService, BankService bankService) {
         this.userRepo = userRepo;
         this.passwordEncoder = passwordEncoder;
         this.reportService = reportService;
+        this.bankService = bankService;
     }
 
     public void updateUserRole(int userId, String newRole) {
@@ -100,33 +104,24 @@ public class UserService {
             return new ProfileValidationResult(false, missingFields, "Người dùng không tồn tại");
         }
 
-        // Debug logging - remove in production
-        System.out.println("=== PROFILE VALIDATION DEBUG ===");
-        System.out.println("Full Name: '" + user.getFullName() + "'");
-        System.out.println("Phone: '" + user.getPhone() + "'");
-        System.out.println("DOB: " + user.getDob());
-        System.out.println("Avatar URL: '" + user.getAvatarUrl() + "'");
+        // Validate profile completeness for hotel owner registration
 
         // Check required fields for hotel owner registration
         if (user.getFullName() == null || user.getFullName().trim().isEmpty()) {
             missingFields.add("Tên đầy đủ");
-            System.out.println("Missing: Full Name");
         }
 
         if (user.getPhone() == null || user.getPhone().trim().isEmpty()) {
             missingFields.add("Số điện thoại");
-            System.out.println("Missing: Phone (empty)");
         } else {
             String cleanPhone = user.getPhone().trim();
             if (!cleanPhone.matches("\\d{10,15}")) {
                 missingFields.add("Số điện thoại hợp lệ (10-15 chữ số)");
-                System.out.println("Missing: Phone (invalid format) - '" + cleanPhone + "'");
             }
         }
 
         if (user.getDob() == null) {
             missingFields.add("Ngày sinh");
-            System.out.println("Missing: Date of Birth");
         }
 
         // Avatar is recommended for hotel owners for trust and credibility
@@ -134,17 +129,18 @@ public class UserService {
             user.getAvatarUrl().equals("/assets/images/avatar/avatar.jpg") ||
             user.getAvatarUrl().contains("avatar.jpg")) {
             missingFields.add("Ảnh đại diện");
-            System.out.println("Missing: Avatar");
+        }
+
+        // Payment information is required for hotel owners to receive payments
+        List<Bank> userBanks = bankService.getUserBanks(user.getId());
+        if (userBanks == null || userBanks.isEmpty()) {
+            missingFields.add("Thông tin thanh toán");
         }
 
         boolean isComplete = missingFields.isEmpty();
         String message = isComplete ?
             "Hồ sơ đã đầy đủ" :
             "Vui lòng hoàn thiện các thông tin sau: " + String.join(", ", missingFields);
-
-        System.out.println("Validation Result: " + (isComplete ? "COMPLETE" : "INCOMPLETE"));
-        System.out.println("Missing Fields: " + missingFields);
-        System.out.println("=== END DEBUG ===");
 
         return new ProfileValidationResult(isComplete, missingFields, message);
     }
