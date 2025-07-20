@@ -468,6 +468,56 @@ About hotel START -->
 					</div>
 					<!-- Hotel Policies START -->
 
+					<!-- Cancellation Policy START -->
+                    <div class="card bg-transparent card-editable" id="cancellation-policy">
+                        <!-- Card header -->
+                        <div class="card-header border-bottom bg-transparent px-0 pt-0">
+                            <h3 class="mb-0">Chính sách hủy phòng & hoàn tiền</h3>
+                        </div>
+
+                        <!-- Card body START -->
+                        <div class="card-body pt-4 p-0">
+                            <div class="view-mode">
+                                <div th:if="${cancellationPolicy != null}">
+                                    <div class="row g-3">
+                                        <div class="col-md-4">
+                                            <div class="bg-light p-3 rounded text-center">
+                                                <h5 class="text-primary mb-1" th:text="${cancellationPolicy.partialRefundDays}">7</h5>
+                                                <small class="text-muted">Ngày hoàn tiền một phần</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="bg-light p-3 rounded text-center">
+                                                <h5 class="text-success mb-1">
+                                                    <span th:text="${cancellationPolicy.partialRefundPercent}">50</span>%
+                                                </h5>
+                                                <small class="text-muted">Phần trăm hoàn tiền</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="bg-light p-3 rounded text-center">
+                                                <h5 class="text-warning mb-1" th:text="${cancellationPolicy.noRefundWithinDays}">1</h5>
+                                                <small class="text-muted">Ngày không hoàn tiền</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="alert alert-info">
+                                                <i class="bi bi-info-circle me-2"></i>
+                                                <strong>Chính sách hoàn tiền:</strong> 
+                                                Khách hàng hủy phòng trước <span th:text="${cancellationPolicy.partialRefundDays}">7</span> ngày 
+                                                sẽ được hoàn <span th:text="${cancellationPolicy.partialRefundPercent}">50</span>% tiền. 
+                                                Hủy trong vòng <span th:text="${cancellationPolicy.noRefundWithinDays}">1</span> ngày 
+                                                trước check-in sẽ không được hoàn tiền.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Card body END -->
+                    </div>
+                    <!-- Cancellation Policy END -->
+
 					<!-- Room START -->
 					<div class="card bg-transparent" id="room-options">
 						<!-- Card header -->
