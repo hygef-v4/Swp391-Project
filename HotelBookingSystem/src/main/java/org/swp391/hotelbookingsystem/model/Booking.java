@@ -79,7 +79,6 @@ public class Booking {
         return "cancelled"; // fallback for mix of rejected + cancelled
     }
 
-
     public void calculateNumberOfNights() {
         if (checkIn != null && checkOut != null) {
             this.numberOfNights = Math.max(1, ChronoUnit.DAYS.between(checkIn.toLocalDate(), checkOut.toLocalDate()));
@@ -99,7 +98,7 @@ public class Booking {
                             || "completed".equals(status)
                             || "check_in".equals(status);
                 })
-                .mapToDouble(unit -> unit.getPrice() * unit.getQuantity() * 1)
+                .mapToDouble(unit -> unit.getPrice() * unit.getQuantity() * numberOfNights)
                 .sum();
     }
 
