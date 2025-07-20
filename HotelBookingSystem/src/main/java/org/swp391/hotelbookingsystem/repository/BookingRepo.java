@@ -1385,23 +1385,6 @@ public class BookingRepo {
             b.created_at,
             h.hotel_name,
             h.hotel_image_url,
-            (
-                SELECT SUM(price) 
-                FROM BookingUnits bu 
-                WHERE bu.booking_id = b.booking_id
-    """);
-
-        List<Object> params = new ArrayList<>();
-
-        if (!"cancelled_or_rejected".equals(status)) {
-            sql.append(" AND bu.status = ?");
-            params.add(status);
-        } else {
-            sql.append(" AND bu.status IN ('cancelled', 'rejected')");
-        }
-
-        sql.append("""
-            ) AS total_price,
             cp.partial_refund_days,
             cp.partial_refund_percent,
             cp.no_refund_within_days
@@ -1411,6 +1394,7 @@ public class BookingRepo {
         WHERE b.customer_id = ?
     """);
 
+        List<Object> params = new ArrayList<>();
         params.add(customerId);
 
         if (!timeFilter.isEmpty()) {
@@ -1421,7 +1405,7 @@ public class BookingRepo {
 
         if (!"cancelled_or_rejected".equals(status)) {
             sql.append(" AND bu.status = ?)");
-            params.add(status); // thêm lần 2 cho EXISTS
+            params.add(status);
         } else {
             sql.append(" AND bu.status IN ('cancelled', 'rejected'))");
         }
@@ -1441,7 +1425,6 @@ public class BookingRepo {
                     .checkIn(rs.getTimestamp("check_in").toLocalDateTime())
                     .checkOut(rs.getTimestamp("check_out").toLocalDateTime())
                     .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
-                    .totalPrice(rs.getDouble("total_price"))
                     .hotelName(rs.getString("hotel_name"))
                     .imageUrl(rs.getString("hotel_image_url"))
                     .partialRefundDay(rs.getInt("partial_refund_days"))
@@ -1449,7 +1432,12 @@ public class BookingRepo {
                     .noRefund(rs.getInt("no_refund_within_days"))
                     .build();
 
-            booking.setBookingUnits(findBookingUnitsByBookingId(bookingId));
+            // Lấy booking units từ bookingId
+            List<BookingUnit> units = findBookingUnitsByBookingId(bookingId);
+            booking.setBookingUnits(units != null ? units : new ArrayList<>());
+
+            // Tính totalPrice từ logic Java
+            booking.setTotalPrice(booking.calculateTotalPrice());
 
             return booking;
         });

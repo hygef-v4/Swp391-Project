@@ -116,10 +116,13 @@
                 <div class="col-12 mb-4 mb-sm-5">
                     <div class="d-sm-flex justify-content-between align-items-center">
                         <h1 class="h3 mb-3 mb-sm-0">Danh sách người dùng</h1>
-                        <!--						<div class="d-grid"><a href="#" class="btn btn-primary mb-0"><i class="bi bi-filetype-pdf me-2"></i>Generate Report</a>	</div>					-->
+                        <!--						<div class="d-grid"><a href="#" class="btn btn-primary mb-0"><i class="bi bi-filetype-pdf me-2"></i>Generate Report</a>	</div>						-->
                     </div>
                 </div>
             </div>
+
+            <!-- Error message -->
+            <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
 
             <!-- Filters START -->
             <div class="row g-4 align-items-center mb-4">
@@ -297,10 +300,13 @@
                     </div>
                     <div class="card-footer pt-0">
                         <div class="d-sm-flex justify-content-sm-between align-items-sm-center mt-4">
-                            <p class="mb-sm-0 text-center text-sm-start">
+                            <p class="mb-sm-0 text-center text-sm-start" th:if="${totalUsers > 0}">
                                 Hiển thị <span th:text="${startIndex + 1}">1</span>
                                 đến <span th:text="${endIndex}">8</span>
                                 trong số <span th:text="${totalUsers}">20</span> người dùng
+                            </p>
+                            <p class="mb-sm-0 text-center text-sm-start" th:if="${totalUsers == 0}">
+                                Không có người dùng nào phù hợp với bộ lọc này.
                             </p>
                             <nav class="mb-sm-0 d-flex justify-content-center" aria-label="navigation">
                                 <ul class="pagination pagination-primary-soft pagination-sm mb-0">
@@ -409,6 +415,10 @@
     <div class="modal-content">
       <form id="toggleStatusForm" method="post">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+        <input type="hidden" name="search" th:value="${search}" />
+        <input type="hidden" name="role" th:value="${role}" />
+        <input type="hidden" name="status" th:value="${status}" />
+        <input type="hidden" name="page" th:value="${page}" />
         <div class="modal-header">
           <h5 class="modal-title" id="toggleStatusModalLabel"></h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>

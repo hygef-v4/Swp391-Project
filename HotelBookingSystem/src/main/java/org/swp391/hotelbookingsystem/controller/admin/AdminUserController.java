@@ -45,6 +45,7 @@ public class AdminUserController {
                               @RequestParam(value = "role", required = false) String role,
                               @RequestParam(value = "status", required = false) String status,
                               @RequestParam(value = "page", defaultValue = "1") int page,
+                              @RequestParam(value = "error", required = false) String error,
                               Model model, HttpSession session) {
         User user = (User) session.getAttribute("user");
         if (user == null || !user.getRole().equals("ADMIN")) {
@@ -102,6 +103,10 @@ public class AdminUserController {
         model.addAttribute("page", page);
         model.addAttribute("pagination", (int) Math.ceil((double) totalUsers / pageSize));
 
+        if (error != null && !error.isBlank()) {
+            model.addAttribute("errorMessage", error);
+        }
+
         return "admin/admin-user-list";
     }
 
@@ -111,7 +116,7 @@ public class AdminUserController {
                              @RequestParam(value = "role", required = false) String role,
                              @RequestParam(value = "status", required = false) String status) {
         reportService.unflagUser(userId); // sets reports to 'declined'
-        return "redirect:" + buildRedirectUrl("/admin-user-list", search, role, status);
+        return "redirect:" + buildRedirectUrl("/admin-user-list", search, role, status, null);
     }
 
     @PostMapping("/admin/user/toggle-status/{userID}")
@@ -119,19 +124,27 @@ public class AdminUserController {
                                    @RequestParam(value = "reason", required = false) String reason,
                                    @RequestParam(value = "search", required = false) String search,
                                    @RequestParam(value = "role", required = false) String role,
-                                   @RequestParam(value = "status", required = false) String status) {
+                                   @RequestParam(value = "status", required = false) String status,
+                                   @RequestParam(value = "page", required = false) Integer page) {
         User user = userService.findUserById(userId);
         boolean wasActive = user.isActive();
+
+        // If banning, require a non-blank reason BEFORE toggling status
+        if (wasActive) {
+            if (reason == null || reason.trim().isEmpty()) {
+                String errorMsg = "Lý do khóa tài khoản không được để trống hoặc chỉ chứa khoảng trắng.";
+                String redirectUrl = buildRedirectUrl("/admin-user-list", search, role, status, page);
+                String separator = redirectUrl.contains("?") ? "&" : "?";
+                return "redirect:" + redirectUrl + separator + "error=" + java.net.URLEncoder.encode(errorMsg, java.nio.charset.StandardCharsets.UTF_8);
+            }
+        }
+
         userService.toggleUserStatus(userId);
         // Refresh user object after status change
         User updatedUser = userService.findUserById(userId);
         try {
             if (wasActive && !updatedUser.isActive()) {
-                // Ban: require reason and send ban email
-                if (reason == null || reason.trim().isEmpty()) {
-                    // Optionally, handle error (redirect with error message)
-                    return "redirect:" + buildRedirectUrl("/admin-user-list", search, role, status);
-                }
+                // Ban: send ban email
                 emailService.sendUserBanEmail(updatedUser.getEmail(), reason);
                 // Accept reports if flagged
                 if (reportService.isUserFlagged(userId)) {
@@ -148,7 +161,7 @@ public class AdminUserController {
         } catch (Exception e) {
             // log error
         }
-        return "redirect:" + buildRedirectUrl("/admin-user-list", search, role, status);
+        return "redirect:" + buildRedirectUrl("/admin-user-list", search, role, status, page);
     }
 
     @PostMapping("/admin/user/change-role/{userID}")
@@ -159,14 +172,15 @@ public class AdminUserController {
                                  @RequestParam(value = "status", required = false) String status) {
         userService.updateUserRole(userId, newRole);
 
-        return "redirect:" + buildRedirectUrl("/admin-user-list", search, role, status);
+        return "redirect:" + buildRedirectUrl("/admin-user-list", search, role, status, null);
     }
 
-    private String buildRedirectUrl(String base, String search, String role, String status) {
+    private String buildRedirectUrl(String base, String search, String role, String status, Integer page) {
         List<String> params = new ArrayList<>();
         if (search != null && !search.trim().isEmpty()) params.add("search=" + search.trim());
         if (role != null && !role.trim().isEmpty()) params.add("role=" + role.trim());
         if (status != null && !status.trim().isEmpty()) params.add("status=" + status.trim());
+        if (page != null && page > 1) params.add("page=" + page);
         return base + (params.isEmpty() ? "" : "?" + String.join("&", params));
     }
 
