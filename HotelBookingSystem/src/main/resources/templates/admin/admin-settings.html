@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Mirrored from stackbros.in/bookinga/landing/admin-settings.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:07:54 GMT -->
+<head>
+	<title>Booking - Multipurpose Online Booking Theme</title>
+
+	<!-- Meta Tags -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="author" content="StackBros">
+	<meta name="description" content="Booking - Multipurpose Online Booking Theme">
+
+	<!-- Dark mode -->
+	<script>
+		const storedTheme = localStorage.getItem('theme')
+ 
+		const getPreferredTheme = () => {
+			if (storedTheme) {
+				return storedTheme
+			}
+			return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+		}
+
+		const setTheme = function (theme) {
+			if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+				document.documentElement.setAttribute('data-bs-theme', 'dark')
+			} else {
+				document.documentElement.setAttribute('data-bs-theme', theme)
+			}
+		}
+
+		setTheme(getPreferredTheme())
+
+		window.addEventListener('DOMContentLoaded', () => {
+		    var el = document.querySelector('.theme-icon-active');
+			if(el != 'undefined' && el != null) {
+				const showActiveTheme = theme => {
+				const activeThemeIcon = document.querySelector('.theme-icon-active use')
+				const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+				const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
+
+				document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+					element.classList.remove('active')
+				})
+
+				btnToActive.classList.add('active')
+				activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+			}
+
+			window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+				if (storedTheme !== 'light' || storedTheme !== 'dark') {
+					setTheme(getPreferredTheme())
+				}
+			})
+
+			showActiveTheme(getPreferredTheme())
+
+			document.querySelectorAll('[data-bs-theme-value]')
+				.forEach(toggle => {
+					toggle.addEventListener('click', () => {
+						const theme = toggle.getAttribute('data-bs-theme-value')
+						localStorage.setItem('theme', theme)
+						setTheme(theme)
+						showActiveTheme(theme)
+					})
+				})
+
+			}
+		})
+		
+	</script>
+
+	<!-- Favicon -->
+	<link rel="shortcut icon" th:href="@{assets/images/favicon.ico}">
+
+	<!-- Google Font -->
+	<link rel="preconnect" href="https://fonts.googleapis.com/">
+	<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Poppins:wght@400;500;700&amp;display=swap">
+
+	<!-- Plugins CSS -->
+	<link rel="stylesheet" type="text/css" th:href="@{assets/vendor/font-awesome/css/all.min.css}">
+	<link rel="stylesheet" type="text/css" th:href="@{assets/vendor/bootstrap-icons/bootstrap-icons.css}">
+	<link rel="stylesheet" type="text/css" th:href="@{assets/vendor/overlay-scrollbar/css/overlayscrollbars.min.css}">
+	<link rel="stylesheet" type="text/css" th:href="@{assets/vendor/flatpickr/css/flatpickr.min.css}">
+
+	<!-- Theme CSS -->
+	<link rel="stylesheet" type="text/css" th:href="@{assets/css/style.css}">
+
+</head>
+
+<body>
+
+<!-- **************** MAIN CONTENT START **************** -->
+<main>
+	
+	<!-- Sidebar START -->
+	<div th:replace="~{common-admin/admin-sidebar :: admin_sidebar}"></div>
+	<!-- Sidebar END -->
+	
+	<!-- Page content START -->
+	<div class="page-content">
+	
+		<!-- Top bar START -->
+		<div th:replace="~{common-admin/admin-topbar :: admin_topbar}"></div>
+		<!-- Top bar END -->
+	
+		<!-- Page main content START -->
+		<div class="page-content-wrapper p-xxl-4">
+	
+			<!-- Title -->
+			<div class="row">
+				<div class="col-12 mb-4 mb-sm-5">
+					<h1 class="h3 mb-0">Cài đặt hệ thống</h1>
+				</div>
+			</div>
+
+			<form th:action="@{/admin/settings}" method="post">
+				<div class="mb-3">
+					<label class="form-label">Tên website</label>
+					<input type="text" class="form-control" th:value="${settings.siteName}" name="siteName" required>
+				</div>
+				<div class="mb-3">
+					<label class="form-label">Email hỗ trợ</label>
+					<input type="email" class="form-control" th:value="${settings.supportEmail}" name="supportEmail" required>
+				</div>
+				<div class="mb-3">
+					<label class="form-label">Số điện thoại liên hệ</label>
+					<input type="text" class="form-control" th:value="${settings.contactPhone}" name="contactPhone">
+				</div>
+				<div class="mb-3">
+					<label class="form-label">Địa chỉ liên hệ</label>
+					<textarea class="form-control" name="contactAddress" th:text="${settings.contactAddress}"></textarea>
+				</div>
+				<button type="submit" class="btn btn-primary">Cập nhật</button>
+			</form>
+			<div th:if="${success}" class="alert alert-success mt-3">Cập nhật thành công!</div>
+			<div th:if="${error}" class="alert alert-danger mt-3" th:text="${error}"></div>
+
+			<h2 class="mt-5">Lịch sử hoạt động quản trị</h2>
+			<table class="table">
+			    <thead>
+			        <tr>
+			            <th>Thời gian</th>
+			            <th>Admin</th>
+			            <th>Hành động</th>
+			            <th>Chi tiết</th>
+			        </tr>
+			    </thead>
+			    <tbody>
+			        <tr th:each="log : ${logs}">
+			            <td th:text="${#temporals.format(log.timestamp, 'dd/MM/yyyy HH:mm:ss')}"></td>
+			            <td th:text="${log.admin}"></td>
+			            <td th:text="${log.action}"></td>
+			            <td th:text="${log.details}"></td>
+			        </tr>
+			    </tbody>
+			</table>
+		</div>
+		<!-- Page main content END -->
+	</div>
+	<!-- Page content END -->
+	
+	</main>
+<!-- **************** MAIN CONTENT END **************** -->
+
+<!-- Bootstrap JS -->
+<script th:src="@{assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+
+<!-- Vendor -->
+<script th:src="@{assets/vendor/overlay-scrollbar/js/overlayscrollbars.min.js}"></script>
+<script th:src="@{assets/vendor/flatpickr/js/flatpickr.min.js}"></script>
+
+<!-- ThemeFunctions -->
+<script th:src="@{assets/js/functions.js}"></script>
+
+</body>
+
+<!-- Mirrored from stackbros.in/bookinga/landing/admin-settings.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 20 May 2025 16:07:55 GMT -->
+</html>
