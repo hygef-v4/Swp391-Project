@@ -24,14 +24,17 @@ public class DialogflowWebhookController {
     }
 
     private String stripMarkdown(String text) {
-        return text
-                .replaceAll("\\*\\*(.*?)\\*\\*", "$1")     // bỏ **text**
-                .replaceAll("__(.*?)__", "$1")             // bỏ __text__
-                .replaceAll("\\*(.*?)\\*", "$1")           // bỏ *text*
-                .replaceAll("(?m)^\\s*\\*\\s+", "- ")       // dòng bắt đầu bằng * => gạch đầu dòng
-                .replaceAll("\\s*-\\s+", "\n- ")
-                .replaceAll("(?<!\\n)\\n", "\n");
+        String result = text
+                .replaceAll("\\*\\*(.*?)\\*\\*", "$1")
+                .replaceAll("__(.*?)__", "$1")
+                .replaceAll("\\*(.*?)\\*", "$1")
+                .replaceAll("(?m)^\\s*\\*\\s+", "• ")
+                .replaceAll("(?<!\\n)\\n", " 🔹 ");
+        // Loại bỏ biểu tượng chia đoạn ở cuối cùng nếu có
+        result = result.replaceAll(" 🔹\\s*$", "");
+        return result;
     }
+
 
     @PostMapping("/webhook")
     public Map<String, Object> handleDialogflow(@RequestBody Map<String, Object> payload, HttpSession session) {
