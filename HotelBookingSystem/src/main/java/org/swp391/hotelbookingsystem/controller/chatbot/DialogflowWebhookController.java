@@ -28,8 +28,8 @@ public class DialogflowWebhookController {
                 .replaceAll("__(.*?)__", "$1")             // bỏ __text__
                 .replaceAll("\\*(.*?)\\*", "$1")           // bỏ *text*
                 .replaceAll("(?m)^\\s*\\*\\s+", "- ")       // dòng bắt đầu bằng * => gạch đầu dòng
-                .replaceAll("\\s*-\\s+", "\n- ")           // ép xuống dòng trước mỗi dấu gạch
-                .replaceAll("(?<!\\n)\\n", "\n");          // giữ đúng dòng xuống
+                .replaceAll("\\s*-\\s+", "\n- ")
+                .replaceAll("(?<!\\n)\\n", "\n");
     }
 
     @PostMapping("/webhook")

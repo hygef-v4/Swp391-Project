@@ -8,7 +8,8 @@
  @Service
  public class GeminiService {
 
-     private static final String API_KEY = "AIzaSyDjQbBkZOiOz2P7dB1Vb9bxUF8lk4u6-ZI";
+//     private static final String API_KEY = "AIzaSyDjQbBkZOiOz2P7dB1Vb9bxUF8lk4u6-ZI";
+     private static final String API_KEY = "AIzaSyDwVwzl6wmM4xzZADFAgFVZbU3hFu-Pgcc";
      private static final String ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + API_KEY;
      private final OkHttpClient client = new OkHttpClient();
      private final ObjectMapper mapper = new ObjectMapper();
