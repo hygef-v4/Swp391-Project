@@ -22772,3 +22772,16 @@ body.dark .hover-card:hover,
 [data-bs-theme="dark"] .hover-card:hover .card-footer {
   background-color: inherit !important;
 }
+
+.btn-primary-soft {
+  color: #5e5adb;
+  background-color: rgba(94, 90, 219, 0.1);
+  border: 1px solid #5e5adb;
+}
+
+.btn-primary-soft.hover-card:hover {
+  background-color: rgba(94, 90, 219, 0.15); /* nền hover tím nhạt */
+  color: #5e5adb;
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
