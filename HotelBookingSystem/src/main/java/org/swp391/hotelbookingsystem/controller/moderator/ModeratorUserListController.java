@@ -12,6 +12,7 @@ import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.service.UserService;
 import org.swp391.hotelbookingsystem.model.Report;
 import org.swp391.hotelbookingsystem.service.ReportService;
+import org.swp391.hotelbookingsystem.service.NotificationService;
 
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,9 @@ public class ModeratorUserListController {
 
     @Autowired
     private ReportService reportService;
+
+    @Autowired
+    private NotificationService notificationService;
 
     private static final int PAGE_SIZE = 8;
 
@@ -103,6 +107,20 @@ public class ModeratorUserListController {
             // Lấy moderatorId từ session
             int moderatorId = moderator.getId();
             reportService.flagUser(moderatorId, userId, reason);
+            // Gửi notification cho user bị flagged
+            String title = "Tài khoản bị gắn cờ (flagged)";
+            String message = "Tài khoản của bạn đã bị moderator gắn cờ do vi phạm quy định. Lý do: " + reason;
+            String actionUrl = "/user-profile";
+            notificationService.createNotification(
+                userId,
+                title,
+                message,
+                "profile",
+                "high",
+                actionUrl,
+                "bi-exclamation-triangle",
+                Map.of("reason", reason, "moderatorId", moderatorId)
+            );
             response.put("success", true);
             response.put("message", "Đã báo cáo người dùng thành công");
         } catch (Exception e) {
@@ -118,6 +136,20 @@ public class ModeratorUserListController {
         Map<String, Object> response = new HashMap<>();
         try {
             reportService.unflagUser(userId);
+            // Gửi notification cho user khi được gỡ flagged
+            String title = "Tài khoản đã được gỡ gắn cờ";
+            String message = "Tài khoản của bạn đã được moderator gỡ gắn cờ và trở lại trạng thái bình thường.";
+            String actionUrl = "/user-profile";
+            notificationService.createNotification(
+                userId,
+                title,
+                message,
+                "profile",
+                "info",
+                actionUrl,
+                "bi-check-circle",
+                null
+            );
             response.put("success", true);
             response.put("message", "Đã unflag người dùng thành công");
         } catch (Exception e) {
