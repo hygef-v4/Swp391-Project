@@ -135,7 +135,7 @@
             <!-- Counter START -->
             <div class="row g-4 mb-4">
                 <!-- Counter item -->
-                <div class="col-lg-4">
+                <div class="col-lg-3">
                     <div class="card card-body border border-primary bg-primary bg-opacity-10 border-opacity-25 p-4 h-100 hover-card">
                         <div class="d-flex justify-content-between align-items-center">
                             <!-- Digit -->
@@ -150,7 +150,7 @@
                 </div>
 
                 <!-- Counter item -->
-                <div class="col-lg-4">
+                <div class="col-lg-3">
                     <div class="card card-body border border-warning bg-warning bg-opacity-10 border-opacity-25 p-4 h-100 hover-card">
                         <div class="d-flex justify-content-between align-items-center">
                             <!-- Digit -->
@@ -165,12 +165,13 @@
                 </div>
 
                 <!-- Counter item -->
-                <div class="col-lg-4">
+                <div class="col-lg-3">
                     <div class="card card-body border border-success bg-success bg-opacity-10 border-opacity-25 p-4 h-100 hover-card">
                         <div class="d-flex justify-content-between align-items-center">
                             <!-- Digit -->
                             <div>
-                                <h3 class="mb-0 fw-bold" th:text="${#numbers.formatDecimal(monthlyRevenue, 0, 'COMMA', 0, 'POINT')} + '₫'">Thu nhập</h3>
+<!--                                <h3 class="mb-0 fw-bold" th:text="${#numbers.formatDecimal(monthlyRevenue, 0, 'COMMA', 0, 'POINT')} + '₫'">Thu nhập</h3>-->
+                                <h3 class="mb-0 fw-bold" th:text="${monthlyRevenue}">Thu nhập</h3>
                                 <span class="mb-0 h6 fw-light">Thu nhập tháng này</span>
                             </div>
                             <!-- Icon -->

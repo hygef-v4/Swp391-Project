@@ -21,6 +21,7 @@ import org.swp391.hotelbookingsystem.model.Hotel;
 import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.service.*;
 
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -91,9 +92,10 @@ public class AdminAgentController {
         int totalBooking = bookingService.countBookingsByHostId(agent.getId());
         double monthlyRevenue = bookingService.getMonthlyRevenueByHostId(agent.getId());
         double avgRating = hotelService.getAverageRatingByHotelId(agent.getId());
+        String revenue = formatRevenue(monthlyRevenue);
 
         model.addAttribute("avgRating", avgRating);
-        model.addAttribute("monthlyRevenue", monthlyRevenue);
+        model.addAttribute("monthlyRevenue", revenue);
         model.addAttribute("totalBooking", totalBooking);
         model.addAttribute("countHotel", countHotel);
         model.addAttribute("hotelList", hotelList);
@@ -201,6 +203,19 @@ public class AdminAgentController {
         return url.toString();
     }
 
+
+    private String formatRevenue(double revenue) {
+        if (revenue >= 1_000_000_000) {
+            return new DecimalFormat("#,##0.0 'Tỷ'").format(revenue / 1_000_000_000);
+        }
+        if (revenue >= 1_000_000) {
+            return new DecimalFormat("#,##0.0 'Tr'").format(revenue / 1_000_000);
+        }
+        if (revenue >= 1_000) {
+            return new DecimalFormat("#,##0 'K'").format(revenue / 1_000);
+        }
+        return new DecimalFormat("#,##0").format(revenue);
+    }
 
     // Note: Chat functionality has been moved to ChatPageController
     // These methods are kept for backward compatibility but should be deprecated
