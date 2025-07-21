@@ -138,7 +138,7 @@ public class AdminAgentController {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-            List<Booking> hostBookings = bookingService.getBookingsByHostId(userId);
+            List<Booking> hostBookings = bookingService.findActiveBookingsByHostId(userId);
 
             for(Booking booking : hostBookings){
                 if(booking.getCustomerId() != booking.getHostId()){
