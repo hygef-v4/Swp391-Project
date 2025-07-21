@@ -64,9 +64,12 @@ public class ReviewRepository {
 
     public Double getAverageHotelRatingByHostId(int hostId) {
         String sql = """
-        SELECT AVG(CAST(rating AS FLOAT)) 
-        FROM Hotels 
-        WHERE host_id = ?
+        SELECT AVG(CAST(r.rating AS FLOAT))
+        FROM Reviews r
+        JOIN Hotels h ON r.hotel_id = h.hotel_id
+        WHERE h.host_id = ?
+        AND r.is_public = 1
+        AND r.comment IS NOT NULL
     """;
         return jdbcTemplate.queryForObject(sql, Double.class, hostId);
     }

@@ -1325,6 +1325,76 @@ Footer END -->
         });
 
         console.log('✅ Room form validation initialized successfully');
+
+        // *** CHECK FOR ERROR MESSAGES FROM SERVER ***
+
+        // Add small delay to ensure DOM is fully loaded
+        setTimeout(() => {
+            // 1. Check Thymeleaf model attribute error
+            const serverError = /*[[${error}]]*/ null;
+            if (serverError) {
+                console.log('Server error found:', serverError);
+                showErrorNotification(
+                    'Lỗi từ máy chủ!',
+                    serverError
+                );
+            }
+        }, 100);
+
+        // 2. Check URL parameters for error messages
+        setTimeout(() => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const errorParam = urlParams.get('error');
+
+            if (errorParam) {
+                console.log('Error parameter found:', errorParam);
+
+                // Handle different error types
+                switch (errorParam) {
+                    case 'duplicate_name':
+                        showErrorNotification(
+                            'Tên phòng đã tồn tại!',
+                            'Tên phòng này đã được sử dụng trong khách sạn. Vui lòng chọn tên khác.'
+                        );
+
+                        // Highlight the room title field
+                        setTimeout(() => {
+                            const roomTitleField = document.getElementById('roomTitle');
+                            if (roomTitleField) {
+                                showFieldError(roomTitleField, 'Tên phòng đã tồn tại trong khách sạn này');
+                                roomTitleField.focus();
+                            }
+                        }, 200);
+                        break;
+
+                    case 'upload_failed':
+                        showErrorNotification(
+                            'Lỗi tải ảnh!',
+                            'Có lỗi xảy ra khi tải ảnh lên. Vui lòng thử lại.'
+                        );
+                        break;
+
+                    case 'invalid_data':
+                        showErrorNotification(
+                            'Dữ liệu không hợp lệ!',
+                            'Thông tin phòng không hợp lệ. Vui lòng kiểm tra lại.'
+                        );
+                        break;
+
+                    default:
+                        showErrorNotification(
+                            'Có lỗi xảy ra!',
+                            'Đã xảy ra lỗi khi thêm phòng. Vui lòng thử lại.'
+                        );
+                        break;
+                }
+
+                // Clean URL by removing error parameter
+                const newUrl = new URL(window.location);
+                newUrl.searchParams.delete('error');
+                window.history.replaceState({}, '', newUrl);
+            }
+        }, 200);
     });
 </script>
 

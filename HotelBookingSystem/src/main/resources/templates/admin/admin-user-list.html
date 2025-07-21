@@ -249,15 +249,15 @@
                                                 KHÁCH HÀNG
                                             </button>
                                         </li>
-                                        <!-- Only show MODERATOR if user is not MODERATOR -->
-                                        <li th:if="${user.role != 'MODERATOR'}">
+                                        <!-- Only show MODERATOR if user is not MODERATOR and not HOTEL_OWNER -->
+                                        <li th:if="${user.role != 'MODERATOR' and user.role != 'HOTEL_OWNER'}">
                                             <button class="dropdown-item" type="submit"
                                                     th:onclick="'document.getElementById(\'newRoleInput__' + ${user.id} + '\').value=\'MODERATOR\''">
                                                 QUẢN LÝ WEB
                                             </button>
                                         </li>
-                                        <!-- Only show ADMIN if user is not ADMIN -->
-                                        <li th:if="${user.role != 'ADMIN'}">
+                                        <!-- Only show ADMIN if user is not ADMIN and not HOTEL_OWNER -->
+                                        <li th:if="${user.role != 'ADMIN' and user.role != 'HOTEL_OWNER'}">
                                             <button class="dropdown-item" type="submit"
                                                     th:onclick="'document.getElementById(\'newRoleInput__' + ${user.id} + '\').value=\'ADMIN\''">
                                                 QUẢN TRỊ VIÊN
