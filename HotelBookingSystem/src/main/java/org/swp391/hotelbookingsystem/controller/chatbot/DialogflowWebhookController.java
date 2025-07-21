@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.swp391.hotelbookingsystem.service.LocationService;
+import jakarta.servlet.http.HttpSession;
 
 import java.util.List;
 import java.util.Map;
@@ -33,7 +34,7 @@ public class DialogflowWebhookController {
     }
 
     @PostMapping("/webhook")
-    public Map<String, Object> handleDialogflow(@RequestBody Map<String, Object> payload) {
+    public Map<String, Object> handleDialogflow(@RequestBody Map<String, Object> payload, HttpSession session) {
         try {
             String sessionPath = (String) payload.get("session");
             String sessionId = sessionPath != null ? sessionPath.substring(sessionPath.lastIndexOf('/') + 1) : "default";
@@ -43,20 +44,15 @@ public class DialogflowWebhookController {
             Map<String, Object> parameters = (Map<String, Object>) queryResult.get("parameters");
             String userQuery = (String) queryResult.get("queryText");
 
-            // Ghi nhớ tên người dùng nếu có
-            if (parameters.containsKey("myName")) {
-                String name = parameters.get("myName").toString().trim();
-                sessionContextCache.setUserName(sessionId, name);
-                sessionContextCache.addMessage(sessionId, "User: Tôi tên là " + name);
-            }
-
             // Lưu user message vào session
             sessionContextCache.addMessage(sessionId, "User: " + userQuery);
 
             // Tạo prompt có lịch sử
             List<String> history = sessionContextCache.getSessionHistory(sessionId);
-            String userName = sessionContextCache.getUserName(sessionId);
-            StringBuilder promptBuilder = new StringBuilder("Bạn là trợ lý khách sạn tên Hamora. Hãy trả lời thân thiện, xưng hô với người dùng là " + userName + ".\nLịch sử trò chuyện:\n");
+            StringBuilder promptBuilder = new StringBuilder("""
+            Bạn là trợ lý ảo của trang web đặt phòng khách sạn tên Hamora, tên của bạn là Hamora. Hãy trả lời lịch sự và thân thiện, tạo cảm giác gần gũi và vui vẻ với người dùng.
+            Lịch sử trò chuyện:
+            """);
             for (String msg : history) {
                 promptBuilder.append(msg).append("\n");
             }
@@ -78,16 +74,13 @@ public class DialogflowWebhookController {
                     return Map.of("fulfillmentText", emptyReply);
                 }
 
-                // Tạo prompt sử dụng tên người dùng + lịch sử + danh sách địa điểm
-                userName = sessionContextCache.getUserName(sessionId);
+                // Tạo prompt sử dụng lịch sử + danh sách địa điểm
                 StringBuilder prompt = new StringBuilder("""
-                    Bạn là Hamora - trợ lý đặt phòng khách sạn thông minh.
-                    - Hãy xưng hô thân thiện với người dùng là %s.
+                    Bạn là trợ lý ảo của trang web đặt phòng khách sạn tên Hamora, tên của bạn là Hamora. Hãy trả lời lịch sự và thân thiện, tạo cảm giác gần gũi và vui vẻ với người dùng.
                     - Dưới đây là danh sách địa điểm có khách sạn: %s
                     - Hãy gợi ý lịch sự để người dùng chọn địa điểm tiếp theo.
-            
                     Lịch sử hội thoại:
-                    """.formatted(userName, String.join(", ", locations)));
+                    """.formatted(String.join(", ", locations)));
 
                 for (String msg : sessionContextCache.getSessionHistory(sessionId)) {
                     prompt.append(msg).append("\n");
@@ -101,17 +94,12 @@ public class DialogflowWebhookController {
             }
 
             if ("Tìm phòng".equals(intentName)) {
-                // Lấy tên người dùng (nếu có) để xưng hô
-                userName = sessionContextCache.getUserName(sessionId);
-
                 // Kiểm tra thiếu thông tin
                 boolean missing = false;
                 StringBuilder softPrompt = new StringBuilder("""
-                Bạn là Hamora - trợ lý đặt phòng khách sạn.
-                Hãy xưng hô thân thiện với người dùng là %s.
-        
+                Bạn là trợ lý ảo của trang web đặt phòng khách sạn tên Hamora, tên của bạn là Hamora. Hãy trả lời lịch sự và thân thiện, tạo cảm giác gần gũi và vui vẻ với người dùng.
                 Người dùng đang muốn đặt phòng nhưng còn thiếu thông tin:
-                """.formatted(userName));
+                """);
 
                 // Lấy và kiểm tra từng parameter
                 String rawLocation = parameters.getOrDefault("location", "").toString().trim();
