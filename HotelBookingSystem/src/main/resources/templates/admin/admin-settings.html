@@ -72,7 +72,7 @@
 	</script>
 
 	<!-- Favicon -->
-	<link rel="shortcut icon" th:href="@{assets/images/favicon.ico}">
+	<link rel="shortcut icon" th:href="@{/assets/images/favicon.ico}">
 
 	<!-- Google Font -->
 	<link rel="preconnect" href="https://fonts.googleapis.com/">
@@ -80,13 +80,13 @@
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Poppins:wght@400;500;700&amp;display=swap">
 
 	<!-- Plugins CSS -->
-	<link rel="stylesheet" type="text/css" th:href="@{assets/vendor/font-awesome/css/all.min.css}">
-	<link rel="stylesheet" type="text/css" th:href="@{assets/vendor/bootstrap-icons/bootstrap-icons.css}">
-	<link rel="stylesheet" type="text/css" th:href="@{assets/vendor/overlay-scrollbar/css/overlayscrollbars.min.css}">
-	<link rel="stylesheet" type="text/css" th:href="@{assets/vendor/flatpickr/css/flatpickr.min.css}">
+	<link rel="stylesheet" type="text/css" th:href="@{/assets/vendor/font-awesome/css/all.min.css}">
+	<link rel="stylesheet" type="text/css" th:href="@{/assets/vendor/bootstrap-icons/bootstrap-icons.css}">
+	<link rel="stylesheet" type="text/css" th:href="@{/assets/vendor/overlay-scrollbar/css/overlayscrollbars.min.css}">
+	<link rel="stylesheet" type="text/css" th:href="@{/assets/vendor/flatpickr/css/flatpickr.min.css}">
 
 	<!-- Theme CSS -->
-	<link rel="stylesheet" type="text/css" th:href="@{assets/css/style.css}">
+	<link rel="stylesheet" type="text/css" th:href="@{/assets/css/style.css}">
 
 </head>
 
@@ -153,7 +153,15 @@
 			            <td th:text="${#temporals.format(log.timestamp, 'dd/MM/yyyy HH:mm:ss')}"></td>
 			            <td th:text="${log.admin}"></td>
 			            <td th:text="${log.action}"></td>
-			            <td th:text="${log.details}"></td>
+			            <td>
+			                <div th:if="${#lists.size(log.detailsMap) > 0}">
+			                    <span th:each="entry : ${log.detailsMap}">
+			                        <b th:text="${entry.key + ':'}"></b>
+			                        <span th:text="${entry.value}"></span><br/>
+			                    </span>
+			                </div>
+			                <span th:unless="${#lists.size(log.detailsMap) > 0}" th:text="${log.details}"></span>
+			            </td>
 			        </tr>
 			    </tbody>
 			</table>
@@ -166,14 +174,14 @@
 <!-- **************** MAIN CONTENT END **************** -->
 
 <!-- Bootstrap JS -->
-<script th:src="@{assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
 
 <!-- Vendor -->
-<script th:src="@{assets/vendor/overlay-scrollbar/js/overlayscrollbars.min.js}"></script>
-<script th:src="@{assets/vendor/flatpickr/js/flatpickr.min.js}"></script>
+<script th:src="@{/assets/vendor/overlay-scrollbar/js/overlayscrollbars.min.js}"></script>
+<script th:src="@{/assets/vendor/flatpickr/js/flatpickr.min.js}"></script>
 
 <!-- ThemeFunctions -->
-<script th:src="@{assets/js/functions.js}"></script>
+<script th:src="@{/assets/js/functions.js}"></script>
 
 </body>
 

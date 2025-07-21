@@ -9,6 +9,7 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import org.swp391.hotelbookingsystem.service.SiteSettingsService;
 
 @Service
 public class EmailService {
@@ -16,10 +17,12 @@ public class EmailService {
     private final JavaMailSender mailSender;
 
     private final SpringTemplateEngine templateEngine;
+    private final SiteSettingsService siteSettingsService;
 
-    public EmailService(JavaMailSender mailSender, SpringTemplateEngine templateEngine) {
+    public EmailService(JavaMailSender mailSender, SpringTemplateEngine templateEngine, SiteSettingsService siteSettingsService) {
         this.mailSender = mailSender;
         this.templateEngine = templateEngine;
+        this.siteSettingsService = siteSettingsService;
     }
 
     public void sendResetPasswordEmail(String to, String resetLink) throws MessagingException {
@@ -33,7 +36,7 @@ public class EmailService {
         helper.setTo(to);
         helper.setSubject("Đặt lại mật khẩu của bạn");
         helper.setText(htmlContent, true);
-        helper.setFrom("your_email@gmail.com");
+        helper.setFrom(siteSettingsService.getSettings().getSupportEmail());
 
         mailSender.send(message);
     }
@@ -43,6 +46,7 @@ public class EmailService {
         message.setTo(toEmail);
         message.setSubject("Xác minh email - Mã OTP của bạn");
         message.setText("Xin chào,\n\nMã OTP xác thực email của bạn là: " + otp + "\nMã này sẽ hết hạn sau 5 phút.\n\nTrân trọng.");
+        message.setFrom(siteSettingsService.getSettings().getSupportEmail());
         mailSender.send(message);
     }
 
@@ -58,6 +62,7 @@ public class EmailService {
         helper.setTo(toEmail);
         helper.setSubject("Xác nhận xóa khách sạn: " + hotelName);
         helper.setText(htmlContent, true);  // Sets the email body as HTML
+        helper.setFrom(siteSettingsService.getSettings().getSupportEmail());
 
         mailSender.send(message); // Opens a connection to Gmail SMTP at smtp.gmail.com:587
     }
@@ -74,6 +79,7 @@ public class EmailService {
         helper.setTo(toEmail);
         helper.setSubject("Xác nhận vô hiệu hóa khách sạn: " + hotelName);
         helper.setText(htmlContent, true);  // Sets the email body as HTML
+        helper.setFrom(siteSettingsService.getSettings().getSupportEmail());
 
         mailSender.send(message); // Opens a connection to Gmail SMTP at smtp.gmail.com:587
     }
@@ -92,6 +98,7 @@ public class EmailService {
         helper.setTo(toEmail);
         helper.setSubject("⚠️ Xác nhận vô hiệu hóa khách sạn có đặt phòng đang hoạt động - " + hotelName);
         helper.setText(htmlContent, true);
+        helper.setFrom(siteSettingsService.getSettings().getSupportEmail());
 
         mailSender.send(message);
     }
@@ -108,10 +115,10 @@ public class EmailService {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
-        helper.setTo("hamoraplatform@gmail.com");
+        helper.setTo(siteSettingsService.getSettings().getSupportEmail());
         helper.setSubject("Tin nhắn từ biểu mẫu liên hệ");
         helper.setText(htmlContent, true);
-        helper.setFrom("your_email@gmail.com");
+        helper.setFrom(siteSettingsService.getSettings().getSupportEmail());
 
         mailSender.send(message);
     }
@@ -127,7 +134,7 @@ public class EmailService {
         helper.setTo(to);
         helper.setSubject("Tài khoản của bạn đã bị khóa");
         helper.setText(htmlContent, true);
-        helper.setFrom("your_email@gmail.com");
+        helper.setFrom(siteSettingsService.getSettings().getSupportEmail());
 
         mailSender.send(message);
     }
@@ -143,7 +150,7 @@ public class EmailService {
         helper.setTo(to);
         helper.setSubject("Tài khoản của bạn đã được mở khóa");
         helper.setText(htmlContent, true);
-        helper.setFrom("your_email@gmail.com");
+        helper.setFrom(siteSettingsService.getSettings().getSupportEmail());
 
         mailSender.send(message);
     }
@@ -159,7 +166,7 @@ public class EmailService {
         helper.setTo(toEmail);
         helper.setSubject("Xác nhận thay đổi mật khẩu");
         helper.setText(htmlContent, true);
-        helper.setFrom("your_email@gmail.com");
+        helper.setFrom(siteSettingsService.getSettings().getSupportEmail());
 
         mailSender.send(message);
     }

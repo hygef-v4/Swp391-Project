@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.swp391.hotelbookingsystem.service.AdminLogService;
 import org.springframework.util.StringUtils;
 import org.springframework.dao.DataAccessException;
+import org.swp391.hotelbookingsystem.model.User;
 
 @Controller
 public class AdminSettingsController {
@@ -58,10 +59,11 @@ public class AdminSettingsController {
             model.addAttribute("logs", adminLogService.getRecentLogs());
             return "admin/admin-settings";
         }
-        Object user = session.getAttribute("user");
-        String admin = user != null ? user.toString() : "unknown";
-        logger.info("Admin [{}] cập nhật cài đặt hệ thống: {}", admin, settings);
-        adminLogService.log(admin, "Cập nhật cài đặt hệ thống", settings.toString());
+        User user = (User) session.getAttribute("user");
+        String admin = (user != null) ? user.getFullName() + " (" + user.getEmail() + ")" : "unknown";
+        String action = "Cập nhật cài đặt hệ thống";
+        logger.info("Admin [{}] {}: {}", admin, action, settings);
+        adminLogService.log(admin, action, settings.toString());
         model.addAttribute("settings", settings);
         model.addAttribute("success", true);
         model.addAttribute("logs", adminLogService.getRecentLogs());

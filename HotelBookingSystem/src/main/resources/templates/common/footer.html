@@ -8,14 +8,12 @@
             <div class="col-lg-3">
                 <!-- logo -->
                 <a href="/">
-                    <img class="h-40px" src="/assets/images/logo-light.svg" alt="logo">
+                    <img class="h-40px" src="/assets/images/logo-light.svg" th:alt="${globalSettings.siteName}">
                 </a>
-                <p class="my-3 text-body-secondary">Nền tảng đặt phòng uy tín, tiện nghi hàng đầu Việt Nam cho những
-                    chuyến đi trọn vẹn.</p>
-                <p class="mb-2"><a href="#" class="text-body-secondary text-primary-hover"><i
-                        class="bi bi-telephone me-2"></i>+84 912345678</a></p>
-                <p class="mb-0"><a href="#" class="text-body-secondary text-primary-hover"><i
-                        class="bi bi-envelope me-2"></i>hamoraplatform@gmail.com</a></p>
+                <p class="my-3 text-body-secondary">Nền tảng đặt phòng uy tín, tiện nghi hàng đầu Việt Nam cho những chuyến đi trọn vẹn.</p>
+                <p class="mb-2"><a href="#" class="text-body-secondary text-primary-hover"><i class="bi bi-telephone me-2"></i><span th:text="${globalSettings.contactPhone}">+84 912345678</span></a></p>
+                <p class="mb-0"><a href="#" class="text-body-secondary text-primary-hover"><i class="bi bi-envelope me-2"></i><span th:text="${globalSettings.supportEmail}">hamoraplatform@gmail.com</span></a></p>
+                <p class="mb-0"><i class="bi bi-geo-alt me-2"></i><span th:text="${globalSettings.contactAddress}">Địa chỉ</span></p>
             </div>
             <!-- Widget 1 END -->
 
@@ -149,7 +147,7 @@
             <div class="container">
                 <div class="d-lg-flex justify-content-between align-items-center py-3 text-center text-lg-start">
                     <!-- copyright text -->
-                    <div class="text-body-secondary text-primary-hover"> ©2025 Hamora Stays</div>
+                    <div class="text-body-secondary text-primary-hover"> ©2025 <span th:text="${globalSettings.siteName}">Hamora Stays</span></div>
                     <!-- copyright links-->
                     <div class="nav mt-2 mt-lg-0">
                         <ul class="list-inline text-primary-hover mx-auto mb-0">
