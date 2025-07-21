@@ -25,7 +25,7 @@ public class AdminSettingsController {
     private AdminLogService adminLogService;
 
     // Hiển thị trang cài đặt
-    @GetMapping("/admin/settings")
+    @GetMapping("/admin/website-settings")
     public String showSettings(Model model) {
         model.addAttribute("settings", settingsService.getSettings());
         model.addAttribute("logs", adminLogService.getRecentLogs());
@@ -33,7 +33,7 @@ public class AdminSettingsController {
     }
 
     // Xử lý cập nhật cài đặt
-    @PostMapping("/admin/settings")
+    @PostMapping("/admin/website-settings")
     public String updateSettings(@ModelAttribute SiteSettings settings, Model model, HttpSession session) {
         // Validation
         StringBuilder error = new StringBuilder();
