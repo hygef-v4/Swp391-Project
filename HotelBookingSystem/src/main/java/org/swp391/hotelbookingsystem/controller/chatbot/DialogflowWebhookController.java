@@ -126,6 +126,7 @@ public class DialogflowWebhookController {
                 return Map.of("fulfillmentText", reply);
             }
 
+            // Xử lý intent Tìm phòng
             if ("Tìm phòng".equals(intentName)) {
                 // Kiểm tra thiếu thông tin
                 boolean missing = false;
