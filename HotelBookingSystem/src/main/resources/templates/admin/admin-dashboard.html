@@ -266,7 +266,27 @@
                 <!-- Widget START -->
                 <div class="row g-4">
                     <!-- Booking Chart START -->
-
+                    <div class="col-12 mb-4">
+                        <div class="card shadow-sm rounded-4 border-0">
+                            <div class="card-header border-0 px-4 py-3 d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0 fw-bold">Thống kê số lượng đặt phòng</h5>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="adminBookingChartDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <span id="adminBookingChartPeriod">6 tháng qua</span>
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="adminBookingChartDropdown">
+                                        <li><a class="dropdown-item" href="#" onclick="changeAdminBookingChartPeriod('6months', '6 tháng qua')">6 tháng qua</a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="changeAdminBookingChartPeriod('30days', '30 ngày qua')">30 ngày qua</a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="changeAdminBookingChartPeriod('year2024', 'Năm 2024')">Năm 2024</a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="changeAdminBookingChartPeriod('year2023', 'Năm 2023')">Năm 2023</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div id="adminBookingChart" style="height: 350px;"></div>
+                            </div>
+                        </div>
+                    </div>
                     <!-- Booking Chart END -->
 
 
@@ -363,65 +383,103 @@
 <!-- Vendor -->
 <script th:src="@{assets/vendor/overlay-scrollbar/js/overlayscrollbars.min.js}"></script>
 <script th:src="@{assets/vendor/apexcharts/js/apexcharts.min.js}"></script>
-
+<script th:src="@{assets/vendor/choices/js/choices.min.js}"></script>
 <!-- ThemeFunctions -->
 <script th:src="@{assets/js/functions.js}"></script>
 
+<!-- Admin Booking Chart Script -->
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        var chartEl = document.querySelector('#LineChartGuest');
-        if (!chartEl) return;
-
-        var labels = JSON.parse(chartEl.dataset.labels);
-        var checkInData = JSON.parse(chartEl.dataset.checkin);
-        var checkOutData = JSON.parse(chartEl.dataset.checkout);
-
-        var options = {
-            series: [
-                {name: 'Check-in', data: checkInData},
-                {name: 'Check-out', data: checkOutData}
-            ],
-            chart: {
-                type: 'line',
-                height: 350
-            },
-            xaxis: {
-                categories: labels,
-                title: {text: 'Date'},
-                labels: {
-                    rotate: -45,
-                    format: 'yyyy-MM-dd',
-                    formatter: function (val) {
-                        return val; // keep as raw date string
-                    }
-                }
-            },
-            yaxis: {
-                title: {text: 'Guest'},
-                forceNiceScale: true,
-                labels: {
-                    formatter: val => Number.isInteger(val) ? val : ''
-                },
-                min: 0
-            },
-            stroke: {
-                curve: 'smooth'
-            },
-            colors: [
-                getComputedStyle(document.documentElement).getPropertyValue('--bs-green').trim(),
-                getComputedStyle(document.documentElement).getPropertyValue('--bs-gray').trim()
-            ],
-            dataLabels: {
-                enabled: false
-            }
-        };
-
-        new ApexCharts(chartEl, options).render();
+    // Use DOMContentLoaded to ensure the DOM is ready before the script runs.
+    document.addEventListener('DOMContentLoaded', function () {
+        // Check if ApexCharts is loaded
+        if (typeof ApexCharts !== 'undefined') {
+            loadAdminBookingChart('6months', '6 tháng qua');
+        } else {
+            console.error('ApexCharts library not found.');
+        }
     });
+
+    // This function is called when the user selects a new time range.
+    function changeAdminBookingChartPeriod(period, displayName) {
+        document.getElementById('adminBookingChartPeriod').textContent = displayName;
+        loadAdminBookingChart(period, displayName);
+    }
+
+    // This function fetches data and renders the chart.
+    function loadAdminBookingChart(period, displayName) {
+        const chartEl = document.getElementById('adminBookingChart');
+        // Display a loading spinner while fetching data.
+        chartEl.innerHTML = '<div class="d-flex justify-content-center align-items-center" style="height:350px;"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+
+        fetch(`/api/admin/booking-stats?period=${period}`)
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return res.json();
+            })
+            .then(data => {
+                const categories = data.map(item => item.category);
+                const counts = data.map(item => item.count);
+                const options = {
+                    series: [{ name: 'Số lượng đặt phòng', data: counts }],
+                    chart: {
+                        type: 'area',
+                        height: 350,
+                        toolbar: { show: true } // Show toolbar for zoom/pan
+                    },
+                    xaxis: {
+                        categories: categories,
+                        title: { text: 'Thời gian' }
+                    },
+                    yaxis: {
+                        title: { text: 'Số lượng' },
+                        min: 0,
+                        labels: {
+                            formatter: (value) => { return Math.floor(value) === value ? value : '' }
+                        }
+                    },
+                    dataLabels: { enabled: false },
+                    stroke: { curve: 'smooth' },
+                    colors: ['#667eea'],
+                    fill: {
+                        type: 'gradient',
+                        gradient: {
+                            shade: 'dark',
+                            type: "vertical",
+                            shadeIntensity: 0.5,
+                            gradientToColors: ['#764ba2'],
+                            inverseColors: true,
+                            opacityFrom: 0.5,
+                            opacityTo: 0.1,
+                            stops: [0, 100]
+                        }
+                    },
+                    tooltip: {
+                        y: { formatter: val => `${val} đặt phòng` }
+                    }
+                };
+
+                // If a chart instance already exists, destroy it before rendering a new one.
+                if (window.adminBookingChartInstance) {
+                    window.adminBookingChartInstance.destroy();
+                }
+                
+                // Explicitly clear the container to remove the spinner
+                chartEl.innerHTML = '';
+
+                // Create and render the new chart.
+                window.adminBookingChartInstance = new ApexCharts(chartEl, options);
+                window.adminBookingChartInstance.render();
+            })
+            .catch((error) => {
+                console.error('Error fetching or rendering chart:', error);
+                chartEl.innerHTML = '<div class="text-danger d-flex justify-content-center align-items-center" style="height:350px;">Không thể tải dữ liệu biểu đồ.</div>';
+            });
+    }
 </script>
 
-<!-- Add Location Modal -->
-<!-- Add Location Modal (✔ fixed version) -->
+<!-- Add Location Modal (fixed version) -->
 <div class="modal fade" id="addLocationModal" tabindex="-1" aria-labelledby="addLocationModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content rounded-4">

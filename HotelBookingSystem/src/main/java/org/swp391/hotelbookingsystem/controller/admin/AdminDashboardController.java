@@ -104,6 +104,15 @@ public class AdminDashboardController {
         return "admin/admin-dashboard";
     }
 
+    @GetMapping("/api/admin/booking-stats")
+    @ResponseBody
+    public List<Map<String, Object>> getAdminBookingStats(@RequestParam String period) {
+        if ("6months".equals(period) || "30days".equals(period)) {
+            return bookingService.getBookingStatsForAdminWithZeroFill(period);
+        }
+        return bookingService.getBookingStatsForAdmin(period);
+    }
+
     @PostMapping("/admin/locations/add")
     @ResponseBody
     public ResponseEntity<?> addLocation(@RequestParam("cityName") String cityName,

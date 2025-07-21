@@ -7,6 +7,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.time.LocalDate;
+import java.util.LinkedHashMap;
 
 import org.springframework.stereotype.Service;
 import org.swp391.hotelbookingsystem.model.Booking;
@@ -424,5 +426,75 @@ public class BookingService {
 
     public int countBookingsByHotelId(int hotelId) {
         return bookingRepo.countBookingsByHotelId(hotelId);
+    }
+
+    public List<Map<String, Object>> getBookingStatsForAdmin(String period) {
+        return bookingRepo.getBookingStatsForAdmin(period);
+    }
+
+    public List<Map<String, Object>> getBookingStatsForAdminWithZeroFill(String period) {
+        List<Map<String, Object>> raw = bookingRepo.getBookingStatsForAdmin(period);
+
+        if ("6months".equals(period)) {
+            // Build last 6 months
+            LinkedHashMap<String, Integer> monthMap = new LinkedHashMap<>();
+            LocalDate now = LocalDate.now();
+            DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM");
+            for (int i = 5; i >= 0; i--) {
+                LocalDate month = now.minusMonths(i);
+                monthMap.put(month.format(fmt), 0);
+            }
+
+            // Fill in counts from raw data
+            for (Map<String, Object> entry : raw) {
+                // FIX: Convert category object to String to avoid ClassCastException
+                String cat = String.valueOf(entry.get("category"));
+                int count = ((Number) entry.get("count")).intValue();
+                if (monthMap.containsKey(cat)) {
+                    monthMap.put(cat, count);
+                }
+            }
+
+            // Build result
+            List<Map<String, Object>> result = new java.util.ArrayList<>();
+            for (Map.Entry<String, Integer> e : monthMap.entrySet()) {
+                Map<String, Object> m = new java.util.HashMap<>();
+                m.put("category", e.getKey());
+                m.put("count", e.getValue());
+                result.add(m);
+            }
+            return result;
+        }
+
+        if ("30days".equals(period)) {
+            // Build last 30 days
+            LinkedHashMap<String, Integer> dayMap = new LinkedHashMap<>();
+            LocalDate now = LocalDate.now();
+            DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            for (int i = 29; i >= 0; i--) {
+                LocalDate day = now.minusDays(i);
+                dayMap.put(day.format(fmt), 0);
+            }
+            // Fill in counts from raw data
+            for (Map<String, Object> entry : raw) {
+                // FIX: Convert category object to String to avoid ClassCastException
+                String cat = String.valueOf(entry.get("category"));
+                int count = ((Number) entry.get("count")).intValue();
+                if (dayMap.containsKey(cat)) {
+                    dayMap.put(cat, count);
+                }
+            }
+            // Build result
+            List<Map<String, Object>> result = new java.util.ArrayList<>();
+            for (Map.Entry<String, Integer> e : dayMap.entrySet()) {
+                Map<String, Object> m = new java.util.HashMap<>();
+                m.put("category", e.getKey());
+                m.put("count", e.getValue());
+                result.add(m);
+            }
+            return result;
+        }
+
+        return raw;
     }
 }

@@ -1852,4 +1852,52 @@ public class BookingRepo {
 
         return jdbcTemplate.update(sql);
     }
+
+    /**
+     * Get booking stats for all bookings (admin)
+     */
+    public List<Map<String, Object>> getBookingStatsForAdmin(String period) {
+        String dateTrunc;
+        String groupBy;
+        String whereClause = "WHERE EXISTS (SELECT 1 FROM BookingUnits bu WHERE bu.booking_id = b.booking_id AND bu.status != 'pending')";
+
+        switch (period) {
+            case "30days":
+                dateTrunc = "CAST(b.created_at AS DATE)";
+                groupBy = "CAST(b.created_at AS DATE)";
+                whereClause += " AND b.created_at >= DATEADD(day, -30, GETDATE())";
+                break;
+            case "year2024":
+                dateTrunc = "FORMAT(b.created_at, 'yyyy-MM')";
+                groupBy = "FORMAT(b.created_at, 'yyyy-MM')";
+                whereClause += " AND YEAR(b.created_at) = 2024";
+                break;
+            case "year2023":
+                dateTrunc = "FORMAT(b.created_at, 'yyyy-MM')";
+                groupBy = "FORMAT(b.created_at, 'yyyy-MM')";
+                whereClause += " AND YEAR(b.created_at) = 2023";
+                break;
+            case "year2022":
+                dateTrunc = "FORMAT(b.created_at, 'yyyy-MM')";
+                groupBy = "FORMAT(b.created_at, 'yyyy-MM')";
+                whereClause += " AND YEAR(b.created_at) = 2022";
+                break;
+            case "6months":
+            default:
+                dateTrunc = "FORMAT(b.created_at, 'yyyy-MM')";
+                groupBy = "FORMAT(b.created_at, 'yyyy-MM')";
+                whereClause += " AND b.created_at >= DATEADD(month, -6, GETDATE())";
+                break;
+        }
+
+        String sql = String.format("""
+            SELECT %s as category, COUNT(b.booking_id) as count
+            FROM Bookings b
+            %s
+            GROUP BY %s
+            ORDER BY category
+            """, dateTrunc, whereClause, groupBy);
+
+        return jdbcTemplate.queryForList(sql);
+    }
 }
