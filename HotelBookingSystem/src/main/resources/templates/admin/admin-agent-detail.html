@@ -170,12 +170,26 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <!-- Digit -->
                             <div>
-<!--                                <h3 class="mb-0 fw-bold" th:text="${#numbers.formatDecimal(monthlyRevenue, 0, 'COMMA', 0, 'POINT')} + '₫'">Thu nhập</h3>-->
                                 <h3 class="mb-0 fw-bold" th:text="${monthlyRevenue}">Thu nhập</h3>
                                 <span class="mb-0 h6 fw-light">Thu nhập tháng này</span>
                             </div>
                             <!-- Icon -->
                             <div class="icon-lg rounded-circle flex-shrink-0 bg-success text-white mb-0"><i class="fa-solid fa-money-bill-trend-up fa-fw"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Average star -->
+                <div class="col-lg-3">
+                    <div class="card card-body border border-success bg-success bg-opacity-10 border-opacity-25 p-4 h-100 hover-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <ul class="list-inline small mb-0 text-center">
+                                <li class="list-inline-item me-0"><i th:class="(${avgRating <= 0.2} ? 'fa-regular fa-star' : (${avgRating >= 0.8} ? 'fa-solid fa-star' : 'fa-solid fa-star-half-alt')) + ' text-warning'"></i></li>
+                                <li class="list-inline-item me-0"><i th:class="(${avgRating <= 1.2} ? 'fa-regular fa-star' : (${avgRating >= 1.8} ? 'fa-solid fa-star' : 'fa-solid fa-star-half-alt')) + ' text-warning'"></i></li>
+                                <li class="list-inline-item me-0"><i th:class="(${avgRating <= 2.2} ? 'fa-regular fa-star' : (${avgRating >= 2.8} ? 'fa-solid fa-star' : 'fa-solid fa-star-half-alt')) + ' text-warning'"></i></li>
+                                <li class="list-inline-item me-0"><i th:class="(${avgRating <= 3.2} ? 'fa-regular fa-star' : (${avgRating >= 3.8} ? 'fa-solid fa-star' : 'fa-solid fa-star-half-alt')) + ' text-warning'"></i></li>
+                                <li class="list-inline-item me-0"><i th:class="(${avgRating <= 4.2} ? 'fa-regular fa-star' : (${avgRating >= 4.8} ? 'fa-solid fa-star' : 'fa-solid fa-star-half-alt')) + ' text-warning'"></i></li>
+                            </ul>
                         </div>
                     </div>
                 </div>
