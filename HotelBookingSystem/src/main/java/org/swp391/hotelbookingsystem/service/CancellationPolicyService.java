@@ -51,8 +51,8 @@ public class CancellationPolicyService {
         if (policy.getNoRefundWithinDays() < 0 || policy.getNoRefundWithinDays() > 365) {
             return false;
         }
-        // Logical validation: no refund period should be <= partial refund period
-        if (policy.getNoRefundWithinDays() > policy.getPartialRefundDays()) {
+        // Logical validation: partial refund period should be > no refund period
+        if (policy.getPartialRefundDays() <= policy.getNoRefundWithinDays()) {
             return false;
         }
         return true;

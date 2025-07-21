@@ -519,9 +519,12 @@
                                 <div class="ms-3 flex-grow-1">
                                     <h3 class="mb-1 fw-bold" th:text="${averageRating}">0.0</h3>
                                     <h6 class="mb-1">Đánh Giá Trung Bình</h6>
-                                    <small class="text-muted" th:if="${totalReviews > 0}">
+                                    <small class="text-muted" th:if="${hasRating}">
                                         <i class="bi bi-chat-dots me-1"></i>Dựa trên
                                         <span th:text="${totalReviews}">0</span> đánh giá
+                                    </small>
+                                    <small class="text-muted" th:unless="${hasRating}">
+                                        <i class="bi bi-info-circle me-1"></i>Chưa có đánh giá nào
                                     </small>
                                 </div>
                             </div>
