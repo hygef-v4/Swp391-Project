@@ -131,7 +131,7 @@ Main Banner START -->
 		<!-- Background image -->
         <div class="rounded-3 p-3 p-sm-5" th:style="'background-image: url(' + ${hamora.imageUrl} + '); background-position: center center; background-repeat: no-repeat; background-size: cover;'">
 			<!-- Banner title -->
-			<div class="row my-2 my-xl-5"> 
+			<div class="row my-2 my-xl-5">
 				<div class="col-md-10 mx-auto"> 
 					<h1 class="text-center text-white">Các khách sạn tại <span th:text="${hamora.cityName}"></span></h1>
 				</div>
@@ -339,7 +339,7 @@ Hotel grid START -->
 
 			<!-- Card item START -->
 			<div class="col-md-6 col-xl-4" th:each="hotel: ${hotels}">
-				<div class="card shadow p-2 pb-0 h-100">
+				<div class="card hover-card shadow p-2 pb-0 h-100">
 					<!-- Slider START -->
 					<div class="card-img-scale-wrapper rounded-3">
 
