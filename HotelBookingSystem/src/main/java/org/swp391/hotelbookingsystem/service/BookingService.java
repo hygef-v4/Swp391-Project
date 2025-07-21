@@ -138,6 +138,10 @@ public class BookingService {
         return bookingRepo.findBookingsByHostId(hostId);
     }
 
+    public List<Booking> getBookingByCustomerId(int customerId){
+        return bookingRepo.findBookingsByCustomerId(customerId);
+    }
+
     public int countTotalBookingsByHostId(int hostId) {
         return bookingRepo.countBookingsByHostId(hostId);
     }

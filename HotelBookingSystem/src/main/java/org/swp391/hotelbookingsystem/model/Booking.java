@@ -30,6 +30,7 @@ public class Booking {
     private int partialRefundPercent;
     private int noRefund;
     
+    private int hostId;
     private String hotelName;
     private String imageUrl;
     private String status;
