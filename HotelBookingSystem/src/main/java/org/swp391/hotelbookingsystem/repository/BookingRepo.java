@@ -1341,6 +1341,7 @@ public class BookingRepo {
                 b.check_out,
                 b.total_price,
                 b.created_at,
+                h.host_id,
                 h.hotel_name,
                 h.hotel_image_url,
                 u.full_name AS customer_name,
@@ -1365,11 +1366,67 @@ public class BookingRepo {
                     .checkOut(rs.getTimestamp("check_out").toLocalDateTime())
                     .totalPrice(rs.getDouble("total_price"))
                     .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
+                    .hostId(rs.getInt("host_id"))
                     .hotelName(rs.getString("hotel_name"))
                     .imageUrl(rs.getString("hotel_image_url"))
                     .customerName(rs.getString("customer_name"))
                     .customerEmail(rs.getString("customer_email"))
                     .customerAvatar(rs.getString("customer_avatar"))
+                    .build();
+
+            booking.setBookingUnits(findBookingUnitsByBookingId(bookingId));
+
+            return booking;
+        });
+    }
+
+    public List<Booking> findBookingsByCustomerId(int customerId) {
+        String sql = """
+            SELECT
+                b.booking_id,
+                b.hotel_id,
+                b.customer_id,
+                b.coupon_id,
+                b.check_in,
+                b.check_out,
+                b.total_price,
+                b.created_at,
+                h.hotel_name,
+                h.hotel_image_url,
+                u.full_name AS customer_name,
+                u.email AS customer_email,
+                u.avatar_url AS customer_avatar,
+                cp.partial_refund_days,
+                cp.partial_refund_percent,
+                cp.no_refund_within_days
+            FROM Bookings b
+            JOIN Hotels h ON b.hotel_id = h.hotel_id
+            JOIN Users u ON b.customer_id = u.user_id
+            LEFT JOIN CancellationPolicies cp ON cp.hotel_id = h.hotel_id
+            WHERE b.customer_id = ?
+            ORDER BY b.created_at DESC
+        """;
+
+        return jdbcTemplate.query(sql, ps -> ps.setInt(1, customerId), (rs, rowNum) -> {
+            int bookingId = rs.getInt("booking_id");
+
+            Booking booking = Booking.builder()
+                    .bookingId(bookingId)
+                    .hotelId(rs.getInt("hotel_id"))
+                    .customerId(rs.getInt("customer_id"))
+                    .couponId((Integer) rs.getObject("coupon_id"))
+                    .checkIn(rs.getTimestamp("check_in").toLocalDateTime())
+                    .checkOut(rs.getTimestamp("check_out").toLocalDateTime())
+                    .totalPrice(rs.getDouble("total_price"))
+                    .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
+                    .hotelName(rs.getString("hotel_name"))
+                    .imageUrl(rs.getString("hotel_image_url"))
+                    .customerName(rs.getString("customer_name"))
+                    .customerEmail(rs.getString("customer_email"))
+                    .customerAvatar(rs.getString("customer_avatar"))
+                    .partialRefundDay(rs.getObject("partial_refund_days") != null ? rs.getInt("partial_refund_days") : 7)
+                    .partialRefundPercent(rs.getObject("partial_refund_percent") != null ? rs.getInt("partial_refund_percent") : 50)
+                    .noRefund(rs.getObject("no_refund_within_days") != null ? rs.getInt("no_refund_within_days") : 1)
                     .build();
 
             booking.setBookingUnits(findBookingUnitsByBookingId(bookingId));
@@ -1583,7 +1640,6 @@ public class BookingRepo {
             return bookings;
         }, params.toArray());
     }
-
 
     public List<Booking> getBookingsByHotelIdOrderByDate(int hotelId) {
         String sql = """
