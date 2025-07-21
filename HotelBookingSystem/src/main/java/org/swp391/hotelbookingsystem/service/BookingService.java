@@ -397,18 +397,20 @@ public class BookingService {
         return bookingRepo.countBookingsByRoomId(roomId);
     }
 
-    public List<Booking> getBookingsByHotelIdPaginated(int hotelId, int page, int size) {
+    public List<Booking> getBookingsByHotelIdPaginated(int hotelId, int page, int size, String search, String sort) {
         int offset = page * size;
-        return bookingRepo.getBookingsByHotelIdPaginated(hotelId, offset, size);
+        return bookingRepo.getBookingsByHotelIdPaginated(hotelId, offset, size, search, sort);
     }
 
     public List<Booking> getBookingsByHotelIdOrderByDate(int hotelId) {
         return bookingRepo.getBookingsByHotelIdOrderByDate(hotelId);
     }
 
+    public int countBookingsByHotelId(int hotelId, String search) {
+        return bookingRepo.countBookingsByHotelId(hotelId, search);
+    }
+
     public int countBookingsByHotelId(int hotelId) {
         return bookingRepo.countBookingsByHotelId(hotelId);
     }
-
-
 }
