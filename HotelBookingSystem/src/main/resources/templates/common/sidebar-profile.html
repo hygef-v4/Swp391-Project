@@ -103,7 +103,7 @@
             <div class="offcanvas-body p-3 p-lg-0">
               <div class="card bg-light w-100">
                 <div class="position-absolute top-0 end-0 p-3">
-                  <a href="#" class="text-primary-hover" data-bs-toggle="tooltip" data-bs-title="Edit profile">
+                  <a href="/user-profile" class="text-primary-hover" data-bs-toggle="tooltip" data-bs-title="Edit profile">
                     <i class="bi bi-pencil-square"></i>
                   </a>
                 </div>
@@ -115,7 +115,7 @@
                            src="/assets/images/avatar/avatar.jpg" alt="Ảnh đại diện">
                     </div>
                     <h6 class="mb-0"><span th:text="${session.user.fullName != '' ? session.user.fullName : 'No Name'}"></span></h6>
-                    <a href="#" class="text-reset text-primary-hover small"><span th:text="${session.user.email}"></span></a>
+                    <a href="/user-profile" class="text-reset text-primary-hover small"><span th:text="${session.user.email}"></span></a>
                     <hr>
                   </div>
 
@@ -134,7 +134,7 @@
                       <a class="nav-link" href="/payment-information"><i class="bi bi-wallet fa-fw me-2"></i>Thông tin thanh toán</a>
                     </li>
                     <li class="nav-item">
-                      <a class="nav-link" href="/user-wishlist"><i class="bi bi-heart fa-fw me-2"></i>Yêu thích</a>
+                      <a class="nav-link" href="/user-wishlist"><i class="bi bi-heart fa-fw me-2"></i>Danh sách yêu thích</a>
                     </li>
                     <li class="nav-item">
                       <a class="nav-link" href="/setting"><i class="bi bi-gear fa-fw me-2"></i>Cài đặt</a>
