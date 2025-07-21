@@ -1526,9 +1526,8 @@ public class BookingRepo {
         params.add(hotelId);
 
         if (search != null && !search.isEmpty()) {
-            sql.append(" AND (u.full_name LIKE ? OR u.email LIKE ? OR h.hotel_name LIKE ?)");
+            sql.append(" AND (u.full_name LIKE ? OR u.email LIKE ?)");
             String searchPattern = "%" + search + "%";
-            params.add(searchPattern);
             params.add(searchPattern);
             params.add(searchPattern);
         }
