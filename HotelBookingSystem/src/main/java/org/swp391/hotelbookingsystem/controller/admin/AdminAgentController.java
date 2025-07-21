@@ -1,6 +1,7 @@
 package org.swp391.hotelbookingsystem.controller.admin;
 
 import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -93,7 +94,25 @@ public class AdminAgentController {
                            @RequestParam("reason") String reason,
                            @RequestParam(value = "page", required = false) Integer page,
                            @RequestParam(value = "search", required = false) String search,
-                           @RequestParam(value = "sort", required = false) String sort) throws MessagingException {
+                           @RequestParam(value = "sort", required = false) String sort,
+                           HttpSession session) throws MessagingException {
+
+        User user = userService.findUserById(userId);
+        if (user == null) {
+            String errorMsg = "Không tìm thấy người dùng.";
+            String redirectUrl = buildRedirectUrl("/admin-agent-list", search, null, null, page, sort);
+            String separator = redirectUrl.contains("?") ? "&" : "?";
+            return "redirect:" + redirectUrl + separator + "error=" + java.net.URLEncoder.encode(errorMsg, java.nio.charset.StandardCharsets.UTF_8);
+        }
+
+        // Get current admin user from session
+        User currentAdmin = (User) session.getAttribute("user");
+        if (currentAdmin != null && currentAdmin.getId() == userId) {
+            String errorMsg = "Không thể khóa tài khoản của chính mình.";
+            String redirectUrl = buildRedirectUrl("/admin-agent-list", search, null, null, page, sort);
+            String separator = redirectUrl.contains("?") ? "&" : "?";
+            return "redirect:" + redirectUrl + separator + "error=" + java.net.URLEncoder.encode(errorMsg, java.nio.charset.StandardCharsets.UTF_8);
+        }
 
         if (reason == null || reason.trim().isEmpty()) {
             String errorMsg = "Lý do huỷ đối tác không được để trống.";
@@ -102,8 +121,7 @@ public class AdminAgentController {
             return "redirect:" + redirectUrl + separator + "error=" + java.net.URLEncoder.encode(errorMsg, java.nio.charset.StandardCharsets.UTF_8);
         }
 
-        User user = userService.findUserById(userId);
-        if (user != null && user.isActive()) {
+        if (user.isActive()) {
             userService.banUser(userId); // đặt is_active = false
             emailService.sendUserBanEmail(user.getEmail(), reason);
             hotelService.banAllHotelsByHostId(userId); // huỷ toàn bộ khách sạn
