@@ -1,20 +1,19 @@
 package org.swp391.hotelbookingsystem.controller.admin;
 
-import jakarta.servlet.http.HttpSession;
+import jakarta.mail.MessagingException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.swp391.hotelbookingsystem.model.Hotel;
 import org.swp391.hotelbookingsystem.model.User;
-import org.swp391.hotelbookingsystem.service.BookingService;
-import org.swp391.hotelbookingsystem.service.HotelService;
-import org.swp391.hotelbookingsystem.service.UserService;
+import org.swp391.hotelbookingsystem.service.*;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 @Controller
 public class AdminAgentController {
@@ -22,11 +21,15 @@ public class AdminAgentController {
     private final UserService userService;
     private final HotelService hotelService;
     private final BookingService bookingService;
+    private final EmailService emailService;
+    private final ReportService reportService;
 
-    public AdminAgentController(UserService userService, HotelService hotelService, BookingService bookingService) {
+    public AdminAgentController(UserService userService, HotelService hotelService, BookingService bookingService, EmailService emailService, ReportService reportService) {
         this.userService = userService;
         this.hotelService = hotelService;
         this.bookingService = bookingService;
+        this.emailService = emailService;
+        this.reportService = reportService;
     }
 
     @GetMapping("/admin-agent-list")
@@ -84,6 +87,61 @@ public class AdminAgentController {
         model.addAttribute("agent", agent);
         return "admin/admin-agent-detail";
     }
+
+    @PostMapping("/admin-agent/ban/{userId}")
+    public String banAgent(@PathVariable("userId") int userId,
+                           @RequestParam("reason") String reason,
+                           @RequestParam(value = "page", required = false) Integer page,
+                           @RequestParam(value = "search", required = false) String search,
+                           @RequestParam(value = "sort", required = false) String sort) throws MessagingException {
+
+        if (reason == null || reason.trim().isEmpty()) {
+            String errorMsg = "Lý do huỷ đối tác không được để trống.";
+            String redirectUrl = buildRedirectUrl("/admin-agent-list", search, null, null, page, sort);
+            String separator = redirectUrl.contains("?") ? "&" : "?";
+            return "redirect:" + redirectUrl + separator + "error=" + java.net.URLEncoder.encode(errorMsg, java.nio.charset.StandardCharsets.UTF_8);
+        }
+
+        User user = userService.findUserById(userId);
+        if (user != null && user.isActive()) {
+            userService.banUser(userId); // đặt is_active = false
+            emailService.sendUserBanEmail(user.getEmail(), reason);
+            hotelService.banAllHotelsByHostId(userId); // huỷ toàn bộ khách sạn
+            if (reportService.isUserFlagged(userId)) {
+                reportService.acceptUserReports(userId);
+            }
+        }
+
+        return "redirect:" + buildRedirectUrl("/admin-agent-list", search, null, null, page, sort);
+    }
+
+    private String buildRedirectUrl(String baseUrl, String search, String role, String status, Integer page, String sort) {
+        StringBuilder url = new StringBuilder(baseUrl);
+        boolean first = true;
+
+        if (search != null && !search.isEmpty()) {
+            url.append(first ? "?" : "&").append("search=").append(search);
+            first = false;
+        }
+        if (role != null && !role.isEmpty()) {
+            url.append(first ? "?" : "&").append("role=").append(role);
+            first = false;
+        }
+        if (status != null && !status.isEmpty()) {
+            url.append(first ? "?" : "&").append("status=").append(status);
+            first = false;
+        }
+        if (page != null) {
+            url.append(first ? "?" : "&").append("page=").append(page);
+            first = false;
+        }
+        if (sort != null && !sort.isEmpty()) {
+            url.append(first ? "?" : "&").append("sort=").append(sort);
+        }
+
+        return url.toString();
+    }
+
 
     // Note: Chat functionality has been moved to ChatPageController
     // These methods are kept for backward compatibility but should be deprecated

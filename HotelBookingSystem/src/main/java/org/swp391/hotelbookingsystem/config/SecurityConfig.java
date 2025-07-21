@@ -41,7 +41,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/api/files/**", "/webhook", "/booking",
+                        .ignoringRequestMatchers("/api/files/**", "/webhook", "/booking", "/admin-agent/ban/*",
                                 "/update-hotel", "/update-room", "/delete-room", "/deactivate-room", "/activate-room", "/update-cancellation-policy", "/ws/**", "/api/chat/**",
                                 "/api/notifications/**", "/test-notifications", "/invoice", "/refund", "/send-message"
                         )
