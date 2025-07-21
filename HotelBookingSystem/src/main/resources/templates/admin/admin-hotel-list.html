@@ -140,7 +140,7 @@
                     <div class="d-sm-flex gap-4 justify-content-between justify-content-lg-end">
                         <!-- Search -->
                         <div class="col-md-8">
-                            <form class="rounded position-relative" method="get" th:action="@{/admin-hotel-list}"
+                            <form class="rounded position-relative hover-card" method="get" th:action="@{/admin-hotel-list}"
                                   onsubmit="this.search.value = this.search.value.trim().replace(/\s+/g, ' ')">
                                 <input class="form-control bg-transparent" type="search" name="search"
                                        placeholder="Tìm kiếm..."
@@ -183,7 +183,7 @@
                     <!-- Rooms START -->
                     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-4 g-4">
                     <div class="col" th:each="hotel : ${hotelList}">
-                            <div class="card shadow h-100">
+                            <div class="card shadow hover-card h-100">
                                 <!-- Overlay item -->
                                 <div class="position-relative">
                                     <!-- Image -->

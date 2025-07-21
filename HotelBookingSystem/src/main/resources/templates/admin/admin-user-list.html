@@ -129,37 +129,37 @@
                 <div class="col-12 d-flex align-items-center justify-content-between flex-wrap gap-3">
                     <!-- Role Tabs -->
                     <ul class="nav nav-pills nav-pills-soft nav-responsive" role="tablist">
-                        <li class="nav-item" role="presentation">
+                        <li class="nav-item hover-card" role="presentation">
                             <a class="nav-link mb-0" th:classappend="${#strings.isEmpty(role) && #strings.isEmpty(status)} ? 'active border' : ''"
                                th:href="@{/admin-user-list}">Tất cả</a>
                         </li>
-                        <li class="nav-item" role="presentation">
+                        <li class="nav-item hover-card" role="presentation">
                             <a class="nav-link mb-0" th:classappend="${role} == 'CUSTOMER' ? 'active border' : ''"
                                th:href="@{/admin-user-list(role='CUSTOMER')}">Khách hàng</a>
                         </li>
-                        <li class="nav-item" role="presentation">
+                        <li class="nav-item hover-card" role="presentation">
                             <a class="nav-link mb-0" th:classappend="${role} == 'HOTEL_OWNER' ? 'active border' : ''"
                                th:href="@{/admin-user-list(role='HOTEL_OWNER')}">Chủ khách sạn</a>
                         </li>
-                        <li class="nav-item" role="presentation">
+                        <li class="nav-item hover-card" role="presentation">
                             <a class="nav-link mb-0" th:classappend="${role} == 'MODERATOR' ? 'active border' : ''"
                                th:href="@{/admin-user-list(role='MODERATOR')}">Quản lý Web</a>
                         </li>
-                        <li class="nav-item" role="presentation">
+                        <li class="nav-item hover-card" role="presentation">
                             <a class="nav-link mb-0" th:classappend="${role} == 'ADMIN' ? 'active border' : ''"
                                th:href="@{/admin-user-list(role='ADMIN')}">Quản trị viên</a>
                         </li>
-                        <li class="nav-item" role="presentation">
+                        <li class="nav-item hover-card" role="presentation">
                             <a class="nav-link mb-0" th:classappend="${status} == 'banned' ? 'active border' : ''"
                                th:href="@{/admin-user-list(status='banned')}">Bị khóa</a>
                         </li>
-                        <li class="nav-item" role="presentation">
+                        <li class="nav-item hover-card" role="presentation">
                             <a class="nav-link mb-0" th:classappend="${status} == 'flagged' ? 'active border' : ''"
                                th:href="@{/admin-user-list(status='flagged')}">Bị báo cáo</a>
                         </li>
                     </ul>
                     <!-- Search -->
-                    <form class="rounded position-relative" th:action="@{/admin-user-list}" method="get"
+                    <form class="rounded position-relative hover-card" th:action="@{/admin-user-list}" method="get"
                           onsubmit="this.search.value = this.search.value.trim().replace(/\s+/g, ' ')">
                         <input type="hidden" name="role" th:value="${role}"/>
                         <input type="hidden" name="status" th:value="${status}"/>
