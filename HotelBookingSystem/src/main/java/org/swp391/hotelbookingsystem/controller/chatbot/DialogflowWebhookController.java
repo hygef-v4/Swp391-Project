@@ -28,10 +28,7 @@ public class DialogflowWebhookController {
                 .replaceAll("\\*\\*(.*?)\\*\\*", "$1")
                 .replaceAll("__(.*?)__", "$1")
                 .replaceAll("\\*(.*?)\\*", "$1")
-                .replaceAll("(?m)^\\s*\\*\\s+", "• ")
-                .replaceAll("(?<!\\n)\\n", " 🔹 ");
-        // Loại bỏ biểu tượng chia đoạn ở cuối cùng nếu có
-        result = result.replaceAll(" 🔹\\s*$", "");
+                .replaceAll("(?m)^\\s*\\*\\s+", "• ");
         return result;
     }
 
@@ -53,7 +50,7 @@ public class DialogflowWebhookController {
             // Tạo prompt có lịch sử
             List<String> history = sessionContextCache.getSessionHistory(sessionId);
             StringBuilder promptBuilder = new StringBuilder("""
-            Bạn là trợ lý ảo của trang web đặt phòng khách sạn tên Hamora, tên của bạn là Hamora. Hãy trả lời lịch sự và thân thiện, tạo cảm giác gần gũi và vui vẻ với người dùng.
+            Bạn là trợ lý ảo của trang web đặt phòng khách sạn tên Hamora, tên của bạn là Hamora. Hãy trả lời lịch sự và thân thiện, tạo cảm giác gần gũi và vui vẻ với người dùng. Nếu được hãy chèn thêm emoji vào câu trả lời.
             Lịch sử trò chuyện:
             """);
             for (String msg : history) {
