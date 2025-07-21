@@ -1500,8 +1500,8 @@ public class BookingRepo {
         return jdbcTemplate.queryForObject(sql, Integer.class, roomId);
     }
 
-    public List<Booking> getBookingsByHotelIdPaginated(int hotelId, int offset, int size) {
-        String sql = """
+    public List<Booking> getBookingsByHotelIdPaginated(int hotelId, int offset, int size, String search, String sort) {
+        StringBuilder sql = new StringBuilder("""
         SELECT 
             b.booking_id,
             b.hotel_id,
@@ -1520,11 +1520,30 @@ public class BookingRepo {
         JOIN Users u ON u.user_id = b.customer_id
         JOIN Hotels h ON h.hotel_id = b.hotel_id
         WHERE b.hotel_id = ?
-        ORDER BY b.created_at DESC
-        OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
-    """;
+    """);
 
-        return jdbcTemplate.query(sql, rs -> {
+        List<Object> params = new ArrayList<>();
+        params.add(hotelId);
+
+        if (search != null && !search.isEmpty()) {
+            sql.append(" AND (u.full_name LIKE ? OR u.email LIKE ?)");
+            String searchPattern = "%" + search + "%";
+            params.add(searchPattern);
+            params.add(searchPattern);
+        }
+
+        // Xử lý sort
+        if ("oldest".equals(sort)) {
+            sql.append(" ORDER BY b.created_at ASC");
+        } else {
+            sql.append(" ORDER BY b.created_at DESC"); // default or "newest"
+        }
+
+        sql.append(" OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+        params.add(offset);
+        params.add(size);
+
+        return jdbcTemplate.query(sql.toString(), rs -> {
             List<Booking> bookings = new ArrayList<>();
 
             while (rs.next()) {
@@ -1554,8 +1573,9 @@ public class BookingRepo {
             }
 
             return bookings;
-        }, hotelId, offset, size);
+        }, params.toArray());
     }
+
 
     public List<Booking> getBookingsByHotelIdOrderByDate(int hotelId) {
         String sql = """
@@ -1613,6 +1633,29 @@ public class BookingRepo {
         }, hotelId);
     }
 
+
+    public int countBookingsByHotelId(int hotelId, String search) {
+        StringBuilder sql = new StringBuilder("""
+        SELECT COUNT(*)
+        FROM Bookings b
+        JOIN Users u ON u.user_id = b.customer_id
+        JOIN Hotels h ON h.hotel_id = b.hotel_id
+        WHERE b.hotel_id = ?
+    """);
+
+        List<Object> params = new ArrayList<>();
+        params.add(hotelId);
+
+        if (search != null && !search.isEmpty()) {
+            sql.append(" AND (u.full_name LIKE ? OR u.email LIKE ? OR h.hotel_name LIKE ?)");
+            String searchPattern = "%" + search + "%";
+            params.add(searchPattern);
+            params.add(searchPattern);
+            params.add(searchPattern);
+        }
+
+        return jdbcTemplate.queryForObject(sql.toString(), params.toArray(), Integer.class);
+    }
 
     public int countBookingsByHotelId(int hotelId) {
         String sql = "SELECT COUNT(*) FROM Bookings WHERE hotel_id = ?";

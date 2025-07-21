@@ -244,13 +244,13 @@
                                         </li>
 
                                         <li class="list-group-item mb-3">
-                                            <span>Email:</span>
-                                            <span class="h6 fw-normal ms-1 mb-0" th:text="${agent.email}">Email</span>
-                                        </li>
-
-                                        <li class="list-group-item mb-3">
-                                            <span>Số điện thoại:</span>
-                                            <span class="h6 fw-normal ms-1 mb-0" th:text="${agent.phone}">Số điện thoại</span>
+                                            <span>Giới tính:</span>
+                                            <span class="h6 fw-normal ms-1 mb-0" th:switch="${agent.gender}">
+                                            <span th:case="'Male'">Nam</span>
+                                            <span th:case="'Female'">Nữ</span>
+                                            <span th:case="'Other'">Khác</span>
+                                            <span th:case="*">Không rõ</span>
+                                            </span>
                                         </li>
                                     </ul>
                                 </div>
@@ -261,11 +261,6 @@
                                         <li class="list-group-item mb-3">
                                             <span>Ngày sinh:</span>
                                             <span class="h6 fw-normal ms-1 mb-0" th:text="${#dates.format(agent.dob, 'dd MMM yyyy')}">Ngày sinh</span>
-                                        </li>
-
-                                        <li class="list-group-item mb-3">
-                                            <span>Giới tính:</span>
-                                            <span class="h6 fw-normal ms-1 mb-0" th:text="${agent.gender}">Giới tính</span>
                                         </li>
                                     </ul>
                                 </div>
