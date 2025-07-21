@@ -62,10 +62,43 @@ public class DialogflowWebhookController {
 
             System.out.println("Intent: " + intentName);
 
-            if (!List.of("GetAvailableLocations", "Tìm phòng").contains(intentName)) {
+            // intent mặc định
+            if (!List.of("GetAvailableLocations", "Tìm phòng", "Xem đơn đặt phòng").contains(intentName)) {
                 return Map.of("fulfillmentText", stripMarkdown(reply));
             }
 
+            // Xử lý intent Xem đơn đặt phòng
+            if ("Xem đơn đặt phòng".equals(intentName)) {
+                String url = "http://localhost:8386/bookingHistory";
+
+                // Prompt Gemini tạo phản hồi tự nhiên
+                String softPrompt = """
+                Người dùng muốn xem lại đơn đặt phòng của mình.
+                Bạn là trợ lý Hamora, hãy phản hồi lịch sự, thân thiện và ngắn gọn.
+                Mời người dùng nhấn nút bên dưới để xem danh sách đơn đặt phòng.
+                Tránh đưa đường link trong câu trả lời, vì nút đã hiển thị ở dưới.
+                """;
+
+                String geminiResponse = stripMarkdown(geminiService.generateReply(softPrompt));
+                sessionContextCache.addMessage(sessionId, "Assistant: " + geminiResponse);
+
+                return Map.of(
+                        "fulfillmentMessages", List.of(
+                                Map.of("text", Map.of("text", List.of(geminiResponse))),
+                                Map.of("payload", Map.of(
+                                        "richContent", List.of(List.of(
+                                                Map.of(
+                                                        "type", "button",
+                                                        "icon", Map.of("type", "list", "color", "#2196F3"),
+                                                        "text", "Xem đơn đặt phòng",
+                                                        "link", url
+                                                )
+                                        )))
+                                ))
+                );
+            }
+
+            // Xử lý intent GetAvailableLocations
             if ("GetAvailableLocations".equals(intentName)) {
                 List<String> locations = locationService.getAllLocationNames();
                 if (locations.isEmpty()) {
