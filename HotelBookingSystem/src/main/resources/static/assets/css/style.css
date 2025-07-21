@@ -22742,3 +22742,33 @@ html[dir=rtl] .choices__input {
   box-shadow: none;
   min-height: 340px;
 }
+
+.hover-card {
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+/* Light mode hover */
+.hover-card:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  background-color: #f8f9fa;
+}
+
+/* Dark mode hover */
+body.dark .hover-card:hover,
+[data-bs-theme="dark"] .hover-card:hover {
+  background-color: #2a2a2a; /* nền xám đậm hơn */
+  box-shadow: 0 10px 20px rgba(255, 255, 255, 0.05); /* sáng nhẹ */
+}
+
+.hover-card:hover .card-body,
+.hover-card:hover .card-footer {
+  background-color: inherit !important;
+}
+
+[data-bs-theme="dark"] .hover-card:hover .card-body,
+[data-bs-theme="dark"] .hover-card:hover .card-footer {
+  background-color: inherit !important;
+}
