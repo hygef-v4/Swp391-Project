@@ -63,6 +63,11 @@ public class AdminUserController {
             return "redirect:/login";
         }
 
+        // Add error message to model if present
+        if (error != null && !error.isEmpty()) {
+            model.addAttribute("errorMessage", error);
+        }
+
         String trimmedSearch = (search != null) ? search.trim().replaceAll("\\s+", " ") : null;
         String trimmedRole = (role != null) ? role.trim() : null;
         String trimmedStatus = (status != null) ? status.trim() : null;
@@ -136,8 +141,25 @@ public class AdminUserController {
                                    @RequestParam(value = "search", required = false) String search,
                                    @RequestParam(value = "role", required = false) String role,
                                    @RequestParam(value = "status", required = false) String status,
-                                   @RequestParam(value = "page", required = false) Integer page) {
+                                   @RequestParam(value = "page", required = false) Integer page,
+                                   HttpSession session) {
         User user = userService.findUserById(userId);
+        if (user == null) {
+            String errorMsg = "Không tìm thấy người dùng.";
+            String redirectUrl = buildRedirectUrl("/admin-user-list", search, role, status, page);
+            String separator = redirectUrl.contains("?") ? "&" : "?";
+            return "redirect:" + redirectUrl + separator + "error=" + java.net.URLEncoder.encode(errorMsg, java.nio.charset.StandardCharsets.UTF_8);
+        }
+
+        // Get current admin user from session
+        User currentAdmin = (User) session.getAttribute("user");
+        if (currentAdmin != null && currentAdmin.getId() == userId) {
+            String errorMsg = "Không thể thay đổi trạng thái của chính mình.";
+            String redirectUrl = buildRedirectUrl("/admin-user-list", search, role, status, page);
+            String separator = redirectUrl.contains("?") ? "&" : "?";
+            return "redirect:" + redirectUrl + separator + "error=" + java.net.URLEncoder.encode(errorMsg, java.nio.charset.StandardCharsets.UTF_8);
+        }
+
         boolean wasActive = user.isActive();
 
         // If banning, require a non-blank reason BEFORE toggling status
@@ -232,7 +254,18 @@ public class AdminUserController {
                                  @RequestParam("newRole") String newRole,
                                  @RequestParam(value = "search", required = false) String search,
                                  @RequestParam(value = "role", required = false) String role,
-                                 @RequestParam(value = "status", required = false) String status) {
+                                 @RequestParam(value = "status", required = false) String status,
+                                 HttpSession session) {
+
+        // Get current admin user from session
+        User currentAdmin = (User) session.getAttribute("user");
+        if (currentAdmin != null && currentAdmin.getId() == userId) {
+            String errorMsg = "Không thể thay đổi vai trò của chính mình.";
+            String redirectUrl = buildRedirectUrl("/admin-user-list", search, role, status, null);
+            String separator = redirectUrl.contains("?") ? "&" : "?";
+            return "redirect:" + redirectUrl + separator + "error=" + java.net.URLEncoder.encode(errorMsg, java.nio.charset.StandardCharsets.UTF_8);
+        }
+
         userService.updateUserRole(userId, newRole);
 
         return "redirect:" + buildRedirectUrl("/admin-user-list", search, role, status, null);
