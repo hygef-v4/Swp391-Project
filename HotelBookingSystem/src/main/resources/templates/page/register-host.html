@@ -1001,11 +1001,60 @@ updateInputFiles() - Syncs file list with actual form input for submission-->
         const partialDays = document.getElementById('partialRefundDays').value || 7;
         const refundPercent = document.getElementById('partialRefundPercent').value || 50;
         const noDays = document.getElementById('noRefundWithinDays').value || 1;
-        
+
         document.getElementById('exampleDays').textContent = partialDays + ' ngày - ' + refundPercent + '% - ' + noDays + ' ngày';
         document.getElementById('examplePartialDays').textContent = partialDays;
         document.getElementById('examplePercent').textContent = refundPercent + '%';
         document.getElementById('exampleNoDays').textContent = noDays;
+    }
+
+    // Function to validate cancellation policy in real-time
+    function validateCancellationPolicyRealtime() {
+        try {
+            const partialDaysField = document.getElementById('partialRefundDays');
+            const noDaysField = document.getElementById('noRefundWithinDays');
+
+            if (!partialDaysField || !noDaysField) {
+                return;
+            }
+
+            const partialDays = parseInt(partialDaysField.value) || 0;
+            const noDays = parseInt(noDaysField.value) || 0;
+
+            // Clear previous errors
+            if (typeof removeFieldError === 'function') {
+                removeFieldError(partialDaysField);
+                removeFieldError(noDaysField);
+            } else {
+                // Fallback: remove Bootstrap validation classes
+                partialDaysField.classList.remove('is-invalid');
+                noDaysField.classList.remove('is-invalid');
+
+                // Remove any existing error messages
+                const existingErrors = document.querySelectorAll('#partialRefundDays_error, #noRefundWithinDays_error');
+                existingErrors.forEach(error => error.remove());
+            }
+
+            // Validate logic: no refund days must be < partial refund days
+            if (partialDays > 0 && noDays >= 0 && noDays >= partialDays) {
+
+                if (typeof showFieldError === 'function') {
+                    showFieldError(noDaysField, 'Số ngày không hoàn tiền phải nhỏ hơn số ngày hoàn tiền một phần');
+                } else {
+                    // Fallback: add Bootstrap validation classes
+                    noDaysField.classList.add('is-invalid');
+
+                    // Add error message
+                    const errorDiv = document.createElement('div');
+                    errorDiv.id = 'noRefundWithinDays_error';
+                    errorDiv.className = 'invalid-feedback';
+                    errorDiv.textContent = 'Số ngày không hoàn tiền phải nhỏ hơn số ngày hoàn tiền một phần';
+                    noDaysField.parentNode.appendChild(errorDiv);
+                }
+            }
+        } catch (e) {
+            console.warn('Error in validateCancellationPolicyRealtime:', e);
+        }
     }
 
     // Client-side profile completeness validation - DISABLED
@@ -1157,13 +1206,24 @@ updateInputFiles() - Syncs file list with actual form input for submission-->
         policyFields.forEach(function(fieldId) {
             const field = document.getElementById(fieldId);
             if (field) {
-                field.addEventListener('input', updateCancellationExample);
-                field.addEventListener('change', updateCancellationExample);
+                field.addEventListener('input', function() {
+                    updateCancellationExample();
+                    setTimeout(() => validateCancellationPolicyRealtime(), 10);
+                });
+                field.addEventListener('change', function() {
+                    updateCancellationExample();
+                    setTimeout(() => validateCancellationPolicyRealtime(), 10);
+                });
             }
         });
         
         // Initialize the example display
         updateCancellationExample();
+
+        // Initialize validation (with delay to ensure functions are loaded)
+        setTimeout(() => {
+            validateCancellationPolicyRealtime();
+        }, 100);
 
         // --- Leaflet Map Integration ---
         var map;
@@ -1901,7 +1961,10 @@ updateInputFiles() - Syncs file list with actual form input for submission-->
                     { id: 'roomQuantity', label: 'Số lượng phòng' },
                     { id: 'roomPrice', label: 'Giá phòng' },
                     { id: 'roomDescription', label: 'Mô tả phòng' },
-                    { id: 'hotelPolicies', label: 'Quy định khách sạn' }
+                    { id: 'hotelPolicies', label: 'Quy định khách sạn' },
+                    { id: 'partialRefundDays', label: 'Số ngày hoàn tiền một phần' },
+                    { id: 'partialRefundPercent', label: 'Phần trăm hoàn tiền' },
+                    { id: 'noRefundWithinDays', label: 'Số ngày không hoàn tiền' }
                 ];
 
                 // Check all critical fields
@@ -2011,6 +2074,47 @@ updateInputFiles() - Syncs file list with actual form input for submission-->
                         showFieldError(firstAmenityCheckbox.parentNode, 'Vui lòng chọn ít nhất một tiện nghi');
                         allFieldsValid = false;
                         if (!firstInvalidElement) firstInvalidElement = firstAmenityCheckbox;
+                    }
+                }
+
+                // *** CRITICAL: Validate cancellation policy logic ***
+                const partialDaysField = document.getElementById('partialRefundDays');
+                const refundPercentField = document.getElementById('partialRefundPercent');
+                const noDaysField = document.getElementById('noRefundWithinDays');
+
+                if (partialDaysField && refundPercentField && noDaysField) {
+                    const partialDays = parseInt(partialDaysField.value) || 0;
+                    const refundPercent = parseInt(refundPercentField.value) || 0;
+                    const noDays = parseInt(noDaysField.value) || 0;
+
+                    // Validate ranges
+                    if (partialDays < 1 || partialDays > 365) {
+                        emptyRequiredFields.push('Số ngày hoàn tiền một phần (1-365 ngày)');
+                        showFieldError(partialDaysField, 'Số ngày phải từ 1 đến 365');
+                        allFieldsValid = false;
+                        if (!firstInvalidElement) firstInvalidElement = partialDaysField;
+                    }
+
+                    if (refundPercent < 10 || refundPercent > 100) {
+                        emptyRequiredFields.push('Phần trăm hoàn tiền (10-100%)');
+                        showFieldError(refundPercentField, 'Phần trăm hoàn tiền phải từ 10% đến 100%');
+                        allFieldsValid = false;
+                        if (!firstInvalidElement) firstInvalidElement = refundPercentField;
+                    }
+
+                    if (noDays < 0 || noDays > 365) {
+                        emptyRequiredFields.push('Số ngày không hoàn tiền (0-365 ngày)');
+                        showFieldError(noDaysField, 'Số ngày phải từ 0 đến 365');
+                        allFieldsValid = false;
+                        if (!firstInvalidElement) firstInvalidElement = noDaysField;
+                    }
+
+                    // *** CRITICAL: Logic validation - no refund days must be < partial refund days ***
+                    if (noDays >= partialDays) {
+                        emptyRequiredFields.push('Logic chính sách hoàn tiền không hợp lệ');
+                        showFieldError(noDaysField, 'Số ngày không hoàn tiền phải nhỏ hơn số ngày hoàn tiền một phần');
+                        allFieldsValid = false;
+                        if (!firstInvalidElement) firstInvalidElement = noDaysField;
                     }
                 }
 
@@ -2312,9 +2416,9 @@ updateInputFiles() - Syncs file list with actual form input for submission-->
                     if (!firstInvalidElement) firstInvalidElement = document.getElementById('noRefundWithinDays');
                 }
 
-                if (noDays > partialDays) {
+                if (noDays >= partialDays) {
                     emptyFields.push('Logic chính sách hoàn tiền');
-                    showFieldError(document.getElementById('noRefundWithinDays'), 'Số ngày không hoàn tiền phải nhỏ hơn hoặc bằng số ngày hoàn tiền một phần');
+                    showFieldError(document.getElementById('noRefundWithinDays'), 'Số ngày không hoàn tiền phải nhỏ hơn số ngày hoàn tiền một phần');
                     isValid = false;
                     if (!firstInvalidElement) firstInvalidElement = document.getElementById('noRefundWithinDays');
                 }

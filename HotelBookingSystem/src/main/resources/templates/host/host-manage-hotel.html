@@ -1807,9 +1807,39 @@ About hotel END -->
         const partialDays = document.getElementById('partialRefundDaysEdit').value || 7;
         const refundPercent = document.getElementById('partialRefundPercentEdit').value || 50;
         const noDays = document.getElementById('noRefundWithinDaysEdit').value || 1;
-        
+
         const previewText = `Khách hàng hủy phòng trước ${partialDays} ngày sẽ được hoàn ${refundPercent}% tiền. Hủy trong vòng ${noDays} ngày trước check-in sẽ không được hoàn tiền.`;
         document.getElementById('previewText').textContent = previewText;
+
+        // Validate in real-time
+        validateCancellationPolicyRealtimeEdit();
+    }
+
+    function validateCancellationPolicyRealtimeEdit() {
+        const partialDaysField = document.getElementById('partialRefundDaysEdit');
+        const noDaysField = document.getElementById('noRefundWithinDaysEdit');
+
+        const partialDays = parseInt(partialDaysField.value) || 0;
+        const noDays = parseInt(noDaysField.value) || 0;
+
+        // Clear previous validation styles
+        partialDaysField.classList.remove('is-invalid');
+        noDaysField.classList.remove('is-invalid');
+
+        // Remove existing error messages
+        const existingErrors = document.querySelectorAll('.cancellation-policy-error');
+        existingErrors.forEach(error => error.remove());
+
+        // Validate logic: partial refund days must be > no refund days
+        if (partialDays > 0 && noDays >= 0 && noDays >= partialDays) {
+            noDaysField.classList.add('is-invalid');
+
+            // Add error message
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback cancellation-policy-error';
+            errorDiv.textContent = 'Số ngày không hoàn tiền phải nhỏ hơn số ngày hoàn tiền một phần';
+            noDaysField.parentNode.appendChild(errorDiv);
+        }
     }
 
     function saveCancellationPolicy() {
@@ -1844,8 +1874,8 @@ About hotel END -->
         }
 
         // Validate logic
-        if (noDaysNum > partialDaysNum) {
-            showNotification('Số ngày không hoàn tiền phải nhỏ hơn hoặc bằng số ngày hoàn tiền một phần', 'error');
+        if (partialDaysNum <= noDaysNum) {
+            showNotification('Số ngày hoàn tiền một phần phải lớn hơn số ngày không hoàn tiền', 'error');
             return;
         }
 
@@ -1927,10 +1957,10 @@ About hotel END -->
             }),
             validateField(descriptionField, {
                 required: true,
-                minLength: 20,
+                minLength: 10,
                 maxLength: 1000,
                 requiredMessage: 'Mô tả phòng là bắt buộc',
-                minLengthMessage: 'Mô tả phải có ít nhất 20 ký tự',
+                minLengthMessage: 'Mô tả phải có ít nhất 10 ký tự',
                 maxLengthMessage: 'Mô tả không được vượt quá 1000 ký tự'
             })
         ];
@@ -2674,10 +2704,10 @@ About hotel END -->
                 },
                 'roomDescription': {
                     required: true,
-                    minLength: 20,
+                    minLength: 10,
                     maxLength: 1000,
                     requiredMessage: 'Mô tả phòng là bắt buộc',
-                    minLengthMessage: 'Mô tả phải có ít nhất 20 ký tự',
+                    minLengthMessage: 'Mô tả phải có ít nhất 10 ký tự',
                     maxLengthMessage: 'Mô tả không được vượt quá 1000 ký tự'
                 }
             };

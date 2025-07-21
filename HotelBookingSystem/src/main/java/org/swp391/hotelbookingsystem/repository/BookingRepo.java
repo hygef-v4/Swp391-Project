@@ -933,6 +933,11 @@ public class BookingRepo {
             FROM Bookings b
             JOIN Hotels h ON b.hotel_id = h.hotel_id
             WHERE h.host_id = ?
+            AND EXISTS (
+                SELECT 1 FROM BookingUnits bu
+                WHERE bu.booking_id = b.booking_id
+                AND bu.status != 'pending'
+            )
         """;
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, hostId);
         return count != null ? count : 0;
@@ -1277,7 +1282,7 @@ public class BookingRepo {
     public List<Map<String, Object>> getBookingStatsByHostId(int hostId, String period) {
         String dateTrunc;
         String groupBy;
-        String whereClause = "WHERE h.host_id = ?";
+        String whereClause = "WHERE h.host_id = ? AND EXISTS (SELECT 1 FROM BookingUnits bu WHERE bu.booking_id = b.booking_id AND bu.status != 'pending')";
 
         switch (period) {
             case "30days":

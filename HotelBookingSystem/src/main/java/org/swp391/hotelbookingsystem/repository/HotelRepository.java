@@ -329,10 +329,12 @@ public class HotelRepository {
 
     public Double findAverageRatingByHostId(int hostId) {
         String sql = """
-                SELECT CASE WHEN COUNT(*) = 0 THEN NULL
-                            ELSE SUM(h.rating) / COUNT(*) END AS averageRating
-                FROM Hotels h
+                SELECT AVG(CAST(r.rating AS FLOAT))
+                FROM Reviews r
+                JOIN Hotels h ON r.hotel_id = h.hotel_id
                 WHERE h.host_id = ?
+                AND r.is_public = 1
+                AND r.comment IS NOT NULL
             """;
         return jdbcTemplate.queryForObject(sql, new Object[]{hostId}, Double.class);
     }
