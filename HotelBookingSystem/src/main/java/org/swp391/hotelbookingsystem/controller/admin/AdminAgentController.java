@@ -1,12 +1,21 @@
 package org.swp391.hotelbookingsystem.controller.admin;
 
 import jakarta.mail.MessagingException;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.client.RestTemplate;
+import org.swp391.hotelbookingsystem.model.Booking;
 import org.swp391.hotelbookingsystem.model.Hotel;
 import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.service.*;
@@ -17,19 +26,22 @@ import java.util.Map;
 
 @Controller
 public class AdminAgentController {
-
+    @Value("${app.base-url}")
+    private String baseUrl;
     private final UserService userService;
     private final HotelService hotelService;
     private final BookingService bookingService;
     private final EmailService emailService;
     private final ReportService reportService;
+    private final NotificationService notificationService;
 
-    public AdminAgentController(UserService userService, HotelService hotelService, BookingService bookingService, EmailService emailService, ReportService reportService) {
+    public AdminAgentController(UserService userService, HotelService hotelService, BookingService bookingService, EmailService emailService, ReportService reportService, NotificationService notificationService) {
         this.userService = userService;
         this.hotelService = hotelService;
         this.bookingService = bookingService;
         this.emailService = emailService;
         this.reportService = reportService;
+        this.notificationService = notificationService;
     }
 
     @GetMapping("/admin-agent-list")
@@ -104,6 +116,35 @@ public class AdminAgentController {
 
         User user = userService.findUserById(userId);
         if (user != null && user.isActive()) {
+            RestTemplate restTemplate = new RestTemplate();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+            List<Booking> hostBookings = bookingService.getBookingsByHostId(userId);
+
+            for(Booking booking : hostBookings){
+                if(booking.getCustomerId() != booking.getHostId()){
+                    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+                    params.add("id", String.valueOf(booking.getBookingId()));
+                    params.add("trantype", "02");
+                    params.add("amount", String.valueOf(booking.getTotalPrice().longValue()));
+                    params.add("refundRole", "Hotel Owner");
+                    params.add("orderInfo", "Hủy đặt phòng " + booking.getHotelName());
+
+                    HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+                    String response = restTemplate.postForObject(baseUrl + "/refund", request, String.class);
+
+                    if(response != null && response.equals("00")){
+                        notificationService.rejectNotification(booking.getCustomerId(), String.valueOf(booking.getBookingId()), booking.refundAmount());
+                    }else{
+                        String errorMsg = "Hoàn tiền thất bại";
+                        String redirectUrl = buildRedirectUrl("/admin-agent-list", search, null, null, page, sort);
+                        String separator = redirectUrl.contains("?") ? "&" : "?";
+                        return "redirect:" + redirectUrl + separator + "error=" + java.net.URLEncoder.encode(errorMsg, java.nio.charset.StandardCharsets.UTF_8);
+                    }
+                }
+            }
+
             userService.banUser(userId); // đặt is_active = false
             emailService.sendUserBanEmail(user.getEmail(), reason);
             hotelService.banAllHotelsByHostId(userId); // huỷ toàn bộ khách sạn

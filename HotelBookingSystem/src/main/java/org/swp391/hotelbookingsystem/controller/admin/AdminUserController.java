@@ -154,7 +154,7 @@ public class AdminUserController {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-        List<Booking> bookings = bookingService.getBookingByCustomerId(userId);
+        List<Booking> bookings = bookingService.findActiveBookingsByCustomerId(userId);
 
         for(Booking booking : bookings){
             MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
@@ -190,7 +190,7 @@ public class AdminUserController {
                 }
                 // Ban all hotels if user is a hotel owner
                 if ("HOTEL_OWNER".equals(updatedUser.getRole())) {
-                    List<Booking> hostBookings = bookingService.getBookingsByHostId(userId);
+                    List<Booking> hostBookings = bookingService.findActiveBookingsByHostId(userId);
 
                     for(Booking booking : hostBookings){
                         if(booking.getCustomerId() != booking.getHostId()){
