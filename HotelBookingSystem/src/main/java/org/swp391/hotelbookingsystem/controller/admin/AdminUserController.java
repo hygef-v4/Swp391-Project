@@ -3,12 +3,19 @@ package org.swp391.hotelbookingsystem.controller.admin;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.client.RestTemplate;
 import org.swp391.hotelbookingsystem.model.Booking;
 import org.swp391.hotelbookingsystem.model.BookingUnit;
 import org.swp391.hotelbookingsystem.model.Hotel;
@@ -16,6 +23,7 @@ import org.swp391.hotelbookingsystem.model.Report;
 import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.service.BookingService;
 import org.swp391.hotelbookingsystem.service.HotelService;
+import org.swp391.hotelbookingsystem.service.NotificationService;
 import org.swp391.hotelbookingsystem.service.ReportService;
 import org.swp391.hotelbookingsystem.service.UserService;
 import org.swp391.hotelbookingsystem.service.EmailService;
@@ -24,20 +32,23 @@ import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class AdminUserController {
-
+    @Value("${app.base-url}")
+    private String baseUrl;
     private final UserService userService;
     private final BookingService bookingService;
     private final HotelService hotelService;
     private final ReportService reportService;
     private final EmailService emailService;
+    private final NotificationService notificationService;
 
     public AdminUserController(UserService userService, BookingService bookingService, 
-                             HotelService hotelService, ReportService reportService, EmailService emailService) {
+                             HotelService hotelService, ReportService reportService, EmailService emailService, NotificationService notificationService) {
         this.userService = userService;
         this.bookingService = bookingService;
         this.hotelService = hotelService;
         this.reportService = reportService;
         this.emailService = emailService;
+        this.notificationService = notificationService;
     }
 
     @GetMapping("/admin-user-list")
@@ -50,6 +61,11 @@ public class AdminUserController {
         User user = (User) session.getAttribute("user");
         if (user == null || !user.getRole().equals("ADMIN")) {
             return "redirect:/login";
+        }
+
+        // Add error message to model if present
+        if (error != null && !error.isEmpty()) {
+            model.addAttribute("errorMessage", error);
         }
 
         String trimmedSearch = (search != null) ? search.trim().replaceAll("\\s+", " ") : null;
@@ -125,14 +141,58 @@ public class AdminUserController {
                                    @RequestParam(value = "search", required = false) String search,
                                    @RequestParam(value = "role", required = false) String role,
                                    @RequestParam(value = "status", required = false) String status,
-                                   @RequestParam(value = "page", required = false) Integer page) {
+                                   @RequestParam(value = "page", required = false) Integer page,
+                                   HttpSession session) {
         User user = userService.findUserById(userId);
+        if (user == null) {
+            String errorMsg = "Không tìm thấy người dùng.";
+            String redirectUrl = buildRedirectUrl("/admin-user-list", search, role, status, page);
+            String separator = redirectUrl.contains("?") ? "&" : "?";
+            return "redirect:" + redirectUrl + separator + "error=" + java.net.URLEncoder.encode(errorMsg, java.nio.charset.StandardCharsets.UTF_8);
+        }
+
+        // Get current admin user from session
+        User currentAdmin = (User) session.getAttribute("user");
+        if (currentAdmin != null && currentAdmin.getId() == userId) {
+            String errorMsg = "Không thể thay đổi trạng thái của chính mình.";
+            String redirectUrl = buildRedirectUrl("/admin-user-list", search, role, status, page);
+            String separator = redirectUrl.contains("?") ? "&" : "?";
+            return "redirect:" + redirectUrl + separator + "error=" + java.net.URLEncoder.encode(errorMsg, java.nio.charset.StandardCharsets.UTF_8);
+        }
+
         boolean wasActive = user.isActive();
 
         // If banning, require a non-blank reason BEFORE toggling status
         if (wasActive) {
             if (reason == null || reason.trim().isEmpty()) {
                 String errorMsg = "Lý do khóa tài khoản không được để trống hoặc chỉ chứa khoảng trắng.";
+                String redirectUrl = buildRedirectUrl("/admin-user-list", search, role, status, page);
+                String separator = redirectUrl.contains("?") ? "&" : "?";
+                return "redirect:" + redirectUrl + separator + "error=" + java.net.URLEncoder.encode(errorMsg, java.nio.charset.StandardCharsets.UTF_8);
+            }
+        }
+
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        List<Booking> bookings = bookingService.getBookingByCustomerId(userId);
+
+        for(Booking booking : bookings){
+            MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+            params.add("id", String.valueOf(booking.getBookingId()));
+            params.add("trantype", "02");
+            params.add("amount", String.valueOf(booking.getTotalPrice().longValue()));
+            params.add("refundRole", "Hotel Owner");
+            params.add("orderInfo", "Hủy đặt phòng " + booking.getHotelName());
+
+            HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+            String response = restTemplate.postForObject(baseUrl + "/refund", request, String.class);
+
+            if(response != null && response.equals("00")){
+                notificationService.rejectNotification(booking.getCustomerId(), String.valueOf(booking.getBookingId()), booking.refundAmount());
+            }else{
+                String errorMsg = "Hoàn tiền thất bại";
                 String redirectUrl = buildRedirectUrl("/admin-user-list", search, role, status, page);
                 String separator = redirectUrl.contains("?") ? "&" : "?";
                 return "redirect:" + redirectUrl + separator + "error=" + java.net.URLEncoder.encode(errorMsg, java.nio.charset.StandardCharsets.UTF_8);
@@ -152,6 +212,31 @@ public class AdminUserController {
                 }
                 // Ban all hotels if user is a hotel owner
                 if ("HOTEL_OWNER".equals(updatedUser.getRole())) {
+                    List<Booking> hostBookings = bookingService.getBookingsByHostId(userId);
+
+                    for(Booking booking : hostBookings){
+                        if(booking.getCustomerId() != booking.getHostId()){
+                            MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+                            params.add("id", String.valueOf(booking.getBookingId()));
+                            params.add("trantype", "02");
+                            params.add("amount", String.valueOf(booking.getTotalPrice().longValue()));
+                            params.add("refundRole", "Hotel Owner");
+                            params.add("orderInfo", "Hủy đặt phòng " + booking.getHotelName());
+
+                            HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+                            String response = restTemplate.postForObject(baseUrl + "/refund", request, String.class);
+
+                            if(response != null && response.equals("00")){
+                                notificationService.rejectNotification(booking.getCustomerId(), String.valueOf(booking.getBookingId()), booking.refundAmount());
+                            }else{
+                                String errorMsg = "Hoàn tiền thất bại";
+                                String redirectUrl = buildRedirectUrl("/admin-user-list", search, role, status, page);
+                                String separator = redirectUrl.contains("?") ? "&" : "?";
+                                return "redirect:" + redirectUrl + separator + "error=" + java.net.URLEncoder.encode(errorMsg, java.nio.charset.StandardCharsets.UTF_8);
+                            }
+                        }
+                    }
+
                     hotelService.banAllHotelsByHostId(userId);
                 }
             } else if (!wasActive && updatedUser.isActive()) {
@@ -169,7 +254,18 @@ public class AdminUserController {
                                  @RequestParam("newRole") String newRole,
                                  @RequestParam(value = "search", required = false) String search,
                                  @RequestParam(value = "role", required = false) String role,
-                                 @RequestParam(value = "status", required = false) String status) {
+                                 @RequestParam(value = "status", required = false) String status,
+                                 HttpSession session) {
+
+        // Get current admin user from session
+        User currentAdmin = (User) session.getAttribute("user");
+        if (currentAdmin != null && currentAdmin.getId() == userId) {
+            String errorMsg = "Không thể thay đổi vai trò của chính mình.";
+            String redirectUrl = buildRedirectUrl("/admin-user-list", search, role, status, null);
+            String separator = redirectUrl.contains("?") ? "&" : "?";
+            return "redirect:" + redirectUrl + separator + "error=" + java.net.URLEncoder.encode(errorMsg, java.nio.charset.StandardCharsets.UTF_8);
+        }
+
         userService.updateUserRole(userId, newRole);
 
         return "redirect:" + buildRedirectUrl("/admin-user-list", search, role, status, null);

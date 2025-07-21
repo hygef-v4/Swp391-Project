@@ -29,7 +29,7 @@ public class NotificationService {
     public void rejectNotification(int userId, String bookingId, double amount){
         String title = "Đặt phòng đã bị hủy";
         String message = "Hoàn " + String.format("%,.0f", amount) + "₫ về tài khoản cua bạn";
-        String actionUrl = "/bookingHistory";
+        String actionUrl = "/bookingHistory?tab=cancelled";
         createNotification(userId, title, message, "refund", "high", actionUrl, "bi-credit-card",
                          Map.of("bookingId", bookingId, "amount", amount));
     }
@@ -55,7 +55,7 @@ public class NotificationService {
     public void notifyBookingConfirmation(int userId, String bookingId, String hotelName) {
         String title = "Đặt phòng thành công! 🎉";
         String message = "Bạn đã đặt thành công phòng tại " + hotelName + ". Mã đặt phòng: " + bookingId;
-        String actionUrl = "/bookingDetail?bookingId=" + bookingId;
+        String actionUrl = "/bookingHistory";
         createNotification(userId, title, message, "booking", "high", actionUrl, "bi-calendar-check", 
                          Map.of("bookingId", bookingId, "hotelName", hotelName));
     }
@@ -130,7 +130,7 @@ public class NotificationService {
     public void notifyRefundSuccess(int userId, String bookingId, double amount) {
         String title = "Hoàn tiền thành công ✅";
         String message = "Hoàn " + String.format("%,.0f", amount) + "₫ về tài khoản cua bạn";
-        String actionUrl = "/bookingHistory";
+        String actionUrl = "/bookingHistory?tab=cancelled";
         createNotification(userId, title, message, "refund", "high", actionUrl, "bi-credit-card",
                          Map.of("bookingId", bookingId, "amount", amount));
     }

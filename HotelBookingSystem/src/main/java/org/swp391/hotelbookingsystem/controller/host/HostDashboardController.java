@@ -97,7 +97,17 @@ public class HostDashboardController {
         model.addAttribute("totalBookings", bookingService.countTotalBookingsByHostId(host.getId()));
 
         double averageRating = reviewService.getAverageHotelRatingForHost(host.getId());
-        model.addAttribute("averageRating", String.format("%.1f", averageRating));
+        int totalReviews = reviewService.getTotalReviewsForHost(host.getId());
+
+        // Only show rating if there are actual reviews, otherwise show "Chưa có đánh giá"
+        if (averageRating > 0 && totalReviews > 0) {
+            model.addAttribute("averageRating", String.format("%.1f", averageRating));
+            model.addAttribute("hasRating", true);
+        } else {
+            model.addAttribute("averageRating", "Chưa có");
+            model.addAttribute("hasRating", false);
+        }
+        model.addAttribute("totalReviews", totalReviews);
 
 
         // For recent bookings table with calculated statuses
@@ -220,7 +230,7 @@ public class HostDashboardController {
                     response.put("needsRefund", true);
                     response.put("rejectedCount", rejectedCount);
                 } else {
-                    response.put("message", "Không có phòng nào cần từ chối (chỉ từ chối được phòng đã duyệt).");
+                    response.put("message", "Không có phòng nào cần từ chối.");
                     response.put("needsRefund", false);
                 }
             }else{

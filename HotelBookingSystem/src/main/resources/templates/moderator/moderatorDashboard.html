@@ -390,7 +390,7 @@
 <main>
 
   <!-- Thanh bên BẮT ĐẦU -->
-  <div th:replace="~{common-moderator/moderator-slidebar :: moderator_sidebar}"></div>
+  <div th:replace="~{common-moderator/moderator-sidebar :: moderator_sidebar}"></div>
   <!-- Thanh bên KẾT THÚC -->
 
   <!-- Nội dung trang BẮT ĐẦU -->
@@ -428,7 +428,7 @@
                 <h3 class="mb-0" th:text="${totalUsers != null ? #numbers.formatInteger(totalUsers, 0, 'COMMA') : '0'}">0</h3>
                 <h6 class="mb-0">Tổng Người Dùng</h6>
                 <div class="badge text-bg-success bg-opacity-10 text-success border border-success">
-                  <span>+12% tháng này</span>
+                  <span>Trong hệ thống</span>
                 </div>
               </div>
             </div>
@@ -445,7 +445,7 @@
                 <h3 class="mb-0" th:text="${totalHotels != null ? #numbers.formatInteger(totalHotels, 0, 'COMMA') : '0'}">0</h3>
                 <h6 class="mb-0">Tổng Khách Sạn</h6>
                 <div class="badge text-bg-info bg-opacity-10 text-info border border-info">
-                  <span>+8% tháng này</span>
+                  <span>Trong hệ thống</span>
                 </div>
               </div>
             </div>

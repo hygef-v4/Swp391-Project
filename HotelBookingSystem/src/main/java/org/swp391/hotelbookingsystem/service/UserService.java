@@ -317,6 +317,10 @@ public class UserService {
         public String getMessage() { return message; }
     }
 
+    public void banUser(int userId) {
+        userRepo.banUserById(userId);
+    }
+
 }
 
 

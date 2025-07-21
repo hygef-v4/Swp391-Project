@@ -198,7 +198,7 @@ public class PaymentController {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         context.setVariable("createdAt", booking.getCreatedAt().format(formatter));
         context.setVariable("checkIn", booking.getCheckIn().format(formatter));
-        context.setVariable("checkOut", booking.getCheckIn().format(formatter));
+        context.setVariable("checkOut", booking.getCheckOut().format(formatter));
 
         context.setVariable("user", user);
         context.setVariable("hotel", hotel);

@@ -652,7 +652,15 @@ var e = {
                     altInput: true,
                     altFormat: "d/m/Y",
                     disableMobile: "true",
-                    minDate: "today"  
+                    minDate: "today",
+                    onValueUpdate: function (selectedDates, dateStr, instance) {
+                        if (instance.config.mode === "range" && selectedDates.length === 2) {
+                            const diff = (selectedDates[1] - selectedDates[0]) / (1000 * 60 * 60 * 24);
+                            if (diff < 1) {
+                                instance.clear(); // Không hợp lệ thì xoá chọn
+                            }
+                        }
+                    },
                 });
 
             });

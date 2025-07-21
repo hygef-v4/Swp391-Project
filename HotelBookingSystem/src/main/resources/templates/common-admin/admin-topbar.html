@@ -56,7 +56,7 @@
             <!-- Top bar right START -->
             <ul class="nav flex-row align-items-center list-unstyled ms-xl-auto">
                 <!-- Dark mode options START -->
-                <li class="nav-item dropdown ms-3">
+                <li class="nav-item dropdown me-3">
                     <button class="nav-notification lh-0 btn btn-light p-0 mb-0" id="bd-theme"
                             type="button"
                             aria-expanded="false"
@@ -111,47 +111,72 @@
                 </li>
                 <!-- Dark mode options END-->
 
+                <!-- Search dropdown START -->
+                <li class="nav-item dropdown nav-search me-3 d-none d-sm-block">
+                    <!-- Nút tìm kiếm -->
+                    <a class="nav-notification btn btn-light mb-0 p-0" href="#" id="searchDropdown" role="button"
+                       data-bs-auto-close="outside" data-bs-display="static" data-bs-toggle="dropdown"
+                       aria-expanded="false">
+                        <i class="bi bi-search"></i>
+                    </a>
+
+                    <!-- Nội dung dropdown -->
+                    <div class="dropdown-menu dropdown-animation dropdown-menu-end p-2"
+                         aria-labelledby="searchDropdown">
+                        <div class="nav flex-nowrap align-items-center">
+                            <div class="nav-item w-100">
+                                <!-- Form tìm kiếm -->
+                                <form class="input-group" action="/hotel-list" method="GET">
+                                    <input class="form-control border-primary" type="search" name="name"
+                                           placeholder="Tìm kiếm..." aria-label="Search">
+                                    <button class="btn btn-primary m-0" type="submit">Tìm kiếm</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+
+                <!-- Search dropdown END -->
+
                 <!-- Notification dropdown START -->
-                <li class="nav-item dropdown ms-3">
+                <li class="nav-item dropdown me-3" th:if="${session.user != null}">
                     <!-- Notification button -->
-                    <a class="nav-notification btn btn-light p-0 mb-0" href="#" role="button"
-                       data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
+                    <a class="nav-notification btn btn-light p-0 mb-0" href="#" role="button" data-bs-toggle="dropdown"
+                       aria-expanded="false" data-bs-auto-close="outside" id="notificationDropdownBtn">
                         <i class="bi bi-bell fa-fw"></i>
                     </a>
-                    <!-- Notification dote -->
-                    <span class="notif-badge animation-blink"></span>
+                    <!-- Notification badge -->
+                    <span class="notif-badge animation-blink position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                          id="notificationBadge" style="display: none;">0</span>
 
                     <!-- Notification dropdown menu START -->
                     <div class="dropdown-menu dropdown-animation dropdown-menu-end dropdown-menu-size-md shadow-lg p-0">
                         <div class="card bg-transparent">
                             <!-- Card header -->
                             <div class="card-header bg-transparent d-flex justify-content-between align-items-center border-bottom">
-                                <h6 class="m-0">Thông báo <span
-                                        class="badge bg-danger bg-opacity-10 text-danger ms-2">4 new</span></h6>
-                                <a class="small" href="#">Xóa tất cả</a>
+                                <h6 class="m-0">Thông báo <span id="notificationCountText">(0)</span></h6>
+                                <a class="small" href="#" id="markAllReadBtn">Đánh dấu đã đọc</a>
                             </div>
 
                             <!-- Card body START -->
-                            <div class="card-body p-0">
-                                <ul class="list-group list-group-flush list-unstyled p-2">
-                                    <!-- Notification item -->
-                                    <li>
-                                        <a href="#"
-                                           class="list-group-item list-group-item-action rounded notif-unread border-0 mb-1 p-3">
-                                            <h6 class="mb-2">New! Booking flights from New York ✈️</h6>
-                                            <p class="mb-0 small">Find the flexible ticket on flights around the
-                                                world. Start searching today</p>
-                                            <span>Wednesday</span>
-                                        </a>
+                            <div class="card-body p-0" style="max-height: 400px; overflow-y: auto;">
+                                <ul class="list-group list-group-flush list-unstyled p-2" id="notificationList">
+                                    <!-- Loading state -->
+                                    <li id="notificationLoading">
+                                        <div class="text-center p-3">
+                                            <div class="spinner-border spinner-border-sm" role="status">
+                                                <span class="visually-hidden">Đang tải...</span>
+                                            </div>
+                                            <p class="mb-0 small mt-2">Đang tải thông báo...</p>
+                                        </div>
                                     </li>
-                                    <!-- Notification item -->
-                                    <li>
-                                        <a href="#"
-                                           class="list-group-item list-group-item-action rounded border-0 mb-1 p-3">
-                                            <h6 class="mb-2">Sunshine saving are here 🌞 save 30% or more on a
-                                                stay</h6>
-                                            <span>15 Nov 2022</span>
-                                        </a>
+
+                                    <!-- Empty state -->
+                                    <li id="notificationEmpty" style="display: none;">
+                                        <div class="text-center p-4">
+                                            <i class="bi bi-bell-slash text-muted" style="font-size: 2rem;"></i>
+                                            <p class="mb-0 text-muted">Không có thông báo nào</p>
+                                        </div>
                                     </li>
                                 </ul>
                             </div>
@@ -159,57 +184,87 @@
 
                             <!-- Card footer -->
                             <div class="card-footer bg-transparent text-center border-top">
-                                <a href="#" class="btn btn-sm btn-link mb-0 p-0">Xem các sự kiện sắp tới</a>
+                                <a href="/notifications" class="btn btn-sm btn-link mb-0 p-0">Xem tất cả thông báo</a>
                             </div>
                         </div>
                     </div>
+
                     <!-- Notification dropdown menu END -->
                 </li>
                 <!-- Notification dropdown END -->
 
-                <!-- Profile dropdown START -->
-                <li class="nav-item ms-3 dropdown" th:if="${session.user != null}">
-                    <!-- Avatar -->
-                    <a class="avatar avatar-sm p-0" href="#" id="profileDropdown" role="button"
+                <!-- SHOW PROFILE DROPDOWN WHEN LOGGED IN -->
+                <li class="nav-item dropdown" th:if="${session.user != null}">
+                    <a class="avatar avatar-sm p-0" href="/user-profile" id="profileDropdown" role="button"
                        data-bs-auto-close="outside" data-bs-display="static" data-bs-toggle="dropdown"
                        aria-expanded="false">
                         <img class="avatar-img rounded-2"
-                             th:src="${(session.user.avatarUrl == null or session.user.avatarUrl == '') ? '/assets/images/avatar/avatar.jpg' : session.user.avatarUrl}"
-                             src="/assets/images/avatar/avatar.jpg" alt="avatar">
+                             th:src="${(session.user.avatarUrl == null) ? '/assets/images/avatar/avatar.jpg' : session.user.avatarUrl}"
+                             alt="avatar">
                     </a>
 
                     <ul class="dropdown-menu dropdown-animation dropdown-menu-end shadow pt-3"
                         aria-labelledby="profileDropdown">
-                        <!-- Profile info -->
                         <li class="px-3 mb-3">
                             <div class="d-flex align-items-center">
-                                <!-- Avatar -->
                                 <div class="avatar me-3">
-                                    <img class="avatar-img rounded-circle shadow"
-                                         th:src="${(session.user.avatarUrl == null or session.user.avatarUrl == '') ? '/assets/images/avatar/avatar.jpg' : session.user.avatarUrl}"
-                                         src="/assets/images/avatar/avatar.jpg" alt="avatar">
+                                    <a href="/user-profile">
+                                        <img class="avatar-img rounded-circle shadow"
+                                             th:src="${(session.user.avatarUrl == null) ? '/assets/images/avatar/avatar.jpg' : session.user.avatarUrl}"
+                                             alt="avatar">
+                                    </a>
                                 </div>
                                 <div>
-                                    <a class="h6 mt-2 mt-sm-0" href="#"><span th:text="${session.user.fullName}">User</span></a>
-                                    <p class="small m-0"><span th:text="${session.user.email}">email@example.com</span></p>
+                                    <a class="h6 mt-2 mt-sm-0" href="/user-profile">
+                                        <span th:text="${session.user.fullName != '' ? session.user.fullName : 'No Name'}"></span>
+                                    </a>
+                                    <p class="small m-0">
+                                        <span th:text="${session.user.email}"></span>
+                                    </p>
                                 </div>
                             </div>
                         </li>
 
-                        <!-- Links -->
                         <li>
                             <hr class="dropdown-divider">
                         </li>
-                        <li><a class="dropdown-item" th:href="@{/bookingHistory}"><i class="bi bi-bookmark-check fa-fw me-2"></i>Đặt
-                            phòng của tôi</a></li>
-                        <li><a class="dropdown-item" th:href="@{/user-wishlist}"><i class="bi bi-heart fa-fw me-2"></i>Danh sách
-                            yêu thích</a></li>
-                        <li><a class="dropdown-item" href="#"><i class="bi bi-gear fa-fw me-2"></i>Cài đặt</a>
+
+                        <li th:if="${session.user.role == 'CUSTOMER'}">
+                            <a class="dropdown-item" href="/host-intro">
+                                <i class="bi bi-door-open fa-fw me-2"></i>Đăng ký cho thuê
+                            </a>
                         </li>
-                        <li><a class="dropdown-item" href="#"><i class="bi bi-info-circle fa-fw me-2"></i>Trung
-                            tâm trợ giúp</a></li>
-                        <li><a class="dropdown-item bg-danger-soft-hover" th:href="@{/logout}"><i
-                                class="bi bi-power fa-fw me-2"></i>Đăng xuất</a></li>
+                        <li th:if="${session.user.role == 'HOTEL_OWNER'}">
+                            <a class="dropdown-item" href="/host-dashboard">
+                                <i class="bi bi-buildings fa-fw me-2"></i>Quản lý khách sạn
+                            </a>
+                        </li>
+                        <li th:if="${session.user.role == 'MODERATOR'}">
+                            <a class="dropdown-item" href="/moderator-dashboard">
+                                <i class="bi bi-buildings fa-fw me-2"></i>Quản lý trang web
+                            </a>
+                        </li>
+                        <li th:if="${session.user.role == 'ADMIN'}">
+                            <a class="dropdown-item" href="/admin-dashboard">
+                                <i class="bi bi-buildings fa-fw me-2"></i>Quản lý trang web
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="/contact-options">
+                                <i class="bi bi-chat-dots fa-fw me-2"></i>Liên hệ
+                            </a>
+                        </li>
+
+                        <li><a class="dropdown-item" href="/bookingHistory"><i class="bi bi-bookmark-check fa-fw me-2"></i>Đặt phòng của tôi</a></li>
+                        <li><a class="dropdown-item" href="/payment-information"><i class="bi bi-wallet fa-fw me-2"></i>Thông tin thanh toán</a></li>
+                        <li><a class="dropdown-item" href="/user-wishlist"><i class="bi bi-heart fa-fw me-2"></i>Danh sách yêu thích</a></li>
+                        <li><a class="dropdown-item" href="/setting"><i class="bi bi-gear fa-fw me-2"></i>Cài đặt</a></li>
+                        <li><a class="dropdown-item bg-danger-soft-hover" href="/logout"><i class="bi bi-power fa-fw me-2"></i>Đăng xuất</a></li>
+
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <!-- Dark mode options can go here -->
                     </ul>
                 </li>
                 <!-- Profile dropdown END -->
@@ -217,7 +272,14 @@
             <!-- Top bar right END -->
         </div>
     </div>
-</nav>
 
+    <!-- Notification system loader START -->
+    <script th:if="${session.user != null}" th:inline="javascript">
+        // Expose userId globally for notification script
+        window.currentUserId = /*[[${session.user.id}]]*/ null;
+    </script>
+    <script th:if="${session.user != null}" src="/assets/js/notifications.js"></script>
+    <!-- Notification system loader END -->
+</nav>
 </body>
 </html>

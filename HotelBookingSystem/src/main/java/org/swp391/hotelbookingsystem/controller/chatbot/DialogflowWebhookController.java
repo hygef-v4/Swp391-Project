@@ -24,14 +24,14 @@ public class DialogflowWebhookController {
     }
 
     private String stripMarkdown(String text) {
-        return text
-                .replaceAll("\\*\\*(.*?)\\*\\*", "$1")     // bỏ **text**
-                .replaceAll("__(.*?)__", "$1")             // bỏ __text__
-                .replaceAll("\\*(.*?)\\*", "$1")           // bỏ *text*
-                .replaceAll("(?m)^\\s*\\*\\s+", "- ")       // dòng bắt đầu bằng * => gạch đầu dòng
-                .replaceAll("\\s*-\\s+", "\n- ")
-                .replaceAll("(?<!\\n)\\n", "\n");
+        String result = text
+                .replaceAll("\\*\\*(.*?)\\*\\*", "$1")
+                .replaceAll("__(.*?)__", "$1")
+                .replaceAll("\\*(.*?)\\*", "$1")
+                .replaceAll("(?m)^\\s*\\*\\s+", "• ");
+        return result;
     }
+
 
     @PostMapping("/webhook")
     public Map<String, Object> handleDialogflow(@RequestBody Map<String, Object> payload, HttpSession session) {
@@ -50,7 +50,7 @@ public class DialogflowWebhookController {
             // Tạo prompt có lịch sử
             List<String> history = sessionContextCache.getSessionHistory(sessionId);
             StringBuilder promptBuilder = new StringBuilder("""
-            Bạn là trợ lý ảo của trang web đặt phòng khách sạn tên Hamora, tên của bạn là Hamora. Hãy trả lời lịch sự và thân thiện, tạo cảm giác gần gũi và vui vẻ với người dùng.
+            Bạn là trợ lý ảo của trang web đặt phòng khách sạn tên Hamora, tên của bạn là Hamora. Hãy trả lời lịch sự và thân thiện, tạo cảm giác gần gũi và vui vẻ với người dùng. Nếu được hãy chèn thêm emoji vào câu trả lời.
             Lịch sử trò chuyện:
             """);
             for (String msg : history) {

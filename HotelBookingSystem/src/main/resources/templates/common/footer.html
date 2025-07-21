@@ -5,7 +5,7 @@
         <div class="row g-4">
 
             <!-- Widget 1 START -->
-            <div class="col-lg-3">
+            <div class="col-lg-4">
                 <!-- logo -->
                 <a href="/">
                     <img class="h-40px" src="/assets/images/logo-light.svg" th:alt="${globalSettings.siteName}">
@@ -18,126 +18,60 @@
             <!-- Widget 1 END -->
 
             <!-- Widget 2 START -->
-            <div class="col-lg-8 ms-auto">
+            <div class="col-lg-6 ms-auto">
                 <div class="row g-4">
                     <!-- Link block -->
-                    <div class="col-6 col-md-3">
-                        <h5 class="text-white mb-2 mb-md-4">Công ty</h5>
+                    <div class="col-md-6">
+                        <h5 class="text-white mb-2 mb-md-4">Website</h5>
                         <ul class="nav flex-column text-primary-hover">
-                            <li class="nav-item"><a class="nav-link text-body-secondary" href="/about">Về Chúng Tôi</a></li>
+                            <li class="nav-item"><a class="nav-link text-body-secondary" href="/about">Về chúng tôi</a></li>
+                            <li class="nav-item"><a class="nav-link text-body-secondary" href="/faq">Câu hỏi thường gặp</a></li>
                             <li class="nav-item"><a class="nav-link text-body-secondary" href="/contact">Liên hệ</a></li>
-                            <li class="nav-item"><a class="nav-link text-body-secondary" href="#">Công việc</a></li>
-                            <li class="nav-item"><a class="nav-link text-body-secondary" href="#">Nhóm</a></li>
+                            <li class="nav-item"><a class="nav-link text-body-secondary" href="/privacy-policy">Chính sách quyền riêng tư</a></li>
+                            <li class="nav-item"><a class="nav-link text-body-secondary" href="/terms-of-service">Điều khoản dịch vụ</a></li>
                         </ul>
                     </div>
 
                     <!-- Link block -->
-                    <div class="col-6 col-md-3">
-                        <h5 class="text-white mb-2 mb-md-4">Hữu ích</h5>
-                        <ul class="nav flex-column text-primary-hover">
-                            <li class="nav-item"><a class="nav-link text-body-secondary" href="/register">Đăng Ký</a></li>
-                            <li class="nav-item"><a class="nav-link text-body-secondary" href="/login">Đăng Nhập</a></li>
-                            <li class="nav-item"><a class="nav-link text-body-secondary" href="#">Chính sách</a></li>
-                            <li class="nav-item"><a class="nav-link text-body-secondary" href="/faq">FAQs</a></li>
-                            <li class="nav-item"><a class="nav-link text-body-secondary" href="/contact">Trung tâm hỗ trợ</a>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <!-- Link block -->
-                    <div class="col-6 col-md-3">
+                    <div class="col-md-6">
                         <h5 class="text-white mb-2 mb-md-4">Thành phố</h5>
                         <ul class="nav flex-column text-primary-hover">
-                            <li class="nav-item"><a class="nav-link text-body-secondary" href="#">Hà Nội</a></li>
-                            <li class="nav-item"><a class="nav-link text-body-secondary" href="#">Thành phố Hồ Chí
-                                Minh</a></li>
-                            <li class="nav-item"><a class="nav-link text-body-secondary" href="#">Đà Nẵng</a></li>
-                            <li class="nav-item"><a class="nav-link text-body-secondary" href="#">Nha Trang</a></li>
-                            <li class="nav-item"><a class="nav-link text-body-secondary" href="#">Huế</a></li>
+                            <li class="nav-item"><a class="nav-link text-body-secondary" href="/hotel-list?locationId=1">Hà Nội</a></li>
+                            <li class="nav-item"><a class="nav-link text-body-secondary" href="/hotel-list?locationId=2">Thành phố Hồ Chí Minh</a></li>
+                            <li class="nav-item"><a class="nav-link text-body-secondary" href="/hotel-list?locationId=3">Đà Nẵng</a></li>
+                            <li class="nav-item"><a class="nav-link text-body-secondary" href="/hotel-list?locationId=4">Hải Phòng</a></li>
+                            <li class="nav-item"><a class="nav-link text-body-secondary" href="/hotel-list?locationId=5">Cần Thơ</a></li>
+                            <li class="nav-item"><a class="nav-link text-body-secondary" href="/hotel-list?locationId=6">Huế</a></li>
                         </ul>
-                    </div>
-
-                    <!-- Link block -->
-                    <div class="col-6 col-md-3">
-                        <h5 class="text-white mb-2 mb-md-4">Đặt ngay</h5>
-                        <ul class="nav flex-column text-primary-hover">
-                            <li class="nav-item">
-                                <a class="nav-link text-body-secondary" href="#">
-                                    <i class="fa-solid fa-hotel me-2"></i>Phòng nghỉ
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-body-secondary" href="#">
-                                    <i class="fa-solid fa-tags me-2"></i>Ưu đãi đặc biệt
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-body-secondary" href="#">
-                                    <i class="fa-solid fa-shield-halved me-2"></i>Lưu trú an toàn
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-body-secondary" href="#">
-                                    <i class="fa-solid fa-phone-volume me-2"></i>Hỗ trợ 24/7
-                                </a>
-                            </li>
-                        </ul>
-
                     </div>
                 </div>
             </div>
             <!-- Widget 2 END -->
 
+            <!-- Widget 3 START -->
+            <div class="col-lg-2 ms-auto">
+                <div class="row g-4">
+                    <!-- Payment card -->
+                    <div>
+                        <h5 class="text-white mb-2">Thanh toán và bảo mật</h5>
+                        <ul class="list-inline mb-0 mt-3">
+                            <li class="list-inline-item"><a href="#"><img src="/assets/images/VNPay.svg" class="h-30px" alt="VNPay"></a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Social media icon -->
+                    <div>
+                        <h5 class="text-white mb-2">Kết Nối</h5>
+                        <ul class="list-inline mb-0 mt-3">
+                            <li class="list-inline-item"><a class="btn btn-sm px-2 bg-facebook mb-0" href="#"><i class="fab fa-fw fa-facebook-f"></i></a></li>
+                            <li class="list-inline-item"><a class="btn btn-sm shadow px-2 bg-twitter mb-0" href="#"><i class="fab fa-fw fa-twitter"></i></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!-- Widget 3 END -->
+
         </div><!-- Row END -->
-
-        <!-- Tops Links -->
-<!--        <div class="row mt-5">-->
-<!--            <h5 class="mb-2 text-white">Top Searches</h5>-->
-<!--            <ul class="list-inline text-primary-hover lh-lg">-->
-<!--                <li class="list-inline-item"><a href="#" class="text-body-secondary">Hanoi Rooms</a></li>-->
-<!--                <li class="list-inline-item"><a href="#" class="text-body-secondary">Beach Hotels</a></li>-->
-<!--                <li class="list-inline-item"><a href="#" class="text-body-secondary">Weekend Deals</a></li>-->
-<!--                <li class="list-inline-item"><a href="#" class="text-body-secondary">Cheap Rooms</a></li>-->
-<!--                <li class="list-inline-item"><a href="#" class="text-body-secondary">Booking Help</a></li>-->
-<!--                <li class="list-inline-item"><a href="#" class="text-body-secondary">Customer Reviews</a></li>-->
-<!--                <li class="list-inline-item"><a href="#" class="text-body-secondary">Stay Tips</a></li>-->
-<!--                <li class="list-inline-item"><a href="#" class="text-body-secondary">Travel Blog</a></li>-->
-<!--                <li class="list-inline-item"><a href="#" class="text-body-secondary">Mobile App</a></li>-->
-<!--            </ul>-->
-<!--        </div>-->
-
-        <!-- Payment and card -->
-        <div class="row g-4 justify-content-between mt-0 mt-md-2">
-            <!-- Payment card -->
-            <div class="col-sm-7 col-md-6 col-lg-4">
-                <h5 class="text-white mb-2">Thanh toán và bảo mật</h5>
-                <ul class="list-inline mb-0 mt-3">
-                    <li class="list-inline-item"><a href="#"><img src="/assets/images/element/paypal.svg" class="h-30px"
-                                                                  alt="PayPal"></a></li>
-                    <li class="list-inline-item"><a href="#"><img src="/assets/images/element/visa.svg" class="h-30px"
-                                                                  alt="Visa"></a></li>
-                    <li class="list-inline-item"><a href="#"><img src="/assets/images/element/mastercard.svg"
-                                                                  class="h-30px" alt="MasterCard"></a></li>
-                    <li class="list-inline-item"><a href="#"><img src="/assets/images/element/expresscard.svg"
-                                                                  class="h-30px" alt="Amex"></a></li>
-                </ul>
-            </div>
-
-            <!-- Social media icon -->
-            <div class="col-sm-5 col-md-6 col-lg-3 text-sm-end">
-                <h5 class="text-white mb-2">Kết Nối</h5>
-                <ul class="list-inline mb-0 mt-3">
-                    <li class="list-inline-item"><a class="btn btn-sm px-2 bg-facebook mb-0" href="#"><i
-                            class="fab fa-fw fa-facebook-f"></i></a></li>
-                    <li class="list-inline-item"><a class="btn btn-sm shadow px-2 bg-instagram mb-0" href="#"><i
-                            class="fab fa-fw fa-instagram"></i></a></li>
-                    <li class="list-inline-item"><a class="btn btn-sm shadow px-2 bg-twitter mb-0" href="#"><i
-                            class="fab fa-fw fa-twitter"></i></a></li>
-                    <li class="list-inline-item"><a class="btn btn-sm shadow px-2 bg-linkedin mb-0" href="#"><i
-                            class="fab fa-fw fa-linkedin-in"></i></a></li>
-                </ul>
-            </div>
-        </div>
 
         <!-- Divider -->
         <hr class="mt-4 mb-0">
@@ -149,16 +83,6 @@
                     <!-- copyright text -->
                     <div class="text-body-secondary text-primary-hover"> ©2025 <span th:text="${globalSettings.siteName}">Hamora Stays</span></div>
                     <!-- copyright links-->
-                    <div class="nav mt-2 mt-lg-0">
-                        <ul class="list-inline text-primary-hover mx-auto mb-0">
-                            <li class="list-inline-item me-0"><a class="nav-link text-body-secondary py-1" href="#">Chính
-                                sách bảo mật</a></li>
-                            <li class="list-inline-item me-0"><a class="nav-link text-body-secondary py-1" href="#">Điều
-                                khoản dịch vụ</a></li>
-                            <li class="list-inline-item me-0"><a class="nav-link text-body-secondary py-1 pe-0"
-                                                                 href="#">Chính sách hoàn tiền</a></li>
-                        </ul>
-                    </div>
                 </div>
             </div>
         </div>

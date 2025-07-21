@@ -129,37 +129,37 @@
                 <div class="col-12 d-flex align-items-center justify-content-between flex-wrap gap-3">
                     <!-- Role Tabs -->
                     <ul class="nav nav-pills nav-pills-soft nav-responsive" role="tablist">
-                        <li class="nav-item" role="presentation">
+                        <li class="nav-item hover-card" role="presentation">
                             <a class="nav-link mb-0" th:classappend="${#strings.isEmpty(role) && #strings.isEmpty(status)} ? 'active border' : ''"
                                th:href="@{/admin-user-list}">Tất cả</a>
                         </li>
-                        <li class="nav-item" role="presentation">
+                        <li class="nav-item hover-card" role="presentation">
                             <a class="nav-link mb-0" th:classappend="${role} == 'CUSTOMER' ? 'active border' : ''"
                                th:href="@{/admin-user-list(role='CUSTOMER')}">Khách hàng</a>
                         </li>
-                        <li class="nav-item" role="presentation">
+                        <li class="nav-item hover-card" role="presentation">
                             <a class="nav-link mb-0" th:classappend="${role} == 'HOTEL_OWNER' ? 'active border' : ''"
                                th:href="@{/admin-user-list(role='HOTEL_OWNER')}">Chủ khách sạn</a>
                         </li>
-                        <li class="nav-item" role="presentation">
+                        <li class="nav-item hover-card" role="presentation">
                             <a class="nav-link mb-0" th:classappend="${role} == 'MODERATOR' ? 'active border' : ''"
                                th:href="@{/admin-user-list(role='MODERATOR')}">Quản lý Web</a>
                         </li>
-                        <li class="nav-item" role="presentation">
+                        <li class="nav-item hover-card" role="presentation">
                             <a class="nav-link mb-0" th:classappend="${role} == 'ADMIN' ? 'active border' : ''"
                                th:href="@{/admin-user-list(role='ADMIN')}">Quản trị viên</a>
                         </li>
-                        <li class="nav-item" role="presentation">
+                        <li class="nav-item hover-card" role="presentation">
                             <a class="nav-link mb-0" th:classappend="${status} == 'banned' ? 'active border' : ''"
                                th:href="@{/admin-user-list(status='banned')}">Bị khóa</a>
                         </li>
-                        <li class="nav-item" role="presentation">
+                        <li class="nav-item hover-card" role="presentation">
                             <a class="nav-link mb-0" th:classappend="${status} == 'flagged' ? 'active border' : ''"
                                th:href="@{/admin-user-list(status='flagged')}">Bị báo cáo</a>
                         </li>
                     </ul>
                     <!-- Search -->
-                    <form class="rounded position-relative" th:action="@{/admin-user-list}" method="get"
+                    <form class="rounded position-relative hover-card" th:action="@{/admin-user-list}" method="get"
                           onsubmit="this.search.value = this.search.value.trim().replace(/\s+/g, ' ')">
                         <input type="hidden" name="role" th:value="${role}"/>
                         <input type="hidden" name="status" th:value="${status}"/>
@@ -225,8 +225,11 @@
                                     <input type="hidden" name="newRole" th:id="'newRoleInput__' + ${user.id}" />
 
                                     <!-- Button that triggers dropdown -->
-                                    <button class="btn btn-sm dropdown-toggle px-3 py-2 rounded-pill text-info bg-light-info border-0"
-                                            type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <button class="btn btn-sm dropdown-toggle px-3 py-2 rounded-pill border-0"
+                                            th:classappend="${user.id == session.user.id} ? 'text-warning bg-warning bg-opacity-10' : (${user.role == 'ADMIN'} ? 'text-danger bg-danger bg-opacity-10' : 'text-info bg-light-info')"
+                                            type="button" data-bs-toggle="dropdown" aria-expanded="false"
+                                            th:disabled="${user.id == session.user.id}"
+                                            th:title="${user.id == session.user.id} ? 'Không thể thay đổi vai trò của chính mình' : ''">
                 <span th:text="${user.role == 'CUSTOMER' ? 'KHÁCH HÀNG'
                                 : (user.role == 'HOTEL_OWNER' ? 'CHỦ KHÁCH SẠN'
                                 : (user.role == 'MODERATOR' ? 'QUẢN LÝ WEB'
@@ -271,10 +274,13 @@
 
                         <!-- Status toggle -->
                         <div class="col-2 text-center">
+                            <!-- Disable toggle button only for current admin user (can't ban yourself) -->
                             <button class="btn btn-sm px-3 toggle-status-btn"
                                     th:classappend="${user.active} ? 'btn-success' : 'btn-danger'"
-                                    th:title="${user.active} ? 'Cấm' : 'Khôi phục'"
-                                    th:attr="data-user-id=${user.id},data-user-active=${user.active}">
+                                    th:title="${user.id == session.user.id} ? 'Không thể thay đổi trạng thái của chính mình' : (${user.active} ? 'Cấm' : 'Khôi phục')"
+                                    th:attr="data-user-id=${user.id},data-user-active=${user.active},data-user-role=${user.role},data-is-current-user=${user.id == session.user.id}"
+                                    th:disabled="${user.id == session.user.id}"
+                                    th:style="${user.id == session.user.id} ? 'opacity: 0.65; cursor: not-allowed;' : ''">
                                 <i class="bi"
                                    th:classappend="${user.active} ? 'bi-check-circle' : 'bi-slash-circle'"></i>
                                 <span th:text="${user.active} ? 'Hoạt động' : 'Bị cấm'"></span>
@@ -439,10 +445,69 @@
 </div>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
+    // Check for error parameter in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const errorParam = urlParams.get('error');
+
+    if (errorParam) {
+      // Create alert element
+      const alertDiv = document.createElement('div');
+      alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+      alertDiv.setAttribute('role', 'alert');
+      alertDiv.innerHTML = `
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        ${decodeURIComponent(errorParam)}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      `;
+
+      // Insert after the header section
+      const headerSection = document.querySelector('.row.g-4.align-items-center.mb-4');
+      if (headerSection) {
+        headerSection.parentNode.insertBefore(alertDiv, headerSection);
+      }
+
+      // Clean URL by removing error parameter
+      const newUrl = new URL(window.location);
+      newUrl.searchParams.delete('error');
+      window.history.replaceState({}, '', newUrl);
+    }
     document.querySelectorAll('.toggle-status-btn').forEach(btn => {
       btn.addEventListener('click', function() {
         const userId = this.getAttribute('data-user-id');
         const isActive = this.getAttribute('data-user-active') === 'true';
+        const userRole = this.getAttribute('data-user-role');
+        const isCurrentUser = this.getAttribute('data-is-current-user') === 'true';
+
+        // Prevent toggling status for current user (yourself)
+        if (isCurrentUser) {
+          // Show a toast or alert instead of opening the modal
+          const toastContainer = document.createElement('div');
+          toastContainer.className = 'position-fixed top-0 end-0 p-3';
+          toastContainer.style.zIndex = '1080';
+          toastContainer.innerHTML = `
+            <div class="toast align-items-center text-white bg-warning border-0" role="alert" aria-live="assertive" aria-atomic="true">
+              <div class="d-flex">
+                <div class="toast-body">
+                  <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                  Không thể thay đổi trạng thái của chính mình!
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+              </div>
+            </div>
+          `;
+          document.body.appendChild(toastContainer);
+          const toastEl = toastContainer.querySelector('.toast');
+          const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+          toast.show();
+
+          // Remove the toast container after it's hidden
+          toastEl.addEventListener('hidden.bs.toast', function() {
+            document.body.removeChild(toastContainer);
+          });
+
+          return; // Exit the function early
+        }
+
         const modal = new bootstrap.Modal(document.getElementById('toggleStatusModal'));
         const form = document.getElementById('toggleStatusForm');
         const reasonField = document.getElementById('toggleStatusReason');

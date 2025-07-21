@@ -408,7 +408,6 @@
                                         <th scope="col" class="border-0">Nhận Phòng</th>
                                         <th scope="col" class="border-0">Trả Phòng</th>
                                         <th scope="col" class="border-0">Doanh Thu</th>
-                                        <th scope="col" class="border-0">Trạng Thái</th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -452,11 +451,6 @@
                                             <span th:if="${booking.totalPrice <= 0 or booking.status == 'cancelled' or booking.status == 'rejected'}"
                                                   class="fw-bold text-muted">
                                                 Đã hủy/ Từ chối
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-success bg-opacity-10 text-success">
-                                                Đã thanh toán
                                             </span>
                                         </td>
                                     </tr>

@@ -123,7 +123,7 @@
             <div class="row g-4 mb-5">
                 <!-- Counter item -->
                 <div class="col-md-6 col-xxl-3">
-                    <div class="card card-body bg-warning bg-opacity-10 border border-warning border-opacity-25 p-4 h-100">
+                    <div class="card card-body hover-card bg-warning bg-opacity-10 border border-warning border-opacity-25 p-4 h-100">
                         <div class="d-flex justify-content-between align-items-center">
                             <!-- Digit -->
                             <div>
@@ -139,7 +139,7 @@
 
                 <!-- Counter item -->
                 <div class="col-md-6 col-xxl-3">
-                    <div class="card card-body bg-primary bg-opacity-10 border border-primary border-opacity-25 p-4 h-100">
+                    <div class="card card-body hover-card bg-primary bg-opacity-10 border border-primary border-opacity-25 p-4 h-100">
                         <div class="d-flex justify-content-between align-items-center">
                             <!-- Digit -->
                             <div>
@@ -154,7 +154,7 @@
                 </div>
                 <!-- Counter item -->
                 <div class="col-md-6 col-xxl-3">
-                    <div class="card card-body bg-success bg-opacity-10 border border-success border-opacity-25 p-4 h-100">
+                    <div class="card card-body hover-card bg-success bg-opacity-10 border border-success border-opacity-25 p-4 h-100">
                         <div class="d-flex justify-content-between align-items-center">
                             <!-- Digit -->
                             <div>
@@ -169,7 +169,7 @@
                 </div>
                 <!-- Counter item -->
                 <div class="col-md-6 col-xxl-3">
-                    <div class="card card-body bg-danger bg-opacity-10 border border-danger border-opacity-25 p-4 h-100">
+                    <div class="card card-body hover-card bg-danger bg-opacity-10 border border-danger border-opacity-25 p-4 h-100">
                         <div class="d-flex justify-content-between align-items-center">
                             <!-- Digit -->
                             <div>
@@ -191,13 +191,13 @@
                     <div class="col-12">
                         <div class="d-flex justify-content-between">
                             <h4 class="mb-0">Khách sạn được đặt nhiều</h4>
-                            <a th:href="@{/admin-hotel-list}" class="btn btn-primary-soft mb-0">Xem tất cả</a>
+                            <a th:href="@{/admin-hotel-list}" class="btn btn-primary-soft mb-0 hover-card">Xem tất cả</a>
                         </div>
                     </div>
 
                     <!-- Hotel item loop -->
                     <div class="col-lg-6" th:each="hotel, iterStat : ${popularHotels}">
-                        <div class="card shadow p-3">
+                        <div class="card hover-card shadow p-3">
                             <div class="row g-4">
                                 <!-- Card img -->
                                 <div class="col-md-3">

@@ -322,7 +322,7 @@ public class UserRepo {
 
 
     public int countUsersByRoleAndSearch(String role, String keyword) {
-        String sql = "SELECT COUNT(*) FROM Users WHERE role = ? AND full_name LIKE ?";
+        String sql = "SELECT COUNT(*) FROM Users WHERE role = ? AND is_active = 1 AND full_name LIKE ?";
         String wildcard = "%" + keyword + "%";
         return jdbc.queryForObject(sql, Integer.class, role, wildcard);
     }
@@ -425,7 +425,7 @@ public class UserRepo {
         FROM Users u
         LEFT JOIN Hotels h ON u.user_id = h.host_id
         LEFT JOIN Bookings b ON h.hotel_id = b.hotel_id AND MONTH(b.check_in) = MONTH(GETDATE()) AND YEAR(b.check_in) = YEAR(GETDATE())
-        WHERE u.role = 'HOTEL_OWNER' AND u.full_name LIKE ?
+        WHERE u.role = 'HOTEL_OWNER' AND u.is_active = 1 AND u.full_name LIKE ?
         GROUP BY\s
           u.user_id, u.full_name, u.email, u.password_hash, u.phone,\s
           u.role, u.is_active, u.date_of_birth, u.bio, u.gender,\s
@@ -459,6 +459,11 @@ public class UserRepo {
                 .gender(rs.getString("gender"))
                 .avatarUrl(rs.getString("avatar_url"))
                 .build());
+    }
+
+    public void banUserById(int userId) {
+        String sql = "UPDATE Users SET is_active = 0 WHERE user_id = ?";
+        jdbc.update(sql, userId);
     }
 
 }

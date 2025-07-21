@@ -564,7 +564,7 @@ public class HostHotelController {
                         response.put("message", "Hoàn tiền thất bại");
                         return response;
                     }
-                }
+                }rejectedBookings = bookingService.rejectAllActiveBookingsByRoomId(roomId);
             } catch (Exception e) {
                 e.printStackTrace();
                 response.put("success", false);

@@ -4,11 +4,18 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.swp391.hotelbookingsystem.model.*;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +27,9 @@ import java.util.*;
 
 @Controller
 public class AdminHotelController {
+
+    @Value("${app.base-url}")
+    private String baseUrl;
 
     final
     HotelService hotelService;
@@ -42,7 +52,10 @@ public class AdminHotelController {
     final
     BookingService bookingService;
 
-    public AdminHotelController(HotelService hotelService, RoomService roomService, ReviewService reviewService, UserService userService, LocationService locationService, AmenityService amenityService, BookingService bookingService) {
+    final
+    NotificationService notificationService;
+
+    public AdminHotelController(HotelService hotelService, RoomService roomService, ReviewService reviewService, UserService userService, LocationService locationService, AmenityService amenityService, BookingService bookingService, NotificationService notificationService) {
         this.hotelService = hotelService;
         this.roomService = roomService;
         this.reviewService = reviewService;
@@ -50,6 +63,7 @@ public class AdminHotelController {
         this.locationService = locationService;
         this.amenityService = amenityService;
         this.bookingService = bookingService;
+        this.notificationService = notificationService;
     }
 
     @GetMapping("/admin-hotel-list")
@@ -175,10 +189,36 @@ public class AdminHotelController {
                            HttpSession session,
                            RedirectAttributes redirectAttributes) {
         User admin = (User) session.getAttribute("user");
+
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        List<Booking> bookings = bookingService.findActiveBookingsByHotelId(hotelId);
+
+        for(Booking booking : bookings){
+            MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+            params.add("id", String.valueOf(booking.getBookingId()));
+            params.add("trantype", "02");
+            params.add("amount", String.valueOf(booking.getTotalPrice().longValue()));
+            params.add("refundRole", "Hotel Owner");
+            params.add("orderInfo", "Hủy đặt phòng " + booking.getHotelName());
+
+            HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+            String response = restTemplate.postForObject(baseUrl + "/refund", request, String.class);
+
+            if(response != null && response.equals("00")){
+                notificationService.rejectNotification(booking.getCustomerId(), String.valueOf(booking.getBookingId()), booking.refundAmount());
+            }else{
+                redirectAttributes.addFlashAttribute("errorMessage", "Hoàn tiền thất bại");
+                return "redirect:/admin/hotel/view/" + hotelId;
+            }
+        }
+
         boolean result = hotelService.banHotel(hotelId, reason, admin.getId());
 
         if (result) {
-            redirectAttributes.addFlashAttribute("successMessage", "Khách sạn đã bị cấm và thông báo đã được ghi nhận.");
+            redirectAttributes.addFlashAttribute("successMessage", "Khách sạn đã bị cấm.");
         } else {
             redirectAttributes.addFlashAttribute("errorMessage", "Không thể cấm khách sạn.");
         }

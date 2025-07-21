@@ -58,14 +58,14 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole()));
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(user.getEmail(), null, authorities);
         SecurityContextHolder.getContext().setAuthentication(authToken);
-        rememberMeServices.onLoginSuccess(request, response, authToken);
+//        rememberMeServices.onLoginSuccess(request, response, authToken);
 
         request.getSession().setAttribute("user", user);
 
         switch (user.getRole()) {
             case "ADMIN" -> response.sendRedirect("/admin-dashboard");
             case "MODERATOR" -> response.sendRedirect("/moderator-dashboard");
-            case "HOTEL OWNER" -> response.sendRedirect("/host-dashboard");
+            case "HOTEL_OWNER" -> response.sendRedirect("/host-dashboard");
             default -> response.sendRedirect("/home");
         }
     }

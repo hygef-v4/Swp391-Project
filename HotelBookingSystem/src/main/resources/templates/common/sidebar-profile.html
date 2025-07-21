@@ -110,7 +110,7 @@
                            src="/assets/images/avatar/avatar.jpg" alt="Ảnh đại diện">
                     </div>
                     <h6 class="mb-0"><span th:text="${session.user.fullName != '' ? session.user.fullName : 'No Name'}"></span></h6>
-                    <a href="#" class="text-reset text-primary-hover small"><span th:text="${session.user.email}"></span></a>
+                    <a href="/user-profile" class="text-reset text-primary-hover small"><span th:text="${session.user.email}"></span></a>
                     <hr>
                   </div>
 
@@ -129,14 +129,10 @@
                       <a class="nav-link" href="/payment-information"><i class="bi bi-wallet fa-fw me-2"></i>Thông tin thanh toán</a>
                     </li>
                     <li class="nav-item">
-                      <a class="nav-link" href="/user-wishlist"><i class="bi bi-heart fa-fw me-2"></i>Yêu thích</a>
+                      <a class="nav-link" href="/user-wishlist"><i class="bi bi-heart fa-fw me-2"></i>Danh sách yêu thích</a>
                     </li>
                     <li class="nav-item">
-                      <a class="nav-link" href="account-settings.html"><i class="bi bi-gear fa-fw me-2"></i>Cài đặt</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" href="account-delete.html"><i class="bi bi-trash fa-fw me-2"></i>Xoá tài khoản</a>
-                    </li>
+                      <a class="nav-link" href="/setting"><i class="bi bi-gear fa-fw me-2"></i>Cài đặt</a>
                     <li class="nav-item">
                       <a class="nav-link text-danger bg-danger-soft-hover" href="/logout"><i class="fas fa-sign-out-alt fa-fw me-2"></i>Đăng xuất</a>
                     </li>

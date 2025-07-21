@@ -14,12 +14,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.swp391.hotelbookingsystem.model.Amenity;
 import org.swp391.hotelbookingsystem.model.AmenityCategory;
+import org.swp391.hotelbookingsystem.model.CancellationPolicy;
 import org.swp391.hotelbookingsystem.model.Hotel;
 import org.swp391.hotelbookingsystem.model.Location;
 import org.swp391.hotelbookingsystem.model.Review;
 import org.swp391.hotelbookingsystem.model.Room;
 import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.service.AmenityService;
+import org.swp391.hotelbookingsystem.service.CancellationPolicyService;
 import org.swp391.hotelbookingsystem.service.HotelService;
 import org.swp391.hotelbookingsystem.service.LocationService;
 import org.swp391.hotelbookingsystem.service.ReviewService;
@@ -39,6 +41,8 @@ public class HotelDetailController {
     AmenityService amenityService;
     @Autowired
     ReviewService reviewService;
+    @Autowired
+    CancellationPolicyService cancellationPolicyService;
 
     @GetMapping("/hotel-detail")
     public String hotelDetail(
@@ -62,8 +66,10 @@ public class HotelDetailController {
         model.addAttribute("roomQuantity", roomQuantity);
 
         Hotel hotel = hotelService.getHotelById(hotelId);
-        hotel.setPolicy(hotel.getPolicy().replace("<li>", "<li class=\"list-group-item d-flex\"><i class=\"bi bi-arrow-right me-2\"></i>"));
         model.addAttribute("hotel", hotel);
+
+        CancellationPolicy cancellationPolicy = cancellationPolicyService.getCancellationPolicyByHotelId(hotelId);
+        model.addAttribute("cancellationPolicy", cancellationPolicy);
 
         boolean favorite = false;
         Review review = null;

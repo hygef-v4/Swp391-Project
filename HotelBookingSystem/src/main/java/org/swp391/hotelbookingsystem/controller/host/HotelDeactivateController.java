@@ -222,6 +222,16 @@ public class HotelDeactivateController {
                     return "redirect:/host-listing";
                 }
             }
+
+            // Reject all active bookings first (for both normal and force deactivate)
+            int rejectedBookings = bookingService.rejectAllActiveBookingsByHotelId(hotelId);
+            // Then deactivate the hotel
+            hotelService.updateHotelStatus(hotelId, "inactive");
+            
+            String message = "Khách sạn '" + hotel.getHotelName() + "' đã được vô hiệu hóa thành công.";
+            if (rejectedBookings > 0) {
+                message += " Đã hủy " + rejectedBookings + " đặt phòng đang hoạt động. Vui lòng liên hệ với khách hàng để hoàn tiền.";
+            }redirectAttributes.addFlashAttribute("message", message);
         } catch (EmptyResultDataAccessException e) {
             redirectAttributes.addFlashAttribute("error", "Mã OTP không hợp lệ hoặc đã hết hạn.");
             redirectAttributes.addFlashAttribute("showOtpModalForHotelId", hotelId);
