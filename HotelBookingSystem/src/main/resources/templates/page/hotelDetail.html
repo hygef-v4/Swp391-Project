@@ -620,6 +620,8 @@ About hotel START -->
 													<li class="list-inline-item me-0"><i th:class="(${hotel.rating <= 3.2} ? 'fa-regular fa-star' : (${hotel.rating >= 3.8} ? 'fa-solid fa-star' : 'fa-solid fa-star-half-alt')) + ' text-warning'"></i></li>
 													<li class="list-inline-item me-0"><i th:class="(${hotel.rating <= 4.2} ? 'fa-regular fa-star' : (${hotel.rating >= 4.8} ? 'fa-solid fa-star' : 'fa-solid fa-star-half-alt')) + ' text-warning'"></i></li>
 												</ul>
+
+												<p> <span th:text="${comments.size()}"></span> lượt đánh giá</p>
 											</div>
 										</div>
 
