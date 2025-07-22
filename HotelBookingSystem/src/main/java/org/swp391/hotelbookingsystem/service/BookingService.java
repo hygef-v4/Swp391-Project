@@ -173,11 +173,11 @@ public class BookingService {
     }
 
     public List<Booking> findActiveBookingsByCustomerId(int customerId) {
-        return bookingRepo.findActiveBookingsByHotelId(customerId);
+        return bookingRepo.findActiveBookingsByCustomerId(customerId);
     }
 
     public List<Booking> findActiveBookingsByHostId(int hostId) {
-        return bookingRepo.findActiveBookingsByHotelId(hostId);
+        return bookingRepo.findActiveBookingsByHostId(hostId);
     }
 
     public int rejectAllActiveBookingsByHotelId(int hotelId) {

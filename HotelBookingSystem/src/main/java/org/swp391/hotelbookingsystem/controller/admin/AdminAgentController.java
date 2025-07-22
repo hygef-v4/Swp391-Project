@@ -148,7 +148,7 @@ public class AdminAgentController {
                     params.add("id", String.valueOf(booking.getBookingId()));
                     params.add("trantype", "02");
                     params.add("amount", String.valueOf(booking.getTotalPrice().longValue()));
-                    params.add("refundRole", "Hotel Owner");
+                    params.add("refundRole", "Admin");
                     params.add("orderInfo", "Hủy đặt phòng " + booking.getHotelName());
 
                     HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);

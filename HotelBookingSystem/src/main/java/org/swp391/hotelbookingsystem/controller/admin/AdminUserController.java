@@ -162,6 +162,10 @@ public class AdminUserController {
 
         boolean wasActive = user.isActive();
 
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
         // If banning, require a non-blank reason BEFORE toggling status
         if (wasActive) {
             if (reason == null || reason.trim().isEmpty()) {
@@ -170,32 +174,28 @@ public class AdminUserController {
                 String separator = redirectUrl.contains("?") ? "&" : "?";
                 return "redirect:" + redirectUrl + separator + "error=" + java.net.URLEncoder.encode(errorMsg, java.nio.charset.StandardCharsets.UTF_8);
             }
-        }
 
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+            List<Booking> bookings = bookingService.findActiveBookingsByCustomerId(userId);
 
-        List<Booking> bookings = bookingService.findActiveBookingsByCustomerId(userId);
+            for(Booking booking : bookings){
+                MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+                params.add("id", String.valueOf(booking.getBookingId()));
+                params.add("trantype", "02");
+                params.add("amount", String.valueOf(booking.getTotalPrice().longValue()));
+                params.add("refundRole", "Admin");
+                params.add("orderInfo", "Hủy đặt phòng " + booking.getHotelName());
 
-        for(Booking booking : bookings){
-            MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-            params.add("id", String.valueOf(booking.getBookingId()));
-            params.add("trantype", "02");
-            params.add("amount", String.valueOf(booking.getTotalPrice().longValue()));
-            params.add("refundRole", "Hotel Owner");
-            params.add("orderInfo", "Hủy đặt phòng " + booking.getHotelName());
+                HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+                String response = restTemplate.postForObject(baseUrl + "/refund", request, String.class);
 
-            HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
-            String response = restTemplate.postForObject(baseUrl + "/refund", request, String.class);
-
-            if(response != null && response.equals("00")){
-                notificationService.rejectNotification(booking.getCustomerId(), String.valueOf(booking.getBookingId()), booking.refundAmount());
-            }else{
-                String errorMsg = "Hoàn tiền thất bại";
-                String redirectUrl = buildRedirectUrl("/admin-user-list", search, role, status, page);
-                String separator = redirectUrl.contains("?") ? "&" : "?";
-                return "redirect:" + redirectUrl + separator + "error=" + java.net.URLEncoder.encode(errorMsg, java.nio.charset.StandardCharsets.UTF_8);
+                if(response != null && response.equals("00")){
+                    notificationService.rejectNotification(booking.getCustomerId(), String.valueOf(booking.getBookingId()), booking.refundAmount());
+                }else{
+                    String errorMsg = "Hoàn tiền thất bại";
+                    String redirectUrl = buildRedirectUrl("/admin-user-list", search, role, status, page);
+                    String separator = redirectUrl.contains("?") ? "&" : "?";
+                    return "redirect:" + redirectUrl + separator + "error=" + java.net.URLEncoder.encode(errorMsg, java.nio.charset.StandardCharsets.UTF_8);
+                }
             }
         }
 
@@ -220,7 +220,7 @@ public class AdminUserController {
                             params.add("id", String.valueOf(booking.getBookingId()));
                             params.add("trantype", "02");
                             params.add("amount", String.valueOf(booking.getTotalPrice().longValue()));
-                            params.add("refundRole", "Hotel Owner");
+                            params.add("refundRole", "Admin");
                             params.add("orderInfo", "Hủy đặt phòng " + booking.getHotelName());
 
                             HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
