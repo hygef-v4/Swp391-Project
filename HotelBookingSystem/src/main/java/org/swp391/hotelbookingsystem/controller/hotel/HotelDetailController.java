@@ -21,6 +21,7 @@ import org.swp391.hotelbookingsystem.model.Review;
 import org.swp391.hotelbookingsystem.model.Room;
 import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.service.AmenityService;
+import org.swp391.hotelbookingsystem.service.BookingService;
 import org.swp391.hotelbookingsystem.service.CancellationPolicyService;
 import org.swp391.hotelbookingsystem.service.HotelService;
 import org.swp391.hotelbookingsystem.service.LocationService;
@@ -43,6 +44,8 @@ public class HotelDetailController {
     ReviewService reviewService;
     @Autowired
     CancellationPolicyService cancellationPolicyService;
+    @Autowired
+    BookingService bookingService;
 
     @GetMapping("/hotel-detail")
     public String hotelDetail(
@@ -78,6 +81,9 @@ public class HotelDetailController {
         if (user != null) {
             favorite = hotelService.isFavoriteHotel(user.getId(), hotelId);
             review = reviewService.getReview(hotelId, user.getId());
+            
+            boolean hasBooking = bookingService.hasBookingInHotel(user.getId(), hotelId);
+            model.addAttribute("hasBooking", hasBooking);
         }
         
         model.addAttribute("favorite", favorite);

@@ -628,7 +628,7 @@ About hotel START -->
 										<!-- Progress-bar START -->
 										<div th:class="${hotel.rating == 0 ? 'col-md-12' : 'col-md-8'}">
 											<div class="card-body p-0">
-												<div th:if="${session.user != null}">
+												<div th:if="${session.user != null && hasBooking}">
 													<div id="reviewChat" th:class="'row gx-3 g-2 align-items-center' + ${review != null ? ' d-none' : ''}">
 														<!-- Leave review START -->
 														<input type="hidden" name="hotelId" th:value="${hotel.hotelId}">
@@ -683,8 +683,11 @@ About hotel START -->
 														</div>
 													</div>
 												</div>
-												<div th:unless="${session.user != null}">
+												<div th:if="${session.user == null}">
 													<a href="/login" class="text-center">Đăng nhập hoặc đăng ký tài khoản để bình luận</a>
+												</div>
+												<div th:if="${!hasBooking}">
+													<a href="#room-options" class="text-center">Bạn cần đặt phòng tại khách sạn này để bình luận</a>
 												</div>
 												<!-- Row END -->
 											</div>

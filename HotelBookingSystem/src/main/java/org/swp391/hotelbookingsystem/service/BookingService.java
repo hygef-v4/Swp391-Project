@@ -144,6 +144,10 @@ public class BookingService {
         return bookingRepo.findBookingsByCustomerId(customerId);
     }
 
+    public boolean hasBookingInHotel(int customerId, int hotelId){
+        return bookingRepo.countBookingsByCustomerId(customerId, hotelId) > 0;
+    }
+
     public int countTotalBookingsByHostId(int hostId) {
         return bookingRepo.countBookingsByHostId(hostId);
     }
