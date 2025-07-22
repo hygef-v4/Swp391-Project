@@ -1,6 +1,6 @@
-projectKey=Hamora_2
+projectKey=test-22-7
 serverUrl=http://localhost:9000
 serverVersion=25.5.0.107428
-dashboardUrl=http://localhost:9000/dashboard?id=Hamora_2
-ceTaskId=54821d47-9737-4046-b932-8533d86518d7
-ceTaskUrl=http://localhost:9000/api/ce/task?id=54821d47-9737-4046-b932-8533d86518d7
+dashboardUrl=http://localhost:9000/dashboard?id=test-22-7
+ceTaskId=bfa47a31-6708-46cf-940b-574b4b949b9b
+ceTaskUrl=http://localhost:9000/api/ce/task?id=bfa47a31-6708-46cf-940b-574b4b949b9b
