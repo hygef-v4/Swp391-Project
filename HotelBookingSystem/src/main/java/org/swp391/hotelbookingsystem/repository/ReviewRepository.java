@@ -480,4 +480,38 @@ public class ReviewRepository {
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Review.class), hostId);
     }
 
+    public boolean hasOtherPublicReview(int reviewerId, int hotelId, int excludedReviewId) {
+        String sql = """
+        SELECT COUNT(*) FROM Reviews
+        WHERE is_public = 1 AND comment IS NOT NULL
+        AND reviewer_id = ? AND hotel_id = ?
+        AND review_id <> ?
+    """;
+
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, reviewerId, hotelId, excludedReviewId);
+        return count != null && count > 0;
+    }
+
+    public Review getReviewByIdIncludingDeleted(int id) {
+        String sql = """
+        SELECT
+            r.review_id AS reviewId,
+            r.hotel_id AS hotelId,
+            r.reviewer_id AS reviewerId,
+            r.rating,
+            r.comment,
+            r.is_public AS isPublic,
+            r.created_at AS createdAt,
+            u.full_name AS fullName,
+            u.avatar_url AS avatarUrl,
+            h.hotel_name AS hotelName
+        FROM Reviews r
+        JOIN Users u ON r.reviewer_id = u.user_id
+        JOIN Hotels h ON r.hotel_id = h.hotel_id
+        WHERE r.review_id = ?
+    """;
+
+        return jdbcTemplate.queryForObject(sql, new BeanPropertyRowMapper<>(Review.class), id);
+    }
+
 }
