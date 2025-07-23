@@ -3,7 +3,6 @@ package org.swp391.hotelbookingsystem.controller.hotel;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.sql.Date;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -77,14 +76,15 @@ public class HotelDetailController {
         boolean favorite = false;
         Review review = null;
 
+        boolean hasBooking = false;
         User user = (User) session.getAttribute("user");
         if (user != null) {
             favorite = hotelService.isFavoriteHotel(user.getId(), hotelId);
             review = reviewService.getReview(hotelId, user.getId());
-            
-            boolean hasBooking = bookingService.hasBookingInHotel(user.getId(), hotelId);
-            model.addAttribute("hasBooking", hasBooking);
-        }
+
+            hasBooking = bookingService.hasBookingInHotel(user.getId(), hotelId);
+            model.addAttribute("hasBooking", true);
+        }model.addAttribute("hasBooking", hasBooking);
         
         model.addAttribute("favorite", favorite);
         model.addAttribute("review", review);
@@ -124,7 +124,7 @@ public class HotelDetailController {
         
         List<Room> rooms = roomService.getRoomsByIdAndDateRange(hotelId, checkin, checkout);
         for(Room room : rooms){
-            room.setDescription("<li>Sức chứa: " + room.getMaxGuests() + " Người</li>" + room.getDescription());
+            room.setDescription("<li>Sức chứa: <span" + (room.getMaxGuests() * room.getQuantity() < guests ? " class='text-orange'" : "") + ">" + room.getMaxGuests() + " Người</span></li>" + room.getDescription());
 
             List<Amenity> amenities = amenityService.getRoomAmenities(room.getRoomId());
             List<AmenityCategory> categories = new ArrayList<>();
