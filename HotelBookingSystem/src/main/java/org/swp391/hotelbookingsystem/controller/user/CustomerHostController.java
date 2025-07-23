@@ -224,16 +224,25 @@ public class CustomerHostController {
                     if (!nonPendingUnits.isEmpty()) {
                         String status = bookingService.calculateBookingStatus(nonPendingUnits);
                         booking.setStatus(status);
-                        
-                        double sum = nonPendingUnits.stream()
-                                .filter(u -> u.getPrice() != null && u.getPrice() > 0)
-                                .filter(u -> {
+
+                        // Calculate total price correctly including number of days
+                        booking.calculateNumberOfNights();
+                        double calculatedPrice = booking.calculateTotalPrice();
+                        booking.setTotalPrice(calculatedPrice);
+
+                        log.debug("Booking {} - nights: {}, calculated price: {}, units: {}",
+                            booking.getBookingId(), booking.getNumberOfNights(), calculatedPrice, nonPendingUnits.size());
+
+                        // Check if booking has revenue-generating units
+                        boolean hasRevenueUnits = nonPendingUnits.stream()
+                                .anyMatch(u -> {
                                     String unitStatus = (u.getStatus() != null) ? u.getStatus().toLowerCase() : "";
                                     return "approved".equals(unitStatus) || "completed".equals(unitStatus) || "check_in".equals(unitStatus);
-                                })
-                                .mapToDouble(u -> u.getPrice() * (u.getQuantity() == 0 ? 1 : u.getQuantity()))
-                                .sum();
-                        booking.setTotalPrice(sum);
+                                });
+
+                        if (!hasRevenueUnits) {
+                            booking.setTotalPrice(0.0);
+                        }
                     } else {
                         // If no non-pending units, set booking as having no valid units
                         booking.setTotalPrice(0.0);
