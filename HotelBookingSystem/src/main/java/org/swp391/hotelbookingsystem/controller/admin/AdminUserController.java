@@ -166,52 +166,21 @@ public class AdminUserController {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-        // If banning, require a non-blank reason BEFORE toggling status
-        if (wasActive) {
-            if (reason == null || reason.trim().isEmpty()) {
-                String errorMsg = "Lý do khóa tài khoản không được để trống hoặc chỉ chứa khoảng trắng.";
-                String redirectUrl = buildRedirectUrl("/admin-user-list", search, role, status, page);
-                String separator = redirectUrl.contains("?") ? "&" : "?";
-                return "redirect:" + redirectUrl + separator + "error=" + java.net.URLEncoder.encode(errorMsg, java.nio.charset.StandardCharsets.UTF_8);
-            }
-
-            List<Booking> bookings = bookingService.findActiveBookingsByCustomerId(userId);
-
-            for(Booking booking : bookings){
-                MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-                params.add("id", String.valueOf(booking.getBookingId()));
-                params.add("trantype", "02");
-                params.add("amount", String.valueOf(booking.getTotalPrice().longValue()));
-                params.add("refundRole", "Admin");
-                params.add("orderInfo", "Hủy đặt phòng " + booking.getHotelName());
-
-                HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
-                String response = restTemplate.postForObject(baseUrl + "/refund", request, String.class);
-
-                if(response != null && response.equals("00")){
-                    notificationService.rejectNotification(booking.getCustomerId(), String.valueOf(booking.getBookingId()), booking.refundAmount());
-                }else{
-                    String errorMsg = "Hoàn tiền thất bại";
+        try {
+            if (wasActive) {
+                // If banning, require a non-blank reason BEFORE toggling status
+                if (reason == null || reason.trim().isEmpty()) {
+                    String errorMsg = "Lý do khóa tài khoản không được để trống hoặc chỉ chứa khoảng trắng.";
                     String redirectUrl = buildRedirectUrl("/admin-user-list", search, role, status, page);
                     String separator = redirectUrl.contains("?") ? "&" : "?";
                     return "redirect:" + redirectUrl + separator + "error=" + java.net.URLEncoder.encode(errorMsg, java.nio.charset.StandardCharsets.UTF_8);
                 }
-            }
-        }
-
-        userService.toggleUserStatus(userId);
-        // Refresh user object after status change
-        User updatedUser = userService.findUserById(userId);
-        try {
-            if (wasActive && !updatedUser.isActive()) {
-                // Ban: send ban email
-                emailService.sendUserBanEmail(updatedUser.getEmail(), reason);
                 // Accept reports if flagged
                 if (reportService.isUserFlagged(userId)) {
                     reportService.acceptUserReports(userId);
                 }
                 // Ban all hotels if user is a hotel owner
-                if ("HOTEL_OWNER".equals(updatedUser.getRole())) {
+                if ("HOTEL_OWNER".equals(user.getRole())) {
                     List<Booking> hostBookings = bookingService.findActiveBookingsByHostId(userId);
 
                     for(Booking booking : hostBookings){
@@ -237,11 +206,39 @@ public class AdminUserController {
                         }
                     }
 
+                    bookingService.rejectAllApprovedBookingsByHostId(userId);
                     hotelService.banAllHotelsByHostId(userId);
                 }
-            } else if (!wasActive && updatedUser.isActive()) {
+
+                List<Booking> bookings = bookingService.findActiveBookingsByCustomerId(userId);
+
+                for(Booking booking : bookings){
+                    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+                    params.add("id", String.valueOf(booking.getBookingId()));
+                    params.add("trantype", "02");
+                    params.add("amount", String.valueOf(booking.getTotalPrice().longValue()));
+                    params.add("refundRole", "Admin");
+                    params.add("orderInfo", "Hủy đặt phòng " + booking.getHotelName());
+
+                    HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+                    String response = restTemplate.postForObject(baseUrl + "/refund", request, String.class);
+
+                    if(response != null && response.equals("00")){
+                        notificationService.rejectNotification(booking.getCustomerId(), String.valueOf(booking.getBookingId()), booking.refundAmount());
+                    }else{
+                        String errorMsg = "Hoàn tiền thất bại";
+                        String redirectUrl = buildRedirectUrl("/admin-user-list", search, role, status, page);
+                        String separator = redirectUrl.contains("?") ? "&" : "?";
+                        return "redirect:" + redirectUrl + separator + "error=" + java.net.URLEncoder.encode(errorMsg, java.nio.charset.StandardCharsets.UTF_8);
+                    }
+                }
+
+                bookingService.cancelAllApprovedBookingsByCustomerId(userId);
+                userService.toggleUserStatus(userId);
+                emailService.sendUserBanEmail(user.getEmail(), reason);
+            } else if (!wasActive) {
                 // Unban: send unban email (reason optional)
-                emailService.sendUserUnbanEmail(updatedUser.getEmail(), reason != null ? reason : "");
+                emailService.sendUserUnbanEmail(user.getEmail(), reason != null ? reason : "");
             }
         } catch (Exception e) {
             // log error

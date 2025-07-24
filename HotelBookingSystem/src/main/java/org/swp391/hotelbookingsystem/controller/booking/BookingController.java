@@ -22,6 +22,7 @@ import org.swp391.hotelbookingsystem.model.Amenity;
 import org.swp391.hotelbookingsystem.model.AmenityCategory;
 import org.swp391.hotelbookingsystem.model.Booking;
 import org.swp391.hotelbookingsystem.model.BookingUnit;
+import org.swp391.hotelbookingsystem.model.Coupon;
 import org.swp391.hotelbookingsystem.model.Hotel;
 import org.swp391.hotelbookingsystem.model.Room;
 import org.swp391.hotelbookingsystem.model.User;
@@ -131,7 +132,7 @@ public class BookingController {
         @RequestParam(value = "checkIn") String checkIn,
         @RequestParam(value = "checkOut") String checkOut,
         @RequestParam(value = "totalPrice") double totalPrice,
-        @RequestParam(value = "couponId", required = false) Integer couponId,
+        @RequestParam(value = "couponCode", required = false) String couponCode,
 
         @RequestParam(value = "roomId") List<Integer> roomId,
         @RequestParam(value = "roomName") List<String> roomName,
@@ -150,6 +151,9 @@ public class BookingController {
         }
 
         Hotel hotel = hotelService.getHotelById(hotelId);
+
+        Coupon coupon = couponService.searchCouponsByCode(couponCode);
+        Integer couponId = coupon == null ? null : coupon.getCouponId();
 
         Booking booking = Booking.builder()
             .customerId(user.getId())

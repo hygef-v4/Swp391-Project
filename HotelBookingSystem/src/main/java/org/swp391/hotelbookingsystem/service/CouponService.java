@@ -44,8 +44,13 @@ public class CouponService {
         return couponRepository.getCouponById(id);
     }
 
-    public List<Coupon> searchCouponsByCode(String code) {
-        return couponRepository.searchCouponsByCode(code);
+    public Coupon searchCouponsByCode(String code) {
+        try{
+            if(code == null) return null;
+            return couponRepository.searchCouponsByCode(code);
+        }catch(Exception e){
+            return null;
+        }
     }
 
     public boolean isCouponCodeExists(String code) {
