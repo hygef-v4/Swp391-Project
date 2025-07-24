@@ -212,6 +212,14 @@ public class BookingService {
         return bookingRepo.rejectAllActiveBookingsByRoomId(roomId);
     }
 
+    public int cancelAllApprovedBookingsByCustomerId(int customerId) {
+        return bookingRepo.cancelAllApprovedBookingsByCustomerId(customerId);
+    }
+
+    public int rejectAllApprovedBookingsByHostId(int hostId) {
+        return bookingRepo.rejectAllApprovedBookingsByHostId(hostId);
+    }
+
     /**
      * Get the original total price from the booking table for refund calculation
      * @param bookingId The booking ID
@@ -501,4 +509,5 @@ public class BookingService {
 
         return raw;
     }
+
 }

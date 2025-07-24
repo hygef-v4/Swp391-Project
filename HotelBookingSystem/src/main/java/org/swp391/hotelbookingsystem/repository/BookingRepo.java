@@ -1115,6 +1115,9 @@ public class BookingRepo {
         });
     }
 
+
+
+
     public List<Booking> findActiveBookingsByHostId(int hostId) {
         String sql = """
             SELECT DISTINCT
@@ -1176,6 +1179,36 @@ public class BookingRepo {
         """;
         return jdbcTemplate.update(sql, hotelId);
     }
+
+    public int cancelAllApprovedBookingsByCustomerId(int customerId) {
+        String sql = """
+            UPDATE BookingUnits
+            SET status = 'cancelled'
+            WHERE booking_id IN (
+                SELECT b.booking_id
+                FROM Bookings b
+                WHERE b.customer_id = ?
+            )
+            AND status = 'approved'
+        """;
+        return jdbcTemplate.update(sql, customerId);
+    }
+
+    public int rejectAllApprovedBookingsByHostId(int hostId) {
+        String sql = """
+            UPDATE BookingUnits
+            SET status = 'rejected'
+            WHERE booking_id IN (
+                SELECT b.booking_id
+                FROM Bookings b
+                JOIN Hotels h ON b.hotel_id = h.hotel_id
+                WHERE h.host_id = ?
+            )
+            AND status = 'approved'
+        """;
+        return jdbcTemplate.update(sql, hostId);
+    }
+
 
     public int countActiveBookingsByRoomId(int roomId) {
         String sql = """

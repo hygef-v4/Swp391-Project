@@ -79,9 +79,9 @@ public class CouponRepository {
         return jdbcTemplate.queryForObject(sql, COUPON_MAPPER, id);
     }
 
-    public List<Coupon> searchCouponsByCode(String code) {
-        String sql = "SELECT * FROM Coupons WHERE code LIKE ? ORDER BY coupon_id DESC";
-        return jdbcTemplate.query(sql, COUPON_MAPPER, "%" + code + "%");
+    public Coupon searchCouponsByCode(String code) {
+        String sql = "SELECT * FROM Coupons WHERE code LIKE ?";
+        return jdbcTemplate.queryForObject(sql, COUPON_MAPPER, "%" + code + "%");
     }
 
     public boolean existsByCode(String code) {
