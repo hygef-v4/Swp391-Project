@@ -84,6 +84,39 @@ public class RoomRepository {
         }, ROOM_MAPPER);
     }
 
+    public List<Room> getRoomsByIdAndDateRangeAndQuantity(int id, Date checkin, Date checkout, int guests){
+        String sql = """
+                    WITH BookedRooms AS (
+                        SELECT 
+                            bu.room_id,
+                            SUM(bu.quantity) AS booked_quantity
+                        FROM BookingUnits bu
+                        JOIN Bookings b ON b.booking_id = bu.booking_id
+                        WHERE bu.status IN ('pending', 'approved', 'check_in')
+                            AND b.check_out >= ? AND b.check_in <= ?
+                        GROUP BY bu.room_id
+                    )
+                    SELECT 
+                        Rooms.room_id AS roomId,
+                        hotel_id AS hotelId,
+                        title,
+                        description,
+                        price,
+                        max_guests AS maxGuests,
+                        status,
+                        quantity - ISNULL(booked_quantity, 0) AS quantity
+                    FROM Rooms 
+                    LEFT JOIN BookedRooms ON Rooms.room_id = BookedRooms.room_id
+                    WHERE hotel_id = ? AND max_guests >= ?
+                """;
+        return jdbcTemplate.query(sql, ps -> {
+            ps.setDate(1, checkin != null ? checkin : new Date(System.currentTimeMillis()));
+            ps.setDate(2, checkout != null ? checkout : new Date(System.currentTimeMillis()));
+            ps.setInt(3, id);
+            ps.setInt(4, guests);
+        }, ROOM_MAPPER);
+    }
+
     public List<Room> getRoomsByHotelId(int hotelId) {
         String sql = """
                     SELECT 

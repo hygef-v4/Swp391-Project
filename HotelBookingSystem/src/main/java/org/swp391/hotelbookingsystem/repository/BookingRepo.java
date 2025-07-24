@@ -1535,6 +1535,23 @@ public class BookingRepo {
         });
     }
 
+    public int countBookingsByCustomerId(int customerId, int hotelId){
+        String sql = """
+            SELECT
+                COUNT(*)
+            FROM Bookings b
+            WHERE b.booking_id IN (
+                SELECT bu.booking_id FROM BookingUnits bu
+                JOIN Bookings b ON b.booking_id = bu.booking_id
+                WHERE b.customer_id = ?
+                AND b.hotel_id = ?
+                AND bu.status IN ('approved', 'check_in', 'completed')
+            )
+        """;
+
+        return jdbcTemplate.queryForObject(sql, Integer.class, customerId, hotelId);
+    }
+
     public List<Booking> findBookingsByStatusAndCustomerPaginated(
             int customerId,
             String status,

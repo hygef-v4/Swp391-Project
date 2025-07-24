@@ -27,6 +27,16 @@ public class RoomService {
         return rooms;
     }
 
+    public List<Room> getRoomsByIdAndDateRangeAndQuantity(int id, Date checkin, Date checkout, int guests){
+        List<Room> rooms = roomRepository.getRoomsByIdAndDateRangeAndQuantity(id, checkin, checkout, guests);
+
+        for (Room room : rooms) {
+            room.setImages(roomRepository.getRoomImages(room.getRoomId()));
+        }
+
+        return rooms;
+    }
+
     public List<Room> getRoomByHotelId(int id) {
         List<Room> rooms = roomRepository.getRoomsByHotelId(id);
 
