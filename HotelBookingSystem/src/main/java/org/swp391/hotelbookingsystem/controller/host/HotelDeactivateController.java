@@ -210,7 +210,7 @@ public class HotelDeactivateController {
 
                     // Then deactivate the hotel
                     hotelService.updateHotelStatus(hotelId, "inactive");
-                    notificationService.rejectNotification(booking.getCustomerId(), String.valueOf(booking.getBookingId()), refundAmount);
+                    notificationService.notifyRejectBooking(booking.getCustomerId(), String.valueOf(booking.getBookingId()), refundAmount);
 
                     String message = "Khách sạn '" + hotel.getHotelName() + "' đã được vô hiệu hóa thành công.";
                     if (rejectedBookings > 0) {

@@ -155,7 +155,7 @@ public class AdminAgentController {
                     String response = restTemplate.postForObject(baseUrl + "/refund", request, String.class);
 
                     if(response != null && response.equals("00")){
-                        notificationService.rejectNotification(booking.getCustomerId(), String.valueOf(booking.getBookingId()), booking.refundAmount());
+                        notificationService.notifyRejectBooking(booking.getCustomerId(), String.valueOf(booking.getBookingId()), booking.refundAmount());
                     }else{
                         String errorMsg = "Hoàn tiền thất bại";
                         String redirectUrl = buildRedirectUrl("/admin-agent-list", search, null, null, page, sort);

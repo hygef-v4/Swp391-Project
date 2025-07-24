@@ -76,7 +76,7 @@
 		<div class="col"><b>Email: </b><span th:text="${user.email}"></span></div>
 		<div class="col"><b>Số Điện Thoại: </b><span th:text="${user.phone}"></span></div>
 		<div class="col"><b>Ngày Đặt Phòng: </b><span th:text="${createdAt}"></span></div>
-		<div class="col"><b>Tổng Tiền: </b><span th:text="${booking.totalPrice}"></span></div>
+		<div class="col"><b>Tổng Tiền: </b><span th:text="${#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 0, 'POINT')} + '₫'"></span></div>
 	</div>
 
 	<div class="row">

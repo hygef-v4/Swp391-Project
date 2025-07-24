@@ -208,7 +208,7 @@ public class AdminHotelController {
             String response = restTemplate.postForObject(baseUrl + "/refund", request, String.class);
 
             if(response != null && response.equals("00")){
-                notificationService.rejectNotification(booking.getCustomerId(), String.valueOf(booking.getBookingId()), booking.refundAmount());
+                notificationService.notifyRejectBooking(booking.getCustomerId(), String.valueOf(booking.getBookingId()), booking.refundAmount());
             }else{
                 redirectAttributes.addFlashAttribute("errorMessage", "Hoàn tiền thất bại");
                 return "redirect:/admin/hotel/view/" + hotelId;
