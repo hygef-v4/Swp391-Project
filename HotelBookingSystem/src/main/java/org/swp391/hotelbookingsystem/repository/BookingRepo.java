@@ -1115,61 +1115,7 @@ public class BookingRepo {
         });
     }
 
-    public List<Booking> findApprovedBookingsByCustomerId(int customerId) {
-        String sql = """
-            SELECT DISTINCT
-                b.booking_id,
-                b.hotel_id,
-                b.customer_id,
-                b.coupon_id,
-                b.check_in,
-                b.check_out,
-                b.total_price,
-                b.created_at,
-                u.full_name AS customer_name,
-                u.email AS customer_email,
-                h.hotel_name,
-                h.host_id,
-                cp.partial_refund_days,
-                cp.partial_refund_percent,
-                cp.no_refund_within_days
-            FROM Bookings b
-            JOIN Users u ON b.customer_id = u.user_id
-            JOIN Hotels h ON b.hotel_id = h.hotel_id
-            LEFT JOIN CancellationPolicies cp ON cp.hotel_id = h.hotel_id
-            WHERE b.customer_id = ?
-            AND EXISTS (
-                SELECT 1 FROM BookingUnits bu
-                WHERE bu.booking_id = b.booking_id
-                AND bu.status = 'approved'
-            )
-        """;
 
-        return jdbcTemplate.query(sql, ps -> ps.setInt(1, customerId), (rs, rowNum) -> {
-            int bookingId = rs.getInt("booking_id");
-
-            Booking booking = Booking.builder()
-                    .bookingId(bookingId)
-                    .hotelId(rs.getInt("hotel_id"))
-                    .customerId(rs.getInt("customer_id"))
-                    .couponId((Integer) rs.getObject("coupon_id"))
-                    .checkIn(rs.getTimestamp("check_in").toLocalDateTime())
-                    .checkOut(rs.getTimestamp("check_out").toLocalDateTime())
-                    .totalPrice(rs.getDouble("total_price"))
-                    .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
-                    .customerName(rs.getString("customer_name"))
-                    .customerEmail(rs.getString("customer_email"))
-                    .hotelName(rs.getString("hotel_name"))
-                    .hostId(rs.getInt("host_id"))
-                    .partialRefundDay(rs.getObject("partial_refund_days") != null ? rs.getInt("partial_refund_days") : 7)
-                    .partialRefundPercent(rs.getObject("partial_refund_percent") != null ? rs.getInt("partial_refund_percent") : 50)
-                    .noRefund(rs.getObject("no_refund_within_days") != null ? rs.getInt("no_refund_within_days") : 1)
-                    .build();
-
-            booking.setBookingUnits(findBookingUnitsByBookingId(bookingId));
-            return booking;
-        });
-    }
 
 
     public List<Booking> findActiveBookingsByHostId(int hostId) {
