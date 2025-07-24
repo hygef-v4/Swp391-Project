@@ -1451,9 +1451,12 @@
                                 <a href="/host-customer-detail?customerId=${booking.customerId}" class="btn btn-sm btn-outline-success" title="Liên hệ khách">
                                     <i class="bi bi-chat-dots"></i>
                                 </a>
-                                <button class="btn btn-sm btn-outline-danger" onclick="rejectBooking('${booking.bookingId}')" title="Từ chối các phòng đã duyệt (không ảnh hưởng khách đã check-in)">
-                                    <i class="bi bi-x-circle"></i>
-                                </button>
+                                <!-- Only show reject button for approved bookings -->
+                                ${booking.bookingStatus === 'approved' ? `
+                                    <button class="btn btn-sm btn-outline-danger" onclick="rejectBooking('${booking.bookingId}')" title="Từ chối các phòng đã duyệt (không ảnh hưởng khách đã check-in)">
+                                        <i class="bi bi-x-circle"></i>
+                                    </button>
+                                ` : ''}
                             </div>
                         </td>
                     </tr>

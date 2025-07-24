@@ -124,6 +124,267 @@
     <!-- Theme CSS -->
     <link rel="stylesheet" type="text/css" href="/assets/css/style.css">
 
+    <!-- Custom Responsive CSS for Homepage -->
+    <style>
+        /* ===== RESPONSIVE HOMEPAGE STYLES ===== */
+
+        /* Hero Section Responsive */
+        @media (max-width: 768px) {
+            .display-5 {
+                font-size: 1.8rem !important;
+                line-height: 1.3;
+            }
+
+            .hero-title-svg {
+                display: none !important;
+            }
+
+            .hero-description {
+                font-size: 0.95rem;
+                margin-bottom: 1.5rem !important;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                gap: 0.75rem !important;
+            }
+
+            .hero-buttons .btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+
+        /* Search Form Responsive */
+        @media (max-width: 992px) {
+            .search-form-container {
+                margin-top: 1rem !important;
+            }
+
+            .search-form-title {
+                display: none;
+            }
+
+            .search-form .row {
+                gap: 1rem;
+            }
+
+            .search-form .col-lg-4 {
+                margin-bottom: 1rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .search-form {
+                padding: 1.5rem !important;
+                margin: 0 1rem;
+            }
+
+            .search-form .form-control-border {
+                padding: 0.75rem 0;
+            }
+
+            .search-form .fs-3 {
+                font-size: 1.5rem !important;
+            }
+
+            .btn-position-md-middle {
+                position: static !important;
+                text-align: center;
+                margin-top: 1rem;
+            }
+
+            .btn-position-md-middle .btn {
+                position: static !important;
+                transform: none !important;
+            }
+        }
+
+        /* Featured Hotels Grid Responsive */
+        @media (max-width: 576px) {
+            .featured-hotels .col-sm-6 {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+
+            .hotel-card {
+                margin-bottom: 1.5rem;
+            }
+
+            .hotel-card .card-title {
+                font-size: 1.1rem;
+                line-height: 1.3;
+            }
+
+            .hotel-price {
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Testimonials Responsive */
+        @media (max-width: 768px) {
+            .testimonial-section .row {
+                flex-direction: column-reverse;
+            }
+
+            .testimonial-image-container {
+                text-align: center;
+                margin-top: 1.5rem;
+            }
+
+            .testimonial-customer-image {
+                max-width: 200px;
+                height: auto;
+            }
+
+            .testimonial-content {
+                text-align: center;
+            }
+
+            .testimonial-quote {
+                font-size: 2rem !important;
+            }
+
+            .testimonial-text {
+                font-size: 1rem;
+                margin-bottom: 1.5rem !important;
+            }
+        }
+
+        /* Locations Grid Responsive */
+        @media (max-width: 576px) {
+            .locations-grid .col-6 {
+                flex: 0 0 50%;
+                max-width: 50%;
+            }
+
+            .location-card {
+                margin-bottom: 1rem;
+            }
+
+            .location-image-container {
+                height: 80px;
+                overflow: hidden;
+                border-radius: 8px;
+            }
+
+            .location-image-container img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .location-title {
+                font-size: 0.9rem;
+                margin-top: 0.5rem;
+            }
+        }
+
+        /* Features Section Responsive */
+        @media (max-width: 768px) {
+            .features-section .col-6 {
+                flex: 0 0 100%;
+                max-width: 100%;
+                margin-bottom: 1rem;
+            }
+
+            .feature-card {
+                padding: 1rem !important;
+                text-align: center;
+            }
+
+            .feature-card h3 {
+                margin-bottom: 0.75rem;
+            }
+
+            .feature-card h5 {
+                font-size: 1.1rem;
+                margin-bottom: 0.5rem;
+            }
+
+            .feature-card p {
+                font-size: 0.9rem;
+                line-height: 1.4;
+            }
+        }
+
+        /* Support Widget Responsive */
+        @media (max-width: 768px) {
+            .support-widget {
+                position: static !important;
+                margin: 1rem auto 0;
+                transform: none !important;
+            }
+
+            .support-widget .bg-blur {
+                padding: 1rem !important;
+            }
+        }
+
+        /* Round Images Responsive */
+        @media (max-width: 768px) {
+            .hero-round-images {
+                display: none !important;
+            }
+        }
+
+        /* General Mobile Improvements */
+        @media (max-width: 576px) {
+            .container {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+
+            section {
+                padding-top: 2rem !important;
+                padding-bottom: 2rem !important;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+                margin-bottom: 1.5rem !important;
+            }
+
+            .mb-4, .my-4 {
+                margin-bottom: 1.5rem !important;
+            }
+
+            .g-4 {
+                --bs-gutter-x: 1rem;
+                --bs-gutter-y: 1rem;
+            }
+        }
+
+        /* Tablet Improvements */
+        @media (min-width: 577px) and (max-width: 992px) {
+            .hero-content {
+                text-align: center;
+            }
+
+            .search-form {
+                max-width: 90%;
+                margin: 0 auto;
+            }
+
+            .featured-hotels .col-xl-3 {
+                flex: 0 0 50%;
+                max-width: 50%;
+            }
+        }
+
+        /* Large Mobile Landscape */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .hero-section {
+                padding-top: 1rem !important;
+                padding-bottom: 1rem !important;
+            }
+
+            .display-5 {
+                font-size: 1.6rem !important;
+            }
+        }
+    </style>
+
 </head>
 
 <body class="has-navbar-mobile">
@@ -137,17 +398,17 @@
 
     <!-- =======================
     Main Banner START -->
-    <section class="pt-3 pt-lg-5">
+    <section class="pt-3 pt-lg-5 hero-section">
         <div class="container">
             <!-- Content and Image START -->
             <div class="row g-4 g-lg-5">
                 <!-- Content -->
-                <div class="col-lg-6 position-relative mb-4 mb-md-0">
+                <div class="col-lg-6 position-relative mb-4 mb-md-0 hero-content">
                     <!-- Title -->
                     <h1 class="mb-4 mt-md-5 display-5">Tìm khách sạn
                         <span class="position-relative z-index-9">Tốt nhất gần bạn
                             <!-- SVG START -->
-							<span class="position-absolute top-50 start-50 translate-middle z-index-n1 d-none d-md-block mt-4">
+							<span class="position-absolute top-50 start-50 translate-middle z-index-n1 d-none d-md-block mt-4 hero-title-svg">
 								<svg width="390.5px" height="21.5px" viewBox="0 0 445.5 21.5">
 									<path class="fill-primary opacity-7"
                                           d="M409.9,2.6c-9.7-0.6-19.5-1-29.2-1.5c-3.2-0.2-6.4-0.2-9.7-0.3c-7-0.2-14-0.4-20.9-0.5 c-3.9-0.1-7.8-0.2-11.7-0.3c-1.1,0-2.3,0-3.4,0c-2.5,0-5.1,0-7.6,0c-11.5,0-23,0-34.5,0c-2.7,0-5.5,0.1-8.2,0.1 c-6.8,0.1-13.6,0.2-20.3,0.3c-7.7,0.1-15.3,0.1-23,0.3c-12.4,0.3-24.8,0.6-37.1,0.9c-7.2,0.2-14.3,0.3-21.5,0.6 c-12.3,0.5-24.7,1-37,1.5c-6.7,0.3-13.5,0.5-20.2,0.9C112.7,5.3,99.9,6,87.1,6.7C80.3,7.1,73.5,7.4,66.7,8 C54,9.1,41.3,10.1,28.5,11.2c-2.7,0.2-5.5,0.5-8.2,0.7c-5.5,0.5-11,1.2-16.4,1.8c-0.3,0-0.7,0.1-1,0.1c-0.7,0.2-1.2,0.5-1.7,1 C0.4,15.6,0,16.6,0,17.6c0,1,0.4,2,1.1,2.7c0.7,0.7,1.8,1.2,2.7,1.1c6.6-0.7,13.2-1.5,19.8-2.1c6.1-0.5,12.3-1,18.4-1.6 c6.7-0.6,13.4-1.1,20.1-1.7c2.7-0.2,5.4-0.5,8.1-0.7c10.4-0.6,20.9-1.1,31.3-1.7c6.5-0.4,13-0.7,19.5-1.1c2.7-0.1,5.4-0.3,8.1-0.4 c10.3-0.4,20.7-0.8,31-1.2c6.3-0.2,12.5-0.5,18.8-0.7c2.1-0.1,4.2-0.2,6.3-0.2c11.2-0.3,22.3-0.5,33.5-0.8 c6.2-0.1,12.5-0.3,18.7-0.4c2.2-0.1,4.4-0.1,6.7-0.1c11.5-0.1,23-0.2,34.6-0.4c7.2-0.1,14.4-0.1,21.6-0.1c12.2,0,24.5,0.1,36.7,0.1 c2.4,0,4.8,0.1,7.2,0.2c6.8,0.2,13.5,0.4,20.3,0.6c5.1,0.2,10.1,0.3,15.2,0.4c3.6,0.1,7.2,0.4,10.8,0.6c10.6,0.6,21.1,1.2,31.7,1.8 c2.7,0.2,5.4,0.4,8,0.6c2.9,0.2,5.8,0.4,8.6,0.7c0.4,0.1,0.9,0.2,1.3,0.3c1.1,0.2,2.2,0.2,3.2-0.4c0.9-0.5,1.6-1.5,1.9-2.5 c0.6-2.2-0.7-4.5-2.9-5.2c-1.9-0.5-3.9-0.7-5.9-0.9c-1.4-0.1-2.7-0.3-4.1-0.4c-2.6-0.3-5.2-0.4-7.9-0.6 C419.7,3.1,414.8,2.9,409.9,2.6z"/>
@@ -157,11 +418,11 @@
 						</span>
                     </h1>
                     <!-- Info -->
-                    <p class="mb-4">Chúng tôi mang đến cho bạn không chỉ chỗ ở, mà còn là trải nghiệm phù hợp với ngân
+                    <p class="mb-4 hero-description">Chúng tôi mang đến cho bạn không chỉ chỗ ở, mà còn là trải nghiệm phù hợp với ngân
                         sách để tận hưởng sự sang trọng.</p>
 
                     <!-- Buttons -->
-                    <div class="hstack gap-4 flex-wrap align-items-center">
+                    <div class="hstack gap-4 flex-wrap align-items-center hero-buttons">
                         <!-- Button -->
                         <a href="/hotel-list" class="btn btn-primary-soft mb-0">Khám phá ngay</a>
                         <!-- Story button -->
@@ -172,10 +433,10 @@
                 <!-- Image -->
                 <div class="col-lg-6 position-relative">
 
-                    <img src="/assets/images/bg/06.jpg" class="rounded" alt="">
+                    <img src="/assets/images/bg/06.jpg" class="rounded img-fluid" alt="">
 
                     <!-- Svg decoration -->
-                    <figure class="position-absolute end-0 bottom-0">
+                    <figure class="position-absolute end-0 bottom-0 d-none d-lg-block">
                         <svg width="163px" height="163px" viewBox="0 0 163 163">
                             <path class="fill-warning"
                                   d="M145.6,66.2c-0.9-0.3-1.6,0.2-2.1-0.4c-0.5-0.7-1-1.5-1-2.4c0-3.1,0.1-6.2,0-9.3c0-0.7,0.3-1.3,0.5-1.9 c0.8-1.6,1.6-3.2,2.7-4.5c0.5-0.6,1.2-1.2,2-1.5c0.4-0.2,0.8,0.4,1.3-0.1c0.4-0.4,1,0.7,1.6,0.7c0.4,1-0.4,1.5-1,2.1 c0.7,0.3,1.4,0.3,2.1,0.7c0.6,0.4,1.2,0.7,1,1.5c-0.2,1,0.6,1.3,1,1.9c-0.2,0.3-0.6,0.4-0.5,0.8c1.2,3.2,0.3,5.4-0.7,8.1 c-0.3,0.7-0.7,1.6-0.7,2.2c-0.1,1.5-1.2,2.7-1.4,4.1c-0.2,1.1-0.9,1.7-2.1,1.6c-0.2,0-0.4,0.5-1,0.4c-0.2-0.2-0.7-0.5-0.7-0.8 c0-1-0.1-1.7-1.1-2.1C145.5,67.2,145.6,66.6,145.6,66.2"/>
@@ -211,7 +472,7 @@
                     </figure>
 
                     <!-- Support guid -->
-                    <div class="position-absolute top-0 end-0 z-index-1 mt-n4">
+                    <div class="position-absolute top-0 end-0 z-index-1 mt-n4 support-widget">
                         <div class="bg-blur border border-light rounded-3 text-center shadow-lg p-3">
                             <!-- Title -->
                             <i class="bi bi-headset text-danger fs-3"></i>
@@ -221,7 +482,7 @@
                     </div>
 
                     <!-- Round image group -->
-                    <div class="vstack gap-5 align-items-center position-absolute top-0 start-0 d-none d-md-flex mt-4 ms-n3">
+                    <div class="vstack gap-5 align-items-center position-absolute top-0 start-0 d-none d-md-flex mt-4 ms-n3 hero-round-images">
                         <img class="icon-lg shadow-lg border border-3 border-white rounded-circle"
                              src="/assets/images/category/hotel/4by3/11.jpg" alt="avatar">
                         <img class="icon-xl shadow-lg border border-3 border-white rounded-circle"
@@ -233,13 +494,13 @@
 
             <!-- Search START -->
             <div class="row">
-                <div class="col-xl-10 position-relative mt-n3 mt-xl-n9">
+                <div class="col-xl-10 position-relative mt-n3 mt-xl-n9 search-form-container">
                     <!-- Title -->
-                    <h6 class="d-none d-xl-block mb-3">Kiểm tra phòng trống</h6>
+                    <h6 class="d-none d-xl-block mb-3 search-form-title">Kiểm tra phòng trống</h6>
 
                     <!-- Search with offcanvas START -->
                     <form th:action="@{/hotel-list}" method="GET"
-                            class="card shadow rounded-3 position-relative p-4 pe-md-5 pb-5 pb-md-4">
+                            class="card shadow rounded-3 position-relative p-4 pe-md-5 pb-5 pb-md-4 search-form">
                         <div class="row g-4 align-items-center">
                             <!-- Location -->
                             <div class="col-lg-4">
@@ -698,7 +959,7 @@
 
     <!-- =======================
     Featured Hotels START -->
-    <section>
+    <section class="featured-hotels">
         <div class="container">
 
             <!-- Title -->
@@ -711,13 +972,13 @@
             <div class="row g-4">
                 <!-- Hotel item -->
                 <div class="col-sm-6 col-xl-3" th:each="hotel : ${topHotels}">
-                    <div class="card card-img-scale overflow-hidden bg-transparent">
+                    <div class="card card-img-scale overflow-hidden bg-transparent hotel-card">
 
                         <!-- Image -->
                         <div class="card-img-scale-wrapper rounded-3">
 
                             <a>
-                                <img class="card-img" th:src="${hotel.hotelImageUrl}" alt="hotel image">
+                                <img class="card-img img-fluid" th:src="${hotel.hotelImageUrl}" alt="hotel image">
                             </a>
 
 
@@ -737,7 +998,7 @@
                                    th:text="${hotel.hotelName}">Hotel Name</a>
                             </h5>
                             <div class="d-flex justify-content-between align-items-center">
-                                <h6 class="text-success mb-0"
+                                <h6 class="text-success mb-0 hotel-price"
                                     th:text=" 'Chỉ từ   ' + ${#numbers.formatDecimal(hotel.minPrice, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
                                     <small class="fw-light">/starting at</small></h6>                                <h6
                                     class="mb-0">
@@ -766,7 +1027,7 @@
 
     <!-- =======================
     Testimonials START -->
-    <section class="pb-0 py-md-5">
+    <section class="pb-0 py-md-5 testimonial-section">
         <div class="container">
             <div class="row">
                 <!-- Slider START -->
@@ -795,16 +1056,16 @@
 
                                         <!-- Image with consistent sizing -->
                                         <div class="testimonial-image-container">
-                                            <img th:src="${review.avatarUrl}" class="testimonial-customer-image"
+                                            <img th:src="${review.avatarUrl}" class="testimonial-customer-image img-fluid"
                                                  alt="Customer review image">
                                         </div>
                                     </div>
 
-                                    <div class="col-md-6 col-lg-6">
+                                    <div class="col-md-6 col-lg-6 testimonial-content">
                                         <!-- Quote -->
-                                        <span class="display-3 mb-2 text-primary"><i class="bi bi-quote"></i></span>
+                                        <span class="display-3 mb-2 text-primary testimonial-quote"><i class="bi bi-quote"></i></span>
                                         <!-- Content -->
-                                        <h5 th:text="${review.comment}" class="fw-light mb-3 fst-italic"> This is a review</h5>
+                                        <h5 th:text="${review.comment}" class="fw-light mb-3 fst-italic testimonial-text"> This is a review</h5>
                                         <!-- Rating -->
                                         <ul class="list-inline small mb-2">
                                             <li class="list-inline-item me-0"
@@ -833,7 +1094,7 @@
 
     <!-- =======================
     Near by START -->
-    <section>
+    <section class="locations-grid">
         <div class="container">
             <!-- Title -->
             <div class="row mb-4">
@@ -846,18 +1107,18 @@
                 <!-- Card item START -->
                 <div th:each="location : ${session.locations}" class="col-6 col-sm-4 col-lg-3 col-xl-2">
 
-                    <div class="card bg-transparent text-center p-1 h-100 d-flex flex-column">
+                    <div class="card bg-transparent text-center p-1 h-100 d-flex flex-column location-card">
 
                         <a th:href="@{/hotel-list(locationId=${location.id})}"
                            class="location-image-container d-block mx-auto mb-2">
                             <!-- d-block and mx-auto to center it if its width is less than 100% of column -->
 
-                            <img th:src="@{${location.imageUrl}}" class="img-hover-zoom"
+                            <img th:src="@{${location.imageUrl}}" class="img-hover-zoom img-fluid"
                                  th:alt="${'Khám phá ' + location.cityName}">
                         </a>
 
                         <div class="card-body p-0 pt-1">
-                            <h5 class="card-title mb-0">
+                            <h5 class="card-title mb-0 location-title">
 
                                 <a th:href="@{/hotel-list(locationId=${location.id})}"
                                    th:text="${location.cityName}"
@@ -879,13 +1140,13 @@
 
     <!-- =======================
     Download app START -->
-    <section class="bg-light">
+    <section class="bg-light features-section">
         <div class="container">
             <div class="row g-4">
 
                 <!-- Help -->
                 <div class="col-6 col-md-4">
-                    <div class="bg-body d-flex rounded-3 h-100 p-4">
+                    <div class="bg-body d-flex rounded-3 h-100 p-4 feature-card">
                         <h3><i class="fa-solid fa-shield-heart"></i></h3>
                         <div class="ms-3">
                             <h5>Ở lại với sự yên tâm</h5>
@@ -898,7 +1159,7 @@
 
                 <!-- Trust -->
                 <div class="col-6 col-md-4">
-                    <div class="bg-body d-flex rounded-3 h-100 p-4">
+                    <div class="bg-body d-flex rounded-3 h-100 p-4 feature-card">
                         <h3><i class="fa-solid fa-hand-holding-usd"></i></h3>
                         <div class="ms-3">
                             <h5>Thanh toán tin cậy</h5>
@@ -908,7 +1169,7 @@
                 </div>
                 <!-- Support -->
                 <div class="col-6 col-md-4">
-                    <div class="bg-body d-flex rounded-3 h-100 p-4">
+                    <div class="bg-body d-flex rounded-3 h-100 p-4 feature-card">
                         <h3><i class="fa-solid fa-headset"></i></h3>
                         <div class="ms-3">
                             <h5>Hỗ trợ khách hàng</h5>
@@ -954,29 +1215,22 @@ Footer END -->
     <ul class="navbar-nav">
         <!-- Nav item Home -->
         <li class="nav-item">
-            <a class="nav-link active" href="index.html"><i class="bi bi-house-door fa-fw"></i>
-                <span class="mb-0 nav-text">Home</span>
+            <a class="nav-link active" href="/"><i class="bi bi-house-door fa-fw"></i>
+                <span class="mb-0 nav-text">Trang chủ</span>
             </a>
         </li>
 
-        <!-- Nav item My Trips -->
+        <!-- Nav item Hotels -->
         <li class="nav-item">
-            <a class="nav-link" href="account-bookings.html"><i class="bi bi-briefcase fa-fw"></i>
-                <span class="mb-0 nav-text">My Trips</span>
-            </a>
-        </li>
-
-        <!-- Nav item Offer -->
-        <li class="nav-item">
-            <a class="nav-link" href="offer-detail.html"><i class="bi bi-percent fa-fw"></i>
-                <span class="mb-0 nav-text">Offer</span>
+            <a class="nav-link" href="/hotel-list"><i class="bi bi-building fa-fw"></i>
+                <span class="mb-0 nav-text">Khách sạn</span>
             </a>
         </li>
 
         <!-- Nav item Account -->
         <li class="nav-item">
-            <a class="nav-link" href="account-profile.html"><i class="bi bi-person-circle fa-fw"></i>
-                <span class="mb-0 nav-text">Account</span>
+            <a class="nav-link" href="/user-profile"><i class="bi bi-person-circle fa-fw"></i>
+                <span class="mb-0 nav-text">Tài khoản</span>
             </a>
         </li>
     </ul>

@@ -5,6 +5,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.swp391.hotelbookingsystem.model.Review;
 import org.swp391.hotelbookingsystem.service.ReviewService;
 
@@ -29,12 +30,13 @@ public class AdminReviewController {
 
         List<Review> allReviews = reviewService.getReviewsByStatus(filter);
 
+        List<Review> allPublicReviews = reviewService.getAllPublicReviews();
+
         for (Review review : allReviews) {
-            boolean hasOtherPublicReview = allReviews.stream()
+            boolean hasOtherPublicReview = allPublicReviews.stream()
                     .anyMatch(r -> r.getReviewId() != review.getReviewId()
                             && r.getReviewerId() == review.getReviewerId()
-                            && r.getHotelId() == review.getHotelId()
-                            && r.isPublic());
+                            && r.getHotelId() == review.getHotelId());
             review.setCanRestore(!hasOtherPublicReview);
         }
 
@@ -64,7 +66,6 @@ public class AdminReviewController {
         List<Integer> ratingDistribution = reviewService.getRatingDistribution();
         int totalPublicReviews = ratingDistribution.stream().mapToInt(Integer::intValue).sum();
 
-        List<Review> allPublicReviews = reviewService.getAllPublicReviews();
         List<String> hotelNames = allPublicReviews.stream()
                 .map(Review::getHotelName)
                 .filter(name -> name != null && !name.isEmpty())
@@ -100,8 +101,12 @@ public class AdminReviewController {
     @GetMapping("/admin-review/restore/{id}")
     public String restoreReview(@PathVariable("id") int id,
                                 @RequestParam(defaultValue = "all") String filter,
-                                @RequestParam(defaultValue = "1") int page) {
-        reviewService.restoreReviewById(id);
+                                @RequestParam(defaultValue = "1") int page,
+                                RedirectAttributes redirectAttributes) {
+        boolean restored = reviewService.restoreReviewById(id);
+        if (!restored) {
+            redirectAttributes.addFlashAttribute("error", "Không thể khôi phục đánh giá vì đã có đánh giá công khai khác.");
+        }
         return "redirect:/admin-review?filter=" + filter + "&page=" + page;
     }
 

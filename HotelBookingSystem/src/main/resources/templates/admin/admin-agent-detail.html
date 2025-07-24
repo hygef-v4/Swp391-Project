@@ -183,6 +183,8 @@
                 <div class="col-lg-3">
                     <div class="card card-body border border-success bg-success bg-opacity-10 border-opacity-25 p-4 h-100 hover-card">
                         <div class="d-flex justify-content-between align-items-center">
+                            <div class="justify-content-center align-items-center">
+                            <h5>Đánh giá khách sạn trung bình</h5>
                             <ul class="list-inline small mb-0 text-center">
                                 <li class="list-inline-item me-0"><i th:class="(${avgRating <= 0.2} ? 'fa-regular fa-star' : (${avgRating >= 0.8} ? 'fa-solid fa-star' : 'fa-solid fa-star-half-alt')) + ' text-warning'"></i></li>
                                 <li class="list-inline-item me-0"><i th:class="(${avgRating <= 1.2} ? 'fa-regular fa-star' : (${avgRating >= 1.8} ? 'fa-solid fa-star' : 'fa-solid fa-star-half-alt')) + ' text-warning'"></i></li>
@@ -190,6 +192,7 @@
                                 <li class="list-inline-item me-0"><i th:class="(${avgRating <= 3.2} ? 'fa-regular fa-star' : (${avgRating >= 3.8} ? 'fa-solid fa-star' : 'fa-solid fa-star-half-alt')) + ' text-warning'"></i></li>
                                 <li class="list-inline-item me-0"><i th:class="(${avgRating <= 4.2} ? 'fa-regular fa-star' : (${avgRating >= 4.8} ? 'fa-solid fa-star' : 'fa-solid fa-star-half-alt')) + ' text-warning'"></i></li>
                             </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -207,13 +210,6 @@
                             </div>
                             <!-- Title -->
                             <h5 class="mb-2" th:text="${agent.fullName}">Tên mặc định</h5>
-                            <ul class="list-inline small mb-0 text-center">
-                                <li class="list-inline-item me-0"><i th:class="(${avgRating <= 0.2} ? 'fa-regular fa-star' : (${avgRating >= 0.8} ? 'fa-solid fa-star' : 'fa-solid fa-star-half-alt')) + ' text-warning'"></i></li>
-                                <li class="list-inline-item me-0"><i th:class="(${avgRating <= 1.2} ? 'fa-regular fa-star' : (${avgRating >= 1.8} ? 'fa-solid fa-star' : 'fa-solid fa-star-half-alt')) + ' text-warning'"></i></li>
-                                <li class="list-inline-item me-0"><i th:class="(${avgRating <= 2.2} ? 'fa-regular fa-star' : (${avgRating >= 2.8} ? 'fa-solid fa-star' : 'fa-solid fa-star-half-alt')) + ' text-warning'"></i></li>
-                                <li class="list-inline-item me-0"><i th:class="(${avgRating <= 3.2} ? 'fa-regular fa-star' : (${avgRating >= 3.8} ? 'fa-solid fa-star' : 'fa-solid fa-star-half-alt')) + ' text-warning'"></i></li>
-                                <li class="list-inline-item me-0"><i th:class="(${avgRating <= 4.2} ? 'fa-regular fa-star' : (${avgRating >= 4.8} ? 'fa-solid fa-star' : 'fa-solid fa-star-half-alt')) + ' text-warning'"></i></li>
-                            </ul>
                         </div>
                         <!-- Card footer -->
                         <div class="card-footer bg-light border-top">

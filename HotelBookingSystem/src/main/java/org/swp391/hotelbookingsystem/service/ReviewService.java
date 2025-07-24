@@ -102,9 +102,9 @@ public class ReviewService {
         return reviewRepository.getRatingDistribution();
     }
 
-    public void restoreReviewById(int id) {
-        reviewRepository.setPublicStatus(id, true);
-    }
+//    public void restoreReviewById(int id) {
+//        reviewRepository.setPublicStatus(id, true);
+//    }
 
     public void softDeleteReviewById(int id) {
         reviewRepository.setPublicStatus(id, false);
@@ -137,6 +137,21 @@ public class ReviewService {
             r.setReplies(replies);
         }
         return reviews;
+    }
+
+    public boolean restoreReviewById(int reviewId) {
+        Review review = reviewRepository.getReviewByIdIncludingDeleted(reviewId); // cần sửa lại để lấy cả deleted
+
+        if (review == null) return false;
+
+        boolean hasOtherPublicReview = reviewRepository.hasOtherPublicReview(
+                review.getReviewerId(), review.getHotelId(), reviewId
+        );
+
+        if (hasOtherPublicReview) return false;
+
+        reviewRepository.setPublicStatus(reviewId, true);
+        return true;
     }
 
 }
