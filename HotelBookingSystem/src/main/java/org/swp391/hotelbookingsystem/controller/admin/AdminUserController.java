@@ -238,6 +238,7 @@ public class AdminUserController {
                 emailService.sendUserBanEmail(user.getEmail(), reason);
             } else if (!wasActive) {
                 // Unban: send unban email (reason optional)
+                userService.toggleUserStatus(userId);
                 emailService.sendUserUnbanEmail(user.getEmail(), reason != null ? reason : "");
             }
         } catch (Exception e) {
