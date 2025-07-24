@@ -225,11 +225,11 @@
                                     <input type="hidden" name="newRole" th:id="'newRoleInput__' + ${user.id}" />
 
                                     <!-- Button that triggers dropdown -->
-                                    <button class="btn btn-sm dropdown-toggle px-3 py-2 rounded-pill border-0"
+                                    <button class="btn btn-sm px-3 py-2 rounded-pill border-0"
                                             th:classappend="${user.id == session.user.id} ? 'text-warning bg-warning bg-opacity-10' : (${user.role == 'ADMIN'} ? 'text-danger bg-danger bg-opacity-10' : 'text-info bg-light-info')"
                                             type="button" data-bs-toggle="dropdown" aria-expanded="false"
-                                            th:disabled="${user.id == session.user.id}"
-                                            th:title="${user.id == session.user.id} ? 'Không thể thay đổi vai trò của chính mình' : ''">
+                                            th:disabled="${user.id == session.user.id || user.role == 'HOTEL_OWNER'}"
+                                            th:title="${user.id == session.user.id} ? 'Không thể thay đổi vai trò của chính mình' : (${user.role == 'HOTEL_OWNER'} ? 'Không thể thay đổi vai trò chủ khách sạn' : '')">
                 <span th:text="${user.role == 'CUSTOMER' ? 'KHÁCH HÀNG'
                                 : (user.role == 'HOTEL_OWNER' ? 'CHỦ KHÁCH SẠN'
                                 : (user.role == 'MODERATOR' ? 'QUẢN LÝ WEB'
@@ -237,16 +237,9 @@
                                     </button>
 
                                     <!-- Dropdown menu -->
-                                    <ul class="dropdown-menu text-center shadow">
-                                        <!-- Only show HOTEL_OWNER if user is not CUSTOMER, ADMIN, or MODERATOR -->
-                                        <li th:if="${user.role != 'CUSTOMER' and user.role != 'ADMIN' and user.role != 'MODERATOR'}">
-                                            <button class="dropdown-item" type="submit"
-                                                    th:onclick="'document.getElementById(\'newRoleInput__' + ${user.id} + '\').value=\'HOTEL_OWNER\''">
-                                                CHỦ KHÁCH SẠN
-                                            </button>
-                                        </li>
-                                        <!-- Only show CUSTOMER if user is not HOTEL_OWNER -->
-                                        <li th:if="${user.role != 'HOTEL_OWNER'}">
+                                    <ul th:if="user.role != 'HOTEL_OWNER'" class="dropdown-menu text-center shadow">
+                                        <!-- Only show CUSTOMER if user is not HOTEL_OWNER and not CUSTOMER-->
+                                        <li th:if="${user.role != 'HOTEL_OWNER' and user.role != 'CUSTOMER'}">
                                             <button class="dropdown-item" type="submit"
                                                     th:onclick="'document.getElementById(\'newRoleInput__' + ${user.id} + '\').value=\'CUSTOMER\''">
                                                 KHÁCH HÀNG
