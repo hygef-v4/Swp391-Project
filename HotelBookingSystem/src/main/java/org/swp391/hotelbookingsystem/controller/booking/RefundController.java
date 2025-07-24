@@ -39,7 +39,7 @@ public class RefundController{
         HttpServletRequest request){
         try{
             Booking booking = bookingService.findById(id);
-            if(booking.refundAmount() == 0) return "99";
+            if(booking.refundAmount() == 0) return "00";
 
             RestTemplate restTemplate = new RestTemplate();
             HttpHeaders headers = new HttpHeaders();
