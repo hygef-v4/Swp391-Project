@@ -57,8 +57,7 @@ public class ReportService {
 
         StringBuilder formattedReasons = new StringBuilder();
         for (int i = 0; i < reports.size(); i++) {
-            formattedReasons.append("Lần ").append(i + 1).append(": ")
-                           .append(reports.get(i).getReason());
+            formattedReasons.append(reports.get(i).getReason());
             if (i < reports.size() - 1) {
                 formattedReasons.append(", ");
             }
