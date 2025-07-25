@@ -186,7 +186,7 @@ Content START -->
 						<h5>Tài khoản ngân hàng đã lưu</h5>
 						<div class="row g-4 mb-2">
 							<!-- Visa card -->
-							<div class="col-md-6" th:each="bank: ${user.banks}">
+							<div class="col-md-6" th:each="bank: ${user.banks}" id="${bank.bankNumber} + 'bank' + ${bank.bankId}">
 								<div class="card">
 									<div class="bg-info p-4 rounded-3 mb-2" th:if="user != null">
 										<div class="d-flex justify-content-between align-items-start">
@@ -224,7 +224,7 @@ Content START -->
 										</div>
 										<div class="form-check form-switch form-check-md d-flex justify-content-end text-white">
 											<label class="form-check-label ps-0 pe-2 fw-bold fs-6" th:for="'default' + ${bank.bankId}">Mặc định</label>
-											<input class="form-check-input flex-shrink-0 default" type="checkbox" th:id="'default' + ${bank.bankId}" th:checked="${bank.defaultAccount}" onchange="changeDefault(this)">
+											<input class="form-check-input flex-shrink-0 default" type="checkbox" th:id="'default' + ${bank.bankId}" th:checked="${bank.defaultAccount}" th:attr="data-bank-id=${bank.bankId}, data-bank-number=${bank.bankNumber}" onchange="changeDefault(this)">
 										</div>
 									</div>
 								</div>
@@ -362,15 +362,36 @@ Footer END -->
 		e.querySelector(".masked").classList.remove("hidden");
 	}
 
-	function changeDefault(e){
+	async function changeDefault(e){
 		if(e.checked == false){
 			e.checked = true;
 			return;
 		}
 
-		document.querySelectorAll(".default").forEach(d => {
-			if(d != e) d.checked = false;
-		})
+		const id = e.getAttribute("data-bank-id");
+		const number = e.getAttribute("data-bank-number");
+		const bank = document.getElementById(number + 'bank' + id);
+
+		let params = new URLSearchParams();
+		params.append("bankId", id);
+		params.append("bankNumber", number);
+
+		let request = await fetch('/change-default', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded'
+			},
+			body: params
+		});
+
+		let response = await request.text();
+		if(response == "ok"){
+			document.querySelectorAll(".default").forEach(d => {
+				if(d != e) d.checked = false;
+			});
+		}else{
+			e.checked = false;
+		}
 	}
 </script>
 

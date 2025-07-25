@@ -68,6 +68,22 @@ public class BankRepository {
         return jdbcTemplate.queryForObject(sql, Integer.class, userId) == 0;
     }
 
+    public int changeDefault(int userId, int bankId, String bankNumber){
+        String del = """
+            UPDATE UserBanks SET default_account = 0
+            WHERE user_id = ?
+        """;
+        jdbcTemplate.update(del, userId);
+
+        String ins = """
+            UPDATE UserBanks SET default_account = 1
+            WHERE user_id = ? AND bank_id = ? AND bank_number = ?
+        """;
+        jdbcTemplate.update(ins, userId, bankId, bankNumber);
+
+        return 1;
+    }
+
     public int addBank(int userId, int bankId, String bankNumber, String userName, boolean isDefault){
         String sql;
         if(isDefault){

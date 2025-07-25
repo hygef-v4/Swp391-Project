@@ -43,7 +43,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf
                         .ignoringRequestMatchers("/api/files/**", "/webhook", "/booking", "/admin-agent/ban/*",
                                 "/update-hotel", "/update-room", "/delete-room", "/deactivate-room", "/activate-room", "/update-cancellation-policy", "/ws/**", "/api/chat/**",
-                                "/api/notifications/**", "/test-notifications", "/invoice", "/refund", "/send-message"
+                                "/api/notifications/**", "/test-notifications", "/invoice", "/refund", "/send-message", "/change-default"
                         )
                 )
                 .authorizeHttpRequests(auth -> auth
