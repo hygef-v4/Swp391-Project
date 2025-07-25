@@ -130,8 +130,14 @@
 
 
           <!-- Thông báo khi không có mục yêu thích -->
-          <div th:if="${favorites.size() == 0}">
-            <p class="text-muted">Bạn chưa thêm khách sạn nào vào danh sách yêu thích.</p>
+          <div th:if="${favorites.size() == 0}" class="d-flex flex-column align-items-center justify-content-center" style="min-height: 300px;">
+            <div style="font-size: 64px; color: #6c63ff; margin-bottom: 16px;">
+              <i class="bi bi-heart"></i>
+            </div>
+            <p class="text-muted mb-2" style="font-size: 1.2rem;">Bạn chưa thêm khách sạn nào vào danh sách yêu thích.</p>
+            <a href="/hotel-list" class="btn btn-primary" style="font-size: 1rem; padding: 8px 24px; border-radius: 24px;">
+              <i class="bi bi-plus-circle me-2"></i>Khám phá khách sạn và thêm vào yêu thích
+            </a>
           </div>
 
           <!-- Danh sách khách sạn yêu thích -->
