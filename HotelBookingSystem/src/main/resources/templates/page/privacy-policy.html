@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Chính Sách Bảo Mật - Hamora</title>
+
+    <!-- Meta Tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="author" content="Hamora">
+    <meta name="description" content="Chính sách bảo mật của Hamora - Cam kết bảo vệ thông tin cá nhân của khách hàng.">
+
+    <!-- Dark mode -->
+    <script>
+        const storedTheme = localStorage.getItem('theme')
+
+        const getPreferredTheme = () => {
+            if (storedTheme) {
+                return storedTheme
+            }
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        }
+
+        const setTheme = function (theme) {
+            if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.setAttribute('data-bs-theme', 'dark')
+            } else {
+                document.documentElement.setAttribute('data-bs-theme', theme)
+            }
+        }
+
+        setTheme(getPreferredTheme())
+
+        window.addEventListener('DOMContentLoaded', () => {
+            var el = document.querySelector('.theme-icon-active');
+            if (el != 'undefined' && el != null) {
+                const showActiveTheme = theme => {
+                    const activeThemeIcon = document.querySelector('.theme-icon-active use')
+                    const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+                    const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
+
+                    document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+                        element.classList.remove('active')
+                    })
+
+                    btnToActive.classList.add('active')
+                    activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+                }
+
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                    if (storedTheme !== 'light' || storedTheme !== 'dark') {
+                        setTheme(getPreferredTheme())
+                    }
+                })
+
+                showActiveTheme(getPreferredTheme())
+
+                document.querySelectorAll('[data-bs-theme-value]')
+                    .forEach(toggle => {
+                        toggle.addEventListener('click', () => {
+                            const theme = toggle.getAttribute('data-bs-theme-value')
+                            localStorage.setItem('theme', theme)
+                            setTheme(theme)
+                            showActiveTheme(theme)
+                        })
+                    })
+            }
+        })
+    </script>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/assets/images/favicon.ico">
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Poppins:wght@400;500;700&display=swap">
+
+    <!-- Plugins CSS -->
+    <link rel="stylesheet" type="text/css" href="/assets/vendor/font-awesome/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="/assets/vendor/bootstrap-icons/bootstrap-icons.css">
+
+    <!-- Theme CSS -->
+    <link rel="stylesheet" type="text/css" href="/assets/css/style.css">
+
+</head>
+
+<body>
+
+<!-- Header START -->
+<div th:replace="~{common/header :: header}"></div>
+<!-- Header END -->
+
+<main>
+    <!-- =======================
+    Page Banner START -->
+    <section class="py-0">
+        <div class="container-fluid px-0">
+            <div class="bg-primary bg-opacity-10 py-5">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12 text-center">
+                            <h1 class="fs-2 mb-2">Chính Sách Bảo Mật</h1>
+                            <p class="mb-0">Cam kết bảo vệ thông tin cá nhân của bạn</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- =======================
+    Page Banner END -->
+
+    <!-- =======================
+    Privacy Content START -->
+    <section class="pt-4 pt-md-5 pb-0">
+        <div class="container">
+            <div class="row">
+                <div class="col-xl-10 mx-auto">
+                    <div class="card shadow">
+                        <div class="card-body p-4 p-md-5">
+                            
+                            <!-- Last Updated -->
+                            <div class="alert alert-info" role="alert">
+                                <i class="bi bi-shield-check me-2"></i>
+                                <strong>Cập nhật lần cuối:</strong> 25 tháng 7, 2025
+                            </div>
+
+                            <!-- Introduction -->
+                            <div class="mb-5">
+                                <h2 class="h4 mb-3">1. Giới Thiệu</h2>
+                                <p>Hamora cam kết bảo vệ quyền riêng tư và thông tin cá nhân của bạn. Chính sách bảo mật này giải thích cách chúng tôi thu thập, sử dụng, lưu trữ và bảo vệ thông tin của bạn khi sử dụng dịch vụ của chúng tôi.</p>
+                                <p>Bằng cách sử dụng dịch vụ Hamora, bạn đồng ý với việc thu thập và sử dụng thông tin theo chính sách này.</p>
+                            </div>
+
+                            <!-- Information We Collect -->
+                            <div class="mb-5">
+                                <h2 class="h4 mb-3">2. Thông Tin Chúng Tôi Thu Thập</h2>
+                                
+                                <h5 class="h6 mb-2">2.1 Thông Tin Cá Nhân</h5>
+                                <ul>
+                                    <li><strong>Thông tin đăng ký:</strong> Họ tên, email, số điện thoại, ngày sinh</li>
+                                    <li><strong>Thông tin thanh toán:</strong> Thông tin thẻ tín dụng, tài khoản ngân hàng (được mã hóa)</li>
+                                    <li><strong>Thông tin đặt phòng:</strong> Lịch sử đặt phòng, sở thích, yêu cầu đặc biệt</li>
+                                    <li><strong>Thông tin liên hệ:</strong> Địa chỉ, thông tin khẩn cấp</li>
+                                </ul>
+                                
+                                <h5 class="h6 mb-2 mt-3">2.2 Thông Tin Kỹ Thuật</h5>
+                                <ul>
+                                    <li><strong>Thông tin thiết bị:</strong> Địa chỉ IP, loại trình duyệt, hệ điều hành</li>
+                                    <li><strong>Dữ liệu sử dụng:</strong> Trang web đã truy cập, thời gian sử dụng, tương tác</li>
+                                    <li><strong>Cookie và công nghệ tương tự:</strong> Để cải thiện trải nghiệm người dùng</li>
+                                </ul>
+                                
+                                <h5 class="h6 mb-2 mt-3">2.3 Thông Tin Từ Bên Thứ Ba</h5>
+                                <ul>
+                                    <li>Thông tin từ mạng xã hội (nếu bạn đăng nhập qua Facebook, Google)</li>
+                                    <li>Thông tin từ đối tác kinh doanh và nhà cung cấp dịch vụ</li>
+                                </ul>
+                            </div>
+
+                            <!-- How We Use Information -->
+                            <div class="mb-5">
+                                <h2 class="h4 mb-3">3. Cách Chúng Tôi Sử Dụng Thông Tin</h2>
+                                
+                                <h5 class="h6 mb-2">3.1 Cung Cấp Dịch Vụ</h5>
+                                <ul>
+                                    <li>Xử lý đặt phòng và thanh toán</li>
+                                    <li>Cung cấp hỗ trợ khách hàng</li>
+                                    <li>Gửi xác nhận và thông tin đặt phòng</li>
+                                    <li>Quản lý tài khoản người dùng</li>
+                                </ul>
+                                
+                                <h5 class="h6 mb-2 mt-3">3.2 Cải Thiện Dịch Vụ</h5>
+                                <ul>
+                                    <li>Phân tích hành vi người dùng để cải thiện website</li>
+                                    <li>Cá nhân hóa trải nghiệm và đề xuất</li>
+                                    <li>Phát triển tính năng mới</li>
+                                </ul>
+                                
+                                <h5 class="h6 mb-2 mt-3">3.3 Marketing và Truyền Thông</h5>
+                                <ul>
+                                    <li>Gửi thông tin khuyến mãi và ưu đãi (với sự đồng ý)</li>
+                                    <li>Thông báo về dịch vụ mới</li>
+                                    <li>Khảo sát ý kiến khách hàng</li>
+                                </ul>
+                                
+                                <h5 class="h6 mb-2 mt-3">3.4 Bảo Mật và Tuân Thủ</h5>
+                                <ul>
+                                    <li>Phát hiện và ngăn chặn gian lận</li>
+                                    <li>Tuân thủ nghĩa vụ pháp lý</li>
+                                    <li>Bảo vệ quyền lợi của Hamora và người dùng</li>
+                                </ul>
+                            </div>
+
+                            <!-- Information Sharing -->
+                            <div class="mb-5">
+                                <h2 class="h4 mb-3">4. Chia Sẻ Thông Tin</h2>
+                                <p>Chúng tôi không bán thông tin cá nhân của bạn. Tuy nhiên, chúng tôi có thể chia sẻ thông tin trong các trường hợp sau:</p>
+                                
+                                <h5 class="h6 mb-2">4.1 Với Đối Tác Dịch Vụ</h5>
+                                <ul>
+                                    <li>Khách sạn và nhà cung cấp lưu trú (thông tin cần thiết cho đặt phòng)</li>
+                                    <li>Nhà cung cấp dịch vụ thanh toán</li>
+                                    <li>Dịch vụ hỗ trợ khách hàng</li>
+                                </ul>
+                                
+                                <h5 class="h6 mb-2 mt-3">4.2 Yêu Cầu Pháp Lý</h5>
+                                <ul>
+                                    <li>Khi được yêu cầu bởi cơ quan có thẩm quyền</li>
+                                    <li>Để tuân thủ quy định pháp luật</li>
+                                    <li>Bảo vệ quyền lợi hợp pháp của chúng tôi</li>
+                                </ul>
+                                
+                                <h5 class="h6 mb-2 mt-3">4.3 Với Sự Đồng Ý</h5>
+                                <ul>
+                                    <li>Khi bạn cho phép chia sẻ thông tin</li>
+                                    <li>Cho mục đích marketing (có thể từ chối)</li>
+                                </ul>
+                            </div>
+
+                            <!-- Data Security -->
+                            <div class="mb-5">
+                                <h2 class="h4 mb-3">5. Bảo Mật Dữ Liệu</h2>
+                                <p>Chúng tôi áp dụng các biện pháp bảo mật kỹ thuật và tổ chức để bảo vệ thông tin của bạn:</p>
+                                <ul>
+                                    <li><strong>Mã hóa:</strong> Tất cả dữ liệu nhạy cảm được mã hóa trong quá trình truyền và lưu trữ</li>
+                                    <li><strong>Kiểm soát truy cập:</strong> Chỉ nhân viên được ủy quyền mới có thể truy cập thông tin</li>
+                                    <li><strong>Giám sát bảo mật:</strong> Hệ thống giám sát 24/7 để phát hiện các mối đe dọa</li>
+                                    <li><strong>Cập nhật bảo mật:</strong> Thường xuyên cập nhật và vá lỗi bảo mật</li>
+                                    <li><strong>Đào tạo nhân viên:</strong> Đào tạo về bảo mật thông tin cho tất cả nhân viên</li>
+                                </ul>
+                            </div>
+
+                            <!-- Data Retention -->
+                            <div class="mb-5">
+                                <h2 class="h4 mb-3">6. Lưu Trữ Dữ Liệu</h2>
+                                <p>Chúng tôi chỉ lưu trữ thông tin cá nhân của bạn trong thời gian cần thiết để:</p>
+                                <ul>
+                                    <li>Cung cấp dịch vụ theo yêu cầu</li>
+                                    <li>Tuân thủ nghĩa vụ pháp lý</li>
+                                    <li>Giải quyết tranh chấp</li>
+                                    <li>Thực thi thỏa thuận của chúng tôi</li>
+                                </ul>
+                                <p>Sau thời gian này, thông tin sẽ được xóa hoặc ẩn danh hóa một cách an toàn.</p>
+                            </div>
+
+                            <!-- Your Rights -->
+                            <div class="mb-5">
+                                <h2 class="h4 mb-3">7. Quyền Của Bạn</h2>
+                                <p>Bạn có các quyền sau đối với thông tin cá nhân của mình:</p>
+                                
+                                <h5 class="h6 mb-2">7.1 Quyền Truy Cập</h5>
+                                <ul>
+                                    <li>Yêu cầu xem thông tin cá nhân mà chúng tôi lưu trữ</li>
+                                    <li>Nhận bản sao thông tin của bạn</li>
+                                </ul>
+                                
+                                <h5 class="h6 mb-2 mt-3">7.2 Quyền Chỉnh Sửa</h5>
+                                <ul>
+                                    <li>Cập nhật thông tin không chính xác</li>
+                                    <li>Bổ sung thông tin thiếu sót</li>
+                                </ul>
+                                
+                                <h5 class="h6 mb-2 mt-3">7.3 Quyền Xóa</h5>
+                                <ul>
+                                    <li>Yêu cầu xóa thông tin cá nhân (trong một số trường hợp)</li>
+                                    <li>Đóng tài khoản và xóa dữ liệu</li>
+                                </ul>
+                                
+                                <h5 class="h6 mb-2 mt-3">7.4 Quyền Từ Chối</h5>
+                                <ul>
+                                    <li>Từ chối nhận email marketing</li>
+                                    <li>Từ chối việc xử lý dữ liệu cho mục đích marketing</li>
+                                </ul>
+                            </div>
+
+                            <!-- Cookies -->
+                            <div class="mb-5">
+                                <h2 class="h4 mb-3">8. Cookie và Công Nghệ Tương Tự</h2>
+                                <p>Chúng tôi sử dụng cookie và công nghệ tương tự để:</p>
+                                <ul>
+                                    <li>Ghi nhớ tùy chọn và cài đặt của bạn</li>
+                                    <li>Cải thiện hiệu suất website</li>
+                                    <li>Phân tích cách sử dụng website</li>
+                                    <li>Cung cấp quảng cáo phù hợp</li>
+                                </ul>
+                                <p>Bạn có thể quản lý cookie thông qua cài đặt trình duyệt của mình.</p>
+                            </div>
+
+                            <!-- Third Party Links -->
+                            <div class="mb-5">
+                                <h2 class="h4 mb-3">9. Liên Kết Bên Thứ Ba</h2>
+                                <p>Website của chúng tôi có thể chứa liên kết đến các trang web khác. Chúng tôi không chịu trách nhiệm về chính sách bảo mật của các trang web này. Chúng tôi khuyến khích bạn đọc chính sách bảo mật của mỗi trang web mà bạn truy cập.</p>
+                            </div>
+
+                            <!-- Changes to Policy -->
+                            <div class="mb-5">
+                                <h2 class="h4 mb-3">10. Thay Đổi Chính Sách</h2>
+                                <p>Chúng tôi có thể cập nhật chính sách bảo mật này theo thời gian. Các thay đổi quan trọng sẽ được thông báo qua email hoặc thông báo trên website. Ngày cập nhật cuối cùng sẽ được hiển thị ở đầu chính sách này.</p>
+                            </div>
+
+                            <!-- Contact Information -->
+                            <div class="mb-5">
+                                <h2 class="h4 mb-3">11. Liên Hệ</h2>
+                                <p>Nếu bạn có câu hỏi về chính sách bảo mật này hoặc muốn thực hiện quyền của mình, vui lòng liên hệ:</p>
+                                <ul class="list-unstyled">
+                                    <li><strong>Email:</strong>
+                                        hamoraplatform@gmail.com</li>
+                                    <li><strong>Điện thoại:</strong> 1900 1234</li>
+                                    <li><strong>Địa chỉ:</strong> Đại Học FPT, Hà Nội, Việt Nam</li>
+                                </ul>
+                            </div>
+
+                            <!-- Commitment -->
+                            <div class="alert alert-success" role="alert">
+                                <h5 class="alert-heading">Cam Kết Của Chúng Tôi</h5>
+                                <p class="mb-0">Hamora cam kết bảo vệ thông tin cá nhân của bạn và tuân thủ các quy định về bảo vệ dữ liệu. Chúng tôi liên tục cải thiện các biện pháp bảo mật để đảm bảo thông tin của bạn được an toàn.</p>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- =======================
+    Privacy Content END -->
+
+</main>
+
+<!-- Footer START -->
+<div th:replace="~{common/footer :: footer}"></div>
+<!-- Footer END -->
+
+<!-- Back to top -->
+<div class="back-top"></div>
+
+<!-- Bootstrap JS -->
+<script src="/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Theme Functions -->
+<script src="/assets/js/functions.js"></script>
+
+</body>
+</html>
