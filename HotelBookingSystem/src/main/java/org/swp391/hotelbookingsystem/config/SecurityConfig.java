@@ -50,7 +50,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/", "/home", "/error", "/webhook", "/contact", "/send-message",
                                 "/login", "/register", "/verify-email-otp", "/resend-otp", "/forgotPassword", "/resetPassword",
-                                "/hotel-list", "/filter-hotels", "/hotel-detail", "/about", "/faq",
+                                "/hotel-list", "/filter-hotels", "/hotel-detail", "/about", "/faq", "/terms-of-service", "/privacy-policy",
                                 "/css/**", "/js/**", "/images/**", "/assets/**",
                                 "/api/files/**", "user-profile", "user-wishlist", "/ws/**", "/api/chat/**", "/api/notifications/**", "/test-notifications", "/refund"
                         ).permitAll()
