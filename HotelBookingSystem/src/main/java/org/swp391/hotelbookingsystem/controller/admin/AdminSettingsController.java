@@ -13,22 +13,52 @@ import org.swp391.hotelbookingsystem.service.AdminLogService;
 import org.springframework.util.StringUtils;
 import org.springframework.dao.DataAccessException;
 import org.swp391.hotelbookingsystem.model.User;
+import org.swp391.hotelbookingsystem.model.AdminLogEntry;
+import java.util.List;
 
 @Controller
 public class AdminSettingsController {
     private static final Logger logger = LoggerFactory.getLogger(AdminSettingsController.class);
 
-    @Autowired
-    private SiteSettingsService settingsService;
+    private final SiteSettingsService settingsService;
 
-    @Autowired
-    private AdminLogService adminLogService;
+    private final AdminLogService adminLogService;
+
+    public AdminSettingsController(SiteSettingsService settingsService, AdminLogService adminLogService) {
+        this.settingsService = settingsService;
+        this.adminLogService = adminLogService;
+    }
 
     // Hiển thị trang cài đặt
     @GetMapping("/admin/website-settings")
-    public String showSettings(Model model) {
+    public String showSettings(Model model,
+                              @RequestParam(value = "adminFilter", required = false) String adminFilter,
+                              @RequestParam(value = "actionFilter", required = false) String actionFilter,
+                              @RequestParam(value = "page", defaultValue = "1") int page,
+                              @RequestParam(value = "size", defaultValue = "10") int size) {
+
         model.addAttribute("settings", settingsService.getSettings());
-        model.addAttribute("logs", adminLogService.getRecentLogs());
+
+        // Get filtered and paginated logs
+        List<AdminLogEntry> logs = adminLogService.getFilteredLogs(adminFilter, actionFilter, page, size);
+        int totalCount = adminLogService.getTotalFilteredCount(adminFilter, actionFilter);
+        int totalPages = (int) Math.ceil((double) totalCount / size);
+
+        // Add pagination and filter data to model
+        model.addAttribute("logs", logs);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("totalCount", totalCount);
+        model.addAttribute("pageSize", size);
+
+        // Add filter values back to model for form persistence
+        model.addAttribute("adminFilter", adminFilter);
+        model.addAttribute("actionFilter", actionFilter);
+
+        // Add unique values for filter dropdowns
+        model.addAttribute("uniqueAdmins", adminLogService.getUniqueAdmins());
+        model.addAttribute("uniqueActions", adminLogService.getUniqueActions());
+
         return "admin/admin-settings";
     }
 
@@ -48,7 +78,20 @@ public class AdminSettingsController {
         if (error.length() > 0) {
             model.addAttribute("settings", settings);
             model.addAttribute("error", error.toString());
-            model.addAttribute("logs", adminLogService.getRecentLogs());
+
+            // Add default log data for error response
+            List<AdminLogEntry> logs = adminLogService.getFilteredLogs(null, null, 1, 10);
+            int totalCount = adminLogService.getTotalFilteredCount(null, null);
+            int totalPages = (int) Math.ceil((double) totalCount / 10);
+
+            model.addAttribute("logs", logs);
+            model.addAttribute("currentPage", 1);
+            model.addAttribute("totalPages", totalPages);
+            model.addAttribute("totalCount", totalCount);
+            model.addAttribute("pageSize", 10);
+            model.addAttribute("uniqueAdmins", adminLogService.getUniqueAdmins());
+            model.addAttribute("uniqueActions", adminLogService.getUniqueActions());
+
             return "admin/admin-settings";
         }
         try {
@@ -56,7 +99,20 @@ public class AdminSettingsController {
         } catch (DataAccessException ex) {
             model.addAttribute("settings", settings);
             model.addAttribute("error", "Lỗi khi lưu cài đặt: " + ex.getMessage());
-            model.addAttribute("logs", adminLogService.getRecentLogs());
+
+            // Add default log data for database error response
+            List<AdminLogEntry> logs = adminLogService.getFilteredLogs(null, null, 1, 10);
+            int totalCount = adminLogService.getTotalFilteredCount(null, null);
+            int totalPages = (int) Math.ceil((double) totalCount / 10);
+
+            model.addAttribute("logs", logs);
+            model.addAttribute("currentPage", 1);
+            model.addAttribute("totalPages", totalPages);
+            model.addAttribute("totalCount", totalCount);
+            model.addAttribute("pageSize", 10);
+            model.addAttribute("uniqueAdmins", adminLogService.getUniqueAdmins());
+            model.addAttribute("uniqueActions", adminLogService.getUniqueActions());
+
             return "admin/admin-settings";
         }
         User user = (User) session.getAttribute("user");
@@ -66,7 +122,20 @@ public class AdminSettingsController {
         adminLogService.log(admin, action, settings.toString());
         model.addAttribute("settings", settings);
         model.addAttribute("success", true);
-        model.addAttribute("logs", adminLogService.getRecentLogs());
+
+        // Add default log data for POST response
+        List<AdminLogEntry> logs = adminLogService.getFilteredLogs(null, null, 1, 10);
+        int totalCount = adminLogService.getTotalFilteredCount(null, null);
+        int totalPages = (int) Math.ceil((double) totalCount / 10);
+
+        model.addAttribute("logs", logs);
+        model.addAttribute("currentPage", 1);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("totalCount", totalCount);
+        model.addAttribute("pageSize", 10);
+        model.addAttribute("uniqueAdmins", adminLogService.getUniqueAdmins());
+        model.addAttribute("uniqueActions", adminLogService.getUniqueActions());
+
         return "admin/admin-settings";
     }
 } 

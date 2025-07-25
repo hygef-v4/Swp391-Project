@@ -139,32 +139,151 @@
 			<div th:if="${error}" class="alert alert-danger mt-3" th:text="${error}"></div>
 
 			<h2 class="mt-5">Lịch sử hoạt động quản trị</h2>
-			<table class="table">
-			    <thead>
-			        <tr>
-			            <th>Thời gian</th>
-			            <th>Admin</th>
-			            <th>Hành động</th>
-			            <th>Chi tiết</th>
-			        </tr>
-			    </thead>
-			    <tbody>
-			        <tr th:each="log : ${logs}">
-			            <td th:text="${#temporals.format(log.timestamp, 'dd/MM/yyyy HH:mm:ss')}"></td>
-			            <td th:text="${log.admin}"></td>
-			            <td th:text="${log.action}"></td>
-			            <td>
-			                <div th:if="${#lists.size(log.detailsMap) > 0}">
-			                    <span th:each="entry : ${log.detailsMap}">
-			                        <b th:text="${entry.key + ':'}"></b>
-			                        <span th:text="${entry.value}"></span><br/>
-			                    </span>
-			                </div>
-			                <span th:unless="${#lists.size(log.detailsMap) > 0}" th:text="${log.details}"></span>
-			            </td>
-			        </tr>
-			    </tbody>
-			</table>
+
+			<!-- Filter Form -->
+			<div class="card mb-4">
+				<div class="card-body">
+					<form method="get" th:action="@{/admin/website-settings}">
+						<div class="row">
+							<div class="col-md-3 mb-3">
+								<label class="form-label">Admin</label>
+								<select class="form-select" name="adminFilter">
+									<option value="">Tất cả Admin</option>
+									<option th:each="admin : ${uniqueAdmins}"
+									        th:value="${admin}"
+									        th:text="${admin}"
+									        th:selected="${admin == adminFilter}"></option>
+								</select>
+							</div>
+							<div class="col-md-4 mb-3">
+								<label class="form-label">Hành động</label>
+								<select class="form-select" name="actionFilter">
+									<option value="">Tất cả hành động</option>
+									<option th:each="action : ${uniqueActions}"
+									        th:value="${action}"
+									        th:text="${action}"
+									        th:selected="${action == actionFilter}"></option>
+								</select>
+							</div>
+							<div class="col-md-3 mb-3">
+								<label class="form-label">Số bản ghi</label>
+								<select class="form-select" name="size">
+									<option value="5" th:selected="${pageSize == 5}">5</option>
+									<option value="10" th:selected="${pageSize == 10}">10</option>
+									<option value="20" th:selected="${pageSize == 20}">20</option>
+									<option value="50" th:selected="${pageSize == 50}">50</option>
+								</select>
+							</div>
+							<div class="col-md-2 mb-3">
+								<label class="form-label">&nbsp;</label>
+								<div class="d-flex gap-2">
+									<a th:href="@{/admin/website-settings}" class="btn btn-outline-secondary flex-fill">
+										<i class="bi bi-arrow-clockwise"></i> Đặt lại
+									</a>
+								</div>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+
+			<!-- Results Summary -->
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<div>
+					<span class="text-muted">
+						Hiển thị <strong th:text="${#lists.size(logs)}"></strong> trong tổng số <strong th:text="${totalCount}"></strong> bản ghi
+					</span>
+				</div>
+			</div>
+
+			<!-- Logs Table -->
+			<div class="table-responsive">
+				<table class="table table-hover">
+				    <thead class="table-light">
+				        <tr>
+				            <th>Thời gian</th>
+				            <th>Admin</th>
+				            <th>Hành động</th>
+				            <th>Chi tiết</th>
+				        </tr>
+				    </thead>
+				    <tbody>
+				        <tr th:each="log : ${logs}">
+				            <td>
+				            	<span th:text="${#temporals.format(log.timestamp, 'dd/MM/yyyy')}"></span><br>
+				            	<small class="text-muted" th:text="${#temporals.format(log.timestamp, 'HH:mm:ss')}"></small>
+				            </td>
+				            <td>
+				            	<span th:text="${log.admin}"></span>
+				            </td>
+				            <td>
+				            	<span class="badge bg-primary" th:text="${log.action}"></span>
+				            </td>
+				            <td>
+				                <div th:if="${#lists.size(log.detailsMap) > 0}">
+				                    <span th:each="entry : ${log.detailsMap}">
+				                        <b th:text="${entry.key + ':'}"></b>
+				                        <span th:text="${entry.value}"></span><br/>
+				                    </span>
+				                </div>
+				                <span th:unless="${#lists.size(log.detailsMap) > 0}" th:text="${log.details}"></span>
+				            </td>
+				        </tr>
+				        <tr th:if="${#lists.isEmpty(logs)}">
+				        	<td colspan="4" class="text-center text-muted py-4">
+				        		<i class="bi bi-inbox fs-1 d-block mb-2"></i>
+				        		Không có dữ liệu phù hợp với bộ lọc
+				        	</td>
+				        </tr>
+				    </tbody>
+				</table>
+			</div>
+
+			<!-- Pagination -->
+			<nav th:if="${totalPages > 1}" aria-label="Admin logs pagination">
+				<ul class="pagination justify-content-center">
+					<!-- Previous button -->
+					<li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+						<a class="page-link"
+						   th:href="@{/admin/website-settings(page=${currentPage - 1}, size=${pageSize}, adminFilter=${adminFilter}, actionFilter=${actionFilter})}"
+						   th:if="${currentPage > 1}">
+							<i class="bi bi-chevron-left"></i> Trước
+						</a>
+						<span class="page-link" th:if="${currentPage == 1}">
+							<i class="bi bi-chevron-left"></i> Trước
+						</span>
+					</li>
+
+					<!-- Page numbers -->
+					<li class="page-item"
+					    th:each="pageNum : ${#numbers.sequence(T(java.lang.Math).max(1, currentPage - 2), T(java.lang.Math).min(totalPages, currentPage + 2))}"
+					    th:classappend="${pageNum == currentPage} ? 'active'">
+						<a class="page-link"
+						   th:href="@{/admin/website-settings(page=${pageNum}, size=${pageSize}, adminFilter=${adminFilter}, actionFilter=${actionFilter})}"
+						   th:text="${pageNum}"
+						   th:if="${pageNum != currentPage}"></a>
+						<span class="page-link" th:if="${pageNum == currentPage}" th:text="${pageNum}"></span>
+					</li>
+
+					<!-- Next button -->
+					<li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+						<a class="page-link"
+						   th:href="@{/admin/website-settings(page=${currentPage + 1}, size=${pageSize}, adminFilter=${adminFilter}, actionFilter=${actionFilter})}"
+						   th:if="${currentPage < totalPages}">
+							Sau <i class="bi bi-chevron-right"></i>
+						</a>
+						<span class="page-link" th:if="${currentPage == totalPages}">
+							Sau <i class="bi bi-chevron-right"></i>
+						</span>
+					</li>
+				</ul>
+			</nav>
+
+			<!-- Pagination Info -->
+			<div class="text-center text-muted mt-3" th:if="${totalPages > 1}">
+				Trang <strong th:text="${currentPage}"></strong> / <strong th:text="${totalPages}"></strong>
+				(<strong th:text="${totalCount}"></strong> bản ghi)
+			</div>
 		</div>
 		<!-- Page main content END -->
 	</div>
@@ -182,6 +301,28 @@
 
 <!-- ThemeFunctions -->
 <script th:src="@{/assets/js/functions.js}"></script>
+
+<!-- Admin Log Filters Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-submit form when filter inputs change
+    const adminSelect = document.querySelector('select[name="adminFilter"]');
+    const actionSelect = document.querySelector('select[name="actionFilter"]');
+    const sizeSelect = document.querySelector('select[name="size"]');
+
+    // Add change event listeners for auto-submit
+    [adminSelect, actionSelect, sizeSelect].forEach(element => {
+        if (element) {
+            element.addEventListener('change', function() {
+                // Add a small delay to prevent rapid submissions
+                setTimeout(() => {
+                    element.closest('form').submit();
+                }, 100);
+            });
+        }
+    });
+});
+</script>
 
 </body>
 
