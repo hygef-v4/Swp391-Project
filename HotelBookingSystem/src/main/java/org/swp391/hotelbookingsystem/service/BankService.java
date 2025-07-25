@@ -20,9 +20,22 @@ public class BankService {
         return bankRepository.getUserBanks(userId);
     }
 
+    public int getIdByCode(String code){
+        return bankRepository.getIdByCode(code);
+    }
+
+    public int countBank(int userId){
+        return bankRepository.countBank(userId);
+    }
+
+    public int changeDefault(int userId, int bankId, String bankNumber){
+        if(bankRepository.checkBank(userId, bankId, bankNumber)) return -1;
+        return bankRepository.changeDefault(userId, bankId, bankNumber);
+    }
+
     public int addBank(int userId, int bankId, String bankNumber, String userName){
         if(!bankRepository.checkBank(userId, bankId, bankNumber)) return -1;
-        return bankRepository.addBank(userId, bankId, bankNumber, userName, bankRepository.isDefault(userId));
+        return bankRepository.addBank(userId, bankId, bankNumber, userName, bankRepository.noDefault(userId));
     }
 
     public int editBank(int userId, int bankId, String bankNumber, String userName, int oldId, String oldNumber){
@@ -31,6 +44,7 @@ public class BankService {
     }
 
     public int deleteBank(int userId, int bankId, String bankNumber){
+        if(bankRepository.isDefault(userId, bankId, bankNumber)) return -1;
         return bankRepository.deleteBank(userId, bankId, bankNumber);
     }
 }

@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.swp391.hotelbookingsystem.model.Bank;
 import org.swp391.hotelbookingsystem.model.User;
@@ -39,10 +40,6 @@ public class PaymentInformationController {
 
         // Handle redirect from hotel registration
         if ("true".equals(incomplete) && "hotel_registration".equals(reason)) {
-            System.out.println("=== PAYMENT PAGE REDIRECT ===");
-            System.out.println("Incomplete: " + incomplete);
-            System.out.println("Reason: " + reason);
-            System.out.println("Setting hotelRegistrationRedirect = true");
             model.addAttribute("hotelRegistrationRedirect", true);
             model.addAttribute("redirectMessage", "Vui lòng thêm thông tin thanh toán để tiếp tục đăng ký khách sạn.");
         }
@@ -50,9 +47,22 @@ public class PaymentInformationController {
         return "page/paymentInformation.html";
     }
 
+    @PostMapping("/change-default")
+    @ResponseBody
+    public String changeDefault(@RequestParam("bankId") int bankId, @RequestParam("bankNumber") String bankNumber, HttpSession session){
+        User user = (User) session.getAttribute("user");
+        if(user == null) {
+            return "error";
+        }
+        
+        int ok = bankService.changeDefault(user.getId(), bankId, bankNumber);
+        if(ok == -1) return "error";
+        return "ok";
+    }
+
     @PostMapping("/add-bank")
     public String addBank(
-        @RequestParam("bankId") int bankId,
+        @RequestParam("bankCode") String bankCode,
         @RequestParam("bankNumber") String bankNumber,
         @RequestParam("userName") String userName,
 
@@ -62,6 +72,8 @@ public class PaymentInformationController {
         if(user == null) {
             return "redirect:/login";
         }
+
+        int bankId = bankService.getIdByCode(bankCode);
 
         int check = bankService.addBank(user.getId(), bankId, bankNumber, userName);
         if(check == -1){
@@ -84,7 +96,7 @@ public class PaymentInformationController {
 
     @PostMapping("/edit-bank")
     public String editBank(
-        @RequestParam("bankId") int bankId,
+        @RequestParam("bankCode") String bankCode,
         @RequestParam("bankNumber") String bankNumber,
         @RequestParam("userName") String userName,
 
@@ -97,6 +109,8 @@ public class PaymentInformationController {
         if(user == null) {
             return "redirect:/login";
         }
+
+        int bankId = bankService.getIdByCode(bankCode);
 
         int check = bankService.editBank(user.getId(), bankId, bankNumber, userName, oldId, oldNumber);
         if(check == -1){
@@ -120,8 +134,17 @@ public class PaymentInformationController {
             return "redirect:/login";
         }
 
-        bankService.deleteBank(user.getId(), bankId, bankNumber);
-        redirectAttributes.addFlashAttribute("successMessage", "Xóa tài khoản thành công.");
+        if("HOTEL_OWNER".equals(user.getRole()) && bankService.countBank(user.getId()) <= 1){
+            redirectAttributes.addFlashAttribute("errorMessage", "Chủ khách sạn phải có ít nhất một tài khoản ngân hàng.");
+        }else{
+            int check = bankService.deleteBank(user.getId(), bankId, bankNumber);
+
+            if(check == -1){
+                redirectAttributes.addFlashAttribute("errorMessage", "Không thể xóa tài khoản mặc định, hãy chọn tài khoản khác làm mặc định trước khi xóa!");
+            }else{
+                redirectAttributes.addFlashAttribute("successMessage", "Xóa tài khoản thành công.");
+            }
+        }
 
         return "redirect:/payment-information";
     }
