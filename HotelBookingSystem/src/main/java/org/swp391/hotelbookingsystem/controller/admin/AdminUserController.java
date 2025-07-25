@@ -237,7 +237,7 @@ public class AdminUserController {
                         }
                     }
 
-                    hotelService.banAllHotelsByHostId(userId);
+                    hotelService.banAllActiveHotelsByHostId(userId, "owner_is_banned");
                 }
             } else if (!wasActive && updatedUser.isActive()) {
                 // Unban: send unban email (reason optional)

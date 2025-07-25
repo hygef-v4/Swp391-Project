@@ -21,6 +21,7 @@ public class Hotel {
     private BigDecimal longitude;
     private String policy;
     private String status;
+    private String banReason;
 
     private String cityName;
     private BigDecimal minPrice;

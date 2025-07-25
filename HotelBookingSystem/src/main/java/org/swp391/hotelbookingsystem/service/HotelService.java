@@ -149,8 +149,8 @@ public class HotelService {
 
     }
 
-    public void banAllHotelsByHostId(int hostId) {
-        hotelRepository.banAllHotelsByHostId(hostId);
+    public void banAllActiveHotelsByHostId(int hostId, String reason) {
+        hotelRepository.banAllActiveHotelsByHostId(hostId, reason);
     }
 
     public List<Hotel> getHotelsByHostIdWithSearchAndPagination(int hostId, String search, int offset, int limit) {

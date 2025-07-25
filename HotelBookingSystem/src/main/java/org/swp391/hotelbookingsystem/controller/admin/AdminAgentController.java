@@ -167,7 +167,7 @@ public class AdminAgentController {
 
             userService.banUser(userId); // đặt is_active = false
             emailService.sendUserBanEmail(user.getEmail(), reason);
-            hotelService.banAllHotelsByHostId(userId); // huỷ toàn bộ khách sạn
+            hotelService.banAllActiveHotelsByHostId(userId, "owner_is_banned"); // huỷ toàn bộ khách sạn
             if (reportService.isUserFlagged(userId)) {
                 reportService.acceptUserReports(userId);
             }
