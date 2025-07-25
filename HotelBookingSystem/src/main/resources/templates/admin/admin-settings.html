@@ -114,6 +114,77 @@
 			gap: 0.5rem;
 		}
 
+		/* Validation styling */
+		.form-control.is-valid {
+			border-color: #198754;
+			background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='m2.3 6.73.94-.94 1.38 1.38 3.22-3.22.94.94-4.16 4.16z'/%3e%3c/svg%3e");
+			background-repeat: no-repeat;
+			background-position: right calc(0.375em + 0.1875rem) center;
+			background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+		}
+
+		.form-control.is-invalid {
+			border-color: #dc3545;
+			background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath d='m5.8 4.6 2.4 2.4m0-2.4L5.8 7'/%3e%3c/svg%3e");
+			background-repeat: no-repeat;
+			background-position: right calc(0.375em + 0.1875rem) center;
+			background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+		}
+
+		.invalid-feedback {
+			display: block;
+			width: 100%;
+			margin-top: 0.25rem;
+			font-size: 0.875em;
+			color: #dc3545;
+		}
+
+		.form-text {
+			margin-top: 0.25rem;
+			font-size: 0.875em;
+			color: #6c757d;
+		}
+
+		.form-text .text-danger {
+			font-weight: bold;
+		}
+
+		.form-text .text-warning {
+			font-weight: bold;
+		}
+
+		/* Required field indicator */
+		.text-danger {
+			color: #dc3545 !important;
+		}
+
+		/* Form labels */
+		.form-label {
+			margin-bottom: 0.5rem;
+			font-weight: 500;
+		}
+
+		.form-label small {
+			font-weight: normal;
+			font-size: 0.875em;
+		}
+
+		/* Alert animations */
+		.alert.position-fixed {
+			animation: slideInRight 0.3s ease-out;
+		}
+
+		@keyframes slideInRight {
+			from {
+				opacity: 0;
+				transform: translateX(100%);
+			}
+			to {
+				opacity: 1;
+				transform: translateX(0);
+			}
+		}
+
 		.settings-form-section {
 			background: #f8f9fa;
 			border-radius: 8px;
@@ -158,20 +229,87 @@
 				<input type="hidden" id="originalContactAddress" th:value="${settings.contactAddress}">
 
 				<div class="mb-3">
-					<label class="form-label">Tên website</label>
-					<input type="text" class="form-control" th:value="${settings.siteName}" name="siteName" id="siteName" required>
+					<label class="form-label">
+						Tên website <span class="text-danger">*</span>
+						<small class="text-muted">(3-100 ký tự)</small>
+					</label>
+					<input type="text"
+						   class="form-control"
+						   th:value="${settings.siteName}"
+						   name="siteName"
+						   id="siteName"
+						   required
+						   minlength="3"
+						   maxlength="100"
+						   pattern="^[a-zA-ZÀ-ỹ0-9\s\-\.]+$"
+						   title="Tên website chỉ được chứa chữ cái, số, dấu cách, dấu gạch ngang và dấu chấm"
+						   oninput="validateLength(this, 3, 100, 'siteNameError', 'siteNameCount')"
+						   onblur="validateField('siteName')">
+					<div class="invalid-feedback" id="siteNameError"></div>
+					<div class="form-text">
+						<span id="siteNameCount">0</span>/100 ký tự
+					</div>
 				</div>
 				<div class="mb-3">
-					<label class="form-label">Email hỗ trợ</label>
-					<input type="email" class="form-control" th:value="${settings.supportEmail}" name="supportEmail" id="supportEmail" required>
+					<label class="form-label">
+						Email hỗ trợ <span class="text-danger">*</span>
+						<small class="text-muted">(Tối đa 255 ký tự)</small>
+					</label>
+					<input type="email"
+						   class="form-control"
+						   th:value="${settings.supportEmail}"
+						   name="supportEmail"
+						   id="supportEmail"
+						   required
+						   maxlength="255"
+						   pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+						   title="Vui lòng nhập địa chỉ email hợp lệ"
+						   oninput="validateLength(this, 0, 255, 'supportEmailError', 'supportEmailCount')"
+						   onblur="validateField('supportEmail')">
+					<div class="invalid-feedback" id="supportEmailError"></div>
+					<div class="form-text">
+						<span id="supportEmailCount">0</span>/255 ký tự
+					</div>
 				</div>
 				<div class="mb-3">
-					<label class="form-label">Số điện thoại liên hệ</label>
-					<input type="text" class="form-control" th:value="${settings.contactPhone}" name="contactPhone" id="contactPhone">
+					<label class="form-label">
+						Số điện thoại liên hệ
+						<small class="text-muted">(10-15 ký tự)</small>
+					</label>
+					<input type="tel"
+						   class="form-control"
+						   th:value="${settings.contactPhone}"
+						   name="contactPhone"
+						   id="contactPhone"
+						   minlength="10"
+						   maxlength="15"
+						   pattern="^(\+84|84|0)?[0-9]{9,14}$"
+						   title="Số điện thoại phải có 10-15 chữ số, có thể bắt đầu bằng +84, 84 hoặc 0"
+						   oninput="validateLength(this, 10, 15, 'contactPhoneError', 'contactPhoneCount')"
+						   onblur="validateField('contactPhone')">
+					<div class="invalid-feedback" id="contactPhoneError"></div>
+					<div class="form-text">
+						<span id="contactPhoneCount">0</span>/15 ký tự
+					</div>
 				</div>
 				<div class="mb-3">
-					<label class="form-label">Địa chỉ liên hệ</label>
-					<textarea class="form-control" name="contactAddress" id="contactAddress" th:text="${settings.contactAddress}"></textarea>
+					<label class="form-label">
+						Địa chỉ liên hệ
+						<small class="text-muted">(Tối đa 500 ký tự)</small>
+					</label>
+					<textarea class="form-control"
+							  name="contactAddress"
+							  id="contactAddress"
+							  th:text="${settings.contactAddress}"
+							  maxlength="500"
+							  rows="4"
+							  placeholder="Nhập địa chỉ liên hệ của website..."
+							  oninput="validateLength(this, 0, 500, 'contactAddressError', 'contactAddressCount')"
+							  onblur="validateField('contactAddress')"></textarea>
+					<div class="invalid-feedback" id="contactAddressError"></div>
+					<div class="form-text">
+						<span id="contactAddressCount">0</span>/500 ký tự
+					</div>
 				</div>
 				<div class="d-flex gap-2">
 					<button type="submit" class="btn btn-primary" id="updateBtn">
@@ -365,6 +503,143 @@
 
 <!-- Admin Settings and Log Filters Script -->
 <script>
+// Length validation function
+function validateLength(input, minLength, maxLength, errorId, countId) {
+    const value = input.value;
+    const length = value.length;
+    const errorElement = document.getElementById(errorId);
+    const countElement = document.getElementById(countId);
+
+    // Update character count
+    countElement.textContent = length;
+
+    // Color coding for character count
+    const percentage = (length / maxLength) * 100;
+    if (percentage >= 90) {
+        countElement.className = 'text-danger fw-bold';
+    } else if (percentage >= 75) {
+        countElement.className = 'text-warning fw-bold';
+    } else {
+        countElement.className = 'text-muted';
+    }
+
+    // Validation logic
+    let isValid = true;
+    let errorMessage = '';
+
+    if (input.hasAttribute('required') && length === 0) {
+        isValid = false;
+        errorMessage = getFieldLabel(input.id) + ' là bắt buộc.';
+    } else if (length > 0) {
+        if (length < minLength) {
+            isValid = false;
+            errorMessage = getFieldLabel(input.id) + ` phải có ít nhất ${minLength} ký tự.`;
+        } else if (length > maxLength) {
+            isValid = false;
+            errorMessage = getFieldLabel(input.id) + ` không được vượt quá ${maxLength} ký tự.`;
+        }
+    }
+
+    // Display validation result
+    if (isValid) {
+        input.classList.remove('is-invalid');
+        if (length > 0) {
+            input.classList.add('is-valid');
+        }
+        errorElement.textContent = '';
+    } else {
+        input.classList.add('is-invalid');
+        input.classList.remove('is-valid');
+        errorElement.textContent = errorMessage;
+    }
+
+    return isValid;
+}
+
+// Field-specific validation
+function validateField(fieldId) {
+    const input = document.getElementById(fieldId);
+    const value = input.value.trim();
+    let isValid = true;
+    let errorMessage = '';
+
+    switch(fieldId) {
+        case 'siteName':
+            if (!value && input.hasAttribute('required')) {
+                isValid = false;
+                errorMessage = 'Tên website là bắt buộc.';
+            } else if (value && !value.match(/^[a-zA-ZÀ-ỹ0-9\s\-\.]+$/)) {
+                isValid = false;
+                errorMessage = 'Tên website chỉ được chứa chữ cái, số, dấu cách, dấu gạch ngang và dấu chấm.';
+            }
+            break;
+
+        case 'supportEmail':
+            if (!value && input.hasAttribute('required')) {
+                isValid = false;
+                errorMessage = 'Email hỗ trợ là bắt buộc.';
+            } else if (value && !value.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)) {
+                isValid = false;
+                errorMessage = 'Vui lòng nhập địa chỉ email hợp lệ.';
+            }
+            break;
+
+        case 'contactPhone':
+            if (value && !value.match(/^(\+84|84|0)?[0-9]{9,14}$/)) {
+                isValid = false;
+                errorMessage = 'Số điện thoại không hợp lệ. Định dạng: +84xxxxxxxxx, 84xxxxxxxxx hoặc 0xxxxxxxxx.';
+            }
+            break;
+    }
+
+    const errorElement = document.getElementById(fieldId + 'Error');
+    if (isValid) {
+        input.classList.remove('is-invalid');
+        if (value) {
+            input.classList.add('is-valid');
+        }
+        errorElement.textContent = '';
+    } else {
+        input.classList.add('is-invalid');
+        input.classList.remove('is-valid');
+        errorElement.textContent = errorMessage;
+    }
+
+    return isValid;
+}
+
+// Get field label for error messages
+function getFieldLabel(fieldId) {
+    const labels = {
+        'siteName': 'Tên website',
+        'supportEmail': 'Email hỗ trợ',
+        'contactPhone': 'Số điện thoại',
+        'contactAddress': 'Địa chỉ liên hệ'
+    };
+    return labels[fieldId] || 'Trường này';
+}
+
+// Validate all fields
+function validateAllFields() {
+    const fields = ['siteName', 'supportEmail', 'contactPhone', 'contactAddress'];
+    let allValid = true;
+
+    fields.forEach(fieldId => {
+        const input = document.getElementById(fieldId);
+        const minLength = fieldId === 'siteName' ? 3 : (fieldId === 'contactPhone' ? 10 : 0);
+        const maxLength = fieldId === 'siteName' ? 100 : (fieldId === 'supportEmail' ? 255 : (fieldId === 'contactPhone' ? 15 : 500));
+
+        const lengthValid = validateLength(input, minLength, maxLength, fieldId + 'Error', fieldId + 'Count');
+        const fieldValid = validateField(fieldId);
+
+        if (!lengthValid || !fieldValid) {
+            allValid = false;
+        }
+    });
+
+    return allValid;
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Settings Form Change Detection
     const settingsForm = document.getElementById('settingsForm');
@@ -438,13 +713,78 @@ document.addEventListener('DOMContentLoaded', function() {
     // Form submission validation
     if (settingsForm) {
         settingsForm.addEventListener('submit', function(e) {
-            if (!hasChanges()) {
+            // Validate all fields before submission
+            const isValid = validateAllFields();
+
+            if (!isValid) {
                 e.preventDefault();
-                alert('Không có thay đổi nào để cập nhật.');
+                showValidationSummary();
                 return false;
             }
+
+            if (!hasChanges()) {
+                e.preventDefault();
+                showAlert('Không có thay đổi nào để cập nhật.', 'warning');
+                return false;
+            }
+
+            // Show loading state
+            updateBtn.disabled = true;
+            updateBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Đang cập nhật...';
         });
     }
+
+    // Show validation summary
+    function showValidationSummary() {
+        const errors = [];
+        const fields = ['siteName', 'supportEmail', 'contactPhone', 'contactAddress'];
+
+        fields.forEach(fieldId => {
+            const input = document.getElementById(fieldId);
+            if (input.classList.contains('is-invalid')) {
+                const errorElement = document.getElementById(fieldId + 'Error');
+                if (errorElement.textContent) {
+                    errors.push(getFieldLabel(fieldId) + ': ' + errorElement.textContent);
+                }
+            }
+        });
+
+        if (errors.length > 0) {
+            showAlert('Vui lòng sửa các lỗi sau:\n• ' + errors.join('\n• '), 'danger');
+        }
+    }
+
+    // Show alert helper
+    function showAlert(message, type = 'info') {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+        alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; max-width: 400px;';
+        alertDiv.innerHTML = `
+            <i class="bi bi-${type === 'danger' ? 'exclamation-triangle' : type === 'warning' ? 'exclamation-circle' : 'info-circle'} me-2"></i>
+            <div style="white-space: pre-line;">${message}</div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+
+        document.body.appendChild(alertDiv);
+
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+        }, 5000);
+    }
+
+    // Initialize character counts and validation
+    const fields = ['siteName', 'supportEmail', 'contactPhone', 'contactAddress'];
+    fields.forEach(fieldId => {
+        const input = document.getElementById(fieldId);
+        const minLength = fieldId === 'siteName' ? 3 : (fieldId === 'contactPhone' ? 10 : 0);
+        const maxLength = fieldId === 'siteName' ? 100 : (fieldId === 'supportEmail' ? 255 : (fieldId === 'contactPhone' ? 15 : 500));
+
+        // Initialize character count
+        validateLength(input, minLength, maxLength, fieldId + 'Error', fieldId + 'Count');
+    });
 
     // Initial check
     updateChangeIndicator();

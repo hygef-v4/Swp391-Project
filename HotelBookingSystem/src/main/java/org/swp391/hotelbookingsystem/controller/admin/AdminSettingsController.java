@@ -88,18 +88,57 @@ public class AdminSettingsController {
     }
 
     /**
-     * Validate settings input
+     * Validate settings input with comprehensive length validation
      */
     private String validateSettings(SiteSettings settings) {
         StringBuilder error = new StringBuilder();
+
+        // Validate site name
         if (!StringUtils.hasText(settings.getSiteName())) {
             error.append("Tên website không được để trống. ");
+        } else {
+            String siteName = settings.getSiteName().trim();
+            if (siteName.length() < 3) {
+                error.append("Tên website phải có ít nhất 3 ký tự. ");
+            } else if (siteName.length() > 100) {
+                error.append("Tên website không được vượt quá 100 ký tự. ");
+            } else if (!siteName.matches("^[a-zA-ZÀ-ỹ0-9\\s\\-\\.]+$")) {
+                error.append("Tên website chỉ được chứa chữ cái, số, dấu cách, dấu gạch ngang và dấu chấm. ");
+            }
         }
+
+        // Validate support email
         if (!StringUtils.hasText(settings.getSupportEmail())) {
             error.append("Email hỗ trợ không được để trống. ");
-        } else if (!settings.getSupportEmail().matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
-            error.append("Email hỗ trợ không hợp lệ. ");
+        } else {
+            String email = settings.getSupportEmail().trim();
+            if (email.length() > 255) {
+                error.append("Email không được vượt quá 255 ký tự. ");
+            } else if (!email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")) {
+                error.append("Vui lòng nhập địa chỉ email hợp lệ. ");
+            }
         }
+
+        // Validate contact phone (optional)
+        if (StringUtils.hasText(settings.getContactPhone())) {
+            String phone = settings.getContactPhone().trim();
+            if (phone.length() < 10) {
+                error.append("Số điện thoại phải có ít nhất 10 ký tự. ");
+            } else if (phone.length() > 15) {
+                error.append("Số điện thoại không được vượt quá 15 ký tự. ");
+            } else if (!phone.matches("^(\\+84|84|0)?[0-9]{9,14}$")) {
+                error.append("Số điện thoại không hợp lệ. Định dạng: +84xxxxxxxxx, 84xxxxxxxxx hoặc 0xxxxxxxxx. ");
+            }
+        }
+
+        // Validate contact address (optional)
+        if (StringUtils.hasText(settings.getContactAddress())) {
+            String address = settings.getContactAddress().trim();
+            if (address.length() > 500) {
+                error.append("Địa chỉ không được vượt quá 500 ký tự. ");
+            }
+        }
+
         return error.length() > 0 ? error.toString() : null;
     }
 
