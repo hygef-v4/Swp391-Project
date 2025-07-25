@@ -153,6 +153,10 @@ public class HotelService {
         hotelRepository.banAllActiveHotelsByHostId(hostId, reason);
     }
 
+    public void unbanHotelsByOwnerBan(int hostId) {
+        hotelRepository.unbanHotelsByHostIdAndBanReason(hostId, "owner_is_banned");
+    }
+
     public List<Hotel> getHotelsByHostIdWithSearchAndPagination(int hostId, String search, int offset, int limit) {
         return hotelRepository.findByHostIdWithSearchAndPagination(hostId, search, offset, limit);
     }

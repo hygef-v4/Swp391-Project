@@ -433,8 +433,13 @@ public class HotelRepository {
     }
 
     public void banAllActiveHotelsByHostId(int hostId, String reason) {
-        String sql = "UPDATE Hotels SET status = 'banned' and ban_reason = ? WHERE host_id = ? and status = 'active'";
+        String sql = "UPDATE Hotels SET status = 'banned', ban_reason = ? WHERE host_id = ? and status = 'active'";
         jdbcTemplate.update(sql, reason, hostId);
+    }
+
+    public void unbanHotelsByHostIdAndBanReason(int hostId, String banReason) {
+        String sql = "UPDATE Hotels SET status = 'active', ban_reason = NULL WHERE host_id = ? AND ban_reason = ?";
+        jdbcTemplate.update(sql, hostId, banReason);
     }
 
     public List<Hotel> findByHostIdWithSearchAndPagination(int hostId, String search, int offset, int limit) {

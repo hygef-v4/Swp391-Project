@@ -242,6 +242,11 @@ public class AdminUserController {
             } else if (!wasActive && updatedUser.isActive()) {
                 // Unban: send unban email (reason optional)
                 emailService.sendUserUnbanEmail(updatedUser.getEmail(), reason != null ? reason : "");
+
+                // Unban all hotels that were banned due to owner ban
+                if ("HOTEL_OWNER".equals(updatedUser.getRole())) {
+                    hotelService.unbanHotelsByOwnerBan(userId);
+                }
             }
         } catch (Exception e) {
             // log error
