@@ -140,8 +140,8 @@
               <div class="row g-0">
 
                 <!-- Ảnh khách sạn (nếu có) -->
-                <div class="col-md-4" th:if="${favorite.hotel.hotelImageUrl != null}">
-                  <img th:src="${favorite.hotel.hotelImageUrl}" class="img-fluid rounded-start" alt="Hotel Image">
+                <div class="col-md-4 h-100 d-flex align-items-center" th:if="${favorite.hotel.hotelImageUrl != null}">
+                  <img th:src="${favorite.hotel.hotelImageUrl}" class="img-fluid rounded-start wishlist-hotel-img" alt="Hotel Image">
                 </div>
 
                 <!-- Thông tin khách sạn -->
