@@ -38,11 +38,13 @@ public class RefundController{
         @RequestParam("orderInfo") String orderInfo,
         HttpServletRequest request){
         try{
+            Booking booking = bookingService.findById(id);
+            if(booking.refundAmount() == 0) return "00";
+
             RestTemplate restTemplate = new RestTemplate();
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
 
-            Booking booking = bookingService.findById(id);
             String refundBody = vnpayService.refundPayment(trantype, booking.getOrderCode(), amount, booking.getTransactionNo(), booking.getCreatedAt(), refundRole, orderInfo, request);
             HttpEntity<String> http = new HttpEntity<>(refundBody, headers);
 

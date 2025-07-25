@@ -179,7 +179,7 @@
                                                 </div>
                                             </div>
                                             <div class="mt-2 mt-md-0">
-                                                <a th:if="${booking.refundAmount() > 0}" th:attr="data-cancel-url=@{'/cancel-booking/' + ${booking.bookingId}}, data-refund-amount=${#numbers.formatDecimal(booking.refundAmount(), 0, 'COMMA', 0, 'POINT') + '₫'}" class="btn btn-danger mb-0" onclick="confirmCancel(this)">Hủy đặt phòng</a>
+                                                <a th:attr="data-cancel-url=@{'/cancel-booking/' + ${booking.bookingId}}, data-refund-amount=${#numbers.formatDecimal(booking.refundAmount(), 0, 'COMMA', 0, 'POINT') + '₫'}" class="btn btn-danger mb-0" onclick="confirmCancel(this)">Hủy đặt phòng</a>
                                                 <a th:href="@{'/booking-detail/' + ${booking.bookingId} + '?upcoming=true'}" class="btn btn-primary-soft mb-0">Xem chi tiết</a>
                                             </div>
                                         </div>

@@ -220,7 +220,7 @@ public class HostDashboardController {
 
                 // Only reject approved booking units, leave others unchanged
                 int rejectedCount = bookingService.rejectApprovedBookingUnits(booking);
-                notificationService.rejectNotification(booking.getCustomerId(), String.valueOf(booking.getBookingId()), refundAmount);
+                notificationService.notifyRejectBooking(booking.getCustomerId(), String.valueOf(booking.getBookingId()), refundAmount);
 
                 response.put("success", true);
                 if (rejectedCount > 0) {

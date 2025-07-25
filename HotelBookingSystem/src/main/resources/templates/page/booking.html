@@ -477,7 +477,7 @@ Page content START -->
                                 <div class="card-footer border-top">
                                     <div class="d-flex justify-content-end align-items-center">
                                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                                        <input type="submit" class="btn btn-sm btn-primary mb-0" id="payButton" value="Pay Now" disabled>
+                                        <input type="submit" class="btn btn-sm btn-primary mb-0" id="payButton" value="Thanh toán" disabled>
                                     </div>
                                 </div>
                             </div>
@@ -508,8 +508,8 @@ Page content START -->
 
                                     <!-- Input group -->
                                     <div class="input-group mt-3">
-                                        <input class="form-control form-control" placeholder="Mã giảm giá">
-                                        <button type="button" class="btn btn-primary">Áp dụng</button>
+                                        <input class="form-control form-control" placeholder="Mã giảm giá" name="couponCode" id="couponCode" onchange="resetCoupon()">
+                                        <button type="button" class="btn btn-primary" onclick="applyCoupon()" id="couponButton">Áp dụng</button>
                                     </div>
                                 </div>	
                             </div>
@@ -771,6 +771,10 @@ Footer END -->
             updatePaid(newPrice, discount);
         }
     }
+
+    function applyCoupon(amount, type){
+
+    }
 </script>
 
 <script>
@@ -805,6 +809,31 @@ Footer END -->
     }
 </script>
 
+<script>
+    async function appyCoupon(){
+        const couponCode = document.getElementById("couponCode").value;
+
+        const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+		const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+        let request = await fetch('/applyCoupon', {
+			method: 'POST',
+			headers: {
+				[csrfHeader]: csrfToken
+			},
+			body: {
+                'couponCode': couponCode,
+            }
+		});
+
+        let response = request.json();
+        applyCoupon(response.amount, response.type);
+    }
+
+    function resetCoupon(){
+
+    }
+</script>
 
 </body>
 

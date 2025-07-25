@@ -194,7 +194,7 @@ public class ModeratorHotelListController {
             String response = restTemplate.postForObject(baseUrl + "/refund", request, String.class);
 
             if(response != null && response.equals("00")){
-                notificationService.rejectNotification(booking.getCustomerId(), String.valueOf(booking.getBookingId()), booking.refundAmount());
+                notificationService.notifyRejectBooking(booking.getCustomerId(), String.valueOf(booking.getBookingId()), booking.refundAmount());
             }else{
                 res.put("success", false);
                 res.put("message", "Hoàn tiền thất bại");

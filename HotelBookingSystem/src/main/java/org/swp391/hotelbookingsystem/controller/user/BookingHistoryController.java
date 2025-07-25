@@ -117,10 +117,9 @@ public class BookingHistoryController {
         for (BookingUnit bookingUnit : booking.getBookingUnits()) {
             if(!"approved".equalsIgnoreCase(bookingUnit.getStatus())){
                 cancelable = false;
-                System.out.println(bookingUnit.getBookingUnitId());
                 break;
             }
-        }model.addAttribute("cancelable", (cancelable && booking.refundAmount() > 0));
+        }model.addAttribute("cancelable", cancelable);
         
         return "page/bookingDetail";
     }

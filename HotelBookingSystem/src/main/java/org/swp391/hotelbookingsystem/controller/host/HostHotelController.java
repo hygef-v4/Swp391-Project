@@ -558,7 +558,7 @@ public class HostHotelController {
                         long refundAmount = booking.hostInitiatedRefundAmount(originalTotalPrice);
 
                         rejectedBookings = bookingService.rejectAllActiveBookingsByRoomId(roomId);
-                        notificationService.rejectNotification(booking.getCustomerId(), String.valueOf(booking.getBookingId()), refundAmount);
+                        notificationService.notifyRejectBooking(booking.getCustomerId(), String.valueOf(booking.getBookingId()), refundAmount);
                     }else{
                         response.put("success", false);
                         response.put("message", "Hoàn tiền thất bại");

@@ -26,14 +26,6 @@ public class NotificationService {
         createNotification(userId, "Thông báo", message, "system", "normal", null, null, null);
     }
 
-    public void rejectNotification(int userId, String bookingId, double amount){
-        String title = "Đặt phòng đã bị hủy";
-        String message = "Hoàn " + String.format("%,.0f", amount) + "₫ về tài khoản cua bạn";
-        String actionUrl = "/bookingHistory?tab=cancelled";
-        createNotification(userId, title, message, "refund", "high", actionUrl, "bi-credit-card",
-                         Map.of("bookingId", bookingId, "amount", amount));
-    }
-
     // Enhanced notification method
     public void createNotification(int userId, String title, String message, String type, 
                                  String priority, String actionUrl, String icon, Map<String, Object> metadata) {
@@ -49,39 +41,6 @@ public class NotificationService {
             System.err.println("Error creating notification: " + e.getMessage());
             e.printStackTrace();
         }
-    }
-
-    // Specific notification types for hotel booking system
-    public void notifyBookingConfirmation(int userId, String bookingId, String hotelName) {
-        String title = "Đặt phòng thành công! 🎉";
-        String message = "Bạn đã đặt thành công phòng tại " + hotelName + ". Mã đặt phòng: " + bookingId;
-        String actionUrl = "/bookingHistory";
-        createNotification(userId, title, message, "booking", "high", actionUrl, "bi-calendar-check", 
-                         Map.of("bookingId", bookingId, "hotelName", hotelName));
-    }
-
-    public void notifyNewMessage(int userId, String senderName, int senderId) {
-        String title = "Tin nhắn mới 💬";
-        String message = senderName + " đã gửi tin nhắn cho bạn";
-        
-        // Determine the correct action URL based on receiver's role
-        String actionUrl;
-        try {
-            User receiver = userService.findUserById(userId);
-            if (receiver != null && receiver.getRole().equals("HOTEL_OWNER")) {
-                // Host receives message from customer
-                actionUrl = "/host-customer-detail?customerId=" + senderId;
-            } else {
-                // Customer receives message from host  
-                actionUrl = "/customer-host-detail?hostId=" + senderId;
-            }
-        } catch (Exception e) {
-            // Fallback to generic chat URL if unable to determine role
-            actionUrl = "/chat?userId=" + senderId;
-        }
-        
-        createNotification(userId, title, message, "chat", "normal", actionUrl, "bi-chat-dots",
-                         Map.of("senderId", senderId, "senderName", senderName));
     }
 
     // Enhanced chat notification with merging capability
@@ -127,6 +86,47 @@ public class NotificationService {
         }
     }
 
+    // Specific notification types for hotel booking system
+    public void notifyBookingConfirmation(int userId, String bookingId, String hotelName) {
+        String title = "Đặt phòng thành công! 🎉";
+        String message = "Bạn đã đặt thành công phòng tại " + hotelName + ". Mã đặt phòng: " + bookingId;
+        String actionUrl = "/bookingHistory";
+        createNotification(userId, title, message, "booking", "high", actionUrl, "bi-calendar-check", 
+                         Map.of("bookingId", bookingId, "hotelName", hotelName));
+    }
+
+    public void notifyNewMessage(int userId, String senderName, int senderId) {
+        String title = "Tin nhắn mới 💬";
+        String message = senderName + " đã gửi tin nhắn cho bạn";
+        
+        // Determine the correct action URL based on receiver's role
+        String actionUrl;
+        try {
+            User receiver = userService.findUserById(userId);
+            if (receiver != null && receiver.getRole().equals("HOTEL_OWNER")) {
+                // Host receives message from customer
+                actionUrl = "/host-customer-detail?customerId=" + senderId;
+            } else {
+                // Customer receives message from host  
+                actionUrl = "/customer-host-detail?hostId=" + senderId;
+            }
+        } catch (Exception e) {
+            // Fallback to generic chat URL if unable to determine role
+            actionUrl = "/chat?userId=" + senderId;
+        }
+        
+        createNotification(userId, title, message, "chat", "normal", actionUrl, "bi-chat-dots",
+                         Map.of("senderId", senderId, "senderName", senderName));
+    }
+
+    public void notifyRejectBooking(int userId, String bookingId, double amount){
+        String title = "Đặt phòng đã bị hủy ❌";
+        String message = "Hoàn " + String.format("%,.0f", amount) + "₫ về tài khoản cua bạn";
+        String actionUrl = "/bookingHistory?tab=cancelled";
+        createNotification(userId, title, message, "refund", "high", actionUrl, "bi-trash",
+                         Map.of("bookingId", bookingId, "amount", amount));
+    }
+
     public void notifyRefundSuccess(int userId, String bookingId, double amount) {
         String title = "Hoàn tiền thành công ✅";
         String message = "Hoàn " + String.format("%,.0f", amount) + "₫ về tài khoản cua bạn";
@@ -136,10 +136,10 @@ public class NotificationService {
     }
 
     public void notifyHotelApproval(int userId, String hotelName) {
-        String title = "Khách sạn được phê duyệt 🏨";
+        String title = "Khách sạn được phê duyệt 🛎️";
         String message = "Khách sạn \"" + hotelName + "\" đã được phê duyệt và có thể nhận khách";
         String actionUrl = "/host-listing";
-        createNotification(userId, title, message, "hotel", "high", actionUrl, "bi-building",
+        createNotification(userId, title, message, "hotel", "high", actionUrl, "bi-patch-check",
                          Map.of("hotelName", hotelName));
     }
 
@@ -148,25 +148,27 @@ public class NotificationService {
         String message = promoTitle + " - Giảm " + discount;
         String actionUrl = "/hotel-list";
         createNotification(userId, title, message, "promotion", "normal", actionUrl, "bi-gift",
-                         Map.of("discount", discount));
+                         Map.of("promoTitle", promoTitle, "discount", discount));
     }
 
     public void notifyHotelAdded(int userId, String hotelName, int hotelId) {
         String title = "Tạo khách sạn thành công 🏨";
         String message = "Bạn đã tạo khách sạn \"" + hotelName + "\" thành công. Khách sạn đang chờ moderator phê duyệt.";
         String actionUrl = "/host-listing";
-        createNotification(userId, title, message, "hotel", "normal", actionUrl, "bi-building", Map.of("hotelId", hotelId, "hotelName", hotelName));
+        createNotification(userId, title, message, "hotel", "normal", actionUrl, "bi-building", 
+                         Map.of("hotelId", hotelId, "hotelName", hotelName));
     }
 
     public void notifyRoomAdded(int userId, String roomTitle, int hotelId) {
         String title = "Thêm phòng mới thành công 🛏️";
         String message = "Bạn đã thêm phòng \"" + roomTitle + "\" thành công.";
         String actionUrl = "/manage-hotel?hotelId=" + hotelId;
-        createNotification(userId, title, message, "hotel", "normal", actionUrl, "bi-door-open", Map.of("hotelId", hotelId, "roomTitle", roomTitle));
+        createNotification(userId, title, message, "hotel", "normal", actionUrl, "bi-door-open",
+                         Map.of("hotelId", hotelId, "roomTitle", roomTitle));
     }
 
     public void notifyHostRegistrationSuccess(int userId) {
-        String title = "Đăng ký chủ khách sạn thành công 🏨";
+        String title = "Đăng ký chủ khách sạn thành công 🔰";
         String message = "Chúc mừng! Bạn đã trở thành chủ khách sạn. Hãy tạo khách sạn đầu tiên của bạn.";
         String actionUrl = "/host-dashboard";
         createNotification(userId, title, message, "system", "high", actionUrl, "bi-award", null);
@@ -176,18 +178,20 @@ public class NotificationService {
         String title = "Đã thêm vào yêu thích ❤️";
         String message = "Bạn đã thêm khách sạn '" + hotelName + "' vào danh sách yêu thích.";
         String actionUrl = "/user-wishlist";
-        createNotification(userId, title, message, "wishlist", "normal", actionUrl, "bi-heart", Map.of("hotelId", hotelId, "hotelName", hotelName));
+        createNotification(userId, title, message, "wishlist", "normal", actionUrl, "bi-heart",
+                         Map.of("hotelId", hotelId, "hotelName", hotelName));
     }
 
     public void notifyWishlistRemove(int userId, String hotelName, int hotelId) {
         String title = "Đã xoá khỏi yêu thích 💔";
         String message = "Bạn đã xoá khách sạn '" + hotelName + "' khỏi danh sách yêu thích.";
         String actionUrl = "/user-wishlist";
-        createNotification(userId, title, message, "wishlist", "normal", actionUrl, "bi-heartbreak", Map.of("hotelId", hotelId, "hotelName", hotelName));
+        createNotification(userId, title, message, "wishlist", "normal", actionUrl, "bi-heartbreak",
+                         Map.of("hotelId", hotelId, "hotelName", hotelName));
     }
 
     public void notifyProfileUpdate(int userId) {
-        String title = "Cập nhật thông tin cá nhân";
+        String title = "Cập nhật thông tin cá nhân ✏️";
         String message = "Bạn đã cập nhật thông tin cá nhân thành công.";
         String actionUrl = "/user-profile";
         createNotification(userId, title, message, "profile", "normal", actionUrl, "bi-person-circle", null);
@@ -207,6 +211,13 @@ public class NotificationService {
         String actionUrl = "/hotel-detail?hotelId=" + hotelId;
         createNotification(reviewerId, title, message, "reply", "normal", actionUrl, "bi-reply-fill",
                          Map.of("hotelId", hotelId, "hotelName", hotelName, "replierName", replierName));
+    }
+
+    public void notifyPasswordChanged(int userId) {
+        String title = "Đổi mật khẩu thành công 🛡️";
+        String message = "Bạn đã đổi mật khẩu tài khoản thành công. Nếu không phải bạn thực hiện, hãy liên hệ hỗ trợ ngay!";
+        String actionUrl = "/user-change-password";
+        createNotification(userId, title, message, "profile", "high", actionUrl, "bi-shield-lock", null);
     }
 
     // Enhanced chat notification method that determines correct action URL based on user roles
@@ -303,13 +314,6 @@ public class NotificationService {
 
         // Fallback URL
         return "/chat?userId=" + senderId;
-    }
-
-    public void notifyPasswordChanged(int userId) {
-        String title = "Đổi mật khẩu thành công";
-        String message = "Bạn đã đổi mật khẩu tài khoản thành công. Nếu không phải bạn thực hiện, hãy liên hệ hỗ trợ ngay!";
-        String actionUrl = "/user-change-password";
-        createNotification(userId, title, message, "profile", "high", actionUrl, "bi-shield-lock", null);
     }
 
     // Get user notifications with pagination
