@@ -93,12 +93,12 @@ public class Booking {
         if (bookingUnits == null || numberOfNights == 0) return 0.0;
 
         return bookingUnits.stream()
-                .filter(unit -> {
-                    String status = unit.getStatus();
-                    return "approved".equals(status)
-                            || "completed".equals(status)
-                            || "check_in".equals(status);
-                })
+//                .filter(unit -> {
+//                    String status = unit.getStatus();
+//                    return "approved".equals(status)
+//                            || "completed".equals(status)
+//                            || "check_in".equals(status);
+//                })
                 .mapToDouble(unit -> unit.getPrice() * unit.getQuantity() * numberOfNights)
                 .sum();
     }
