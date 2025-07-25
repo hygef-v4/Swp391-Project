@@ -66,6 +66,31 @@ public class AdminSettingsController {
     @PostMapping("/admin/website-settings")
     public String updateSettings(@ModelAttribute SiteSettings settings, Model model, HttpSession session) {
         // Validation
+        String validationError = validateSettings(settings);
+        if (validationError != null) {
+            return handleError(model, settings, validationError);
+        }
+
+        // Check if settings have actually changed
+        SiteSettings currentSettings = settingsService.getSettings();
+        if (areSettingsUnchanged(currentSettings, settings)) {
+            return handleWarning(model, settings, "Không có thay đổi nào để cập nhật.");
+        }
+
+        // Update settings
+        try {
+            settingsService.updateSettings(settings);
+            logSettingsUpdate(session, settings);
+            return handleSuccess(model, settings);
+        } catch (DataAccessException ex) {
+            return handleError(model, settings, "Lỗi khi lưu cài đặt: " + ex.getMessage());
+        }
+    }
+
+    /**
+     * Validate settings input
+     */
+    private String validateSettings(SiteSettings settings) {
         StringBuilder error = new StringBuilder();
         if (!StringUtils.hasText(settings.getSiteName())) {
             error.append("Tên website không được để trống. ");
@@ -75,55 +100,43 @@ public class AdminSettingsController {
         } else if (!settings.getSupportEmail().matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
             error.append("Email hỗ trợ không hợp lệ. ");
         }
-        if (error.length() > 0) {
-            model.addAttribute("settings", settings);
-            model.addAttribute("error", error.toString());
+        return error.length() > 0 ? error.toString() : null;
+    }
 
-            // Add default log data for error response
-            List<AdminLogEntry> logs = adminLogService.getFilteredLogs(null, null, 1, 10);
-            int totalCount = adminLogService.getTotalFilteredCount(null, null);
-            int totalPages = (int) Math.ceil((double) totalCount / 10);
+    /**
+     * Handle error response
+     */
+    private String handleError(Model model, SiteSettings settings, String errorMessage) {
+        model.addAttribute("settings", settings);
+        model.addAttribute("error", errorMessage);
+        addLogDataToModel(model);
+        return "admin/admin-settings";
+    }
 
-            model.addAttribute("logs", logs);
-            model.addAttribute("currentPage", 1);
-            model.addAttribute("totalPages", totalPages);
-            model.addAttribute("totalCount", totalCount);
-            model.addAttribute("pageSize", 10);
-            model.addAttribute("uniqueAdmins", adminLogService.getUniqueAdmins());
-            model.addAttribute("uniqueActions", adminLogService.getUniqueActions());
+    /**
+     * Handle warning response
+     */
+    private String handleWarning(Model model, SiteSettings settings, String warningMessage) {
+        model.addAttribute("settings", settings);
+        model.addAttribute("warning", warningMessage);
+        addLogDataToModel(model);
+        return "admin/admin-settings";
+    }
 
-            return "admin/admin-settings";
-        }
-        try {
-            settingsService.updateSettings(settings);
-        } catch (DataAccessException ex) {
-            model.addAttribute("settings", settings);
-            model.addAttribute("error", "Lỗi khi lưu cài đặt: " + ex.getMessage());
-
-            // Add default log data for database error response
-            List<AdminLogEntry> logs = adminLogService.getFilteredLogs(null, null, 1, 10);
-            int totalCount = adminLogService.getTotalFilteredCount(null, null);
-            int totalPages = (int) Math.ceil((double) totalCount / 10);
-
-            model.addAttribute("logs", logs);
-            model.addAttribute("currentPage", 1);
-            model.addAttribute("totalPages", totalPages);
-            model.addAttribute("totalCount", totalCount);
-            model.addAttribute("pageSize", 10);
-            model.addAttribute("uniqueAdmins", adminLogService.getUniqueAdmins());
-            model.addAttribute("uniqueActions", adminLogService.getUniqueActions());
-
-            return "admin/admin-settings";
-        }
-        User user = (User) session.getAttribute("user");
-        String admin = (user != null) ? user.getFullName() + " (" + user.getEmail() + ")" : "unknown";
-        String action = "Cập nhật cài đặt hệ thống";
-        logger.info("Admin [{}] {}: {}", admin, action, settings);
-        adminLogService.log(admin, action, settings.toString());
+    /**
+     * Handle success response
+     */
+    private String handleSuccess(Model model, SiteSettings settings) {
         model.addAttribute("settings", settings);
         model.addAttribute("success", true);
+        addLogDataToModel(model);
+        return "admin/admin-settings";
+    }
 
-        // Add default log data for POST response
+    /**
+     * Add log data to model (eliminates code duplication)
+     */
+    private void addLogDataToModel(Model model) {
         List<AdminLogEntry> logs = adminLogService.getFilteredLogs(null, null, 1, 10);
         int totalCount = adminLogService.getTotalFilteredCount(null, null);
         int totalPages = (int) Math.ceil((double) totalCount / 10);
@@ -135,7 +148,62 @@ public class AdminSettingsController {
         model.addAttribute("pageSize", 10);
         model.addAttribute("uniqueAdmins", adminLogService.getUniqueAdmins());
         model.addAttribute("uniqueActions", adminLogService.getUniqueActions());
-
-        return "admin/admin-settings";
     }
-} 
+
+    /**
+     * Log settings update
+     */
+    private void logSettingsUpdate(HttpSession session, SiteSettings settings) {
+        User user = (User) session.getAttribute("user");
+        String admin = (user != null) ? user.getFullName() + " (" + user.getEmail() + ")" : "unknown";
+        String action = "Cập nhật cài đặt hệ thống";
+        logger.info("Admin [{}] {}: {}", admin, action, settings);
+        adminLogService.log(admin, action, settings.toString());
+    }
+
+    /**
+     * Helper method to check if settings have changed
+     */
+    private boolean areSettingsUnchanged(SiteSettings current, SiteSettings updated) {
+        if (current == null || updated == null) {
+            return false;
+        }
+
+        // Compare site name
+        if (!java.util.Objects.equals(
+            normalizeString(current.getSiteName()),
+            normalizeString(updated.getSiteName()))) {
+            return false;
+        }
+
+        // Compare support email
+        if (!java.util.Objects.equals(
+            normalizeString(current.getSupportEmail()),
+            normalizeString(updated.getSupportEmail()))) {
+            return false;
+        }
+
+        // Compare contact phone
+        if (!java.util.Objects.equals(
+            normalizeString(current.getContactPhone()),
+            normalizeString(updated.getContactPhone()))) {
+            return false;
+        }
+
+        // Compare contact address
+        if (!java.util.Objects.equals(
+            normalizeString(current.getContactAddress()),
+            normalizeString(updated.getContactAddress()))) {
+            return false;
+        }
+
+        return true; // All fields are the same
+    }
+
+    /**
+     * Helper method to normalize strings for comparison (trim and handle nulls)
+     */
+    private String normalizeString(String str) {
+        return str == null ? "" : str.trim();
+    }
+}

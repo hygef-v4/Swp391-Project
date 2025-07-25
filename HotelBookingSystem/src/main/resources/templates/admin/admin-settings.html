@@ -88,6 +88,40 @@
 	<!-- Theme CSS -->
 	<link rel="stylesheet" type="text/css" th:href="@{/assets/css/style.css}">
 
+	<!-- Custom CSS for Settings -->
+	<style>
+		#updateBtn:disabled {
+			cursor: not-allowed;
+			opacity: 0.6;
+		}
+
+		#changeIndicator {
+			border-left: 4px solid #0dcaf0;
+			animation: fadeIn 0.3s ease-in;
+		}
+
+		@keyframes fadeIn {
+			from { opacity: 0; transform: translateY(-10px); }
+			to { opacity: 1; transform: translateY(0); }
+		}
+
+		.form-control:focus {
+			border-color: #0d6efd;
+			box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+		}
+
+		.btn-group-settings {
+			gap: 0.5rem;
+		}
+
+		.settings-form-section {
+			background: #f8f9fa;
+			border-radius: 8px;
+			padding: 1.5rem;
+			margin-bottom: 2rem;
+		}
+	</style>
+
 </head>
 
 <body>
@@ -116,27 +150,54 @@
 				</div>
 			</div>
 
-			<form th:action="@{/admin/website-settings}" method="post">
+			<form th:action="@{/admin/website-settings}" method="post" id="settingsForm">
+				<!-- Hidden fields to store original values -->
+				<input type="hidden" id="originalSiteName" th:value="${settings.siteName}">
+				<input type="hidden" id="originalSupportEmail" th:value="${settings.supportEmail}">
+				<input type="hidden" id="originalContactPhone" th:value="${settings.contactPhone}">
+				<input type="hidden" id="originalContactAddress" th:value="${settings.contactAddress}">
+
 				<div class="mb-3">
 					<label class="form-label">Tên website</label>
-					<input type="text" class="form-control" th:value="${settings.siteName}" name="siteName" required>
+					<input type="text" class="form-control" th:value="${settings.siteName}" name="siteName" id="siteName" required>
 				</div>
 				<div class="mb-3">
 					<label class="form-label">Email hỗ trợ</label>
-					<input type="email" class="form-control" th:value="${settings.supportEmail}" name="supportEmail" required>
+					<input type="email" class="form-control" th:value="${settings.supportEmail}" name="supportEmail" id="supportEmail" required>
 				</div>
 				<div class="mb-3">
 					<label class="form-label">Số điện thoại liên hệ</label>
-					<input type="text" class="form-control" th:value="${settings.contactPhone}" name="contactPhone">
+					<input type="text" class="form-control" th:value="${settings.contactPhone}" name="contactPhone" id="contactPhone">
 				</div>
 				<div class="mb-3">
 					<label class="form-label">Địa chỉ liên hệ</label>
-					<textarea class="form-control" name="contactAddress" th:text="${settings.contactAddress}"></textarea>
+					<textarea class="form-control" name="contactAddress" id="contactAddress" th:text="${settings.contactAddress}"></textarea>
 				</div>
-				<button type="submit" class="btn btn-primary">Cập nhật</button>
+				<div class="d-flex gap-2">
+					<button type="submit" class="btn btn-primary" id="updateBtn">
+						<i class="bi bi-check-circle"></i> Cập nhật
+					</button>
+					<button type="button" class="btn btn-outline-secondary" id="resetBtn">
+						<i class="bi bi-arrow-clockwise"></i> Khôi phục
+					</button>
+				</div>
+
+				<!-- Change indicator -->
+				<div id="changeIndicator" class="alert alert-info mt-3" style="display: none;">
+					<i class="bi bi-info-circle"></i> Có thay đổi chưa được lưu
+				</div>
 			</form>
-			<div th:if="${success}" class="alert alert-success mt-3">Cập nhật thành công!</div>
-			<div th:if="${error}" class="alert alert-danger mt-3" th:text="${error}"></div>
+
+			<!-- Messages -->
+			<div th:if="${success}" class="alert alert-success mt-3">
+				<i class="bi bi-check-circle"></i> Cập nhật thành công!
+			</div>
+			<div th:if="${error}" class="alert alert-danger mt-3">
+				<i class="bi bi-exclamation-triangle"></i> <span th:text="${error}"></span>
+			</div>
+			<div th:if="${warning}" class="alert alert-warning mt-3">
+				<i class="bi bi-exclamation-circle"></i> <span th:text="${warning}"></span>
+			</div>
 
 			<h2 class="mt-5">Lịch sử hoạt động quản trị</h2>
 
@@ -302,22 +363,108 @@
 <!-- ThemeFunctions -->
 <script th:src="@{/assets/js/functions.js}"></script>
 
-<!-- Admin Log Filters Script -->
+<!-- Admin Settings and Log Filters Script -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Auto-submit form when filter inputs change
+    // Settings Form Change Detection
+    const settingsForm = document.getElementById('settingsForm');
+    const updateBtn = document.getElementById('updateBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const changeIndicator = document.getElementById('changeIndicator');
+
+    // Get original values
+    const originalValues = {
+        siteName: document.getElementById('originalSiteName').value || '',
+        supportEmail: document.getElementById('originalSupportEmail').value || '',
+        contactPhone: document.getElementById('originalContactPhone').value || '',
+        contactAddress: document.getElementById('originalContactAddress').value || ''
+    };
+
+    // Get form inputs
+    const inputs = {
+        siteName: document.getElementById('siteName'),
+        supportEmail: document.getElementById('supportEmail'),
+        contactPhone: document.getElementById('contactPhone'),
+        contactAddress: document.getElementById('contactAddress')
+    };
+
+    // Function to normalize strings for comparison
+    function normalizeString(str) {
+        return (str || '').trim();
+    }
+
+    // Function to check if form has changes
+    function hasChanges() {
+        return normalizeString(inputs.siteName.value) !== normalizeString(originalValues.siteName) ||
+               normalizeString(inputs.supportEmail.value) !== normalizeString(originalValues.supportEmail) ||
+               normalizeString(inputs.contactPhone.value) !== normalizeString(originalValues.contactPhone) ||
+               normalizeString(inputs.contactAddress.value) !== normalizeString(originalValues.contactAddress);
+    }
+
+    // Function to update UI based on changes
+    function updateChangeIndicator() {
+        const changed = hasChanges();
+        updateBtn.disabled = !changed;
+        changeIndicator.style.display = changed ? 'block' : 'none';
+
+        if (changed) {
+            updateBtn.classList.remove('btn-secondary');
+            updateBtn.classList.add('btn-primary');
+        } else {
+            updateBtn.classList.remove('btn-primary');
+            updateBtn.classList.add('btn-secondary');
+        }
+    }
+
+    // Add event listeners to all form inputs
+    Object.values(inputs).forEach(input => {
+        if (input) {
+            input.addEventListener('input', updateChangeIndicator);
+            input.addEventListener('change', updateChangeIndicator);
+        }
+    });
+
+    // Reset button functionality
+    if (resetBtn) {
+        resetBtn.addEventListener('click', function() {
+            inputs.siteName.value = originalValues.siteName;
+            inputs.supportEmail.value = originalValues.supportEmail;
+            inputs.contactPhone.value = originalValues.contactPhone;
+            inputs.contactAddress.value = originalValues.contactAddress;
+            updateChangeIndicator();
+        });
+    }
+
+    // Form submission validation
+    if (settingsForm) {
+        settingsForm.addEventListener('submit', function(e) {
+            if (!hasChanges()) {
+                e.preventDefault();
+                alert('Không có thay đổi nào để cập nhật.');
+                return false;
+            }
+        });
+    }
+
+    // Initial check
+    updateChangeIndicator();
+
+    // Auto-submit form when log filter inputs change
     const adminSelect = document.querySelector('select[name="adminFilter"]');
     const actionSelect = document.querySelector('select[name="actionFilter"]');
     const sizeSelect = document.querySelector('select[name="size"]');
 
-    // Add change event listeners for auto-submit
+    // Add change event listeners for auto-submit (only for filter form)
     [adminSelect, actionSelect, sizeSelect].forEach(element => {
         if (element) {
             element.addEventListener('change', function() {
-                // Add a small delay to prevent rapid submissions
-                setTimeout(() => {
-                    element.closest('form').submit();
-                }, 100);
+                // Make sure this is not the settings form
+                if (element.closest('form').id !== 'settingsForm') {
+                    // Add a small delay to prevent rapid submissions
+                    setTimeout(() => {
+                        element.closest('form').submit();
+                    }, 100);
+                }
             });
         }
     });
