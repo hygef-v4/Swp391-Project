@@ -283,14 +283,14 @@
 
                                     <!--                                     Date of birth-->
                                     <div class="col-md-6">
-                                        <label class="form-label">Date of Birth</label>
+                                        <label class="form-label">Ngày sinh</label>
                                         <input type="date" class="form-control" name="dob" th:value="${session.user.dob}">
                                     </div>
 
 
                                     <!--Gender-->
                                     <div class="col-md-6">
-                                        <label class="form-label">Gender</label>
+                                        <label class="form-label">Giới tính</label>
                                         <select class="form-select" name="gender">
                                             <option value="Male" th:selected="${session.user.gender eq 'Male'}">Nam</option>
                                             <option value="Female" th:selected="${session.user.gender eq 'Female'}">Nữ</option>
@@ -301,7 +301,7 @@
 
 <!--                                     Bio-->
                                     <div class="col-12">
-                                        <label class="form-label">Bio</label>
+                                        <label class="form-label">Tiểu sử</label>
                                         <textarea class="form-control" name="bio" th:text="${session.user.bio}"></textarea>
                                         <small class="text-muted">* Không quá 255 ký tự.</small>
                                     </div>
