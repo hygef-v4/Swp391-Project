@@ -1,5 +1,6 @@
 package org.swp391.hotelbookingsystem.controller.chatbot;
 
+import org.swp391.hotelbookingsystem.config.AppConfig;
 import org.swp391.hotelbookingsystem.service.GeminiService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,11 +17,13 @@ public class DialogflowWebhookController {
     private final GeminiService geminiService;
     private final LocationService locationService;
     private final SessionContextCache sessionContextCache;
+    private final AppConfig appConfig;
 
-    public DialogflowWebhookController(GeminiService geminiService, LocationService locationService, SessionContextCache sessionContextCache) {
+    public DialogflowWebhookController(GeminiService geminiService, LocationService locationService, SessionContextCache sessionContextCache, AppConfig appConfig) {
         this.geminiService = geminiService;
         this.locationService = locationService;
         this.sessionContextCache = sessionContextCache;
+        this.appConfig = appConfig;
     }
 
     private String stripMarkdown(String text) {
@@ -69,7 +72,8 @@ public class DialogflowWebhookController {
 
             // Xử lý intent Xem đơn đặt phòng
             if ("Xem đơn đặt phòng".equals(intentName)) {
-                String url = "http://localhost:8386/bookingHistory";
+                String path = "/bookingHistory";
+                String url = appConfig.buildUrl(path);
 
                 // Prompt Gemini tạo phản hồi tự nhiên
                 String softPrompt = """
@@ -169,7 +173,7 @@ public class DialogflowWebhookController {
                     return Map.of("fulfillmentText", reply);
                 }
 
-                // ✅ Đủ thông tin, xử lý tiếp
+                // Đủ thông tin, xử lý tiếp
                 // Chuẩn hóa location (có thể gây lỗi nếu không check độ dài)
                 String locationClean = rawLocation.toLowerCase().replace("thành phố", "").trim();
                 String location = locationClean.isBlank()
@@ -190,8 +194,13 @@ public class DialogflowWebhookController {
                     return Map.of("fulfillmentText", reply);
                 }
 
-                String url = String.format("http://localhost:8386/hotel-list?locationId=%d&dateRange=%s => %s&guests=%d&rooms=%d",
-                        locationId, checkin, checkout, guests, rooms);
+//                String url = String.format("https://hamora.live/hotel-list?locationId=%d&dateRange=%s => %s&guests=%d&rooms=%d",
+//                        locationId, checkin, checkout, guests, rooms);
+
+                String baseUrl = appConfig.getBaseUrl();
+                String path = "/hotel-list";
+                String url = String.format("%s%s?locationId=%d&dateRange=%s => %s&guests=%d&rooms=%d",
+                        baseUrl, path, locationId, checkin, checkout, guests, rooms);
 
                 String softPrompt2 = String.format("""
                     Người dùng đang tìm khách sạn ở %s từ %s đến %s cho %d người.
