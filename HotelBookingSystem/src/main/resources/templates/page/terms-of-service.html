@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Điều Khoản Dịch Vụ - Hamora</title>
+
+    <!-- Meta Tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="author" content="Hamora">
+    <meta name="description" content="Điều khoản dịch vụ của Hamora - Nền tảng đặt phòng khách sạn hàng đầu Việt Nam.">
+
+    <!-- Dark mode -->
+    <script>
+        const storedTheme = localStorage.getItem('theme')
+
+        const getPreferredTheme = () => {
+            if (storedTheme) {
+                return storedTheme
+            }
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        }
+
+        const setTheme = function (theme) {
+            if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.setAttribute('data-bs-theme', 'dark')
+            } else {
+                document.documentElement.setAttribute('data-bs-theme', theme)
+            }
+        }
+
+        setTheme(getPreferredTheme())
+
+        window.addEventListener('DOMContentLoaded', () => {
+            var el = document.querySelector('.theme-icon-active');
+            if (el != 'undefined' && el != null) {
+                const showActiveTheme = theme => {
+                    const activeThemeIcon = document.querySelector('.theme-icon-active use')
+                    const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+                    const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
+
+                    document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+                        element.classList.remove('active')
+                    })
+
+                    btnToActive.classList.add('active')
+                    activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+                }
+
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                    if (storedTheme !== 'light' || storedTheme !== 'dark') {
+                        setTheme(getPreferredTheme())
+                    }
+                })
+
+                showActiveTheme(getPreferredTheme())
+
+                document.querySelectorAll('[data-bs-theme-value]')
+                    .forEach(toggle => {
+                        toggle.addEventListener('click', () => {
+                            const theme = toggle.getAttribute('data-bs-theme-value')
+                            localStorage.setItem('theme', theme)
+                            setTheme(theme)
+                            showActiveTheme(theme)
+                        })
+                    })
+            }
+        })
+    </script>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/assets/images/favicon.ico">
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Poppins:wght@400;500;700&display=swap">
+
+    <!-- Plugins CSS -->
+    <link rel="stylesheet" type="text/css" href="/assets/vendor/font-awesome/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="/assets/vendor/bootstrap-icons/bootstrap-icons.css">
+
+    <!-- Theme CSS -->
+    <link rel="stylesheet" type="text/css" href="/assets/css/style.css">
+
+</head>
+
+<body>
+
+<!-- Header START -->
+<div th:replace="~{common/header :: header}"></div>
+<!-- Header END -->
+
+<main>
+    <!-- =======================
+    Page Banner START -->
+    <section class="py-0">
+        <div class="container-fluid px-0">
+            <div class="bg-primary bg-opacity-10 py-5">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12 text-center">
+                            <h1 class="fs-2 mb-2">Điều Khoản Dịch Vụ</h1>
+                            <p class="mb-0">Điều khoản và điều kiện sử dụng dịch vụ Hamora</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- =======================
+    Page Banner END -->
+
+    <!-- =======================
+    Terms Content START -->
+    <section class="pt-4 pt-md-5 pb-0">
+        <div class="container">
+            <div class="row">
+                <div class="col-xl-10 mx-auto">
+                    <div class="card shadow">
+                        <div class="card-body p-4 p-md-5">
+                            
+                            <!-- Last Updated -->
+                            <div class="alert alert-info" role="alert">
+                                <i class="bi bi-info-circle me-2"></i>
+                                <strong>Cập nhật lần cuối:</strong> 25 tháng 7, 2025
+                            </div>
+
+                            <!-- Introduction -->
+                            <div class="mb-5">
+                                <h2 class="h4 mb-3">1. Giới Thiệu</h2>
+                                <p>Chào mừng bạn đến với Hamora! Những điều khoản dịch vụ này ("Điều Khoản") điều chỉnh việc sử dụng trang web và dịch vụ của chúng tôi. Bằng cách truy cập hoặc sử dụng Hamora, bạn đồng ý tuân thủ các điều khoản này.</p>
+                                <p>Hamora là nền tảng trực tuyến kết nối khách du lịch với các nhà cung cấp dịch vụ lưu trú tại Việt Nam. Chúng tôi cam kết mang đến trải nghiệm đặt phòng an toàn, tiện lợi và đáng tin cậy.</p>
+                            </div>
+
+                            <!-- Definitions -->
+                            <div class="mb-5">
+                                <h2 class="h4 mb-3">2. Định Nghĩa</h2>
+                                <ul class="list-unstyled">
+                                    <li class="mb-2"><strong>"Hamora", "chúng tôi", "của chúng tôi":</strong> Đề cập đến công ty và nền tảng Hamora.</li>
+                                    <li class="mb-2"><strong>"Khách hàng", "bạn":</strong> Người sử dụng dịch vụ của Hamora.</li>
+                                    <li class="mb-2"><strong>"Chủ khách sạn":</strong> Các nhà cung cấp dịch vụ lưu trú đăng ký trên nền tảng.</li>
+                                    <li class="mb-2"><strong>"Dịch vụ":</strong> Tất cả các dịch vụ được cung cấp thông qua nền tảng Hamora.</li>
+                                </ul>
+                            </div>
+
+                            <!-- User Accounts -->
+                            <div class="mb-5">
+                                <h2 class="h4 mb-3">3. Tài Khoản Người Dùng</h2>
+                                <h5 class="h6 mb-2">3.1 Đăng Ký Tài Khoản</h5>
+                                <ul>
+                                    <li>Bạn phải cung cấp thông tin chính xác và đầy đủ khi đăng ký.</li>
+                                    <li>Bạn có trách nhiệm bảo mật thông tin đăng nhập của mình.</li>
+                                    <li>Mỗi người chỉ được tạo một tài khoản duy nhất.</li>
+                                </ul>
+                                
+                                <h5 class="h6 mb-2 mt-3">3.2 Trách Nhiệm Tài Khoản</h5>
+                                <ul>
+                                    <li>Bạn chịu trách nhiệm về tất cả hoạt động diễn ra dưới tài khoản của mình.</li>
+                                    <li>Thông báo ngay cho chúng tôi nếu phát hiện việc sử dụng trái phép tài khoản.</li>
+                                    <li>Cập nhật thông tin tài khoản khi có thay đổi.</li>
+                                </ul>
+                            </div>
+
+                            <!-- Booking Terms -->
+                            <div class="mb-5">
+                                <h2 class="h4 mb-3">4. Điều Khoản Đặt Phòng</h2>
+                                <h5 class="h6 mb-2">4.1 Quy Trình Đặt Phòng</h5>
+                                <ul>
+                                    <li>Tất cả đặt phòng phải được thực hiện thông qua nền tảng Hamora.</li>
+                                    <li>Xác nhận đặt phòng sẽ được gửi qua email sau khi thanh toán thành công.</li>
+                                    <li>Thông tin đặt phòng phải chính xác và đầy đủ.</li>
+                                </ul>
+                                
+                                <h5 class="h6 mb-2 mt-3">4.2 Thanh Toán</h5>
+                                <ul>
+                                    <li>Thanh toán phải được thực hiện đầy đủ tại thời điểm đặt phòng.</li>
+                                    <li>Chúng tôi chấp nhận các phương thức thanh toán được liệt kê trên trang web.</li>
+                                    <li>Giá phòng đã bao gồm thuế và phí dịch vụ (trừ khi có ghi chú khác).</li>
+                                </ul>
+                                
+                                <h5 class="h6 mb-2 mt-3">4.3 Chính Sách Hủy Phòng</h5>
+                                <ul>
+                                    <li>Chính sách hủy phòng được quy định bởi từng khách sạn cụ thể.</li>
+                                    <li>Thông tin chi tiết về chính sách hủy được hiển thị trước khi đặt phòng.</li>
+                                    <li>Việc hoàn tiền (nếu có) sẽ được xử lý theo chính sách của từng khách sạn.</li>
+                                </ul>
+                            </div>
+
+                            <!-- Host Terms -->
+                            <div class="mb-5">
+                                <h2 class="h4 mb-3">5. Điều Khoản Dành Cho Chủ Khách Sạn</h2>
+                                <h5 class="h6 mb-2">5.1 Đăng Ký Dịch Vụ</h5>
+                                <ul>
+                                    <li>Chủ khách sạn phải cung cấp thông tin chính xác về cơ sở lưu trú.</li>
+                                    <li>Tất cả hình ảnh và mô tả phải phản ánh đúng thực tế.</li>
+                                    <li>Tuân thủ các quy định pháp luật về kinh doanh dịch vụ lưu trú.</li>
+                                </ul>
+                                
+                                <h5 class="h6 mb-2 mt-3">5.2 Chất Lượng Dịch Vụ</h5>
+                                <ul>
+                                    <li>Duy trì chất lượng dịch vụ theo tiêu chuẩn đã cam kết.</li>
+                                    <li>Phản hồi và xử lý khiếu nại của khách hàng một cách kịp thời.</li>
+                                    <li>Tuân thủ chính sách hủy phòng đã đăng ký.</li>
+                                </ul>
+                            </div>
+
+                            <!-- Prohibited Uses -->
+                            <div class="mb-5">
+                                <h2 class="h4 mb-3">6. Các Hành Vi Bị Cấm</h2>
+                                <p>Bạn không được sử dụng dịch vụ của chúng tôi để:</p>
+                                <ul>
+                                    <li>Vi phạm pháp luật hoặc quy định hiện hành.</li>
+                                    <li>Cung cấp thông tin sai lệch hoặc gian lận.</li>
+                                    <li>Làm tổn hại đến hệ thống hoặc can thiệp vào hoạt động của nền tảng.</li>
+                                    <li>Sử dụng dịch vụ cho mục đích thương mại trái phép.</li>
+                                    <li>Quấy rối, đe dọa hoặc làm tổn hại đến người dùng khác.</li>
+                                </ul>
+                            </div>
+
+                            <!-- Limitation of Liability -->
+                            <div class="mb-5">
+                                <h2 class="h4 mb-3">7. Giới Hạn Trách Nhiệm</h2>
+                                <p>Hamora đóng vai trò là nền tảng kết nối và không chịu trách nhiệm về:</p>
+                                <ul>
+                                    <li>Chất lượng dịch vụ thực tế tại các cơ sở lưu trú.</li>
+                                    <li>Tranh chấp giữa khách hàng và chủ khách sạn.</li>
+                                    <li>Thiệt hại gián tiếp hoặc hậu quả phát sinh từ việc sử dụng dịch vụ.</li>
+                                    <li>Gián đoạn dịch vụ do sự cố kỹ thuật hoặc bảo trì hệ thống.</li>
+                                </ul>
+                            </div>
+
+                            <!-- Privacy -->
+                            <div class="mb-5">
+                                <h2 class="h4 mb-3">8. Quyền Riêng Tư</h2>
+                                <p>Việc thu thập và sử dụng thông tin cá nhân của bạn được điều chỉnh bởi <a href="/privacy-policy" class="text-primary">Chính Sách Bảo Mật</a> của chúng tôi. Bằng cách sử dụng dịch vụ, bạn đồng ý với việc thu thập và sử dụng thông tin theo chính sách này.</p>
+                            </div>
+
+                            <!-- Changes to Terms -->
+                            <div class="mb-5">
+                                <h2 class="h4 mb-3">9. Thay Đổi Điều Khoản</h2>
+                                <p>Chúng tôi có quyền cập nhật các điều khoản này bất kỳ lúc nào. Các thay đổi sẽ có hiệu lực ngay khi được đăng tải trên trang web. Việc tiếp tục sử dụng dịch vụ sau khi có thay đổi đồng nghĩa với việc bạn chấp nhận các điều khoản mới.</p>
+                            </div>
+
+                            <!-- Contact Information -->
+                            <div class="mb-5">
+                                <h2 class="h4 mb-3">10. Thông Tin Liên Hệ</h2>
+                                <p>Nếu bạn có bất kỳ câu hỏi nào về các điều khoản này, vui lòng liên hệ với chúng tôi:</p>
+                                <ul class="list-unstyled">
+                                    <li><strong>Email:</strong>
+                                        hamoraplatform@gmail.com</li>
+                                    <li><strong>Điện thoại:</strong> 1900 1234</li>
+                                    <li><strong>Địa chỉ:</strong> SE1936 Đại Học FPT</li>
+                                </ul>
+                            </div>
+
+                            <!-- Acceptance -->
+                            <div class="alert alert-primary" role="alert">
+                                <h5 class="alert-heading">Chấp Nhận Điều Khoản</h5>
+                                <p class="mb-0">Bằng cách sử dụng dịch vụ Hamora, bạn xác nhận rằng đã đọc, hiểu và đồng ý tuân thủ tất cả các điều khoản và điều kiện nêu trên.</p>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- =======================
+    Terms Content END -->
+
+</main>
+
+<!-- Footer START -->
+<div th:replace="~{common/footer :: footer}"></div>
+<!-- Footer END -->
+
+<!-- Back to top -->
+<div class="back-top"></div>
+
+<!-- Bootstrap JS -->
+<script src="/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Theme Functions -->
+<script src="/assets/js/functions.js"></script>
+
+</body>
+</html>
