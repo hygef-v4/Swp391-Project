@@ -32,10 +32,7 @@ import org.swp391.hotelbookingsystem.service.RoomService;
 import org.swp391.hotelbookingsystem.service.UserService;
 
 import jakarta.servlet.http.HttpSession;
-import lombok.extern.slf4j.Slf4j;
 
-
-@Slf4j
 @Controller
 public class HostDashboardController {
 
@@ -179,9 +176,7 @@ public class HostDashboardController {
                 return response;
             }
 
-            log.info("Fetched booking {} - totalPrice: {}, checkIn: {}, partialRefundDay: {}, partialRefundPercent: {}, noRefund: {}",
-                booking.getBookingId(), booking.getTotalPrice(), booking.getCheckIn(),
-                booking.getPartialRefundDay(), booking.getPartialRefundPercent(), booking.getNoRefund());
+
 
             // Check if booking belongs to host
             List<Hotel> hostHotels = hotelService.getHotelsByHostId(host.getId());
@@ -214,9 +209,7 @@ public class HostDashboardController {
                 // Host-initiated rejection = 100% refund (ignore cancellation policy)
                 long refundAmount = booking.hostInitiatedRefundAmount(originalTotalPrice);
 
-                log.info("Host-initiated booking rejection for booking {}", booking.getBookingId());
-                log.info("  - Original total price from DB: {}", originalTotalPrice);
-                log.info("  - Full refund amount (100%): {}", refundAmount);
+
 
                 // Only reject approved booking units, leave others unchanged
                 int rejectedCount = bookingService.rejectApprovedBookingUnits(booking);
@@ -365,14 +358,12 @@ public class HostDashboardController {
                     // Only calculate total price for bookings that are not cancelled or rejected
                     if ("cancelled".equals(overallStatus) || "rejected".equals(overallStatus)) {
                         booking.setTotalPrice(0.0);
-                        log.debug("Booking {} has status '{}' - setting total price to 0",
-                            booking.getBookingId(), overallStatus);
+
                     } else {
                         // Use calculateTotalPrice() method which properly calculates: price * quantity * numberOfNights
                         double calculatedPrice = booking.calculateTotalPrice();
                         booking.setTotalPrice(calculatedPrice);
-                        log.debug("Booking {} has status '{}' - calculated price: {}",
-                            booking.getBookingId(), overallStatus, calculatedPrice);
+
                     }
                 })
                 .collect(Collectors.toList());
@@ -421,7 +412,7 @@ public class HostDashboardController {
 
         } catch (Exception e) {
             result.put("error", e.getMessage());
-            e.printStackTrace();
+
         }
 
         return result;

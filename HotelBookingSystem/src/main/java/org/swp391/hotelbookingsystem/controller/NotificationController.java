@@ -26,7 +26,6 @@ public class NotificationController {
     @Autowired
     public NotificationController(NotificationService notificationService) {
         this.notificationService = notificationService;
-        // initialization log removed
     }
 
     @GetMapping("/health")
@@ -45,7 +44,7 @@ public class NotificationController {
             int unreadCount = notificationService.getUnreadCount(user.getId());
             return ResponseEntity.ok(Map.of("count", unreadCount));
         } catch (Exception e) {
-            System.err.println("❌ Error getting unread count: " + e.getMessage());
+            System.err.println("Error getting unread count: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", e.getMessage()));
         }
@@ -84,7 +83,7 @@ public class NotificationController {
             
             return ResponseEntity.ok(Map.of("success", true, "message", "Test notification sent", "type", type));
         } catch (Exception e) {
-            System.err.println("❌ Error sending test notification: " + e.getMessage());
+            System.err.println("Error sending test notification: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", e.getMessage()));
         }
@@ -117,7 +116,7 @@ public class NotificationController {
                 return ResponseEntity.ok(response);
             }
         } catch (Exception e) {
-            System.err.println("❌ Error getting notifications: " + e.getMessage());
+            System.err.println("Error getting notifications: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", e.getMessage()));
         }
@@ -137,7 +136,7 @@ public class NotificationController {
             notificationService.markAsRead(user.getId(), notificationId);
             return ResponseEntity.ok(Map.of("success", true));
         } catch (Exception e) {
-            System.err.println("❌ Error marking notification as read: " + e.getMessage());
+            System.err.println("Error marking notification as read: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", e.getMessage()));
         }
@@ -154,7 +153,7 @@ public class NotificationController {
             notificationService.markAllAsRead(user.getId());
             return ResponseEntity.ok(Map.of("success", true));
         } catch (Exception e) {
-            System.err.println("❌ Error marking all notifications as read: " + e.getMessage());
+            System.err.println("Error marking all notifications as read: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", e.getMessage()));
         }

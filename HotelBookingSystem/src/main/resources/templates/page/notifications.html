@@ -346,7 +346,7 @@ function setupEventListeners() {
         markAllReadBtn.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
-            console.log('✅ Mark all as read button clicked via addEventListener');
+            console.log('Mark all as read button clicked via addEventListener');
             markAllAsRead();
         });
         
@@ -354,14 +354,14 @@ function setupEventListeners() {
         markAllReadBtn.onclick = function(e) {
             e.preventDefault();
             e.stopPropagation();
-            console.log('✅ Mark all as read button clicked via onclick');
+            console.log('Mark all as read button clicked via onclick');
             markAllAsRead();
             return false;
         };
         
-        console.log('✅ Mark all as read button event listeners attached');
+        console.log('Mark all as read button event listeners attached');
     } else {
-        console.error('❌ Mark all as read button not found!');
+        console.error('Mark all as read button not found!');
     }
 }
 
@@ -531,7 +531,7 @@ async function markAllAsRead() {
     
     const button = document.getElementById('markAllReadBtn');
     if (!button) {
-        console.error('❌ Button not found');
+        console.error('Button not found');
         return;
     }
     
@@ -559,7 +559,7 @@ async function markAllAsRead() {
         showToast('Đã đánh dấu tất cả thông báo là đã đọc', 'success');
         
     } catch (error) {
-        console.error('❌ Error:', error);
+        console.error('Error:', error);
         showToast('Không thể đánh dấu thông báo. Vui lòng thử lại.', 'error');
     } finally {
         // Restore button

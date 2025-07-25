@@ -22,9 +22,6 @@ public class ContactListController {
         this.hotelService = hotelService;
     }
 
-    // Note: /customer-hosts and /host-customers are handled by existing controllers
-    // CustomerHostController and HostCustomerController respectively
-
     // Customer views list of moderators to contact
     @GetMapping("/customer-moderators")
     public String customerModerators(@RequestParam(defaultValue = "1") int page,

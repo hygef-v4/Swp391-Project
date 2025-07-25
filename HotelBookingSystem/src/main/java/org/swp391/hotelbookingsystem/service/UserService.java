@@ -104,33 +104,22 @@ public class UserService {
             return new ProfileValidationResult(false, missingFields, "Người dùng không tồn tại");
         }
 
-        // Debug logging - remove in production
-        System.out.println("=== PROFILE VALIDATION DEBUG ===");
-        System.out.println("Full Name: '" + user.getFullName() + "'");
-        System.out.println("Phone: '" + user.getPhone() + "'");
-        System.out.println("DOB: " + user.getDob());
-        System.out.println("Avatar URL: '" + user.getAvatarUrl() + "'");
-
         // Check required fields for hotel owner registration
         if (user.getFullName() == null || user.getFullName().trim().isEmpty()) {
             missingFields.add("Tên đầy đủ");
-            System.out.println("Missing: Full Name");
         }
 
         if (user.getPhone() == null || user.getPhone().trim().isEmpty()) {
             missingFields.add("Số điện thoại");
-            System.out.println("Missing: Phone (empty)");
         } else {
             String cleanPhone = user.getPhone().trim();
             if (!cleanPhone.matches("\\d{10,15}")) {
                 missingFields.add("Số điện thoại hợp lệ (10-15 chữ số)");
-                System.out.println("Missing: Phone (invalid format) - '" + cleanPhone + "'");
             }
         }
 
         if (user.getDob() == null) {
             missingFields.add("Ngày sinh");
-            System.out.println("Missing: Date of Birth");
         }
 
         // Avatar is recommended for hotel owners for trust and credibility
