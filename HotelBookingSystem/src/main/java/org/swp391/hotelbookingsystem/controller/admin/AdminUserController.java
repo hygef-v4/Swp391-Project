@@ -240,7 +240,6 @@ public class AdminUserController {
                 // Unban: send unban email (reason optional)
                 userService.toggleUserStatus(userId);
                 emailService.sendUserUnbanEmail(user.getEmail(), reason != null ? reason : "");
-                emailService.sendUserUnbanEmail(user.getEmail(), reason != null ? reason : "");
 
                 // Unban all hotels that were banned due to owner ban
                 if ("HOTEL_OWNER".equals(user.getRole())) {
