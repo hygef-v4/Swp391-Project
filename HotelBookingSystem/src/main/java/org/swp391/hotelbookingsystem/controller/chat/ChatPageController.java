@@ -8,8 +8,6 @@ import org.swp391.hotelbookingsystem.model.User;
 import org.swp391.hotelbookingsystem.service.UserService;
 
 import jakarta.servlet.http.HttpSession;
-import java.util.List;
-import java.util.Random;
 
 @Controller
 public class ChatPageController {
@@ -24,20 +22,19 @@ public class ChatPageController {
     @GetMapping("/agent-admin-contact")
     public String agentAdminContact(@RequestParam("userId") int userId, Model model, HttpSession session) {
         User currentUser = (User) session.getAttribute("user");
-        
+
         // Validate that current user is hotel owner
         if (!"HOTEL_OWNER".equals(currentUser.getRole())) {
             throw new IllegalStateException("Chỉ chủ khách sạn mới có thể liên hệ admin.");
         }
-        
-        List<User> admins = userService.getUsersByRole("ADMIN");
-        if (admins.isEmpty()) {
-            throw new IllegalStateException("Không tìm thấy admin nào để liên hệ.");
+
+        // Get the specific admin by userId instead of random selection
+        User admin = userService.findUserById(userId);
+        if (admin == null || !"ADMIN".equals(admin.getRole())) {
+            throw new IllegalStateException("Không tìm thấy admin được chỉ định.");
         }
 
-        User randomAdmin = admins.get(new Random().nextInt(admins.size()));
-        
-        model.addAttribute("customer", randomAdmin);
+        model.addAttribute("customer", admin);
         model.addAttribute("currentUserId", currentUser.getId());
         model.addAttribute("chatType", "agent-admin");
         return "admin/admin-agent-contact";
@@ -68,20 +65,19 @@ public class ChatPageController {
     @GetMapping("/customer-moderator-contact")
     public String customerModeratorContact(@RequestParam("userId") int userId, Model model, HttpSession session) {
         User currentUser = (User) session.getAttribute("user");
-        
+
         // Validate that current user is customer
         if (!"CUSTOMER".equals(currentUser.getRole())) {
             throw new IllegalStateException("Chỉ khách hàng mới có thể liên hệ moderator.");
         }
-        
-        List<User> moderators = userService.getUsersByRole("MODERATOR");
-        if (moderators.isEmpty()) {
-            throw new IllegalStateException("Không tìm thấy moderator nào để liên hệ.");
+
+        // Get the specific moderator by userId instead of random selection
+        User moderator = userService.findUserById(userId);
+        if (moderator == null || !"MODERATOR".equals(moderator.getRole())) {
+            throw new IllegalStateException("Không tìm thấy moderator được chỉ định.");
         }
 
-        User randomModerator = moderators.get(new Random().nextInt(moderators.size()));
-        
-        model.addAttribute("customer", randomModerator);
+        model.addAttribute("customer", moderator);
         model.addAttribute("currentUserId", currentUser.getId());
         model.addAttribute("chatType", "customer-moderator");
         return "admin/admin-agent-contact";
@@ -133,20 +129,19 @@ public class ChatPageController {
     @GetMapping("/customer-admin-contact")
     public String customerAdminContact(@RequestParam("userId") int userId, Model model, HttpSession session) {
         User currentUser = (User) session.getAttribute("user");
-        
+
         // Validate that current user is customer
         if (!"CUSTOMER".equals(currentUser.getRole())) {
             throw new IllegalStateException("Chỉ khách hàng mới có thể liên hệ admin.");
         }
-        
-        List<User> admins = userService.getUsersByRole("ADMIN");
-        if (admins.isEmpty()) {
-            throw new IllegalStateException("Không tìm thấy admin nào để liên hệ.");
+
+        // Get the specific admin by userId instead of random selection
+        User admin = userService.findUserById(userId);
+        if (admin == null || !"ADMIN".equals(admin.getRole())) {
+            throw new IllegalStateException("Không tìm thấy admin được chỉ định.");
         }
 
-        User randomAdmin = admins.get(new Random().nextInt(admins.size()));
-        
-        model.addAttribute("customer", randomAdmin);
+        model.addAttribute("customer", admin);
         model.addAttribute("currentUserId", currentUser.getId());
         model.addAttribute("chatType", "customer-admin");
         return "admin/admin-agent-contact";

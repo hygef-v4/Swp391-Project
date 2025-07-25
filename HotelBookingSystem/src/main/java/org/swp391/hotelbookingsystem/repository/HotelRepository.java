@@ -59,6 +59,7 @@ public class HotelRepository {
                    h.latitude,
                    h.longitude,
                    h.status,
+                   h.ban_reason AS banReason,
                    MIN(r.price) AS minPrice,
                    l.city_name AS cityName,
                    u.full_name AS hostName,
@@ -69,7 +70,7 @@ public class HotelRepository {
             JOIN Users u ON h.host_id = u.user_id
             GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
                      h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude,
-                     h.status, l.city_name, u.full_name
+                     h.status, h.ban_reason, l.city_name, u.full_name
             ORDER BY h.hotel_id ASC
             """;
 
@@ -225,6 +226,7 @@ public class HotelRepository {
                        h.longitude,
                        h.policy,
                        h.status,
+                       h.ban_reason AS banReason,
                        MIN(r.price) AS minPrice,
                        l.city_name AS cityName,
                        u.full_name AS hostName,
@@ -236,7 +238,7 @@ public class HotelRepository {
                 WHERE h.hotel_id = ?
                 GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
                          h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude, h.policy,
-                         l.city_name, h.status, u.full_name
+                         l.city_name, h.status, h.ban_reason, u.full_name
                 """;
         return jdbcTemplate.queryForObject(query, HOTEL_MAPPER, id);
     }
@@ -312,6 +314,7 @@ public class HotelRepository {
                            h.longitude,
                            h.policy,
                            h.status,
+                           h.ban_reason AS banReason,
                            MIN(r.price) AS minPrice,
                            l.city_name AS cityName
                     FROM Hotels h
@@ -320,7 +323,7 @@ public class HotelRepository {
                     WHERE h.host_id = ?
                     GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
                              h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude,
-                             h.policy, h.status, l.city_name
+                             h.policy, h.status, h.ban_reason, l.city_name
                     ORDER BY h.hotel_id DESC
                 """;
 
@@ -400,6 +403,8 @@ public class HotelRepository {
                h.rating,
                h.latitude,
                h.longitude,
+               h.status,
+               h.ban_reason AS banReason,
                MIN(r.price) AS minPrice,
                l.city_name AS cityName,
                u.full_name AS hostName
@@ -410,7 +415,7 @@ public class HotelRepository {
         WHERE h.hotel_name LIKE ?
         GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
                  h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude,
-                 l.city_name, u.full_name
+                 h.status, h.ban_reason, l.city_name, u.full_name
         ORDER BY h.hotel_id
         OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
     """;
@@ -427,9 +432,14 @@ public class HotelRepository {
         return jdbcTemplate.queryForObject(sql, Integer.class, "%" + (search == null ? "" : search.trim()) + "%");
     }
 
-    public void banAllHotelsByHostId(int hostId) {
-        String sql = "UPDATE Hotels SET status = 'banned' WHERE host_id = ?";
-        jdbcTemplate.update(sql, hostId);
+    public void banAllActiveHotelsByHostId(int hostId, String reason) {
+        String sql = "UPDATE Hotels SET status = 'banned', ban_reason = ? WHERE host_id = ? and status = 'active'";
+        jdbcTemplate.update(sql, reason, hostId);
+    }
+
+    public void unbanHotelsByHostIdAndBanReason(int hostId, String banReason) {
+        String sql = "UPDATE Hotels SET status = 'active', ban_reason = NULL WHERE host_id = ? AND ban_reason = ?";
+        jdbcTemplate.update(sql, hostId, banReason);
     }
 
     public List<Hotel> findByHostIdWithSearchAndPagination(int hostId, String search, int offset, int limit) {
@@ -446,6 +456,7 @@ public class HotelRepository {
                            h.longitude,
                            h.policy,
                            h.status,
+                           h.ban_reason AS banReason,
                            MIN(r.price) AS minPrice,
                            l.city_name AS cityName
                     FROM Hotels h
@@ -454,7 +465,7 @@ public class HotelRepository {
                     WHERE h.host_id = ? AND h.hotel_name LIKE ?
                     GROUP BY h.hotel_id, h.host_id, h.hotel_name, h.address, h.description,
                              h.location_id, h.hotel_image_url, h.rating, h.latitude, h.longitude,
-                             h.policy, h.status, l.city_name
+                             h.policy, h.status, h.ban_reason, l.city_name
                     ORDER BY h.hotel_id DESC
                     OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
                 """;

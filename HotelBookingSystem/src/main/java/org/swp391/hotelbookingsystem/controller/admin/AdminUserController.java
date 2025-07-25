@@ -207,7 +207,7 @@ public class AdminUserController {
                     }
 
                     bookingService.rejectAllApprovedBookingsByHostId(userId);
-                    hotelService.banAllHotelsByHostId(userId);
+                    hotelService.banAllActiveHotelsByHostId(userId, "owner_is_banned");
                 }
 
                 List<Booking> bookings = bookingService.findActiveBookingsByCustomerId(userId);
@@ -240,6 +240,11 @@ public class AdminUserController {
                 // Unban: send unban email (reason optional)
                 userService.toggleUserStatus(userId);
                 emailService.sendUserUnbanEmail(user.getEmail(), reason != null ? reason : "");
+
+                // Unban all hotels that were banned due to owner ban
+                if ("HOTEL_OWNER".equals(user.getRole())) {
+                    hotelService.unbanHotelsByOwnerBan(userId);
+                }
             }
         } catch (Exception e) {
             // log error
