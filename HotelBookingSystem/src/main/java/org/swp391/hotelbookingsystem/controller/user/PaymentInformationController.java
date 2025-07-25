@@ -62,7 +62,7 @@ public class PaymentInformationController {
 
     @PostMapping("/add-bank")
     public String addBank(
-        @RequestParam("bankId") int bankId,
+        @RequestParam("bankCode") String bankCode,
         @RequestParam("bankNumber") String bankNumber,
         @RequestParam("userName") String userName,
 
@@ -72,6 +72,8 @@ public class PaymentInformationController {
         if(user == null) {
             return "redirect:/login";
         }
+
+        int bankId = bankService.getIdByCode(bankCode);
 
         int check = bankService.addBank(user.getId(), bankId, bankNumber, userName);
         if(check == -1){
@@ -94,7 +96,7 @@ public class PaymentInformationController {
 
     @PostMapping("/edit-bank")
     public String editBank(
-        @RequestParam("bankId") int bankId,
+        @RequestParam("bankCode") String bankCode,
         @RequestParam("bankNumber") String bankNumber,
         @RequestParam("userName") String userName,
 
@@ -107,6 +109,8 @@ public class PaymentInformationController {
         if(user == null) {
             return "redirect:/login";
         }
+
+        int bankId = bankService.getIdByCode(bankCode);
 
         int check = bankService.editBank(user.getId(), bankId, bankNumber, userName, oldId, oldNumber);
         if(check == -1){
@@ -130,8 +134,17 @@ public class PaymentInformationController {
             return "redirect:/login";
         }
 
-        bankService.deleteBank(user.getId(), bankId, bankNumber);
-        redirectAttributes.addFlashAttribute("successMessage", "Xóa tài khoản thành công.");
+        if("HOTEL_OWNER".equals(user.getRole()) && bankService.countBank(user.getId()) <= 1){
+            redirectAttributes.addFlashAttribute("errorMessage", "Chủ khách sạn phải có ít nhất một tài khoản ngân hàng.");
+        }else{
+            int check = bankService.deleteBank(user.getId(), bankId, bankNumber);
+
+            if(check == -1){
+                redirectAttributes.addFlashAttribute("errorMessage", "Không thể xóa tài khoản mặc định, hãy chọn tài khoản khác làm mặc định trước khi xóa!");
+            }else{
+                redirectAttributes.addFlashAttribute("successMessage", "Xóa tài khoản thành công.");
+            }
+        }
 
         return "redirect:/payment-information";
     }

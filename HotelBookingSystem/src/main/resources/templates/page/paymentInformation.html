@@ -188,7 +188,7 @@ Content START -->
 							<!-- Visa card -->
 							<div class="col-md-6" th:each="bank: ${user.banks}" id="${bank.bankNumber} + 'bank' + ${bank.bankId}">
 								<div class="card">
-									<div class="bg-info p-4 rounded-3 mb-2" th:if="user != null">
+									<div th:class="${bank.backGround()} + ' p-4 rounded-3 mb-2'" th:if="user != null">
 										<div class="d-flex justify-content-between align-items-start">
 											<div>
 												<span style="background-color: white; display: inline-block; height: 30px"><img class="w-80px" th:src="${bank.logo}" th:alt="${bank.bankCode}"></span>
@@ -205,7 +205,7 @@ Content START -->
 													</svg>
 												</a>               
 												<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="creditcardDropdown">
-													<li><a class="dropdown-item" href="javascript:void(0)" th:attr="data-bank-id=${bank.bankId}, data-bank-number=${bank.bankNumber}, data-user-name=${bank.userName}" onclick="editBank(this)"><i class="bi bi-calculator me-2 fw-icon"></i>Sửa thông tin</a></li>
+													<li><a class="dropdown-item" href="javascript:void(0)" th:attr="data-bank-id=${bank.bankId}, data-bank-code=${bank.bankCode}, data-bank-number=${bank.bankNumber}, data-user-name=${bank.userName}" onclick="editBank(this)"><i class="bi bi-calculator me-2 fw-icon"></i>Sửa thông tin</a></li>
 													<li>
 														<form action="/delete-bank" method="POST">
 															<input type="hidden" name="bankId" th:value="${bank.bankId}">
@@ -243,10 +243,10 @@ Content START -->
 									<div class="col-12">
 										<label class="form-label">Ngân Hàng<span class="text-danger">*</span></label>
 										<div class="position-relative">
-											<select name="bankId" class="form-control tom-select" required>
+											<select name="bankCode" class="form-control tom-select" required onchange="validate('add')">
 												<option value="" disabled selected hidden>Chọn ngân hàng</option>
 												<option th:each="bank : ${banks}" 
-														th:value="${bank.bankId}"
+														th:value="${bank.bankCode}"
 														th:data-icon="${bank.icon}"
 														th:text="${bank.bankName} + ' (' + ${bank.bankCode} + ')'"
 												>
@@ -257,12 +257,15 @@ Content START -->
 									<!-- Bank Account -->
 									<div class="col-md-12">
 										<label class="form-label">Số Tài Khoản<span class="text-danger">*</span></label>
-										<input type="text" name="bankNumber" class="form-control" minlength="8" maxlength="16" placeholder="Số tài khoản" required>
+										<input type="text" name="bankNumber" class="form-control" minlength="8" maxlength="16" placeholder="Số tài khoản" required onchange="validate('add')">
 									</div>
 									<!-- Account name -->
 									<div class="col-12">
 										<label class="form-label">Tên Người Dùng<span class="text-danger">*</span></label>
-										<input type="text" name="userName" class="form-control" placeholder="Tên người dùng" required>
+										<div class="input-group">
+											<input type="text" name="userName" class="form-control bg-white" placeholder="Tên người dùng" required readonly onfocus="search('add')">
+											<button type="button" class="btn btn-primary" onclick="search('add')">Tìm tài khoản</button>
+										</div>
 									</div>
 									<!-- Button -->
 									<div class="col-12 d-flex justify-content-end">
@@ -286,10 +289,10 @@ Content START -->
 									<div class="col-12">
 										<label class="form-label">Ngân Hàng<span class="text-danger">*</span></label>
 										<div class="position-relative">
-											<select name="bankId" class="form-control tom-select" required>
+											<select name="bankCode" class="form-control tom-select" required onchange="validate('edit')">
 												<option value="" disabled selected hidden>Chọn ngân hàng</option>
 												<option th:each="bank : ${banks}" 
-														th:value="${bank.bankId}"
+														th:value="${bank.bankCode}"
 														th:data-icon="${bank.icon}"
 														th:text="${bank.bankName} + ' (' + ${bank.bankCode} + ')'"
 												>
@@ -300,12 +303,15 @@ Content START -->
 									<!-- Bank Account -->
 									<div class="col-md-12">
 										<label class="form-label">Số Tài Khoản<span class="text-danger">*</span></label>
-										<input type="text" name="bankNumber" class="form-control" minlength="8" maxlength="16" placeholder="Số tài khoản" required>
+										<input type="text" name="bankNumber" class="form-control" minlength="8" maxlength="16" placeholder="Số tài khoản" required onchange="validate('edit')">
 									</div>
 									<!-- Account name -->
 									<div class="col-12">
 										<label class="form-label">Tên Người Dùng<span class="text-danger">*</span></label>
-										<input type="text" name="userName" class="form-control" placeholder="Tên người dùng" required>
+										<div class="input-group">
+											<input type="text" name="userName" class="form-control bg-white" placeholder="Tên người dùng" required readonly onfocus="search('edit')">
+											<button type="button" class="btn btn-primary" onclick="search('edit')">Tìm tài khoản</button>
+										</div>
 									</div>
 									<!-- Button -->
 									<div class="col-12 d-flex justify-content-end">
@@ -350,6 +356,92 @@ Footer END -->
 
 <!-- ThemeFunctions -->
 <script src="assets/js/functions.js"></script>
+
+<script>
+	let addValidate = true;
+	let editValidate = true;
+
+	function validate(e){
+		const form = document.getElementById(e + 'Form');
+		form.elements['userName'].classList.remove('border');
+		form.elements['userName'].classList.remove('border-danger');
+
+		if(e == 'add') addValidate = false;
+		else if(e == 'edit') editValidate = false;
+	}
+
+	async function search(e){
+		if(e == 'add' && addValidate) return;
+		if(e == 'edit' && editValidate) return;
+
+		const form = document.getElementById(e + 'Form');
+
+		let bankCode = form.elements['bankCode'].value;
+		let bankNumber = form.elements['bankNumber'].value;
+		if(bankCode.trim() == '' || bankNumber.trim() == ''){
+			form.elements['userName'].value = "Vui lòng điền đầy đủ thông tin!!!"
+		}else{
+			form.elements['userName'].value = "Đang tìm kiếm..."
+		}
+
+		let request = await fetch('https://api.banklookup.net', {
+			method: 'POST',
+			headers: {
+				'x-api-key': '2cabc90a-21cd-4266-bd71-757804d0ea81key',
+				'x-api-secret': '378a3059-6be3-4f93-ae87-38c81df2c1b7secret',
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				'bank': bankCode,
+				'account': bankNumber
+			})
+		});
+
+		let response = await request.json();
+
+		if(response.code == 200){
+			form.elements['userName'].value = response.data.ownerName;
+
+			if(e == 'add') addValidate = true;
+			else if(e == 'edit') editValidate = true;
+		}else{
+			switch(response.code){
+				case 422:
+					form.elements['userName'].value = "Không tìm thấy tài khoản, vui lòng xác nhận lại thông tin tài khoản";
+					break;
+
+				case 429:
+					form.elements['userName'].value = "Yêu cầu không phản hồi, vui lòng chờ vài phút";
+					break;
+				
+				default:
+					form.elements['userName'].value = "Xảy ra lỗi không xác định";
+					break;
+			}
+			
+			form.elements['userName'].classList.add('border');
+			form.elements['userName'].classList.add('border-danger');
+		}
+	}
+
+	document.getElementById('addForm').addEventListener('submit', async function(e){
+		e.preventDefault();
+		if(addValidate) this.submit();
+		else{
+			await search('add');
+			if(addValidate) this.submit();
+		}
+	});
+
+	document.getElementById('editForm').addEventListener('submit', async function(e){
+		e.preventDefault();
+		if(editValidate) this.submit();
+		else{
+			await search('edit');
+			if(editValidate) this.submit();
+		}
+	});
+</script>
 
 <script>
 	function unmask(e){
@@ -417,14 +509,14 @@ Footer END -->
 		let editInfo = document.querySelector("#editInfo");
 		let editForm = document.querySelector("#editForm");
 		
-		editForm.elements["bankId"].tomselect.setValue(e.getAttribute("data-bank-id"));
+		editForm.elements["bankCode"].tomselect.setValue(e.getAttribute("data-bank-code"));
 		editForm.elements["bankNumber"].value = e.getAttribute("data-bank-number");
 		editForm.elements["userName"].value = e.getAttribute("data-user-name");
 
 		editForm.elements["oldId"].value = e.getAttribute("data-bank-id");
 		editForm.elements["oldNumber"].value = e.getAttribute("data-bank-number");
 
-		if(editInfo.classList.contains("hidden") && e != currentEdit){
+		if(e != currentEdit){
 			editInfo.classList.remove("hidden");
 			currentEdit = e;
 		}else{
@@ -432,6 +524,7 @@ Footer END -->
 			currentEdit = null;
 		}
 		
+		editValidate = true;
 		scrollToId("editInfo");
 	}
 </script>
