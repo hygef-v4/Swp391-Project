@@ -124,6 +124,85 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.04);
             border: 1px solid #ececec;
         }
+
+        /* Filter section styling */
+        .filter-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Replies container styling */
+        .replies-container {
+            border-left: 3px solid #e9ecef;
+            margin-left: 20px;
+            padding-left: 15px;
+            margin-top: 15px;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        /* Delete button styling */
+        .btn-link.text-danger:hover {
+            color: #dc3545 !important;
+            text-decoration: underline;
+        }
+
+        /* Reply actions styling */
+        .reply-actions .d-flex {
+            align-items: center;
+        }
+
+        .reply-actions .btn-link {
+            font-size: 0.875rem;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .reply-actions .btn-link:hover {
+            transform: translateY(-1px);
+        }
+
+        /* Filter form styling */
+        #reviewFiltersForm .form-select {
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+        }
+
+        #reviewFiltersForm .form-select:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+
+        /* Animation for replies */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Success/Error alerts */
+        .alert.position-fixed {
+            animation: slideInRight 0.3s ease-out;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Toggle button styling */
+        .btn-toggle-replies {
+            transition: all 0.3s ease;
+        }
+
+        .btn-toggle-replies:hover {
+            transform: translateY(-1px);
+        }
     </style>
 
 </head>
@@ -229,13 +308,95 @@
             </div>
             <!-- Counter END -->
 
+            <!-- Filters START -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card border">
+                        <div class="card-header border-bottom">
+                            <h5 class="card-header-title">Bộ lọc đánh giá</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="get" th:action="@{/host-reviews}" id="reviewFiltersForm">
+                                <div class="row g-3">
+                                    <!-- Rating Filter -->
+                                    <div class="col-md-3">
+                                        <label class="form-label">Đánh giá</label>
+                                        <select class="form-select" name="rating" onchange="submitFilters()">
+                                            <option value="">Tất cả đánh giá</option>
+                                            <option value="5" th:selected="${param.rating != null and param.rating[0] == '5'}">⭐⭐⭐⭐⭐ (5 sao)</option>
+                                            <option value="4" th:selected="${param.rating != null and param.rating[0] == '4'}">⭐⭐⭐⭐ (4 sao)</option>
+                                            <option value="3" th:selected="${param.rating != null and param.rating[0] == '3'}">⭐⭐⭐ (3 sao)</option>
+                                            <option value="2" th:selected="${param.rating != null and param.rating[0] == '2'}">⭐⭐ (2 sao)</option>
+                                            <option value="1" th:selected="${param.rating != null and param.rating[0] == '1'}">⭐ (1 sao)</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Hotel Filter -->
+                                    <div class="col-md-3">
+                                        <label class="form-label">Khách sạn</label>
+                                        <select class="form-select" name="hotelId" onchange="submitFilters()">
+                                            <option value="">Tất cả khách sạn</option>
+                                            <option th:each="hotel : ${hotels}"
+                                                    th:value="${hotel.hotelId}"
+                                                    th:text="${hotel.hotelName}"
+                                                    th:selected="${param.hotelId != null and param.hotelId[0] == hotel.hotelId.toString()}">
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Reply Status Filter -->
+                                    <div class="col-md-3">
+                                        <label class="form-label">Trạng thái phản hồi</label>
+                                        <select class="form-select" name="replyStatus" onchange="submitFilters()">
+                                            <option value="">Tất cả</option>
+                                            <option value="replied" th:selected="${param.replyStatus != null and param.replyStatus[0] == 'replied'}">Đã phản hồi</option>
+                                            <option value="not_replied" th:selected="${param.replyStatus != null and param.replyStatus[0] == 'not_replied'}">Chưa phản hồi</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Sort Order -->
+                                    <div class="col-md-3">
+                                        <label class="form-label">Sắp xếp theo</label>
+                                        <select class="form-select" name="sortBy" onchange="submitFilters()">
+                                            <option value="newest" th:selected="${param.sortBy == null or param.sortBy[0] == 'newest'}">Mới nhất</option>
+                                            <option value="oldest" th:selected="${param.sortBy != null and param.sortBy[0] == 'oldest'}">Cũ nhất</option>
+                                            <option value="highest_rating" th:selected="${param.sortBy != null and param.sortBy[0] == 'highest_rating'}">Đánh giá cao nhất</option>
+                                            <option value="lowest_rating" th:selected="${param.sortBy != null and param.sortBy[0] == 'lowest_rating'}">Đánh giá thấp nhất</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Reset Button -->
+                                <div class="row mt-3">
+                                    <div class="col-12">
+                                        <a th:href="@{/host-reviews}" class="btn btn-outline-secondary">
+                                            <i class="bi bi-arrow-clockwise me-1"></i>Đặt lại bộ lọc
+                                        </a>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Filters END -->
+
             <!-- Review START -->
             <div class="row">
                 <div class="col-12">
                     <div class="card border rounded-3">
                         <!-- Card header START -->
                         <div class="card-header border-bottom">
-                            <h5 class="card-header-title">Đánh giá của người dùng</h5>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="card-header-title mb-0">Đánh giá của người dùng</h5>
+                                <div class="d-flex align-items-center">
+                                    <span class="text-muted me-2">Hiển thị phản hồi:</span>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="showRepliesToggle" onchange="toggleAllReplies()">
+                                        <label class="form-check-label" for="showRepliesToggle">Tất cả</label>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <!-- Card header END -->
 
@@ -269,11 +430,18 @@
                                 <div class="mt-3">
                                     <!-- Buttons -->
                                     <div class="d-flex justify-content-between align-items-center">
-                                        <a class="btn btn-sm btn-primary-soft mb-0" href="javascript:void(0);" th:attr="onclick=|toggleReplyForm(${review.reviewId})|">
-                                            <i class="bi bi-reply me-1"></i>Trả lời
-                                        </a>
-<!--                                        <a href="#" class="text-primary-hover text-reset small mb-0"><i-->
-<!--                                                class="bi bi-info-circle me-1"></i>Report</a>-->
+                                        <div class="d-flex gap-2">
+                                            <a class="btn btn-sm btn-primary-soft mb-0" href="javascript:void(0);" th:attr="onclick=|toggleReplyForm(${review.reviewId})|">
+                                                <i class="bi bi-reply me-1"></i>Trả lời
+                                            </a>
+                                            <button th:if="${review.replies != null and !review.replies.isEmpty()}"
+                                                    class="btn btn-sm btn-outline-secondary mb-0"
+                                                    th:attr="onclick=|toggleReplies(${review.reviewId})|"
+                                                    th:id="'toggleRepliesBtn' + ${review.reviewId}">
+                                                <i class="bi bi-chat-dots me-1"></i>
+                                                <span th:text="'Xem phản hồi (' + ${#lists.size(review.replies)} + ')'">Xem phản hồi (0)</span>
+                                            </button>
+                                        </div>
                                     </div>
                                     <!-- collapse textarea -->
                                     <div class="collapse" th:attr="id='replyForm' + ${review.reviewId}">
@@ -288,31 +456,39 @@
                                             </form>
                                         </div>
                                     </div>
-                                    <!-- Replies container -->
-                                    <div th:attr="id='repliesContainer' + ${review.reviewId}">
-                                        <div th:each="reply : ${review.replies}" th:if="${session.user != null and reply.replierId == session.user.id}">
+                                    <!-- Replies container (hidden by default) -->
+                                    <div th:attr="id='repliesContainer' + ${review.reviewId}" class="replies-container" style="display: none;">
+                                        <div th:each="reply : ${review.replies}">
                                             <div class="reply-block" th:attr="id='reply' + ${reply.replyId}">
                                                 <img class="avatar-img-sm me-2" th:src="${reply.avatarUrl != null ? reply.avatarUrl : '/assets/images/default-avatar.jpg'}" alt="avatar">
                                                 <div class="reply-content">
                                                     <div class="d-flex align-items-center">
                                                         <h6 class="mb-0 me-2" th:text="${reply.fullName}"></h6>
                                                         <span class="text-muted small" th:text="${#temporals.format(reply.createdAt, 'dd MMM yyyy')}"></span>
+                                                        <span th:if="${reply.replierId == session.user.id}" class="badge bg-primary ms-2">Bạn</span>
                                                     </div>
                                                     <div class="reply-text" th:text="${reply.comment}"></div>
                                                     <div class="reply-actions">
-                                                        <button th:if="${session.user != null and reply.replierId == session.user.id}"
-                                                                class="btn btn-link btn-sm p-0 text-primary"
-                                                                th:attr="onclick=|showEditReplyForm(${reply.replyId}, ${review.reviewId})|">
-                                                            Edit
-                                                        </button>
+                                                        <div th:if="${session.user != null and reply.replierId == session.user.id}" class="d-flex gap-2">
+                                                            <button class="btn btn-link btn-sm p-0 text-primary"
+                                                                    th:attr="onclick=|showEditReplyForm(${reply.replyId}, ${review.reviewId})|">
+                                                                <i class="bi bi-pencil me-1"></i>Chỉnh sửa
+                                                            </button>
+                                                            <button class="btn btn-link btn-sm p-0 text-danger"
+                                                                    th:attr="onclick=|confirmDeleteReply(${reply.replyId}, ${review.reviewId})|">
+                                                                <i class="bi bi-trash me-1"></i>Xóa
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                     <form class="reply-edit-form d-none"
                                                           th:attr="id='editReplyForm' + ${reply.replyId},onsubmit=|submitEditReply(event, ${reply.replyId}, ${review.reviewId})|">
                                                         <textarea class="form-control mb-2" name="comment" rows="2" required></textarea>
-                                                        <button type="submit" class="btn btn-sm btn-success me-2">Save</button>
+                                                        <button type="submit" class="btn btn-sm btn-success me-2">
+                                                            <i class="bi bi-check-lg"></i> Lưu
+                                                        </button>
                                                         <button type="button" class="btn btn-sm btn-secondary"
                                                                 th:attr="onclick=|cancelEditReply(${reply.replyId})|">
-                                                            Cancel
+                                                            <i class="bi bi-x-lg"></i> Hủy
                                                         </button>
                                                     </form>
                                                 </div>
@@ -341,7 +517,7 @@
                                         <li th:if="${pagination >= 2}"
                                             th:class="'page-item mb-0' + (${page == 1} ? ' disabled' : '')">
                                             <a class="page-link"
-                                               th:href="@{/host-reviews(page=${page - 1})}">
+                                               th:href="@{/host-reviews(page=${page - 1}, rating=${param.rating}, hotelId=${param.hotelId}, replyStatus=${param.replyStatus}, sortBy=${param.sortBy})}">
                                                 <i class="fa-solid fa-angle-left"></i>
                                             </a>
                                         </li>
@@ -349,7 +525,7 @@
                                         <li th:if="${pagination >= 1}"
                                             th:class="'page-item mb-0' + (${page == 1} ? ' active disabled' : '')">
                                             <a class="page-link"
-                                               th:href="@{/host-reviews(page=1)}">1</a>
+                                               th:href="@{/host-reviews(page=1, rating=${param.rating}, hotelId=${param.hotelId}, replyStatus=${param.replyStatus}, sortBy=${param.sortBy})}">1</a>
                                         </li>
 
                                         <li th:if="${pagination >= 2}"
@@ -440,12 +616,159 @@ Footer END -->
 <script th:src="@{assets/js/functions.js}"></script>
 
 <script>
+// Filter functionality
+function submitFilters() {
+    document.getElementById('reviewFiltersForm').submit();
+}
+
+// Reply form toggle
 function toggleReplyForm(reviewId) {
     const form = document.getElementById('replyForm' + reviewId);
     if (form.classList.contains('show')) {
         form.classList.remove('show');
     } else {
         form.classList.add('show');
+    }
+}
+
+// Toggle individual review replies
+function toggleReplies(reviewId) {
+    const repliesContainer = document.getElementById('repliesContainer' + reviewId);
+    const toggleBtn = document.getElementById('toggleRepliesBtn' + reviewId);
+    const icon = toggleBtn.querySelector('i');
+    const span = toggleBtn.querySelector('span');
+
+    if (repliesContainer.style.display === 'none' || repliesContainer.style.display === '') {
+        repliesContainer.style.display = 'block';
+        icon.className = 'bi bi-chat-dots-fill me-1';
+        span.textContent = span.textContent.replace('Xem', 'Ẩn');
+        toggleBtn.classList.remove('btn-outline-secondary');
+        toggleBtn.classList.add('btn-secondary');
+    } else {
+        repliesContainer.style.display = 'none';
+        icon.className = 'bi bi-chat-dots me-1';
+        span.textContent = span.textContent.replace('Ẩn', 'Xem');
+        toggleBtn.classList.remove('btn-secondary');
+        toggleBtn.classList.add('btn-outline-secondary');
+    }
+}
+
+// Toggle all replies at once
+function toggleAllReplies() {
+    const toggle = document.getElementById('showRepliesToggle');
+    const allRepliesContainers = document.querySelectorAll('.replies-container');
+    const allToggleBtns = document.querySelectorAll('[id^="toggleRepliesBtn"]');
+
+    allRepliesContainers.forEach((container, index) => {
+        const btn = allToggleBtns[index];
+        if (!btn) return;
+
+        const icon = btn.querySelector('i');
+        const span = btn.querySelector('span');
+
+        if (toggle.checked) {
+            // Show all replies
+            container.style.display = 'block';
+            icon.className = 'bi bi-chat-dots-fill me-1';
+            span.textContent = span.textContent.replace('Xem', 'Ẩn');
+            btn.classList.remove('btn-outline-secondary');
+            btn.classList.add('btn-secondary');
+        } else {
+            // Hide all replies
+            container.style.display = 'none';
+            icon.className = 'bi bi-chat-dots me-1';
+            span.textContent = span.textContent.replace('Ẩn', 'Xem');
+            btn.classList.remove('btn-secondary');
+            btn.classList.add('btn-outline-secondary');
+        }
+    });
+}
+
+// Delete reply functionality
+function confirmDeleteReply(replyId, reviewId) {
+    // Create a custom confirmation modal
+    const modal = document.createElement('div');
+    modal.className = 'modal fade';
+    modal.id = 'deleteReplyModal';
+    modal.innerHTML = `
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-exclamation-triangle text-warning me-2"></i>
+                        Xác nhận xóa phản hồi
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-0">Bạn có chắc chắn muốn xóa phản hồi này không?</p>
+                    <small class="text-muted">Hành động này không thể hoàn tác.</small>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg me-1"></i>Hủy
+                    </button>
+                    <button type="button" class="btn btn-danger" onclick="deleteReply(${replyId}, ${reviewId})" data-bs-dismiss="modal">
+                        <i class="bi bi-trash me-1"></i>Xóa phản hồi
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+    const bootstrapModal = new bootstrap.Modal(modal);
+    bootstrapModal.show();
+
+    // Remove modal from DOM when hidden
+    modal.addEventListener('hidden.bs.modal', () => {
+        document.body.removeChild(modal);
+    });
+}
+
+async function deleteReply(replyId, reviewId) {
+    try {
+        // CSRF token
+        const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+        const formData = new FormData();
+        formData.append('replyId', replyId);
+
+        const response = await fetch('/host/deleteReply', {
+            method: 'POST',
+            headers: {
+                [csrfHeader]: csrfToken
+            },
+            body: formData
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+            // Remove the reply from DOM with animation
+            const replyDiv = document.getElementById('reply' + replyId);
+            if (replyDiv) {
+                replyDiv.style.transition = 'all 0.3s ease-out';
+                replyDiv.style.opacity = '0';
+                replyDiv.style.transform = 'translateX(-20px)';
+
+                setTimeout(() => {
+                    replyDiv.remove();
+
+                    // Update reply count in toggle button
+                    updateReplyCount(reviewId);
+
+                    // Show success message
+                    showSuccessMessage(result.message || 'Phản hồi đã được xóa thành công!');
+                }, 300);
+            }
+        } else {
+            showErrorMessage(result.message || 'Có lỗi xảy ra khi xóa phản hồi.');
+        }
+    } catch (error) {
+        console.error('Error deleting reply:', error);
+        showErrorMessage('Có lỗi xảy ra khi xóa phản hồi.');
     }
 }
 
@@ -519,6 +842,68 @@ async function submitEditReply(event, replyId, reviewId) {
     } else {
         alert('Có lỗi xảy ra khi chỉnh sửa phản hồi.');
     }
+}
+
+// Update reply count in toggle button
+function updateReplyCount(reviewId) {
+    const repliesContainer = document.getElementById('repliesContainer' + reviewId);
+    const toggleBtn = document.getElementById('toggleRepliesBtn' + reviewId);
+
+    if (repliesContainer && toggleBtn) {
+        const remainingReplies = repliesContainer.querySelectorAll('.reply-block').length;
+        const span = toggleBtn.querySelector('span');
+
+        if (remainingReplies === 0) {
+            // Hide the toggle button if no replies left
+            toggleBtn.style.display = 'none';
+            repliesContainer.style.display = 'none';
+        } else {
+            // Update the count
+            const currentText = span.textContent;
+            const newText = currentText.replace(/\(\d+\)/, `(${remainingReplies})`);
+            span.textContent = newText;
+        }
+    }
+}
+
+// Success message helper
+function showSuccessMessage(message) {
+    const alert = document.createElement('div');
+    alert.className = 'alert alert-success alert-dismissible fade show position-fixed';
+    alert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    alert.innerHTML = `
+        <i class="bi bi-check-circle me-2"></i>${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+
+    document.body.appendChild(alert);
+
+    // Auto remove after 3 seconds
+    setTimeout(() => {
+        if (alert.parentNode) {
+            alert.remove();
+        }
+    }, 3000);
+}
+
+// Error message helper
+function showErrorMessage(message) {
+    const alert = document.createElement('div');
+    alert.className = 'alert alert-danger alert-dismissible fade show position-fixed';
+    alert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    alert.innerHTML = `
+        <i class="bi bi-exclamation-triangle me-2"></i>${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+
+    document.body.appendChild(alert);
+
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (alert.parentNode) {
+            alert.remove();
+        }
+    }, 5000);
 }
 </script>
 
