@@ -496,6 +496,8 @@
     }
     function applyHotelFilter() {
         let filtered = allHotels.filter(hotel => {
+            // Chỉ hiển thị khách sạn có trạng thái active
+            if (hotel.status !== 'active') return false;
             if (comparedHotels.find(h => h.hotelId === hotel.hotelId)) return false;
             if (hotelFilterApplied.name && !hotel.hotelName.toLowerCase().includes(hotelFilterApplied.name.toLowerCase())) return false;
             if (hotelFilterApplied.city && hotel.cityName !== hotelFilterApplied.city) return false;
@@ -508,16 +510,20 @@
         renderHotelListTable();
     }
     function resetHotelFilter() {
+        // Lọc chỉ lấy khách sạn active để tính giá min/max
+        const activeHotels = allHotels.filter(hotel => hotel.status === 'active');
+        const [minPrice, maxPrice] = getMinMaxPrice(activeHotels);
+        
         hotelFilter = {
             name: '',
             city: '',
-            priceMin: hotelFilterMinPrice,
-            priceMax: hotelFilterMaxPrice
+            priceMin: minPrice,
+            priceMax: maxPrice
         };
         document.getElementById('filter-hotel-name').value = '';
         document.getElementById('filter-city').value = '';
-        document.getElementById('filter-price-min-input').value = hotelFilterMinPrice.toLocaleString('vi-VN');
-        document.getElementById('filter-price-max-input').value = hotelFilterMaxPrice.toLocaleString('vi-VN');
+        document.getElementById('filter-price-min-input').value = minPrice.toLocaleString('vi-VN');
+        document.getElementById('filter-price-max-input').value = maxPrice.toLocaleString('vi-VN');
         hotelFilterApplied = { ...hotelFilter };
         applyHotelFilter(); // Luôn render bảng sau reset
     }
@@ -622,9 +628,12 @@
         ul.appendChild(nextLi);
     }
     function initHotelFilterUI() {
+        // Lọc chỉ lấy khách sạn active để tạo filter
+        const activeHotels = allHotels.filter(hotel => hotel.status === 'active');
+        
         // Thành phố
         const citySelect = document.getElementById('filter-city');
-        const cities = getUniqueCities(allHotels);
+        const cities = getUniqueCities(activeHotels);
         citySelect.innerHTML = '<option value="">Tất cả</option>';
         cities.forEach(city => {
             const opt = document.createElement('option');
@@ -633,7 +642,7 @@
             citySelect.appendChild(opt);
         });
         // Giá min/max
-        [hotelFilterMinPrice, hotelFilterMaxPrice] = getMinMaxPrice(allHotels);
+        [hotelFilterMinPrice, hotelFilterMaxPrice] = getMinMaxPrice(activeHotels);
         // Khởi tạo noUiSlider
         const slider = document.getElementById('filter-price-slider');
         if (slider.noUiSlider) slider.noUiSlider.destroy();
@@ -698,11 +707,15 @@
     function renderHotelListSelect() {
         const ul = document.getElementById('hotel-list-select');
         ul.innerHTML = '';
-        if (allHotels.length === 0) {
-            ul.innerHTML = '<li class="list-group-item text-center">Không có khách sạn nào</li>';
+        
+        // Lọc chỉ lấy khách sạn active
+        const activeHotels = allHotels.filter(hotel => hotel.status === 'active');
+        
+        if (activeHotels.length === 0) {
+            ul.innerHTML = '<li class="list-group-item text-center">Không có khách sạn nào đang hoạt động</li>';
             return;
         }
-        allHotels.forEach(hotel => {
+        activeHotels.forEach(hotel => {
             // Không cho chọn lại khách sạn đã có trong bảng
             if (comparedHotels.find(h => h.hotelId === hotel.hotelId)) return;
             const li = document.createElement('li');
