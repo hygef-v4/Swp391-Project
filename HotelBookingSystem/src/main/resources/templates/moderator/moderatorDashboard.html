@@ -998,8 +998,8 @@
           <div class='mb-2'><strong>Số điện thoại:</strong> ${user.phone || 'Chưa cập nhật'}</div>
           <div class='mb-2'><strong>Giới tính:</strong> ${user.gender || 'Chưa cập nhật'}</div>
           <div class='mb-2'><strong>Ngày sinh:</strong> ${user.dob || 'Chưa cập nhật'}</div>
-          <div class='mb-2'><strong>Bio:</strong> ${user.bio || 'Chưa có thông tin'}</div>
-          <div class='alert alert-danger mt-2'>${user.flagReason ? `<strong>Lý do flagged:</strong> ${user.flagReason}` : ''}</div>
+          <div class='mb-2'><strong>Bio:</strong> <div style="word-wrap: break-word; overflow-wrap: break-word; white-space: pre-wrap; max-height: 200px; overflow-y: auto;">${user.bio || 'Chưa có thông tin'}</div></div>
+          <div class='alert alert-danger mt-2'>${user.flagReason ? `<strong>Lý do flagged:</strong> <div style="word-wrap: break-word; overflow-wrap: break-word; white-space: pre-wrap;">${user.flagReason}</div>` : ''}</div>
         </div>`;
         document.getElementById('flagged-user-detail-content').innerHTML = html;
         new bootstrap.Modal(document.getElementById('flagged-user-detail-modal')).show();
@@ -1053,7 +1053,7 @@
       <li><i class="bi bi-telephone me-2"></i><strong>Điện thoại:</strong> ${host ? host.phone : 'Chưa có thông tin'}</li>
     </ul>
     <h6>Chính sách:</h6>
-    <p class="small">${hotel.policy || 'Chưa có thông tin chính sách'}</p>
+    <div class="small" style="word-wrap: break-word; overflow-wrap: break-word; white-space: pre-wrap; max-height: 200px; overflow-y: auto;">${hotel.policy || 'Chưa có thông tin chính sách'}</div>
   </div>
 </div>
 `;
