@@ -243,6 +243,12 @@
                                 <i class="bi bi-person-circle"></i> Tài khoản <span id="profileCount" class="badge bg-info ms-1">0</span>
                             </button>
                         </li>
+                        <!-- Moderator-specific filters -->
+                        <li class="nav-item" role="presentation" th:if="${session.user.role == 'MODERATOR'}" style="display: none;" id="moderatorFilters">
+                            <button class="nav-link" id="moderator-tab" data-bs-toggle="pill" data-bs-target="#moderator" type="button" role="tab">
+                                <i class="bi bi-shield-check"></i> Kiểm duyệt viên <span id="moderatorCount" class="badge bg-warning ms-1">0</span>
+                            </button>
+                        </li>
                     </ul>
 
                     <!-- Notifications content (single shared area) -->
@@ -314,6 +320,13 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!currentUserId) {
         window.location.href = '/login';
         return;
+    }
+    
+    // Check if user is moderator and show moderator filters
+    const userRole = /*[[${session.user?.role}]]*/ '';
+    if (userRole === 'MODERATOR') {
+        const moderatorFilters = document.getElementById('moderatorFilters');
+        if (moderatorFilters) moderatorFilters.style.display = 'block';
     }
     
     loadNotifications();
@@ -587,6 +600,14 @@ async function updateAllCounts() {
             { id: 'profileCount', params: 'type=profile' }
         ];
 
+        // Add moderator-specific filters if user is moderator
+        const userRole = /*[[${session.user?.role}]]*/ '';
+        if (userRole === 'MODERATOR') {
+            filters.push(
+                { id: 'moderatorCount', params: 'type=moderator' }
+            );
+        }
+
         for (const filter of filters) {
             try {
                 const response = await fetch(`/api/notifications?size=1&${filter.params}`);
@@ -692,7 +713,8 @@ function showEmptyState() {
         'booking': 'Bạn không có thông báo đặt phòng nào.',
         'refund': 'Bạn không có thông báo hoàn tiền nào.',
         'chat': 'Bạn không có thông báo tin nhắn nào.',
-        'profile': 'Bạn không có thông báo tài khoản nào.'
+        'profile': 'Bạn không có thông báo tài khoản nào.',
+        'moderator': 'Bạn không có thông báo kiểm duyệt viên nào.'
     };
     
     if (emptyMessage) {
@@ -723,7 +745,8 @@ function getNotificationIcon(type) {
         'hotel': 'bi bi-building',
         'chat': 'bi bi-chat-dots',
         'system': 'bi bi-gear',
-        'profile': 'bi bi-person-circle'
+        'profile': 'bi bi-person-circle',
+        'moderator': 'bi bi-shield-check'
     };
     return icons[type] || 'bi bi-bell';
 }
@@ -735,7 +758,8 @@ function getNotificationIconBg(type) {
         'hotel': 'bg-info',
         'chat': 'bg-warning',
         'system': 'bg-secondary',
-        'profile': 'bg-info'
+        'profile': 'bg-info',
+        'moderator': 'bg-warning'
     };
     return backgrounds[type] || 'bg-primary';
 }

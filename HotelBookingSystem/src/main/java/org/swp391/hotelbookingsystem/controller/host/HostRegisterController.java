@@ -291,19 +291,9 @@ public class HostRegisterController {
             }
             notificationService.notifyHotelAdded(userId, savedHotel.getHotelName(), savedHotel.getHotelId());
             // Notify all moderators about the new pending hotel
-            List<User> moderators = userService.getUsersByRole("MODERATOR");
-            for (User moderator : moderators) {
-                notificationService.createNotification(
-                    moderator.getId(),
-                    "Khách sạn mới chờ duyệt",
-                    "Khách sạn '" + savedHotel.getHotelName() + "' vừa được tạo và đang chờ phê duyệt.",
-                    "hotel",
-                    "high",
-                    "/moderator-hotel-list",
-                    "bi-building",
-                    Map.of("hotelId", savedHotel.getHotelId(), "hotelName", savedHotel.getHotelName())
-                );
-            }
+            User host = userService.findUserById(userId);
+            String hostName = host != null ? host.getFullName() : "Unknown";
+            notificationService.notifyAllModeratorsNewHotelApproval(savedHotel.getHotelName(), hostName, savedHotel.getHotelId());
 
             return "redirect:/host-dashboard";
         } catch (Exception e) {
