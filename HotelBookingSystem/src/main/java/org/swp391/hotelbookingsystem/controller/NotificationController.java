@@ -65,6 +65,9 @@ public class NotificationController {
                 case "booking":
                     notificationService.notifyBookingConfirmation(user.getId(), "BK123", "Hotel Test");
                     break;
+                case "host-booking":
+                    notificationService.notifyNewBookingToHost(user.getId(), "BK123", "Hotel Test", "Nguyễn Văn A");
+                    break;
                 case "message":
                     notificationService.notifyNewMessage(user.getId(), "Test Sender", 999);
                     break;

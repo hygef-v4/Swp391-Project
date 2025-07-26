@@ -91,8 +91,16 @@ public class NotificationService {
         String title = "Đặt phòng thành công! 🎉";
         String message = "Bạn đã đặt thành công phòng tại " + hotelName + ". Mã đặt phòng: " + bookingId;
         String actionUrl = "/bookingHistory";
-        createNotification(userId, title, message, "booking", "high", actionUrl, "bi-calendar-check", 
+        createNotification(userId, title, message, "booking", "high", actionUrl, "bi-calendar-check",
                          Map.of("bookingId", bookingId, "hotelName", hotelName));
+    }
+
+    public void notifyNewBookingToHost(int hostId, String bookingId, String hotelName, String customerName) {
+        String title = "Đặt phòng mới! 🏨";
+        String message = customerName + " đã đặt phòng tại " + hotelName + ". Mã đặt phòng: " + bookingId;
+        String actionUrl = "/host-dashboard";
+        createNotification(hostId, title, message, "booking", "high", actionUrl, "bi-calendar-plus",
+                         Map.of("bookingId", bookingId, "hotelName", hotelName, "customerName", customerName));
     }
 
     public void notifyNewMessage(int userId, String senderName, int senderId) {
