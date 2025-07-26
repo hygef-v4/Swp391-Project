@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.SessionAttribute;
 import org.springframework.web.client.RestTemplate;
 import org.swp391.hotelbookingsystem.model.Booking;
 import org.swp391.hotelbookingsystem.model.Hotel;
@@ -107,12 +108,17 @@ public class ModeratorHotelListController {
     // REST API cho các thao tác duyệt, từ chối, xem chi tiết
     @PostMapping("/api/moderator/hotels/{id}/approve")
     @ResponseBody
-    public Map<String, Object> approveHotel(@PathVariable int id) {
+    public Map<String, Object> approveHotel(@PathVariable int id, @SessionAttribute("user") User moderator) {
         hotelService.updateHotelStatus(id, "active");
         // Notify hotel owner
         Hotel hotel = hotelService.getHotelById(id);
         if (hotel != null) {
             notificationService.notifyHotelApproval(hotel.getHostId(), hotel.getHotelName());
+            
+            // Notify all moderators about the approval
+            User host = userService.findUserById(hotel.getHostId());
+            String hostName = host != null ? host.getFullName() : "Unknown";
+            notificationService.notifyModeratorHotelApproved(moderator.getId(), hotel.getHotelName(), hostName, hotel.getHotelId());
         }
         Map<String, Object> res = new HashMap<>();
         res.put("success", true);
@@ -122,7 +128,7 @@ public class ModeratorHotelListController {
 
     @PostMapping("/api/moderator/hotels/{id}/reject")
     @ResponseBody
-    public Map<String, Object> rejectHotel(@PathVariable int id, @RequestBody Map<String, String> body) {
+    public Map<String, Object> rejectHotel(@PathVariable int id, @RequestBody Map<String, String> body, @SessionAttribute("user") User moderator) {
         String reason = body.get("reason");
         hotelService.updateHotelStatus(id, "rejected"); // Đổi từ 'banned' thành 'rejected'
         // Notify hotel owner
@@ -139,6 +145,11 @@ public class ModeratorHotelListController {
                 "bi-x-octagon",
                 Map.of("hotelId", hotel.getHotelId(), "hotelName", hotel.getHotelName(), "reason", reason)
             );
+            
+            // Notify all moderators about the rejection
+            User host = userService.findUserById(hotel.getHostId());
+            String hostName = host != null ? host.getFullName() : "Unknown";
+            notificationService.notifyModeratorHotelRejected(moderator.getId(), hotel.getHotelName(), hostName, reason, hotel.getHotelId());
         }
         Map<String, Object> res = new HashMap<>();
         res.put("success", true);
@@ -148,7 +159,7 @@ public class ModeratorHotelListController {
 
     @PostMapping("/api/moderator/hotels/{id}/unlock")
     @ResponseBody
-    public Map<String, Object> unlockHotel(@PathVariable int id) {
+    public Map<String, Object> unlockHotel(@PathVariable int id, @SessionAttribute("user") User moderator) {
         hotelService.updateHotelStatus(id, "active");
         // Notify hotel owner
         Hotel hotel = hotelService.getHotelById(id);
@@ -163,6 +174,11 @@ public class ModeratorHotelListController {
                 "bi-unlock",
                 Map.of("hotelId", hotel.getHotelId(), "hotelName", hotel.getHotelName())
             );
+            
+            // Notify all moderators about the unlock
+            User host = userService.findUserById(hotel.getHostId());
+            String hostName = host != null ? host.getFullName() : "Unknown";
+            notificationService.notifyModeratorHotelUnbanned(moderator.getId(), hotel.getHotelName(), hostName, hotel.getHotelId());
         }
         Map<String, Object> res = new HashMap<>();
         res.put("success", true);
@@ -172,7 +188,7 @@ public class ModeratorHotelListController {
 
     @PostMapping("/api/moderator/hotels/{id}/ban")
     @ResponseBody
-    public Map<String, Object> banHotel(@PathVariable int id, @RequestBody Map<String, String> body) {
+    public Map<String, Object> banHotel(@PathVariable int id, @RequestBody Map<String, String> body, @SessionAttribute("user") User moderator) {
         String reason = body.get("reason");
         Map<String, Object> res = new HashMap<>();
 
@@ -206,20 +222,26 @@ public class ModeratorHotelListController {
         // Notify hotel owner
         Hotel hotel = hotelService.getHotelById(id);
         if (hotel != null) {
-            String message = "Khách sạn của bạn đã bị thu hồi. Lý do: " + (reason != null ? reason : "Không xác định");
+            String message = "Khách sạn của bạn đã bị cấm. Lý do: " + (reason != null ? reason : "Không xác định");
             notificationService.createNotification(
                 hotel.getHostId(),
-                "Khách sạn bị thu hồi",
+                "Khách sạn bị cấm",
                 message,
                 "hotel",
                 "high",
                 "/host-listing",
-                "bi-x-octagon",
+                "bi-slash-circle",
                 Map.of("hotelId", hotel.getHotelId(), "hotelName", hotel.getHotelName(), "reason", reason)
             );
+            
+            // Notify all moderators about the ban
+            User host = userService.findUserById(hotel.getHostId());
+            String hostName = host != null ? host.getFullName() : "Unknown";
+            notificationService.notifyModeratorHotelBanned(moderator.getId(), hotel.getHotelName(), hostName, reason, hotel.getHotelId());
         }
+        
         res.put("success", true);
-        res.put("message", "Thu hồi khách sạn thành công!");
+        res.put("message", "Cấm khách sạn thành công!");
         return res;
     }
 

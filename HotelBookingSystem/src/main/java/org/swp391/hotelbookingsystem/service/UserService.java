@@ -82,6 +82,10 @@ public class UserService {
         return userRepo.getUsersByRole(role);
     }
 
+    public List<User> getAllModerators() {
+        return userRepo.getUsersByRole("MODERATOR");
+    }
+
     public List<User> getAllUsersWithProfile() {
         return userRepo.getAllUsersWithProfile();
     }

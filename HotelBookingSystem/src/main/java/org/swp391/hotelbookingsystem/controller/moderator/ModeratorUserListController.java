@@ -121,6 +121,10 @@ public class ModeratorUserListController {
                 "bi-exclamation-triangle",
                 Map.of("reason", reason, "moderatorId", moderatorId)
             );
+            
+            // Notify all moderators about the flag
+            notificationService.notifyModeratorUserFlagged(moderatorId, user.getFullName(), user.getRole(), reason, userId);
+            
             response.put("success", true);
             response.put("message", "Đã báo cáo người dùng thành công");
         } catch (Exception e) {
@@ -132,9 +136,16 @@ public class ModeratorUserListController {
 
     @PostMapping("/api/moderator/users/{userId}/unflag")
     @ResponseBody
-    public Map<String, Object> unflagUser(@PathVariable int userId) {
+    public Map<String, Object> unflagUser(@PathVariable int userId, @SessionAttribute("user") User moderator) {
         Map<String, Object> response = new HashMap<>();
         try {
+            User user = userService.findUserById(userId);
+            if (user == null) {
+                response.put("success", false);
+                response.put("message", "Không tìm thấy người dùng");
+                return response;
+            }
+            
             reportService.unflagUser(userId);
             // Gửi notification cho user khi được gỡ flagged
             String title = "Tài khoản đã được gỡ gắn cờ";
@@ -150,6 +161,10 @@ public class ModeratorUserListController {
                 "bi-check-circle",
                 null
             );
+            
+            // Notify all moderators about the unflag
+            notificationService.notifyModeratorUserUnflagged(moderator.getId(), user.getFullName(), user.getRole(), userId);
+            
             response.put("success", true);
             response.put("message", "Đã unflag người dùng thành công");
         } catch (Exception e) {

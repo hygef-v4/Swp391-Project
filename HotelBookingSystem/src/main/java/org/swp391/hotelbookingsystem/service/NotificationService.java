@@ -205,6 +205,91 @@ public class NotificationService {
                          Map.of("hotelId", hotelId, "hotelName", hotelName, "rating", rating, "reviewerName", reviewerName));
     }
 
+    // ========== MODERATOR NOTIFICATIONS ==========
+    
+    // Notify moderator when new hotel needs approval
+    public void notifyModeratorNewHotelApproval(int moderatorId, String hotelName, String hostName, int hotelId) {
+        String title = "Khách sạn mới cần phê duyệt 🏨";
+        String message = "Khách sạn \"" + hotelName + "\" của " + hostName + " đang chờ phê duyệt";
+        String actionUrl = "/moderator-hotel-list";
+        createNotification(moderatorId, title, message, "moderator", "high", actionUrl, "bi-building",
+                         Map.of("hotelId", hotelId, "hotelName", hotelName, "hostName", hostName));
+    }
+
+    // Notify moderator when hotel is approved
+    public void notifyModeratorHotelApproved(int moderatorId, String hotelName, String hostName, int hotelId) {
+        String title = "Đã phê duyệt khách sạn ✅";
+        String message = "Khách sạn \"" + hotelName + "\" của " + hostName + " đã được phê duyệt";
+        String actionUrl = "/moderator-hotel-list";
+        createNotification(moderatorId, title, message, "moderator", "normal", actionUrl, "bi-check-circle",
+                         Map.of("hotelId", hotelId, "hotelName", hotelName, "hostName", hostName));
+    }
+
+    // Notify moderator when hotel is rejected
+    public void notifyModeratorHotelRejected(int moderatorId, String hotelName, String hostName, String reason, int hotelId) {
+        String title = "Đã từ chối khách sạn ❌";
+        String message = "Khách sạn \"" + hotelName + "\" của " + hostName + " đã bị từ chối. Lý do: " + reason;
+        String actionUrl = "/moderator-hotel-list";
+        createNotification(moderatorId, title, message, "moderator", "normal", actionUrl, "bi-x-circle",
+                         Map.of("hotelId", hotelId, "hotelName", hotelName, "hostName", hostName, "reason", reason));
+    }
+
+    // Notify moderator when hotel is banned
+    public void notifyModeratorHotelBanned(int moderatorId, String hotelName, String hostName, String reason, int hotelId) {
+        String title = "Đã cấm khách sạn 🚫";
+        String message = "Khách sạn \"" + hotelName + "\" của " + hostName + " đã bị cấm. Lý do: " + reason;
+        String actionUrl = "/moderator-hotel-list";
+        createNotification(moderatorId, title, message, "moderator", "high", actionUrl, "bi-slash-circle",
+                         Map.of("hotelId", hotelId, "hotelName", hotelName, "hostName", hostName, "reason", reason));
+    }
+
+    // Notify moderator when hotel is unbanned
+    public void notifyModeratorHotelUnbanned(int moderatorId, String hotelName, String hostName, int hotelId) {
+        String title = "Đã mở khóa khách sạn 🔓";
+        String message = "Khách sạn \"" + hotelName + "\" của " + hostName + " đã được mở khóa";
+        String actionUrl = "/moderator-hotel-list";
+        createNotification(moderatorId, title, message, "moderator", "normal", actionUrl, "bi-unlock",
+                         Map.of("hotelId", hotelId, "hotelName", hotelName, "hostName", hostName));
+    }
+
+    // Notify moderator when user is flagged
+    public void notifyModeratorUserFlagged(int moderatorId, String userName, String userRole, String reason, int userId) {
+        String title = "Đã báo cáo người dùng 🚩";
+        String message = "Người dùng " + userName + " (" + userRole + ") đã bị báo cáo. Lý do: " + reason;
+        String actionUrl = "/moderator-user-list";
+        createNotification(moderatorId, title, message, "moderator", "normal", actionUrl, "bi-flag",
+                         Map.of("userId", userId, "userName", userName, "userRole", userRole, "reason", reason));
+    }
+
+    // Notify moderator when user is unflagged
+    public void notifyModeratorUserUnflagged(int moderatorId, String userName, String userRole, int userId) {
+        String title = "Đã gỡ báo cáo người dùng ✅";
+        String message = "Người dùng " + userName + " (" + userRole + ") đã được gỡ báo cáo";
+        String actionUrl = "/moderator-user-list";
+        createNotification(moderatorId, title, message, "moderator", "normal", actionUrl, "bi-flag-slash",
+                         Map.of("userId", userId, "userName", userName, "userRole", userRole));
+    }
+
+    // Notify all moderators about new hotel approval needed
+    public void notifyAllModeratorsNewHotelApproval(String hotelName, String hostName, int hotelId) {
+        // Get all moderators
+        List<User> moderators = userService.getAllModerators();
+        for (User moderator : moderators) {
+            notifyModeratorNewHotelApproval(moderator.getId(), hotelName, hostName, hotelId);
+        }
+    }
+
+    // Notify all moderators about new user flagged
+    public void notifyAllModeratorsUserFlagged(String userName, String userRole, String reason, int userId) {
+        // Get all moderators
+        List<User> moderators = userService.getAllModerators();
+        for (User moderator : moderators) {
+            notifyModeratorUserFlagged(moderator.getId(), userName, userRole, reason, userId);
+        }
+    }
+
+    // ========== END MODERATOR NOTIFICATIONS ==========
+
     public void notifyReviewReply(int reviewerId, String replierName, String hotelName, int hotelId) {
         String title = "Có phản hồi cho đánh giá của bạn! 💬";
         String message = replierName + " đã phản hồi đánh giá của bạn tại khách sạn \"" + hotelName + "\"";
