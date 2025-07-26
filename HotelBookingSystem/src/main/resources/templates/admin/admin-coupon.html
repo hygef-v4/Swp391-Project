@@ -16,6 +16,68 @@
     <link rel="stylesheet" type="text/css" th:href="@{/assets/vendor/bootstrap-icons/bootstrap-icons.css}">
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/style.css}">
     <link rel="stylesheet" type="text/css" th:href="@{/assets/vendor/flatpickr/css/flatpickr.min.css}">
+
+    <!-- Custom CSS to fix table layout and remove horizontal scroll -->
+    <style>
+        /* Remove horizontal scrollbar by optimizing table layout */
+        .table-responsive {
+            overflow-x: hidden !important;
+        }
+
+        /* Optimize table column widths */
+        #couponTable {
+            table-layout: fixed;
+            width: 100%;
+        }
+
+        #couponTable th:nth-child(1) { width: 12%; } /* Mã */
+        #couponTable th:nth-child(2) { width: 10%; } /* Loại mã */
+        #couponTable th:nth-child(3) { width: 8%; }  /* Giá trị */
+        #couponTable th:nth-child(4) { width: 8%; }  /* Tổng số lượt dùng */
+        #couponTable th:nth-child(5) { width: 7%; }  /* Đã dùng */
+        #couponTable th:nth-child(6) { width: 10%; } /* Đơn tối thiểu */
+        #couponTable th:nth-child(7) { width: 11%; } /* Hiệu lực */
+        #couponTable th:nth-child(8) { width: 11%; } /* Hết hạn */
+        #couponTable th:nth-child(9) { width: 13%; } /* Hành động */
+
+        /* Ensure text wraps properly in cells */
+        #couponTable td {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: normal;
+            padding: 0.5rem 0.25rem;
+        }
+
+        /* Optimize button sizes in action column */
+        #couponTable .btn-sm {
+            padding: 0.25rem 0.4rem;
+            font-size: 0.75rem;
+        }
+
+        /* Make dates more compact */
+        #couponTable td:nth-child(7),
+        #couponTable td:nth-child(8) {
+            font-size: 0.85rem;
+        }
+
+        /* Ensure container doesn't overflow */
+        .card-body {
+            overflow: hidden;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 1200px) {
+            #couponTable th:nth-child(1) { width: 10%; }
+            #couponTable th:nth-child(6) { width: 12%; }
+            #couponTable th:nth-child(9) { width: 15%; }
+        }
+
+        @media (max-width: 992px) {
+            .table-responsive {
+                overflow-x: auto !important;
+            }
+        }
+    </style>
     <script>
         const storedTheme = localStorage.getItem('theme')
 
@@ -134,26 +196,32 @@
                             <thead class="table-light">
                             <tr class="text-center">
                                 <th>Mã</th>
-                                <th>Loại mã</th>
+                                <th>Loại</th>
                                 <th>Giá trị</th>
-                                <th>Tổng số lượt dùng</th>
+                                <th>Tổng SL</th>
                                 <th>Đã dùng</th>
-                                <th>Đơn tối thiểu</th>
+                                <th>Tối thiểu</th>
                                 <th>Hiệu lực</th>
                                 <th>Hết hạn</th>
-                                <th>Hành động</th>
+                                <th>Thao tác</th>
                             </tr>
                             </thead>
                             <tbody>
                             <tr th:each="coupon : ${coupons}" class="text-center">
-                                <td th:text="${coupon.code}"></td>
-                                <td th:text="${coupon.type == 'percentage' ? 'Phần trăm' : 'Giá trị cố định'}"></td>
-                                <td th:text="${coupon.type == 'percentage' ? coupon.amount + '%' : coupon.amount + '₫'}"></td>
+                                <td th:text="${coupon.code}" class="fw-bold"></td>
+                                <td th:text="${coupon.type == 'percentage' ? '%' : 'VND'}" class="small"></td>
+                                <td class="fw-semibold">
+                                    <span th:if="${coupon.type == 'percentage'}" th:text="${coupon.amount % 1 == 0 ? #numbers.formatInteger(coupon.amount, 0) : coupon.amount} + '%'"></span>
+                                    <span th:unless="${coupon.type == 'percentage'}" th:text="${coupon.amount % 1 == 0 ? #numbers.formatInteger(coupon.amount, 0) : coupon.amount} + '₫'"></span>
+                                </td>
                                 <td th:text="${coupon.usageLimit != null ? coupon.usageLimit : '∞'}"></td>
                                 <td th:text="${coupon.usedCount != null ? coupon.usedCount : 0}"></td>
-                                <td th:text="${coupon.minTotalPrice != null ? coupon.minTotalPrice + '₫' : '0₫'}"></td>
-                                <td th:text="${#temporals.format(coupon.validFrom, 'dd/MM/yyyy')}"></td>
-                                <td th:text="${#temporals.format(coupon.validUntil, 'dd/MM/yyyy')}"></td>
+                                <td class="small">
+                                    <span th:if="${coupon.minTotalPrice != null}" th:text="${coupon.minTotalPrice % 1 == 0 ? #numbers.formatInteger(coupon.minTotalPrice, 0) : coupon.minTotalPrice} + '₫'"></span>
+                                    <span th:unless="${coupon.minTotalPrice != null}">0₫</span>
+                                </td>
+                                <td th:text="${#temporals.format(coupon.validFrom, 'dd/MM/yy')}" class="small"></td>
+                                <td th:text="${#temporals.format(coupon.validUntil, 'dd/MM/yy')}" class="small"></td>
                                 <td th:switch="${true}">
                                     <!-- Case 1: Used up -->
                                     <th:block th:case="${coupon.usageLimit != null and coupon.usedCount >= coupon.usageLimit and !(coupon.usageLimit == 0)}">
@@ -413,6 +481,13 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
 <script th:src="@{/assets/js/functions.js}"></script>
 <script>
+    // Function to format numbers without decimal places for whole numbers
+    function formatNumber(value) {
+        if (value === null || value === undefined) return '';
+        const num = parseFloat(value);
+        return num % 1 === 0 ? Math.floor(num).toString() : num.toString();
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         flatpickr("#validFrom", {dateFormat: "Y-m-d", locale: "vn"});
         flatpickr("#validUntil", {dateFormat: "Y-m-d", locale: "vn"});
@@ -428,9 +503,9 @@
                 document.getElementById('editCouponId').value = data.couponId;
                 document.getElementById('editCode').value = data.code;
                 document.getElementById('editType').value = data.type;
-                document.getElementById('editAmount').value = data.amount;
+                document.getElementById('editAmount').value = formatNumber(data.amount);
                 document.getElementById('editUsageLimit').value = data.usageLimit ?? 0;
-                document.getElementById('editMinTotalPrice').value = data.minTotalPrice;
+                document.getElementById('editMinTotalPrice').value = formatNumber(data.minTotalPrice);
                 document.getElementById('editValidFrom')._flatpickr.setDate(data.validFrom);
                 document.getElementById('editValidUntil')._flatpickr.setDate(data.validUntil);
                 document.getElementById('editActive').checked = data.active;
