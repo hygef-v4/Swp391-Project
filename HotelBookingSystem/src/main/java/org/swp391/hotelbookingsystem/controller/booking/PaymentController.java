@@ -140,7 +140,14 @@ public class PaymentController {
 
             int approved = bookingService.approveBooking(id, request.getParameter("vnp_TxnRef"), request.getParameter("vnp_TransactionNo"), request.getParameter("vnp_PayDate"));
             if(approved > 0){
+                // Notify customer about booking confirmation
                 notificationService.notifyBookingConfirmation(user.getId(), String.valueOf(id), booking.getHotelName());
+
+                // Notify hotel owner about new booking
+                Hotel hotel = hotelService.getHotelById(booking.getHotelId());
+                if(hotel != null) {
+                    notificationService.notifyNewBookingToHost(hotel.getHostId(), String.valueOf(id), booking.getHotelName(), user.getFullName());
+                }
             }
 
             model.addAttribute("booking", booking);
