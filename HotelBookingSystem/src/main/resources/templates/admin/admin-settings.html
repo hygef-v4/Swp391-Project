@@ -286,7 +286,8 @@
 						   pattern="^(\+84|84|0)?[0-9]{9,14}$"
 						   title="Số điện thoại phải có 10-15 chữ số, có thể bắt đầu bằng +84, 84 hoặc 0"
 						   oninput="validateLength(this, 10, 15, 'contactPhoneError', 'contactPhoneCount')"
-						   onblur="validateField('contactPhone')">
+						   onblur="validateField('contactPhone')"
+						   required>
 					<div class="invalid-feedback" id="contactPhoneError"></div>
 					<div class="form-text">
 						<span id="contactPhoneCount">0</span>/15 ký tự
