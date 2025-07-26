@@ -191,6 +191,26 @@
 			padding: 1.5rem;
 			margin-bottom: 2rem;
 		}
+
+		/* Simple tooltip styling for truncated text */
+		.table td {
+			vertical-align: top;
+			max-width: 300px;
+		}
+
+		.table td:last-child {
+			max-width: 350px;
+		}
+
+		span[title] {
+			cursor: help;
+		}
+
+		/* Log details formatting */
+		.table td b {
+			color: #495057;
+			font-weight: 600;
+		}
 	</style>
 
 </head>
@@ -420,13 +440,19 @@
 				            	<span class="badge bg-primary" th:text="${log.action}"></span>
 				            </td>
 				            <td>
-				                <div th:if="${#lists.size(log.detailsMap) > 0}">
-				                    <span th:each="entry : ${log.detailsMap}">
+				                <div th:if="${#lists.size(log.detailsMap) > 0}" style="font-size: 0.875rem; line-height: 1.3;">
+				                    <span th:each="entry, iterStat : ${log.detailsMap}">
 				                        <b th:text="${entry.key + ':'}"></b>
-				                        <span th:text="${entry.value}"></span><br/>
+				                        <span th:text="${#strings.length(entry.value) > 20 ? #strings.substring(entry.value, 0, 20) + '...' : entry.value}"
+				                              th:title="${#strings.length(entry.value) > 20 ? entry.value : null}"
+				                              style="word-wrap: break-word;"></span><span th:if="${!iterStat.last}"><br/></span>
 				                    </span>
 				                </div>
-				                <span th:unless="${#lists.size(log.detailsMap) > 0}" th:text="${log.details}"></span>
+				                <div th:unless="${#lists.size(log.detailsMap) > 0}" style="font-size: 0.875rem;">
+				                    <span th:text="${#strings.length(log.details) > 20 ? #strings.substring(log.details, 0, 20) + '...' : log.details}"
+				                          th:title="${#strings.length(log.details) > 20 ? log.details : null}"
+				                          style="word-wrap: break-word;"></span>
+				                </div>
 				            </td>
 				        </tr>
 				        <tr th:if="${#lists.isEmpty(logs)}">
